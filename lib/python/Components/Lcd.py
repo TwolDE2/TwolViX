@@ -268,7 +268,6 @@ def InitLcd():
 		if SystemInfo["LcdLiveTV"]:
 			def lcdLiveTvChanged(configElement):
 				open(SystemInfo["LcdLiveTV"], "w").write(configElement.value and "0" or "1")
-				InfoBarInstance = InfoBar.instance
 			config.lcd.showTv = ConfigYesNo(default = False)
 			config.lcd.showTv.addNotifier(lcdLiveTvChanged)
 
