@@ -97,8 +97,10 @@ AM_CONDITIONAL(EBOXLUMI, test "$BOXTYPE" == "eboxlumi")
 AM_CONDITIONAL(ET4X00, test "$BOXTYPE" == "et4x00")
 AM_CONDITIONAL(ET5X00, test "$BOXTYPE" == "et5x00")
 AM_CONDITIONAL(ET6X00, test "$BOXTYPE" == "et6x00")
-AM_CONDITIONAL(ET9X00, test "$BOXTYPE" == "et9x00")
+AM_CONDITIONAL(ET7X00, test "$BOXTYPE" == et7x00)
 AM_CONDITIONAL(ET8000, test "$BOXTYPE" == "et8000")
+AM_CONDITIONAL(ET8500, test "$BOXTYPE" == et8500)
+AM_CONDITIONAL(ET9X00, test "$BOXTYPE" == "et9x00")
 AM_CONDITIONAL(ET10000, test "$BOXTYPE" == "et10000")
 AM_CONDITIONAL(EW7358, test `echo "$BOXTYPE"` == "ew7358")
 AM_CONDITIONAL(GB800SOLO, test "$BOXTYPE" == "gb800solo")
@@ -205,6 +207,16 @@ if test x"$withcolorlcd400" != xno ; then
 	AC_DEFINE(HAVE_COLORLCD400, 1,[Define when using a 400x176 color display device])
 fi
 AM_CONDITIONAL(HAVE_COLORLCD400, test x"$withcolorlcd400" != xno)
+
+AC_ARG_WITH(colorlcd720,
+	AC_HELP_STRING([--with-colorlcd720], [use 720x576 32bpp color display, yes or no]),
+	[[withcolorlcd720=$withval]],
+	[[withcolorlcd720=no]]
+)
+if test x"$withcolorlcd720" != xno ; then
+	AC_DEFINE(HAVE_COLORLCD720, 1,[Define when using a 720x576 color display device])
+fi
+AM_CONDITIONAL(HAVE_COLORLCD720, test x"$withcolorlcd720" != xno)
 
 AC_ARG_WITH(bwlcd255,
 	AC_HELP_STRING([--with-bwlcd255], [use 255x64 1bpp black and white display, yes or no]),
@@ -335,6 +347,13 @@ data/display96/Makefile
 data/display128/Makefile
 data/display220/Makefile
 data/display400/Makefile
+data/display720/Makefile
+data/display720/displayTest/Makefile
+data/display720/LCDAnalogClock_1_Standby/Makefile
+data/display720/LCDAnalogClock_2_Standby/Makefile
+data/display720/LCDWeather_Standby/Makefile
+data/display720/LCDAnalogClock_3_Weather_Infobar/Makefile
+data/display720/ATV_default/Makefile
 data/vfd128/Makefile
 data/vfd140/Makefile
 data/vfd255/Makefile

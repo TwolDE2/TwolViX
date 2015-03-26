@@ -73,16 +73,19 @@ class SkinSelectorBase:
 
 	def ok(self):
 		if self["SkinList"].getCurrent() == self.DEFAULTSKIN:
-			self.skinfile = ""
-			self.skinfile = os.path.join(self.skinfile, self.SKINXML)
+			skinfile = ""
+			skinfile = os.path.join(skinfile, self.SKINXML)
 		elif self["SkinList"].getCurrent() == self.PICONDEFAULTSKIN:
-			self.skinfile = ""
-			self.skinfile = os.path.join(self.skinfile, self.PICONSKINXML)
+			skinfile = ""
+			skinfile = os.path.join(skinfile, self.PICONSKINXML)
 		else:
-			self.skinfile = self["SkinList"].getCurrent()
-			self.skinfile = os.path.join(self.skinfile, self.SKINXML)
+			skinfile = self["SkinList"].getCurrent()
+			skinfile = os.path.join(skinfile, self.SKINXML)
 
-		print "Skinselector: Selected Skin: "+self.root+self.skinfile
+		print "Skinselector: Selected Skin: "+self.root+skinfile
+		self.config.value = skinfile
+		self.config.save()
+		configfile.save()
 		restartbox = self.session.openWithCallback(self.restartGUI,MessageBox,_("GUI needs a restart to apply a new skin\nDo you want to restart the GUI now?"), MessageBox.TYPE_YESNO)
 		restartbox.setTitle(_("Restart GUI now?"))
 
@@ -115,7 +118,10 @@ class SkinSelectorBase:
 			pngpath = os.path.join(os.path.join(self.root, pngpath), "piconprev.png")
 		else:
 			pngpath = self["SkinList"].getCurrent()
-			pngpath = os.path.join(os.path.join(self.root, pngpath), "prev.png")
+			try:
+				pngpath = os.path.join(os.path.join(self.root, pngpath), "prev.png")
+			except:
+				pass
 
 		if not os.path.exists(pngpath):
 			pngpath = resolveFilename(SCOPE_ACTIVE_SKIN, "noprev.png")
