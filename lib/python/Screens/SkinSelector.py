@@ -133,12 +133,6 @@ class SkinSelectorBase:
 
 	def restartGUI(self, answer):
 		if answer is True:
-			if isinstance(self, LcdSkinSelector):
-				config.skin.display_skin.value = self.skinfile
-				config.skin.display_skin.save()
-			else:
-				config.skin.primary_skin.value = self.skinfile
-				config.skin.primary_skin.save()
 			self.session.open(TryQuitMainloop, 3)
 
 class SkinSelector(Screen, SkinSelectorBase):
