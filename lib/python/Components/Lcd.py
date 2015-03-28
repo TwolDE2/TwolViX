@@ -310,12 +310,8 @@ def InitLcd():
 		if SystemInfo["LcdLiveTV"]:
 			def lcdLiveTvChanged(configElement):
 				open(SystemInfo["LcdLiveTV"], "w").write(configElement.value and "0" or "1")
-			config.lcd.showTv = ConfigYesNo(default = False)
+			config.lcd.showTv = ConfigYesNo(default = True)
 			config.lcd.showTv.addNotifier(lcdLiveTvChanged)
-			config.lcd.et8500 = ConfigSelection([("1", _("No")), ("0", _("Yes"))], "0")
-			config.lcd.et8500.addNotifier(setLCD8500);
-		else:
-			config.lcd.et8500 = ConfigNothing()
 
 		if SystemInfo["LCDMiniTV"]:
 			config.lcd.minitvmode = ConfigSelection([("0", _("normal")), ("1", _("MiniTV")), ("2", _("OSD")), ("3", _("MiniTV with OSD"))], "0")
