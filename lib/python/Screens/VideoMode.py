@@ -254,7 +254,7 @@ class AutoVideoMode(Screen):
 #		if info and info.getInfo(iServiceInformation.sIsDedicated3D):
 #			config.osd.threeDmode.setValue('sidebyside')
 #		else:
-			config.osd.threeDmode.setValue('off')
+		config.osd.threeDmode.setValue('off')
 
 	def BufferInfo(self):
 		bufferInfo = self.session.nav.getCurrentService().streamed().getBufferCharge()
