@@ -348,7 +348,6 @@ data/display128/Makefile
 data/display220/Makefile
 data/display400/Makefile
 data/display720/Makefile
-data/display720/displayTest/Makefile
 data/display720/LCDAnalogClock_1_Standby/Makefile
 data/display720/LCDAnalogClock_2_Standby/Makefile
 data/display720/LCDDigital_Standby/Makefile
