@@ -251,9 +251,9 @@ class AutoVideoMode(Screen):
 	def __evStart(self):
 		service = self.session.nav.getCurrentService()
 		info = service and service.info()
-		if info and info.getInfo(iServiceInformation.sIsDedicated3D):
-			config.osd.threeDmode.setValue('sidebyside')
-		else:
+#		if info and info.getInfo(iServiceInformation.sIsDedicated3D):
+#			config.osd.threeDmode.setValue('sidebyside')
+#		else:
 			config.osd.threeDmode.setValue('off')
 
 	def BufferInfo(self):
