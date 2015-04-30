@@ -1589,12 +1589,6 @@ msgstr "Favoriten wechseln beim Quickzap"
 msgid "Change next timer"
 msgstr "Nächsten Timer ändern"
 
-<<<<<<< HEAD
-=======
-msgid "Change recording (add time)"
-msgstr "Aufnahme ändern (Aufnahmeendzeit)"
-
->>>>>>> upstream/master
 msgid "Change recording (duration)"
 msgstr "Aufnahme ändern (Aufnahmelänge)"
 
