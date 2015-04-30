@@ -3381,11 +3381,7 @@ msgid "External subtitle dialog colorisation"
 msgstr "Värvide kasutamine välistel subtiitritel"
 
 msgid "External subtitle switch fonts"
-<<<<<<< HEAD
-msgstr "Väliste subtiitrite šrifti vahetamine"
-=======
 msgstr "Väliste subtiitrite kirjatüübi vahetamine"
->>>>>>> upstream/master
 
 msgid "Extra motor options"
 msgstr "Mootori lisavalikud"
@@ -3470,15 +3466,6 @@ msgid "Favourites"
 msgstr "Lemmikud"
 
 msgid "Feeds status:   Stable"
-<<<<<<< HEAD
-msgstr "Uuenduste olek:   Stabiilne"
-
-msgid "Feeds status:   Unstable"
-msgstr "Uuenduste olek:   Ebastabiilne"
-
-msgid "Feeds status:   Updating"
-msgstr "Uuenduste olek:   Värskendamisel"
-=======
 msgstr "Uuendused:   Stabiilsed"
 
 msgid "Feeds status:   Unstable"
@@ -3486,7 +3473,6 @@ msgstr "Uuendused:   Ebastabiilsed"
 
 msgid "Feeds status:   Updating"
 msgstr "Uuendused:   Värskendamisel"
->>>>>>> upstream/master
 
 msgid "File appears to be busy.\n"
 msgstr "Fail on hõivatud.\n"
@@ -4233,6 +4219,9 @@ msgstr "Sisemine välkmälu"
 msgid "Internal hdd only"
 msgstr "Ainult sisesel kõvakettal"
 
+msgid "Internet"
+msgstr "Internet"
+
 msgid "Interval between keys when repeating:"
 msgstr "Võtme kordamise vahemik:"
 
@@ -4505,12 +4494,9 @@ msgstr "EPG laadimine"
 msgid "Load playlist"
 msgstr "Lae esitusloend"
 
-<<<<<<< HEAD
-=======
 msgid "Load unlinked userbouquets"
 msgstr "Sidumata lemmiknimekirjade laadimine"
 
->>>>>>> upstream/master
 msgid "Load/Save/Delete"
 msgstr "Lae/salvesta/kustuta"
 
@@ -5017,12 +5003,9 @@ msgstr "Kõvaketas puudub või on vormindamata!"
 msgid "No Timeshift found to save as recording!"
 msgstr "Ajanihke faile ei leitud!"
 
-<<<<<<< HEAD
-=======
 msgid "No active channel found."
 msgstr "Aktiivset kanalit ei leitud."
 
->>>>>>> upstream/master
 msgid "No age block"
 msgstr "Vanusepiiranguta"
 
@@ -5100,9 +5083,6 @@ msgstr "Ei leitud ajamit toetavat tuunerit."
 msgid "No priority"
 msgstr "Eelistus puudub"
 
-msgid "No priority"
-msgstr "Eelistus puudub"
-
 msgid ""
 "No satellite, terrestrial or cable tuner is configured. Please check your "
 "tuner setup."
@@ -5142,12 +5122,6 @@ msgstr ""
 "Tuuner määramata!\n"
 "Seadista tuuner enne kanaliotsingu alustamist."
 
-<<<<<<< HEAD
-msgid "No updates available. Please try again later."
-msgstr "Uuendusi ei ole. Proovi hiljem uuesti."
-
-=======
->>>>>>> upstream/master
 msgid "No wireless networks found! Searching..."
 msgstr "WLAN võrke ei leitud! Otsitakse..."
 
@@ -5370,12 +5344,6 @@ msgstr "Ainult vabakanalid"
 
 msgid "Only on startup"
 msgstr "Ainult alglaadimisel"
-<<<<<<< HEAD
-
-msgid "Open AutoTimer"
-msgstr "Autotaimeri avamine"
-=======
->>>>>>> upstream/master
 
 msgid "Open favourites list"
 msgstr "Lemmiknimekirjade loendi avamine"
@@ -6086,12 +6054,9 @@ msgstr "Alammenüüde lukustamine"
 msgid "Protect configuration"
 msgstr "Seadistuse lukustamine"
 
-<<<<<<< HEAD
-=======
 msgid "Protect context menus"
 msgstr "Kontekstmenüüde lukustamine"
 
->>>>>>> upstream/master
 msgid "Protect main menu"
 msgstr "Peamenüü lukustamine"
 
@@ -6106,17 +6071,10 @@ msgstr "Laienduste lehitseja lukustamine"
 
 msgid "Protect services"
 msgstr "Kanalite lukustamine"
-<<<<<<< HEAD
 
 msgid "Protect standby menu"
 msgstr "Seiskamismenüü lukustamine"
 
-=======
-
-msgid "Protect standby menu"
-msgstr "Seiskamismenüü lukustamine"
-
->>>>>>> upstream/master
 msgid "Protect timer menu"
 msgstr "Taimeri menüü lukustamine"
 
@@ -6197,9 +6155,6 @@ msgstr "Teenusepakkuja hinnang - %d"
 
 msgid "Rating undefined"
 msgstr "Hinnang määramata"
-
-msgid "Re-enter new PIN"
-msgstr "Korda uut PIN-i"
 
 msgid "Read Userdata from oscam.conf"
 msgstr "Loe kasutajaandmeid oscam.conf failist"
@@ -8008,6 +7963,12 @@ msgstr "IPTV"
 
 msgid "Stream request"
 msgstr "Striimi päring"
+
+msgid "Stream-tv"
+msgstr "IPTV"
+
+msgid "Streaming"
+msgstr "Voogesitus"
 
 msgid "Strict DLNA"
 msgstr "Puhas DLNA"
@@ -10878,11 +10839,7 @@ msgid "equestrian"
 msgstr "ratsutamine"
 
 msgid "error starting scanning"
-<<<<<<< HEAD
-msgstr "viga skaneeringu alustamisel"
-=======
 msgstr "viga skaneerimise alustamisel"
->>>>>>> upstream/master
 
 msgid "error while scanning"
 msgstr "viga skaneerimisel"
@@ -11191,12 +11148,9 @@ msgstr "moodulit ei leitud"
 msgid "no channel list"
 msgstr "kanalinimekiri puudub"
 
-<<<<<<< HEAD
-=======
 msgid "no delay"
 msgstr "viiteajata"
 
->>>>>>> upstream/master
 msgid "no module found"
 msgstr "moodulit ei leitud"
 
@@ -11770,15 +11724,6 @@ msgstr "mine kanalile ja salvesta"
 msgid "zapped"
 msgstr "vahetatud"
 
-msgid ""
-"No valid service PIN found!\n"
-"Do you like to change the service PIN now?\n"
-"When you say 'No' here the service protection stay disabled!"
-msgstr ""
-"Lapseluku koodi ei leitud!\n"
-"Kas soovid määrata koodi?\n"
-"Vastates 'Ei', lapselukku ei kasutata!"
-
 #~ msgid ""
 #~ "\n"
 #~ "A recording is in progress."
@@ -11823,12 +11768,9 @@ msgstr ""
 #~ msgid "All satellites 4 (DiSEqC mode 1.2)"
 #~ msgstr "Kõik satelliidid 4 (USALS)"
 
-<<<<<<< HEAD
-=======
 #~ msgid "Allows more detailed information to be in the crash log"
 #~ msgstr "Võimaldab rohkemate üksikasjadega vealogide loomise"
 
->>>>>>> upstream/master
 #~ msgid ""
 #~ "Allows you to enable the debug logs. They contain very detailed "
 #~ "information about everything the system does."
@@ -11856,24 +11798,18 @@ msgstr ""
 #~ msgid "CPU:\t%s"
 #~ msgstr "Protsessor:\t%s"
 
-<<<<<<< HEAD
-=======
 #~ msgid "Change pin code"
 #~ msgstr "PIN-koodi muutmine"
 
->>>>>>> upstream/master
 #~ msgid "Change service PIN"
 #~ msgstr "Muuda kanali PIN"
 
 #~ msgid "Change service PINs"
 #~ msgstr "Muuda kanalite PIN-e"
 
-<<<<<<< HEAD
-=======
 #~ msgid "Change setup PIN"
 #~ msgstr "Muuda seadistuste PIN"
 
->>>>>>> upstream/master
 #~ msgid "Change sort by..."
 #~ msgstr "Järjestuse muutmine..."
 
@@ -11946,12 +11882,9 @@ msgstr ""
 #~ msgid "Enable debug logs"
 #~ msgstr "Silumislogide lubamine"
 
-<<<<<<< HEAD
-=======
 #~ msgid "Enable parental control"
 #~ msgstr "Lapseluku lubamine"
 
->>>>>>> upstream/master
 #, fuzzy
 #~ msgid "Enimga2 Changes"
 #~ msgstr "Enigma2 muudatused"
@@ -11984,9 +11917,6 @@ msgstr ""
 #~ msgid "Include ECM in http streams"
 #~ msgstr "ECM kaasamine http voogudesse"
 
-#~ msgid "Internet"
-#~ msgstr "Internet"
-
 #~ msgid "Kernel:\t%s"
 #~ msgstr "Kernel:\t%s"
 
@@ -11996,8 +11926,6 @@ msgstr ""
 #~ msgid "Move to other directory"
 #~ msgstr "Liiguta teise kataloogi"
 
-<<<<<<< HEAD
-=======
 #~ msgid "New PIN"
 #~ msgstr "Uus PIN"
 
@@ -12022,7 +11950,6 @@ msgstr ""
 #~ "Kas soovid määrata koodi?\n"
 #~ "Vastates 'Ei', kanalilukku ei kasutata!"
 
->>>>>>> upstream/master
 #~ msgid ""
 #~ "No valid setup PIN found!\n"
 #~ "Do you like to change the setup PIN now?\n"
@@ -12032,12 +11959,9 @@ msgstr ""
 #~ "Kas soovid määrata koodi?\n"
 #~ "Vastates 'Ei', lapselukku ei kasutata!"
 
-<<<<<<< HEAD
-=======
 #~ msgid "Open AutoTimer"
 #~ msgstr "Autotaimeri avamine"
 
->>>>>>> upstream/master
 #~ msgid "Open event view"
 #~ msgstr "Saateinfo avamine"
 
@@ -12066,11 +11990,6 @@ msgstr ""
 #~ "Kanaliotsingud eelmääratud transponderilt on võimalik juhul kui\n"
 #~ "'Tuuneri seadetes' on kanaliotsingu liigiks määratud 'Levitaja'"
 
-<<<<<<< HEAD
-#~ msgid "Rename..."
-#~ msgstr "Nimeta ümber"
-
-=======
 #~ msgid "Re-enter new PIN"
 #~ msgstr "Korda uut PIN-i"
 
@@ -12086,7 +12005,6 @@ msgstr ""
 #~ msgid "Restart enigma"
 #~ msgstr "Taaskäivita enigma2"
 
->>>>>>> upstream/master
 #~ msgid "Rewrap teletext subtitles"
 #~ msgstr "Teleteksti subtiitrite algne reamurdmine"
 
@@ -12121,11 +12039,6 @@ msgstr ""
 #~ msgid "Select what you want the TV button to activate."
 #~ msgstr "Määra nupu toiming."
 
-<<<<<<< HEAD
-#~ msgid "Show services beginning with"
-#~ msgstr "Näita kanalid mis algavad"
-
-=======
 #~ msgid "Show Audioselection"
 #~ msgstr "Heli valiku avamine"
 
@@ -12138,7 +12051,6 @@ msgstr ""
 #~ msgid "Show single service EPG"
 #~ msgstr "Kanali EPG avamine"
 
->>>>>>> upstream/master
 #, fuzzy
 #~ msgid "Show tag menu"
 #~ msgstr "Menüü"
@@ -12155,12 +12067,6 @@ msgstr ""
 
 #~ msgid "Sorry that tuner is not available."
 #~ msgstr "See tuuner ei ole saadaval."
-
-#~ msgid "Stream-tv"
-#~ msgstr "IPTV"
-
-#~ msgid "Streaming"
-#~ msgstr "Voogesitus"
 
 #, fuzzy
 #~ msgid "Subservice mode"
@@ -12223,12 +12129,9 @@ msgstr ""
 #~ msgid "fine-tune your display"
 #~ msgstr "peenhäälesta ekraani"
 
-<<<<<<< HEAD
-=======
 #~ msgid "service PIN"
 #~ msgstr "kanali PIN"
 
->>>>>>> upstream/master
 #~ msgid "setup PIN"
 #~ msgstr "määra PIN"
 
@@ -12241,25 +12144,6 @@ msgstr ""
 #~ msgid "whitelist"
 #~ msgstr "valge nimekiri"
 
-<<<<<<< HEAD
-#~ msgid ""
-#~ "No valid service PIN found!\n"
-#~ "Would you like to change the service PIN now?\n"
-#~ "If you select 'No' the service protection will stay disabled!"
-#~ msgstr ""
-#~ "Kanaliluku koodi ei leitud!\n"
-#~ "Kas soovid määrata koodi?\n"
-#~ "Vastates 'Ei', kanalilukku ei kasutata!"
-
-#~ msgid "Reload protected list"
-#~ msgstr "Lapselukuga kanalinimekirjade värskendamine"
-
-#~ msgid "Change setup PIN"
-#~ msgstr "Muuda seadistuste PIN"
-
-#~ msgid "Enable parental control"
-#~ msgstr "Lapseluku lubamine"
-=======
 #~ msgid "Activate HbbTV (Redbutton)"
 #~ msgstr "HbbTV aktiveerimine"
 
@@ -12283,4 +12167,3 @@ msgstr ""
 
 #~ msgid "%Y-%m-%d %H:%M"
 #~ msgstr "%Y-%m-%d %H:%M"
->>>>>>> upstream/master
