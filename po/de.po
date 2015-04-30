@@ -1829,11 +1829,7 @@ msgid "Clients"
 msgstr "Klienten"
 
 msgid "Clone TV screen to LCD"
-<<<<<<< HEAD
-msgstr ""
-=======
 msgstr "Clone TV to LCD"
->>>>>>> upstream/master
 
 msgid "Close"
 msgstr "Schließen"
@@ -6288,11 +6284,7 @@ msgstr "Einstufung vom Sender - %d"
 msgid "Rating undefined"
 msgstr "Einstufung unbekannt"
 
-<<<<<<< HEAD
-msgid "Read Userdata from oscam.conf"
-=======
 msgid "Read user data from oscam.conf"
->>>>>>> upstream/master
 msgstr "Lese Benutzerdaten aus oscam.comf"
 
 msgid "Reader"
@@ -11981,7 +11973,6 @@ msgid "zapped"
 msgstr "umgeschaltet"
 
 #~ msgid ""
-<<<<<<< HEAD
 #~ "\n"
 #~ "A recording is in progress."
 #~ msgstr ""
@@ -12320,7 +12311,6 @@ msgstr "umgeschaltet"
 #~ msgstr ""
 #~ "Soll der Samba-Klient ebenfalls installiert werden? Der Klient erlaubt es "
 #~ "sich mit Windows-Freigaben zu verbinden."
->>>>>>> upstream/master
 
 #~ msgid "Samba Log"
 #~ msgstr "Samba/CIFS Log"
