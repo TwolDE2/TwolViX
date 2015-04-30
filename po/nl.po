@@ -1552,12 +1552,9 @@ msgstr "Verander van favorietenlijst tijdens zappen"
 msgid "Change next timer"
 msgstr "Verander de volgende timer"
 
-<<<<<<< HEAD
-=======
 msgid "Change recording (add time)"
 msgstr "Wijzig opname (voeg tijd toe)"
 
->>>>>>> upstream/master
 msgid "Change recording (duration)"
 msgstr "wijzig opname (duur)"
 
@@ -5854,12 +5851,9 @@ msgstr "Beveilig contekst menu's"
 msgid "Protect main menu"
 msgstr "Beveilig hoofdmenu"
 
-<<<<<<< HEAD
-=======
 msgid "Protect manufacturer reset screen"
 msgstr "Bescherm herstelscherm van fabrikant"
 
->>>>>>> upstream/master
 msgid "Protect movie list"
 msgstr "Beveilig opnamelijst"
 
@@ -5872,12 +5866,9 @@ msgstr "Beveilig de pluginbrowser."
 msgid "Protect services"
 msgstr "Beveilig zenders"
 
-<<<<<<< HEAD
-=======
 msgid "Protect software update screen"
 msgstr "Bescherm software-update scherm"
 
->>>>>>> upstream/master
 msgid "Protect standby menu"
 msgstr "beveilig stand-by menu"
 
@@ -5965,11 +5956,7 @@ msgstr "Waardering bepaald door omroep - %d"
 msgid "Rating undefined"
 msgstr "Waardering niet bepaald"
 
-<<<<<<< HEAD
-msgid "Read Userdata from oscam.conf"
-=======
 msgid "Read user data from oscam.conf"
->>>>>>> upstream/master
 msgstr "Lees gebruikersgegevens van oscam.conf"
 
 msgid "Reader"
@@ -11424,12 +11411,9 @@ msgstr "zapte"
 #~ msgid "Restart enigma"
 #~ msgstr "De gebruikersinterface opnieuw starten"
 
-<<<<<<< HEAD
-=======
 #~ msgid "Samba Log"
 #~ msgstr "Sambalog"
 
->>>>>>> upstream/master
 #~ msgid "Select default EPG type..."
 #~ msgstr "Kies het standaard EPG-type..."
 

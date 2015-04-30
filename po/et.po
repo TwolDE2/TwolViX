@@ -10282,8 +10282,6 @@ msgid "Your %s %s does not support PiP HD"
 msgstr "PiP HD ei ole %s %s poolt toetatud"
 
 #, python-format
-<<<<<<< HEAD
-=======
 msgid ""
 "Your %s %s has no network access, please check your network settings and "
 "make sure you have network cable connected and try again."
@@ -10292,7 +10290,6 @@ msgstr ""
 "võrgukaabel on ühendatud ja proovi uuesti."
 
 #, python-format
->>>>>>> upstream/master
 msgid ""
 "Your %s %s is not connected to the internet, please check your network "
 "settings and try again."
