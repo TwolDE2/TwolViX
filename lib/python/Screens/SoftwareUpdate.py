@@ -10,6 +10,7 @@ import Components.Task
 from Components.OnlineUpdateCheck import feedsstatuscheck
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
+from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop
 from Components.ActionMap import ActionMap
@@ -82,7 +83,7 @@ class SoftwareUpdateChanges(Screen):
 		except:
 			releasenotes = '404 Not Found'
 		if '404 Not Found' not in releasenotes:
-			releasenotes = releasenotes.replace('[openvix] Zeus Release.', 'openvix: build 000')
+			releasenotes = releasenotes.replace('openvix: build 165', 'openvix: build 000')
 			releasenotes = releasenotes.replace('\nopenvix: build',"\n\nopenvix: build")
 			releasenotes = releasenotes.split('\n\n')
 			ver = -1
@@ -102,7 +103,7 @@ class SoftwareUpdateChanges(Screen):
 				else:
 					imagever = int(getImageBuild())
 			else:
-				imagever = int(getImageBuild())+905
+				imagever = int(getImageBuild())
 			while int(releasever) > int(imagever):
 				if ocram:
 					viewrelease += releasenotes[int(ver)]+'\n'+ocram+'\n'
@@ -135,9 +136,10 @@ class SoftwareUpdateChanges(Screen):
 	def closeRecursive(self):
 		self.close(("menu", "menu"))
 
-class UpdatePlugin(Screen):
+class UpdatePlugin(Screen, ProtectedScreen):
 	def __init__(self, session, *args):
 		Screen.__init__(self, session)
+		ProtectedScreen.__init__(self)
 		Screen.setTitle(self, _("Software Update"))
 
 		self.sliderPackages = { "dreambox-dvb-modules": 1, "enigma2": 2, "tuxbox-image-info": 3 }
@@ -213,6 +215,11 @@ class UpdatePlugin(Screen):
 		self.updating = True
 		self.activityTimer.start(100, False)
 		self.ipkg.startCmd(IpkgComponent.CMD_UPDATE)
+
+	def isProtected(self):
+		return config.ParentalControl.setuppinactive.value and\
+			(not config.ParentalControl.config_sections.main_menu.value and not config.ParentalControl.config_sections.configuration.value  or hasattr(self.session, 'infobar') and self.session.infobar is None) and\
+			config.ParentalControl.config_sections.software_update.value
 
 	def doActivityTimer(self):
 		self.activity += 1

@@ -295,12 +295,9 @@ class ChannelContextMenu(Screen):
 		self["menu"] = ChoiceList(menu)
 
 	def set3DMode(self, value):
-		if self.session.nav.currentlyPlayingServiceReference == self.csel.getCurrentSelection():
-			try:
-				from Plugins.SystemPlugins.OSD3DSetup.plugin import applySettings
-				applySettings(value and "sidebyside" or "off")
-			except:
-				pass
+		if config.osd.threeDmode.value == "auto" and self.session.nav.currentlyPlayingServiceReference == self.csel.getCurrentSelection():
+			from Screens.VideoMode import applySettings
+			applySettings(value and "sidebyside" or config.osd.threeDmode.value)
 
 	def addDedicated3DFlag(self):
 		eDVBDB.getInstance().addFlag(eServiceReference(self.csel.getCurrentSelection().toString()), FLAG_IS_DEDICATED_3D)
@@ -2265,7 +2262,7 @@ class ChannelSelection(ChannelSelectionBase, ChannelSelectionEdit, ChannelSelect
 		if cur_root and cur_root != root:
 			self.setRoot(root)
 		if doZap:
-			self.session.nav.playService(ref)
+			self.session.nav.playService(ref, adjust=False)
 		if self.dopipzap:
 			self.setCurrentSelection(self.session.pip.getCurrentService())
 		else:

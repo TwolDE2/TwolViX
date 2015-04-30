@@ -570,6 +570,9 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			#self.unDimmingTimer.callback.append(self.unDimming)
 			#self.unDimmingTimer.start(300, True)
 			self.unDimming()
+			self.unDimmingTimer = eTimer()
+			self.unDimmingTimer.callback.append(self.unDimming)
+			self.unDimmingTimer.start(300, True)
 
 	def keyHide(self):
 		if self.__state == self.STATE_HIDDEN:
@@ -721,7 +724,13 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			self.hideTimer.stop()
 
 	def unlockShow(self):
-		self.__locked -= 1
+		if config.usage.show_infobar_do_dimming.value and self.lastResetAlpha is False:
+			self.doWriteAlpha(config.av.osd_alpha.value)
+		try:
+			self.__locked -= 1
+		except:
+			self.__locked = 0
+		
 		if self.__locked  <0:
 			self.__locked = 0
 		if self.execing:
@@ -1992,7 +2001,6 @@ class InfoBarSeek:
 			elif self.seekstate[0] and self.seekstate[3] == 'END':
 #				print "resolved to STOP"
 				self.activityTimer.stop()
-				service.stop()
 			elif self.seekstate[1]:
 				if not pauseable.setFastForward(self.seekstate[1]):
 					pass
@@ -3015,6 +3023,11 @@ class InfoBarInstantRecord:
 				self.changeDuration(0)
 			else:
 				self.session.openWithCallback(self.changeDuration, TimerSelection, list)
+		elif answer[1] == "addrecordingtime":
+			if len(self.recording) == 1:
+				self.addRecordingTime(0)
+			else:
+				self.session.openWithCallback(self.addRecordingTime, TimerSelection, list)
 		elif answer[1] == "changeendtime":
 			if len(self.recording) == 1:
 				self.setEndtime(0)
@@ -3091,10 +3104,24 @@ class InfoBarInstantRecord:
 			self.selectedEntry = entry
 			self.session.openWithCallback(self.inputCallback, InputBox, title=_("How many minutes do you want to record?"), text="5", maxSize=False, type=Input.NUMBER)
 
+	def addRecordingTime(self, entry):
+		if entry is not None and entry >= 0:
+			self.selectedEntry = entry
+			self.session.openWithCallback(self.inputAddRecordingTime, InputBox, title=_("How many minutes do you want add to record?"), text="5", maxSize=False, type=Input.NUMBER)
+
+	def inputAddRecordingTime(self, value):
+		if value:
+			print "added", int(value), "minutes for recording."
+			entry = self.recording[self.selectedEntry]
+			if int(value) != 0:
+				entry.autoincrease = False
+			entry.end += 60 * int(value)
+			self.session.nav.RecordTimer.timeChanged(entry)
+
 	def inputCallback(self, value):
-#		print "stopping recording after", int(value), "minutes."
-		entry = self.recording[self.selectedEntry]
 		if value is not None:
+			print "stopping recording after", int(value), "minutes."
+			entry = self.recording[self.selectedEntry]
 			if int(value) != 0:
 				entry.autoincrease = False
 			entry.end = int(time()) + 60 * int(value)
@@ -3141,6 +3168,7 @@ class InfoBarInstantRecord:
 			title =_("A recording is currently running.\nWhat do you want to do?")
 			list = common + \
 				((_("Change recording (duration)"), "changeduration"),
+				(_("Change recording (add time)"), "addrecordingtime"),
 				(_("Change recording (endtime)"), "changeendtime"),)
 			list += ((_("Stop recording"), "stop"),)
 			if config.usage.movielist_trashcan.value:

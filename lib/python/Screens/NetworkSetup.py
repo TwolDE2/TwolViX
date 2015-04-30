@@ -1780,7 +1780,6 @@ class NetworkFtp(Screen):
 			if fileExists('/etc/inetd.tmp'):
 				move('/etc/inetd.tmp', '/etc/inetd.conf')
 				self.Console.ePopen('killall -HUP inetd')
-				self.updateService()
 		elif self.my_ftp_active:
 			if fileExists('/etc/inetd.conf'):
 				inme = open('/etc/inetd.conf', 'r')
@@ -1794,7 +1793,7 @@ class NetworkFtp(Screen):
 			if fileExists('/etc/inetd.tmp'):
 				move('/etc/inetd.tmp', '/etc/inetd.conf')
 				self.Console.ePopen('killall -HUP inetd')
-				self.updateService()
+		self.updateService()
 
 	def updateService(self):
 		self['labrun'].hide()
@@ -2101,18 +2100,16 @@ class NetworkVpnLog(Screen):
 class NetworkSamba(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
+		self.skinName = "NetworkFtp"
 		Screen.setTitle(self, _("Samba Setup"))
-		self.skinName = "NetworkServiceSetup"
 		self.onChangedEntry = [ ]
-		self['lab1'] = Label(_("Autostart:"))
-		self['labactive'] = Label(_(_("Disabled")))
+		self['lab1'] = Label(_("Samba Network File System"))
 		self['lab2'] = Label(_("Current Status:"))
 		self['labstop'] = Label(_("Stopped"))
 		self['labrun'] = Label(_("Running"))
-		self['key_green'] = Label(_("Start"))
-		self['key_red'] = Label(_("Remove Service"))
-		self['key_yellow'] = Label(_("Autostart"))
-		self['key_blue'] = Label(_("Show Log"))
+		self['key_green'] = Label(_("Enable"))
+		self['key_red'] = Label()
+		self.my_samba_active = False
 		self.Console = Console()
 		self.my_Samba_active = False
 		self.my_Samba_run = False
@@ -2177,62 +2174,139 @@ class NetworkSamba(Screen):
 
 	def removeComplete(self,result = None, retval = None, extra_args = None):
 		self.session.open(TryQuitMainloop, 2)
+		self['actions'] = ActionMap(['WizardActions', 'ColorActions'], {'ok': self.close, 'back': self.close, 'green': self.SambaStartStop})
+		self.onLayoutFinish.append(self.updateService)
+
 
 	def createSummary(self):
 		return NetworkServicesSummary
 
-	def Sambashowlog(self):
-		self.session.open(NetworkSambaLog)
-
 	def SambaStartStop(self):
 		commands = []
-		if not self.my_Samba_run:
-			commands.append('/etc/init.d/samba start')
-			commands.append('nmbd -D')
-			commands.append('smbd -D')
-		elif self.my_Samba_run:
-			commands.append('/etc/init.d/samba stop')
-			commands.append('killall nmbd')
-			commands.append('killall smbd')
+		commands.append('/etc/init.d/inetd.busybox restart')
+		if not self.my_samba_active:
+			if fileExists('/etc/inetd.conf'):
+				inme = open('/etc/inetd.conf', 'r')
+				out = open('/etc/inetd.tmp', 'w')
+				for line in inme.readlines():
+					if 'microsoft-ds' in line:
+						line = line.replace('#', '')
+					if 'netbios-ns' in line:
+						line = line.replace('#', '')
+					out.write(line)
+				out.close()
+				inme.close()
+		elif self.my_samba_active:
+			if fileExists('/etc/inetd.conf'):
+				inme = open('/etc/inetd.conf', 'r')
+				out = open('/etc/inetd.tmp', 'w')
+				for line in inme.readlines():
+					if 'microsoft-ds' in line:
+						line = '#' + line
+					if 'netbios-ns' in line:
+						line = '#' + line
+					out.write(line)
+				out.close()
+				inme.close()
+			commands.append('killall -15 nmbd smbd')
+		if fileExists('/etc/inetd.tmp'):
+			move('/etc/inetd.tmp', '/etc/inetd.conf')
 		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def StartStopCallback(self, result = None, retval = None, extra_args = None):
 		time.sleep(3)
 		self.updateService()
 
-	def activateSamba(self):
-		if access('/etc/network/if-up.d/01samba-start', X_OK):
-			chmod('/etc/network/if-up.d/01samba-start', 0644)
-		elif not access('/etc/network/if-up.d/01samba-start', X_OK):
-			chmod('/etc/network/if-up.d/01samba-start', 0755)
-
-		if fileExists('/etc/rc2.d/S20samba'):
-			self.Console.ePopen('update-rc.d -f samba remove', self.StartStopCallback)
+	def updateService(self):
+		self['labrun'].hide()
+		self['labstop'].hide()
+		self.my_samba_active = False
+		if fileExists('/etc/inetd.conf'):
+			f = open('/etc/inetd.conf', 'r')
+			for line in f.readlines():
+				parts = line.strip().split()
+				if parts[0] == 'microsoft-ds':
+					self.my_samba_active = True
+					continue
+			f.close()
+		if self.my_samba_active:
+			self['labstop'].hide()
+			self['labrun'].show()
+			self['key_green'].setText(_("Disable"))
+			status_summary= self['lab2'].text + ' ' + self['labrun'].text
 		else:
-			self.Console.ePopen('update-rc.d -f samba defaults', self.StartStopCallback)
+			self['labstop'].show()
+			self['labrun'].hide()
+			self['key_green'].setText(_("Enable"))
+			status_summary= self['lab2'].text + ' ' + self['labstop'].text
+		title = _("Samba Setup")
+		autostartstatus_summary = ""
+
+		for cb in self.onChangedEntry:
+			cb(title, status_summary, autostartstatus_summary)
+
+class NetworkTelnet(Screen):
+	def __init__(self, session):
+		Screen.__init__(self, session)
+		Screen.setTitle(self, _("Telnet Setup"))
+		self.skinName = "NetworkServiceSetup"
+		self.onChangedEntry = [ ]
+		self['lab1'] = Label(_("Autostart:"))
+		self['labactive'] = Label(_(_("Disabled")))
+		self['lab2'] = Label(_("Current Status:"))
+		self['labstop'] = Label(_("Stopped"))
+		self['labrun'] = Label(_("Running"))
+		self['key_green'] = Label(_("Start"))
+		self['key_red'] = Label(_("Remove Service"))
+		self['key_yellow'] = Label(_("Autostart"))
+		self['key_blue'] = Label(_("Show Log"))
+		self.Console = Console()
+		self.my_telnet_active = False
+		self.my_telnet_run = False
+		self['actions'] = ActionMap(['WizardActions', 'ColorActions'], {'ok': self.close, 'back': self.close, 'green': self.TelnetStartStop, 'yellow': self.activateTelnet})
+
+	def createSummary(self):
+		return NetworkServicesSummary
+
+	def TelnetStartStop(self):
+		commands = []
+		if fileExists('/etc/init.d/telnetd.busybox'):
+			if self.my_telnet_run:
+				commands.append('/etc/init.d/telnetd.busybox stop')
+			else:
+				commands.append('/bin/su -l -c "/etc/init.d/telnetd.busybox start"')
+			self.Console.eBatch(commands, self.StartStopCallback, debug=True)
+
+	def StartStopCallback(self, result = None, retval = None, extra_args = None):
+		time.sleep(3)
+		self.updateService()
+
+	def activateTelnet(self):
+		commands = []
+		if fileExists('/etc/init.d/telnetd.busybox'):
+			if fileExists('/etc/rc2.d/S20telnetd.busybox'):
+				commands.append('update-rc.d -f telnetd.busybox remove')
+			else:
+				commands.append('update-rc.d -f telnetd.busybox defaults')
+		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
 		import process
 		p = process.ProcessList()
-		samba_process = str(p.named('smbd')).strip('[]')
+		telnet_process = str(p.named('telnetd')).strip('[]')
 		self['labrun'].hide()
 		self['labstop'].hide()
 		self['labactive'].setText(_("Disabled"))
-		self.my_Samba_active = False
-		self.my_Samba_run = False
-		if fileExists('/etc/rc2.d/S20samba'):
+		self.my_telnet_active = False
+		self.my_telnet_run = False
+		if fileExists('/etc/rc2.d/S20telnetd.busybox'):
 			self['labactive'].setText(_("Enabled"))
 			self['labactive'].show()
-			self.my_Samba_active = True
+			self.my_telnet_active = True
 
-		if access('/etc/network/if-up.d/01samba-start', X_OK):
-			self['labactive'].setText(_("Enabled"))
-			self['labactive'].show()
-			self.my_Samba_active = True
-
-		if samba_process:
-			self.my_Samba_run = True
-		if self.my_Samba_run:
+		if telnet_process:
+			self.my_telnet_run = True
+		if self.my_telnet_run:
 			self['labstop'].hide()
 			self['labactive'].show()
 			self['labrun'].show()
@@ -2244,103 +2318,8 @@ class NetworkSamba(Screen):
 			self['labactive'].show()
 			self['key_green'].setText(_("Start"))
 			status_summary = self['lab2'].text + ' ' + self['labstop'].text
-		title = _("Samba Setup")
-		autostartstatus_summary = self['lab1'].text + ' ' + self['labactive'].text
-
-		for cb in self.onChangedEntry:
-			cb(title, status_summary, autostartstatus_summary)
-
-class NetworkSambaLog(Screen):
-	def __init__(self, session):
-		Screen.__init__(self, session)
-		Screen.setTitle(self, _("Samba Log"))
-		self.skinName = "NetworkInadynLog"
-		self['infotext'] = ScrollLabel('')
-		self.Console = Console()
-		self['actions'] = ActionMap(['WizardActions', 'ColorActions'], {'ok': self.close, 'back': self.close, 'up': self['infotext'].pageUp, 'down': self['infotext'].pageDown})
-		strview = ''
-		self.Console.ePopen('tail /tmp/smb.log > /tmp/tmp.log')
-		time.sleep(1)
-		if fileExists('/tmp/tmp.log'):
-			f = open('/tmp/tmp.log', 'r')
-			for line in f.readlines():
-				strview += line
-			f.close()
-			remove('/tmp/tmp.log')
-		self['infotext'].setText(strview)
-
-class NetworkTelnet(Screen):
-	def __init__(self, session):
-		Screen.__init__(self, session)
-		Screen.setTitle(self, _("Telnet Setup"))
-		self.onChangedEntry = [ ]
-		self['lab1'] = Label(_("You can disable Telnet Server and use ssh to login."))
-		self['lab2'] = Label(_("Current Status:"))
-		self['labstop'] = Label(_("Stopped"))
-		self['labrun'] = Label(_("Running"))
-		self['key_green'] = Label(_("Enable"))
-		self['key_red'] = Label()
-		self.Console = Console()
-		self.my_telnet_active = False
-		self['actions'] = ActionMap(['WizardActions', 'ColorActions'], {'ok': self.close, 'back': self.close, 'green': self.TelnetStartStop})
-		self.onLayoutFinish.append(self.updateService)
-
-	def createSummary(self):
-		return NetworkServicesSummary
-
-	def TelnetStartStop(self):
-		if not self.my_telnet_active:
-			if fileExists('/etc/inetd.conf'):
-				inme = open('/etc/inetd.conf', 'r')
-				out = open('/etc/inetd.tmp', 'w')
-				for line in inme.readlines():
-					if 'telnetd' in line:
-						line = line.replace('#', '')
-					out.write(line)
-				out.close()
-				inme.close()
-			if fileExists('/etc/inetd.tmp'):
-				move('/etc/inetd.tmp', '/etc/inetd.conf')
-				self.Console.ePopen('killall -HUP inetd')
-		elif self.my_telnet_active:
-			if fileExists('/etc/inetd.conf'):
-				inme = open('/etc/inetd.conf', 'r')
-				out = open('/etc/inetd.tmp', 'w')
-				for line in inme.readlines():
-					if 'telnetd' in line:
-						line = '#' + line
-					out.write(line)
-				out.close()
-				inme.close()
-			if fileExists('/etc/inetd.tmp'):
-				move('/etc/inetd.tmp', '/etc/inetd.conf')
-				self.Console.ePopen('killall -HUP inetd')
-		self.updateService()
-
-	def updateService(self):
-		self['labrun'].hide()
-		self['labstop'].hide()
-		self.my_telnet_active = False
-		if fileExists('/etc/inetd.conf'):
-			f = open('/etc/inetd.conf', 'r')
-			for line in f.readlines():
-				parts = line.strip().split()
-				if parts[0] == 'telnet':
-					self.my_telnet_active = True
-					continue
-			f.close()
-		if self.my_telnet_active:
-			self['labstop'].hide()
-			self['labrun'].show()
-			self['key_green'].setText(_("Disable"))
-			status_summary= self['lab2'].text + ' ' + self['labrun'].text
-		else:
-			self['labstop'].show()
-			self['labrun'].hide()
-			self['key_green'].setText(_("Enable"))
-			status_summary= self['lab2'].text + ' ' + self['labstop'].text
 		title = _("Telnet Setup")
-		autostartstatus_summary = ""
+		autostartstatus_summary = self['lab1'].text + ' ' + self['labactive'].text
 
 		for cb in self.onChangedEntry:
 			cb(title, status_summary, autostartstatus_summary)
