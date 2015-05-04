@@ -55,7 +55,6 @@ SystemInfo["VFD_final_scroll_delay"] = fileCheck("/proc/stb/lcd/final_scroll_del
 SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and getBoxType() != 'gb800ueplus'
 SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach")
-<<<<<<< HEAD
 SystemInfo["LcdPowerOn"] = fileExists("/proc/stb/power/vfd")
 SystemInfo["LCDSKINSetup"] = path.exists("/usr/share/enigma2/display")
 SystemInfo["3DMode"] = fileCheck("/proc/stb/fb/3dmode") or fileCheck("/proc/stb/fb/primary/3d")
