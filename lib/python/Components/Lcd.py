@@ -311,6 +311,9 @@ def InitLcd():
 			def lcdLiveTvChanged(configElement):
 				open(SystemInfo["LcdLiveTV"], "w").write(configElement.value and "0" or "1")
 			config.lcd.showTv = ConfigYesNo(default = True)
+				from Screens.InfoBar import InfoBar
+				InfoBarInstance = InfoBar.instance
+				InfoBarInstance and InfoBarInstance.session.open(dummyScreen)
 			config.lcd.showTv.addNotifier(lcdLiveTvChanged)
 
 		if SystemInfo["LCDMiniTV"]:
