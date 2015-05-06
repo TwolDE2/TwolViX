@@ -7,6 +7,7 @@ from config import config, ConfigSubsection, ConfigSelection, ConfigSlider, Conf
 from Components.SystemInfo import SystemInfo
 from Tools.Directories import fileExists
 from Screens.Screen import Screen
+from Screens.InfoBar import InfoBar
 import usb
 
 
@@ -311,10 +312,9 @@ def InitLcd():
 			def lcdLiveTvChanged(configElement):
 				open(SystemInfo["LcdLiveTV"], "w").write(configElement.value and "0" or "1")
 			config.lcd.showTv = ConfigYesNo(default = True)
-				from Screens.InfoBar import InfoBar
+			config.lcd.showTv.addNotifier(lcdLiveTvChanged)
 				InfoBarInstance = InfoBar.instance
 				InfoBarInstance and InfoBarInstance.session.open(dummyScreen)
-			config.lcd.showTv.addNotifier(lcdLiveTvChanged)
 
 		if SystemInfo["LCDMiniTV"]:
 			config.lcd.minitvmode = ConfigSelection([("0", _("normal")), ("1", _("MiniTV")), ("2", _("OSD")), ("3", _("MiniTV with OSD"))], "0")
