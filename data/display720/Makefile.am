@@ -2,7 +2,7 @@ installdir = $(pkgdatadir)/display
 
 if ET8500
 dist_install_DATA = skin_display.xml
-SUBDIRS = LCDAnalogClock_1_Standby LCDAnalogClock_2_Standby ATV_default
+SUBDIRS = LCDAnalogClock_1_Standby LCDAnalogClock_2_Standby ATV_default et8500_XTA_blue
 endif
 if ET10000
 dist_install_DATA = skin_display.xml

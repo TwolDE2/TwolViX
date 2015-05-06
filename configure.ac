@@ -351,6 +351,7 @@ data/display720/Makefile
 data/display720/LCDAnalogClock_1_Standby/Makefile
 data/display720/LCDAnalogClock_2_Standby/Makefile
 data/display720/ATV_default/Makefile
+data/display720/et8500_XTA_blue/Makefile
 data/vfd128/Makefile
 data/vfd140/Makefile
 data/vfd255/Makefile
