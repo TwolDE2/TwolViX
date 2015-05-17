@@ -35,11 +35,7 @@
 	
 	<!-- CHANNEL SELECTION-->
 	<screen name="ChannelSelection_summary" position="0,0" size="720,576"> 
-		<panel name="LCDChannelSelectionChannelName" />
-		<panel name="LCDChannelSelectionProgramName" />
-		<panel name="LCDChannelSelectionProgress" />
-		<panel name="LCDChannelSelectionRemainingTime" />
-		<panel name="LCDTime" />
+		<panel name="LCDFullChannelSelectionPicon" />
 	</screen>
 	<screen name="ChannelSelectionRadio_summary" position="0,0" size="720,576">
 		<widget source="parent.RdsDecoder" render="Label" position="10,200" size="700,150" foregroundColor="white" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
@@ -49,11 +45,7 @@
 	
 	<!-- EPG -->
 	<screen name="GraphicalEPGPIG_summary" position="0,0" size="720,576">
-		<panel name="LCDEPGChannelName" />
-		<panel name="LCDEPGProgramName" />
-		<panel name="LCDEPGProgress" />
-		<panel name="LCDEPGRemainingTime" />
-		<panel name="LCDTime" />
+		<panel name="LCDFullEPGPicon" />
 	</screen>
 	<screen name="GraphicalEPG_summary" position="0,0" size="720,576">
 		<panel name="GraphicalEPGPIG_summary" />
@@ -67,12 +59,8 @@
 	
 	<!-- INFOBAR -->
 	<screen name="InfoBarSummary" position="0,0" size="720,576"> 
-		<panel name="LCDInfoBarChannelName" />
-		<panel name="LCDInfoBarProgramName" />
-		<panel name="LCDInfoBarProgress" />
-		<panel name="LCDInfoBarRemainingTime" />
-		<panel name="LCDTime" />
-	</screen>
+		<panel name="LCDFullPicon" />
+	</screen>	
 		
 	<include filename="/usr/share/enigma2/display/skin_display_templates.xml"/>
 </skin>
