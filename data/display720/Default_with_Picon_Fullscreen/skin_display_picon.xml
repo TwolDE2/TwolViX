@@ -35,7 +35,9 @@
 	
 	<!-- CHANNEL SELECTION-->
 	<screen name="ChannelSelection_summary" position="0,0" size="720,576"> 
-		<panel name="LCDFullChannelSelectionPicon" />
+		<panel name="LCDPiconChannelSelectionProgramName" />
+		<panel name="LCDChannelSelectionPicon" />
+		<panel name="LCDPiconStatusIcons" />
 	</screen>
 	<screen name="ChannelSelectionRadio_summary" position="0,0" size="720,576">
 		<widget source="parent.RdsDecoder" render="Label" position="10,200" size="700,150" foregroundColor="white" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
@@ -45,7 +47,9 @@
 	
 	<!-- EPG -->
 	<screen name="GraphicalEPGPIG_summary" position="0,0" size="720,576">
-		<panel name="LCDFullEPGPicon" />
+		<panel name="LCDPiconEPGProgramName" />
+		<panel name="LCDEPGPicon" />
+		<panel name="LCDPiconStatusIcons" />
 	</screen>
 	<screen name="GraphicalEPG_summary" position="0,0" size="720,576">
 		<panel name="GraphicalEPGPIG_summary" />
@@ -59,7 +63,9 @@
 	
 	<!-- INFOBAR -->
 	<screen name="InfoBarSummary" position="0,0" size="720,576"> 
-		<panel name="LCDFullPicon" />
+		<panel name="LCDPiconInfoBarProgramName" />
+		<panel name="LCDPicon" />
+		<panel name="LCDPiconStatusIcons" />
 	</screen>	
 		
 	<include filename="/usr/share/enigma2/display/skin_display_templates.xml"/>
