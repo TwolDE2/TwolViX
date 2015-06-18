@@ -1,17 +1,7 @@
-installdir = $(pkgdatadir)/display
+SUBDIRS = Default_with_Analogue_Clock_Standby Default_with_Picon_and_Analogue_Clock_Standby Default_with_Picon_Fullscreen Default_with_Picon_Fullscreen_and_Analogue_Clock_Standby LCDAnalogClock_1_Standby LCDAnalogClock_2_Standby et8500_XTA_blue 
 
-if ET8500
-dist_install_DATA = skin_display.xml skin_display_picon.xml skin_display_templates.xml *.png 
-SUBDIRS = LCDAnalogClock_1_Standby LCDAnalogClock_2_Standby ATV_default et8500_XTA_blue Default_with_Picon_Fullscreen
+installdir = $(pkgdatadir)/display/skin_default
+dist_install_DATA = *.png *.ttf
+
 datainstalldir = $(pkgdatadir)/display
 dist_datainstall_DATA = *.xml piconprev.png prev.png
-endif
-if ET10000
-dist_install_DATA = skin_display.xml
-endif
-
-skin_display.xml: $(srcdir)/skin_display_default.xml
-	test -f $(srcdir)/skin_display_$(BOXTYPE).xml && cp $(srcdir)/skin_display_$(BOXTYPE).xml skin_display.xml || cp $(srcdir)/skin_display_default.xml skin_display.xml
-
-
-
