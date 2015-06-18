@@ -8,7 +8,7 @@ from Poll import Poll
 import time
 import os
 
-weather_city = '711665'
+weather_city = '677944'
 time_update = 20
 time_update_ms = 30000
 
