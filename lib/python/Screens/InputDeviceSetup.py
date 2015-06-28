@@ -272,8 +272,7 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("11", _("et9200/9500/6500")),
 			("13", _("et4000")),
 			("14", _("XP1000")),
-			("16", _("et7500/et7x00")),
-			("17", "ET-8500/et8500"),
+			("16", _("et7500/et7x00/et8500")),
 			("18", _("F1/F3")),
 			("19", _("HD2400"))
 			]
@@ -282,11 +281,11 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("et4000", 13),
 			("et5000", 7),
 			("et6000", 7),
-			("et6500", 9),
+			("et6500", 11),
 			("et7000", 16),
 			("et7500", 16),
 			("et8000", 9),
-			("et8500", 17),
+			("et8500", 16),
 			("et9000", 5),
 			("et9100", 5),
 			("et9200", 11),
@@ -320,7 +319,7 @@ class RemoteControlType(Screen, ConfigListScreen):
 		self.list.append(getConfigListEntry(_("Remote control type"), self.rctype))
 		self["config"].list = self.list
 
-		self.defaultRcType = None
+		self.defaultRcType = 0
 		self.getDefaultRcType()
 
 	def getDefaultRcType(self):
