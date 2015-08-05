@@ -147,6 +147,7 @@ def getButtonSetupFunctions():
 		ButtonSetupFunctions.append((_("Toggle LCD LiveTV"), "Infobar/ToggleLCDLiveTV", "InfoBar"))
 	if SystemInfo["LcdLiveTV"]:
 		ButtonSetupFunctions.append((_("Toggle LCD Power"), "Infobar/ToggleLCDpower", "InfoBar"))
+	ButtonSetupFunctions.append((_("Do nothing"), "Void", "InfoBar"))
 	ButtonSetupFunctions.append((_("Button setup"), "Module/Screens.ButtonSetup/ButtonSetup", "Setup"))
 	ButtonSetupFunctions.append((_("Software update"), "Module/Screens.SoftwareUpdate/UpdatePlugin", "Setup"))
 	ButtonSetupFunctions.append((_("CI (Common Interface) Setup"), "Module/Screens.Ci/CiSelection", "Setup"))
