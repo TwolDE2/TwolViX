@@ -3,7 +3,7 @@ from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Button import Button
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.SystemInfo import SystemInfo
-from Components.config import config, ConfigSubsection, ConfigText, ConfigYesNo
+from Components.config import config, ConfigSubsection, ConfigText, ConfigSelection, ConfigYesNo, ConfigNothing
 from Components.PluginComponent import plugins
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Screen import Screen
@@ -537,4 +537,4 @@ class InfoBarButtonSetup():
 		config.lcd.showTv.value = not config.lcd.showTv.value
 
 	def ToggleLCDPower(self):
-		config.lcd.power.value = "0"
+		config.lcd.power = ConfigSelection([("0", _("Off")), ("1", _("On"))], "1")
