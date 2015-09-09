@@ -537,5 +537,5 @@ class InfoBarButtonSetup():
 		config.lcd.showTv.value = not config.lcd.showTv.value
 
 	def ToggleLCDPower(self):
-		config.lcd.power == "Off"
+		config.lcd.power = "Off"
 		config.lcd.power = ConfigSelection([("0", _("Off")), ("1", _("On"))], "1")
