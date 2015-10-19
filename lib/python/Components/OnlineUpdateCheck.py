@@ -27,11 +27,14 @@ class FeedsStatusCheck:
 
 	def getFeedSatus(self):
 		status = '1'
+
 		if getImageType() != 'developer':
 			status = '0'
 			config.softwareupdate.updateisunstable.setValue(status)
 			return 'stable'
+
 		trafficLight = 'unknown'
+
 		if about.getIfConfig('eth0').has_key('addr') or about.getIfConfig('eth1').has_key('addr') or about.getIfConfig('wlan0').has_key('addr') or about.getIfConfig('ra0').has_key('addr'):
 			try:
 				req = urllib2.Request('http://openvix.co.uk/TrafficLightState.php')
@@ -46,7 +49,9 @@ class FeedsStatusCheck:
 			except urllib2, err:
 				print 'ERROR:',err
 				trafficLight = err
-			if trafficLight == 'stable':
+			if not trafficLight.isdigit() and getImageType() != 'release':
+				trafficLight = 'unknown'
+			elif trafficLight == 'stable':
 				status = '0'
 			config.softwareupdate.updateisunstable.setValue(status)
 			return trafficLight
@@ -65,7 +70,7 @@ class FeedsStatusCheck:
 		elif feedstatus == 'updating':
 			print '[OnlineVersionCheck] Feeds Updating'
 			return 'updating'
-		elif feedstatus in ('stable', 'unstable'):
+		elif feedstatus in ('stable', 'unstable', 'unknown'):
 			print '[OnlineVersionCheck]',feedstatus.title()
 			return str(feedstatus)
 
@@ -98,7 +103,7 @@ class FeedsStatusCheck:
 				self.ipkg.startCmd(IpkgComponent.CMD_UPGRADE_LIST)
 			elif self.ipkg.currentCommand == IpkgComponent.CMD_UPGRADE_LIST:
 				self.total_packages = len(self.ipkg.getFetchedList())
-				if self.total_packages and ((config.softwareupdate.updateisunstable.value == '1' and config.softwareupdate.updatebeta.value) or config.softwareupdate.updateisunstable.value == '0'):
+				if self.total_packages and (getImageType() != 'release' or (config.softwareupdate.updateisunstable.value == '1' and config.softwareupdate.updatebeta.value) or config.softwareupdate.updateisunstable.value == '0'):
 					print ('[OnlineVersionCheck] %s Updates available' % self.total_packages)
 					config.softwareupdate.updatefound.setValue(True)
 		pass
@@ -139,7 +144,7 @@ class OnlineUpdateCheckPoller:
 
 	def JobStart(self):
 		config.softwareupdate.updatefound.setValue(False)
-		if feedsstatuscheck.getFeedsBool() in ('stable', 'unstable'):
+		if (getImageType() != 'release' and feedsstatuscheck.getFeedsBool() == 'unknown') or (getImageType() == 'release' and feedsstatuscheck.getFeedsBool() in ('stable', 'unstable')):
 			print '[OnlineVersionCheck] Starting background check.'
 			feedsstatuscheck.startCheck()
 		else:
@@ -152,7 +157,7 @@ class VersionCheck:
 
 	def getStableUpdateAvailable(self):
 		if config.softwareupdate.updatefound.value and config.softwareupdate.check.value:
-			if config.softwareupdate.updateisunstable.value == '0':
+			if getImageType() != 'release' or config.softwareupdate.updateisunstable.value == '0':
 				print '[OnlineVersionCheck] New Release updates found'
 				return True
 			else:
@@ -163,7 +168,7 @@ class VersionCheck:
 
 	def getUnstableUpdateAvailable(self):
 		if config.softwareupdate.updatefound.value and config.softwareupdate.check.value:
-			if config.softwareupdate.updateisunstable.value == '1' and config.softwareupdate.updatebeta.value:
+			if getImageType() != 'release' or (config.softwareupdate.updateisunstable.value == '1' and config.softwareupdate.updatebeta.value):
 				print '[OnlineVersionCheck] New Experimental updates found'
 				return True
 			else:
