@@ -1,7 +1,7 @@
 from boxbranding import getImageVersion, getImageBuild, getImageDistro, getMachineBrand, getMachineName, getMachineBuild, getImageType
 
 from time import time
-
+from boxbranding import getImageVersion
 
 from enigma import eTimer
 
@@ -27,7 +27,7 @@ class FeedsStatusCheck:
 
 	def getFeedSatus(self):
 		status = '1'
-		trafficLight == 'stable'
+		trafficLight = 'stable'
 		if getImageType() != 'developer':
 			status = '0'
 			config.softwareupdate.updateisunstable.setValue(status)
