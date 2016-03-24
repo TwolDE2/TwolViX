@@ -287,12 +287,6 @@ class AutoVideoMode(Screen):
 			return info and info.getInfo(iServiceInformation.sIsDedicated3D) == 1 and "sidebyside"
 
 	def __evStart(self):
-		service = self.session.nav.getCurrentService()
-		info = service and service.info()
-#		if info and info.getInfo(iServiceInformation.sIsDedicated3D):
-#			config.osd.threeDmode.setValue('sidebyside')
-#		else:
-		config.osd.threeDmode.setValue('off')
 		if config.osd.threeDmode.value == "auto":
 			global isDedicated3D
 			isDedicated3D = self.checkIfDedicated3D()
