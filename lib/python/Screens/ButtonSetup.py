@@ -3,7 +3,7 @@ from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Button import Button
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.SystemInfo import SystemInfo
-from Components.config import config, ConfigSubsection, ConfigText, ConfigSelection, ConfigYesNo, ConfigNothing
+from Components.config import config, ConfigSubsection, ConfigText, ConfigYesNo
 from Components.PluginComponent import plugins
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Screen import Screen
@@ -145,8 +145,6 @@ def getButtonSetupFunctions():
 	ButtonSetupFunctions.append((_("Toggle HDMI-In PiP"), "Infobar/HDMIInPiP", "InfoBar"))
 	if SystemInfo["LcdLiveTV"]:
 		ButtonSetupFunctions.append((_("Toggle LCD LiveTV"), "Infobar/ToggleLCDLiveTV", "InfoBar"))
-	if SystemInfo["LcdLiveTV"]:
-		ButtonSetupFunctions.append((_("Toggle LCD Power"), "Infobar/ToggleLCDpower", "InfoBar"))
 	ButtonSetupFunctions.append((_("Do nothing"), "Void", "InfoBar"))
 	ButtonSetupFunctions.append((_("Button setup"), "Module/Screens.ButtonSetup/ButtonSetup", "Setup"))
 	ButtonSetupFunctions.append((_("Software update"), "Module/Screens.SoftwareUpdate/UpdatePlugin", "Setup"))
@@ -534,7 +532,3 @@ class InfoBarButtonSetup():
 
 	def ToggleLCDLiveTV(self):
 		config.lcd.showTv.value = not config.lcd.showTv.value
-
-	def ToggleLCDPower(self):
-		config.lcd.power = "Off"
-		config.lcd.power = ConfigSelection([("0", _("Off")), ("1", _("On"))], "1")
