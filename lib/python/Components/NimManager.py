@@ -61,6 +61,7 @@ class SecConfigure:
 			for slot in self.linked[slotid]:
 				tunermask |= (1 << slot)
 		sec.setLNBSatCR(-1)
+		sec.setLNBSatCRTuningAlgo(0)
 		sec.setLNBSatCRpositionnumber(1)
 		sec.setLNBLOFL(CircularLNB and 10750000 or 9750000)
 		sec.setLNBLOFH(CircularLNB and 10750000 or 10600000)
@@ -355,7 +356,7 @@ class SecConfigure:
 						tunermask |= (1 << slot)
 				if currLnb.lof.value != "unicable":
 					sec.setLNBSatCR(-1)
-
+					sec.setLNBSatCRTuningAlgo(0)
 				if currLnb.lof.value == "universal_lnb":
 					sec.setLNBLOFL(9750000)
 					sec.setLNBLOFH(10600000)
@@ -384,6 +385,10 @@ class SecConfigure:
 								sec.setLNBLOFL(manufacturer.lofl[product_name][position_idx].value * 1000)
 								sec.setLNBLOFH(manufacturer.lofh[product_name][position_idx].value * 1000)
 								sec.setLNBThreshold(manufacturer.loft[product_name][position_idx].value * 1000)
+								if currLnb.unicableTuningAlgo.value == "reliable":
+									sec.setLNBSatCRTuningAlgo(1)
+								else:
+									sec.setLNBSatCRTuningAlgo(0)
 								configManufacturer.save_forced = True
 								manufacturer.product.save_forced = True
 								manufacturer.vco[product_name][manufacturer_scr[product_name].index].save_forced = True
@@ -1639,6 +1644,8 @@ def InitNimManager(nimmgr, update_slots = []):
 					txt = _("Misconfigured unicable connection from tuner %s to tuner %s!\nTuner %s option \"connected to\" are disabled now") % (chr(int(x) + ord('A')), chr(int(nim.advanced.unicableconnectedTo.saved_value) + ord('A')), chr(int(x) + ord('A')),)
 					AddPopup(txt, type = MessageBox.TYPE_ERROR, timeout = 0, id = "UnicableConnectionFailed")
 
+				section.unicableTuningAlgo = ConfigSelection([("reliable", _("reliable")),("traditional", _("traditional (fast)"))], default="reliable")
+
 	def configDiSEqCModeChanged(configElement):
 		section = configElement.section
 		if configElement.value == "1_2" and isinstance(section.longitude, ConfigNothing):
@@ -1873,7 +1880,7 @@ def InitNimManager(nimmgr, update_slots = []):
 
 	nimmgr.sec = SecConfigure(nimmgr)
 
-	def tunerTypeChanged(nimmgr, configElement):
+	def tunerTypeChanged(nimmgr, configElement, initial=False):
 		fe_id = configElement.fe_id
 		eDVBResourceManager.getInstance().setFrontendType(nimmgr.nim_slots[fe_id].frontend_id, nimmgr.nim_slots[fe_id].getType())
 		if os.path.exists("/proc/stb/frontend/%d/mode" % fe_id):
@@ -1902,6 +1909,9 @@ def InitNimManager(nimmgr, update_slots = []):
 				except:
 					print "[InitNimManager] no /sys/module/dvb_core/parameters/dvb_shutdown_timeout available"
 				nimmgr.enumerateNIMs()
+				if initial:
+					print "tunerTypeChanged force update setting"
+					nimmgr.sec.update()
 			else:
 				print "[InitNimManager] tuner type is already already %d" %cur_type
 
@@ -1922,7 +1932,8 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.multiType = ConfigSelection(typeList, "0")
 
 			nim.multiType.fe_id = x - empty_slots
-			nim.multiType.addNotifier(boundFunction(tunerTypeChanged, nimmgr))
+			nim.multiType.addNotifier(boundFunction(tunerTypeChanged, nimmgr), initial_call=False)
+			tunerTypeChanged(nimmgr, nim.multiType, initial=True)
 
 		print"[NimManager] slotname = %s, slotdescription = %s, multitype = %s" % (slot.slot_name, slot.description,(slot.isMultiType() and addMultiType))
 
