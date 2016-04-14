@@ -1,4 +1,4 @@
-from boxbranding import getImageVersion
+from boxbranding import getImageVersion, getBoxType
 from sys import modules
 import socket, fcntl, struct
 
@@ -74,6 +74,7 @@ def getCPUSpeedString():
 def getCPUString():
 	system = _("unavailable")
 	try:
+		system="unknown"
 		file = open('/proc/cpuinfo', 'r')
 		lines = file.readlines()
 		for x in lines:

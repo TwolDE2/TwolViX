@@ -3,7 +3,7 @@ from Components.About import about
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
 from enigma import eAVSwitch, getDesktop
-from boxbranding import getBoxType, getBrandOEM
+from boxbranding import getBoxType, getMachineBuild, getBrandOEM
 from SystemInfo import SystemInfo
 import os
 
@@ -70,6 +70,9 @@ class AVSwitch:
 	elif about.getChipSetString() in ('7358', '7356', '7362', '7424', '7425', '7241', '7552'):
 		modes["HDMI"] = ["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"]
 		widescreen_modes = {"720p", "1080p", "1080i"}
+	elif about.getChipSetString() in ('meson-6'):
+		modes["HDMI"] = ["720p", "1080p", "1080i"]
+		widescreen_modes = {"720p", "1080p", "1080i"}
 	else:
 		modes["HDMI"] = ["720p", "1080i", "576p", "576i", "480p", "480i"]
 		widescreen_modes = {"720p", "1080i"}
@@ -83,7 +86,7 @@ class AVSwitch:
 	# 	del modes["DVI-PC"]
 	
 	# Machines that do not have component video (red, green and blue RCA sockets).
-	if modes.has_key("YPbPr") and getBoxType() in ('dm500hdv2','dm500hd','dm800','e3hd','ebox7358','eboxlumi','ebox5100','enfinity','et4x00','iqonios300hd','ixusszero','odimm7','optimussos1','tm2t','tmnano','tmnano2super','tmnano3t','tmnanose','tmnanosecombo','tmsingle','optimussos1','uniboxhd1','vusolo2','vusolo4k','xp1000'):
+	if modes.has_key("YPbPr") and getBoxType() in ('wetekplay', 'wetekplayplus', 'dm500hdv2','dm500hd','dm800','e3hd','ebox7358','eboxlumi','ebox5100','enfinity','et4x00','iqonios300hd','ixusszero','odimm7','optimussos1','tm2t','tmnano','tmnano2super','tmnano3t','tmnanose','tmnanosecombo','tmsingle','optimussos1','uniboxhd1','vusolo2','vusolo4k','xp1000'):
 		del modes["YPbPr"]
 		
 	# Machines that have composite video (yellow RCA socket) but do not have Scart.
@@ -92,7 +95,7 @@ class AVSwitch:
 		del modes["Scart"]
 		
 	# Machines that have neither RCA nor Scart sockets 
-	if modes.has_key("Scart") and getBoxType() in ('et5x00','et6x00','gbquad','ixussone','tmnano2t','tmnanose','vusolo4k'):
+	if modes.has_key("Scart") and getBoxType() in ('wetekplay', 'wetekplayplus', 'et5x00','et6x00','gbquad','ixussone','tmnano2t','tmnanose','vusolo4k'):
 		del modes["Scart"]
 
 	def __init__(self):
@@ -574,6 +577,7 @@ def InitAVSwitch():
 		can_downmix_ac3 = "downmix" in file
 	except:
 		can_downmix_ac3 = False
+		SystemInfo["CanPcmMultichannel"] = False
 
 	SystemInfo["CanDownmixAC3"] = can_downmix_ac3
 	if can_downmix_ac3:
