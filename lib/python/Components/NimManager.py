@@ -338,7 +338,7 @@ class SecConfigure:
 				print "[NimManager] slotid", slotid, "lnb[x]", x
 				currLnb = config.Nims[slotid].advanced.lnb[x]
 				if sec.addLNB():
-					print "No space left on m_lnbs (max No. 144 LNBs exceeded)"
+					print "[NimManager] No space left on m_lnbs (max No. 144 LNBs exceeded)"
 					return
 
 				posnum = 1;	#default if LNB movable
@@ -383,12 +383,7 @@ class SecConfigure:
 								sec.setLNBLOFL(manufacturer.lofl[product_name][position_idx].value * 1000)
 								sec.setLNBLOFH(manufacturer.lofh[product_name][position_idx].value * 1000)
 								sec.setLNBThreshold(manufacturer.loft[product_name][position_idx].value * 1000)
-								try:
-									print "[NimManager] currLnb.unicableTuningAlgo.value", currLnb.unicableTuningAlgo.value
-									sec.setLNBSatCRTuningAlgo(currLnb.unicableTuningAlgo.value == "reliable" and 1 or 0)
-								except:
-									print "[NimManager] currLnb.unicableTuningAlgo.value not set"
-									sec.setLNBSatCRTuningAlgo(1)
+								sec.setLNBSatCRTuningAlgo(currLnb.unicableTuningAlgo.value == "reliable" and 1 or 0)
 								configManufacturer.save_forced = True
 								manufacturer.product.save_forced = True
 								manufacturer.vco[product_name][manufacturer_scr[product_name].index].save_forced = True
@@ -1307,10 +1302,7 @@ def InitSecParams():
 
 jess_alias = ("JESS","UNICABLE2","SCD2","EN50607","EN 50607")
 
-lscr = ("scr1","scr2","scr3","scr4","scr5","scr6","scr7","scr8","scr9","scr10",
-		"scr11","scr12","scr13","scr14","scr15","scr16","scr17","scr18","scr19","scr20",
-		"scr21","scr22","scr23","scr24","scr25","scr26","scr27","scr28","scr29","scr30",
-		"scr31","scr32")
+lscr = [("scr%d" % i) for i in range(1,33)]
 
 def InitNimManager(nimmgr, update_slots = []):
 	hw = HardwareInfo()
@@ -1590,14 +1582,15 @@ def InitNimManager(nimmgr, update_slots = []):
 			section.satcruserEN50494 = ConfigSelection(advanced_lnb_satcr_user_choicesEN50494, default="1")
 			section.satcruserEN50607 = ConfigSelection(advanced_lnb_satcr_user_choicesEN50607, default="1")
 
-			tmp = ConfigSubList()
+			tmpEN50494 = ConfigSubList()
 			for i in (1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096):
-				tmp.append(ConfigInteger(default=i, limits = (950, 2150)))
-			section.satcrvcouserEN50494 = tmp
+				tmpEN50494.append(ConfigInteger(default=i, limits = (950, 2150)))
+			section.satcrvcouserEN50494 = tmpEN50494
 
-			for i in (1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096) * 3:
-				tmp.append(ConfigInteger(default=i, limits = (950, 2150)))
-			section.satcrvcouserEN50607 = tmp
+			tmpEN50607 = ConfigSubList()
+			for i in (1210, 1420, 1680, 2040, 984, 1020, 1056, 1092, 1128, 1164, 1256, 1292, 1328, 1364, 1458, 1494, 1530, 1566, 1602, 1638, 1716, 1752, 1788, 1824, 1860, 1896, 1932, 1968, 2004, 2076, 2112, 2148):
+				tmpEN50607.append(ConfigInteger(default=i, limits = (950, 2150)))
+			section.satcrvcouserEN50607 = tmpEN50607
 
 			nim.advanced.unicableconnected = ConfigYesNo(default=False)
 			nim.advanced.unicableconnectedTo = ConfigSelection([(str(id), nimmgr.getNimDescription(id)) for id in nimmgr.getNimListOfType("DVB-S") if id != x])
