@@ -139,9 +139,9 @@ class YWeather(Poll, Converter, object):
                 if fileExists("/tmp/yweather.xml"):
                         if int((time.time() - os.stat("/tmp/yweather.xml").st_mtime)/60) >= self.time_update:
                                 os.system("rm /tmp/yweather.xml")
-                                os.system("wget -P /tmp -T2 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22neuburg%2C%20de%22)%20and%20u%3D'c'&format=xml&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys' -O /tmp/yweather.xml")
+                                os.system(wget -P /tmp -T2 "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22neuburg%2C%20de%22)%20and%20u%3D'c'&format=xml&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys" -O /tmp/yweather.xml)
                 else:
-                        os.system("wget -P /tmp -T2 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22neuburg%2C%20de%22)%20and%20u%3D'c'&format=xml&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys' -O /tmp/yweather.xml")
+                        os.system(wget -P /tmp -T2 "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22neuburg%2C%20de%22)%20and%20u%3D'c'&format=xml&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys" -O /tmp/yweather.xml)
                         if not fileExists("/tmp/yweather.xml"):
                                 os.system("echo -e 'None' >> /tmp/yweather.xml")
                                 return 'N/A'
