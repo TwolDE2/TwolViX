@@ -302,13 +302,8 @@
 		</widget>
 	</screen>
 	<screen name="LCDPiconWeather">
-		<widget source="session.CurrentService" render="YWeatherPicon" path="Icon" position="20,220" size="180,180" alphatest="blend" zPosition="2">
-            <convert type="YWeather">picon</convert>
-        </widget>
-        <widget source="session.CurrentService" render="Label" position="30,405" size="100,70" font="FdLcD;60" foregroundColor="white" halign="left" transparent="1" zPosition="4">
-            <convert type="YWeather">temp</convert>
-        </widget>
-        <eLabel text="C" position="140,405" size="75,70" font="FdLcD;60" foregroundColor="white" halign="left" transparent="1" zPosition="5" />
+	<eLabel text="?" position="30,405" size="100,70" font="FdLcD;60" foregroundColor="black" halign="left" transparent="1" zPosition="5" />
+        <eLabel text="C" position="140,405" size="75,70" font="FdLcD;60" foregroundColor="black" halign="left" transparent="1" zPosition="5" />
 	</screen>
 	<screen name="LCDPicon">
 		<widget source="session.CurrentService" render="LcdPicon" position="220,230" size="300,240" transparent="1" alphatest="blend" zPosition="2">	
