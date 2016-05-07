@@ -53,13 +53,10 @@ class About(Screen):
 		AboutText += _("CPU:\t%s\n") % about.getCPUString()
 		AboutText += _("CPU speed:\t%s\n") % about.getCPUSpeedString()
 		AboutText += _("Cores:\t%s\n") % about.getCpuCoresString()
-
-		AboutText += _("Version:\t%s\n") % getImageVersion()
-		if getImageType() == 'developer':
-			AboutText += _("Build:\t%s.%s\n") % (getImageBuild(), getImageDevBuild())
-		else:
-			AboutText += _("Build:\t%s\n") % getImageBuild()
-		AboutText += _("Image type:\t%s\n") % getImageType().title()
+		imageSubBuild = ""
+		if getImageType() != 'release':
+			imageSubBuild = ".%s" % getImageDevBuild()
+		AboutText += _("Build:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
 		AboutText += _("Skin name:\t%s\n") % config.skin.primary_skin.value[0:-9]
 
 		string = getDriverDate()
@@ -575,10 +572,15 @@ class ViewGitLog(Screen):
 		self["text"].pageDown()
 
 	def getlog(self):
+		releasenotes = ""
 		fd = open('/etc/' + self.logtype + '-git.log', 'r')
-		releasenotes = fd.read()
+		for line in fd.readlines():
+			if getImageType() == 'release' and line.startswith('openvix: developer'):
+				continue
+			elif getImageType() == 'developer' and line.startswith('openvix: release'):
+				continue
+			releasenotes += line
 		fd.close()
-		releasenotes = releasenotes.replace('\nopenvix: build', "\n\nopenvix: build")
 		self["text"].setText(releasenotes)
 		summarytext = releasenotes
 		try:
