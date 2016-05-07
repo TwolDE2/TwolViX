@@ -1229,7 +1229,6 @@ RESULT eServiceMP3::getPlayPosition(pts_t &pts)
 	if (!m_gst_playbin || m_state != stRunning)
 		return -1;
 
-<<<<<<< HEAD
 #if HAVE_AMLOGIC or WETEKRC
 	if ((pos = get_pts_pcrscr()) > 0)
 		pos *= 11111LL;
