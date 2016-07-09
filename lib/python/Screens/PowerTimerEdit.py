@@ -4,6 +4,7 @@ from Components.Label import Label
 from Components.config import config
 from Components.PowerTimerList import PowerTimerList
 from Components.Sources.StaticText import StaticText
+from Components.Sources.StaticText import StaticText
 from PowerTimer import PowerTimerEntry, AFTEREVENT
 from Screens.Screen import Screen
 from Screens.ChoiceBox import ChoiceBox
@@ -25,11 +26,19 @@ class PowerTimerEditList(Screen):
 		Screen.__init__(self, session)
 		self.skinName = "TimerEditList"
 		screentitle = _("PowerTimer List")
-		menu_path += _(screentitle) or screentitle 
-		if config.usage.show_menupath.value:
-			title = menu_path
+		self.menu_path = menu_path
+		if config.usage.show_menupath.value == 'large':
+			self.menu_path += " / " + screentitle
+			title = self.menu_path
+			self["menu_path_compressed"] = StaticText("")
+			self.menu_path += ' / '
+		elif config.usage.show_menupath.value == 'small':
+			title = screentitle
+			self["menu_path_compressed"] = StaticText(self.menu_path + " >" if not self.menu_path.endswith(' / ') else self.menu_path[:-3] + " >" or "")
+			self.menu_path += " / " + screentitle
 		else:
-			title = _(screentitle)
+			title = screentitle
+			self["menu_path_compressed"] = StaticText("")
 		Screen.setTitle(self, title)
 
 		self.onChangedEntry = [ ]
@@ -211,7 +220,7 @@ class PowerTimerEditList(Screen):
 	def showLog(self):
 		cur=self["timerlist"].getCurrent()
 		if cur:
-			self.session.openWithCallback(self.finishedEdit, TimerLog, cur)
+			self.session.openWithCallback(self.finishedEdit, TimerLog, cur, self.menu_path)
 
 	def openEdit(self):
 		cur=self["timerlist"].getCurrent()
