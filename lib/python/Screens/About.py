@@ -23,7 +23,7 @@ from re import search
 class About(Screen):
 	def __init__(self, session, menu_path=""):
 		Screen.__init__(self, session)
-		screentitle = _("Image Information")
+		screentitle = _("About")
 		self.menu_path = menu_path
 		if config.usage.show_menupath.value == 'large':
 			self.menu_path += screentitle
@@ -126,7 +126,7 @@ class About(Screen):
 class Devices(Screen):
 	def __init__(self, session, menu_path = ""):
 		Screen.__init__(self, session)
-		screentitle = _("Device Information")
+		screentitle = _("Devices")
 		if config.usage.show_menupath.value == 'large':
 			menu_path += screentitle
 			title = menu_path
@@ -291,7 +291,7 @@ class Devices(Screen):
 class SystemMemoryInfo(Screen):
 	def __init__(self, session, menu_path = ""):
 		Screen.__init__(self, session)
-		screentitle = _("Memory Information")
+		screentitle = _("Memory")
 		if config.usage.show_menupath.value == 'large':
 			menu_path += screentitle
 			title = menu_path
@@ -364,7 +364,7 @@ class SystemMemoryInfo(Screen):
 class SystemNetworkInfo(Screen):
 	def __init__(self, session, menu_path = ""):
 		Screen.__init__(self, session)
-		screentitle = _("Network Information")
+		screentitle = _("Network")
 		if config.usage.show_menupath.value == 'large':
 			menu_path += screentitle
 			title = menu_path
@@ -397,8 +397,6 @@ class SystemNetworkInfo(Screen):
 		self["statuspic"].setPixmapNum(1)
 		self["statuspic"].show()
 		self["devicepic"] = MultiPixmap()
-		self["devicepic"].setPixmapNum(1)
-		self["devicepic"].show()
 
 		self.iface = None
 		self.createscreen()
@@ -413,7 +411,6 @@ class SystemNetworkInfo(Screen):
 				pass
 			self.resetList()
 			self.onClose.append(self.cleanup)
-		self.updateStatusbar()
 
 		self["key_red"] = StaticText(_("Close"))
 
@@ -424,6 +421,7 @@ class SystemNetworkInfo(Screen):
 										"up": self["AboutScrollLabel"].pageUp,
 										"down": self["AboutScrollLabel"].pageDown
 									})
+		self.onLayoutFinish.append(self.updateStatusbar)
 
 	def createscreen(self):
 		self.AboutText = ""
@@ -541,13 +539,8 @@ class SystemNetworkInfo(Screen):
 		self["IFtext"].setText(_("Network:"))
 		self["IF"].setText(iNetwork.getFriendlyAdapterName(self.iface))
 		self["Statustext"].setText(_("Link:"))
-		if 'eth' in self.iface:
-			self["devicepic"].setPixmapNum(1)
-			self["devicepic"].show()
-		else:
-			self["devicepic"].setPixmapNum(2)
-			self["devicepic"].show()
 		if iNetwork.isWirelessInterface(self.iface):
+			self["devicepic"].setPixmapNum(1)
 			try:
 				self.iStatus.getDataForInterface(self.iface, self.getInfoCB)
 			except:
@@ -555,6 +548,8 @@ class SystemNetworkInfo(Screen):
 				self["statuspic"].show()
 		else:
 			iNetwork.getLinkState(self.iface, self.dataAvail)
+			self["devicepic"].setPixmapNum(0)
+		self["devicepic"].show()
 
 	def dataAvail(self, data):
 		self.LinkState = None
@@ -714,7 +709,7 @@ class ViewGitLog(Screen):
 class TranslationInfo(Screen):
 	def __init__(self, session, menu_path=""):
 		Screen.__init__(self, session)
-		screentitle = _("Translation Information")
+		screentitle = _("Translations")
 		if config.usage.show_menupath.value == 'large':
 			menu_path += screentitle
 			title = menu_path
