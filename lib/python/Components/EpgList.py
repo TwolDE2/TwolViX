@@ -6,7 +6,6 @@ from HTMLComponent import HTMLComponent
 from GUIComponent import GUIComponent
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaBlend, MultiContentEntryPixmapAlphaTest
 from Components.Renderer.Picon import getPiconName
-from Components.config import config
 from skin import parseColor, parseFont
 from Tools.Alternatives import CompareWithAlternatives
 from Tools.LoadPixmap import LoadPixmap
@@ -14,7 +13,6 @@ from Components.config import config
 from ServiceReference import ServiceReference
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.TextBoundary import getTextBoundarySize
-
 
 EPG_TYPE_SINGLE = 0
 EPG_TYPE_MULTI = 1
@@ -61,6 +59,7 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.showServiceTitle = True
 		self.showChannelNumber = True
 		self.primaryServiceNumbers = None;
+		self.showServiceNumber = True
 		self.screenwidth = getDesktop(0).size().width()
 
 		self.overjump_empty = overjump_empty
@@ -192,6 +191,7 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.listWidth = None
 		self.serviceBorderWidth = 1
 		self.serviceNamePadding = 3
+		self.serviceNumberPadding = 9
 		self.eventBorderWidth = 1
 		self.eventNamePadding = 3
 		self.eventNameAlign = 'left'
@@ -259,6 +259,8 @@ class EPGList(HTMLComponent, GUIComponent):
 					self.serviceBorderWidth = int(value)
 				elif attrib == "ServiceNamePadding":
 					self.serviceNamePadding = int(value)
+				elif attrib == "ServiceNumberPadding":
+					self.serviceNumberPadding = int(value)
 				elif attrib == "EntryBorderColor":
 					self.borderColor = parseColor(value).argb()
 				elif attrib == "EventBorderWidth":
@@ -303,9 +305,9 @@ class EPGList(HTMLComponent, GUIComponent):
 		return (events and len(events) and True) or False
 
 	def setShowServiceMode(self, value):
+		self.showServiceNumber = "servicenumber" in value
 		self.showServiceTitle = "servicename" in value
 		self.showPicon = "picon" in value
-		self.showChannelNumber = "channel" in value
 		self.recalcEntrySize()
 		self.selEntry(0) #Select entry again so that the clipping region gets updated if needed
 
@@ -406,7 +408,7 @@ class EPGList(HTMLComponent, GUIComponent):
 		last_time = time()
 		if old_service and self.cur_event is not None:
 			events = old_service[2]
-			cur_event = events[self.cur_event] #(event_id, event_title, begin_time, duration)
+			cur_event = events[self.cur_event] if len(events) >= self.cur_event else 0 #(event_id, event_title, begin_time, duration)
 			last_time = cur_event[2]
 		if cur_service:
 			self.cur_event = 0
@@ -584,7 +586,7 @@ class EPGList(HTMLComponent, GUIComponent):
 					servicew = config.epgselection.graph_servicewidth.value
 				if self.showPicon:
 					piconw = config.epgselection.graph_piconwidth.value
-				if self.showChannelNumber:
+				if self.showServiceNumber:
 					font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
 					channelw = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
 			elif self.type == EPG_TYPE_INFOBARGRAPH:
@@ -592,7 +594,7 @@ class EPGList(HTMLComponent, GUIComponent):
 					servicew = config.epgselection.infobar_servicewidth.value
 				if self.showPicon:
 					piconw = config.epgselection.infobar_piconwidth.value
-				if self.showChannelNumber:
+				if self.showServiceNumber:
 					font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.infobar_servfs.value)
 					channelw = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
 			
@@ -800,38 +802,19 @@ class EPGList(HTMLComponent, GUIComponent):
 					backcolor = serviceBackColor, backcolor_sel = serviceBackColor,
 					border_width = self.serviceBorderWidth, border_color = self.borderColorService))
 
-		namefont = 0
-		namefontflag = RT_HALIGN_LEFT | RT_VALIGN_CENTER
-		channelWidth = 0
-		if self.showChannelNumber:
-			if not isinstance(channel, int):
-				channel = self.getChannelNumber(channel)
-			
-			if channel:
-				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
-				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000)  and "0000" or str(channel) ).width()
-				res.append(MultiContentEntryText(
-					pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding, r1.y + self.serviceBorderWidth),
-					size = (channelWidth, r1.h - 2 * self.serviceBorderWidth),
-					font = namefont, flags = namefontflag,
-					text = str(channel),
-					color = serviceForeColor, color_sel = serviceForeColor,
-					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))			
 		displayPicon = None
-		piconWidth = self.picon_size.width()
-		piconHeight = self.picon_size.height()
 		if self.showPicon:
 			if picon is None: # go find picon and cache its location
 				picon = getPiconName(service)
 				curIdx = self.l.getCurrentSelectionIndex()
 				self.list[curIdx] = (service, service_name, events, picon, channel)
-
+			piconWidth = self.picon_size.width()
+			piconHeight = self.picon_size.height()
 			if picon != "":
 				displayPicon = loadPNG(picon)
 			if displayPicon is not None:
 				res.append(MultiContentEntryPixmapAlphaBlend(
-					pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding + channelWidth + self.serviceNamePadding, 
-						r1.y + self.serviceBorderWidth),
+					pos = (r1.x + self.serviceBorderWidth, r1.y + self.serviceBorderWidth),
 					size = (piconWidth, piconHeight),
 					png = displayPicon,
 					backcolor = None, backcolor_sel = None, flags = BT_SCALE | BT_KEEP_ASPECT_RATIO))
@@ -840,11 +823,28 @@ class EPGList(HTMLComponent, GUIComponent):
 				namefont = 1
 				namefontflag = RT_HALIGN_LEFT | RT_VALIGN_CENTER | RT_WRAP
 				namewidth = piconWidth + channelWidth
-				piconWidth = 0
 			else:
 				piconWidth = 0
 		else:
 			piconWidth = 0
+
+		channelWidth = 0
+		if self.showServiceNumber:
+			if not isinstance(channel, int):
+				channel = self.getChannelNumber(channel)
+			
+			if channel:
+				namefont = 0
+				namefontflag = RT_HALIGN_RIGHT | RT_VALIGN_CENTER
+				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
+				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000)  and "0000" or str(channel) ).width()
+				res.append(MultiContentEntryText(
+					pos = (r1.x + self.serviceNamePadding + piconWidth + self.serviceNamePadding, r1.y + self.serviceBorderWidth),
+					size = (channelWidth, r1.h - 2 * self.serviceBorderWidth),
+					font = namefont, flags = namefontflag,
+					text = str(channel),
+					color = serviceForeColor, color_sel = serviceForeColor,
+					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
 
 		if self.showServiceTitle: # we have more space so reset parms
 			namefont = 0
@@ -853,7 +853,7 @@ class EPGList(HTMLComponent, GUIComponent):
 
 		if self.showServiceTitle or displayPicon is None:
 			res.append(MultiContentEntryText(
-				pos = (r1.x + self.serviceNamePadding + channelWidth + self.serviceNamePadding + piconWidth + self.serviceBorderWidth + self.serviceNamePadding,
+				pos = (r1.x + self.serviceNamePadding + piconWidth + self.serviceNamePadding + channelWidth + self.serviceNumberPadding,
 					r1.y + self.serviceBorderWidth),
 				size = (namewidth - 3 * (self.serviceBorderWidth + self.serviceNamePadding),
 					r1.h - 2 * self.serviceBorderWidth),
@@ -1334,17 +1334,7 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.l.setList(self.list)
 		self.recalcEntrySize()
 		self.findBestEvent()
-		
-	def getChannelNumber(self,service):
-		if hasattr(service, "ref") and service.ref and '0:0:0:0:0:0:0:0:0' not in service.ref.toString(): 
-			if self.primaryServiceNumbers != None and self.primaryServiceNumbers.has_key(service.ref.toString()):
-				return self.primaryServiceNumbers.get(service.ref.toString())
-			numservice = service.ref
-			num = numservice and numservice.getChannelNum() or None
-			if num is not None:
-				return num
-		return None
-		
+
 	def sortSingleEPG(self, type):
 		list = self.list
 		if list:
@@ -1356,6 +1346,14 @@ class EPGList(HTMLComponent, GUIComponent):
 				list.sort(key=lambda x: x[2])
 			self.l.invalidate()
 			self.moveToEventId(event_id)
+
+	def getChannelNumber(self,service):
+		if hasattr(service, "ref") and service.ref and '0:0:0:0:0:0:0:0:0' not in service.ref.toString(): 
+			numservice = service.ref
+			num = numservice and numservice.getChannelNum() or None
+			if num is not None:
+				return num
+		return None
 
 	def getEventRect(self):
 		rc = self.event_rect
