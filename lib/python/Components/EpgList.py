@@ -801,6 +801,23 @@ class EPGList(HTMLComponent, GUIComponent):
 					color = serviceForeColor, color_sel = serviceForeColor,
 					backcolor = serviceBackColor, backcolor_sel = serviceBackColor,
 					border_width = self.serviceBorderWidth, border_color = self.borderColorService))
+		channelWidth = 0
+		if self.showServiceNumber:
+			if not isinstance(channel, int):
+				channel = self.getChannelNumber(channel)
+			
+			if channel:
+				namefont = 0
+				namefontflag = RT_HALIGN_RIGHT | RT_VALIGN_CENTER
+				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
+				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000)  and "0000" or str(channel) ).width()
+				res.append(MultiContentEntryText(
+					pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding, r1.y + self.serviceBorderWidth),
+					size = (channelWidth, r1.h - 2 * self.serviceBorderWidth),
+					font = namefont, flags = namefontflag,
+					text = str(channel),
+					color = serviceForeColor, color_sel = serviceForeColor,
+					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
 
 		displayPicon = None
 		if self.showPicon:
@@ -814,7 +831,8 @@ class EPGList(HTMLComponent, GUIComponent):
 				displayPicon = loadPNG(picon)
 			if displayPicon is not None:
 				res.append(MultiContentEntryPixmapAlphaBlend(
-					pos = (r1.x + self.serviceBorderWidth, r1.y + self.serviceBorderWidth),
+					pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding + channelWidth + self.serviceNamePadding, 
+						r1.y + self.serviceBorderWidth),
 					size = (piconWidth, piconHeight),
 					png = displayPicon,
 					backcolor = None, backcolor_sel = None, flags = BT_SCALE | BT_KEEP_ASPECT_RATIO))
@@ -823,28 +841,11 @@ class EPGList(HTMLComponent, GUIComponent):
 				namefont = 1
 				namefontflag = RT_HALIGN_LEFT | RT_VALIGN_CENTER | RT_WRAP
 				namewidth = piconWidth + channelWidth
+				piconWidth = 0
 			else:
 				piconWidth = 0
 		else:
 			piconWidth = 0
-
-		channelWidth = 0
-		if self.showServiceNumber:
-			if not isinstance(channel, int):
-				channel = self.getChannelNumber(channel)
-			
-			if channel:
-				namefont = 0
-				namefontflag = RT_HALIGN_RIGHT | RT_VALIGN_CENTER
-				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
-				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000)  and "0000" or str(channel) ).width()
-				res.append(MultiContentEntryText(
-					pos = (r1.x + self.serviceNamePadding + piconWidth + self.serviceNamePadding, r1.y + self.serviceBorderWidth),
-					size = (channelWidth, r1.h - 2 * self.serviceBorderWidth),
-					font = namefont, flags = namefontflag,
-					text = str(channel),
-					color = serviceForeColor, color_sel = serviceForeColor,
-					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
 
 		if self.showServiceTitle: # we have more space so reset parms
 			namefont = 0
