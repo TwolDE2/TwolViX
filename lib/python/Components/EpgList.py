@@ -190,7 +190,6 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.listWidth = None
 		self.serviceBorderWidth = 1
 		self.serviceNamePadding = 3
-		self.PiconPadding = 5
 		self.serviceNumberPadding = 9
 		self.eventBorderWidth = 1
 		self.eventNamePadding = 3
@@ -824,15 +823,14 @@ class EPGList(HTMLComponent, GUIComponent):
 			piconHeight = self.picon_size.height()
 			if picon != "":
 				displayPicon = loadPNG(picon)
-			if displayPicon is not None:
-				if config.epgselection.graph_showchannel1st:
+				if displayPicon is not None and config.epgselection.graph_showchannel1st is True:
 					res.append(MultiContentEntryPixmapAlphaBlend(
 						pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding + channelWidth + self.serviceNamePadding, 
 						r1.y + self.serviceBorderWidth),
 						size = ((piconWidth, piconHeight),
 						png = displayPicon,
 						backcolor = None, backcolor_sel = None, flags = BT_SCALE | BT_KEEP_ASPECT_RATIO))
-				else:
+				if displayPicon is not None and config.epgselection.graph_showchannel1st is True:
 					res.append(MultiContentEntryPixmapAlphaBlend(
 						pos = (r1.x + self.serviceBorderWidth, r1.y + self.serviceBorderWidth),
 						size = (piconWidth, piconHeight),
@@ -841,17 +839,17 @@ class EPGList(HTMLComponent, GUIComponent):
 				namefont = 0
 				namefontflag = RT_HALIGN_LEFT | RT_VALIGN_CENTER
 				namewidth = r1.w - channelWidth - piconWidth	
-			elif not self.showServiceTitle:
-				# no picon so show servicename anyway in picon space
-				namefont = 1
-				namefontflag = int(config.epgselection.graph_servicename_alignment.value)
-				namewidth = piconWidth + channelWidth
-				piconWidth = 0
+				if not self.showServiceTitle and displayPicon is None:
+					# no picon so show servicename anyway in picon space
+					namefont = 1
+					namefontflag = int(config.epgselection.graph_servicename_alignment.value)
+					namewidth = piconWidth + channelWidth
+					piconWidth = 0
 			else:
 				piconWidth = 0
 		else:
 			piconWidth = 0
-		if config.epgselection.graph_showchannel1st = False:
+		if config.epgselection.graph_showchannel1st is False:
 			channelWidth = 0
 			if self.showServiceNumber:
 				if not isinstance(channel, int):

@@ -334,7 +334,7 @@
 		<item level="2" text="Show bouquet on launch" description="If set to 'yes' the bouquets will be shown each time you open the EPG.">config.epgselection.graph_showbouquet</item>
 		<item level="2" text="Picture in graphics" description="If set to 'yes' shows a small TV-screen in the EPG.">config.epgselection.graph_pig</item>
 		<item level="2" text="Service Title mode" description="Configure to show the channel names, picons, or both in the EPG.">config.epgselection.graph_servicetitle_mode</item>
-		<item level="2" text="Show Service channel before Picon" description="If set to 'yes' channel number precedes Picon ">config.epgselection.graph_showchannel1st</item>
+		<item level="2" text="Show Service channel before Picon" description="If set to 'yes' channel number precedes Picon. ">config.epgselection.graph_showchannel1st</item>
 
 		<item level="2" text="Use Channel Numbers from specific Bouquet" description="When showing channel numbers, use channel numbers from a specific Bouquet (usually 'All Channels').">config.epgselection.graph_primarybouquet</item>
 		<item level="2" text="Use ZapTo Channel" description="Choose whether to specifically ZapTo a channel when selecting numbered keys.">config.epgselection.graph_usezaptochannel</item>
