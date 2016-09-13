@@ -796,7 +796,7 @@ class EPGList(HTMLComponent, GUIComponent):
 					backcolor = serviceBackColor, backcolor_sel = serviceBackColor,
 					border_width = self.serviceBorderWidth, border_color = self.borderColorService))
 		channelWidth = 0
-		if config.epgselection.graph_showchannel1st = "Yes":
+		if config.epgselection.graph_showchannel1st:
 			if self.showServiceNumber:
 				if not isinstance(channel, int):
 				channel = self.getChannelNumber(channel)
@@ -825,7 +825,7 @@ class EPGList(HTMLComponent, GUIComponent):
 			if picon != "":
 				displayPicon = loadPNG(picon)
 			if displayPicon is not None:
-				if config.epgselection.graph_showchannel1st = "Yes":
+				if config.epgselection.graph_showchannel1st:
 					res.append(MultiContentEntryPixmapAlphaBlend(
 						pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding + channelWidth + self.serviceNamePadding, 
 						r1.y + self.serviceBorderWidth),
@@ -851,7 +851,7 @@ class EPGList(HTMLComponent, GUIComponent):
 				piconWidth = 0
 		else:
 			piconWidth = 0
-		if config.epgselection.graph_showchannel1st = "No":
+		if config.epgselection.graph_showchannel1st = False:
 			channelWidth = 0
 			if self.showServiceNumber:
 				if not isinstance(channel, int):
