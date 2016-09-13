@@ -57,7 +57,6 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.currentlyPlaying = None
 		self.showPicon = False
 		self.showServiceTitle = True
-		self.showChannelNumber = True
 		self.primaryServiceNumbers = None;
 		self.showServiceNumber = True
 		self.screenwidth = getDesktop(0).size().width()
@@ -191,6 +190,7 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.listWidth = None
 		self.serviceBorderWidth = 1
 		self.serviceNamePadding = 3
+		self.PiconPadding = 5
 		self.serviceNumberPadding = 9
 		self.eventBorderWidth = 1
 		self.eventNamePadding = 3
@@ -833,9 +833,12 @@ class EPGList(HTMLComponent, GUIComponent):
 				res.append(MultiContentEntryPixmapAlphaBlend(
 					pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding + channelWidth + self.serviceNamePadding, 
 						r1.y + self.serviceBorderWidth),
-					size = (piconWidth, piconHeight),
+					size = ((piconWidth, piconHeight),
 					png = displayPicon,
 					backcolor = None, backcolor_sel = None, flags = BT_SCALE | BT_KEEP_ASPECT_RATIO))
+				namefont = 0
+				namefontflag = RT_HALIGN_LEFT | RT_VALIGN_CENTER
+				namewidth = r1.w - channelWidth - piconWidth	
 			elif not self.showServiceTitle:
 				# no picon so show servicename anyway in picon space
 				namefont = 1
@@ -860,6 +863,17 @@ class EPGList(HTMLComponent, GUIComponent):
 					r1.h - 2 * self.serviceBorderWidth),
 				font = namefont, flags = namefontflag,
 				text = service_name,
+				color = serviceForeColor, color_sel = serviceForeColor,
+				backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
+
+		if not self.showServiceTitle and displayPicon is not None:
+				res.append(MultiContentEntryText(
+				pos = (r1.x + self.serviceNamePadding + piconWidth + self.serviceNamePadding + channelWidth + self.serviceNumberPadding,
+					r1.y + self.serviceBorderWidth),
+				size = (namewidth - 3 * (self.serviceBorderWidth + self.serviceNamePadding),
+					r1.h - 2 * self.serviceBorderWidth),
+				font = namefont, flags = namefontflag,
+				text = "     ",
 				color = serviceForeColor, color_sel = serviceForeColor,
 				backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
 
