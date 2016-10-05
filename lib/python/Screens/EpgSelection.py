@@ -347,22 +347,6 @@ class EPGSelection(Screen, HelpableScreen):
 						'0': (self.keyNumberGlobal, _('Move to home of list'))
 					}, -1)
 				self['input_actions'].csel = self
-=======
-			self['input_actions'] = HelpableNumberActionMap(self, 'NumberActions',
-				{
-					'1': (self.keyNumberGlobal, _('Reduce time scale')),
-					'2': (self.keyNumberGlobal, _('Page up')),
-					'3': (self.keyNumberGlobal, _('Increase time scale')),
-					'4': (self.keyNumberGlobal, _('page left')),
-					'5': (self.keyNumberGlobal, _('Jump to current time')),
-					'6': (self.keyNumberGlobal, _('Page right')),
-					'7': (self.keyNumberGlobal, _('No of items switch (increase or reduced)')),
-					'8': (self.keyNumberGlobal, _('Page down')),
-					'9': (self.keyNumberGlobal, _('Jump to prime time')),
-					'0': (self.keyNumberGlobal, _('Move to home of list'))
-				}, -1)
-			self['input_actions'].csel = self
->>>>>>> upstream/Dev
 
 		elif self.type == EPG_TYPE_MULTI:
 			self.skinName = 'EPGSelectionMulti'
@@ -772,10 +756,8 @@ class EPGSelection(Screen, HelpableScreen):
 			self.updEvent(+24)
 		elif self.serviceChangeCB:
 			self.serviceChangeCB(1, self)
-		
 
 	def prevService(self):
-				
 		if self.type == EPG_TYPE_ENHANCED or self.type == EPG_TYPE_INFOBAR:
 			self.CurrBouquet = self.servicelist.getCurrentSelection()
 			self.CurrService = self.servicelist.getRoot()
@@ -803,7 +785,7 @@ class EPGSelection(Screen, HelpableScreen):
 		elif self.type == EPG_TYPE_GRAPH or self.type == EPG_TYPE_INFOBARGRAPH:
 			self.updEvent(-24)
 		elif self.serviceChangeCB:
-			self.serviceChangeCB(-1, self)	
+			self.serviceChangeCB(-1, self)
 
 	def enterDateTime(self):
 		global mepg_config_initialized
@@ -1057,7 +1039,6 @@ class EPGSelection(Screen, HelpableScreen):
 			serviceref = cur[1].ref
 			if serviceref is not None:
 				self.session.open(SingleEPG, serviceref)
-		
 
 	def openIMDb(self):
 		try:
@@ -1668,9 +1649,6 @@ class EPGSelection(Screen, HelpableScreen):
 				self['list'].resetOffset()
 				self['list'].fillGraphEPG(None, self.ask_time)
 				self.moveTimeLines()
-
-
-
 		elif self.type == EPG_TYPE_INFOBARGRAPH:
 			if number == 1:
 				timeperiod = int(config.epgselection.infobar_prevtimeperiod.value)
