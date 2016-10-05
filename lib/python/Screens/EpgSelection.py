@@ -316,7 +316,6 @@ class EPGSelection(Screen, HelpableScreen):
 				}, -1)
 			self['epgactions'].csel = self
 
-<<<<<<< HEAD
 			if self.type == EPG_TYPE_GRAPH:
 				self['input_actions'] = HelpableNumberActionMap(self, 'NumberActions', 
 					{
