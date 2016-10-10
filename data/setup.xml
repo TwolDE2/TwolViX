@@ -213,15 +213,16 @@
 	</setup>
 	<setup key="display" title="Settings" requires="FrontpanelDisplay">
 		<item level="0" text="Power on/off display" description="This option allows you to power off the display." requires="LcdLiveTV">config.lcd.power</item>
-		<item level="0" text="Show MiniTV in the Front Display" description="You can Display MiniTV with or without OSD Menu" requires="LCDMiniTV">config.lcd.minitvmode</item>
-		<item level="0" text="Show PIP in the Front Display" description="You can Display PIP with or without OSD Menu" requires="LCDMiniTVPiP">config.lcd.minitvpipmode</item>
-		<item level="0" text="Set Framerate for MiniTV" description="Lower Framerate save CPU Time" requires="LCDMiniTV">config.lcd.minitvfps</item>
 		<item level="0" text="Clone TV screen to LCD" description="Shows live tv or informations on LCD." requires="LcdLiveTV">config.lcd.showTv</item>
 		<item level="0" text="Brightness (Normal)" description="Configure the brightness level of the front panel display for normal operation.">config.lcd.bright</item>
 		<item level="0" text="Brightness (Dimmed)" description="Configure the brightness level of the front panel display for dimmed operation.">config.lcd.dimbright</item>
 		<item level="0" text="Dim delay" description="Dim the LCD after specified time.">config.lcd.dimdelay</item>
 		<item level="0" text="Brightness (Standby)" description="Configure the brightness level of the front panel display for standby.">config.lcd.standby</item>
 		<item level="0" text="Contrast" description="Configure the contrast level of the front panel display.">config.lcd.contrast</item>
+		<item level="0" text="Use separate Picon pack for Front Display *" description="Use picon_lcd directory for picons on color LCD">config.lcd.picon_pack</item>
+		<item level="0" text="Show MiniTV in the Front Display" description="You can Display MiniTV with or without OSD Menu" requires="LCDMiniTV">config.lcd.minitvmode</item>
+		<item level="0" text="Show PIP in the Front Display" description="You can Display PIP with or without OSD Menu" requires="LCDMiniTVPiP">config.lcd.minitvpipmode</item>
+		<item level="0" text="Set Framerate for MiniTV" description="Lower Framerate save CPU Time" requires="LCDMiniTV">config.lcd.minitvfps</item>
 		<item level="0" text="LED Normal" description="LED brightness during normal operations." requires="LEDButtons">config.lcd.ledbrightness</item>
 		<item level="0" text="LED Standby" description="LED brightness during standby." requires="LEDButtons">config.lcd.ledbrightnessstandby</item>
 		<item level="0" text="LED Deep Standby" description="LED brightness during deep standby." requires="LEDButtons">config.lcd.ledbrightnessdeepstandby</item>
