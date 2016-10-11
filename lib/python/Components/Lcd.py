@@ -199,6 +199,24 @@ class LCD:
 		f = open("/proc/stb/power/vfd", "w")
 		f.write(value)
 		f.close()
+		
+	def setEt8500(self, value):
+		print 'setLCDet8500',value
+		f = open("/proc/stb/fb/sd_detach", "w")
+		f.write(value)
+		f.close()
+
+	def setRepeat(self, value):
+		print 'setLCDRepeat',value
+		f = open("/proc/stb/lcd/scroll_repeats", "w")
+		f.write(value)
+		f.close()
+
+	def setScrollspeed(self, value):
+		print 'setLCDScrollspeed',value
+		f = open("/proc/stb/lcd/scroll_delay", "w")
+		f.write(str(value))
+		f.close()
 
 	def setLEDNormalState(self, value):
 		eDBoxLCD.getInstance().setLED(value, 0)
@@ -244,7 +262,7 @@ def standbyCounterChanged(dummy):
 		config.lcd.ledbrightnessdeepstandby.apply()
 
 def InitLcd():
-	if getBoxType() in ('gb800se', 'gb800solo', 'iqonios300hd', 'tmsingle', 'tmnano2super', 'tmnanosecombo', 'vusolo', 'vusolose', 'vuzero', 'et4x00', 'et5x00', 'et6x00', 'sf8'):
+	if getBoxType() in ('wetekplay', 'wetekplayplus', 'gb800se', 'gb800solo', 'iqonios300hd', 'tmsingle', 'tmnano2super', 'tmnanosecombo', 'vusolo', 'vusolose', 'vuzero', 'et4x00', 'et5x00', 'et6x00', 'sf8'):
 		detected = False
 	else:
 		detected = eDBoxLCD.getInstance().detected()
@@ -324,6 +342,15 @@ def InitLcd():
 		
 		def setLCDpower(configElement):
 			ilcd.setPower(configElement.value);
+			
+		def setLCD8500(configElement):
+			ilcd.setEt8500(configElement.value);
+
+		def setLCDrepeat(configElement):
+			ilcd.setRepeat(configElement.value)
+
+		def setLCDscrollspeed(configElement):
+			ilcd.setScrollspeed(configElement.value)
 
 		def setLCDminitvmode(configElement):
 			ilcd.setLCDMiniTVMode(configElement.value)
@@ -334,7 +361,7 @@ def InitLcd():
 		def setLCDminitvfps(configElement):
 			ilcd.setLCDMiniTVFPS(configElement.value)
 
-		standby_default = 0
+		standby_default = 5
 
 		if not ilcd.isOled():
 			config.lcd.contrast = ConfigSlider(default=5, limits=(0, 20))
@@ -378,11 +405,17 @@ def InitLcd():
 		config.lcd.flip = ConfigYesNo(default=False)
 		config.lcd.flip.addNotifier(setLCDflipped)
 
+		if SystemInfo["LcdPowerOn"]:
+			config.lcd.power = ConfigSelection([("0", _("Off")), ("1", _("On"))], "1")
+			config.lcd.power.addNotifier(setLCDpower);
+		else:
+			config.lcd.power = ConfigNothing()
+
 		if SystemInfo["LcdLiveTV"]:
 			def lcdLiveTvChanged(configElement):
 				setLCDLiveTv(configElement.value)
 				configElement.save()
-			config.lcd.showTv = ConfigYesNo(default = False)
+			config.lcd.showTv = ConfigYesNo(default = True)
 			config.lcd.showTv.addNotifier(lcdLiveTvChanged)
 
 			if "live_enable" in SystemInfo["LcdLiveTV"]:
@@ -408,6 +441,16 @@ def InitLcd():
 				open(SystemInfo["VFD_scroll_delay"], "w").write(str(el.value))
 			config.usage.vfd_scroll_delay = ConfigSlider(default = 150, increment = 10, limits = (0, 500))
 			config.usage.vfd_scroll_delay.addNotifier(scroll_delay, immediate_feedback = False)
+			config.lcd.scrollspeed = ConfigSlider(default = 150, increment = 10, limits = (0, 500))
+			config.lcd.scrollspeed.addNotifier(setLCDscrollspeed)
+			config.lcd.repeat = ConfigSelection([("0", _("None")), ("1", _("1X")), ("2", _("2X")), ("3", _("3X")), ("4", _("4X")), ("500", _("Continues"))], "3")
+			config.lcd.repeat.addNotifier(setLCDrepeat)
+			config.lcd.mode = ConfigSelection([("0", _("No")), ("1", _("Yes"))], "1")
+			config.lcd.mode.addNotifier(setLCDmode)
+		else:
+			config.lcd.mode = ConfigNothing()
+			config.lcd.repeat = ConfigNothing()
+			config.lcd.scrollspeed = ConfigNothing()
 
 		if SystemInfo["VFD_initial_scroll_delay"]:
 			def initial_scroll_delay(el):
@@ -432,16 +475,10 @@ def InitLcd():
 			config.usage.vfd_final_scroll_delay.addNotifier(final_scroll_delay, immediate_feedback = False)
 
 		if fileExists("/proc/stb/lcd/show_symbols"):
-			config.lcd.mode = ConfigSelection([("0", _("no")), ("1", _("yes"))], "1")
+			config.lcd.mode = ConfigSelection([("0", _("No")), ("1", _("Yes"))], "1")
 			config.lcd.mode.addNotifier(setLCDmode)
 		else:
 			config.lcd.mode = ConfigNothing()
-			
-		if fileExists("/proc/stb/power/vfd"):
-			config.lcd.power = ConfigSelection([("0", _("off")), ("1", _("on"))], "1")
-			config.lcd.power.addNotifier(setLCDpower);
-		else:
-			config.lcd.power = ConfigNothing()
 
 	else:
 		def doNothing():
@@ -453,6 +490,9 @@ def InitLcd():
 		config.lcd.standby.apply = lambda : doNothing()
 		config.lcd.mode = ConfigNothing()
 		config.lcd.power = ConfigNothing()
+		config.lcd.et8500 = ConfigNothing()
+		config.lcd.repeat = ConfigNothing()
+		config.lcd.scrollspeed = ConfigNothing()
 		config.lcd.ledbrightness = ConfigNothing()
 		config.lcd.ledbrightness.apply = lambda : doNothing()
 		config.lcd.ledbrightnessstandby = ConfigNothing()

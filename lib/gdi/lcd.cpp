@@ -130,12 +130,7 @@ eDBoxLCD::eDBoxLCD()
 		setSize(xres, yres, bpp);
 	}
 #endif
-	if (FILE * file = fopen("/proc/stb/lcd/right_half", "w"))
-	{
-		fprintf(file,"skin");
-		fclose(file);
-	}
-	instance = this;
+	instance=this;
 
 	setSize(xres, yres, bpp);
 }

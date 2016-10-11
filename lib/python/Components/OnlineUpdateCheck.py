@@ -33,6 +33,11 @@ class FeedsStatusCheck:
 
 	def getFeedStatus(self):
 		status = '1'
+		trafficLight = 'stable'
+		if getImageType() != 'rubbish':
+			status = '0'
+			config.softwareupdate.updateisunstable.setValue(status)
+			return 'stable'
 		trafficLight = 'unknown'
 		if about.getIfConfig('eth0').has_key('addr') or about.getIfConfig('eth1').has_key('addr') or about.getIfConfig('wlan0').has_key('addr') or about.getIfConfig('ra0').has_key('addr'):
 			try:

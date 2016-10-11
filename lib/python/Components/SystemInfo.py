@@ -1,3 +1,5 @@
+from os import path
+
 from enigma import eDVBResourceManager, Misc_Options
 from Tools.Directories import fileExists, fileCheck
 from Tools.HardwareInfo import HardwareInfo
@@ -33,6 +35,7 @@ SystemInfo["FrontpanelDisplay"] = fileExists("/dev/dbox/oled0") or fileExists("/
 SystemInfo["OledDisplay"] = fileExists("/dev/dbox/oled0")
 SystemInfo["LcdDisplay"] = fileExists("/dev/dbox/lcd0")
 SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx3')
+SystemInfo["WetekImage"] = getBoxType() in ('we', 'WE', 'We', 'wetekplay') or getMachineBuild() in ('we', 'WE', 'We', 'wetekplay')
 SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
 SystemInfo["DeepstandbySupport"] = HardwareInfo().has_deepstandby()
 SystemInfo["Fan"] = fileCheck("/proc/stb/fp/fan")
@@ -53,6 +56,8 @@ SystemInfo["VFD_final_scroll_delay"] = getBoxType() not in ('et8500') and fileCh
 SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach") or fileCheck("/proc/stb/lcd/live_enable")
 SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and getBoxType() != 'gb800ueplus'
+SystemInfo["LcdPowerOn"] = fileExists("/proc/stb/power/vfd")
+SystemInfo["LCDSKINSetup"] = path.exists("/usr/share/enigma2/display")
 SystemInfo["3DMode"] = fileCheck("/proc/stb/fb/3dmode") or fileCheck("/proc/stb/fb/primary/3d")
 SystemInfo["3DZNorm"] = fileCheck("/proc/stb/fb/znorm") or fileCheck("/proc/stb/fb/primary/zoffset")
 SystemInfo["Blindscan_t2_available"] = fileCheck("/proc/stb/info/vumodel")

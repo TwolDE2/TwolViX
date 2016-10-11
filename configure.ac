@@ -97,8 +97,10 @@ AM_CONDITIONAL(EBOXLUMI, test "$BOXTYPE" == "eboxlumi")
 AM_CONDITIONAL(ET4X00, test "$BOXTYPE" == "et4x00")
 AM_CONDITIONAL(ET5X00, test "$BOXTYPE" == "et5x00")
 AM_CONDITIONAL(ET6X00, test "$BOXTYPE" == "et6x00")
-AM_CONDITIONAL(ET9X00, test "$BOXTYPE" == "et9x00")
+AM_CONDITIONAL(ET7X00, test "$BOXTYPE" == et7x00)
 AM_CONDITIONAL(ET8000, test "$BOXTYPE" == "et8000")
+AM_CONDITIONAL(ET8500, test "$BOXTYPE" == et8500)
+AM_CONDITIONAL(ET9X00, test "$BOXTYPE" == "et9x00")
 AM_CONDITIONAL(ET10000, test "$BOXTYPE" == "et10000")
 AM_CONDITIONAL(VG2000, test `echo "$BOXTYPE"` == "vg2000")
 AM_CONDITIONAL(VG5000, test `echo "$BOXTYPE"` == "vg5000")
@@ -146,6 +148,9 @@ AM_CONDITIONAL(VUDUO, test "$BOXTYPE" == vuduo)
 AM_CONDITIONAL(VUSOLO2, test "$BOXTYPE" == vusolo2)
 AM_CONDITIONAL(VUDUO2, test "$BOXTYPE" == vuduo2)
 AM_CONDITIONAL(VUZERO, test "$BOXTYPE" == vuzero)
+AM_CONDITIONAL(WETEKPLAY, test "$BOXTYPE" == wetekplay)
+AM_CONDITIONAL(WETEKPLAYPLUS, test "$BOXTYPE" == wetekplayplus)
+AM_CONDITIONAL(HAVE_WETEK_XBMC, test "$BOXTYPE" == wetekplay)
 AM_CONDITIONAL(XP1000, test "$BOXTYPE" == xp1000)
 AM_CONDITIONAL(SH1, test `echo "$BOXTYPE"` == "sh1")
 AM_CONDITIONAL(SH2, test `echo "$BOXTYPE"` == "sh2")
@@ -154,7 +159,7 @@ AM_CONDITIONAL(XC7362, test "$BOXTYPE" == xc7362)
 AM_CONDITIONAL(XC7358, test "$BOXTYPE" == xc7358)
 AM_CONDITIONAL(XC7358CI, test "$BOXTYPE" == xc7358ci)
 
-
+### should/could add opengl-amlogic
 AC_ARG_WITH(libvugles2,
 	AS_HELP_STRING([--with-libvugles2],[use libvugles2, yes or no]),
 	[with_libvugles2=$withval],[with_libvugles2=no])
@@ -252,14 +257,13 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD480, test x"$withcolorlcd480" != xno)
 
 AC_ARG_WITH(colorlcd720,
-	AC_HELP_STRING([--with-colorlcd720], [use 720x576 16bpp color display, yes or no]),
+	AC_HELP_STRING([--with-colorlcd720], [use 720x576 32bpp color display, yes or no]),
 	[[withcolorlcd720=$withval]],
 	[[withcolorlcd720=no]]
 )
 if test x"$withcolorlcd720" != xno ; then
 	AC_DEFINE(HAVE_COLORLCD720, 1,[Define when using a 720x576 color display device])
 fi
-
 AM_CONDITIONAL(HAVE_COLORLCD720, test x"$withcolorlcd720" != xno)
 
 AC_ARG_WITH(bwlcd255,
@@ -354,7 +358,25 @@ fi
 if test "$BOXTYPE" == "et7x00"; then
     AC_DEFINE(KEY_F1_TO_KEY_F2, 1,[define when rc sends a KEY_F1 event for its KEY_F2 key])
     AC_DEFINE(FORCE_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
-fi 
+fi
+
+### for now leave enabled, probably alphablending should be disabled
+if test "$BOXTYPE" == "wetekplay" -o "$BOXTYPE" == "wetekplayplus"; then
+#	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration does not have alphablending support, though the autodetection might indicate that it does])
+#	AC_DEFINE(FORCE_NO_ACCELNEVER, 1,[define when the framebuffer acceleration auto not working correct])
+	AC_DEFINE(KEY_F7_TO_KEY_MENU, 1,[define when rc sends a KEY_F7 event for its KEY_MENU])
+	AC_DEFINE(KEY_F1_TO_KEY_MEDIA, 1,[define when rc sends a KEY_F1 event for its KEY_MEDIA])
+	AC_DEFINE(KEY_HOME_TO_KEY_INFO, 1,[define when rc sends a KEY_HOME event for its KEY_INFO])
+	AC_DEFINE(KEY_BACK_TO_KEY_EXIT, 1,[define when rc sends a KEY_BACK event for its KEY_EXIT])
+	AC_DEFINE(KEY_F2_TO_KEY_EPG, 1,[define when rc sends a KEY_F2 event for its KEY_EPG])
+	AC_DEFINE(KEY_ENTER_TO_KEY_OK, 1,[define when rc sends a KEY_ENTER event for its KEY_OK])
+	AC_DEFINE(WETEKRC, 1, [WetekPlay Remote-use BACKSPACE to toggle extended functions on numeric buttons])
+	AC_DEFINE(HAVE_ALSA, 1, [try with alsa])
+	PKG_CHECK_MODULES(ALSA, alsa)
+	PKG_CHECK_MODULES(AMLPLAYER, libamcodec libamadec)
+	PKG_CHECK_MODULES(DVBCSA, libdvbcsa)
+	ALSA_CFLAGS="-lasound"
+fi
 
 if test "$BOXTYPE" == "7000s"; then
 	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
@@ -467,6 +489,7 @@ lib/python/Plugins/Extensions/PicturePlayer/meta/Makefile
 lib/python/Plugins/Extensions/SocketMMI/Makefile
 lib/python/Plugins/Extensions/SocketMMI/meta/Makefile
 lib/python/Plugins/Extensions/SocketMMI/src/Makefile
+lib/python/Plugins/Extensions/StartKodi/Makefile
 lib/python/Plugins/Extensions/TuxboxPlugins/Makefile
 lib/python/Plugins/Extensions/TuxboxPlugins/meta/Makefile
 lib/python/Plugins/SystemPlugins/Makefile

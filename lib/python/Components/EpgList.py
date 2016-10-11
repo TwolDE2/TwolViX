@@ -57,7 +57,8 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.currentlyPlaying = None
 		self.showPicon = False
 		self.showServiceTitle = True
-		self.showServiceNumber = False
+		self.primaryServiceNumbers = None;
+		self.showServiceNumber = True
 		self.screenwidth = getDesktop(0).size().width()
 
 		self.overjump_empty = overjump_empty
@@ -793,7 +794,23 @@ class EPGList(HTMLComponent, GUIComponent):
 					color = serviceForeColor, color_sel = serviceForeColor,
 					backcolor = serviceBackColor, backcolor_sel = serviceBackColor,
 					border_width = self.serviceBorderWidth, border_color = self.borderColorService))
-
+		channelWidth = 0
+		if config.epgselection.graph_showchannel1st.value and self.showServiceNumber:
+			if not isinstance(channel, int):
+				channel = self.getChannelNumber(channel)
+			
+			if channel:
+				namefont = 0
+				namefontflag = int(config.epgselection.graph_servicenumber_alignment.value)
+				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
+				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000)  and "0000" or str(channel) ).width()
+				res.append(MultiContentEntryText(
+					pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding, r1.y + self.serviceBorderWidth),
+					size = (channelWidth, r1.h - 2 * self.serviceBorderWidth),
+					font = namefont, flags = namefontflag,
+					text = str(channel),
+					color = serviceForeColor, color_sel = serviceForeColor,
+					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))			
 		displayPicon = None
 		if self.showPicon:
 			if picon is None: # go find picon and cache its location
@@ -806,7 +823,8 @@ class EPGList(HTMLComponent, GUIComponent):
 				displayPicon = loadPNG(picon)
 			if displayPicon is not None:
 				res.append(MultiContentEntryPixmapAlphaBlend(
-					pos = (r1.x + self.serviceBorderWidth, r1.y + self.serviceBorderWidth),
+					pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding + channelWidth + self.serviceNamePadding, 
+						r1.y + self.serviceBorderWidth),
 					size = (piconWidth, piconHeight),
 					png = displayPicon,
 					backcolor = None, backcolor_sel = None, flags = BT_SCALE | BT_KEEP_ASPECT_RATIO))
@@ -814,29 +832,30 @@ class EPGList(HTMLComponent, GUIComponent):
 				# no picon so show servicename anyway in picon space
 				namefont = 1
 				namefontflag = int(config.epgselection.graph_servicename_alignment.value)
-				namewidth = piconWidth
+				piconWidth = 0
+				namewidth = piconWidth + channelWidth
 			else:
 				piconWidth = 0
 		else:
 			piconWidth = 0
-
-		channelWidth = 0
-		if self.showServiceNumber:
-			if not isinstance(channel, int):
-				channel = self.getChannelNumber(channel)
+		if not config.epgselection.graph_showchannel1st.value:
+			channelWidth = 0
+			if self.showServiceNumber:
+				if not isinstance(channel, int):
+					channel = self.getChannelNumber(channel)
 			
-			if channel:
-				namefont = 0
-				namefontflag = int(config.epgselection.graph_servicenumber_alignment.value)
-				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
-				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000)  and "0000" or str(channel) ).width()
-				res.append(MultiContentEntryText(
-					pos = (r1.x + self.serviceNamePadding + piconWidth + self.serviceNamePadding, r1.y + self.serviceBorderWidth),
-					size = (channelWidth, r1.h - 2 * self.serviceBorderWidth),
-					font = namefont, flags = namefontflag,
-					text = str(channel),
-					color = serviceForeColor, color_sel = serviceForeColor,
-					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
+				if channel:
+					namefont = 0
+					namefontflag = int(config.epgselection.graph_servicenumber_alignment.value)
+					font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
+					channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000)  and "0000" or str(channel) ).width()
+					res.append(MultiContentEntryText(
+						pos = (r1.x + self.serviceNamePadding + piconWidth + self.serviceNamePadding, r1.y + self.serviceBorderWidth),
+						size = (channelWidth, r1.h - 2 * self.serviceBorderWidth),
+						font = namefont, flags = namefontflag,
+						text = str(channel),
+						color = serviceForeColor, color_sel = serviceForeColor,
+						backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
 
 		if self.showServiceTitle: # we have more space so reset parms
 			namefont = 0
@@ -1377,6 +1396,20 @@ class EPGList(HTMLComponent, GUIComponent):
 				self.instance.moveSelectionTo(index)
 				break
 			index += 1
+			
+	def setPrimaryServiceList(self,services):
+		if not services:
+			self.primaryServiceNumbers = None
+			return
+		
+		self.primaryServiceNumbers = {}
+		for x in services:
+			if hasattr(x, "ref") and x.ref:
+				numservice = x.ref
+				num = numservice and numservice.getChannelNum() or None
+				if num is not None:
+					self.primaryServiceNumbers[x.ref.toString()] = num
+		
 
 class TimelineText(HTMLComponent, GUIComponent):
 	def __init__(self, type = EPG_TYPE_GRAPH, graphic=False):

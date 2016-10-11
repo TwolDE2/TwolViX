@@ -293,8 +293,8 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("11", _("et9200/9500/6500")),
 			("13", _("et4000")),
 			("14", _("XP1000")),
+			("16", _("et7500/et7x00/et8500")),
 			("18", _("F1/F3")),
-			("16", _("HD1100/et7x00/et8500")),
 			("19", _("HD2400"))
 			]
 
@@ -303,7 +303,10 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("et5000", 7),
 			("et6000", 7),
 			("et6500", 11),
+			("et7000", 16),
+			("et7500", 16),
 			("et8000", 9),
+			("et8500", 16),
 			("et9000", 5),
 			("et9100", 5),
 			("et9200", 11),
@@ -313,10 +316,7 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("formuler3", 18),
 			("xp1000", 14),
 			("hd1100", 16),
-			("hd2400", 19),
-			("et7000", 16),
-			("et7500", 16),
-			("et8500", 16)
+			("hd2400", 19)
 		]
 
 	def __init__(self, session, menu_path=""):

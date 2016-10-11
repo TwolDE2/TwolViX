@@ -1,7 +1,7 @@
 import os
 import time
 from Tools.CList import CList
-from SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo
 from Components.Console import Console
 from boxbranding import getMachineBuild
 import Task
