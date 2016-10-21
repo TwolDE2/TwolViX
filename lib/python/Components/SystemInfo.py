@@ -63,5 +63,6 @@ SystemInfo["3DZNorm"] = fileCheck("/proc/stb/fb/znorm") or fileCheck("/proc/stb/
 SystemInfo["Blindscan_t2_available"] = fileCheck("/proc/stb/info/vumodel")
 SystemInfo["HasForceLNBOn"] = fileCheck("/proc/stb/frontend/fbc/force_lnbon")
 SystemInfo["HasForceToneburst"] = fileCheck("/proc/stb/frontend/fbc/force_toneburst")
-SystemInfo["HasMMC"] = getBoxType() in ('vusolo4k', 'hd51', 'hd52')
+SystemInfo["HaveMultiBoot"] = fileCheck("/boot/STARTUP") or fileCheck("/boot/STARTUP_1")
+SystemInfo["HasMMC"] = getMachineBuild() in ('vusolo4k','hd51','hd52')
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
