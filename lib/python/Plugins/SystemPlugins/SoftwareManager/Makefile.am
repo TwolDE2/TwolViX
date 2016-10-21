@@ -7,6 +7,9 @@ install_PYTHON =	\
 	plugin.py \
 	BackupRestore.py \
 	ImageWizard.py \
+	HD51Flash.py \
+	HD51Imager.py \
+	HD51MultiBoot.py \
 	SoftwareTools.py
 
 dist_install_DATA = \
