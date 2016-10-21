@@ -3,7 +3,8 @@ import time
 from Tools.CList import CList
 from Components.SystemInfo import SystemInfo
 from Components.Console import Console
-from boxbranding import getMachineBuild
+from Tools.HardwareInfo import HardwareInfo
+from boxbranding import getBoxType, getMachineBuild
 import Task
 
 def readFile(filename):
@@ -11,6 +12,15 @@ def readFile(filename):
 	data = file.read().strip()
 	file.close()
 	return data
+
+def getextdevices(ext):
+	cmd ='blkid -t TYPE=%s -o device'%ext
+	extdevices = os.popen(cmd).read().replace('\n', ',').rstrip(",")
+	if extdevices == "":
+		return None
+	else:
+		extdevices = [x.strip() for x in extdevices.split(",")]
+		return extdevices
 
 def getProcMounts():
 	try:
