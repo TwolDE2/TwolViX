@@ -2,7 +2,9 @@
 # FULL BACKUP UYILITY FOR ENIGMA2, SUPPORTS THE MODELS OE-A 3.4     			#
 #	                         						                            #
 #		MAKES A FULLBACK-UP READY FOR FLASHING.						#
-#			Thanks to OpenATV																	#
+#
+#        Thanks to OpenATV Team for supplyng most of this code
+#												#
 #################################################################################
 from enigma import getEnigmaVersionString
 from Screens.Screen import Screen

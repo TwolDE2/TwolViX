@@ -25,6 +25,9 @@ ImageVersion = getImageVersion()
 ROOTFSBIN = getMachineRootFile()
 KERNELBIN = getMachineKernelFile()
 #############################################################################################################
+#
+#        Thanks to OpenATV Team for supplyng most of this code
+#
 feedurl_ViX = 'http://192.168.0.26/openvix-builds' 
 imagePath = '/media/hdd/images'
 flashPath = '/media/hdd/images/flash'
