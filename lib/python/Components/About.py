@@ -1,4 +1,4 @@
-from boxbranding import getImageVersion, getBoxType
+from boxbranding import getBoxType, getMachineBuild, getImageVersion
 from sys import modules
 import socket, fcntl, struct
 
@@ -41,54 +41,68 @@ def getChipSetString():
 
 def getCPUSpeedString():
 	cpu_speed = 0
-	try:
-		file = open('/proc/cpuinfo', 'r')
-		lines = file.readlines()
-		file.close()
-		for x in lines:
-			splitted = x.split(': ')
-			if len(splitted) > 1:
-				splitted[1] = splitted[1].replace('\n','')
-				if splitted[0].startswith("cpu MHz"):
-					cpu_speed = float(splitted[1].split(' ')[0])
-					break
-	except IOError:
-		print "[About] getCPUSpeedString, /proc/cpuinfo not available"
-
-	if cpu_speed == 0:
-		try: # Solo4K
-			file = open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq', 'r')
-			cpu_speed = float(file.read()) / 1000
+	if getMachineBuild() in ('vusolo4k'):
+		return "1,5 GHz"
+	elif getMachineBuild() in ('hd51','hd52'):
+		try:
+			import binascii
+			f = open('/sys/firmware/devicetree/base/cpus/cpu@0/clock-frequency', 'rb')
+			clockfrequency = f.read()
+			f.close()
+			return "%s MHz" % str(round(int(binascii.hexlify(clockfrequency), 16)/1000000,1))
+		except:
+			return "1,7 GHz"
+	else:
+		try:
+			file = open('/proc/cpuinfo', 'r')
+			lines = file.readlines()
 			file.close()
+			for x in lines:
+				splitted = x.split(': ')
+				if len(splitted) > 1:
+					splitted[1] = splitted[1].replace('\n','')
+					if splitted[0].startswith("cpu MHz"):
+						cpu_speed = float(splitted[1].split(' ')[0])
+						break
 		except IOError:
-			print "[About] getCPUSpeedString, /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq not available"
+			print "[About] getCPUSpeedString, /proc/cpuinfo not available"
 
-	if cpu_speed > 0:
-		if cpu_speed >= 1000:
-			cpu_speed = "%s GHz" % str(round(cpu_speed/1000,1))
-		else:
-			cpu_speed = "%s MHz" % str(round(cpu_speed,1))
-		return cpu_speed
-	return _("unavailable")
+		if cpu_speed == 0:
+			try: # Solo4K
+				file = open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq', 'r')
+				cpu_speed = float(file.read()) / 1000
+				file.close()
+			except IOError:
+				print "[About] getCPUSpeedString, /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq not available"
+
+		if cpu_speed > 0:
+			if cpu_speed >= 1000:
+				cpu_speed = "%s GHz" % str(round(cpu_speed/1000,1))
+			else:
+				cpu_speed = "%s MHz" % str(round(cpu_speed,1))
+			return cpu_speed
+		return _("unavailable")
 
 def getCPUString():
-	system = _("unavailable")
-	try:
-		system="unknown"
-		file = open('/proc/cpuinfo', 'r')
-		lines = file.readlines()
-		for x in lines:
-			splitted = x.split(': ')
-			if len(splitted) > 1:
-				splitted[1] = splitted[1].replace('\n','')
-				if splitted[0].startswith("system type"):
-					system = splitted[1].split(' ')[0]
-				elif splitted[0].startswith("model name"):
-					system = splitted[1].split(' ')[0]
-		file.close()
-		return system
-	except IOError:
-		return _("unavailable")
+	if getMachineBuild() in ('vusolo4k', 'hd51', 'hd52'):
+		return "Broadcom"
+	else:
+		try:
+			system="unknown"
+			file = open('/proc/cpuinfo', 'r')
+			lines = file.readlines()
+			for x in lines:
+				splitted = x.split(': ')
+				if len(splitted) > 1:
+					splitted[1] = splitted[1].replace('\n','')
+					if splitted[0].startswith("system type"):
+						system = splitted[1].split(' ')[0]
+					elif splitted[0].startswith("model name"):
+						system = splitted[1].split(' ')[0]
+			file.close()
+			return system
+		except IOError:
+			return _("unavailable")
 
 def getCpuCoresString():
 	try:
