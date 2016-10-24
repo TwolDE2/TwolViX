@@ -1,4 +1,4 @@
-AC_INIT([enigma2],[3.0.0],[enigma2-devel@lists.elitedvb.net])
+AC_INIT([enigma2],[5.0.0],[http://www.openvix.co.uk/])
 AM_INIT_AUTOMAKE([dist-bzip2 no-define tar-pax -Wno-portability])
 AC_CONFIG_HEADERS([enigma2_config.h])
 
@@ -515,6 +515,8 @@ lib/python/Plugins/SystemPlugins/SatelliteEquipmentControl/Makefile
 lib/python/Plugins/SystemPlugins/SatelliteEquipmentControl/meta/Makefile
 lib/python/Plugins/SystemPlugins/Satfinder/Makefile
 lib/python/Plugins/SystemPlugins/Satfinder/meta/Makefile
+lib/python/Plugins/SystemPlugins/SoftwareManager/Makefile
+lib/python/Plugins/SystemPlugins/SoftwareManager/meta/Makefile
 lib/python/Plugins/SystemPlugins/VideoClippingSetup/Makefile
 lib/python/Plugins/SystemPlugins/VideoEnhancement/Makefile
 lib/python/Plugins/SystemPlugins/VideoEnhancement/meta/Makefile
