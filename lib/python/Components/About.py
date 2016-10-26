@@ -31,13 +31,17 @@ def getKernelVersionString():
 		return _("unknown")
 
 def getChipSetString():
-	try:
-		f = open('/proc/stb/info/chipset', 'r')
-		chipset = f.read()
-		f.close()
-		return str(chipset.lower().replace('\n','').replace('bcm','').replace('brcm',''))
-	except IOError:
-		return _("unavailable")
+
+	if getMachineBuild() in ('hd51'):
+		return "7251S"
+	else:
+		try:
+			f = open('/proc/stb/info/chipset', 'r')
+			chipset = f.read()
+			f.close()
+			return str(chipset.lower().replace('\n','').replace('bcm','').replace('brcm',''))
+		except IOError:
+			return _("unavailable")
 
 def getCPUSpeedString():
 	cpu_speed = 0
@@ -67,21 +71,6 @@ def getCPUSpeedString():
 		except IOError:
 			print "[About] getCPUSpeedString, /proc/cpuinfo not available"
 
-		if cpu_speed == 0:
-			try: # Solo4K
-				file = open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq', 'r')
-				cpu_speed = float(file.read()) / 1000
-				file.close()
-			except IOError:
-				print "[About] getCPUSpeedString, /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq not available"
-
-		if cpu_speed > 0:
-			if cpu_speed >= 1000:
-				cpu_speed = "%s GHz" % str(round(cpu_speed/1000,1))
-			else:
-				cpu_speed = "%s MHz" % str(round(cpu_speed,1))
-			return cpu_speed
-		return _("unavailable")
 
 def getCPUString():
 	if getMachineBuild() in ('vusolo4k', 'hd51', 'hd52'):
