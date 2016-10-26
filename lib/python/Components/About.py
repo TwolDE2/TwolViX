@@ -1,4 +1,4 @@
-from boxbranding import getBoxType, getMachineBuild, getImageVersion
+from boxbranding import getImageVersion, getMachineBuild, getBoxType
 from sys import modules
 import socket, fcntl, struct
 
@@ -46,7 +46,12 @@ def getChipSetString():
 def getCPUSpeedString():
 	cpu_speed = 0
 	if getMachineBuild() in ('vusolo4k'):
-		return "1,5 GHz"
+		try: # Solo4K
+				file = open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq', 'r')
+				cpu_speed = float(file.read()) / 1000
+				file.close()
+			except IOError:
+				print "[About] getCPUSpeedString, /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
 	elif getMachineBuild() in ('hd51','hd52'):
 		try:
 			import binascii
