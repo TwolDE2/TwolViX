@@ -126,6 +126,13 @@ class About(Screen):
 		if bootname: bootname = "   (%s)" %bootname 
 		AboutText += _("Selected Image:\t%s") % "STARTUP_" + image + bootname + "\n"
 
+		bootloader = ""
+		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
+				f = open('/sys/firmware/devicetree/base/bolt/tag', 'r')
+				bootloader = f.readline().replace('\x00', '').replace('\n', '')
+				f.close()
+				AboutText += _("Bootloader:\t\t%s\n") % (bootloader)
+
 		imageSubBuild = ""
 		if getImageType() != 'release':
 			imageSubBuild = ".%s" % getImageDevBuild()
@@ -180,12 +187,6 @@ class About(Screen):
 			fp_version = _("Frontprocessor version: %d") % fp_version
 			AboutText += fp_version + "\n"
 
-		bootloader = ""
-		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
-				f = open('/sys/firmware/devicetree/base/bolt/tag', 'r')
-				bootloader = f.readline().replace('\x00', '').replace('\n', '')
-				f.close()
-				AboutText += _("Bootloader:\t\t%s\n") % (bootloader)
 
 		self["AboutScrollLabel"] = ScrollLabel(AboutText)
 
