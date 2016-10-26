@@ -123,8 +123,8 @@ class About(Screen):
 			f.seek(22)
 			image = f.read(1) 
 			f.close()
-		if bootname: bootname = "   (%s)" %bootname 
-		AboutText += _("Selected Image:\t%s") % "STARTUP_" + image + bootname + "\n"
+			if bootname: bootname = "   (%s)" %bootname 
+			AboutText += _("Selected Image:\t%s") % "STARTUP_" + image + bootname + "\n"
 
 		bootloader = ""
 		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
