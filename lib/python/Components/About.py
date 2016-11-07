@@ -82,7 +82,7 @@ def getCPUString():
 		return "Broadcom"
 	else:
 		try:
-			system="unknown"
+			system = _("unavailable")
 			file = open('/proc/cpuinfo', 'r')
 			lines = file.readlines()
 			for x in lines:
