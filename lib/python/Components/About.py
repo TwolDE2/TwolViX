@@ -67,7 +67,7 @@ def getCPUSpeedString():
 				clockfrequency = f.read()
 				f.close()
 				cpu_speed = round(int(binascii.hexlify(clockfrequency), 16)/1000000,1)
-			except:
+			except IOError:
 				return "1,7 GHz"
 		else:
 			try: # Solo4K
