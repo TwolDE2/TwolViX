@@ -94,7 +94,7 @@ class HD51Flash(Screen):
 		if SystemInfo["HaveMultiBoot"]:
 			self.multi = self.read_startup("/boot/" + self.list[self.selection]).split(".",1)[1].split(" ",1)[0]
 			self.multi = self.multi[-1:]
-			print "[Flash Online] MULTI:",self.multi
+			print "[Flash Online1] MULTI:",self.multi
 
 	def check_hdd(self):
 		if not os.path.exists("/media/hdd"):
@@ -147,10 +147,10 @@ class HD51Flash(Screen):
 			self["key_yellow"].setText(_(self.list[self.selection]))
 			self.multi = self.read_startup("/boot/" + self.list[self.selection]).split(".",1)[1].split(" ",1)[0]
 			self.multi = self.multi[-1:]
-			print "[Flash Online] MULTI:",self.multi
+			print "[Flash OnlineY1] MULTI:",self.multi
 			cmdline = self.read_startup("/boot/" + self.list[self.selection]).split("=",1)[1].split(" ",1)[0]
 			self.devrootfs = cmdline
-			print "[Flash Online] MULTI rootfs ", self.devrootfs
+			print "[Flash OnlineY2] MULTI rootfs ", self.devrootfs
 
 	def read_startup(self, FILE):
 		file = FILE
@@ -434,12 +434,12 @@ class doFlashImage(Screen):
 					message += _('The image or kernel will be flashing and auto booted in few minutes.\n')
 
 				message += "'"
-				cmdlist.append(message)
-				self.session.open(Console, title = text, cmdlist = cmdlist, finishedCallback = self.quit, closeOnSuccess = False)
-				if not self.simulate:
-					fbClass.getInstance().lock()
-				if not self.List == "STARTUP":
-					self.close()
+			cmdlist.append(message)
+			self.session.open(Console, title = text, cmdlist = cmdlist, finishedCallback = self.quit, closeOnSuccess = False)
+			if not self.simulate:
+				fbClass.getInstance().lock()
+			if not self.List == "STARTUP":
+				self.close()
 
 	def prepair_flashtmp(self, tmpPath):
 		if os.path.exists(flashTmp):
