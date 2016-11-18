@@ -66,3 +66,4 @@ SystemInfo["HasForceToneburst"] = fileCheck("/proc/stb/frontend/fbc/force_tonebu
 SystemInfo["HaveMultiBoot"] = fileCheck("/boot/STARTUP") or fileCheck("/boot/STARTUP_1")
 SystemInfo["HasMMC"] = getBoxType() in ('vuuno4k', 'vuultimo4k', 'vusolo4k', 'mutant51', 'mutant52')
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
+SystemInfo["CanDoTranscodeAndPIP"] = getBoxType() in ('vusolo4k',)
