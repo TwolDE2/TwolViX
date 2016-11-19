@@ -415,6 +415,7 @@ class doFlashImage(Screen):
 			else:
 				text += _("root and kernel")
 				if SystemInfo["HaveMultiBoot"]:
+					print "Flashing 1 from %s to %s" %(self.List,self.devrootfs) 
 					if not self.List == "STARTUP":
 						os.system('mkfs.ext4 -F ' + self.devrootfs)
 					cmdlist.append("%s -r -k -m%s %s > /dev/null 2>&1" % (ofgwritePath, self.multi, flashTmp))
