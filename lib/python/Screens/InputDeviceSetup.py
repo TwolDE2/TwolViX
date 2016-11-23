@@ -357,6 +357,10 @@ class RemoteControlType(Screen, ConfigListScreen):
 			if x[0] in data:
 				self.defaultRcType = x[1]
 				break
+# If there is none in the list, use the current value...
+#
+		if self.defaultRcType == 0:
+			self.defaultRcType = iRcTypeControl.readRcType()
 
 	def setDefaultRcType(self):
 		iRcTypeControl.writeRcType(self.defaultRcType)

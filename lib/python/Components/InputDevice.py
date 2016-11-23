@@ -224,4 +224,10 @@ class RcTypeControl():
 		fd.write('%d' % rctype)
 		fd.close()
 
+	def readRcType(self):
+		fd = open('/proc/stb/ir/rc/type', 'r')
+		rc =  int(fd.read()) 
+		fd.close()
+		return rc
+
 iRcTypeControl = RcTypeControl()
