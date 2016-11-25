@@ -9,7 +9,7 @@ from Components.About import about
 from Components.ScrollLabel import ScrollLabel
 from Components.Console import Console
 from Components.config import config
-from enigma import eTimer, getEnigmaVersionString
+from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getBoxType, getMachineBuild, getMachineBrand, getMachineName, getImageVersion, getImageBuild, getDriverDate, getImageType, getImageDevBuild
 
 from Components.Pixmap import MultiPixmap
