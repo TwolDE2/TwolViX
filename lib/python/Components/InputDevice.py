@@ -205,9 +205,12 @@ class RcTypeControl():
 	def __init__(self):
 		self.boxType = ""
 		if pathExists('/proc/stb/ir/rc/type') and pathExists('/proc/stb/info/boxtype') and getBrandOEM() != 'gigablue':
-
 			self.isSupported = True
-			self.boxType = open('/proc/stb/info/boxtype', 'r').read().strip()
+
+			fd = open('/proc/stb/info/boxtype', 'r')
+			self.boxType = fd.read().strip()
+			fd.close()
+
 			if config.plugins.remotecontroltype.rctype.value != 0:
 				self.writeRcType(config.plugins.remotecontroltype.rctype.value)
 		else:
@@ -220,7 +223,9 @@ class RcTypeControl():
 		return self.boxType
 
 	def writeRcType(self, rctype):
-		open('/proc/stb/ir/rc/type', 'w').write(rctype and '%d' % rctype or '0')
+		fd = open('/proc/stb/ir/rc/type', 'w')
+		fd.write(rctype and '%d' % rctype or '0')
+		fd.close()
 
 	def readRcType(self):
 		fd = open('/proc/stb/ir/rc/type', 'r')
