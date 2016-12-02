@@ -10,11 +10,9 @@ from Components.ScrollLabel import ScrollLabel
 from Components.Console import Console
 from Components.config import config
 from enigma import eTimer, getEnigmaVersionString, getDesktop
-from boxbranding import getBoxType, getMachineBuild, getMachineBrand, getMachineName, getImageVersion, getImageBuild, getDriverDate, getImageType, getImageDevBuild
-
+from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild, getMachineBuild
 from Components.Pixmap import MultiPixmap
 from Components.Network import iNetwork
-
 from Tools.StbHardware import getFPVersion
 from Components.InputDevice import iInputDevices, iRcTypeControl
 from os import path
@@ -154,21 +152,6 @@ class About(Screen):
 		AboutText += _("Last update:\t%s\n") % getEnigmaVersionString()
 		AboutText += _("E2 (re)starts:\t%s\n") % config.misc.startCounter.value
 		AboutText += _("Skin:\t%s") % config.skin.primary_skin.value[0:-9] + _("  (%s x %s)") % (skinWidth, skinHeight) + "\n"
-
-		if path.exists('/etc/enigma2/EtRcType'):
-			rfp = open('/etc/enigma2/EtRcType', "r")
-			Remote = rfp.read()
-			rfp.close
-			AboutText += _("R/C type:\t%s") + Remote + "\n"
-		else:
-			remote = iRcTypeControl.getBoxType().strip()
-			if remote:
-				AboutText += _("R/C type:\t") + remote + "\n"
-		if path.exists('/proc/stb/ir/rc/type'):
-			fp = open('/proc/stb/ir/rc/type', "r")
-			RcID = fp.read()
-			fp.close
-			AboutText += _("R/C ID:\t") + RcID + "\n"
 
 		tempinfo = ""
 		if path.exists('/proc/stb/sensors/temp0/value'):
