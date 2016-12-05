@@ -31,16 +31,12 @@ from Components.PluginComponent import plugins
 from Components.PackageInfo import PackageInfoHandler
 from Components.Language import language
 from Components.AVSwitch import AVSwitch
-from Components.SystemInfo import SystemInfo
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_PLUGIN, SCOPE_ACTIVE_SKIN, SCOPE_METADIR
 from Tools.LoadPixmap import LoadPixmap
 from Tools.NumericalTextInput import NumericalTextInput
 from ImageWizard import ImageWizard
 from BackupRestore import BackupSelection, RestoreMenu, BackupScreen, RestoreScreen, getBackupPath, getBackupFilename
 from SoftwareTools import iSoftwareTools
-from HD51Flash import HD51Flash
-from HD51Imager import HD51Imager
-from HD51MultiBoot import HD51MultiBoot
 
 
 config.plugins.configurationbackup = ConfigSubsection()
@@ -131,10 +127,9 @@ class UpdatePluginMenu(Screen):
 		self.backupdirs = ' '.join( config.plugins.configurationbackup.backupdirs.value )
 		if self.menu == 0:
 			print "building menu entries"
-			if SystemInfo["HaveMultiBoot"]:
-				self.list.append(("flash-online", _("HD51 Flash Online"), _("\nFlash on the fly your %s %s.") % (getMachineBrand(), getMachineName()) + self.oktext, None))
-				self.list.append(("backup-image", _("HD51 Backup Image"), _("\nBackup your running %s %s image to HDD or USB.") % (getMachineBrand(), getMachineName()) + self.oktext, None))
-				self.list.append(("image-boot", _("HD51 Select Boot Image"), _("\nChange Bootup for your %s %s ") % (getMachineBrand(), getMachineName()) + self.oktext, None))	
+			self.list.append(("install-extensions", _("Manage extensions"), _("\nManage extensions or plugins for your %s %s") % (getMachineBrand(), getMachineName()) + self.oktext, None))
+			self.list.append(("software-update", _("Software update"), _("\nOnline update of your %s %s software.") % (getMachineBrand(), getMachineName()) + self.oktext, None))
+			self.list.append(("software-restore", _("Software restore"), _("\nRestore your %s %s with a new firmware.") % (getMachineBrand(), getMachineName()) + self.oktext, None))
 			self.list.append(("system-backup", _("Backup system settings"), _("\nBackup your %s %s settings.") % (getMachineBrand(), getMachineName()) + self.oktext + "\n\n" + self.infotext, None))
 			self.list.append(("system-restore",_("Restore system settings"), _("\nRestore your %s %s settings.") % (getMachineBrand(), getMachineName()) + self.oktext, None))
 			self.list.append(("ipkg-install", _("Install local extension"),  _("\nScan for local extensions and install them.") + self.oktext, None))
@@ -266,13 +261,7 @@ class UpdatePluginMenu(Screen):
 					self.session.open(ImageWizard)
 				elif currentEntry == "install-extensions":
 					self.session.open(PluginManager, self.skin_path)
-				elif (currentEntry == "flash-online"):
-					self.session.open(HD51Flash)
-				elif (currentEntry == "backup-image"):
-					self.session.open(HD51Imager)
-				elif (currentEntry == "image-boot"):
-					self.session.open(HD51MultiBoot)
-				elif (currentEntry == "system-backup"):
+				elif currentEntry == "system-backup":
 					self.session.openWithCallback(self.backupDone,BackupScreen, runBackup = True)
 				elif currentEntry == "system-restore":
 					if os_path.exists(self.fullbackupfilename):
