@@ -1076,6 +1076,7 @@ def InitUsageConfig():
 		('epgsearch', _('EPG search'))
 ])
 
+
 	if not os.path.exists("/usr/softcams/"):
 		os.mkdir("/usr/softcams/", 0755)
 	softcams = os.listdir("/usr/softcams/")
