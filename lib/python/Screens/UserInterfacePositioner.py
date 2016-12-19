@@ -7,7 +7,7 @@ from Components.Sources.StaticText import StaticText
 from Components.Pixmap import Pixmap
 from Components.Console import Console
 from Components.Language import language
-from Tools.Directories import fileCheck
+from Tools.Directories import fileCheck, fileExists
 from enigma import getDesktop
 from os import access, R_OK
 from boxbranding import getBoxType, getBrandOEM
