@@ -200,6 +200,12 @@ class LCD:
 		f.write(value)
 		f.close()
 
+	def setEt8500(self, value):
+		print 'setLCDet8500',value
+		f = open("/proc/stb/fb/sd_detach", "w")
+		f.write(value)
+		f.close()
+
 	def setShowoutputresolution(self, value):
 		if fileExists("/proc/stb/lcd/show_outputresolution"):
 			print 'setLCDShowoutputresolution',value
@@ -331,6 +337,9 @@ def InitLcd():
 		def setLCDpower(configElement):
 			ilcd.setPower(configElement.value);
 
+		def setLCD8500(configElement):
+			ilcd.setEt8500(configElement.value);
+
 		def setLCDshowoutputresolution(configElement):
 			ilcd.setShowoutputresolution(configElement.value);
 
@@ -392,6 +401,12 @@ def InitLcd():
 			config.lcd.power.addNotifier(setLCDpower);
 		else:
 			config.lcd.power = ConfigNothing()
+
+		if fileExists("/proc/stb/fb/sd_detach"):
+			config.lcd.et8500 = ConfigSelection([("1", _("No")), ("0", _("Yes"))], "0")
+			config.lcd.et8500.addNotifier(setLCD8500);
+		else:
+			config.lcd.et8500 = ConfigNothing()
 
 		if SystemInfo["LcdLiveTV"]:
 			def lcdLiveTvChanged(configElement):
@@ -468,6 +483,7 @@ def InitLcd():
 		config.lcd.standby.apply = lambda : doNothing()
 		config.lcd.mode = ConfigNothing()
 		config.lcd.power = ConfigNothing()
+		config.lcd.et8500 = ConfigNothing()
 		config.lcd.ledbrightness = ConfigNothing()
 		config.lcd.ledbrightness.apply = lambda : doNothing()
 		config.lcd.ledbrightnessstandby = ConfigNothing()

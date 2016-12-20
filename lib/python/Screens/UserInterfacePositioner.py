@@ -33,6 +33,9 @@ def InitOsd():
 	SystemInfo["CanChangeOsdPosition"] = access('/proc/stb/fb/dst_left', R_OK) and True or False
 	SystemInfo["OsdSetup"] = SystemInfo["CanChangeOsdPosition"]
 
+	if getBoxType() in ('et8500'):
+		SystemInfo["CanChangeOsdPosition"] = False
+ 
 	def languageNotifier(configElement):
 		language.activateLanguage(configElement.value)
 
@@ -74,6 +77,14 @@ def InitOsd():
 			setPositionParameter("height", configElement)
 	config.osd.dst_height.addNotifier(setOSDHeight)
 	print '[UserInterfacePositioner] Setting OSD position: %s %s %s %s' %  (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value)
+
+	if getBoxType() in ('et8500'):
+		SystemInfo["CanChangeOsdPosition"] = True
+		config.osd.dst_left.save()
+		config.osd.dst_width.save()
+		config.osd.dst_top.save()
+		config.osd.dst_height.save()
+		configfile.save()
 
 	def setOSDAlpha(configElement):
 		if SystemInfo["CanChangeOsdAlpha"]:
@@ -207,9 +218,11 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		config.osd.dst_width.setValue(dst_width)
 		config.osd.dst_top.setValue(dst_top)
 		config.osd.dst_height.setValue(dst_height)
+
 		print '[UserInterfacePositioner] Setting OSD position: %s %s %s %s' %  (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value)
 
 	def saveAll(self):
+		print '[UserInterfacePositioner] Setting OSD position ET8500: saveALL %s' % self["config"].list
 		for x in self["config"].list:
 			x[1].save()
 		configfile.save()
@@ -217,13 +230,14 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 	# keySave and keyCancel are just provided in case you need them.
 	# you have to call them by yourself.
 	def keySave(self):
+		print '[UserInterfacePositioner] Setting OSD position ET8500: keySAVE'
 		self.saveAll()
 		self.close()
 
 	def cancelConfirm(self, result):
 		if not result:
 			return
-
+		print '[UserInterfacePositioner] Setting OSD position ET8500: cancelCONFIRM'
 		for x in self["config"].list:
 			x[1].cancel()
 		self.close()
@@ -236,6 +250,7 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 			self.close()
 
 	def run(self):
+		print '[UserInterfacePositioner] Setting OSD position ET8500: RUN'
 		config.osd.dst_left.save()
 		config.osd.dst_width.save()
 		config.osd.dst_top.save()
