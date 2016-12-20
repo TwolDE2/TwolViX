@@ -211,6 +211,7 @@
 	</setup>
 	<setup key="display" title="Settings" requires="FrontpanelDisplay">
 		<item level="0" text="Power on/off display" description="This option allows you to power off the display." requires="LcdLiveTV">config.lcd.power</item>
+		<item level="0" text="Power on/off display" description="This option allows you to power off the display." requires="LcdLiveTV0">config.lcd.power</item>
 		<item level="0" text="Clone TV screen to LCD" description="Shows live tv or informations on LCD." requires="LcdLiveTV0">config.lcd.et8500</item>
 		<item level="0" text="Clone TV screen to LCD" description="Shows live tv or informations on LCD." requires="LcdLiveTV">config.lcd.showTv</item>
 		<item level="0" text="Brightness (Normal)" description="Configure the brightness level of the front panel display for normal operation.">config.lcd.bright</item>
