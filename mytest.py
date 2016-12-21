@@ -605,22 +605,23 @@ profile("SetupDevices")
 import Components.SetupDevices
 Components.SetupDevices.InitSetupDevices()
 
-profile("UserInterface")
-import Screens.UserInterfacePositioner
-Screens.UserInterfacePositioner.InitOsd()
+profile("UsageConfig")
+import Components.UsageConfig
+Components.UsageConfig.InitUsageConfig()
 
 profile("AVSwitch")
 import Components.AVSwitch
 Components.AVSwitch.InitAVSwitch()
 Components.AVSwitch.InitiVideomodeHotplug()
 
+profile("LCD")
+import Components.Lcd
+Components.Lcd.InitLcd()
+Components.Lcd.IconCheck()
+
 profile("RecordingConfig")
 import Components.RecordingConfig
 Components.RecordingConfig.InitRecordingConfig()
-
-profile("UsageConfig")
-import Components.UsageConfig
-Components.UsageConfig.InitUsageConfig()
 
 profile("Init:DebugLogCheck")
 import Screens.LogManager
@@ -642,11 +643,6 @@ profile("Network")
 import Components.Network
 Components.Network.InitNetwork()
 
-profile("LCD")
-import Components.Lcd
-Components.Lcd.InitLcd()
-Components.Lcd.IconCheck()
-
 profile("EpgCacheSched")
 import Components.EpgLoadSave
 Components.EpgLoadSave.EpgCacheSaveCheck()
@@ -662,6 +658,10 @@ Screens.Ci.InitCiConfig()
 
 profile("RcModel")
 import Components.RcModel
+
+profile("UserInterface")
+import Screens.UserInterfacePositioner
+Screens.UserInterfacePositioner.InitOsd()
 
 #from enigma import dump_malloc_stats
 #t = eTimer()
