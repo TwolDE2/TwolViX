@@ -33,6 +33,9 @@ def InitOsd():
 	SystemInfo["CanChangeOsdPosition"] = access('/proc/stb/fb/dst_left', R_OK) and True or False
 	SystemInfo["OsdSetup"] = SystemInfo["CanChangeOsdPosition"]
 
+	if getBoxType() in ('et8500'):
+		SystemInfo["CanChangeOsdPosition"] = False
+
 	def languageNotifier(configElement):
 		language.activateLanguage(configElement.value)
 
@@ -75,6 +78,9 @@ def InitOsd():
 	config.osd.dst_height.addNotifier(setOSDHeight)
 	print '[UserInterfacePositioner] Setting OSD position: %s %s %s %s' %  (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value)
 
+	if getBoxType() in ('et8500'):
+		SystemInfo["CanChangeOsdPosition"] = True
+
 	def setOSDAlpha(configElement):
 		if SystemInfo["CanChangeOsdAlpha"]:
 			print '[UserInterfacePositioner] Setting OSD alpha:', str(configElement.value)
@@ -100,6 +106,40 @@ def InitOsd():
 			f.write('%d' % int(configElement.value))
 			f.close()
 	config.osd.threeDznorm.addNotifier(set3DZnorm)
+
+def InitOsd2():
+	SystemInfo["CanChange3DOsd"] = (access('/proc/stb/fb/3dmode', R_OK) or access('/proc/stb/fb/primary/3d', R_OK)) and True or False
+	SystemInfo["CanChangeOsdAlpha"] = access('/proc/stb/video/alpha', R_OK) and True or False
+	SystemInfo["CanChangeOsdPosition"] = access('/proc/stb/fb/dst_left', R_OK) and True or False
+	SystemInfo["OsdSetup"] = SystemInfo["CanChangeOsdPosition"]
+
+	if SystemInfo["CanChangeOsdAlpha"] == True or SystemInfo["CanChangeOsdPosition"] == True:
+		SystemInfo["OsdMenu"] = True
+	else:
+		SystemInfo["OsdMenu"] = False
+
+	def setOSDLeft(configElement):
+		if SystemInfo["CanChangeOsdPosition"]:
+			setPositionParameter("left", configElement)
+	config.osd.dst_left.addNotifier(setOSDLeft)
+
+	def setOSDWidth(configElement):
+		if SystemInfo["CanChangeOsdPosition"]:
+			setPositionParameter("width", configElement)
+	config.osd.dst_width.addNotifier(setOSDWidth)
+
+	def setOSDTop(configElement):
+		if SystemInfo["CanChangeOsdPosition"]:
+			setPositionParameter("top", configElement)
+	config.osd.dst_top.addNotifier(setOSDTop)
+
+	def setOSDHeight(configElement):
+		if SystemInfo["CanChangeOsdPosition"]:
+			setPositionParameter("height", configElement)
+	config.osd.dst_height.addNotifier(setOSDHeight)
+	print '[UserInterfacePositioner] Setting OSD position ET8500: %s %s %s %s' %  (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value)
+
+
 
 class UserInterfacePositioner(Screen, ConfigListScreen):
 	def __init__(self, session, menu_path=""):
