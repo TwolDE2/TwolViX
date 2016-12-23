@@ -27,6 +27,10 @@ def setPositionParameter(parameter, configElement):
 		f.write('1')
 		f.close()
 
+	#	InitOsd is now the 2nd Initialisation routine and is called after LCD iniialisation
+	#	by mytest.py .. this was historically the case before the 3D modification
+	#	It is important that this call remains in mytest.py at this position!
+
 def InitOsd():
 	SystemInfo["CanChangeOsdAlpha"] = access('/proc/stb/video/alpha', R_OK) and True or False
 	SystemInfo["CanChangeOsdPosition"] = access('/proc/stb/fb/dst_left', R_OK) and True or False
@@ -67,6 +71,9 @@ def InitOsd():
 			f.close()
 	config.osd.alpha.addNotifier(setOSDAlpha)
 
+
+	#	InitOsd3D is the 1st Initialisation routine and is called by mytest.py to enable 3D setup by Videomode.py
+	#	It is important that this call remains in mytest.py at this position! 
 
 def InitOsd3D():
 	SystemInfo["CanChange3DOsd"] = (access('/proc/stb/fb/3dmode', R_OK) or access('/proc/stb/fb/primary/3d', R_OK)) and True or False
