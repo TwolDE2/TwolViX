@@ -10,13 +10,11 @@ from Components.Language import language
 from Tools.Directories import fileCheck, fileExists
 from enigma import getDesktop
 from os import access, R_OK
-from boxbranding import getBoxType, getBrandOEM
+
+from boxbranding import getBoxType
 
 def getFilePath(setting):
-	if getBrandOEM() in ('dreambox'):
-		return "/proc/stb/vmpeg/0/dst_%s" % (setting)
-	else:
-		return "/proc/stb/fb/dst_%s" % (setting)
+	return "/proc/stb/fb/dst_%s" % (setting)
 
 def setPositionParameter(parameter, configElement):
 	f = open(getFilePath(parameter), "w")
@@ -89,8 +87,6 @@ def InitOsd3D():
 	config.osd.dst_top = ConfigSelectionNumber(default = 0, stepwidth = 1, min = 0, max = 576, wraparound = False)
 	config.osd.dst_height = ConfigSelectionNumber(default = 576, stepwidth = 1, min = 0, max = 576, wraparound = False)
 	config.osd.alpha = ConfigSelectionNumber(default = 255, stepwidth = 1, min = 0, max = 255, wraparound = False)
-	config.osd.alpha_teletext = ConfigSelectionNumber(default = 255, stepwidth = 1, min = 0, max = 255, wraparound = False)
-	config.osd.alpha_webbrowser = ConfigSelectionNumber(default = 255, stepwidth = 1, min = 0, max = 255, wraparound = False)
 	config.av.osd_alpha = NoSave(ConfigNumber(default = 255))
 	config.osd.threeDmode = ConfigSelection([("off", _("Off")), ("auto", _("Auto")), ("sidebyside", _("Side by Side")),("topandbottom", _("Top and Bottom"))], "auto")
 	config.osd.threeDznorm = ConfigSlider(default = 50, increment = 1, limits = (0, 100))
@@ -112,7 +108,6 @@ def InitOsd3D():
 			f.write('%d' % int(configElement.value))
 			f.close()
 	config.osd.threeDznorm.addNotifier(set3DZnorm)
-
 
 class UserInterfacePositioner(Screen, ConfigListScreen):
 	def __init__(self, session, menu_path=""):
@@ -220,11 +215,9 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		config.osd.dst_width.setValue(dst_width)
 		config.osd.dst_top.setValue(dst_top)
 		config.osd.dst_height.setValue(dst_height)
-
 		print '[UserInterfacePositioner] Setting OSD position: %s %s %s %s' %  (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value)
 
 	def saveAll(self):
-		print '[UserInterfacePositioner] Setting OSD position ET8500: saveALL %s' % self["config"].list
 		for x in self["config"].list:
 			x[1].save()
 		configfile.save()
@@ -238,6 +231,7 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 	def cancelConfirm(self, result):
 		if not result:
 			return
+
 		for x in self["config"].list:
 			x[1].cancel()
 		self.close()
