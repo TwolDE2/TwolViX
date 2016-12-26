@@ -102,7 +102,6 @@ def InitUsageConfig():
 			SystemInfo["InfoBarEpg"] = True
 		else:
 			SystemInfo["InfoBarEpg"] = False
-
 	config.usage.show_second_infobar.addNotifier(showsecondinfobarChanged, immediate_feedback=True)
 	config.usage.infobar_frontend_source = ConfigSelection(default="tuner", choices=[
 		("settings", _("Settings")),
@@ -118,6 +117,7 @@ def InitUsageConfig():
 		("lightgrey", _("Light Grey")),
 		("grey", _("Grey"))
 	])
+	config.usage.menu_show_numbers = ConfigYesNo(default = False)
 	config.usage.show_menupath = ConfigSelection(default="small", choices=[
 		("off", _("None")),
 		("small", _("Small")),
@@ -952,6 +952,7 @@ def InitUsageConfig():
 		("graphics", _("Graphics")),
 		("text", _("Text"))
 	])
+	config.epgselection.graph_highlight_current_events = ConfigYesNo(default=True)
 	config.epgselection.graph_ok = ConfigSelection(default="Zap", choices=[
 		("Zap", _("Zap")),
 		("Zap + Exit", _("Zap + Exit"))
