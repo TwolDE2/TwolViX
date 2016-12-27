@@ -523,13 +523,13 @@ def InitUsageConfig():
 	def setHDDStandby(configElement):
 		for hdd in harddiskmanager.HDDList():
 			hdd[1].setIdleTime(int(configElement.value))
-
 	config.usage.hdd_standby.addNotifier(setHDDStandby, immediate_feedback=False)
+
 	if SystemInfo["12V_Output"]:
 		def set12VOutput(configElement):
 			Misc_Options.getInstance().set_12V_output(configElement.value == "on" and 1 or 0)
-
 		config.usage.output_12V.addNotifier(set12VOutput, immediate_feedback=False)
+
 	config.usage.keymap = ConfigText(default=eEnv.resolve("${datadir}/enigma2/keymap.xml"))
 
 	config.network = ConfigSubsection()
@@ -914,8 +914,13 @@ def InitUsageConfig():
 	config.epgselection.infobar_servicetitle_mode = ConfigSelection(default="servicename", choices=[
 		("servicename", _("Service Name")),
 		("picon", _("Picon")),
-		("picon+servicename", _("Picon and Service Name"))
+		("picon+servicename", _("Picon and Service Name")),
+		("channel+picon+servicename", _("Channel Number and Picon and Service Name")),
+		("channel+picon", _("Channel Number and Picon")),
+		("channel+servicename", _("Channel Number and Service Name"))
 	])
+
+	config.epgselection.graph_usezaptochannel = ConfigYesNo(default = False)
 	config.epgselection.infobar_servfs = ConfigSelectionNumber(default=0, stepwidth=1, min=-8, max=10, wraparound=True)
 	config.epgselection.infobar_eventfs = ConfigSelectionNumber(default=0, stepwidth=1, min=-8, max=10, wraparound=True)
 	config.epgselection.infobar_timelinefs = ConfigSelectionNumber(default=0, stepwidth=1, min=-8, max=10, wraparound=True)
@@ -947,6 +952,7 @@ def InitUsageConfig():
 	config.epgselection.multi_eventfs = ConfigSelectionNumber(default=0, stepwidth=1, min=-8, max=10, wraparound=True)
 	config.epgselection.multi_itemsperpage = ConfigSelectionNumber(default=18, stepwidth=1, min=12, max=40, wraparound=True)
 	config.epgselection.graph_showbouquet = ConfigYesNo(default=False)
+	config.epgselection.graph_showchannel1st = ConfigYesNo(default = True)
 	config.epgselection.graph_preview_mode = ConfigYesNo(default=True)
 	config.epgselection.graph_type_mode = ConfigSelection(default="graphics", choices=[
 		("graphics", _("Graphics")),
@@ -993,6 +999,7 @@ def InitUsageConfig():
 		("picon", _("Picon")),
 		("picon+servicename", _("Picon and Service Name")),
 		("servicenumber+servicename", _("Service Number and Service Name")),
+		("servicenumber+picon", _("Service Number and Picon")),
 		("servicenumber+picon+servicename", _("Service Number, Picon and Service Name"))
 	])
 	config.epgselection.graph_channel1 = ConfigYesNo(default=False)
