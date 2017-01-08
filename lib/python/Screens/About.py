@@ -103,13 +103,6 @@ class About(Screen):
 		AboutText += _("CPU:\t%s") % about.getCPUString() + cpuMHz + "\n"
 		AboutText += _("Cores:\t%s") % about.getCpuCoresString() + "\n"
 
-
-
-
-		AboutText += _("CPU:\t%s\n") % about.getCPUString().replace('bcm', 'BCM')
-		AboutText += _("CPU speed:\t%s\n") % about.getCPUSpeedString()
-		AboutText += _("Cores:\t%s\n") % about.getCpuCoresString()
-
 		imagestarted = ""
 		bootname = ''
 		if path.exists('/boot/bootname'):
