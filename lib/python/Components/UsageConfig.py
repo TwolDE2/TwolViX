@@ -104,6 +104,7 @@ def InitUsageConfig():
 			SystemInfo["InfoBarEpg"] = True
 		else:
 			SystemInfo["InfoBarEpg"] = False
+
 	config.usage.show_second_infobar.addNotifier(showsecondinfobarChanged, immediate_feedback=True)
 	config.usage.infobar_frontend_source = ConfigSelection(default="tuner", choices=[
 		("settings", _("Settings")),
@@ -119,6 +120,7 @@ def InitUsageConfig():
 		("lightgrey", _("Light Grey")),
 		("grey", _("Grey"))
 	])
+	config.usage.show_genre_info = ConfigYesNo(default=False)
 	config.usage.menu_show_numbers = ConfigYesNo(default = False)
 	config.usage.show_menupath = ConfigSelection(default="small", choices=[
 		("off", _("None")),
@@ -324,7 +326,7 @@ def InitUsageConfig():
 	config.usage.show_servicelist = ConfigYesNo(default=True)
 	config.usage.servicelist_mode = ConfigSelection(default="standard", choices=[
 		("standard", _("Standard")),
-		("simple", _("Simple"))
+		("simple", _("Slim"))
 	])
 	config.usage.servicelistpreview_mode = ConfigYesNo(default=False)
 	config.usage.tvradiobutton_mode = ConfigSelection(default="BouquetList", choices=[
@@ -933,7 +935,7 @@ def InitUsageConfig():
 	if SystemInfo["HasForceLNBOn"]:
 		def forceLNBPowerChanged(configElement):
 			open(SystemInfo["HasForceLNBOn"], "w").write(configElement.value)
-		config.misc.forceLnbPower = ConfigSelection(default="on", choices=[
+		config.misc.forceLnbPower = ConfigSelection(default="off", choices=[
 			("on", _("Yes")),
 			("off", _("No"))
 		])
@@ -942,7 +944,7 @@ def InitUsageConfig():
 	if SystemInfo["HasForceToneburst"]:
 		def forceToneBurstChanged(configElement):
 			open(SystemInfo["HasForceToneburst"], "w").write(configElement.value)
-		config.misc.forceToneBurst = ConfigSelection(default="enable", choices=[
+		config.misc.forceToneBurst = ConfigSelection(default="disable", choices=[
 			("enable", _("Yes")),
 			("disable", _("No"))
 		])

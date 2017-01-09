@@ -4,7 +4,7 @@ from Components.Converter.Converter import Converter
 from Components.Element import cached
 from Components.Converter.genre import getGenreStringSub
 from Components.config import config
-from time import localtime, strftime
+from time import localtime, mktime, strftime
 
 
 class ETSIClassifications(dict):
@@ -193,6 +193,8 @@ class EventName(Converter, object):
 					else:
 						return self.trimText(rating[self.RATSHORT])
 		elif self.type == self.GENRE:
+			if not config.usage.show_genre_info.value:
+				return ""
 			genre = event.getGenreData()
 			if genre:
 				rating = event.getParentalData()
@@ -219,14 +221,8 @@ class EventName(Converter, object):
 		elif self.type in (self.PDCTIME, self.PDCTIMESHORT):
 			pil = event.getPdcPil()
 			if pil:
-				# if self.type == self.PDCTIMESHORT:
-				# 	return _("%02d:%02d") % ((pil & 0x7C0) >> 6, (pil & 0x3F))
-				# return _("%d.%02d. %02d:%02d") % ((pil & 0xF8000) >> 15, (pil & 0x7800) >> 11, (pil & 0x7C0) >> 6, (pil & 0x3F))
-				start = localtime()
-				start.tm_mon = (pil & 0x7800) >> 11
-				start.tm_mday = (pil & 0xF8000) >> 15
-				start.tm_hour = (pil & 0x7C0) >> 6
-				start.tm_min = (pil & 0x3F)
+				begin = localtime(event.getBeginTime())
+				start = localtime(mktime([begin.tm_year, (pil & 0x7800) >> 11, (pil & 0xF8000) >> 15, (pil & 0x7C0) >> 6, (pil & 0x3F), 0, begin.tm_wday, begin.tm_yday, begin.tm_isdst]))
 				if self.type == self.PDCTIMESHORT:
 					return strftime(config.usage.time.short.value, start)
 				return strftime(config.usage.date.short.value + " " + config.usage.time.short.value, start)
