@@ -10,7 +10,7 @@ from Components.ScrollLabel import ScrollLabel
 from Components.Console import Console
 from Components.config import config
 from enigma import eTimer, getEnigmaVersionString, getDesktop
-from boxbranding import getMachineBrand, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
+from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
 from Components.Pixmap import MultiPixmap
 from Components.Network import iNetwork
 from Tools.StbHardware import getFPVersion
@@ -102,6 +102,11 @@ class About(Screen):
 		AboutText += _("CPU:\t%s") % about.getCPUString() + cpuMHz + "\n"
 		AboutText += _("Cores:\t%s") % about.getCpuCoresString() + "\n"
 
+		imageSubBuild = ""
+		if getImageType() != 'release':
+			imageSubBuild = ".%s" % getImageDevBuild()
+		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
+
 		imagestarted = ""
 		bootname = ''
 		if path.exists('/boot/bootname'):
@@ -124,10 +129,6 @@ class About(Screen):
 				f.close()
 				AboutText += _("Bootloader:\t%s\n") % (bootloader)
 
-		imageSubBuild = ""
-		if getImageType() != 'release':
-			imageSubBuild = ".%s" % getImageDevBuild()
-		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
 		skinWidth = getDesktop(0).size().width()
 		skinHeight = getDesktop(0).size().height()
 
