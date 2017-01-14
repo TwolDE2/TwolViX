@@ -67,7 +67,7 @@ class About(Screen):
 		AboutText = ""
 		self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
 
-		AboutText += _("Model:\t%s %s\n") % (getMachineBrand(), getMachineName())
+		AboutText += _("Model:\t%s   %s\n") % (getMachineBrand(), getMachineName())
 
 		if path.exists('/proc/stb/info/chipset'):
 			AboutText += _("Chipset:\tBCM%s\n") % about.getChipSetString()
@@ -129,14 +129,20 @@ class About(Screen):
 				f.close()
 				AboutText += _("Bootloader:\t%s\n") % (bootloader)
 
+
+		if getMachineName() in ('ET8500') and path.exists('/proc/mtd'):
+			self.dualboot = self.dualBoot()
+			if self.dualboot:
+				AboutText += _("ET8500 Multiboot Installed\n")
+			
 		skinWidth = getDesktop(0).size().width()
 		skinHeight = getDesktop(0).size().height()
-
 		string = getDriverDate()
 		year = string[0:4]
 		month = string[4:6]
 		day = string[6:8]
 		driversdate = '-'.join((year, month, day))
+
 		AboutText += _("Drivers:\t%s\n") % driversdate
 		AboutText += _("Kernel:\t%s\n") % about.getKernelVersionString()
 		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ","")
@@ -182,6 +188,22 @@ class About(Screen):
 
 
 		self["AboutScrollLabel"] = ScrollLabel(AboutText)
+
+	def dualBoot(self):
+		rootfs2 = False
+		kernel2 = False
+		f = open("/proc/mtd")
+		self.dualbootL = f.readlines()
+		for x in self.dualbootL:
+			if 'rootfs2' in x:
+				rootfs2 = True
+			if 'kernel2' in x:
+				kernel2 = True
+		f.close()
+		if rootfs2 and kernel2:
+			return True
+		else:
+			return False
 
 	def showTranslationInfo(self):
 		self.session.open(TranslationInfo, self.menu_path)
