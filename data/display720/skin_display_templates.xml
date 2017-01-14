@@ -209,7 +209,6 @@
 		</widget>
 	</screen>
 	
-	
 	<!-- ## DEFAULT WITH PICON ## -->
 	<screen name="LCDPiconInfoBarProgramName">
 		<widget source="session.Event_Now" render="RunningText" options="movetype=running,startpoint=0,direction=left,steptime=80,repeat=3,always=0,oneshot=1,startdelay=6000,wrap" position="10,20" size="700,80" foregroundColor="yellow" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
