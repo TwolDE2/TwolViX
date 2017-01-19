@@ -133,7 +133,7 @@ class About(Screen):
 		if getMachineName() in ('ET8500') and path.exists('/proc/mtd'):
 			self.dualboot = self.dualBoot()
 			if self.dualboot:
-				AboutText += _("ET8500 Multiboot Installed\n")
+				AboutText += _("ET8500 Multiboot: Installed\n")
 			
 		skinWidth = getDesktop(0).size().width()
 		skinHeight = getDesktop(0).size().height()

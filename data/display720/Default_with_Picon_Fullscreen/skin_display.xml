@@ -68,7 +68,7 @@
 			<convert type="ClockToText">Default</convert>
 		</widget>
 		<widget source="global.CurrentTime" render="Label" position="20,294" size="670,75" font="FdLcD;70" foregroundColor="white" halign="center" zPosition="10">
-			<convert type="ClockToText">ShortDate</convert>
+			<convert type="ClockToText">Shortdate</convert>
 		</widget>
 	</screen>
 		
