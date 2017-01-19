@@ -1,3 +1,4 @@
+from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Components.ActionMap import ActionMap
 from Components.config import config, configfile, ConfigSubsection, getConfigListEntry, ConfigSelectionNumber, ConfigSelection, ConfigSlider, ConfigYesNo, NoSave, ConfigNumber, ConfigText
@@ -127,10 +128,6 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 			self.setup_title = title
 			self["menu_path_compressed"] = StaticText("")
 		self.Console = Console()
-
-		self.oldref = self.session.nav.getCurrentlyPlayingServiceReference()
-		self.session.nav.stopService()
-
 		self["status"] = StaticText()
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("OK"))
@@ -150,32 +147,52 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		if SystemInfo["CanChangeOsdAlpha"]:
 			self.list.append(getConfigListEntry(_("User interface visibility"), config.osd.alpha, _("This option lets you adjust the transparency of the user interface")))
 		if SystemInfo["CanChangeOsdPosition"]:
-			self.list.append(getConfigListEntry(_("Move Left/Right"), config.osd.dst_left, _("Use the Left/Right buttons on your remote to move the user interface left/right")))
-			self.list.append(getConfigListEntry(_("Width"), config.osd.dst_width, _("Use the Left/Right buttons on your remote to adjust the size of the user interface. Left button decreases the size, Right increases the size.")))
-			self.list.append(getConfigListEntry(_("Move Up/Down"), config.osd.dst_top, _("Use the Left/Right buttons on your remote to move the user interface up/down")))
-			self.list.append(getConfigListEntry(_("Height"), config.osd.dst_height, _("Use the Left/Right buttons on your remote to adjust the size of the user interface. Left button decreases the size, Right increases the size.")))
+			self.list.append(getConfigListEntry(_("Width"), config.osd.dst_width, _("Use the LEFT/RIGHT buttons on your remote to adjust the width of the user interface. LEFT button decreases the size, RIGHT increases the size.")))
+			self.list.append(getConfigListEntry(_("Move Left/Right"), config.osd.dst_left, _("Use the LEFT/RIGHT buttons on your remote to move the user interface left/right.")))
+			self.list.append(getConfigListEntry(_("Height"), config.osd.dst_height, _("Use the LEFT/RIGHT buttons on your remote to adjust the height of the user interface. LEFT button decreases the size, RIGHT increases the size.")))
+			self.list.append(getConfigListEntry(_("Move Up/Down"), config.osd.dst_top, _("Use the LEFT/RIGHT buttons on your remote to move the user interface up/down.")))
 		self["config"].list = self.list
 		self["config"].l.setList(self.list)
 
+		self.serviceRef = None
 		self.onLayoutFinish.append(self.layoutFinished)
+		if self.welcomeWarning not in self.onShow:
+			self.onShow.append(self.welcomeWarning)
 		if self.selectionChanged not in self["config"].onSelectionChanged:
 			self["config"].onSelectionChanged.append(self.selectionChanged)
-		if self.restoreService not in self.onClose:
-			self.onClose.append(self.restoreService)
 		self.selectionChanged()
-
-	def selectionChanged(self):
-		self["status"].setText(self["config"].getCurrent()[2])
 
 	def layoutFinished(self):
 		self.setTitle(_(self.setup_title))
-		self.Console.ePopen('/usr/bin/showiframe /usr/share/enigma2/hd-testcard.mvi')
+
+	def welcomeWarning(self):
+		if self.welcomeWarning in self.onShow:
+			self.onShow.remove(self.welcomeWarning)
+		popup = self.session.openWithCallback(self.welcomeAction, MessageBox, _("NOTE: This feature is intended for people who cannot disable overscan "
+			"on their television / display.  Please first try to disable overscan before using this feature.\n\n"
+			"USAGE: Adjust the screen size and position settings so that the shaded user interface layer *just* "
+			"covers the test pattern in the background.\n\n"
+			"Select YES to continue or NO to exit."), type=MessageBox.TYPE_YESNO, timeout=-1, default=False)
+		popup.setTitle(self.setup_title)
+
+	def welcomeAction(self, answer):
+		if answer:
+			self.serviceRef = self.session.nav.getCurrentlyPlayingServiceReference()
+			self.session.nav.stopService()
+			if self.restoreService not in self.onClose:
+				self.onClose.append(self.restoreService)
+			self.Console.ePopen('/usr/bin/showiframe /usr/share/enigma2/hd-testcard.mvi')
+		else:
+			self.close()
 
 	def restoreService(self):
 		try:
-			self.session.nav.playService(self.oldref)
+			self.session.nav.playService(self.serviceRef)
 		except:
 			pass
+
+	def selectionChanged(self):
+		self["status"].setText(self["config"].getCurrent()[2])
 
 	def createSummary(self):
 		from Screens.Setup import SetupSummary
@@ -193,12 +210,12 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		return str(self["config"].getCurrent()[1].getText())
 
 	def keyLeft(self):
-		ConfigListScreen.keyLeft(self)
 		self.setPreviewPosition()
+		ConfigListScreen.keyLeft(self)
 
 	def keyRight(self):
-		ConfigListScreen.keyRight(self)
 		self.setPreviewPosition()
+		ConfigListScreen.keyRight(self)
 
 	def keyDefault(self):
 		config.osd.alpha.setValue(255)
@@ -206,6 +223,8 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		config.osd.dst_width.setValue(720)
 		config.osd.dst_top.setValue(0)
 		config.osd.dst_height.setValue(576)
+		self.setPreviewPosition()
+		self.instance.invalidate()
 
 	def setPreviewPosition(self):
 		size_w = getDesktop(0).size().width()
