@@ -64,7 +64,7 @@ class AVSwitch:
 	modes["Scart"] = ["PAL", "NTSC", "Multi"]
 	# modes["DVI-PC"] = ["PC"]
 
-	if about.getChipSetString() in ('5272s', '7251S', '7252', '7252s', '7366', '7376', '7445s'):
+	if about.getChipSetString() in ('5272s', '7251S', '7251s' '7252', '7252s', '7366', '7376', '7445s'):
 		modes["HDMI"] = ["1080p", "2160p", "1080i", "720p", "576p", "576i", "480p", "480i"]
 		widescreen_modes = {"1080p", "2160p", "1080i", "720p"}
 	elif about.getChipSetString() in ('7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552'):
@@ -88,7 +88,7 @@ class AVSwitch:
 		del modes["YPbPr"]
 		
 	# Machines that have composite video (yellow RCA socket) but do not have Scart.
-	if modes.has_key("Scart") and getBoxType() in ('gb800ueplus','gbultraue','mbmicro','mbtwinplus','mutant500c','osmega','osmini','osminiplus','sf138','tmnano','tmnanose','tmnanosecombo','tmnanoseplus','tmnanosem2','tmnanosem2plus','tmnano2super','tmnano3t','xpeedlx3'):
+	if modes.has_key("Scart") and getBoxType() in ('gb800ueplus','gbultraue','mbmicro','mbtwinplus','mutant500c','osmega','osmini','osminiplus','sf138','sf4008', 'tmnano','tmnanose','tmnanosecombo','tmnanoseplus','tmnanosem2','tmnanosem2plus','tmnano2super','tmnano3t','xpeedlx3'):
 		modes["RCA"] = modes["Scart"]
 		del modes["Scart"]
 		

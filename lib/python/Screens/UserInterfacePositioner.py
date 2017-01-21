@@ -210,12 +210,12 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		return str(self["config"].getCurrent()[1].getText())
 
 	def keyLeft(self):
-		self.setPreviewPosition()
 		ConfigListScreen.keyLeft(self)
+		self.setPreviewPosition()
 
 	def keyRight(self):
-		self.setPreviewPosition()
 		ConfigListScreen.keyRight(self)
+		self.setPreviewPosition()
 
 	def keyDefault(self):
 		config.osd.alpha.setValue(255)
@@ -224,7 +224,6 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		config.osd.dst_top.setValue(0)
 		config.osd.dst_height.setValue(576)
 		self.setPreviewPosition()
-		self.instance.invalidate()
 
 	def setPreviewPosition(self):
 		size_w = getDesktop(0).size().width()
@@ -243,6 +242,7 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		config.osd.dst_width.setValue(dst_width)
 		config.osd.dst_top.setValue(dst_top)
 		config.osd.dst_height.setValue(dst_height)
+		self.instance.invalidate()
 		print '[UserInterfacePositioner] Setting OSD position: %s %s %s %s' % (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value)
 
 	def saveAll(self):

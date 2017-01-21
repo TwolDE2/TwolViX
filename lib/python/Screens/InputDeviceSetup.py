@@ -298,7 +298,8 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("18", _("F1/F3/F4/F4-TURBO/TRIPLEX")),
 			("19", _("HD2400")),
 			("20", _("Zgemma Star S/2S/H1/H2")),
-			("21", _("Zgemma H.S/H.2S/H.2H/H5"))
+			("21", _("Zgemma H.S/H.2S/H.2H/H5")),
+			("501", _("OCTAGON_SFXXX8"))
 			]
 
 	defaultRcList = [
@@ -324,7 +325,8 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("hd1265",16),
 			("hd500c",16),
 			("hd530c",16),
-			("hd2400", 19)
+			("hd2400", 19),
+			("sf4018", 501)
 		]
 
 	def __init__(self, session, menu_path=""):
