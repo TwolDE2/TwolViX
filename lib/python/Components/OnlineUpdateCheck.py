@@ -246,7 +246,7 @@ def kernelMismatch():
 		print '[OnlineVersionCheck][kernelMismatch] unable to retrieve kernel version from STB'
 		return False
 
-	uri = getFeedsUrl() + "/" + getMachineBuild() + "/Packages.gz"
+	uri = "%s/%s/Packages.gz" % (getFeedsUrl(), getMachineBuild())
 	try:
 		req = urllib2.Request(uri)
 		d = urllib2.urlopen(req)
@@ -275,7 +275,7 @@ def kernelMismatch():
 def statusMessage():
 	# returns message if status message is found, else False.
 	# status-message.php goes in the root folder of the feeds webserver
-	uri = "http://" + getFeedsUrl().split("/")[2] + ("/status-message.php?machine=%s&version=%s&build=%s" % (getBoxType(), getImageVersion(), getImageBuild()))
+	uri = "http://%s/status-message.php?machine=%s&version=%s&build=%s" % (getFeedsUrl().split("/")[2], getBoxType(), getImageVersion(), getImageBuild())
 	try:
 		req = urllib2.Request(uri)
 		d = urllib2.urlopen(req)
