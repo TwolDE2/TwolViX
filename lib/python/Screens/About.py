@@ -72,36 +72,7 @@ class About(Screen):
 		if path.exists('/proc/stb/info/chipset'):
 			AboutText += _("Chipset:\tBCM%s\n") % about.getChipSetString()
 
-		cpuMHz = ""
-		if getMachineBuild() in ('vusolo4k'):
-			cpuMHz = "   (1,5 GHz)"
-		elif getMachineBuild() in ('hd52','hd51','sf4008'):
-			try:
-				import binascii
-				f = open('/sys/firmware/devicetree/base/cpus/cpu@0/clock-frequency', 'rb')
-				clockfrequency = f.read()
-				f.close()
-				cpuMHz = "   (%s MHz)" % str(round(int(binascii.hexlify(clockfrequency), 16)/1000000,1))
-			except:
-				cpuMHz = "   (1,7 GHz)"
-		else:
-			if path.exists('/proc/cpuinfo'):
-				f = open('/proc/cpuinfo', 'r')
-				temp = f.readlines()
-				f.close()
-				try:
-					for lines in temp:
-						lisp = lines.split(': ')
-						if lisp[0].startswith('cpu MHz'):
-							#cpuMHz = "   (" +  lisp[1].replace('\n', '') + " MHz)"
-							cpuMHz = "   (" +  str(int(float(lisp[1].replace('\n', '')))) + " MHz)"
-							break
-				except:
-					pass
-
-		AboutText += _("CPU:\t%s") % about.getCPUString() + cpuMHz + "\n"
-		AboutText += _("Cores:\t%s") % about.getCpuCoresString() + "\n"
-
+		AboutText += _("CPU:\t%s %s %s\n") % (about.getCPUArch(), about.getCPUSpeedString(), about.getCpuCoresString())
 		imageSubBuild = ""
 		if getImageType() != 'release':
 			imageSubBuild = ".%s" % getImageDevBuild()
@@ -496,6 +467,8 @@ class SystemNetworkInfo(Screen):
 		self["statuspic"].show()
 		self["devicepic"] = MultiPixmap()
 
+		self["AboutScrollLabel"] = ScrollLabel()
+
 		self.iface = None
 		self.createscreen()
 		self.iStatus = None
@@ -573,9 +546,19 @@ class SystemNetworkInfo(Screen):
 		self.AboutText += "\n" + _("Bytes received:") + "\t" + rx_bytes + "\n"
 		self.AboutText += _("Bytes sent:") + "\t" + tx_bytes + "\n"
 
+		self.console = Console()
+		self.console.ePopen('ethtool %s' % self.iface, self.SpeedFinished)
+
+	def SpeedFinished(self, result, retval, extra_args):
+		result_tmp = result.split('\n')
+		for line in result_tmp:
+			if 'Speed:' in line:
+				speed = line.split(': ')[1][:-4]
+				self.AboutText += _("Speed:") + "\t" + speed + _('Mb/s')
+		
 		hostname = file('/proc/sys/kernel/hostname').read()
 		self.AboutText += "\n" + _("Hostname:") + "\t" + hostname + "\n"
-		self["AboutScrollLabel"] = ScrollLabel(self.AboutText)
+		self["AboutScrollLabel"].setText(self.AboutText)
 
 	def cleanup(self):
 		if self.iStatus:
@@ -681,13 +664,11 @@ class SystemNetworkInfo(Screen):
 						self["statuspic"].setPixmapNum(0)
 					else:
 						self["statuspic"].setPixmapNum(1)
-					self["statuspic"].show()
 				else:
 					self["statuspic"].setPixmapNum(1)
-					self["statuspic"].show()
 			else:
 				self["statuspic"].setPixmapNum(1)
-				self["statuspic"].show()
+			self["statuspic"].show()
 		except:
 			pass
 
