@@ -837,6 +837,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 {
 	int sat_max = 1600; // for stv0288 / bsbe2
 	int ret = 0x12345678;
+	int cab_max = 4200; // we assume a max of 42db here
 	int ter_max = 2900;
 	int atsc_max = 4200;
 
@@ -1140,7 +1141,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 			signalquality = (ret >= sat_max ? 65536 : ret * 65536 / sat_max);
 			break;
 		case feCable: // we assume a max of 42db here
-			signalquality = (ret >= 4200 ? 65536 : ret * 65536 / 4200);
+			signalquality = (ret >= cab_max ? 65536 : ret * 65536 / cab_max);
 			break;
 		case feTerrestrial: // we assume a max of 29db here
 			signalquality = (ret >= ter_max ? 65536 : ret * 65536 / ter_max);
