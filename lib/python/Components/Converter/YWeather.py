@@ -11,7 +11,7 @@ from urllib2 import Request, urlopen
 import socket
 
 class YWeather(Poll, Converter, object):
-	weather_city = '711665'
+	weather_city = '677944'
 	time_update = 20
 	time_update_ms = 30000
 	city = 0
@@ -169,6 +169,7 @@ class YWeather(Poll, Converter, object):
 			self.weather_city = open("/usr/lib/enigma2/python/Plugins/Extensions/iSkin/Weather/Config/Location_id").read()
 		elif fileExists("/usr/lib/enigma2/python/Plugins/Extensions/YahooWeather/Config/Location_id"):
 			self.weather_city = open("/usr/lib/enigma2/python/Plugins/Extensions/YahooWeather/Config/Location_id").read()
+		print "YWeather - Yahoo Weather City is %s" % self.weather_city
 		if fileExists(XML_location) and (int((time.time() - os.stat(XML_location).st_mtime)/60) >= self.time_update):
 			os.remove(XML_location)
 		XML_URL = "https://query.yahooapis.com/v1/public/yql?q=select%%20*%%20from%%20weather.forecast%%20where%%20woeid=%ss%%20AND%%20u=%%22c%%22" % self.weather_city
