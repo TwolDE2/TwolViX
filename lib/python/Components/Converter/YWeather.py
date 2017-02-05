@@ -165,11 +165,7 @@ class YWeather(Poll, Converter, object):
 		direct = 0
 		info = ""
 		XML_location = "/tmp/yweather.xml"
-		if fileExists("/usr/lib/enigma2/python/Plugins/Extensions/iSkin/Weather/Config/Location_id"):
-			self.weather_city = open("/usr/lib/enigma2/python/Plugins/Extensions/iSkin/Weather/Config/Location_id").read()
-		elif fileExists("/usr/lib/enigma2/python/Plugins/Extensions/YahooWeather/Config/Location_id"):
-			self.weather_city = open("/usr/lib/enigma2/python/Plugins/Extensions/YahooWeather/Config/Location_id").read()
-		print "YWeather - Yahoo Weather City is %s" % self.weather_city
+		self.weather_city = '677944'
 		if fileExists(XML_location) and (int((time.time() - os.stat(XML_location).st_mtime)/60) >= self.time_update):
 			os.remove(XML_location)
 		XML_URL = "https://query.yahooapis.com/v1/public/yql?q=select%%20*%%20from%%20weather.forecast%%20where%%20woeid=%ss%%20AND%%20u=%%22c%%22" % self.weather_city
