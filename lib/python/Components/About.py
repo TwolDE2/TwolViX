@@ -32,7 +32,7 @@ def getKernelVersionString():
 
 def getChipSetString():
 
-	if getMachineBuild() in ('hd51'):
+	if getMachineBuild() in ('hd51','hd52','sf4008'):
 		return "7251S"
 	else:
 		try:
