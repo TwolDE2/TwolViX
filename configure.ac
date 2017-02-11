@@ -1,4 +1,4 @@
-AC_INIT([enigma2],[5.0.0],[http://www.openvix.co.uk/])
+AC_INIT([enigma2],[5.0],[http://www.world-of-satellite.com])
 AM_INIT_AUTOMAKE([dist-bzip2 no-define tar-pax -Wno-portability])
 AC_CONFIG_HEADERS([enigma2_config.h])
 
@@ -407,7 +407,7 @@ if test "$BOXTYPE" == "7210s"; then
 fi
 
 if test "$BOXTYPE" == "vusolo4k" -o "$BOXTYPE" == "vuuno4k" -o "$BOXTYPE" == "vuultimo4k" ; then
-	AC_DEFINE(TUNER_VUSOLO4K, 1,[define BOXTYPE VUSOLO4K])
+	AC_DEFINE(TUNER_FBC, 1,[define HAVE FBC TUNER])
 fi
 
 AC_ARG_WITH(libsdl,
