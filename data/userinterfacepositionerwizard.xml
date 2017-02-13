@@ -1,7 +1,7 @@
 <!--suppress XmlUnboundNsPrefix -->
 <wizard>
 	<step id="start" nextstep="end">
-		<text value="NOTE: This feature is intended for people who cannot disable overscan on their television / display.  Please first try to disable overscan before using this feature.\n\nUSAGE: Adjust the screen size and position settings so that the shaded user interface layer *just* covers the test pattern in the background.\n\nWhen you are ready press OK to continue." />
+		<text value="NOTE: This is intended for people who cannot disable overscan on their television / display.  Please first try to disable overscan before using this feature.\n\nUSAGE: Adjust the screen size and position settings then press OK to continue." />
 		<displaytext value="Configure interface" />
 		<config screen="UserInterfacePositioner" module="UserInterfacePositioner" type="ConfigList" />
 		<code>
