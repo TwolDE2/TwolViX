@@ -157,7 +157,6 @@ class About(Screen):
 			fp_version = _("FP version:\t%s") % fp_version
 			AboutText += fp_version + "\n"
 
-
 		self["AboutScrollLabel"] = ScrollLabel(AboutText)
 
 	def dualBoot(self):
