@@ -141,10 +141,10 @@ class UserInterfacePositioner(Screen, ConfigListScreen):
 		if SystemInfo["CanChangeOsdAlpha"]:
 			self.list.append(getConfigListEntry(_("User interface visibility"), config.osd.alpha, _("This option lets you adjust the transparency of the user interface")))
 		if SystemInfo["CanChangeOsdPosition"]:
-			self.list.append(getConfigListEntry(_("Width"), config.osd.dst_width, _("Use the LEFT/RIGHT buttons on your remote to adjust the width of the user interface. LEFT button decreases the size, RIGHT increases the size.")))
 			self.list.append(getConfigListEntry(_("Move Left/Right"), config.osd.dst_left, _("Use the LEFT/RIGHT buttons on your remote to move the user interface left/right.")))
-			self.list.append(getConfigListEntry(_("Height"), config.osd.dst_height, _("Use the LEFT/RIGHT buttons on your remote to adjust the height of the user interface. LEFT button decreases the size, RIGHT increases the size.")))
+			self.list.append(getConfigListEntry(_("Width"), config.osd.dst_width, _("Use the LEFT/RIGHT buttons on your remote to adjust the width of the user interface. LEFT button decreases the size, RIGHT increases the size.")))
 			self.list.append(getConfigListEntry(_("Move Up/Down"), config.osd.dst_top, _("Use the LEFT/RIGHT buttons on your remote to move the user interface up/down.")))
+			self.list.append(getConfigListEntry(_("Height"), config.osd.dst_height, _("Use the LEFT/RIGHT buttons on your remote to adjust the height of the user interface. LEFT button decreases the size, RIGHT increases the size.")))
 		self["config"].list = self.list
 		self["config"].l.setList(self.list)
 
