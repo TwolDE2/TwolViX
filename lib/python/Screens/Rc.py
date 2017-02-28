@@ -70,8 +70,7 @@ class Rc:
 				rc = self.rcs[2]
 			except:
 				rc = self.rcs[config.misc.rcused.value]
-
-		if rc.has_key(key):
+		if key in rc:
 			rcpos = self["rc"].getPosition()
 			pos = rc[key]
 			selectPics = self.getSelectPic(pos)
