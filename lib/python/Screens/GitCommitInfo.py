@@ -15,7 +15,7 @@ from json import loads
 import urllib2
 
 if getImageType() == 'release':
-	ImageVer = "%03d" % int(getImageBuild())
+	ImageVer = getImageBuild()
 else:
 	ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
 	ImageVer = float(ImageVer)
