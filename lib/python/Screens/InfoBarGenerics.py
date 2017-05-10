@@ -14,6 +14,7 @@ from Components.VolumeControl import VolumeControl
 from Components.Pixmap import MovingPixmap, MultiPixmap
 from Components.Sources.StaticText import StaticText
 from Components.ScrollLabel import ScrollLabel
+from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
 
 from Components.Timeshift import InfoBarTimeshift
@@ -4030,7 +4031,7 @@ class InfoBarHdmi:
 		self.hdmi_enabled_full = False
 		self.hdmi_enabled_pip = False
 
-		if getMachineBuild() in ('hd2400', 'inihdp', 'vuultimo4k', 'gbquad4k'):
+		if SystemInfo["HDMIin"]:
 			if not self.hdmi_enabled_full:
 				self.addExtension((self.getHDMIInFullScreen, self.HDMIInFull, lambda: True), "blue")
 			if not self.hdmi_enabled_pip:
