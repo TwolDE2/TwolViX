@@ -14,6 +14,7 @@ from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
 from Components.Pixmap import MultiPixmap
 from Components.Network import iNetwork
+from Components.SystemInfo import SystemInfo
 from Tools.StbHardware import getFPVersion
 from os import path
 from re import search
@@ -89,7 +90,7 @@ class About(Screen):
 			bootname = f.readline().split('=')[1]
 			f.close()
 
-		if path.exists('/boot/STARTUP'):
+		if path.exists('/boot/STARTUP') and SystemInfo["HaveMultiBoot"]:
 			f = open('/boot/STARTUP', 'r')
 			f.seek(22)
 			image = f.read(1) 
