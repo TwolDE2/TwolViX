@@ -1036,7 +1036,7 @@ def InitUsageConfig():
 		("1", _("Fixed")),
 		("2", _("Relative"))
 	])
-	config.subtitles.dvb_subtitles_centered = ConfigYesNo(default=True)
+	config.subtitles.dvb_subtitles_centered = ConfigYesNo(default = False)
 	config.subtitles.subtitle_bad_timing_delay = ConfigSelection(default="0", choices=subtitle_delay_choicelist)
 	config.subtitles.dvb_subtitles_backtrans = ConfigSelection(default="0", choices=[
 		("0", _("No transparency")),
