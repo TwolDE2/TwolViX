@@ -137,7 +137,7 @@ def loadResumePoints():
 def updateresumePointCache():
 	global resumePointCache
 	resumePointCache = loadResumePoints()
-	
+
 resumePointCache = loadResumePoints()
 resumePointCacheLast = int(time())
 
@@ -554,7 +554,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			x(True)
 		self.startHideTimer()
 		VolumeControl.instance and VolumeControl.instance.showMute()
-		
+
 	def doDimming(self):
 		if config.usage.show_infobar_do_dimming.value:
 			self.dimmed = self.dimmed-1
@@ -564,7 +564,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 		self.doHide()
 
 	def unDimming(self):
-		#self.unDimmingTimer.stop()
+		self.unDimmingTimer.stop()
 		self.doWriteAlpha(config.av.osd_alpha.value)
 
 	def doWriteAlpha(self, value):
@@ -582,13 +582,9 @@ class InfoBarShowHide(InfoBarScreenSaver):
 		self.resetAlpha()
 		for x in self.onShowHideNotifiers:
 			x(False)
-			
+
 	def resetAlpha(self):
 		if config.usage.show_infobar_do_dimming.value and self.lastResetAlpha is False:
-			#self.unDimmingTimer = eTimer()
-			#self.unDimmingTimer.callback.append(self.unDimming)
-			#self.unDimmingTimer.start(300, True)
-			self.unDimming()
 			self.unDimmingTimer = eTimer()
 			self.unDimmingTimer.callback.append(self.unDimming)
 			self.unDimmingTimer.start(300, True)
@@ -750,7 +746,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			self.__locked -= 1
 		except:
 			self.__locked = 0
-		
+
 		if self.__locked  <0:
 			self.__locked = 0
 		if self.execing:
@@ -1347,11 +1343,8 @@ class InfoBarMenu:
 			if item.attrib['entryID'] == 'setup_selection':
 				menulist = item.findall('menu')
 				for item in menulist:
-					if item.attrib['entryID'] == 'system_selection':
-						menulist = item.findall('menu')
-						for item in menulist:
-							if item.attrib['entryID'] == 'network_menu':
-								menu = item
+					if item.attrib['entryID'] == 'network_menu':
+						menu = item
 		assert menu.tag == "menu", "root element in menu must be 'menu'!"
 		self.session.openWithCallback(self.mainMenuClosed, Menu, menu)
 
@@ -1915,7 +1908,7 @@ class InfoBarSeek:
 				"playpauseService": self.playpauseService,
 				"pauseService": (self.pauseService, _("Pause playback")),
 				"unPauseService": (self.unPauseService, _("Continue playback")),
-		
+
 				"seekFwd": (self.seekFwd, _("skip forward")),
 				"seekFwdManual": (self.seekFwdManual, _("skip forward (enter time)")),
 				"seekBack": (self.seekBack, _("skip backward")),
@@ -2467,7 +2460,7 @@ class InfoBarExtensions:
 					"showPluginBrowser": (self.showPluginBrowser, _("Show the plugin browser..")),
 					"showDreamPlex": (self.showDreamPlex, _("Show the DreamPlex player...")),
 				}, 1) # lower priority
-				
+
 		for p in plugins.getPlugins(PluginDescriptor.WHERE_EXTENSIONSINGLE):
 			p(self)
 
