@@ -95,6 +95,7 @@ class AVSwitch:
 		'ebox5100',
 		'enfinity',
 		'et4x00',
+		'formuler4turbo',
 		'gbquad4k',
 		'gbue4k',
 		'gbx1',
