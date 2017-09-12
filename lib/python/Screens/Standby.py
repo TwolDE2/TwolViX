@@ -60,6 +60,10 @@ class Standby2(Screen):
 
 		#mute adc
 		self.setMute()
+	
+		if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
+			# set LCDminiTV off
+			setLCDminittvmode("0")
 
 		self.paused_service = None
 
@@ -267,11 +271,15 @@ class TryQuitMainloop(MessageBox):
 			self.session.nav.stopService()
 			self.quitScreen = self.session.instantiateDialog(QuitMainloopScreen,retvalue=self.retval)
 			self.quitScreen.show()
-			quitMainloop(self.retval)
+			print "[Standby] quitMainloop #1"
+			quitMainloopCode = self.retval
+			if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
+				# set LCDminiTV off / fix a deep-standby-crash on some boxes / gb4k 
+				print "[Standby] LCDminiTV off"
+				setLCDminitvmode("0")
 			if getBoxType() == "vusolo4k":  #workaround for white display flash
-				f = open("/proc/stb/fp/oled_brightness", "w")
-				f.write("0")
-				f.close()
+				open("/proc/stb/fp/oled_brightness", "w").write("0")
+			quitMainloop(self.retval)
 		else:
 			MessageBox.close(self, True)
 
