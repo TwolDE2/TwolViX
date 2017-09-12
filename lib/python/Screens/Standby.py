@@ -14,6 +14,14 @@ from gettext import dgettext
 
 inStandby = None
 
+def setLCDMiniTVMode(value):
+	try:
+		f = open("/proc/stb/lcd/mode", "w")
+		f.write(value)
+		f.close()
+	except:
+		pass
+
 class Standby2(Screen):
 	def Power(self):
 		print "[Standby] leave standby"
@@ -63,7 +71,7 @@ class Standby2(Screen):
 	
 		if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 			# set LCDminiTV off
-			setLCDminittvmode("0")
+			setLCDMiniTVMode("0")
 
 		self.paused_service = None
 
@@ -276,7 +284,7 @@ class TryQuitMainloop(MessageBox):
 			if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 				# set LCDminiTV off / fix a deep-standby-crash on some boxes / gb4k 
 				print "[Standby] LCDminiTV off"
-				setLCDminitvmode("0")
+				setLCDMiniTVMode("0")
 			if getBoxType() == "vusolo4k":  #workaround for white display flash
 				open("/proc/stb/fp/oled_brightness", "w").write("0")
 			quitMainloop(self.retval)
