@@ -202,6 +202,8 @@ public:
 	ePtr<iStreamData> getStreamingData();
 	void setQpipMode(bool value, bool audio);
 
+	void setQpipMode(bool value, bool audio);
+
 protected:
 	friend class eServiceFactoryDVB;
 	eServiceReference m_reference;
