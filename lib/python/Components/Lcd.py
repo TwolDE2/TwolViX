@@ -265,10 +265,10 @@ def InitLcd():
 	if fileExists("/proc/stb/lcd/mode"):
 		f = open("/proc/stb/lcd/mode", "r")
 		can_lcdmodechecking = f.read().strip().split(" ")
+		print 'LCDMiniTV',can_lcdmodechecking
 		f.close()
 	else:
 		can_lcdmodechecking = False
-	SystemInfo["LCDMiniTV"] = can_lcdmodechecking
 
 	if SystemInfo["StandbyLED"]:
 		def setLEDstandby(configElement):
@@ -419,26 +419,29 @@ def InitLcd():
 			config.lcd.minitvpipmode.addNotifier(setLCDminitvpipmode)
 			config.lcd.minitvfps = ConfigSlider(default=30, limits=(0, 30))
 			config.lcd.minitvfps.addNotifier(setLCDminitvfps)
+		elif can_lcdmodechecking and getBoxType() in ('gbquad4k', 'gbue4k'):
+			#  (0:normal, 1:video0, 2:fb, 3:vide0+fb, 4:video1, 5:vide0+video1, 6:video1+fb, 7:video0+video1+fb)
+			config.lcd.minitvmode = ConfigSelection(default = "0", choices=[
+					("0", _("normal")),
+					("1", _("MiniTV") + _(" - video0")),
+					("3", _("MiniTV with OSD") + _(" - video0")),
+					("2", _("OSD")),
+					("4", _("MiniTV") + _(" - video1")),
+					("6", _("MiniTV with OSD") + _(" - video1")),
+					("5", _("MiniTV") + _(" - video0+video1")),
+					("7", _("MiniTV with OSD") + _(" - video0+video1"))]) 
+			config.lcd.minitvmode.addNotifier(setLCDminitvmode)
+			config.lcd.minitvpipmode = ConfigSelection(default = "0", choices=[
+					("0", _("off")),
+					("4", _("PIP")),
+					("6", _("PIP with OSD"))])
+			config.lcd.minitvpipmode.addNotifier(setLCDminitvpipmode)
+			config.lcd.minitvfps = ConfigSlider(default=30, limits=(0, 30))
+			config.lcd.minitvfps.addNotifier(setLCDminitvfps)
 		else:
-			if can_lcdmodechecking and getBoxType() in ('gbquad4k', 'gbue4k'):
-				#  (0:normal, 1:video0, 2:fb, 3:vide0+fb, 4:video1, 5:vide0+video1, 6:video1+fb, 7:video0+video1+fb)
-				config.lcd.minitvmode = ConfigSelection(default = "0", choices=[
-						("0", _("normal")),
-						("1", _("MiniTV") + _(" - video0")),
-						("3", _("MiniTV with OSD") + _(" - video0")),
-						("2", _("OSD")),
-						("4", _("MiniTV") + _(" - video1")),
-						("6", _("MiniTV with OSD") + _(" - video1")),
-						("5", _("MiniTV") + _(" - video0+video1")),
-						("7", _("MiniTV with OSD") + _(" - video0+video1"))]) 
-				config.lcd.minitvmode.addNotifier(setLCDminitvmode)
-				config.lcd.minitvpipmode = ConfigSelection(default = "0", choices=[
-						("0", _("off")),
-						("4", _("PIP")),
-						("6", _("PIP with OSD"))])
-				config.lcd.minitvpipmode.addNotifier(setLCDminitvpipmode)
-				config.lcd.minitvfps = ConfigSlider(default=30, limits=(0, 30))
-				config.lcd.minitvfps.addNotifier(setLCDminitvfps)
+			config.lcd.minitvmode = ConfigNothing()
+			config.lcd.minitvpipmode = ConfigNothing()
+			config.lcd.minitvfps = ConfigNothing()
 
 		if SystemInfo["VFD_scroll_repeats"]:
 			def scroll_repeats(el):
