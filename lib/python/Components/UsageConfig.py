@@ -27,6 +27,7 @@ def InitUsageConfig():
 		config.misc.remotecontrol_text_support = ConfigYesNo(default=False)
 
 	config.usage = ConfigSubsection()
+	config.usage.subnetwork = ConfigYesNo(default = True)
 	config.usage.showdish = ConfigSelection(default="flashing", choices=[
 		("flashing", _("Flashing")),
 		("normal", _("Not Flashing")),
