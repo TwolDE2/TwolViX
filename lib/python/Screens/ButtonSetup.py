@@ -29,6 +29,8 @@ ButtonSetupKeys = [	(_("Red"), "red", "Infobar/openSingleServiceEPG/1"),
 	(_("Epg/Guide long"), "epg_long", "Infobar/showEventGuidePlugins/1"),
 	(_("Left"), "cross_left", ""),
 	(_("Right"), "cross_right", ""),
+	(_("Left long"), "cross_left_long", ""),
+	(_("Right long"), "cross_right_long", "Infobar/seekFwdVod"),
 	(_("Up"), "cross_up", ""),
 	(_("Down"), "cross_down", ""),
 	(_("Channel up"), "channelup", ""),
@@ -137,6 +139,7 @@ def getButtonSetupFunctions():
 	ButtonSetupFunctions.append((_("Show subservice selection"), "Infobar/subserviceSelection", "InfoBar"))
 	ButtonSetupFunctions.append((_("Letterbox zoom"), "Infobar/vmodeSelection", "InfoBar"))
 	ButtonSetupFunctions.append((_("Activate HbbTV (RedButton)"), "Infobar/activateRedButton", "InfoBar"))	
+	ButtonSetupFunctions.append((_("Seekbar"), "Infobar/seekFwdVod", "InfoBar"))
 	if SystemInfo["PIPAvailable"]:
 		ButtonSetupFunctions.append((_("Show PIP"), "Infobar/showPiP", "InfoBar"))
 		ButtonSetupFunctions.append((_("Swap PIP"), "Infobar/swapPiP", "InfoBar"))
