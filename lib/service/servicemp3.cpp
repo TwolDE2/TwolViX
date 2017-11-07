@@ -420,7 +420,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_cachedSubtitleStream = -2; /* report subtitle stream to be 'cached'. TODO: use an actual cache. */
 	m_subtitle_widget = 0;
 	m_currentTrickRatio = 1.0;
-	m_buffer_size = 5 * 1024 * 1024;
+	m_buffer_size = 5LL * 1024LL * 1024LL;
 	m_ignore_buffering_messages = 0;
 	m_is_live = false;
 	m_use_prefillbuffer = false;
@@ -635,7 +635,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 			g_object_set(G_OBJECT(m_gst_playbin), "buffer-duration", (gint64)(5LL * GST_SECOND), NULL);
 			g_object_set(G_OBJECT(m_gst_playbin), "buffer-size", m_buffer_size, NULL);
 			if (m_sourceinfo.is_hls)
-				g_object_set((G_OBJECT(m_gst_playbin), "connection-speed", (guint64)(4495000LL), NULL);
+				g_object_set(G_OBJECT(m_gst_playbin), "connection-speed", (guint64)(4495000LL), NULL);
 		}
 		g_object_set (G_OBJECT (m_gst_playbin), "flags", flags, NULL);
 		g_object_set (G_OBJECT (m_gst_playbin), "uri", uri, NULL);
