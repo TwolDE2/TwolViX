@@ -118,6 +118,7 @@ eServiceFactoryMP3::eServiceFactoryMP3()
 		extensions.push_back("rmvb");
 		extensions.push_back("ogm");
 		extensions.push_back("ogv");
+		extensions.push_back("m3u8");
 		extensions.push_back("stream");
 		extensions.push_back("webm");
 		sc->addServiceFactory(eServiceFactoryMP3::id, this, extensions);
