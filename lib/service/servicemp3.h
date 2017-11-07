@@ -243,7 +243,7 @@ public:
 		bool is_streaming;
 		bool is_hls;
 		sourceStream()
-			:audiotype(atUnknown), containertype(ctNone), is_audio(FALSE), is_video(FALSE), is_streaming(FALSE), is_hls(FALSE)
+			:audiotype(atUnknown), containertype(ctNone), is_video(FALSE), is_streaming(FALSE), is_hls(FALSE)
 		{
 		}
 	};
