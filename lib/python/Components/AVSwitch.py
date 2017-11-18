@@ -3,7 +3,7 @@ from Components.About import about
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
 from enigma import eAVSwitch, getDesktop
-from boxbranding import getBoxType, getBrandOEM
+from boxbranding import getBoxType, getMachineBuild, getBrandOEM
 from SystemInfo import SystemInfo
 import os
 
@@ -64,12 +64,14 @@ class AVSwitch:
 	modes["Scart"] = ["PAL", "NTSC", "Multi"]
 	# modes["DVI-PC"] = ["PC"]
 
-	if about.getChipSetString() in ('5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s'):
-		modes["HDMI"] = ["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"]
-		widescreen_modes = {"720p", "1080p", "2160p", "1080i"}
+
+	if about.getChipSetString() in ('5272s', '7251', '7251S', '7251s' '7252', '7252s', '7252S', '7366', '7376', '7445s'):
+		modes["HDMI"] = ["1080p", "2160p", "1080i", "720p", "576p", "576i", "480p", "480i"]
+		widescreen_modes = {"1080p", "2160p", "1080i", "720p"}
+
 	elif about.getChipSetString() in ('7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552'):
-		modes["HDMI"] = ["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"]
-		widescreen_modes = {"720p", "1080p", "1080i"}
+		modes["HDMI"] = ["1080p", "1080i", "720p", "576p", "576i", "480p", "480i"]
+		widescreen_modes = {"1080p", "1080i", "720p"}
 	else:
 		modes["HDMI"] = ["720p", "1080i", "576p", "576i", "480p", "480i"]
 		widescreen_modes = {"720p", "1080i"}
@@ -95,6 +97,7 @@ class AVSwitch:
 		'et4x00',
 		'formuler4turbo',
 		'gbquad4k',
+		'gbue4k',
 		'gbx1',
 		'gbx3',
 		'iqonios300hd',
@@ -132,7 +135,9 @@ class AVSwitch:
 		'vusolo4k',
 		'vuuno4k',
 		'vuultimo4k',
-		'xp1000'
+		'xp1000',
+		'wetekplay', 
+		'wetekplayplus'
 	)
 
 	# Machines that have composite video (yellow RCA socket) but do not have Scart.
@@ -168,6 +173,7 @@ class AVSwitch:
 		'et6x00',
 		'gbquad',
 		'gbquad4k',
+		'gbue4k',
 		'gbx1',
 		'gbx3',
 		'ixussone',
@@ -255,21 +261,21 @@ class AVSwitch:
 		if mode_60 is None or force == 50:
 			mode_60 = mode_50
 
-		if os.path.exists('/proc/stb/video/videomode_50hz') and getBoxType() not in ('gbquadplus', 'gb800solo', 'gb800se', 'gb800ue', 'gb800ueplus'):
+		try:
 			f = open("/proc/stb/video/videomode_50hz", "w")
 			f.write(mode_50)
 			f.close()
-		if os.path.exists('/proc/stb/video/videomode_60hz') and getBoxType() not in ('gbquadplus', 'gb800solo', 'gb800se', 'gb800ue', 'gb800ueplus'):
 			f = open("/proc/stb/video/videomode_60hz", "w")
 			f.write(mode_60)
 			f.close()
-		try:
-			set_mode = modes.get(int(rate[:2]))
-		except: # not support 50Hz, 60Hz for 1080p
-			set_mode = mode_50
-		f = open("/proc/stb/video/videomode", "w")
-		f.write(set_mode)
-		f.close()
+		except IOError:
+			try:
+				# fallback if no possibility to setup 50/60 hz mode
+				f = open("/proc/stb/video/videomode", "w")
+				f.write(mode_50)
+				f.close()
+			except IOError:
+				print "[VideoHardware] setting videomode failed."
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
@@ -787,6 +793,7 @@ def InitAVSwitch():
 		can_downmix_ac3 = "downmix" in file
 	except:
 		can_downmix_ac3 = False
+		SystemInfo["CanPcmMultichannel"] = False
 
 	SystemInfo["CanDownmixAC3"] = can_downmix_ac3
 	if can_downmix_ac3:

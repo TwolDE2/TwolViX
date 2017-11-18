@@ -61,6 +61,11 @@ class FeedsStatusCheck:
 	
 	def getFeedStatus(self):
 		status = '1'
+		trafficLight = 'stable'
+		if getImageType() != 'rubbish':
+			status = '0'
+			config.softwareupdate.updateisunstable.setValue(status)
+			return 'stable'
 		trafficLight = 'unknown'
 		if self.adapterAvailable():
 			if self.NetworkUp():

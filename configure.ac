@@ -1,4 +1,4 @@
-AC_INIT([enigma2],[5.0],[http://www.world-of-satellite.com])
+AC_INIT([enigma2],[5.1],[http://www.world-of-satellite.com])
 AM_INIT_AUTOMAKE([dist-bzip2 no-define tar-pax -Wno-portability])
 AC_CONFIG_HEADERS([enigma2_config.h])
 
@@ -99,8 +99,10 @@ AM_CONDITIONAL(EBOXLUMI, test "$BOXTYPE" == "eboxlumi")
 AM_CONDITIONAL(ET4X00, test "$BOXTYPE" == "et4x00")
 AM_CONDITIONAL(ET5X00, test "$BOXTYPE" == "et5x00")
 AM_CONDITIONAL(ET6X00, test "$BOXTYPE" == "et6x00")
-AM_CONDITIONAL(ET9X00, test "$BOXTYPE" == "et9x00")
+AM_CONDITIONAL(ET7X00, test "$BOXTYPE" == et7x00)
 AM_CONDITIONAL(ET8000, test "$BOXTYPE" == "et8000")
+AM_CONDITIONAL(ET8500, test "$BOXTYPE" == et8500)
+AM_CONDITIONAL(ET9X00, test "$BOXTYPE" == "et9x00")
 AM_CONDITIONAL(ET10000, test "$BOXTYPE" == "et10000")
 AM_CONDITIONAL(VG2000, test `echo "$BOXTYPE"` == "vg2000")
 AM_CONDITIONAL(VG5000, test `echo "$BOXTYPE"` == "vg5000")
@@ -115,6 +117,7 @@ AM_CONDITIONAL(GB800UE, test "$BOXTYPE" == "gb800ue")
 AM_CONDITIONAL(GB800SEPLUS, test "$BOXTYPE" == "gb800seplus")
 AM_CONDITIONAL(GB800UEPLUS, test "$BOXTYPE" == "gb800ueplus")
 AM_CONDITIONAL(GBQUADPLUS, test "$BOXTYPE" == "gbquadplus")
+AM_CONDITIONAL(GBQUAD4K, test "$BOXTYPE" == "gbquad4k")
 AM_CONDITIONAL(GBQUAD, test "$BOXTYPE" == "gbquad")
 AM_CONDITIONAL(GBIPBOX, test "$BOXTYPE" == "gbipbox")
 AM_CONDITIONAL(INIHDE, test "$BOXTYPE" == "inihde")
@@ -256,7 +259,7 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD480, test x"$withcolorlcd480" != xno)
 
 AC_ARG_WITH(colorlcd720,
-	AC_HELP_STRING([--with-colorlcd720], [use 720x576 16bpp color display, yes or no]),
+	AC_HELP_STRING([--with-colorlcd720], [use 720x576 32bpp color display, yes or no]),
 	[[withcolorlcd720=$withval]],
 	[[withcolorlcd720=no]]
 )
@@ -306,6 +309,16 @@ if test x"$withbwlcd128" != xno ; then
 	AC_DEFINE(HAVE_BWLCD128, 1,[Define when using a 128x32 black and white display device])
 fi
 AM_CONDITIONAL(HAVE_BWLCD128, test x"$withbwlcd128" != xno)
+
+AC_ARG_WITH(gigabluelcd,
+	AC_HELP_STRING([--with-gigabluelcd], [use fix colour map in color display, yes or no]),
+	[[withgigabluelcd=$withval]],
+	[[withgigabluelcd=no]]
+)
+if test x"$withgigabluelcd" != xno ; then
+	AC_DEFINE(HAVE_GIGABLUELCD, 1,[Define when using a 220x176 color display device])
+fi
+AM_CONDITIONAL(HAVE_GIGABLUELCD, test x"$withgigabluelcd" != xno)
 
 AC_ARG_WITH(oldpvr,
 	AC_HELP_STRING([--with-oldpvr], [use /dev/misc/pvr instead of /dev/dvb/adapterX/dvrX, yes or no]),
@@ -441,24 +454,6 @@ AC_ARG_WITH(memcheck,
 	[with_memcheck="$withval"],[with_memcheck="no"])
 if test "$with_memcheck" = "yes"; then
 	AC_DEFINE([MEMLEAK_CHECK],[1],[Define to 1 to enable memory leak checks])
-fi
-
-AC_ARG_WITH(fbdev,
-	AC_HELP_STRING([--with-fbdev=devicename], [use devicename for framebuffer device, e.g. /dev/fb0 ]),
-	[[with_fbdev=$withval]],
-	[[with_fbdev=no]]
-)
-if test x"$with_fbdev" != xno ; then
-	AC_DEFINE_UNQUOTED(FB_DEV, "$withval", [Defines which device to use for main framebuffer (e.g. /dev/fb0)])
-fi
-
-AC_ARG_WITH(lcddev,
-	AC_HELP_STRING([--with-lcddev=devicename], [use devicename for lcd framebuffer device, e.g. /dev/fb1 ]),
-	[[with_lcddev=$withval]],
-	[[with_lcddev=no]]
-)
-if test x"$with_lcddev" != xno ; then
-	AC_DEFINE_UNQUOTED(LCD_DEV, "$withval", [Defines which device to use for lcd (e.g. /dev/fb1)])
 fi
 
 ENIGMA2_CFLAGS="-fno-rtti -fno-exceptions -rdynamic -funwind-tables"

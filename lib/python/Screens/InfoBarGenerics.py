@@ -14,6 +14,7 @@ from Components.VolumeControl import VolumeControl
 from Components.Pixmap import MovingPixmap, MultiPixmap
 from Components.Sources.StaticText import StaticText
 from Components.ScrollLabel import ScrollLabel
+from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
 
 from Components.Timeshift import InfoBarTimeshift

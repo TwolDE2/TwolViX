@@ -11,9 +11,10 @@ from Components.ScrollLabel import ScrollLabel
 from Components.Console import Console
 from Components.config import config
 from enigma import eTimer, getEnigmaVersionString, getDesktop
-from boxbranding import getMachineBrand, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
+from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
 from Components.Pixmap import MultiPixmap
 from Components.Network import iNetwork
+from Components.SystemInfo import SystemInfo
 from Tools.StbHardware import getFPVersion
 from os import path
 from re import search
@@ -68,7 +69,7 @@ class About(Screen):
 		AboutText = ""
 		self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
 
-		AboutText += _("Model:\t%s %s\n") % (getMachineBrand(), getMachineName())
+		AboutText += _("Model:\t%s   %s\n") % (getMachineBrand(), getMachineName())
 
 		if about.getChipSetString() != _("unavailable"):
 			if about.getIsBroadcom():
@@ -81,21 +82,49 @@ class About(Screen):
 		if getImageType() != 'release':
 			imageSubBuild = ".%s" % getImageDevBuild()
 		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
+
+		imagestarted = ""
+		bootname = ''
+		if path.exists('/boot/bootname'):
+			f = open('/boot/bootname', 'r')
+			bootname = f.readline().split('=')[1]
+			f.close()
+
+		if path.exists('/boot/STARTUP') and SystemInfo["HaveMultiBoot"]:
+			f = open('/boot/STARTUP', 'r')
+			f.seek(22)
+			image = f.read(1) 
+			f.close()
+			if bootname: bootname = "   (%s)" %bootname 
+			AboutText += _("Selected Image:\t%s") % "STARTUP_" + image + bootname + "\n"
+
+		bootloader = ""
+		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
+				f = open('/sys/firmware/devicetree/base/bolt/tag', 'r')
+				bootloader = f.readline().replace('\x00', '').replace('\n', '')
+				f.close()
+				AboutText += _("Bootloader:\t%s\n") % (bootloader)
+
+
+		if getMachineName() in ('ET8500') and path.exists('/proc/mtd'):
+			self.dualboot = self.dualBoot()
+			if self.dualboot:
+				AboutText += _("ET8500 Multiboot: Installed\n")
+			
 		skinWidth = getDesktop(0).size().width()
 		skinHeight = getDesktop(0).size().height()
-
 		string = getDriverDate()
 		year = string[0:4]
 		month = string[4:6]
 		day = string[6:8]
 		driversdate = '-'.join((year, month, day))
+
 		AboutText += _("Drivers:\t%s\n") % driversdate
 		AboutText += _("Kernel:\t%s\n") % about.getKernelVersionString()
 		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ","")
 		AboutText += _("Python:\t%s\n") % about.getPythonVersionString()
 		AboutText += _("Installed:\t%s\n") % about.getFlashDateString()
 		AboutText += _("Last update:\t%s\n") % getEnigmaVersionString()
-		AboutText += _("E2 (re)starts:\t%s\n") % config.misc.startCounter.value
 		AboutText += _("Skin:\t%s") % config.skin.primary_skin.value[0:-9] + _("  (%s x %s)") % (skinWidth, skinHeight) + "\n"
 
 		tempinfo = ""
@@ -140,14 +169,23 @@ class About(Screen):
 			fp_version = _("FP version:\t%s") % fp_version
 			AboutText += fp_version + "\n"
 
-		bootloader = ""
-		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
-				f = open('/sys/firmware/devicetree/base/bolt/tag', 'r')
-				bootloader = f.readline().replace('\x00', '').replace('\n', '')
-				f.close()
-				AboutText += _("Bootloader:\t%s\n") % (bootloader)
-
 		self["AboutScrollLabel"] = ScrollLabel(AboutText)
+
+	def dualBoot(self):
+		rootfs2 = False
+		kernel2 = False
+		f = open("/proc/mtd")
+		self.dualbootL = f.readlines()
+		for x in self.dualbootL:
+			if 'rootfs2' in x:
+				rootfs2 = True
+			if 'kernel2' in x:
+				kernel2 = True
+		f.close()
+		if rootfs2 and kernel2:
+			return True
+		else:
+			return False
 
 	def showTranslationInfo(self):
 		self.session.open(TranslationInfo, self.menu_path)

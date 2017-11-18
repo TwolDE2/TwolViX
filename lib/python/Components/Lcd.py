@@ -194,12 +194,19 @@ class LCD:
 		f = open("/proc/stb/lcd/show_symbols", "w")
 		f.write(value)
 		f.close()
-
+		
 	def setPower(self, value):
 		print 'setLCDPower',value
 		f = open("/proc/stb/power/vfd", "w")
 		f.write(value)
 		f.close()
+
+	def setShowoutputresolution(self, value):
+		if fileExists("/proc/stb/lcd/show_outputresolution"):
+			print 'setLCDShowoutputresolution',value
+			f = open("/proc/stb/lcd/show_outputresolution", "w")
+			f.write(value)
+			f.close()
 
 	def setLEDNormalState(self, value):
 		eDBoxLCD.getInstance().setLED(value, 0)
@@ -245,7 +252,7 @@ def standbyCounterChanged(dummy):
 		config.lcd.ledbrightnessdeepstandby.apply()
 
 def InitLcd():
-	if getBoxType() in ('et4x00', 'et5x00', 'et6x00', 'gb800se', 'gb800solo', 'iqonios300hd', 'mbmicro', 'sf128', 'sf138', 'tmsingle', 'tmnano2super', 'tmnanose', 'tmnanoseplus', 'tmnanosem2', 'tmnanosem2plus', 'tmnanosecombo', 'vusolo'):
+	if getBoxType() in ('et4x00', 'et5x00', 'et6x00', 'gb800se', 'gb800solo', 'iqonios300hd', 'mbmicro', 'sf128', 'sf138', 'tmsingle', 'tmnano2super', 'tmnanose', 'tmnanoseplus', 'tmnanosem2', 'tmnanosem2plus', 'tmnanosecombo', 'vusolo', 'vusolose', 'wetekplay', 'wetekplayplus'):
 		detected = False
 	else:
 		detected = eDBoxLCD.getInstance().detected()
@@ -263,7 +270,7 @@ def InitLcd():
 	else:
 		can_lcdmodechecking = False
 
- 	if SystemInfo["StandbyLED"]:
+	if SystemInfo["StandbyLED"]:
 		def setLEDstandby(configElement):
 			ilcd.setLEDStandby(configElement.value)
 		config.usage.standbyLED = ConfigYesNo(default = True)
@@ -329,9 +336,12 @@ def InitLcd():
 
 		def setLCDmode(configElement):
 			ilcd.setMode(configElement.value)
-
+		
 		def setLCDpower(configElement):
 			ilcd.setPower(configElement.value);
+
+		def setLCDshowoutputresolution(configElement):
+			ilcd.setShowoutputresolution(configElement.value);
 
 		def setLCDminitvmode(configElement):
 			ilcd.setLCDMiniTVMode(configElement.value)
@@ -342,7 +352,7 @@ def InitLcd():
 		def setLCDminitvfps(configElement):
 			ilcd.setLCDMiniTVFPS(configElement.value)
 
-		standby_default = 0
+		standby_default = 5
 
 		if not ilcd.isOled():
 			config.lcd.contrast = ConfigSlider(default=5, limits=(0, 20))
@@ -386,11 +396,17 @@ def InitLcd():
 		config.lcd.flip = ConfigYesNo(default=False)
 		config.lcd.flip.addNotifier(setLCDflipped)
 
+		if SystemInfo["LcdPowerOn"]:
+			config.lcd.power = ConfigSelection([("0", _("Off")), ("1", _("On"))], "1")
+			config.lcd.power.addNotifier(setLCDpower);
+		else:
+			config.lcd.power = ConfigNothing()
+
 		if SystemInfo["LcdLiveTV"]:
 			def lcdLiveTvChanged(configElement):
 				setLCDLiveTv(configElement.value)
 				configElement.save()
-			config.lcd.showTv = ConfigYesNo(default = False)
+			config.lcd.showTv = ConfigYesNo(default = True)
 			config.lcd.showTv.addNotifier(lcdLiveTvChanged)
 
 			if "live_enable" in SystemInfo["LcdLiveTV"]:
@@ -413,7 +429,7 @@ def InitLcd():
 					("4", _("MiniTV") + _(" - video1")),
 					("6", _("MiniTV with OSD") + _(" - video1")),
 					("5", _("MiniTV") + _(" - video0+video1")),
-					("7", _("MiniTV with OSD") + _(" - video0+video1"))])
+					("7", _("MiniTV with OSD") + _(" - video0+video1"))]) 
 			config.lcd.minitvmode.addNotifier(setLCDminitvmode)
 			config.lcd.minitvpipmode = ConfigSelection(default = "0", choices=[
 					("0", _("off")),
@@ -436,13 +452,22 @@ def InitLcd():
 
 		if SystemInfo["VFD_scroll_delay"]:
 			def scroll_delay(el):
-				open(SystemInfo["VFD_scroll_delay"], "w").write(str(el.value))
+				# add workaround for Boxes who need hex code
+				if getBoxType() == 'sf4008':
+					open(SystemInfo["VFD_scroll_delay"], "w").write(hex(int(el.value)))
+				else:
+					open(SystemInfo["VFD_scroll_delay"], "w").write(str(el.value))
 			config.usage.vfd_scroll_delay = ConfigSlider(default = 150, increment = 10, limits = (0, 500))
 			config.usage.vfd_scroll_delay.addNotifier(scroll_delay, immediate_feedback = False)
 
 		if SystemInfo["VFD_initial_scroll_delay"]:
 			def initial_scroll_delay(el):
-				open(SystemInfo["VFD_initial_scroll_delay"], "w").write(el.value)
+				if getBoxType() == 'sf4008':
+					# add workaround for Boxes who need hex code
+					open(SystemInfo["VFD_initial_scroll_delay"], "w").write(hex(int(el.value)))
+				else:
+					open(SystemInfo["VFD_initial_scroll_delay"], "w").write(el.value)
+
 			choicelist = [
 			("10000", "10 " + _("seconds")),
 			("20000", "20 " + _("seconds")),
@@ -453,7 +478,12 @@ def InitLcd():
 
 		if SystemInfo["VFD_final_scroll_delay"]:
 			def final_scroll_delay(el):
-				open(SystemInfo["VFD_final_scroll_delay"], "w").write(el.value)
+				if getBoxType() == 'sf4008':
+					# add workaround for Boxes who need hex code
+					open(SystemInfo["VFD_final_scroll_delay"], "w").write(hex(int(el.value)))
+				else:
+					open(SystemInfo["VFD_final_scroll_delay"], "w").write(el.value)
+
 			choicelist = [
 			("10000", "10 " + _("seconds")),
 			("20000", "20 " + _("seconds")),
@@ -468,11 +498,15 @@ def InitLcd():
 		else:
 			config.lcd.mode = ConfigNothing()
 
+		if fileExists("/proc/stb/lcd/show_outputresolution"):
+			config.lcd.showoutputresolution = ConfigSelection([("0", _("No")), ("1", _("Yes"))], "1")
+			config.lcd.showoutputresolution.addNotifier(setLCDshowoutputresolution);
+		else:
+			config.lcd.showoutputresolution = ConfigNothing()
+
 		if fileExists("/proc/stb/power/vfd"):
 			config.lcd.power = ConfigSelection([("0", _("off")), ("1", _("on"))], "1")
 			config.lcd.power.addNotifier(setLCDpower);
-		else:
-			config.lcd.power = ConfigNothing()
 
 	else:
 		def doNothing():

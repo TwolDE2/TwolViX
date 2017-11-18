@@ -289,9 +289,13 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("11", _("et9200/9500/6500")),
 			("13", _("et4000")),
 			("14", _("XP1000")),
-			("16", _("HD1100/et7x00/et8500")),
-			("18", _("F1/F3")),
+			("16", _("HD11/HD51/HD52/HD1100/HD1200/HD1265/HD1500/HD500C/HD530C/et7x00/et8500/et7000mini")),
+			("17", _("XP3000")),
+			("18", _("F1/F3/F4/F4-TURBO/TRIPLEX")),
 			("19", _("HD2400")),
+			("20", _("Zgemma Star S/2S/H1/H2")),
+			("21", _("Zgemma H.S/H.2S/H.2H/H5")),
+			("501", _("OCTAGON_SFXXX8"))
 			]
 
 	defaultRcList = [
@@ -299,7 +303,9 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("et5000", 7),
 			("et6000", 7),
 			("et6500", 11),
+			("et7x00",16),
 			("et8000", 9),
+			("et8500", 16),
 			("et9000", 5),
 			("et9100", 5),
 			("et9200", 11),
@@ -307,13 +313,16 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("et10000", 9),
 			("formuler1", 18),
 			("formuler3", 18),
-			("xp1000", 14),
-			("hd1100", 16),
+			("hd11",16),
+			("hd51",16),
+			("hd52",16),
+			("hd1100",16),
+			("hd1200",16),
+			("hd1265",16),
+			("hd500c",16),
+			("hd530c",16),
 			("hd2400", 19),
-			("et7000", 16),
-			("et7500", 16),
-			("et8500", 16),
-			("hd51", 16),
+			("sf4018", 501)
 		]
 
 	def __init__(self, session, menu_path=""):

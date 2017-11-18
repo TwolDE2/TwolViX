@@ -33,6 +33,9 @@
 		<item level="2" text="Descramble receiving http streams" description="When enabled, always descramble receiving http streams. This takes up more resources (descrambling demuxers), only enable if necessary. Individual streams are always descrambled if 0x100 is added to the service type, regardless of this setting. Default off.">config.streaming.descramble_client</item>
 		<item level="2" text="Require authentication for http streams" description="When enabled, authentication is required to watch http streams.">config.streaming.authentication</item>
 		<item level="2" text="Ignore DVB namespace sub network" description="On valid ONIDs, ignore frequency sub network part">config.usage.subnetwork</item>
+		<item level="2" text="Enable cut file support for non *.ts files" description="Enable cut file support for non *.ts files. (e.g. mp4)">config.usage.useVideoCuesheet</item>
+		<item level="2" text="Enable cut file support for audio files" description="Enable cut file support for audio files. (e.g. mp3)">config.usage.useAudioCuesheet</item>
+		<item level="2" text="Enable chapter support for video files" description="Show chapter positions for supported video files. (gstreamer version must be greather than 1)">config.usage.useChapterInfo</item>
 	</setup>
 	<setup key="userinterface" title="Settings">
 		<item level="0" text="1st Infobar timeout" description="Set the time delay before hiding the infobar.">config.usage.infobar_timeout</item>
@@ -218,7 +221,7 @@
 		<item level="0" text="Show MiniTV in the Front Display" description="You can Display MiniTV with or without OSD Menu" requires="LCDMiniTV">config.lcd.minitvmode</item>
 		<item level="0" text="Show PIP in the Front Display" description="You can Display PIP with or without OSD Menu" requires="LCDMiniTVPiP">config.lcd.minitvpipmode</item>
 		<item level="0" text="Set Framerate for MiniTV" description="Lower Framerate save CPU Time" requires="LCDMiniTV">config.lcd.minitvfps</item>
-		<item level="0" text="Power LCD Display" description="This option allows you to power on or off the display.">config.lcd.power</item>
+		<item level="0" text="Power LCD Display" description="This option allows you to power off the display." requires="LcdLiveTV">config.lcd.power</item>
 		<item level="0" text="Clone TV screen to LCD" description="Shows live tv or informations on LCD." requires="LcdLiveTV">config.lcd.showTv</item>
 		<item level="0" text="Brightness (Normal)" description="Configure the brightness level of the front panel display for normal operation.">config.lcd.bright</item>
 		<item level="0" text="Brightness (Dimmed)" description="Configure the brightness level of the front panel display for dimmed operation.">config.lcd.dimbright</item>
@@ -343,10 +346,21 @@
 		<item level="2" text="Picture in graphics" description="If set to 'yes' shows a small TV-screen in the EPG.">config.epgselection.graph_pig</item>
 		<item level="1" text="Highlight current events" description="Enable to highlight events that are currently in progress.">config.epgselection.graph_highlight_current_events</item>
 		<item level="2" text="Service Title mode" description="Configure to show the channel names, picons, or both in the EPG.">config.epgselection.graph_servicetitle_mode</item>
+		<item level="2" text="Show Service channel before Picon" description="If set to 'yes' channel number precedes Picon. ">config.epgselection.graph_showchannel1st</item>
+
+		<item level="2" text="Use Channel Numbers from specific Bouquet" description="When showing channel numbers, use channel numbers from a specific Bouquet (usually 'All Channels').">config.epgselection.graph_primarybouquet</item>
+		<item level="2" text="Use ZapTo Channel" description="Choose whether to specifically ZapTo a channel when selecting numbered keys.">config.epgselection.graph_usezaptochannel</item>
+		
 		<item level="2" text="Info button (short)" description="Set to what you want the button to do.">config.epgselection.graph_info</item>
 		<item level="2" text="Info button (long)" description="Set to what you want the button to do.">config.epgselection.graph_infolong</item>
 		<item level="2" text="OK button (short)" description="Set to what you want the button to do.">config.epgselection.graph_ok</item>
 		<item level="2" text="OK button (long)" description="Set to what you want the button to do.">config.epgselection.graph_oklong</item>
+
+		<item level="2" text="Red button" description="Set to what you want the button to do.">config.epgselection.graph_red</item>
+		<item level="2" text="Green button" description="Set to what you want the button to do.">config.epgselection.graph_green</item>
+		<item level="2" text="Yellow button" description="Set to what you want the button to do.">config.epgselection.graph_yellow</item>
+		<item level="2" text="Blue button" description="Set to what you want the button to do.">config.epgselection.graph_blue</item>
+
 		<item level="2" text="Channel 1 at start" description="If set to 'yes' the EPG will always open at the first channel of bouquet. If set to 'no' the EPG will open on the current channel.">config.epgselection.graph_channel1</item>
 		<item level="2" text="Skip empty services" description="If set to 'yes' channels without EPG will not be shown.">config.epgselection.overjump</item>
 		<item level="2" text="Base time" description="Choose time interval to which the graphics will be rounded off.">config.epgselection.graph_roundto</item>

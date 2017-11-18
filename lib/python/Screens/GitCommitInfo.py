@@ -13,12 +13,12 @@ from sys import modules
 from datetime import datetime
 from json import loads
 import urllib2
-
-if getImageType() == 'release':
-	ImageVer = "%03d" % int(getImageBuild())
-else:
-	ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
-	ImageVer = float(ImageVer)
+# following noops normal ViX code as I use alphanumeric Imageversion which causes crash 
+#if getImageType() == 'release':
+	ImageVer = getImageBuild()
+#else:
+#	ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
+#	ImageVer = float(ImageVer)
 
 E2Branches = {
 	'developer' : 'Dev',

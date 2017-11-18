@@ -183,7 +183,6 @@ class LogManager(Screen):
 		self["key_green"] = Button(_("View"))
 		self["key_yellow"] = Button(_("Delete"))
 		self["key_blue"] = Button(_("Send"))
-
 		self.onChangedEntry = [ ]
 		self.sentsingle = ""
 		self.selectedFiles = config.logmanager.sentfiles.value

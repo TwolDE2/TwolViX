@@ -68,7 +68,7 @@ class Standby2(Screen):
 
 		#mute adc
 		self.setMute()
-
+	
 		if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 			# set LCDminiTV off
 			setLCDMiniTVMode("0")
@@ -210,7 +210,7 @@ class TryQuitMainloop(MessageBox):
 		for job in job_manager.getPendingJobs():
 			if job.name != dgettext('vix', 'SoftcamCheck'):
 				jobs.append(job)
-
+		
 		inTimeshift = Screens.InfoBar.InfoBar and Screens.InfoBar.InfoBar.instance and Screens.InfoBar.InfoBar.ptsGetTimeshiftStatus(Screens.InfoBar.InfoBar.instance)
 		self.connected = False
 		reason = ""
@@ -282,13 +282,11 @@ class TryQuitMainloop(MessageBox):
 			print "[Standby] quitMainloop #1"
 			quitMainloopCode = self.retval
 			if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
-				# set LCDminiTV off / fix a deep-standby-crash on some boxes / gb4k
+				# set LCDminiTV off / fix a deep-standby-crash on some boxes / gb4k 
 				print "[Standby] LCDminiTV off"
 				setLCDMiniTVMode("0")
 			if getBoxType() == "vusolo4k":  #workaround for white display flash
-				f = open("/proc/stb/fp/oled_brightness", "w")
-				f.write("0")
-				f.close()
+				open("/proc/stb/fp/oled_brightness", "w").write("0")
 			quitMainloop(self.retval)
 		else:
 			MessageBox.close(self, True)
