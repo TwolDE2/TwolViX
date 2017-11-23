@@ -14,12 +14,12 @@ from datetime import datetime
 from json import loads
 import urllib2
 # following noops normal ViX code as I use alphanumeric Imageversion which causes crash 
-#if getImageType() == 'release':
+if getImageType() == 'release':
 	ImageVer = getImageBuild()
-#else:
+else:
 #	ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
 #	ImageVer = float(ImageVer)
-
+	ImageVer = getImageBuild()
 E2Branches = {
 	'developer' : 'Dev',
 	'release' : 'master'
@@ -27,7 +27,7 @@ E2Branches = {
 
 project = 0
 projects = [
-	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=4.0", "OE-A Core"),
+	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=4.2", "OE-A Core"),
 	("https://api.github.com/repos/OpenViX/enigma2/commits?sha=%s" % E2Branches[getImageType()], "Enigma2"),
 	("https://api.github.com/repos/OpenViX/vix-core/commits", "ViX Core"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
