@@ -119,6 +119,7 @@ AM_CONDITIONAL(GB800UEPLUS, test "$BOXTYPE" == "gb800ueplus")
 AM_CONDITIONAL(GBQUADPLUS, test "$BOXTYPE" == "gbquadplus")
 AM_CONDITIONAL(GBQUAD4K, test "$BOXTYPE" == "gbquad4k")
 AM_CONDITIONAL(GBQUAD, test "$BOXTYPE" == "gbquad")
+AM_CONDITIONAL(GB7252, test "$BOXTYPE" == gb7252)
 AM_CONDITIONAL(GBIPBOX, test "$BOXTYPE" == "gbipbox")
 AM_CONDITIONAL(INIHDE, test "$BOXTYPE" == "inihde")
 AM_CONDITIONAL(INIHDE2, test `echo "$BOXTYPE" | cut -b 1-7` == inihde2)
@@ -556,6 +557,7 @@ lib/python/Plugins/SystemPlugins/NetworkWizard/Makefile
 lib/python/Plugins/SystemPlugins/NetworkWizard/meta/Makefile
 lib/python/Plugins/SystemPlugins/PositionerSetup/Makefile
 lib/python/Plugins/SystemPlugins/PositionerSetup/meta/Makefile
+lib/python/Plugins/SystemPlugins/QuadPip/Makefile
 lib/python/Plugins/SystemPlugins/SABnzbdSetup/Makefile
 lib/python/Plugins/SystemPlugins/SatelliteEquipmentControl/Makefile
 lib/python/Plugins/SystemPlugins/SatelliteEquipmentControl/meta/Makefile
