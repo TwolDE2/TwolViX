@@ -4,7 +4,7 @@ SUBDIRS = PositionerSetup Satfinder \
 	VideoTune Hotplug \
 	DefaultServicesScanner CommonInterfaceAssignment \
 	HdmiCEC VideoClippingSetup \
-	VideoEnhancement WirelessLan NetworkWizard \
+	VideoEnhancement WirelessLan NetworkWizard QuadPip\
 	SABnzbdSetup FastScan SatelliteEquipmentControl DiseqcTester
 
 if VUSOLO2
