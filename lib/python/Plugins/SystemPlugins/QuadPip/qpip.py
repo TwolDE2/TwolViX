@@ -1,7 +1,6 @@
 from Screens.Screen import Screen
 from Components.ConfigList import ConfigListScreen
-from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry, ConfigPosition
-
+from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry
 from Components.ActionMap import ActionMap
 from Components.Pixmap import Pixmap, MovingPixmap
 from Screens.MessageBox import MessageBox
@@ -10,19 +9,21 @@ from Plugins.Plugin import PluginDescriptor
 from Tools.Directories import fileExists
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
-from Components.VideoWindow import VideoWindow
 from Components.Sources.List import List
 from Components.Label import Label
 from Components.ActionMap import HelpableActionMap
 from Components.MenuList import MenuList
 
 from Screens.ChannelSelection import ChannelSelectionBase
-from enigma import ePoint, eSize, eServiceCenter, getBestPlayableServiceReference, eTimer, eListboxPythonMultiContent, eServiceReference
-
+from enigma import eServiceReference
+from enigma import eListboxPythonMultiContent
+from enigma import eTimer
 from ServiceReference import ServiceReference
 from Components.FileList import FileList
 from Components.Button import Button
 from Screens.ChoiceBox import ChoiceBox
+from Screens.QuadPiP import QuadPiP
+
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Screens.HelpMenu import HelpableScreen
 
@@ -741,7 +742,7 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 		self.disableQuadPip()
 		setDecoderMode("normal")
 
-		self.restoreLcdLiveTV()
+		self.enableLcdLiveTV()
 
 		self.qpipChannelList.saveAll()
 		self.session.nav.playService(self.oldService)
@@ -869,7 +870,7 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 			return
 
 		if self.curPlayAudio != self.currentPosition:
-			if self.session.qPips and len(self.session.qPips):
+			if self.session.qPips and len(self.session.qPips) >= self.currentPosition:
 				self.playAudio(self.curPlayAudio, False)
 				self.playAudio(self.currentPosition, True)
 
@@ -925,8 +926,6 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 
 			decoderIdx = self.decoderIdxMap[idx]
 			pos = self.eVideoPosMap[idx]
-
-			#print pos
 			#print "===================================================================="
 			#print "sname : ", sname
 			#print "sref : ", sref
@@ -945,6 +944,7 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 			if qPipInstance.playService(eServiceReference(sref), isPlayAudio):
 				self.session.qPips.append(qPipInstance)
 			else:
+				print "play failed, ", sref
 				del qPipInstance
 
 		self.updateChannelName(channel)
@@ -968,64 +968,9 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 			self.oldLcdLiveTVEnable = config.lcd.showTv.value
 			config.lcd.showTv.value = False
 
-	def restoreLcdLiveTV(self):
+	def enableLcdLiveTV(self):
 		if SystemInfo.get("LcdLiveTV", False):
 			config.lcd.showTv.value = self.oldLcdLiveTVEnable
 
-class QuadPiP(Screen):
-	def __init__(self, session, decoderIdx = 1, pos = None):
-		Screen.__init__(self, session)
-		self["video"] = VideoWindow(decoderIdx, 720, 576)
-		self.currentService = None
-		self.onLayoutFinish.append(self.LayoutFinished)
-		self.decoderIdx = decoderIdx
-		self.pos = pos
-		self.skinName = "PictureInPicture"
 
-	def LayoutFinished(self):
-		self.onLayoutFinish.remove(self.LayoutFinished)
-		x = self.pos[0]
-		y = self.pos[1]
-		w = self.pos[2]
-		h = self.pos[3]
-		if x != -1 and y != -1 and w != -1 and h != -1:
-			self.resize(w, h)
-			self.move(x, y)
 
-	def move(self, x, y):
-		self.instance.move(ePoint(x, y))
-
-	def resize(self, w, h):
-		self.instance.resize(eSize(*(w, h)))
-		self["video"].instance.resize(eSize(*(w, h)))
-
-	def getPosition(self):
-		return ((self.instance.position().x(), self.instance.position().y()))
-
-	def getSize(self):
-		return (self.instance.size().width(), self.instance.size().height())
-
-	def playService(self, service, playAudio):
-		print "  ---PLAY-->   ",service,playAudio
-		if service and (service.flags & eServiceReference.isGroup):
-			ref = getBestPlayableServiceReference(service, eServiceReference())
-		else:
-			ref = service
-		if ref:
-			self.pipservice = eServiceCenter.getInstance().play(ref)
-			if self.pipservice and not self.pipservice.setTarget(self.decoderIdx):
-				self.setQpipMode(True, playAudio)
-				self.pipservice.start()
-				self.currentService = service
-				return True
-			else:
-				self.pipservice = None
-		return False
-
-	def setQpipMode(self, pipMode, playAudio):
-		if self.pipservice:
-			print "   ---->   index, mode, audio ---> ",self.decoderIdx, pipMode, playAudio
-			self.pipservice.setQpipMode(pipMode, playAudio)
-
-	def getCurrentService(self):
-		return self.currentService
