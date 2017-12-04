@@ -1,4 +1,4 @@
-installdir = $(pkglibdir)/python/Plugins/Extensions/QuadPip
+installdir = $(pkglibdir)/python/Plugins/SystemPlugins/QuadPip
 
 install_PYTHON =	\
 	__init__.py \
