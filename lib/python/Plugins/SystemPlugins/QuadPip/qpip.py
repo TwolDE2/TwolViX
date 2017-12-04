@@ -42,8 +42,16 @@ ENABLE_QPIP_PROCPATH = "/proc/stb/video/decodermode"
 
 def setDecoderMode(value):
 	if os.access(ENABLE_QPIP_PROCPATH, os.F_OK):
-		open(ENABLE_QPIP_PROCPATH,"w").write(value)
-		return open(ENABLE_QPIP_PROCPATH,"r").read().strip() == value
+		fd = open(ENABLE_QPIP_PROCPATH,"w")
+		fd.write(value)
+		fd.close()
+
+		# read to check
+		fd = open(ENABLE_QPIP_PROCPATH,"r")
+		data = fd.read()
+		fd.close()
+
+		return data.strip() == value
 
 class QuadPipChannelEntry:
 	def __init__(self, name, idx, ch1, ch2, ch3, ch4):
@@ -191,7 +199,7 @@ class CreateQuadPipChannelEntry(ChannelSelectionBase):
 		<screen name="CreateQuadPipChannelEntry" position="center,center" size="1500,850" flags="wfNoBorder">
 			<widget source="Title" render="Label" position="100,60" size="1300,60" zPosition="3" font="Semiboldit;52" halign="left" valign="center" backgroundColor="#25062748" transparent="1" />
 			<ePixmap pixmap="skin_default/buttons/red.png" position="137,140" size="140,40" alphatest="blend" />
-			<ePixmap pixmap="skin_default/buttons/green.png" position="492,140" size="140,40" alphatest="blend" />
+ 			<ePixmap pixmap="skin_default/buttons/green.png" position="492,140" size="140,40" alphatest="blend" />
 			<ePixmap pixmap="skin_default/buttons/yellow.png" position="837,140" size="140,40" alphatest="blend" />
 			<ePixmap pixmap="skin_default/buttons/blue.png" position="1192,140" size="140,40" alphatest="blend" />
 			<widget name="key_red" position="137,140" zPosition="1" size="140,40" font="Regular;20" halign="center" valign="center" backgroundColor="#9f1313" foregroundColor="#ffffff" transparent="1" />
@@ -208,7 +216,7 @@ class CreateQuadPipChannelEntry(ChannelSelectionBase):
 		<screen name="CreateQuadPipChannelEntry" position="center,center" size="1000,610" flags="wfNoBorder">
 			<widget source="Title" render="Label" position="40,40" size="910,40" zPosition="3" font="Semiboldit;32" backgroundColor="#25062748" transparent="1" />
 			<ePixmap pixmap="skin_default/buttons/red.png" position="75,80" size="140,40" alphatest="blend" />
-			<ePixmap pixmap="skin_default/buttons/green.png" position="325,80" size="140,40" alphatest="blend" />
+ 			<ePixmap pixmap="skin_default/buttons/green.png" position="325,80" size="140,40" alphatest="blend" />
 			<ePixmap pixmap="skin_default/buttons/yellow.png" position="575,80" size="140,40" alphatest="blend" />
 			<ePixmap pixmap="skin_default/buttons/blue.png" position="825,80" size="140,40" alphatest="blend" />
 			<widget name="key_red" position="75,80" zPosition="1" size="140,40" font="Regular;20" halign="center" valign="center" backgroundColor="#9f1313" foregroundColor="#ffffff" transparent="1" />
@@ -225,7 +233,7 @@ class CreateQuadPipChannelEntry(ChannelSelectionBase):
 		<screen name="CreateQuadPipChannelEntry" position="center,center" size="680,520" flags="wfNoBorder">
 			<widget source="Title" render="Label" position="30,20" size="600,30" zPosition="3" font="Regular;22" backgroundColor="#25062748" transparent="1" />
 			<ePixmap pixmap="skin_default/buttons/red.png" position="15,60" size="140,40" alphatest="blend" />
-			<ePixmap pixmap="skin_default/buttons/green.png" position="185,60" size="140,40" alphatest="blend" />
+ 			<ePixmap pixmap="skin_default/buttons/green.png" position="185,60" size="140,40" alphatest="blend" />
 			<ePixmap pixmap="skin_default/buttons/yellow.png" position="355,60" size="140,40" alphatest="blend" />
 			<ePixmap pixmap="skin_default/buttons/blue.png" position="525,60" size="140,40" alphatest="blend" />
 			<widget name="key_red" position="15,60" zPosition="1" size="140,40" font="Regular;20" halign="center" valign="center" backgroundColor="#9f1313" foregroundColor="#ffffff" transparent="1" />
@@ -286,7 +294,7 @@ class CreateQuadPipChannelEntry(ChannelSelectionBase):
 	def editEntryNameCB(self, newName):
 		if newName:
 			self.newChannel.setName(newName)
-			self.updateEntryName()
+			self.updateEntryName()		
 
 	def updateDescription(self):
 		if self.currList == "channelList":
@@ -311,7 +319,7 @@ class CreateQuadPipChannelEntry(ChannelSelectionBase):
 			if chName is None:
 				chName = " <empty>"
 				_isEmpty = True
-			self.descChannels.append(("%d)  %s" % (idx, chName), sIdx, _isEmpty))
+			self.descChannels.append(("%d)  %s" % (idx, chName), sIdx, _isEmpty))	
 
 	def updateDescChannelList(self):
 		self["selectedList"].setList(self.descChannels)
@@ -625,14 +633,14 @@ class FocusShowHide:
 class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 	skin = """
 		<screen position="0,0" size="%d,%d" backgroundColor="transparent" flags="wfNoBorder">
-			<widget name="ch1" position="240,240" zPosition="1" size="480,60" font="Regular; %d" halign="center" valign="center" foregroundColor="white" backgroundColor="#ffffffff" alphatest="on" />
-			<widget name="ch2" position="1200,240" zPosition="1" size="480,60" font="Regular; %d" halign="center" valign="center" foregroundColor="white" backgroundColor="#ffffffff" alphatest="on" />
-			<widget name="ch3" position="240,780" zPosition="1" size="480,60" font="Regular; %d" halign="center" valign="center" foregroundColor="white" backgroundColor="#ffffffff" alphatest="on" />
-			<widget name="ch4" position="1200,780" zPosition="1" size="480,60" font="Regular; %d" halign="center" valign="center" foregroundColor="white" backgroundColor="#ffffffff" alphatest="on" />
+		    <widget name="ch1" position="240,240" zPosition="1" size="480,60" font="Regular; %d" halign="center" valign="center" foregroundColor="white" backgroundColor="#ffffffff" alphatest="on" />
+		    <widget name="ch2" position="1200,240" zPosition="1" size="480,60" font="Regular; %d" halign="center" valign="center" foregroundColor="white" backgroundColor="#ffffffff" alphatest="on" />
+		    <widget name="ch3" position="240,780" zPosition="1" size="480,60" font="Regular; %d" halign="center" valign="center" foregroundColor="white" backgroundColor="#ffffffff" alphatest="on" />
+		    <widget name="ch4" position="1200,780" zPosition="1" size="480,60" font="Regular; %d" halign="center" valign="center" foregroundColor="white" backgroundColor="#ffffffff" alphatest="on" />
 			<widget name="text1" position="%d,%d" zPosition="2" size="%d,%d" font="Regular; %d" halign="left" valign="center" alphatest="on" />
 			<widget name="text2" position="%d,%d" zPosition="2" size="%d,%d" font="Regular; %d" halign="left" valign="center" alphatest="on" />
 			<widget name="focus" position="0,0" zPosition="-1" size="960,540" backgroundColor="#ffffffff" borderWidth="5" borderColor="#e61616" alphatest="on" />
-		</screen>
+		  </screen>
 		"""
 	def __init__(self, session):
 		self.session = session
@@ -680,7 +688,8 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 		global quad_pip_channel_list_instance
 		self.qpipChannelList = quad_pip_channel_list_instance
 
-		self.oldLcdLiveTVEnable = False
+		self.oldFccEnable = False
+		self.oldLcdLiveTVEanble = False
 
 		self.onLayoutFinish.append(self.layoutFinishedCB)
 
@@ -703,14 +712,6 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 		self.session.openWithCallback(self.ChannelSelectCB, QuadPiPChannelSelection)
 
 	def layoutFinishedCB(self):
-
-		#make main window full screen as quadPiP might not work of previous screen was PiP
-		open("/proc/stb/vmpeg/0/dst_left", "w").write("00000000")
-		open("/proc/stb/vmpeg/0/dst_top", "w").write("00000000")
-		open("/proc/stb/vmpeg/0/dst_width", "w").write("00000000")
-		open("/proc/stb/vmpeg/0/dst_height", "w").write("00000000")
-		open("/proc/stb/vmpeg/0/dst_apply", "w").write("00000001")
-
 		if not os.access(ENABLE_QPIP_PROCPATH, os.F_OK):
 			self.notSupportTimer.start(100, True)
 			return
@@ -724,7 +725,11 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 		self.oldService = self.session.nav.getCurrentlyPlayingServiceReference()
 		self.session.nav.stopService()
 
-		self.disableLcdLiveTV()
+		if SystemInfo.get("FastChannelChange", False):
+			self.disableFCC()
+
+		if SystemInfo.get("LcdLiveTV", False):
+			self.disableLcdLiveTV()
 
 		ret = setDecoderMode("mosaic")
 		if ret is not True:
@@ -742,7 +747,11 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 		self.disableQuadPip()
 		setDecoderMode("normal")
 
-		self.enableLcdLiveTV()
+		if SystemInfo.get("FastChannelChange", False):
+			self.enableFCC()
+
+		if SystemInfo.get("LcdLiveTV", False):
+			self.enableLcdLiveTV()
 
 		self.qpipChannelList.saveAll()
 		self.session.nav.playService(self.oldService)
@@ -865,7 +874,6 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 		self.selectAudio()
 
 	def selectAudio(self):
-		print "   --audio switch==?", self.curPlayAudio, self.currentPosition
 		if self.curPlayAudio == -1:
 			return
 
@@ -934,6 +942,7 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 			#print "===================================================================="
 
 			qPipInstance =  self.session.instantiateDialog(QuadPiP, decoderIdx, pos)
+			qPipInstance.setAnimationMode(0)
 			qPipInstance.show()
 
 			isPlayAudio = False
@@ -963,14 +972,37 @@ class QuadPipScreen(Screen, FocusShowHide, HelpableScreen):
 		for idx in range(1,5):
 			self["ch%d" % idx].setText((channel and channel.getChannelName(str(idx))) or "No channel")
 
+	def disableFCC(self):
+		try:
+			self.oldFccEnable = config.plugins.fccsetup.activate.value
+			if self.oldFccEnable:
+				config.plugins.fccsetup.activate.value = False
+				from Plugins.SystemPlugins.FastChannelChange.plugin import FCCChanged
+				FCCChanged()
+		except:
+			self.oldFccEnable = False
+
+	def enableFCC(self):
+		if self.oldFccEnable:
+			try:
+				config.plugins.fccsetup.activate.value = self.oldFccEnable
+				from Plugins.SystemPlugins.FastChannelChange.plugin import FCCChanged
+				FCCChanged()
+			except:
+				pass
+
 	def disableLcdLiveTV(self):
-		if SystemInfo.get("LcdLiveTV", False):
-			self.oldLcdLiveTVEnable = config.lcd.showTv.value
-			config.lcd.showTv.value = False
+		try:
+			self.oldLcdLiveTVEanble = config.plugins.LcdLiveTV.enable.value
+			if self.oldLcdLiveTVEanble:
+				config.plugins.LcdLiveTV.enable.value = False
+		except:
+			self.oldFccEnable = False
 
 	def enableLcdLiveTV(self):
-		if SystemInfo.get("LcdLiveTV", False):
-			config.lcd.showTv.value = self.oldLcdLiveTVEnable
-
-
+		if self.oldLcdLiveTVEanble:
+			try:
+				config.plugins.LcdLiveTV.enable.value = self.oldLcdLiveTVEanble
+			except:
+				pass
 
