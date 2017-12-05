@@ -39,10 +39,6 @@ if VUULTIMO4K
 SUBDIRS += CableScan QuadPiP
 endif
 
-if GB7252
-SUBDIRS += QuadPiP
-endif
-
 if HAVE_LIBVUGLES2
 SUBDIRS += AnimationSetup
 endif
