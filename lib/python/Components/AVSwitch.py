@@ -64,8 +64,7 @@ class AVSwitch:
 	modes["Scart"] = ["PAL", "NTSC", "Multi"]
 	# modes["DVI-PC"] = ["PC"]
 
-
-	if about.getChipSetString() in ('5272s', '7251', '7251S', '7251s' '7252', '7252s', '7252S', '7366', '7376', '7445s'):
+	if about.getChipSetString() in ('5272s', '7251', '7251S', '7251s' '7252', '7252s', '7252S', '7366', '7376', '7445s', '7444s', '72604'):
 		modes["HDMI"] = ["1080p", "2160p", "1080i", "720p", "576p", "576i", "480p", "480i"]
 		widescreen_modes = {"1080p", "2160p", "1080i", "720p"}
 
@@ -77,7 +76,8 @@ class AVSwitch:
 		widescreen_modes = {"720p", "1080i"}
 
 	modes["YPbPr"] = modes["HDMI"]
-	if getBrandOEM() == 'vuplus' and getBoxType() not in ('vusolo4k', 'vuultimo4k', 'vuuno4k'):
+
+	if getBrandOEM() == 'vuplus' and getBoxType() not in ('vusolo4k', 'vuuno4k', 'vuuno4kse',  'vuzero4k', 'vuultimo4k'):
 		modes["Scart-YPbPr"] = modes["HDMI"]
 
 	# if "DVI-PC" in modes and not getModeList("DVI-PC"):
@@ -132,8 +132,10 @@ class AVSwitch:
 		'tmtwin4k',
 		'uniboxhd1',
 		'vusolo2',
+		'vuzero4k',
 		'vusolo4k',
 		'vuuno4k',
+		'vuuno4kse',
 		'vuultimo4k',
 		'xp1000',
 		'wetekplay', 
@@ -183,8 +185,10 @@ class AVSwitch:
 		'tmnano2t',
 		'tmnanom3',
 		'tmtwin4k',
+		'vuzero4k',
 		'vusolo4k',
 		'vuuno4k',
+		'vuuno4kse',
 		'vuultimo4k'
 	)
 
@@ -590,7 +594,7 @@ def InitAVSwitch():
 				f.close()
 			except:
 				pass
-		if getBoxType() in ('vusolo4k','vuuno4k','vuultimo4k'):
+		if getBoxType() in ('vuzero4k','vusolo4k','vuuno4k','vuuno4kse','vuultimo4k'):
 			config.av.hdmicolorspace = ConfigSelection(choices={
 					"Edid(Auto)": _("Auto"),
 					"Hdmi_Rgb": _("RGB"),

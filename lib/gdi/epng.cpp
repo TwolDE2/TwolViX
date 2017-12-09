@@ -117,7 +117,6 @@ int loadPNG(ePtr<gPixmap> &result, const char *filename, int accel)
 	}
 	if (setjmp(png_jmpbuf(png_ptr)))
 	{
-		eDebug("[ePNG] png setjump failed or activated");
 		png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
 		result = 0;
 		return 0;
