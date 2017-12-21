@@ -28,6 +28,8 @@ def InitUsageConfig():
 
 	config.usage = ConfigSubsection()
 	config.usage.subnetwork = ConfigYesNo(default = True)
+	config.usage.subnetwork_cable = ConfigYesNo(default = True)
+	config.usage.subnetwork_terrestrial = ConfigYesNo(default = True)
 	config.usage.showdish = ConfigSelection(default="flashing", choices=[
 		("flashing", _("Flashing")),
 		("normal", _("Not Flashing")),
@@ -41,11 +43,6 @@ def InitUsageConfig():
 	])
 	config.usage.multibouquet = ConfigYesNo(default=True)
 	config.usage.alternative_number_mode = ConfigYesNo(default=False)
-
-	#settings for servicemp3 and handling from cuesheet file
-	config.usage.useVideoCuesheet = ConfigYesNo(default = True)		#use marker for video media file
-	config.usage.useAudioCuesheet = ConfigYesNo(default = True)		#use marker for audio media file
-	config.usage.useChapterInfo = ConfigYesNo(default = True) 		#show chapter positions (gst >= 1 and supported media files)
 
 	def alternativeNumberModeChange(configElement):
 		eDVBDB.getInstance().setNumberingMode(configElement.value)
