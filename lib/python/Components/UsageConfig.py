@@ -990,7 +990,7 @@ def InitUsageConfig():
 	if SystemInfo["HasForceLNBOn"]:
 		def forceLNBPowerChanged(configElement):
 			open(SystemInfo["HasForceLNBOn"], "w").write(configElement.value)
-		config.misc.forceLnbPower = ConfigSelection(default="off", choices=[
+		config.misc.forceLnbPower = ConfigSelection(default="on", choices=[
 			("on", _("Yes")),
 			("off", _("No"))
 		])
@@ -999,7 +999,7 @@ def InitUsageConfig():
 	if SystemInfo["HasForceToneburst"]:
 		def forceToneBurstChanged(configElement):
 			open(SystemInfo["HasForceToneburst"], "w").write(configElement.value)
-		config.misc.forceToneBurst = ConfigSelection(default="disable", choices=[
+		config.misc.forceToneBurst = ConfigSelection(default="enable", choices=[
 			("enable", _("Yes")),
 			("disable", _("No"))
 		])
