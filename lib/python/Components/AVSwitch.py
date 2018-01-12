@@ -64,13 +64,12 @@ class AVSwitch:
 	modes["Scart"] = ["PAL", "NTSC", "Multi"]
 	# modes["DVI-PC"] = ["PC"]
 
-	if about.getChipSetString() in ('5272s', '7251', '7251S', '7251s' '7252', '7252s', '7252S', '7366', '7376', '7445s', '7444s', '72604'):
-		modes["HDMI"] = ["1080p", "2160p", "1080i", "720p", "576p", "576i", "480p", "480i"]
-		widescreen_modes = {"1080p", "2160p", "1080i", "720p"}
-
+	if about.getChipSetString() in ('5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s', '72604'):
+		modes["HDMI"] = ["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"]
+		widescreen_modes = {"720p", "1080p", "2160p", "1080i"}
 	elif about.getChipSetString() in ('7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552'):
-		modes["HDMI"] = ["1080p", "1080i", "720p", "576p", "576i", "480p", "480i"]
-		widescreen_modes = {"1080p", "1080i", "720p"}
+		modes["HDMI"] = ["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"]
+		widescreen_modes = {"720p", "1080p", "1080i"}
 	else:
 		modes["HDMI"] = ["720p", "1080i", "576p", "576i", "480p", "480i"]
 		widescreen_modes = {"720p", "1080i"}
@@ -138,9 +137,7 @@ class AVSwitch:
 		'vuuno4k',
 		'vuuno4kse',
 		'vuultimo4k',
-		'xp1000',
-		'wetekplay', 
-		'wetekplayplus'
+		'xp1000'
 	)
 
 	# Machines that have composite video (yellow RCA socket) but do not have Scart.
