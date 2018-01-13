@@ -1,4 +1,4 @@
-from boxbranding import getImageVersion, getMachineBuild, getBoxType
+from boxbranding import getImageVersion, getMachineBuild
 from sys import modules
 import socket, fcntl, struct
 
@@ -52,17 +52,13 @@ def getIsBroadcom():
 		return False
 
 def getChipSetString():
-
-	if getMachineBuild() in ('hd51','hd52','sf4008'):
-		return "7251S"
-	else:
-		try:
-			f = open('/proc/stb/info/chipset', 'r')
-			chipset = f.read()
-			f.close()
-			return str(chipset.lower().replace('\n','').replace('brcm','').replace('bcm',''))
-		except IOError:
-			return _("unavailable")
+	try:
+		f = open('/proc/stb/info/chipset', 'r')
+		chipset = f.read()
+		f.close()
+		return str(chipset.lower().replace('\n','').replace('brcm','').replace('bcm',''))
+	except IOError:
+		return _("unavailable")
 
 def getCPUSpeedString():
 	cpu_speed = 0
@@ -89,7 +85,7 @@ def getCPUSpeedString():
 				f.close()
 				cpu_speed = round(int(binascii.hexlify(clockfrequency), 16)/1000000,1)
 			except IOError:
-				return "1,7 GHz"
+				return "1.7 GHz"
 		else:
 			try: # Solo4K
 				file = open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq', 'r')
