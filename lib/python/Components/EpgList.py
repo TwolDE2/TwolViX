@@ -45,7 +45,7 @@ class Rect:
 	def width(self):
 		return self.w
 
-class EPGList(HTMLComponent, GUIComponent):
+class EPGList(GUIComponent):
 	def __init__(self, type = EPG_TYPE_SINGLE, selChangedCB = None, timer = None, time_epoch = 120, overjump_empty = False, graphic=False):
 		self.cur_event = None
 		self.cur_service = None
@@ -61,7 +61,6 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.primaryServiceNumbers = None;
 		self.showServiceNumber = True
 		self.screenwidth = getDesktop(0).size().width()
-
 		self.overjump_empty = overjump_empty
 		self.timer = timer
 		self.onSelChanged = [ ]
