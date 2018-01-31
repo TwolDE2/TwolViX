@@ -2164,18 +2164,6 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 						m_is_live = true;
 					m_event((iPlayableService*)this, evGstreamerPlayStarted);
 					updateEpgCacheNowNext();
-<<<<<<< HEAD
-=======
-
-					if (!videoSink || m_ref.getData(0) == 2) // show radio pic
-					{
-						bool showRadioBackground = eConfigManager::getConfigBoolValue("config.misc.showradiopic", true);
-						std::string radio_pic = eConfigManager::getConfigValue(showRadioBackground ? "config.misc.radiopic" : "config.misc.blackradiopic");
-						m_decoder = new eTSMPEGDecoder(NULL, 0);
-						m_decoder->showSinglePic(radio_pic.c_str());
-					}
-
->>>>>>> upstream/Dev
 				}	break;
 				case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
 				{
