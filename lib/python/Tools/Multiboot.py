@@ -3,17 +3,17 @@ from Components.Console import Console
 import os
 
 def GetCurrentImage():
-	return SystemInfo["HaveMultiBoot"] and int(open('/sys/firmware/devicetree/base/chosen/kerneldev', 'r').read().replace('\0', '')[-1])
+	return SystemInfo["HaveMultiBootHD"] and int(open('/sys/firmware/devicetree/base/chosen/kerneldev', 'r').read().replace('\0', '')[-1])
 
 def GetCurrentImageMode():
-	return SystemInfo["HaveMultiBoot"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
+	return SystemInfo["HaveMultiBootHD"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
 
 class GetImagelist():
 	MOUNT = 0
 	UNMOUNT = 1
 
 	def __init__(self, callback):
-		if SystemInfo["HaveMultiBoot"]:
+		if SystemInfo["HaveMultiBootHD"]:
 			self.callback = callback
 			self.imagelist = {}
 			if not os.path.isdir('/tmp/testmount'):
