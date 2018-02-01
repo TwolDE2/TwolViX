@@ -28,7 +28,7 @@ class MultiBoot(Screen):
 		<widget name="key_blue" position="420,0" zPosition="1" size="140,40" font="Regular;20" halign="center" valign="center" backgroundColor="#18188b" transparent="1" />
 		<widget source="config" render="Label" position="150,150" size="580,150" halign="center" valign="center" font="Regular; 30" />
 		<widget source="options" render="Label" position="150,400" size="580,100" halign="center" valign="center" font="Regular; 24" />
-		<widget name="description" position="150,650" size="580,100" halign="center" valign="center" font="Regular; 24" />
+		<widget name="description" render="Label" position="150,550" size="580,100" halign="center" valign="center" font="Regular; 24" />
 		<ePixmap position="555,217" size="35,25" zPosition="2" pixmap="/usr/share/enigma2/skin_default/buttons/key_info.png" alphatest="blend" />
 		<applet type="onLayoutFinish">
 		</applet>
@@ -38,25 +38,7 @@ class MultiBoot(Screen):
 		Screen.__init__(self, session)
 		screentitle =  _("MultiBoot STARTUP Selector")
 		self.skinName = ["MultiBoot"]
-
-		self.menu_path = menu_path
-		if config.usage.show_menupath.value == 'large':
-			self.menu_path += screentitle
-			title = self.menu_path
-			self["menu_path_compressed"] = StaticText("")
-			self.menu_path += ' / '
-		elif config.usage.show_menupath.value == 'small':
-			title = screentitle
-			condtext = ""
-			if self.menu_path and not self.menu_path.endswith(' / '):
-				condtext = self.menu_path + " >"
-			elif self.menu_path:
-				condtext = self.menu_path[:-3] + " >"
-			self["menu_path_compressed"] = StaticText(condtext)
-			self.menu_path += screentitle + ' / '
-		else:
-			title = screentitle
-			self["menu_path_compressed"] = StaticText("")
+		title = screentitle
 		Screen.setTitle(self, title)
 
 		self["key_red"] = Button(_("Cancel"))
@@ -64,7 +46,7 @@ class MultiBoot(Screen):
 		self["key_yellow"] = Button(_("Rename"))
 		self["config"] = StaticText()
 		self["options"] = StaticText()
-		self["description"] = Label()
+		self["description"] = StaticText()
 		if SystemInfo["HaveMultiBootHD"]:
 			self["actions"] = ActionMap(["WizardActions", "SetupActions", "ColorActions"],
 			{
@@ -81,12 +63,13 @@ class MultiBoot(Screen):
 			self.onLayoutFinish.append(self.layoutFinished)
 		elif SystemInfo["HaveMultiBootGB"]:
 			self.selection = 0
+			self.image = 0
 			if path.exists('/boot/STARTUP'):
 				f = open('/boot/STARTUP', 'r')
 				f.seek(22)
-				image = f.read(1) 
+				self.image = f.read(1) 
 				f.close()
-				self["description"].setText(_("Current Startup: STARTUP_%s") %(image))
+				self["description"].setText(_("Current Startup: STARTUP_%s") %(self.image))
 			self.list = self.list_files("/boot")
 			self.startupGB()
 			self["actions"] = ActionMap(["WizardActions", "SetupActions", "ColorActions"],
@@ -375,7 +358,7 @@ class MultiBoot(Screen):
 		self.startup_option()
 
 	def startupGB(self):
-		self["config"].setText(_("Select Image: %s") %self.list[self.selection])
+		self["config"].setText(_("Select Image:Old STARTUP_%s New %s") %(self.image, self.list[self.selection]))
 
 	def saveGB(self):
 		print "[MultiBootStartup] select new startup: ", self.list[self.selection]
