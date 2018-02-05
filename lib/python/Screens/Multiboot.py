@@ -8,7 +8,7 @@ from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components import Harddisk
 from Components.SystemInfo import SystemInfo
-from Tools.Multiboot import GetImagelist, GetCurrentImage, GetCurrentImageMode
+from Tools.Multiboot import GetImagelist
 from os import path, listdir, system
 
 class MultiBoot(Screen):

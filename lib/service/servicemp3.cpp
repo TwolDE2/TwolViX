@@ -851,12 +851,6 @@ eServiceMP3::~eServiceMP3()
 
 	stop();
 
-	if (m_decoder)
-	{
-		delete m_decoder;
-		m_decoder = NULL;
-	}
-
 	if (m_stream_tags)
 		gst_tag_list_free(m_stream_tags);
 
