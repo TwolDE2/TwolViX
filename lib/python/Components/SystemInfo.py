@@ -3,7 +3,6 @@ from os import path
 from enigma import eDVBResourceManager, Misc_Options
 from Tools.Directories import fileExists, fileCheck
 from Tools.HardwareInfo import HardwareInfo
-import os
 
 from boxbranding import getMachineBuild, getBoxType, getBrandOEM
 
