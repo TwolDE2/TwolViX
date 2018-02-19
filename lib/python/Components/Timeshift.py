@@ -70,8 +70,8 @@ class InfoBarTimeshift:
 				"seekdef:4": (boundFunction(self.seekdef,4), _("Seek")),
 				"seekdef:6": (boundFunction(self.seekdef,6), _("Seek")),
 				"seekdef:7": (boundFunction(self.seekdef,7), _("Seek")),
-				"seekdef:9": (boundFunction(self.seekdef,9), _("Seek")),
-			}, prio=0)
+				"seekdef:9": (boundFunction(self.seekdef,9), _("Seek"))
+			}, prio=1)
 		self["TimeshiftActivateActions"] = ActionMap(["InfobarTimeshiftActivateActions"],
 			{
 				"timeshiftActivateEnd": self.activateTimeshiftEnd, # something like "rewind key"
@@ -320,6 +320,7 @@ class InfoBarTimeshift:
 				if not self.timeshiftEnabled() or old_begin_time != self.pts_begintime or old_begin_time == 0:
 					# print 'TS AUTO START TEST5'
 					self.pts_delay_timer.start(1000, True)
+
 	def seekdef(self, key):
 		if self.seekstate == self.SEEK_STATE_PLAY:
 			return 0 # trade as unhandled action
@@ -338,7 +339,7 @@ class InfoBarTimeshift:
 		ts = self.getTimeshift()
 		return ts and ts.isTimeshiftEnabled()
 
-	def playpauseService(self):
+	def playpauseService2(self):
 		service = self.session.nav.getCurrentService()
 		playingref = self.session.nav.getCurrentlyPlayingServiceReference()
 		if not playingref or playingref.type < eServiceReference.idUser:
@@ -363,7 +364,7 @@ class InfoBarTimeshift:
 		ts = self.getTimeshift()
 		if ts is None:
 			# self.session.open(MessageBox, _("Timeshift not possible!"), MessageBox.TYPE_ERROR, timeout=5)
-			return self.playpauseService()
+			return self.playpauseService2()
 
 		if ts.isTimeshiftEnabled():
 			print "hu, timeshift already enabled?"
