@@ -87,26 +87,12 @@ class MultiBoot(Screen):
 			self.selection = 0
 		self.startit()
 
-	def read_startup(self, FILE):
-		self.file = FILE
-		with open(self.file, 'r') as myfile:
-			data=myfile.read().replace('\n', '')
-		myfile.close()
-		return data
-
 	def list_files(self, PATH):
 		files = []
 		self.path = PATH
 		for name in listdir(self.path):
 			if path.isfile(path.join(self.path, name)):
-				if SystemInfo["HaveMultiBootHD"]:
-					try:
-						cmdline = self.read_startup("/boot/" + name).split("=",3)[3].split(" ",1)[0]
-					except:
-						cmdline = self.read_startup("/boot/" + name).split("=",1)[1].split(" ",1)[0]
-				if SystemInfo["HaveMultiBootGB"]:
-					cmdline = self.read_startup("/boot/" + name).split("=",1)[1].split(" ",1)[0]
-				if cmdline in Harddisk.getextdevices("ext4") and not name == "STARTUP":
+				if name != "STARTUP":
 					files.append(name)
 		return files
 
