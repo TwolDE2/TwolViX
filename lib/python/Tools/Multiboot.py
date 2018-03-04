@@ -42,6 +42,7 @@ class GetImagelist():
 			
 	def appClosed(self, data, retval, extra_args):
 		if retval == 0 and self.phase == self.MOUNT:
+			SlotEmpty = "EmptySlot"
 			BuildVersion = "  "
 			Build = " "
 			Version = " "
@@ -59,6 +60,8 @@ class GetImagelist():
 				BuildVersion = " " + Build
 			if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
 				self.imagelist[self.slot] =  { 'imagename': open("/tmp/testmount/etc/issue").readlines()[-2].capitalize().strip()[:-6] + BuildVersion}
+			else:
+				self.imagelist[self.slot] =  { 'imagename': SlotEmpty}				
 			self.phase = self.UNMOUNT
 			self.run()
 		elif self.slot < self.endslot:
