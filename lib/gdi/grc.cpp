@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <fstream>
 #include <lib/gdi/grc.h>
 #include <lib/gdi/font.h>
 #include <lib/base/init.h>
@@ -191,7 +192,11 @@ void *gRC::thread()
 				if (!idle)
 				{
 					if (!m_spinner_enabled)
+					{
 						eDebug("[gRC] main thread is non-idle! display spinner!");
+							std::ofstream dummy("/tmp/doPythonStackTrace");
+							dummy.close();
+					}
 					enableSpinner();
 				} else
 					disableSpinner();

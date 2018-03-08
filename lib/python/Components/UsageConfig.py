@@ -936,6 +936,19 @@ def InitUsageConfig():
 			mkdir(config.crash.debug_path.value, 0o755)
 	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback=False)
 
+	def updateStackTracePrinter(configElement):
+		from Components.StackTrace import StackTracePrinter
+		if configElement.value:
+			if (path.isfile("/tmp/doPythonStackTrace")):
+				remove("/tmp/doPythonStackTrace")
+			from threading import current_thread
+			StackTracePrinter.getInstance().activate(current_thread().ident)
+		else:
+			StackTracePrinter.getInstance().deactivate()
+
+	config.crash.pystackonspinner = ConfigYesNo(default = False)
+	config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback = False, call_on_save_or_cancel = True, initial_call = True)
+
 	config.usage.timerlist_showpicons = ConfigYesNo(default=True)
 	config.usage.timerlist_finished_timer_position = ConfigSelection(default="end", choices=[("beginning", _("at beginning")), ("end", _("at end")), ("hide", _("hide"))])
 
