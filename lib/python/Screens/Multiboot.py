@@ -48,10 +48,10 @@ class MultiBoot(Screen):
 		{
 			"left": self.left,
 			"right": self.right,
-			"green": self.save,
+			"green": self.reboot,
 			"red": self.cancel,
 			"cancel": self.cancel,
-			"ok": self.save,
+			"ok": self.reboot,
 		}, -2)
 
 		self.onLayoutFinish.append(self.layoutFinished)
@@ -68,7 +68,7 @@ class MultiBoot(Screen):
 		self["config"].setText(_("Current Image: STARTUP_%s \n Reboot STARTUP_%s: %s\n Use cursor keys < > to change Image\n Press (Green)reboot button to reboot selected Image.") %(self.multiold, x, imagedict[x]['imagename']))
 
 
-	def save(self):
+	def reboot(self):
 		system("cp -f /boot/%s /boot/STARTUP"%self.list[self.selection])
 		restartbox = self.session.openWithCallback(self.restartBOX,MessageBox,_("Image %s chosen for reboot now(Yes) or later manual restart(No)"%self.list[self.selection]), MessageBox.TYPE_YESNO)
 
