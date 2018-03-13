@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ViX\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-17 15:15+0000\n"
-"PO-Revision-Date: 2018-02-17 22:03+0100\n"
+"POT-Creation-Date: 2018-03-12 02:17+0000\n"
+"PO-Revision-Date: 2018-03-12 06:31+0100\n"
 "Last-Translator: Rob van der Does <RobvanderDoes@Gmail.com>\n"
 "Language-Team: Andy Blackburn, Rob van der Does\n"
 "Language: nl\n"
@@ -1557,6 +1557,9 @@ msgstr "Voeg aan favorieten toe"
 msgid "Add to parental protection"
 msgstr "Zender achter kinderslot zetten"
 
+msgid "Add to selection (starts with...)"
+msgstr "Voeg toe aan keuze (begint met...)"
+
 msgid "Add/Remove timer for current event"
 msgstr "Timer voor huidige programma toevoegen/verwijderen"
 
@@ -1791,7 +1794,7 @@ msgstr "Gereed om \"%s\" te installeren?"
 
 #, python-format
 msgid "Are you ready to remove \"%s\" ?"
-msgstr "Gereed om \"%s\" te verwijderen?"
+msgstr "Bent u gereed om \"%s\" te verwijderen?"
 
 msgid "Are you sure to remove this entry?"
 msgstr "Weet u zeker dat deze waarde verwijderd mag worden?"
@@ -2444,7 +2447,7 @@ msgid "Canada"
 msgstr "Canada"
 
 msgid "Cancel"
-msgstr "Annuleren"
+msgstr "Annuleer"
 
 msgid "Cancel save timeshift as movie"
 msgstr "Annuleer het opslaan van timeshift als opname"
@@ -2453,7 +2456,7 @@ msgid "Cancelled upon user request"
 msgstr "Geannuleerd door de gebruiker"
 
 msgid "Cannot delete file"
-msgstr "Kan bestand niet wissen"
+msgstr "Kan bestand niet verwijderen"
 
 msgid "Cannot determine"
 msgstr "Kan niet beslissen"
@@ -2752,19 +2755,19 @@ msgid "Cleaning Trashes"
 msgstr "Maakt prullenbakken leeg"
 
 msgid "Cleanup"
-msgstr "Opruimen"
+msgstr "Ruim op"
 
 msgid "Clear"
 msgstr "Wis"
 
 msgid "Clear before scan"
-msgstr "Vóór zoeken alle zenders wissen"
+msgstr "Vóór zoeken alle zenders verwijderen"
 
 msgid "Clear fixed"
 msgstr "Verwijder vaste"
 
 msgid "Clear log"
-msgstr "Log wissen"
+msgstr "Wis log"
 
 msgid "Clear playlist"
 msgstr "Afspeellijst leegmaken"
@@ -2852,6 +2855,9 @@ msgstr "Communicatie"
 
 msgid "Comoros"
 msgstr "Comoros"
+
+msgid "Compare case sensitive"
+msgstr "Vergelijk hoofdlettergevoelig"
 
 msgid "Complete"
 msgstr "Compleet"
@@ -3752,7 +3758,7 @@ msgid "Delay:"
 msgstr "Vertraging:"
 
 msgid "Delete"
-msgstr "Verwijderen"
+msgstr "Verwijder"
 
 #, python-format
 msgid "Delete %s?"
@@ -3763,9 +3769,6 @@ msgstr "Bevestig verwijderen"
 
 msgid "Delete EPG"
 msgstr "EPG verwijderen"
-
-msgid "Delete Password"
-msgstr "Wachtwoord verwijderen"
 
 msgid "Delete entry"
 msgstr "Verwijder invoer"
@@ -3780,7 +3783,7 @@ msgid "Delete playlist entry"
 msgstr "Wis item in de afspeellijst"
 
 msgid "Delete saved playlist"
-msgstr "Opgeslagen afspeellijst wissen"
+msgstr "Opgeslagen afspeellijst verwijderen"
 
 msgid "Delete timer"
 msgstr "Verwijder timer"
@@ -3935,6 +3938,9 @@ msgstr "Toon EIT nu/straks programmagegevens in de infobar."
 msgid "Djibouti"
 msgstr "Djibouti"
 
+msgid "Do"
+msgstr "Voer uit"
+
 msgid "Do not center DVB subs on this service"
 msgstr "Centreer DVB-ondertitels niet voor dit kanaal."
 
@@ -3960,7 +3966,7 @@ msgstr "Wilt u echt %s verwijderen?"
 
 #, python-format
 msgid "Do you really want to delete %s?"
-msgstr "Wilt u %s echt wissen?"
+msgstr "Wilt u %s echt verwijderen?"
 
 msgid "Do you really want to delete ?"
 msgstr "Echt verwijderen?"
@@ -3988,14 +3994,14 @@ msgstr "Wilt u echt verplaatsen naar de prullenbak?"
 
 #, python-format
 msgid "Do you really want to permamently remove '%s' from the trash can ?"
-msgstr "Wilt u '%s' echt permanent verwijderen uit de prullenbak?"
+msgstr "Wilt u '%s' permanent verwijderen uit de prullenbak?"
 
 msgid "Do you really want to permanently remove from the trash can ?"
-msgstr "Wilt u echt permanent verwijderen uit de prullenbak?"
+msgstr "Wilt u permanent verwijderen uit de prullenbak?"
 
 #, python-format
 msgid "Do you really want to remove directory %s from the disk?"
-msgstr "Weet u zeker dat u map %s van de harde schijf wilt wissen?"
+msgstr "Weet u zeker dat u map %s van de harde schijf wilt verwijderen?"
 
 #, python-format
 msgid "Do you really want to remove the plugin \"%s\"?"
@@ -4003,11 +4009,11 @@ msgstr "Wilt u echt deze applicatie \"%s\" verwijderen?"
 
 #, python-format
 msgid "Do you really want to remove the timer for %s?"
-msgstr "Wilt u echt de timer voor \"%s\" verwijderen?"
+msgstr "Wilt u de timer voor \"%s\" verwijderen?"
 
 #, python-format
 msgid "Do you really want to remove your bookmark of %s?"
-msgstr "Weet u zeker dat u het markeerpunt van %s wilt wissen?"
+msgstr "Weet u zeker dat u het markeerpunt van %s wilt verwijderen?"
 
 msgid "Do you want to add any additional information ?"
 msgstr "Wilt u informatie toevoegen?"
@@ -4032,8 +4038,8 @@ msgid ""
 "Do you want to delete all the selected files:\n"
 "(choose 'No' to only delete the currently selected file.)"
 msgstr ""
-"Wilt u alle geselecteerde bestanden wissen:\n"
-"(kies 'Nee' om aleen het nu geselecteerde bestand te wissen.)"
+"Wilt u alle geselecteerde bestanden verwijderen:\n"
+"(kies 'Nee' om alleen het nu geselecteerde bestand te verwijderen.)"
 
 msgid "Do you want to do a service scan?"
 msgstr "Wilt u nu zenders zoeken?"
@@ -4417,9 +4423,6 @@ msgstr "Enigma2 skinselectie"
 msgid "Enter PIN"
 msgstr "Voer PIN in"
 
-msgid "Enter a new password"
-msgstr "Geef een nieuw wachtwoord in"
-
 msgid "Enter if you are in the east or west hemisphere."
 msgstr "Geef aan of u op het westelijke of het oostelijke halfrond bent."
 
@@ -4488,9 +4491,6 @@ msgstr "Geef de hoge band lokale oscillator frequentie in. Voor meer informatie 
 
 msgid "Enter your low band local oscillator frequency. For more information consult the spec sheet of your LNB."
 msgstr "Geef de lage band lokale oscillator frequentie in. Voor meer informatie zie de specificaties van uw LNB."
-
-msgid "Enter your password here:"
-msgstr "Geef hier het nieuwe wachtwoord in:"
 
 msgid "Entertainment"
 msgstr "Ontspanning"
@@ -5165,7 +5165,7 @@ msgid "Goto :"
 msgstr "Ga naar :"
 
 msgid "Goto X"
-msgstr "Goto X"
+msgstr "Ga naar X"
 
 msgid "Goto index position"
 msgstr "Naar indexpositie draaien"
@@ -5644,7 +5644,7 @@ msgid ""
 "Skip cancelled."
 msgstr ""
 "Incorrect formaat voor overslaan waarde: '%s'\n"
-"Overslaan gecanceld."
+"Overslaan geannuleerd."
 
 msgid "Incorrect service type for PiP!"
 msgstr "Onjuist servicetype voor PiP!"
@@ -5818,9 +5818,6 @@ msgstr "Installeert service"
 msgid "Instant record"
 msgstr "Directe opname"
 
-msgid "Instant record location"
-msgstr "Lokatie directe opname"
-
 msgid "Instant recording location"
 msgstr "Lokatie van directe opnames"
 
@@ -5878,7 +5875,7 @@ msgid "Inversion, Pilot & Roll-off"
 msgstr "Inversion, Pilot & Roll-off"
 
 msgid "Invert"
-msgstr "Omgekeerd"
+msgstr "Keer om"
 
 msgid "Ipkg"
 msgstr "IPKG"
@@ -6317,6 +6314,9 @@ msgstr "Lord Howe Island"
 
 msgid "Lower Framerate save CPU Time"
 msgstr "Lagere framerate gebruikt minder processortijd"
+
+msgid "Lower case"
+msgstr "Kleine letters"
 
 msgid "Luxembourg"
 msgstr "Luxembourg"
@@ -6889,11 +6889,11 @@ msgstr "Nieuw"
 msgid "New Caledonia"
 msgstr "New Caledonia"
 
-msgid "New Random Password"
-msgstr "Nieuw willekeurig wachtwoord"
-
 msgid "New Zealand"
 msgstr "New Zealand"
+
+msgid "New password"
+msgstr "Wachtwoord instellen"
 
 msgid "New profile: "
 msgstr "Niew profiel: "
@@ -7180,17 +7180,13 @@ msgstr "Niets"
 
 msgid ""
 "Nothing to scan!\n"
-"Please setup your tuner settings before starting a service scan."
-msgstr ""
-"Niets te scannen!\n"
-"Vóór het zoeken dient uw tuner correct ingesteld te zijn."
-
-msgid ""
-"Nothing to scan!\n"
 "Please setup your tuner settings before you start a service scan."
 msgstr ""
 "Niets gevonden!\n"
 "Vóór het zoeken dient uw tuner correct ingesteld te zijn."
+
+msgid "Nothing to scan! Setup your tuner and try again."
+msgstr "Niets te scannen! Vóór het zoeken dient uw tuner correct ingesteld te zijn."
 
 msgid "Nothing to upgrade"
 msgstr "Geen upgrades beschikbaar"
@@ -7260,6 +7256,10 @@ msgstr "Oman"
 
 msgid "On"
 msgstr "Aan"
+
+#, python-format
+msgid "On destination '%s' is %s free space only!"
+msgstr "Bestemming '%s' heeft slechts %s vrije ruimte!"
 
 msgid "On end of movie"
 msgstr "Bij het einde van bestand"
@@ -7359,6 +7359,9 @@ msgstr "Open-VPN"
 
 msgid "OpenVpn Setup"
 msgstr "Open-VPN instellingen"
+
+msgid "Options..."
+msgstr "Opties..."
 
 msgid "Orbital position"
 msgstr "Orbitale positie"
@@ -7503,8 +7506,8 @@ msgstr "Wachtwoord"
 msgid "Password (httpwd)"
 msgstr "Wachtwoord (httpwd)"
 
-msgid "Password deleted sucessfully for the root user"
-msgstr "Wachtwoord voor root-gebruiker succesvol verwijderd."
+msgid "Password changed"
+msgstr "Wachtwoord is veranderd"
 
 msgid "Password setup"
 msgstr "Wachtwoord instellen"
@@ -8121,9 +8124,6 @@ msgstr "Druk op OK om de CAId aan/uit te zetten."
 msgid "Press OK to set the MAC address."
 msgstr "Druk op OK om MAC-adres in te stellen."
 
-msgid "Press OK to start the scan"
-msgstr "Druk OK om te scannen."
-
 msgid "Press OK to toggle the selection"
 msgstr "Druk op OK om de selectie te wisselen."
 
@@ -8317,6 +8317,9 @@ msgstr "Radio zenderkeuze"
 msgid "Random"
 msgstr "Willekeurig"
 
+msgid "Random password"
+msgstr "Willekeurig wachtwoord"
+
 #, python-format
 msgid "Rating defined by broadcaster - %d"
 msgstr "Waardering bepaald door omroep - %d"
@@ -8348,7 +8351,7 @@ msgid "Really close without saving settings?"
 msgstr "Afsluiten zonder opslaan?"
 
 msgid "Really delete completed timers?"
-msgstr "Wilt u de afgewerkte timers echt wissen?"
+msgstr "Wilt u de afgewerkte timers echt verwijderen?"
 
 msgid "Really exit the subservices quickzap?"
 msgstr "Subkanalen snelzap verlaten?"
@@ -8509,7 +8512,7 @@ msgid "Remote control type"
 msgstr "Type afstandsbediening"
 
 msgid "Remove"
-msgstr "Verwijderen"
+msgstr "Verwijder"
 
 msgid "Remove 'hide dotted line on the top for this service'"
 msgstr "Verwijder 'Verberg voor dit kanaal de gestippelde lijn bovenin'"
@@ -8533,7 +8536,7 @@ msgid "Remove all new found flags"
 msgstr "Verwijder alle 'nieuw gevonden'-vlaggen"
 
 msgid "Remove bookmark"
-msgstr "Verwijderen bladwijzer"
+msgstr "Verwijder bladwijzer"
 
 msgid "Remove bouquet from parental protection"
 msgstr "Verwijder kinderslot van favorietenlijst"
@@ -8556,6 +8559,9 @@ msgstr "Verwijderen voltooid."
 msgid "Remove from parental protection"
 msgstr "Verwijder van kinderslot"
 
+msgid "Remove from selection (starts with...)"
+msgstr "Verwijder van keuze (begint met...)"
+
 msgid "Remove items from trash can after (days)"
 msgstr "Verwijder items uit de prullenbak na x (dagen)"
 
@@ -8563,7 +8569,7 @@ msgid "Remove new found flag"
 msgstr "Verwijder 'nieuw gevonden' vlag"
 
 msgid "Remove plugins"
-msgstr "Verwijderen"
+msgstr "Plugins verwijderen"
 
 msgid "Remove selected satellite"
 msgstr "Verwijder geselecteerde satellieten"
@@ -8578,7 +8584,7 @@ msgid "Remove title"
 msgstr "Titel verwijderen"
 
 msgid "Removing"
-msgstr "Verwijderen"
+msgstr "Verwijdert"
 
 msgid "Removing Service"
 msgstr "Verwijdert kanaal"
@@ -9183,10 +9189,10 @@ msgid "Select copy destination for:"
 msgstr "Selecteer kopiëer bestemming voor:"
 
 msgid "Select destination for copy selected files..."
-msgstr "Selecteer bestemming voor de te kopiëren bestanden..."
+msgstr "Selecteer bestemming voor te kopiëren bestanden..."
 
 msgid "Select destination for move selected files..."
-msgstr "Selecteer bestemming voor de te verplaatsen bestanden..."
+msgstr "Selecteer bestemming voor te verplaatsen bestanden..."
 
 msgid "Select destination for:"
 msgstr "Selecteer bestemming voor:"
@@ -9194,8 +9200,14 @@ msgstr "Selecteer bestemming voor:"
 msgid "Select files for backup."
 msgstr "Selecteer bestanden voor back-up."
 
-msgid "Select files with 'OK' and then use 'Green' to choose desired operation"
-msgstr "Selecteer bestanden met 'OK'; gebruik daarna 'Groen' om te bepalen wat u wilt doen."
+msgid ""
+"Select files with 'OK' and then use 'Green' to choose desired operation.\n"
+"Use 'CH+/-' select/unselect files via the keyboard.\n"
+"Use 'Menu' for settings."
+msgstr ""
+"Selecteer bestanden met 'OK'; gebruik daarna 'Voer uit' om te bepalen wat u wilt doen.\n"
+"Gebruik 'CH+/-' om bestanden te selecteren/de-selecteren.\n"
+"Gebruik 'Menu' voor instellingen"
 
 msgid "Select files/folders to backup"
 msgstr "Kies bestanden/mappen voor de back-up"
@@ -9234,7 +9246,7 @@ msgid "Select movie"
 msgstr "Kies een opname"
 
 msgid "Select operation:"
-msgstr "Kies bewerking: "
+msgstr "Kies bewerking:"
 
 msgid "Select provider to add..."
 msgstr "Selecteer provider om toe te voegen..."
@@ -9340,6 +9352,10 @@ msgstr "Kies uw provider en druk OK om de scan te starten"
 
 msgid "Select your region. If not available change 'Country' to 'all' and select one of the default alternatives."
 msgstr "Selecteer uw regio. Indien deze niet beschikbaar is verandert u 'land' en selecteert u één van de default alternatieven."
+
+#, python-format
+msgid "Selected: %s"
+msgstr "Gekozen: %s"
 
 msgid "Selecting satellites 1 (USALS)"
 msgstr "Alle satellieten 1 (USALS)"
@@ -9485,9 +9501,6 @@ msgstr "Kanalen kunnen in favorietenlijsten worden samengevoegd. Indien geactive
 msgid "Set Framerate for MiniTV"
 msgstr "Stel framerate in voor MiniTV"
 
-msgid "Set Password"
-msgstr "Wachtwoord instellen"
-
 msgid "Set as startup service"
 msgstr "Kies kanaal na opstarten"
 
@@ -9609,6 +9622,13 @@ msgstr "Voltage en 22KHz instellen"
 
 msgid "Sets the root directory of movie list, to remove the '..' from being shown in that folder."
 msgstr "Stelt de root-map van de opnamelijst in, om '..' niet te tonen."
+
+msgid ""
+"Setting a password is strongly advised if your STB is open to the internet.\n"
+"This is the case if you have in your router a port forwarded to the STB."
+msgstr ""
+"Het gebruik van een wachtwoord is sterk aanbevolen indien uw STB open met het internet is verbonden.\n"
+"Dat is het geval indien in uw router een 'port forwarded' is naar uw STB."
 
 msgid "Settings"
 msgstr "Instellingen"
@@ -10606,9 +10626,6 @@ msgstr "Ondertitels"
 msgid "Subtitles settings"
 msgstr "Ondertitel instellingen"
 
-msgid "Sucessfully changed the password for the root user to "
-msgstr "Wachtwoord voor de root-gebruiker succesvol veranderd in "
-
 msgid "Sudan"
 msgstr "Sudan"
 
@@ -10986,6 +11003,9 @@ msgstr ""
 "De Netwerkwizard-plugin is niet geïnstalleerd!\n"
 "Installeer deze eerst."
 
+msgid "The password can not be blank."
+msgstr "Het wachtwoordveld mag niet leeg zijn"
+
 #, python-format
 msgid "The path %s already exists."
 msgstr "Het pad %s bestaat al."
@@ -11083,7 +11103,7 @@ msgid "This %s %s cannot decode %s streams!"
 msgstr "Deze %s %s kan %s streams niet decoderen!"
 
 msgid "This DVD RW medium is already formatted - reformatting will erase all content on the disc."
-msgstr "Dit DVD-RW medium is reeds geformatteerd; herformatteren zal alles wissen op deze disk."
+msgstr "Dit DVD-RW medium is reeds geformatteerd; herformatteren zal alles op deze disk verwijderen."
 
 msgid "This allows you change the font size relative to skin size, so 1 increases by 1 point size, and -1 decreases by 1 point size"
 msgstr "Hier stelt u de lettergrootte in t.o.v. de waarde die in de skin staat. Dus '1' vergroot die met 1 punt en '-1' verkleint die met 1 punt."
@@ -11322,7 +11342,7 @@ msgid ""
 "This will (re-)calculate all positions of your rotor and may remove previously memorised positions and fine-tuning!\n"
 "Are you sure?"
 msgstr ""
-"Dit zal alle posities herberekenen en zal alle opgeslagen posities wissen!\n"
+"Dit zal alle posities herberekenen en zal alle opgeslagen posities verwijderen!\n"
 "Weet u het zeker?"
 
 msgid "Three"
@@ -11392,9 +11412,6 @@ msgid ""
 msgstr ""
 "Timer overlap in timers.xml gedetecteerd!\n"
 "Controleer deze!"
-
-msgid "Timer record location"
-msgstr "Timer opnamelokatie"
 
 msgid "Timer recording location"
 msgstr "Timer opnamelokatie"
@@ -11537,6 +11554,10 @@ msgstr "Total afgehandelde klant emm's"
 
 msgid "Total memory:"
 msgstr "Totaal geheugen:"
+
+#, python-format
+msgid "Total size: %s"
+msgstr "Totale grootte: %s"
 
 msgid "Total swap:"
 msgstr "Totale swap:"
@@ -11730,11 +11751,8 @@ msgstr "Ukraine"
 msgid "Ukrainian"
 msgstr "Ukrainian"
 
-msgid "Unable to change/reset the password for the root user"
-msgstr "Kan het wachtwoord voor de root-gebruiker niet veranderen/resetten."
-
-msgid "Unable to delete the password for the root user"
-msgstr "Kan het wachtwoord voor de root-gebruiker niet verwijderen."
+msgid "Unable to change password"
+msgstr "Kan wachtwoord niet veranderen"
 
 msgid "Undefined"
 msgstr "Niet gedefinieerd"
@@ -11843,6 +11861,9 @@ msgstr "Uphops -"
 msgid "Uphops: "
 msgstr "Uphops: "
 
+msgid "Upper case"
+msgstr "Hoofdletters"
+
 msgid "Uptime"
 msgstr "Uptime"
 
@@ -11902,6 +11923,9 @@ msgstr "Gebruik fastscan kanaalnamen"
 
 msgid "Use fastscan channel numbering"
 msgstr "Gebruik fastscan zendervolgorde"
+
+msgid "Use first 'x' filename's chars for virtual keyboard"
+msgstr "Gebruik de eerste x letters van de bestandsnaam voor virtueel toetsenbord."
 
 msgid "Use frequency or channel"
 msgstr "Gebruik frequentie of kanaal"
@@ -12251,7 +12275,7 @@ msgid "Wait for ci..."
 msgstr "Wacht op CI..."
 
 msgid "Waiting"
-msgstr "Wacht..."
+msgstr "Aan het wachten"
 
 msgid "Waiting for mount"
 msgstr "Wacht op mount"
@@ -12698,13 +12722,13 @@ msgid "Yes, backup my settings!"
 msgstr "Ja, mijn instellingen opslaan!"
 
 msgid "Yes, but don't save timeshift as movie"
-msgstr "Ja, maar sla timeshift niet op als opname."
+msgstr "Ja, maar sla timeshift niet op als opname"
 
 msgid "Yes, but save timeshift as movie and continue recording"
 msgstr "Ja, maar bewaar timeshift als opname en ga door met opnemen"
 
 msgid "Yes, but save timeshift as movie and stop recording"
-msgstr "Ja, maar bewaar timeshift als opname en stop opname."
+msgstr "Ja, maar bewaar timeshift als opname en stop opname"
 
 msgid "Yes, delete this movie and return to the movie list"
 msgstr "Ja, verwijder deze opname en ga terug naar de opnamelijst"
@@ -12782,7 +12806,7 @@ msgid "You can remove this plugin."
 msgstr "Deze plugin kunt u verwijderen."
 
 msgid "You cannot delete this!"
-msgstr "U kunt dit niet wissen!"
+msgstr "U kunt dit niet verwijderen!"
 
 msgid "You didn't select a channel to record from."
 msgstr "U heeft geen kanaal geselecteerd om op te nemen."
@@ -12838,7 +12862,7 @@ msgid "You seem to be in timeshift!"
 msgstr "U zit in timeshift!"
 
 msgid "You seem to be in timeshift, Do you want to leave timeshift ?"
-msgstr "U bent in timeshift modus; stop timeshift eerst."
+msgstr "U bent in timeshift modus. Wilt u timeshift beëindigen?"
 
 #, python-format
 msgid "Your %s %s does not support PiP HD"
@@ -13261,7 +13285,7 @@ msgid "circular right"
 msgstr "circular rechts"
 
 msgid "clip overscan / letterbox borders"
-msgstr "Knip overscan/letterbox grenzen."
+msgstr "Knip overscan/letterbox grenzen"
 
 msgid "close share view"
 msgstr "sluit shareview"
@@ -13300,7 +13324,7 @@ msgid "decrease uphop by 1"
 msgstr "verlaag uphop met 1"
 
 msgid "delete"
-msgstr "verwijderen"
+msgstr "verwijder"
 
 msgid "delete cut"
 msgstr "wis snijpunt"
@@ -13894,7 +13918,7 @@ msgid "remove bookmark"
 msgstr "Markeerpunt verwijderen"
 
 msgid "remove directory"
-msgstr "Map verwijderen"
+msgstr "verwijder map"
 
 msgid "remove this mark"
 msgstr "verwijder dit merkteken"
@@ -13903,13 +13927,13 @@ msgid "rename"
 msgstr "hernoem"
 
 msgid "repeat playlist"
-msgstr "Herhaal afspeellijst"
+msgstr "herhaal afspeellijst"
 
 msgid "repeated"
 msgstr "herhalen"
 
 msgid "restart GUI"
-msgstr "Gebruikersinterface opnieuw starten."
+msgstr "herstart gebruikersinterface"
 
 msgid "reverse by date"
 msgstr "omgekeerd chronologisch"
@@ -14874,6 +14898,9 @@ msgstr "zapte"
 #~ msgid "Dayname Month-99"
 #~ msgstr "dagnaam maand-99"
 
+#~ msgid "Delete Password"
+#~ msgstr "Wachtwoord verwijderen"
+
 #~ msgid "Delete..."
 #~ msgstr "Wissen..."
 
@@ -14975,6 +15002,9 @@ msgstr "zapte"
 #~ msgid "Enimga2 Changes"
 #~ msgstr "Enimga2 veranderingen"
 
+#~ msgid "Enter your password here:"
+#~ msgstr "Geef hier het nieuwe wachtwoord in:"
+
 #~ msgid "Error downloading the change log."
 #~ msgstr "Fout bij het downloaden van het veranderingslogboek."
 
@@ -15056,6 +15086,9 @@ msgstr "zapte"
 
 #~ msgid "Initialization"
 #~ msgstr "Initialiseren"
+
+#~ msgid "Instant record location"
+#~ msgstr "Lokatie directe opname"
 
 #~ msgid "Lamedb"
 #~ msgstr "Lamedb"
@@ -15212,6 +15245,9 @@ msgstr "zapte"
 #~ msgid "Parental control type"
 #~ msgstr "Kinderslot type"
 
+#~ msgid "Password deleted sucessfully for the root user"
+#~ msgstr "Wachtwoord voor root-gebruiker succesvol verwijderd."
+
 #~ msgid "Phone number"
 #~ msgstr "Telefoonnummer"
 
@@ -15254,6 +15290,9 @@ msgstr "zapte"
 
 #~ msgid "Prepare another USB stick for image flashing"
 #~ msgstr "Maak een andere USB-stick klaar voor het flashen"
+
+#~ msgid "Press OK to start the scan"
+#~ msgstr "Druk OK om te scannen."
 
 #~ msgid "Provider to scan"
 #~ msgstr "Zoek op provider"
@@ -15422,6 +15461,9 @@ msgstr "zapte"
 #~ msgid "Subtitles Settings"
 #~ msgstr "Ondertitel instellingen"
 
+#~ msgid "Sucessfully changed the password for the root user to "
+#~ msgstr "Wachtwoord voor de root-gebruiker succesvol veranderd in "
+
 #~ msgid "Switch channel down"
 #~ msgstr "Ga naar vorige kanaal"
 
@@ -15497,6 +15539,9 @@ msgstr "zapte"
 #~ msgid "Timer overview"
 #~ msgstr "Timer overzicht"
 
+#~ msgid "Timer record location"
+#~ msgstr "Timer opnamelokatie"
+
 #~ msgid "Timeshift settings"
 #~ msgstr "Timeshift instellingen"
 
@@ -15528,6 +15573,12 @@ msgstr "zapte"
 
 #~ msgid "USB stick wizard"
 #~ msgstr "USB-stick wizard"
+
+#~ msgid "Unable to change/reset the password for the root user"
+#~ msgstr "Kan het wachtwoord voor de root-gebruiker niet veranderen/resetten."
+
+#~ msgid "Unable to delete the password for the root user"
+#~ msgstr "Kan het wachtwoord voor de root-gebruiker niet verwijderen."
 
 #~ msgid "Unattended upgrade without GUI and reboot system"
 #~ msgstr "Upgrade uitvoeren en vervolgens systeem herstarten"
