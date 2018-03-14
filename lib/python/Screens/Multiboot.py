@@ -33,6 +33,7 @@ class MultiBoot(Screen):
 		self["key_green"] = StaticText(_("ReBoot"))
 		self["config"] = StaticText(_("Select Image: STARTUP_1"))
 		self.mulitold = 0
+		self.images = []
 		if path.exists('/boot/STARTUP'):
 			f = open('/boot/STARTUP', 'r')
 			f.seek(22)
@@ -60,9 +61,13 @@ class MultiBoot(Screen):
 		self.setTitle(self.title)
 
 	def startit(self):
-		self.getImageList = GetImagelist(self.startup)
+		self.getImageList = GetImagelist(self.startup0)
 
-	def startup(self, imagedict):
+	def startup0(self, imagedict):
+		self.images = imagedict
+		self.startup()
+
+	def startup(self):
 		x = self.selection + 1
 #		print "Multiboot OldImage %s NewFlash %s FlashType %s" % (self.multiold, self.selection, x)
 		self["config"].setText(_("Current Image: STARTUP_%s \n Reboot STARTUP_%s: %s\n Use cursor keys < > to change Image\n Press (Green)reboot button to reboot selected Image.") %(self.multiold, x, imagedict[x]['imagename']))
@@ -79,13 +84,13 @@ class MultiBoot(Screen):
 		self.selection = self.selection - 1
 		if self.selection == -1:
 			self.selection = len(self.list) - 1
-		self.startit()
+		self.startup()
 
 	def right(self):
 		self.selection = self.selection + 1
 		if self.selection == len(self.list):
 			self.selection = 0
-		self.startit()
+		self.startup()
 
 	def list_files(self, PATH):
 		files = []
