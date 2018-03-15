@@ -8,7 +8,7 @@ from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components import Harddisk
 from Components.SystemInfo import SystemInfo
-from Tools.Multiboot import GetImagelist
+from Tools.Multiboot import GetImagelist, GetCurrentImage, GetSTARTUP
 from os import path, listdir, system
 
 class MultiBoot(Screen):
@@ -32,13 +32,9 @@ class MultiBoot(Screen):
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("ReBoot"))
 		self["config"] = StaticText(_("Select Image: STARTUP_1"))
-		self.mulitold = 0
+		self.STARTUPslot = 0
 		self.images = []
-		if path.exists('/boot/STARTUP'):
-			f = open('/boot/STARTUP', 'r')
-			f.seek(22)
-			self.multiold = f.read(1) 
-			f.close()
+		self.STARTUPslot = GetSTARTUP()
 		self.title = " " 
 		self.getImageList = None
 		self.selection = 0
@@ -69,8 +65,8 @@ class MultiBoot(Screen):
 
 	def startup(self):
 		x = self.selection + 1
-#		print "Multiboot OldImage %s NewFlash %s FlashType %s" % (self.multiold, self.selection, x)
-		self["config"].setText(_("Current Image: STARTUP_%s \n Reboot STARTUP_%s: %s\n Use cursor keys < > to change Image\n Press (Green)reboot button to reboot selected Image.") %(self.multiold, x, imagedict[x]['imagename']))
+#		print "Multiboot OldImage %s NewFlash %s FlashType %s" % (self.STARTUPslot, self.selection, x)
+		self["config"].setText(_("Current Image: STARTUP_%s \n Reboot STARTUP_%s: %s\n Use cursor keys < > to change Image\n Press (Green)reboot button to reboot selected Image.") %(self.STARTUPslot, x, self.images[x]['imagename']))
 
 
 	def reboot(self):
