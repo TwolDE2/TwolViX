@@ -3,10 +3,10 @@ from Components.Console import Console
 import os
 
 def GetCurrentImage():
-	return SystemInfo["HaveMultiBootHD"] and int(open('/sys/firmware/devicetree/base/chosen/kerneldev', 'r').read().replace('\0', '')[-1])
+	return SystemInfo["canMultiBootHD"] and int(open('/sys/firmware/devicetree/base/chosen/kerneldev', 'r').read().replace('\0', '')[-1])
 
 def GetCurrentImageMode():
-	return SystemInfo["HaveMultiBootHD"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
+	return SystemInfo["canMultiBootHD"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
 
 
 def GetcurrentImageGB():
@@ -35,11 +35,11 @@ class GetImagelist():
 	UNMOUNT = 1
 
 	def __init__(self, callback):
-		if SystemInfo["HaveMultiBoot"]:
-			if SystemInfo["HaveMultiBootHD"]:
+		if SystemInfo["canMultiBoot"]:
+			if SystemInfo["canMultiBootHD"]:
 				self.addin = 1
 				self.endslot = 4
-			if SystemInfo["HaveMultiBootGB"]:
+			if SystemInfo["canMultiBootGB"]:
 				self.addin = 3
 				self.endslot = 3
 			self.callback = callback
