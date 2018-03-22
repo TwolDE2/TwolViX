@@ -21,15 +21,6 @@ def GetcurrentImageGB():
 # STARTUP_3		        Image 3: boot emmcflash0.kernel3 'root=/dev/mmcblk0p7 rw rootwait'	boot emmcflash0.kernel3: 'root=/dev/mmcblk0p9
 # STARTUP_4		        Image 4: boot emmcflash0.kernel4 'root=/dev/mmcblk0p9 rw rootwait'	NOT IN USE due to Rescue mode in mmcblk0p3
 
-
-def GetSTARTUP():
-	if os.path.exists('/boot/STARTUP'):
-		f = open('/boot/STARTUP', 'r')
-		f.seek(22)
-		STARTUPslot = f.read(1) 
-		f.close()
-		return STARTUPslot
-
 class GetImagelist():
 	MOUNT = 0
 	UNMOUNT = 1
