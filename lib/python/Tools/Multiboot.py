@@ -3,7 +3,13 @@ from Components.Console import Console
 import os
 
 def GetCurrentImage():
-	return SystemInfo["canMultiBootHD"] and int(open('/sys/firmware/devicetree/base/chosen/kerneldev', 'r').read().replace('\0', '')[-1])
+	if SystemInfo["canMultiBootHD"]:
+		return	int(open('/sys/firmware/devicetree/base/chosen/kerneldev', 'r').read().replace('\0', '')[-1])
+	elif SystemInfo["canMultiBootGB"]:
+		x = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[1]
+		x = x.split('p')[1]
+		f = int(x.split(' ')[0])
+		return (f-3)/2
 
 def GetCurrentImageMode():
 	return SystemInfo["canMultiBootHD"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])

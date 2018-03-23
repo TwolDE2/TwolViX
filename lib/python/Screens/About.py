@@ -16,6 +16,7 @@ from Components.Pixmap import MultiPixmap
 from Components.Network import iNetwork
 from Components.SystemInfo import SystemInfo
 from Tools.StbHardware import getFPVersion
+from Tools.Multiboot import GetCurrentImage
 from os import path
 from re import search
 import skin
@@ -90,11 +91,8 @@ class About(Screen):
 			bootname = f.readline().split('=')[1]
 			f.close()
 
-		if path.exists('/boot/STARTUP') and SystemInfo["HaveMultiBoot"]:
-			f = open('/boot/STARTUP', 'r')
-			f.seek(22)
-			image = f.read(1) 
-			f.close()
+		if SystemInfo["canMultiBoot"]:
+			image = GetCurrentImage()
 			if bootname: bootname = "   (%s)" %bootname 
 			AboutText += _("Selected Image:\t%s") % "STARTUP_" + image + bootname + "\n"
 
