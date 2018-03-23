@@ -8,7 +8,7 @@ from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components import Harddisk
 from Components.SystemInfo import SystemInfo
-from Tools.Multiboot import GetImagelist, GetCurrentImage, GetSTARTUP
+from Tools.Multiboot import GetImagelist, GetCurrentImage, GetcurrentImageGB
 from os import path, listdir, system
 
 class MultiBoot(Screen):
@@ -34,7 +34,10 @@ class MultiBoot(Screen):
 		self["config"] = StaticText(_("Select Image: STARTUP_1"))
 		self.STARTUPslot = 0
 		self.images = []
-		self.STARTUPslot = GetSTARTUP()
+		if SystemInfo["canMultiBootHD"]:
+			self.STARTUPslot = GetCurrentImage()
+		elif SystemInfo["canMultiBootGB"]:
+			self.STARTUPslot = GetCurrentImageGB()
 		self.title = " " 
 		self.getImageList = None
 		self.selection = 0
