@@ -94,7 +94,7 @@ class About(Screen):
 		if SystemInfo["canMultiBoot"]:
 			image = GetCurrentImage()
 			if bootname: bootname = "   (%s)" %bootname 
-			AboutText += _("Selected Image:\t%s") % "STARTUP_" + image + bootname + "\n"
+			AboutText += _("Selected Image:\t%s") % "STARTUP_" + str(image) + bootname + "\n"
 
 		bootloader = ""
 		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
