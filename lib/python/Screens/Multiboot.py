@@ -18,8 +18,8 @@ class MultiBoot(Screen):
 		<eLabel name="b" position="0,0" size="500,200" backgroundColor="#00ffffff" zPosition="-2" />
 		<eLabel name="a" position="1,1" size="498,198" backgroundColor="#00000000" zPosition="-1" />
 		<widget source="Title" render="Label" position="10,10" foregroundColor="#00ffffff" size="480,50" halign="center" font="Regular; 28" backgroundColor="#00000000" />
-		<eLabel name="line" position="1,69" size="498,1" backgroundColor="#00ffffff" zPosition="1" />
-		<widget source="config" render="Label" position="10,90" size="480,60" halign="center" font="Regular; 24" backgroundColor="#00000000" foregroundColor="#00ffffff" />
+		<eLabel name="line" position="1,60" size="498,1" backgroundColor="#00ffffff" zPosition="1" />
+		<widget source="config" render="Label" position="2,70" size="480,60" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 		<widget source="key_red" render="Label" position="35,162" size="170,30" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 		<widget source="key_green" render="Label" position="228,162" size="170,30" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 		<eLabel position="25,159" size="6,40" backgroundColor="#00e61700" />
@@ -65,8 +65,9 @@ class MultiBoot(Screen):
 
 	def startup(self):
 		x = self.selection + 1
+		self.title = "Current Image: STARTUP_%s" %self.STARTUPslot
 #		print "Multiboot OldImage %s NewFlash %s FlashType %s" % (self.STARTUPslot, self.selection, x)
-		self["config"].setText(_("Current Image: STARTUP_%s \n Reboot STARTUP_%s: %s\n Use cursor keys < > to change Image\n Press (Green)reboot button to reboot selected Image.") %(self.STARTUPslot, x, self.images[x]['imagename']))
+		self["config"].setText(_("Reboot Image: STARTUP_%s: %s\n Use < > keys to select Image and then ReBoot.") %(x, self.images[x]['imagename']))
 
 
 	def reboot(self):
