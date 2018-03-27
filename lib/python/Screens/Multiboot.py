@@ -35,7 +35,6 @@ class MultiBoot(Screen):
 		self.STARTUPslot = 0
 		self.images = []
 		self.STARTUPslot = GetCurrentImage()
-		self.title = " " 
 		self.getImageList = None
 		self.selection = 0
 		self.list = self.list_files("/boot")
@@ -57,11 +56,11 @@ class MultiBoot(Screen):
 		self.setTitle(self.title)
 
 	def startit(self):
-		self.title = "Current Image: STARTUP_%s" %self.STARTUPslot
 		self.getImageList = GetImagelist(self.startup0)
 
 	def startup0(self, imagedict):
 		self.images = imagedict
+		self.title = "Current Image: STARTUP_" + str(GetCurrentImage())
 		self.startup()
 
 	def startup(self):
