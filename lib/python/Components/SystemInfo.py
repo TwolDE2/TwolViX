@@ -1,7 +1,5 @@
-from os import path
-
-from enigma import eDVBResourceManager, Misc_Options
-from Tools.Directories import fileExists, fileCheck, pathExists
+from enigma import eDVBResourceManager, Misc_Options, eDVBCIInterfaces
+from Tools.Directories import fileExists, fileCheck
 from Tools.HardwareInfo import HardwareInfo
 
 from boxbranding import getMachineBuild, getBoxType, getBrandOEM
@@ -14,6 +12,12 @@ def getNumVideoDecoders():
 	while fileExists("/dev/dvb/adapter0/video%d"% idx, 'f'):
 		idx += 1
 	return idx
+
+SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
+SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
+for cislot in range (0, SystemInfo["CommonInterface"]):
+	SystemInfo["CI%dSupportsHighBitrates" % cislot] = fileCheck("/proc/stb/tsmux/ci%d_tsclk"  % cislot)
+	SystemInfo["CI%dRelevantPidsRoutingSupport" % cislot] = fileCheck("/proc/stb/tsmux/ci%d_relevant_pids_routing"  % cislot)
 
 SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
 SystemInfo["PIPAvailable"] = SystemInfo["NumVideoDecoders"] > 1
@@ -31,7 +35,6 @@ def countFrontpanelLEDs():
 
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
 SystemInfo["DeepstandbySupport"] = HardwareInfo().has_deepstandby()
-SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
 SystemInfo["Fan"] = fileCheck("/proc/stb/fp/fan")
 SystemInfo["FanPWM"] = SystemInfo["Fan"] and fileCheck("/proc/stb/fp/fan_pwm")
 SystemInfo["SABSetup"] = fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/SABnzbd/plugin.pyo")
