@@ -16,6 +16,7 @@ from Components.Pixmap import MultiPixmap
 from Components.Network import iNetwork
 from Components.SystemInfo import SystemInfo
 from Tools.StbHardware import getFPVersion
+from Tools.Multiboot import GetCurrentImage
 from os import path
 from re import search
 import skin
@@ -90,13 +91,10 @@ class About(Screen):
 			bootname = f.readline().split('=')[1]
 			f.close()
 
-		if path.exists('/boot/STARTUP') and SystemInfo["HaveMultiBoot"]:
-			f = open('/boot/STARTUP', 'r')
-			f.seek(22)
-			image = f.read(1) 
-			f.close()
+		if SystemInfo["canMultiBoot"]:
+			image = GetCurrentImage()
 			if bootname: bootname = "   (%s)" %bootname 
-			AboutText += _("Selected Image:\t%s") % "STARTUP_" + image + bootname + "\n"
+			AboutText += _("Selected Image:\t%s") % "STARTUP_" + str(image) + bootname + "\n"
 
 		bootloader = ""
 		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
@@ -384,7 +382,7 @@ class SystemMemoryInfo(Screen):
 		self.skinName = ["SystemMemoryInfo", "About"]
 		self["lab1"] = StaticText(_("Virtuosso Image Xtreme"))
 		self["lab2"] = StaticText(_("By Team ViX"))
-		self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
+		self["lab3"] = StaticText(_("Support at %s") % "www.world-of-satellite.com")
 		self["AboutScrollLabel"] = ScrollLabel()
 
 		self["key_red"] = Button(_("Close"))

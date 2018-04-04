@@ -29,6 +29,7 @@
 				<!-- Menu / Setup / Tuners / Settings -->
 				<item weight="1" text="Tuner setup" entryID="tuner_setup" requires="ClientModeDisabled"><screen module="Satconfig" screen="NimSelection"/></item>
 				<item weight="2" text="Tuner setup" entryID="client_mode" requires="ClientModeEnabled"><screen module="ClientMode" screen="ClientModeScreen"/></item>
+				<item weight="3" entryID="tunermisc_setup"><setup id="tunermisc"/></item>
 				<item weight="20" text="Automatic scan" entryID="auto_scan" requires="ClientModeDisabled"><screen module="ScanSetup" screen="ScanSimple"/></item>
 				<item weight="30" text="Manual scan" entryID="manual_scan" requires="ClientModeDisabled"><screen module="ScanSetup"/></item>
 				<item weight="100" text="Fallback configuration" entryID="fallback_mode" requires="ClientModeDisabled"><screen  module="FallbackTunerSetup" screen="FallbackTunerSetup"/></item>
@@ -163,7 +164,6 @@ self.session.open(SABnzbdSetupScreen)
 				<item level="1" text="Settings" entryID="harddisk_setup"><setup id="harddisk"/></item>
 				<item level="0" text="Initialize devices" entryID="harddisk_init"><screen module="HarddiskSetup" screen="HarddiskSelection"/></item>
 				<item level="0" text="Filesystem check" entryID="harddisk_check"><screen module="HarddiskSetup" screen="HarddiskFsckSelection"/></item>
-				<item level="0" text="Convert ext3 to ext4" entryID="harddisk_convert" requires="ext4"><screen module="HarddiskSetup" screen="HarddiskConvertExt4Selection"/></item>
 			</menu>
 			<!-- Menu / Setup / Time Settings -->
 			<item level="0" entryID="time_setup"><setup id="time"/></item>
@@ -244,6 +244,7 @@ self.session.open(HdmiCECSetupScreen)
 			<item text="Standby" entryID="standby"><screen module="Standby" screen="Standby"/></item>
 			<item text="Restart GUI" entryID="restart_enigma"><screen module="Standby" screen="TryQuitMainloop">3</screen></item>
 			<item text="Reboot" entryID="restart"><screen module="Standby" screen="TryQuitMainloop">2</screen></item>
+			<item text="Multiboot" entryID="multiboot" requires="canMultiBoot"><screen module="Multiboot" screen="MultiBoot">1</screen></item>
 			<item text="Deep standby" requires="DeepstandbySupport" entryID="deep_standby"><screen module="Standby" screen="TryQuitMainloop">1</screen></item>
 			<item text="Shut down" requires="!DeepstandbySupport" entryID="deep_standby"><screen module="Standby" screen="TryQuitMainloop">1</screen></item>
 		</menu>

@@ -1,18 +1,19 @@
-from HTMLComponent import HTMLComponent
 from GUIComponent import GUIComponent
-from config import KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END, KEY_0, KEY_DELETE, KEY_BACKSPACE, KEY_OK, KEY_TOGGLEOW, KEY_ASCII, KEY_TIMEOUT, KEY_NUMBERS, config, configfile, ConfigElement, ConfigText, ConfigPassword
+from config import KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END, KEY_0, KEY_DELETE, KEY_BACKSPACE, KEY_OK, KEY_TOGGLEOW, KEY_ASCII, KEY_TIMEOUT, KEY_NUMBERS, configfile, ConfigElement
 from Components.ActionMap import NumberActionMap, ActionMap
 from enigma import eListbox, eListboxPythonConfigContent, eRCInput, eTimer
 from Screens.MessageBox import MessageBox
 from Screens.ChoiceBox import ChoiceBox
 import skin
 
-class ConfigList(HTMLComponent, GUIComponent, object):
+class ConfigList(GUIComponent, object):
 	def __init__(self, list, session = None):
 		GUIComponent.__init__(self)
 		self.l = eListboxPythonConfigContent()
 		seperation = skin.parameters.get("ConfigListSeperator", 200)
 		self.l.setSeperation(seperation)
+		height, space = skin.parameters.get("ConfigListSlider",(17, 0))
+		self.l.setSlider(height, space)
 		self.timer = eTimer()
 		self.list = list
 		self.onSelectionChanged = [ ]
@@ -21,10 +22,7 @@ class ConfigList(HTMLComponent, GUIComponent, object):
 
 	def execBegin(self):
 		rcinput = eRCInput.getInstance()
-		if not config.misc.remotecontrol_text_support.value:
-			rcinput.setKeyboardMode(rcinput.kmAscii)
-		else:
-			rcinput.setKeyboardMode(rcinput.kmNone)
+		rcinput.setKeyboardMode(rcinput.kmAscii)
 		self.timer.callback.append(self.timeout)
 
 	def execEnd(self):
@@ -181,6 +179,8 @@ class ConfigListScreen:
 		if not self.handleInputHelpers in self["config"].onSelectionChanged:
 			self["config"].onSelectionChanged.append(self.handleInputHelpers)
 
+		self.onClose.append(self.HideHelp)
+
 	def createSummary(self):
 		self.setup_title = self.getTitle()
 		from Screens.Setup import SetupSummary
@@ -201,21 +201,16 @@ class ConfigListScreen:
 
 	def handleInputHelpers(self):
 		if self["config"].getCurrent() is not None:
-			try:
-				if isinstance(self["config"].getCurrent()[1], ConfigText) or isinstance(self["config"].getCurrent()[1], ConfigPassword):
-					if "VKeyIcon" in self:
-						self["VirtualKB"].setEnabled(True)
-						self["VKeyIcon"].boolean = True
-					if "HelpWindow" in self:
-						if self["config"].getCurrent()[1].help_window.instance is not None:
-							helpwindowpos = self["HelpWindow"].getPosition()
-							from enigma import ePoint
-							self["config"].getCurrent()[1].help_window.instance.move(ePoint(helpwindowpos[0],helpwindowpos[1]))
-				else:
-					if "VKeyIcon" in self:
-						self["VirtualKB"].setEnabled(False)
-						self["VKeyIcon"].boolean = False
-			except:
+			if self["config"].getCurrent()[1].__class__.__name__ == 'ConfigText' or self["config"].getCurrent()[1].__class__.__name__ == 'ConfigPassword':
+				if "VKeyIcon" in self:
+					self["VirtualKB"].setEnabled(True)
+					self["VKeyIcon"].boolean = True
+				if "HelpWindow" in self:
+					if self["config"].getCurrent()[1].help_window and self["config"].getCurrent()[1].help_window.instance is not None:
+						helpwindowpos = self["HelpWindow"].getPosition()
+						from enigma import ePoint
+						self["config"].getCurrent()[1].help_window.instance.move(ePoint(helpwindowpos[0],helpwindowpos[1]))
+			else:
 				if "VKeyIcon" in self:
 					self["VirtualKB"].setEnabled(False)
 					self["VKeyIcon"].boolean = False
@@ -225,13 +220,23 @@ class ConfigListScreen:
 				self["VKeyIcon"].boolean = False
 
 	def KeyText(self):
+		self.HideHelp()
 		from Screens.VirtualKeyBoard import VirtualKeyBoard
 		self.session.openWithCallback(self.VirtualKeyBoardCallback, VirtualKeyBoard, title = self["config"].getCurrent()[0], text = self["config"].getCurrent()[1].value)
+
+	def HideHelp(self):
+		if "config" in self and (self["config"].getCurrent()[1].__class__.__name__ == 'ConfigText' or self["config"].getCurrent()[1].__class__.__name__ == 'ConfigPassword') and self["config"].getCurrent()[1].help_window and self["config"].getCurrent()[1].help_window.instance is not None:
+			self["config"].getCurrent()[1].help_window.hide()
+
+	def ShowHelp(self):
+		if "config" in self and (self["config"].getCurrent()[1].__class__.__name__ == 'ConfigText' or self["config"].getCurrent()[1].__class__.__name__ == 'ConfigPassword') and self["config"].getCurrent()[1].help_window and self["config"].getCurrent()[1].help_window.instance is not None:
+			self["config"].getCurrent()[1].help_window.show()
 
 	def VirtualKeyBoardCallback(self, callback = None):
 		if callback is not None and len(callback):
 			self["config"].getCurrent()[1].setValue(callback)
 			self["config"].invalidate(self["config"].getCurrent())
+		self.ShowHelp()
 
 	def keyOK(self):
 		self["config"].handleKey(KEY_OK)
@@ -305,6 +310,7 @@ class ConfigListScreen:
 
 	def cancelConfirm(self, result):
 		if not result:
+			self.ShowHelp()
 			return
 
 		for x in self["config"].list:
@@ -313,6 +319,7 @@ class ConfigListScreen:
 
 	def closeMenuList(self, recursive = False):
 		if self["config"].isChanged():
+			self.HideHelp()
 			self.session.openWithCallback(self.cancelConfirm, MessageBox, _("Really close without saving settings?"), default = False)
 		else:
 			self.close(recursive)

@@ -118,13 +118,6 @@ RESULT eDVBDemux::setSourcePVR(int pvrnum)
 	if (fd < 0) return -1;
 	int n = m_dvr_source_offset + pvrnum;
 	int res = ::ioctl(fd, DMX_SET_SOURCE, &n);
-	if (res && pvrnum)
-	{
-		eDebug("[eDVBDemux] DMX_SET_SOURCE dvr%d failed: %m falling back to dvr0", pvrnum);
-		pvrnum = 0;
-		n = m_dvr_source_offset + pvrnum;
-		res = ::ioctl(fd, DMX_SET_SOURCE, &n);
-	}
 	if (res)
 		eDebug("[eDVBDemux] DMX_SET_SOURCE dvr%d failed: %m", pvrnum);
 	source = -1;
@@ -530,7 +523,7 @@ int eDVBRecordFileThread::AsyncIO::poll()
 
 int eDVBRecordFileThread::AsyncIO::start(int fd, off_t offset, size_t nbytes, void* buffer)
 {
-	memset(&aio, 0, sizeof(struct aiocb)); // Documentation says "zero it before call".
+	memset(&aio, 0, sizeof(aiocb)); // Documentation says "zero it before call".
 	aio.aio_fildes = fd;
 	aio.aio_nbytes = nbytes;
 	aio.aio_offset = offset;   // Offset can be omitted with O_APPEND
@@ -637,7 +630,7 @@ void eDVBRecordFileThread::flush()
 eDVBRecordStreamThread::eDVBRecordStreamThread(int packetsize) :
 	eDVBRecordFileThread(packetsize, recordingBufferCount)
 {
-	eDebug("[eDVBRecordStreamThread] allocated %d buffers of %d kB", m_aio.size(), m_buffersize>>10);
+	eDebug("[eDVBRecordStreamThread] allocated %zu buffers of %zu kB", m_aio.size(), m_buffersize>>10);
 }
 
 int eDVBRecordStreamThread::writeData(int len)
