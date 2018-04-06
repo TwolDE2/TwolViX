@@ -201,7 +201,7 @@ class ConfigListScreen:
 
 	def handleInputHelpers(self):
 		if self["config"].getCurrent() is not None:
-			if self["config"].getCurrent()[1].__class__.__name__ == 'ConfigText' or self["config"].getCurrent()[1].__class__.__name__ == 'ConfigPassword':
+			if self["config"].getCurrent()[1].__class__.__name__ in ('ConfigText', 'ConfigPassword'):
 				if "VKeyIcon" in self:
 					self["VirtualKB"].setEnabled(True)
 					self["VKeyIcon"].boolean = True
@@ -226,14 +226,14 @@ class ConfigListScreen:
 
 	def HideHelp(self):
 		try:
-			if "config" in self and (self["config"].getCurrent()[1].__class__.__name__ == 'ConfigText' or self["config"].getCurrent()[1].__class__.__name__ == 'ConfigPassword') and self["config"].getCurrent()[1].help_window and self["config"].getCurrent()[1].help_window.instance is not None:
+			if self["config"].getCurrent()[1].__class__.__name__ in ('ConfigText', 'ConfigPassword'):
 				self["config"].getCurrent()[1].help_window.hide()
 		except:
 			pass
 
 	def ShowHelp(self):
 		try:
-			if "config" in self and (self["config"].getCurrent()[1].__class__.__name__ == 'ConfigText' or self["config"].getCurrent()[1].__class__.__name__ == 'ConfigPassword') and self["config"].getCurrent()[1].help_window and self["config"].getCurrent()[1].help_window.instance is not None:
+			if self["config"].getCurrent()[1].__class__.__name__ in ('ConfigText', 'ConfigPassword'):
 				self["config"].getCurrent()[1].help_window.show()
 		except:
 			pass
