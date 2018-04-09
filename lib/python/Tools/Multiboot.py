@@ -25,9 +25,8 @@ class GetImagelist():
 
 	def __init__(self, callback):
 		if SystemInfo["canMultiBoot"]:
-			if SystemInfo["canMultiBoot"]:
-				self.addin = SystemInfo["canMultiBoot"][1]
-				self.endslot = SystemInfo["canMultiBoot"][2]
+			self.addin = SystemInfo["canMultiBoot"][1]
+			self.endslot = SystemInfo["canMultiBoot"][2]
 			self.callback = callback
 			self.imagelist = {}
 			if not os.path.isdir('/tmp/testmount'):
