@@ -74,5 +74,6 @@ SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hd
 SystemInfo["HasHDMI-CEC"] = fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/HdmiCEC/plugin.pyo")
 SystemInfo["HasHDMIin"] = getMachineBuild() in ('inihdp', 'hd2400', 'et10000', 'et13000', 'dm7080', 'dm820', 'dm900', 'vuultimo4k', 'vuuno4kse') or getBoxType() in ('gbquad4k')
 SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'vs1500') and (1, 4) or getBoxType() in ('gbue4k', 'gbquad4k') and (3, 3)
-SystemInfo["HasMMC"] = getMachineBuild() == 'et13000' or getBoxType() in ('gbquad4k', 'gbue4k', 'mutant51', 'mutant52', 'sf4008', 'tmtwin4k', 'vusolo4k', 'vuultimo4k', 'vuuno4k', 'vuuno4kse', 'vuzero4k')
+SystemInfo["canMode12"] = getMachineBuild() in ('h7') and '200M' or getMachineBuild() in ('hd51', 'vs1500') and '192M'
+SystemInfo["HasMMC"] = fileExists("/proc/cmdline") and "root=/dev/mmcblk" in open("/proc/cmdline", "r").read()
 SystemInfo["HasInfoButton"] = getBrandOEM() in ('broadmedia', 'ceryon', 'dags', 'formuler', 'gfutures', 'gigablue', 'ini', 'octagon', 'odin', 'skylake', 'tiviar', 'xcore', 'xp', 'xtrend')
