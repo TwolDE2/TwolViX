@@ -77,3 +77,4 @@ SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'vs1500') and (
 SystemInfo["canMode12"] = getMachineBuild() in ('h7') and ('440M@328M', '192M@768M', '520M@248M', '200M@768M') or getMachineBuild() in ('hd51', 'vs1500') and ('440M@328M', '192M@768M', '520M@248M', '200M@768M')
 SystemInfo["HasMMC"] = fileExists("/proc/cmdline") and "root=/dev/mmcblk" in open("/proc/cmdline", "r").read()
 SystemInfo["HasInfoButton"] = getBrandOEM() in ('broadmedia', 'ceryon', 'dags', 'formuler', 'gfutures', 'gigablue', 'ini', 'octagon', 'odin', 'skylake', 'tiviar', 'xcore', 'xp', 'xtrend')
+SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz")
