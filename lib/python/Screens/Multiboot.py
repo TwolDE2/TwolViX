@@ -100,12 +100,13 @@ class MultiBoot(Screen):
 				slot = self.slot
 				model = getMachineBuild()
 				if SystemInfo["canMultiBoot"] and 'coherent_poll=2M' in open("/proc/cmdline", "r").read():
-					xStartup = WriteStartup(self.slot, self.ReExit)
+					WriteStartup(self.slot, self.ReExit)
 				elif self.mode != 12:
 					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=1'\n" % (slot, SystemInfo["canMode12"][0], SystemInfo["canMode12"][1], slot * 2 + self.addin, model)
+					WriteStartup(startupFileContents, self.ReExit)
 				else: 
 					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=12'\n" % (slot, SystemInfo["canMode12"][2], SystemInfo["canMode12"][3], slot * 2 + self.addin, model)
-				xStartup = WriteStartup(startupFileContents, self.ReExit)
+					WriteStartup(startupFileContents, self.ReExit)
 
 
 	def reboot12(self):
