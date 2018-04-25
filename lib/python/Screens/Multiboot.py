@@ -79,7 +79,10 @@ class MultiBoot(Screen):
 	def startup(self):
 		self.slot = self.selection + 1
 #		print "Multiboot OldImage %s NewFlash %s FlashType %s" % (self.STARTUPslot, self.selection, x)
-		self["config"].setText(_("Reboot Image: STARTUP_%s: %s\n Use < > keys to select Image and Reboot.") %(self.slot, self.images[self.slot]['imagename']))
+		if self.images[self.slot]['imagename' != _("Empty slot"):
+			self["config"].setText(_("Reboot Image: STARTUP_%s: %s\n Use < > keys to select Image and Reboot.") %(self.slot, self.images[self.slot]['imagename']))
+		else:
+			self.right()
 
 	def cancel(self):
 		self.close()
