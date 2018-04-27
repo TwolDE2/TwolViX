@@ -33,12 +33,11 @@ class MultiBoot(Screen):
 		self["config"] = StaticText(_("Select Image: STARTUP_1"))
 		self.STARTUPslot = 0
 		self.images = []
-		self.mode = 1
+		self.mode = 0
 		self.STARTUPslot = GetCurrentImage()
 		self.getImageList = None
 		self.selection = 0
 		self.slotno = SystemInfo["canMultiBoot"][1]
-		self.addin = SystemInfo["canMultiBoot"][0]
 		self.startit()
 
 		if not SystemInfo["canMode12"]:
@@ -104,25 +103,14 @@ class MultiBoot(Screen):
 				model = getMachineBuild()
 				if SystemInfo["canMultiBoot"] and 'coherent_poll=2M' in open("/proc/cmdline", "r").read():
 					WriteStartup(self.slot, self.ReExit)
-				elif self.mode != 12:
-					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=1'\n" % (slot, SystemInfo["canMode12"][0], SystemInfo["canMode12"][1], slot * 2 + self.addin, model)
-					WriteStartup(startupFileContents, self.ReExit)
 				else: 
-					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=12'\n" % (slot, SystemInfo["canMode12"][2], SystemInfo["canMode12"][3], slot * 2 + self.addin, model)
+					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=12'\n" % (slot, SystemInfo["canMode12"][self.mode], slot * 2 + SystemInfo["canMultiBoot"][0], model)
 					WriteStartup(startupFileContents, self.ReExit)
 
 
 	def reboot12(self):
-				self.mode = 12
+				self.mode = 1
 				self.reboot()
 
 	def ReExit(self):
 		self.session.open(TryQuitMainloop, 2)
-
-
-
-#	def findSTARTUP(self, startupdict):	
-#		startupFileContents = startupdict[self.multibootslot]['STARTUP']
-#		xStartup = WriteStartup(startupFileContents, ReExit)
-
-
