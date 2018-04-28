@@ -66,7 +66,7 @@ SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach") or fileCheck("/pro
 SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and getBoxType() != 'gb800ueplus'
 SystemInfo["LcdPowerOn"] = fileExists("/proc/stb/power/vfd")
-SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx3', 'gbx3h')
+SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx2', 'gbx3', 'gbx3h')
 SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
 SystemInfo["StandbyLED"] = fileCheck("/proc/stb/power/standbyled")
 SystemInfo["WakeOnLAN"] = getBoxType() not in ('et8000', 'et10000') and fileCheck("/proc/stb/power/wol") or fileCheck("/proc/stb/fp/wol")
