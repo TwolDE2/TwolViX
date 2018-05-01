@@ -212,6 +212,7 @@ class AVSwitch:
 		self.current_port = None
 
 		self.readAvailableModes()
+		self.is24hzAvailable()
 
 		self.createConfig()
 		self.readPreferredModes()
@@ -241,6 +242,14 @@ class AVSwitch:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI") # must be HDMI
 
+	def is24hzAvailable(self):
+		try:
+			self.has24pAvailable = os.access("/proc/stb/video/videomode_24hz", os.W_OK) and True or False
+		except IOError:
+			print "[AVSwitch] failed to read video choices 24hz ."
+			self.has24pAvailable = False
+		SystemInfo["have24hz"] = self.has24pAvailable
+
 	# check if a high-level mode with a given rate is available.
 	def isModeAvailable(self, port, mode, rate):
 		rate = self.rates[mode][rate]
@@ -263,10 +272,16 @@ class AVSwitch:
 
 		mode_50 = modes.get(50)
 		mode_60 = modes.get(60)
+		mode_24 = modes.get(24)
+
 		if mode_50 is None or force == 60:
 			mode_50 = mode_60
 		if mode_60 is None or force == 50:
 			mode_60 = mode_50
+		if mode_24 is None or force:
+			mode_24 = mode_60
+			if force == 50:
+				mode_24 = mode_50
 
 		try:
 			f = open("/proc/stb/video/videomode_50hz", "w")
@@ -283,6 +298,20 @@ class AVSwitch:
 				f.close()
 			except IOError:
 				print "[AVSwitch] setting videomode failed."
+
+		if SystemInfo["have24hz"]:
+			try:
+				open("/proc/stb/video/videomode_24hz", "w").write(mode_24)
+			except IOError:
+				print "[VideoHardware] cannot open /proc/stb/video/videomode_24hz"
+
+		try:
+			# use 50Hz mode (if available) for booting
+			f = open("/etc/videomode", "w")
+			f.write(mode_50)
+			f.close()
+		except IOError:
+			print "[AVSwitch] writing initial videomode to /etc/videomode failed."
 
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
