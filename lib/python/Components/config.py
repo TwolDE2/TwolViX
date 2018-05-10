@@ -1109,6 +1109,7 @@ class ConfigText(ConfigElement, NumericalTextInput):
 		self.overwrite = fixed_size
 		self.help_window = None
 		self.value = self.last_value = self.default = default
+		self.navKeys = [KEY_LEFT, KEY_RIGHT, KEY_HOME, KEY_END, KEY_TOGGLEOW, KEY_OK]
 
 	def validateMarker(self):
 		textlen = len(self.text)
@@ -1179,14 +1180,14 @@ class ConfigText(ConfigElement, NumericalTextInput):
 		elif key == KEY_LEFT:
 			self.timeout()
 			if self.allmarked:
-				self.marked_pos = len(self.text)
+				self.marked_pos = 0
 				self.allmarked = False
 			else:
 				self.marked_pos -= 1
 		elif key == KEY_RIGHT:
 			self.timeout()
 			if self.allmarked:
-				self.marked_pos = 0
+				self.marked_pos = len(self.text)
 				self.allmarked = False
 			else:
 				self.marked_pos += 1
@@ -1222,11 +1223,15 @@ class ConfigText(ConfigElement, NumericalTextInput):
 			if self.help_window:
 				self.help_window.update(self)
 			return
+		elif key == KEY_OK:
+			self.timeout()
+			self.allmarked = not self.allmarked
 
 		if self.help_window:
 			self.help_window.update(self)
 		self.validateMarker()
-		self.changed()
+		if key not in self.navKeys:
+			self.changed()
 
 	def nextFunc(self):
 		self.marked_pos += 1
