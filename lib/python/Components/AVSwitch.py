@@ -98,7 +98,9 @@ class AVSwitch:
 		'gbquad4k',
 		'gbue4k',
 		'gbx1',
+		'gbx2',		
 		'gbx3',
+		'gbx3h',
 		'iqonios300hd',
 		'ixusszero',
 		'mbmicro',
@@ -114,7 +116,7 @@ class AVSwitch:
 		'osmega',
 		'osmini',
 		'osminiplus',
-		'osnino',		
+		'osnino',
 		'sf128',
 		'sf138',
 		'sf4008',
@@ -145,7 +147,7 @@ class AVSwitch:
 		'formuler1',
 		'formuler1tc',
 		'formuler4turbo',
-		'gb800ueplus',		
+		'gb800ueplus',
 		'gbultraue',
 		'mbmicro',
 		'mbmicrov2',
@@ -175,11 +177,13 @@ class AVSwitch:
 		'gbquad4k',
 		'gbue4k',
 		'gbx1',
+		'gbx2',		
 		'gbx3',
+		'gbx3h',
 		'ixussone',
 		'mutant51',
 		'mutant1500',
-		'osnino',		
+		'osnino',
 		'sf4008',
 		'tmnano2t',
 		'tmnanom3',
@@ -208,6 +212,7 @@ class AVSwitch:
 		self.current_port = None
 
 		self.readAvailableModes()
+		self.is24hzAvailable()
 
 		self.createConfig()
 		self.readPreferredModes()
@@ -237,6 +242,14 @@ class AVSwitch:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI") # must be HDMI
 
+	def is24hzAvailable(self):
+		try:
+			self.has24pAvailable = os.access("/proc/stb/video/videomode_24hz", os.W_OK) and True or False
+		except IOError:
+			print "[AVSwitch] failed to read video choices 24hz ."
+			self.has24pAvailable = False
+		SystemInfo["have24hz"] = self.has24pAvailable
+
 	# check if a high-level mode with a given rate is available.
 	def isModeAvailable(self, port, mode, rate):
 		rate = self.rates[mode][rate]
@@ -259,26 +272,46 @@ class AVSwitch:
 
 		mode_50 = modes.get(50)
 		mode_60 = modes.get(60)
+		mode_24 = modes.get(24)
+
 		if mode_50 is None or force == 60:
 			mode_50 = mode_60
 		if mode_60 is None or force == 50:
 			mode_60 = mode_50
+		if mode_24 is None or force:
+			mode_24 = mode_60
+			if force == 50:
+				mode_24 = mode_50
 
-		if os.path.exists('/proc/stb/video/videomode_50hz') and getBoxType() not in ('gbquadplus', 'gb800solo', 'gb800se', 'gb800ue', 'gb800ueplus'):
+		try:
 			f = open("/proc/stb/video/videomode_50hz", "w")
 			f.write(mode_50)
 			f.close()
-		if os.path.exists('/proc/stb/video/videomode_60hz') and getBoxType() not in ('gbquadplus', 'gb800solo', 'gb800se', 'gb800ue', 'gb800ueplus'):
+		except IOError:
+			print "[AVSwitch] cannot open /proc/stb/video/videomode_50hz"
+		try:
 			f = open("/proc/stb/video/videomode_60hz", "w")
 			f.write(mode_60)
 			f.close()
-		try:
+		except IOError:
+			print "[AVSwitch] cannot open /proc/stb/video/videomode_50hz"
+
+		if SystemInfo["have24hz"]:
+			try:
+				open("/proc/stb/video/videomode_24hz", "w").write(mode_24)
+			except IOError:
+				print "[AVSwitch] cannot open /proc/stb/video/videomode_24hz"
+ 		try:
 			set_mode = modes.get(int(rate[:2]))
 		except: # not support 50Hz, 60Hz for 1080p
 			set_mode = mode_50
-		f = open("/proc/stb/video/videomode", "w")
-		f.write(set_mode)
-		f.close()
+		print "[AVSwitch] set mode is %s" %set_mode
+		try:
+			f = open("/etc/videomode", "w")
+			f.write(set_mode)
+			f.close()
+		except IOError:
+			print "[AVSwitch] writing initial videomode to /etc/videomode failed."
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
@@ -473,7 +506,7 @@ def InitAVSwitch():
 	config.av.autores_1080p24 = ConfigSelection(choices={"1080p24": _("1080p 24Hz"), "1080p25": _("1080p 25Hz")}, default="1080p24")
 	config.av.autores_1080p25 = ConfigSelection(choices={"1080p25": _("1080p 25Hz"), "1080p50": _("1080p 50Hz")}, default="1080p25")
 	config.av.autores_1080p30 = ConfigSelection(choices={"1080p30": _("1080p 30Hz"), "1080p60": _("1080p 60Hz")}, default="1080p30")
-	config.av.autores_2160p24 = ConfigSelection(choices={"2160p24": _("2160p 24Hz"), "2160p25": _("2160p 25Hz")}, default="2160p24")
+	config.av.autores_2160p24 = ConfigSelection(choices={"2160p24": _("2160p 24Hz"), "2160p25": _("2160p 25Hz"), "2160p30": _("2160p 30Hz")}, default="2160p24")
 	config.av.autores_2160p25 = ConfigSelection(choices={"2160p25": _("2160p 25Hz"), "2160p50": _("2160p 50Hz")}, default="2160p25")
 	config.av.autores_2160p30 = ConfigSelection(choices={"2160p30": _("2160p 30Hz"), "2160p60": _("2160p 60Hz")}, default="2160p30")
 	config.av.colorformat = ConfigSelection(choices=colorformat_choices, default="rgb")

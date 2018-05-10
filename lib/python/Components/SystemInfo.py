@@ -1,5 +1,5 @@
 from enigma import eDVBResourceManager, Misc_Options, eDVBCIInterfaces
-from Tools.Directories import fileExists, fileCheck
+from Tools.Directories import fileExists, fileCheck, pathExists
 from Tools.HardwareInfo import HardwareInfo
 
 from boxbranding import getMachineBuild, getBoxType, getBrandOEM
@@ -66,17 +66,15 @@ SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach") or fileCheck("/pro
 SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and getBoxType() != 'gb800ueplus'
 SystemInfo["LcdPowerOn"] = fileExists("/proc/stb/power/vfd")
-SystemInfo["LCDSKINSetup"] = path.exists("/usr/share/enigma2/display")
-SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx3')
+SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx2', 'gbx3', 'gbx3h')
 SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
 SystemInfo["StandbyLED"] = fileCheck("/proc/stb/power/standbyled")
 SystemInfo["WakeOnLAN"] = getBoxType() not in ('et8000', 'et10000') and fileCheck("/proc/stb/power/wol") or fileCheck("/proc/stb/fp/wol")
 SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/HdmiCEC/plugin.pyo")
 SystemInfo["HasHDMI-CEC"] = fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/HdmiCEC/plugin.pyo")
 SystemInfo["HasHDMIin"] = getMachineBuild() in ('inihdp', 'hd2400', 'et10000', 'et13000', 'dm7080', 'dm820', 'dm900', 'vuultimo4k', 'vuuno4kse') or getBoxType() in ('gbquad4k')
-SystemInfo["canMultiBoot"] = (fileCheck("/boot/STARTUP") or fileCheck("/boot/cmdline.txt"))
-SystemInfo["canMultiBootHD"] = fileCheck("/boot/STARTUP") and getMachineBuild() in ('hd51','vs1500','h7','ceryon7252')
-SystemInfo["canMultiBootXC"] = fileCheck("/boot/cmdline.txt")
-SystemInfo["canMultiBootGB"] = fileCheck("/boot/STARTUP") and getMachineBuild() in ('gb7252')
-SystemInfo["HasMMC"] = getMachineBuild() == 'et13000' or getBoxType() in ('gbquad4k', 'gbue4k', 'mutant51', 'mutant52', 'sf4008', 'tmtwin4k', 'vusolo4k', 'vuultimo4k', 'vuuno4k', 'vuuno4kse', 'vuzero4k')
+SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'vs1500') and (1, 4) or getBoxType() in ('gbue4k', 'gbquad4k') and (3, 3)
+SystemInfo["canMode12"] = getMachineBuild() in ('h7', 'hd51', 'vs1500') and ('440M@328M brcm_cma=192M@768M', '520M@248M brcm_cma=200M@768M')
+SystemInfo["HasMMC"] = fileExists("/proc/cmdline") and "root=/dev/mmcblk" in open("/proc/cmdline", "r").read()
 SystemInfo["HasInfoButton"] = getBrandOEM() in ('broadmedia', 'ceryon', 'dags', 'formuler', 'gfutures', 'gigablue', 'ini', 'octagon', 'odin', 'skylake', 'tiviar', 'xcore', 'xp', 'xtrend')
+SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz")
