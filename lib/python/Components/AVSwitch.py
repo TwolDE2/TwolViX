@@ -283,14 +283,22 @@ class AVSwitch:
 			if force == 50:
 				mode_24 = mode_50
 
-		if os.path.exists('/proc/stb/video/videomode_50hz') and getBrandOEM() not in ('gigablue'):
+		try:
 			f = open("/proc/stb/video/videomode_50hz", "w")
 			f.write(mode_50)
 			f.close()
-		if os.path.exists('/proc/stb/video/videomode_60hz') and getBrandOEM() not in ('gigablue'):
 			f = open("/proc/stb/video/videomode_60hz", "w")
 			f.write(mode_60)
 			f.close()
+		except IOError:
+			try:
+				# fallback if no possibility to setup 50/60 hz mode
+				f = open("/proc/stb/video/videomode", "w")
+				f.write(mode_50)
+				f.close()
+			except IOError:
+				print "[AVSwitch] setting videomode failed."
+
 		if SystemInfo["have24hz"]:
 			try:
 				open("/proc/stb/video/videomode_24hz", "w").write(mode_24)
@@ -298,12 +306,13 @@ class AVSwitch:
 				print "[VideoHardware] cannot open /proc/stb/video/videomode_24hz"
 
 		try:
-			set_mode = modes.get(int(rate[:2]))
-		except: # not support 50Hz, 60Hz for 1080p
-			set_mode = mode_50
-		f = open("/proc/stb/video/videomode", "w")
-		f.write(set_mode)
-		f.close()
+			# use 50Hz mode (if available) for booting
+			f = open("/etc/videomode", "w")
+			f.write(mode_50)
+			f.close()
+		except IOError:
+			print "[AVSwitch] writing initial videomode to /etc/videomode failed."
+
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
