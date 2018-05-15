@@ -1,7 +1,8 @@
 from Components.SystemInfo import SystemInfo
 from Components.Console import Console
 import os
-#		#default layout for Mut@nt HD51	& Giga4K								for GigaBlue 4K
+#		#default layout for 				Mut@nt HD51						& Giga4K
+# boot								/dev/mmcblk0p1						/dev/mmcblk0p1
 # STARTUP_1 			Image 1: boot emmcflash0.kernel1 'root=/dev/mmcblk0p3 rw rootwait'	boot emmcflash0.kernel1: 'root=/dev/mmcblk0p5 
 # STARTUP_2 			Image 2: boot emmcflash0.kernel2 'root=/dev/mmcblk0p5 rw rootwait'      boot emmcflash0.kernel2: 'root=/dev/mmcblk0p7
 # STARTUP_3		        Image 3: boot emmcflash0.kernel3 'root=/dev/mmcblk0p7 rw rootwait'	boot emmcflash0.kernel3: 'root=/dev/mmcblk0p9
@@ -74,10 +75,7 @@ class WriteStartup():
 	def __init__(self, Contents, callback):
 		self.callback = callback
 		self.container = Console()
-		if not SystemInfo["canMode12"]:
-			self.slot = Contents
-		else:
-			self.contents = Contents
+		self.slotContents = Contents
 		if os.path.isdir('/tmp/startupmount'):
 			self.ContainerFallback()
 		else:
@@ -87,11 +85,11 @@ class WriteStartup():
 	
 	def ContainerFallback(self, data=None, retval=None, extra_args=None):
 		self.container.killAll()
-#	If GigaBlue then Contents = slot, use slot to read STARTUP_slot
-#	If multimode and bootmode 1 or 12, then Contents is STARTUP file, so just write it to STARTUP.			
+#	If GigaBlue then slotContents = slot, use slot to read STARTUP_slot
+#	If multimode and bootmode 1 or 12, then slotContents is STARTUP, so just write it to boot STARTUP.			
 		if 'coherent_poll=2M' in open("/proc/cmdline", "r").read():
 			import shutil
-			shutil.copyfile("/tmp/startupmount/STARTUP_%s" % self.slot, "/tmp/startupmount/STARTUP")
+			shutil.copyfile("/tmp/startupmount/STARTUP_%s" % self.slotContents, "/tmp/startupmount/STARTUP")
 		else:
-			open('/tmp/startupmount/STARTUP', 'w').write(self.contents)
+			open('/tmp/startupmount/STARTUP', 'w').write(self.slotcontents)
 		self.callback()
