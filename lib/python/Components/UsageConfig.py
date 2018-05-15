@@ -1182,7 +1182,8 @@ def InitUsageConfig():
 	])
 	config.epgselection.overjump = ConfigYesNo(default=False)
 	config.epgselection.infobar_type_mode = ConfigSelection(default="graphics", choices=[
-		("graphics", _("Multi EPG")),
+		("text", _("Text Multi EPG")),
+		("graphics", _("Graphics Multi EPG")),
 		("single", _("Single EPG"))
 	])
 	if SystemInfo.get("NumVideoDecoders", 1) > 1:
