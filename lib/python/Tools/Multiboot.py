@@ -91,5 +91,5 @@ class WriteStartup():
 			import shutil
 			shutil.copyfile("/tmp/startupmount/STARTUP_%s" % self.slotContents, "/tmp/startupmount/STARTUP")
 		else:
-			open('/tmp/startupmount/STARTUP', 'w').write(self.slotcontents)
+			open('/tmp/startupmount/STARTUP', 'w').write(self.slotContents)
 		self.callback()
