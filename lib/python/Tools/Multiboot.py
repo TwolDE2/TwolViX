@@ -62,18 +62,18 @@ class GetImagelist():
 							build = splitted[1].split(' ')[0]
 				file.close()
 				if Type == "release":		
-					BuildVersion = " " + "-release" + Build
+					BuildVersion = " " + "rel" + " " + Build
 				else:
-					BuildVersion = " " + "-dev" + Build + "-" + Dev
+					BuildVersion = " " + "dev" + " " + Build + " " + Dev
 			if os.path.isfile('/tmp/testmount/etc/version') and Build == " ":
 				version = open("/tmp/testmount/etc/version","r").read()
 				Date = "%s-%s-%s" % (version[6:8], version[4:6], version[2:4])
 				if Creator == "openATV" and build == "0":
-					BuildVersion = " " + "-release" + " " + Date
+					BuildVersion = " " + "rel" + " " + Date
 				else:									
-					BuildVersion = " " + " " + Date
+					BuildVersion = "  " + Date
 			if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
-				self.imagelist[self.slot] =  { 'imagename': open("/tmp/testmount/etc/issue").readlines()[-2].capitalize().strip()[:-6] + BuildVersion}
+				self.imagelist[self.slot] =  { 'imagename': open("/tmp/testmount/etc/issue").readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel") + BuildVersion}
 			else:
 				self.imagelist[self.slot] = { 'imagename': _("Empty slot")}
 			self.phase = self.UNMOUNT
