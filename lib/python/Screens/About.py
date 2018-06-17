@@ -16,7 +16,7 @@ from Components.Pixmap import MultiPixmap
 from Components.Network import iNetwork
 from Components.SystemInfo import SystemInfo
 from Tools.StbHardware import getFPVersion
-from Tools.Multiboot import GetCurrentImage
+from Tools.Multiboot import GetCurrentImage, GetCurrentImageMode
 from os import path
 from re import search
 import skin
@@ -70,7 +70,7 @@ class About(Screen):
 		AboutText = ""
 		self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
 
-		AboutText += _("Model:\t%s   %s\n") % (getMachineBrand(), getMachineName())
+		AboutText += _("Model:\t%s %s\n") % (getMachineBrand(), getMachineName())
 
 		if about.getChipSetString() != _("unavailable"):
 			if about.getIsBroadcom():
@@ -84,25 +84,12 @@ class About(Screen):
 			imageSubBuild = ".%s" % getImageDevBuild()
 		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
 
-		imagestarted = ""
-		bootname = ''
-		if path.exists('/boot/bootname'):
-			f = open('/boot/bootname', 'r')
-			bootname = f.readline().split('=')[1]
-			f.close()
-
 		if SystemInfo["canMultiBoot"]:
 			image = GetCurrentImage()
-			if bootname: bootname = "   (%s)" %bootname 
-			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(image) + bootname + "\n"
-
-		bootloader = ""
-		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
-				f = open('/sys/firmware/devicetree/base/bolt/tag', 'r')
-				bootloader = f.readline().replace('\x00', '').replace('\n', '')
-				f.close()
-				AboutText += _("Bootloader:\t%s\n") % (bootloader)
-
+			bootmode = ""
+			if SystemInfo["canMode12"]:
+				bootmode = "bootmode = %s" %GetCurrentImageMode()
+			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(image) + " " + bootmode + "\n"
 
 		if getMachineName() in ('ET8500') and path.exists('/proc/mtd'):
 			self.dualboot = self.dualBoot()
