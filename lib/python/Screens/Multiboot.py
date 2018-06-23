@@ -8,11 +8,7 @@ from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.Label import Label
 from Components.SystemInfo import SystemInfo
 from Tools.BoundFunction import boundFunction
-<<<<<<< HEAD
-from Tools.Multiboot import GetImagelist, GetCurrentImage
-=======
 from Tools.Multiboot import GetImagelist, GetCurrentImage, GetCurrentImageMode
->>>>>>> upstream/Dev
 
 class MultiBoot(Screen):
 
@@ -82,10 +78,11 @@ class MultiBoot(Screen):
 				if imagedict[x]["imagename"] != _("Empty slot"):
 					list.append(ChoiceEntryComponent('',((_("slot%s - %s (current image)") if x == currentimageslot else _("slot%s - %s ")) % (x, imagedict[x]['imagename']), x)))
 		else:
-			for x in sorted(imagedict.keys()):
+			for x in range(1, SystemInfo["canMultiBoot"][1] + 1):
 				if imagedict[x]["imagename"] != _("Empty slot"):
 					list.append(ChoiceEntryComponent('',((_("slot%s - %s mode 1 (current image)") if x == currentimageslot and mode != 12 else _("slot%s - %s mode 1")) % (x, imagedict[x]['imagename']), x)))
-					if SystemInfo["canMode12"]:
+			for x in range(1, SystemInfo["canMultiBoot"][1] + 1):
+					if SystemInfo["canMode12"] and imagedict[x]["imagename"] != _("Empty slot"):
 						list.append(ChoiceEntryComponent('',((_("slot%s - %s mode 12 (current image)") if x == currentimageslot and mode == 12 else _("slot%s - %s mode 12")) % (x, imagedict[x]['imagename']), x + 12)))
 		self["config"].setList(list)
 
