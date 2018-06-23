@@ -36,9 +36,12 @@ class MultiBoot(Screen):
 		self.skinName = "MultiBoot"
 		screentitle = _("Multiboot Image Restart")
 		self["key_red"] = StaticText(_("Cancel"))
-		self["key_green"] = StaticText(_("Reboot mode 1"))
 		self["labe14"] = StaticText(_("Use the cursor keys to select an installed image and then Reboot button."))
-		self["labe15"] = StaticText(_("Mode 1 suppports Kodi, PiP may not work.\nMode 12 supports PiP, Kodi may not work."))
+		self["labe15"] = StaticText(_(" "))
+		self["key_green"] = StaticText(_("Reboot"))
+		if SystemInfo["canMode12"]:
+			self["key_green"] = StaticText(_("Reboot mode 1"))
+			self["labe15"] = StaticText(_("Mode 1 suppports Kodi, PiP may not work.\nMode 12 supports PiP, Kodi may not work."))
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent('',((_("Retrieving image slots - Please wait...")), "Queued"))])
 		imagedict = []
 		self.getImageList = None
