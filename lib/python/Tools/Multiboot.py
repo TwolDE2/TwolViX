@@ -90,26 +90,31 @@ class GetImagelist():
 			self.callback(self.imagelist)
 
 
-class WriteStartup():
-
+class EmptySlot():
+	MOUNT = 0
+	UNMOUNT = 1
 	def __init__(self, Contents, callback):
 		self.callback = callback
 		self.container = Console()
-		self.slotContents = Contents
-		if os.path.isdir('/tmp/startupmount'):
-			self.ContainerFallback()
-		else:
-			os.mkdir('/tmp/startupmount')
-			self.container.ePopen('mount /dev/mmcblk0p1 /tmp/startupmount', self.ContainerFallback)
+		(self.firstslot, self.numberofslots) = SystemInfo["canMultiBoot"]
+		self.slot = Contents
+		if not os.path.isdir('/tmp/testmount'):
+			os.mkdir('/tmp/testmount')
+		self.phase = self.MOUNT
+		self.run()
+
+	def run(self):
+		self.container.ePopen('mount /dev/mmcblk0p%s /tmp/testmount' % str(self.slot * 2 + self.firstslot) if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
 
 	
-	def ContainerFallback(self, data=None, retval=None, extra_args=None):
-		self.container.killAll()
-#	If GigaBlue then slotContents = slot, use slot to read STARTUP_slot
-#	If multimode and bootmode 1 or 12, then slotContents is STARTUP, so just write it to boot STARTUP.			
-		if 'coherent_poll=2M' in open("/proc/cmdline", "r").read():
-			import shutil
-			shutil.copyfile("/tmp/startupmount/STARTUP_%s" % self.slotContents, "/tmp/startupmount/STARTUP")
+	def appClosed(self, data, retval, extra_args):
+		if retval == 0 and self.phase == self.MOUNT:
+			if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
+				os.rename('/tmp/testmount/usr/bin/enigma2', '/tmp/testmount/usr/bin/enigmax.bin')
+			self.phase = self.UNMOUNT
+			self.run()
 		else:
-			open('/tmp/startupmount/STARTUP', 'w').write(self.slotContents)
-		self.callback()
+			self.container.killAll()
+			if not os.path.ismount('/tmp/testmount'):
+				os.rmdir('/tmp/testmount')
+			self.callback()
