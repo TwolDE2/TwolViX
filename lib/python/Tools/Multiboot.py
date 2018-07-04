@@ -1,6 +1,9 @@
 from Components.SystemInfo import SystemInfo
 from Components.Console import Console
-import os
+import os, time
+import shutil
+import subprocess
+
 #		#default layout for 				Mut@nt HD51						& Giga4K
 # boot								/dev/mmcblk0p1						/dev/mmcblk0p1
 # STARTUP_1 			Image 1: boot emmcflash0.kernel1 'root=/dev/mmcblk0p3 rw rootwait'	boot emmcflash0.kernel1: 'root=/dev/mmcblk0p5 
@@ -37,43 +40,35 @@ class GetImagelist():
 			
 	def appClosed(self, data, retval, extra_args):
 		if retval == 0 and self.phase == self.MOUNT:
-			BuildVersion = "  "
-			Build = " "
-			build = " "
-			Creator = " " 
-			Date = " "
-			Dev = " "
-			Type = " "
-			if os.path.isfile("/tmp/testmount/usr/bin/enigma2") and os.path.isfile('/tmp/testmount/etc/image-version'):
-				file = open('/tmp/testmount/etc/image-version', 'r')
-				lines = file.read().splitlines()
-				for x in lines:
-					splitted = x.split('=')
-					if len(splitted) > 1:
-						if splitted[0].startswith("Type"):
-							Type = splitted[1].split(' ')[1]
-						elif splitted[0].startswith("Dev"):
-							Dev = splitted[1].split(' ')[1]
-						elif splitted[0].startswith("Build"):
-							Build = splitted[1].split(' ')[1]
-						elif splitted[0].startswith("creator"):
-							Creator = splitted[1].split(' ')[0]
-						elif splitted[0].startswith("build_type"):
-							build = splitted[1].split(' ')[0]
-				file.close()
-				if Type == "release":		
-					BuildVersion = " " + "rel" + " " + Build
-				else:
-					BuildVersion = " " + "dev" + " " + Build + " " + Dev
-			if os.path.isfile('/tmp/testmount/etc/version') and Build == " ":
-				version = open("/tmp/testmount/etc/version","r").read()
-				Date = "%s-%s-%s" % (version[6:8], version[4:6], version[2:4])
-				if Creator == "openATV" and build == "0":
-					BuildVersion = " " + "rel" + " " + Date
-				else:									
-					BuildVersion = "  " + Date
+			BuildVersion = "  "	
+			Build = " "	#ViX Build No.#
+			Dev = " "	#ViX Dev No.#
+			Creator = " " 	#OpenViX & openATV#
+			Date = " "	
+			BuildType = " "	#ViX & ATV#
 			if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
-				self.imagelist[self.slot] =  { 'imagename': open("/tmp/testmount/etc/issue").readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel") + BuildVersion}
+ 				if  os.path.isfile('/tmp/testmount/etc/issue'):
+					Creator = open("/tmp/testmount/etc/issue").readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
+					if Creator.startswith("Openpli"):
+						build = [x.split("-")[-2:-1][0][-8:] for x in open("/tmp/testmount/var/lib/opkg/info/openpli-bootlogo.control").readlines() if x.startswith("Version:")]
+						Date = "%s-%s-%s" % (build[0][6:], build[0][4:6], build[0][2:4])
+						BuildVersion = Creator + "  " + Date
+					elif Creator.startswith("Openvix"):
+						reader = boxbranding_reader()
+						BuildType = reader.getImageType()
+						Build = reader.getImageBuild()
+						Dev = reader.getImageDevBuild()
+						if BuildType == "release":
+							BuildVersion = Creator + " " + "rel" + " " + Build
+						else:
+							BuildVersion = Creator + " " + "dev" + " " + Build + Dev
+					else:
+						st = os.stat('/tmp/testmount/var/lib/opkg/status')
+						tm = time.localtime(st.st_mtime)
+						if tm.tm_year >= 2011:
+							Date = time.strftime("%d-%m-%Y", tm).replace(":20", ":")
+						BuildVersion = Creator + " " + "rel" + " " + Date
+				self.imagelist[self.slot] =  { 'imagename': '%s' %BuildVersion}
 			else:
 				self.imagelist[self.slot] = { 'imagename': _("Empty slot")}
 			self.phase = self.UNMOUNT
@@ -88,6 +83,92 @@ class GetImagelist():
 			if not os.path.ismount('/tmp/testmount'):
 				os.rmdir('/tmp/testmount')
 			self.callback(self.imagelist)
+
+
+class boxbranding_reader:		# many thanks to Huevos for creating this reader - well beyond my skill levels! 
+	def __init__(self):
+		self.branding_path = "/tmp/testmount/usr/lib/enigma2/python/"
+		self.branding_file = "boxbranding.so"
+		self.tmp_path = "/tmp/"
+		self.helper_file = "helper.py"
+
+		self.output = {
+			"getMachineBuild": "",
+			"getMachineProcModel": "",
+			"getMachineBrand": "",
+			"getMachineName": "",
+			"getMachineMtdKernel": "",
+			"getMachineKernelFile": "",
+			"getMachineMtdRoot": "",
+			"getMachineRootFile": "",
+			"getMachineMKUBIFS": "",
+			"getMachineUBINIZE": "",
+			"getBoxType": "",
+			"getBrandOEM": "",
+			"getOEVersion": "",
+			"getDriverDate": "",
+			"getImageVersion": "",
+			"getImageBuild": "",
+			"getImageDistro": "",
+			"getImageFolder": "",
+			"getImageFileSystem": "",
+			"getImageDevBuild": "",
+			"getImageType": "",
+			"getMachineMake": "",
+			"getImageArch": "",
+			"getFeedsUrl": "",
+		}
+		self.createHelperFile()
+		self.copyBrandingFile()
+		self.readBrandingFile()
+		self.removeHelperFile()
+		self.removeBrandingFile()
+		self.addBrandingMethods()
+
+	def readBrandingFile(self): # reads boxbranding.so and updates self.output
+		output = eval(subprocess.check_output(['python', self.tmp_path + self.helper_file]))
+		if output:
+			for att in self.output.keys():
+				self.output[att] = output[att]
+
+	def addBrandingMethods(self): # this creates reader.getBoxType(), reader.getImageDevBuild(), etc
+		l =  {}                
+		for att in self.output.keys():
+			exec("def %s(self): return self.output['%s']" % (att, att), None, l)
+		for name, value in l.items():
+			setattr(boxbranding_reader, name, value)
+
+	def createHelperFile(self):
+		f = open(self.tmp_path + self.helper_file, "w+")
+		f.write(self.helperFileContent())
+		f.close()
+
+	def copyBrandingFile(self):
+		shutil.copy2(self.branding_path + self.branding_file, self.tmp_path + self.branding_file)
+
+	def removeHelperFile(self):
+		self.removeFile(self.tmp_path + self.helper_file)
+
+	def removeBrandingFile(self):
+		self.removeFile(self.tmp_path + self.branding_file)
+
+	def removeFile(self, toRemove):
+			if os.path.isfile(toRemove):
+				os.remove(toRemove)
+
+	def helperFileContent(self):
+		eol = "\n"
+		out = []
+		out.append("try:%s" % eol)
+		out.append("\timport boxbranding%s" % eol)
+		out.append("\toutput = {%s" % eol)
+		for att in self.output.keys():
+			out.append('\t\t"%s": boxbranding.%s(),%s' % (att, att, eol))
+		out.append("\t}%s" % eol)
+		out.append("except:%s" % eol)
+		out.append("\t\toutput = None%s" % eol)
+		out.append("print output%s" % eol)
+		return ''.join(out)
 
 
 class EmptySlot():
