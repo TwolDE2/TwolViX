@@ -43,31 +43,28 @@ class GetImagelist():
 			BuildVersion = "  "	
 			Build = " "	#ViX Build No.#
 			Dev = " "	#ViX Dev No.#
-			Creator = " " 	#OpenViX & openATV#
+			Creator = " " 	#Openpli Openvix Openatv etc #
 			Date = " "	
-			BuildType = " "	#ViX & ATV#
+			BuildType = " "	#release etc #
 			if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
  				if  os.path.isfile('/tmp/testmount/etc/issue'):
 					Creator = open("/tmp/testmount/etc/issue").readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
 					if Creator.startswith("Openpli"):
 						build = [x.split("-")[-2:-1][0][-8:] for x in open("/tmp/testmount/var/lib/opkg/info/openpli-bootlogo.control").readlines() if x.startswith("Version:")]
 						Date = "%s-%s-%s" % (build[0][6:], build[0][4:6], build[0][2:4])
-						BuildVersion = Creator + "  " + Date
+						BuildVersion = "%s %s" % (Creator, Date)
 					elif Creator.startswith("Openvix"):
 						reader = boxbranding_reader()
 						BuildType = reader.getImageType()
 						Build = reader.getImageBuild()
-						Dev = reader.getImageDevBuild()
-						if BuildType == "release":
-							BuildVersion = Creator + " " + "rel" + " " + Build
-						else:
-							BuildVersion = Creator + " " + "dev" + " " + Build + Dev
+						Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ''
+						BuildVersion = "%s %s %s %s" % (Creator, BuildType[0:3], Build, Dev)
 					else:
 						st = os.stat('/tmp/testmount/var/lib/opkg/status')
 						tm = time.localtime(st.st_mtime)
 						if tm.tm_year >= 2011:
-							Date = time.strftime("%d-%m-%Y", tm).replace(":20", ":")
-						BuildVersion = Creator + " " + "rel" + " " + Date
+							Date = time.strftime("%d-%m-%Y", tm).replace("-20", "-")
+						BuildVersion = "%s rel %s" % (Creator, Date)
 				self.imagelist[self.slot] =  { 'imagename': '%s' %BuildVersion}
 			else:
 				self.imagelist[self.slot] = { 'imagename': _("Empty slot")}
