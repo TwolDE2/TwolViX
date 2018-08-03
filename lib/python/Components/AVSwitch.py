@@ -720,7 +720,7 @@ def InitAVSwitch():
 	else:
 		config.av.autovolume = ConfigNothing()
 
-	if SystemInfo["supportcmMultichannel"]:
+	if SystemInfo["supportPcmMultichannel"]:
 		def setPCMMultichannel(configElement):
 			open("/proc/stb/audio/multichannel_pcm", "w").write(configElement.value and "enable" or "disable")
 		config.av.pcm_multichannel = ConfigYesNo(default = False)
@@ -733,7 +733,7 @@ def InitAVSwitch():
 				SystemInfo["CanPcmMultichannel"] = True
 			else:
 				SystemInfo["CanPcmMultichannel"] = False
-				if SystemInfo["supportcmMultichannel"]:
+				if SystemInfo["supportPcmMultichannel"]:
 					config.av.pcm_multichannel.setValue(False)
 		config.av.downmix_ac3 = ConfigYesNo(default = True)
 		config.av.downmix_ac3.addNotifier(setAC3Downmix)
