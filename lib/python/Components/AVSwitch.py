@@ -287,7 +287,7 @@ class AVSwitch:
 		except IOError:
 			print "[AVSwitch] cannot open /proc/stb/video/videomode_50hz"
 
-		if SystemInfo["have24hz"]:
+		if SystemInfo["Has24hz"]:
 			try:
 				open("/proc/stb/video/videomode_24hz", "w").write(mode_24)
 			except IOError:
