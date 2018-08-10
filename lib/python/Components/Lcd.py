@@ -504,10 +504,6 @@ def InitLcd():
 		else:
 			config.lcd.showoutputresolution = ConfigNothing()
 
-		if fileExists("/proc/stb/power/vfd"):
-			config.lcd.power = ConfigSelection([("0", _("off")), ("1", _("on"))], "1")
-			config.lcd.power.addNotifier(setLCDpower);
-
 	else:
 		def doNothing():
 			pass
