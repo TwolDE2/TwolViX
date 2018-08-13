@@ -81,6 +81,8 @@ class MultiBoot(Screen):
 			for x in range(1, SystemInfo["canMultiBoot"][1] + 1):
 				if imagedict[x]["imagename"] != _("Empty slot"):
 					list.append(ChoiceEntryComponent('',((_("slot%s - %s mode 1 (current image)") if x == currentimageslot and mode != 12 else _("slot%s - %s mode 1")) % (x, imagedict[x]['imagename']), x)))
+			list.append("                                 ")
+			list.append("                                 ")
 			for x in range(1, SystemInfo["canMultiBoot"][1] + 1):
 					if SystemInfo["canMode12"] and imagedict[x]["imagename"] != _("Empty slot"):
 						list.append(ChoiceEntryComponent('',((_("slot%s - %s mode 12 (current image)") if x == currentimageslot and mode == 12 else _("slot%s - %s mode 12")) % (x, imagedict[x]['imagename']), x + 12)))
