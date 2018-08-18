@@ -23,7 +23,7 @@ class GetImagelist():
 
 	def __init__(self, callback):
 		if SystemInfo["canMultiBoot"]:
-			(self.firstslot, self.numberofslots) = SystemInfo["canMultiBoot"]
+			(self.firstslot, self.numberofslots, self.mtdboot) = SystemInfo["canMultiBoot"]
 			self.callback = callback
 			self.imagelist = {}
 			if not os.path.isdir('/tmp/testmount'):
@@ -174,7 +174,7 @@ class EmptySlot():
 	def __init__(self, Contents, callback):
 		self.callback = callback
 		self.container = Console()
-		(self.firstslot, self.numberofslots) = SystemInfo["canMultiBoot"]
+		(self.firstslot, self.numberofslots, self.mtdboot) = SystemInfo["canMultiBoot"]
 		self.slot = Contents
 		if not os.path.isdir('/tmp/testmount'):
 			os.mkdir('/tmp/testmount')
