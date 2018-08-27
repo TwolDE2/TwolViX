@@ -13,6 +13,15 @@ def getNumVideoDecoders():
 		idx += 1
 	return idx
 
+def getChipSetString():
+	try:
+		f = open('/proc/stb/info/chipset', 'r')
+		chipset = f.read()
+		f.close()
+		return str(chipset.lower().replace('\n','').replace('brcm','').replace('bcm',''))
+	except IOError:
+		return _("unavailable")
+
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
 for cislot in range (0, SystemInfo["CommonInterface"]):
@@ -33,6 +42,7 @@ def countFrontpanelLEDs():
 	return leds
 
 # General Hardware
+SystemInfo["Chipstring"] = getChipSetString() in ('5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s', '72604') and (["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], {"720p", "1080p", "2160p", "1080i"}) or getChipSetString() in ('7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552') and (["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], {"720p", "1080p", "1080i"})
 SystemInfo["HasInfoButton"] = getBrandOEM() in ('broadmedia', 'ceryon', 'dags', 'formuler', 'gfutures', 'gigablue', 'ini', 'octagon', 'odin', 'skylake', 'tiviar', 'xcore', 'xp', 'xtrend')
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
 SystemInfo["DeepstandbySupport"] = HardwareInfo().has_deepstandby()
@@ -75,6 +85,118 @@ SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx
 SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
 SystemInfo["StandbyLED"] = fileCheck("/proc/stb/power/standbyled")
 #	Audio/Video Configs
+# Machines that do not have component video (red, green and blue RCA sockets).
+SystemInfo["no_YPbPr"] = getBoxType() in (
+		'dm500hd',
+		'dm500hdv2',
+		'dm800',
+		'e3hd',
+		'ebox7358',
+		'eboxlumi',
+		'ebox5100',
+		'enfinity',
+		'et4x00',
+		'formuler4turbo',
+		'gbquad4k',
+		'gbue4k',
+		'gbx1',
+		'gbx2',		
+		'gbx3',
+		'gbx3h',
+		'iqonios300hd',
+		'ixusszero',
+		'mbmicro',
+		'mbmicrov2',
+		'mbtwinplus',
+		'mutant11',
+		'mutant51',
+		'mutant500c',
+		'mutant1200',
+		'mutant1500',
+		'odimm7',
+		'optimussos1',
+		'osmega',
+		'osmini',
+		'osminiplus',
+		'osnino',
+		'osninoplus',		
+		'sf128',
+		'sf138',
+		'sf4008',
+		'tm2t',
+		'tmnano',
+		'tmnano2super',
+		'tmnano3t',
+		'tmnanose',
+		'tmnanosecombo',
+		'tmnanoseplus',
+		'tmnanosem2',
+		'tmnanosem2plus',
+		'tmnanom3',
+		'tmsingle',
+		'tmtwin4k',
+		'uniboxhd1',
+		'vusolo2',
+		'vuzero4k',
+		'vusolo4k',
+		'vuuno4k',
+		'vuuno4kse',
+		'vuultimo4k',
+		'xp1000'
+	)
+# Machines that have composite video (yellow RCA socket) but do not have Scart.
+SystemInfo["yellow_RCA_no_scart"] = getBoxType() in (
+		'formuler1',
+		'formuler1tc',
+		'formuler4turbo',
+		'gb800ueplus',
+		'gbultraue',
+		'mbmicro',
+		'mbmicrov2',
+		'mbtwinplus',
+		'mutant11',
+		'mutant500c',
+		'osmega',
+		'osmini',
+		'osminiplus',
+		'sf138',
+		'tmnano',
+		'tmnanose',
+		'tmnanosecombo',
+		'tmnanosem2',
+		'tmnanoseplus',
+		'tmnanosem2plus',
+		'tmnano2super',
+		'tmnano3t',
+		'xpeedlx3'
+	)
+# Machines that have neither yellow RCA nor Scart sockets
+SystemInfo["no_yellow_RCA__no_scart"] = getBoxType() in (
+		'et5x00',
+		'et6x00',
+		'gbquad',
+		'gbquad4k',
+		'gbue4k',
+		'gbx1',
+		'gbx2',		
+		'gbx3',
+		'gbx3h',
+		'ixussone',
+		'mutant51',
+		'mutant1500',
+		'osnino',
+		'osninoplus',		
+		'sf4008',
+		'tmnano2t',
+		'tmnanom3',
+		'tmtwin4k',
+		'vuzero4k',
+		'vusolo4k',
+		'vuuno4k',
+		'vuuno4kse',
+		'vuultimo4k'
+	)
+SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 SystemInfo["CanAACTranscode"] = fileExists("/proc/stb/audio/aac_transcode_choices") and fileCheck("/proc/stb/audio/aac_transcode")
 SystemInfo["CanDownmixAC3"] = fileHas("/proc/stb/audio/ac3_choices", "downmix")

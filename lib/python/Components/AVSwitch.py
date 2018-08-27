@@ -83,128 +83,14 @@ class AVSwitch:
 	# 	print "[VideoHardware] remove DVI-PC because of not existing modes"
 	# 	del modes["DVI-PC"]
 
-	# Machines that do not have component video (red, green and blue RCA sockets).
-	no_YPbPr = (
-		'dm500hd',
-		'dm500hdv2',
-		'dm800',
-		'e3hd',
-		'ebox7358',
-		'eboxlumi',
-		'ebox5100',
-		'enfinity',
-		'et4x00',
-		'formuler4turbo',
-		'gbquad4k',
-		'gbue4k',
-		'gbx1',
-		'gbx2',		
-		'gbx3',
-		'gbx3h',
-		'iqonios300hd',
-		'ixusszero',
-		'mbmicro',
-		'mbmicrov2',
-		'mbtwinplus',
-		'mutant11',
-		'mutant51',
-		'mutant500c',
-		'mutant1200',
-		'mutant1500',
-		'odimm7',
-		'optimussos1',
-		'osmega',
-		'osmini',
-		'osminiplus',
-		'osnino',
-		'osninoplus',		
-		'sf128',
-		'sf138',
-		'sf4008',
-		'tm2t',
-		'tmnano',
-		'tmnano2super',
-		'tmnano3t',
-		'tmnanose',
-		'tmnanosecombo',
-		'tmnanoseplus',
-		'tmnanosem2',
-		'tmnanosem2plus',
-		'tmnanom3',
-		'tmsingle',
-		'tmtwin4k',
-		'uniboxhd1',
-		'vusolo2',
-		'vuzero4k',
-		'vusolo4k',
-		'vuuno4k',
-		'vuuno4kse',
-		'vuultimo4k',
-		'xp1000'
-	)
-
-	# Machines that have composite video (yellow RCA socket) but do not have Scart.
-	yellow_RCA_no_scart = (
-		'formuler1',
-		'formuler1tc',
-		'formuler4turbo',
-		'gb800ueplus',
-		'gbultraue',
-		'mbmicro',
-		'mbmicrov2',
-		'mbtwinplus',
-		'mutant11',
-		'mutant500c',
-		'osmega',
-		'osmini',
-		'osminiplus',
-		'sf138',
-		'tmnano',
-		'tmnanose',
-		'tmnanosecombo',
-		'tmnanosem2',
-		'tmnanoseplus',
-		'tmnanosem2plus',
-		'tmnano2super',
-		'tmnano3t',
-		'xpeedlx3'
-	)
-
-	# Machines that have neither yellow RCA nor Scart sockets
-	no_yellow_RCA__no_scart = (
-		'et5x00',
-		'et6x00',
-		'gbquad',
-		'gbquad4k',
-		'gbue4k',
-		'gbx1',
-		'gbx2',		
-		'gbx3',
-		'gbx3h',
-		'ixussone',
-		'mutant51',
-		'mutant1500',
-		'osnino',
-		'osninoplus',		
-		'sf4008',
-		'tmnano2t',
-		'tmnanom3',
-		'tmtwin4k',
-		'vuzero4k',
-		'vusolo4k',
-		'vuuno4k',
-		'vuuno4kse',
-		'vuultimo4k'
-	)
-
-	if "YPbPr" in modes and getBoxType() in no_YPbPr:
+	if "YPbPr" in modes and SystemInfo["no_YPbPr"]:
 		del modes["YPbPr"]
 
-	if "Scart" in modes and getBoxType() in yellow_RCA_no_scart:
+	if "Scart" in modes and SystemInfo["yellow_RCA_no_scart"]:
 		modes["RCA"] = modes["Scart"]
 		del modes["Scart"]
 
-	if "Scart" in modes and getBoxType() in no_yellow_RCA__no_scart:
+	if "Scart" in modes and SystemInfo["no_yellow_RCA__no_scart"]:
 		del modes["Scart"]
 
 	def __init__(self):
@@ -443,9 +329,8 @@ class AVSwitch:
 						ret = (16,10)
 			elif is_auto:
 				try:
-					aspect_str = open("/proc/stb/vmpeg/0/aspect", "r").read()
-					if aspect_str == "1": # 4:3
-						ret = (4,3)
+					if "1" in open("/proc/stb/vmpeg/0/aspect", "r").read(): # 4:3
+						return (4,3)
 				except IOError:
 					pass
 			else:  # 4:3
@@ -455,7 +340,7 @@ class AVSwitch:
 	def getFramebufferScale(self):
 		aspect = self.getOutputAspect()
 		fb_size = getDesktop(0).size()
-		return aspect[0] * fb_size.height(), aspect[1] * fb_size.width()
+		return (aspect[0] * fb_size.height(), aspect[1] * fb_size.width())
 
 	def getAspectRatioSetting(self):
 		valstr = config.av.aspectratio.value
@@ -759,7 +644,7 @@ def InitAVSwitch():
 	else:
 		config.av.transcodeaac = ConfigNothing()
 
-	if os.path.exists("/proc/stb/vmpeg/0/pep_scaler_sharpness"):
+	if SystemInfo["HasScaler_sharpness"]:
 		def setScaler_sharpness(config):
 			myval = int(config.value)
 			try:
