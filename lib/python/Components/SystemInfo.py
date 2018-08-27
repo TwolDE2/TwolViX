@@ -6,12 +6,19 @@ from boxbranding import getMachineBuild, getBoxType, getBrandOEM
 
 SystemInfo = { }
 
-#FIXMEE...
 def getNumVideoDecoders():
 	idx = 0
 	while fileExists("/dev/dvb/adapter0/video%d"% idx, 'f'):
 		idx += 1
 	return idx
+
+def countFrontpanelLEDs():
+	leds = 0
+	if fileExists("/proc/stb/fp/led_set_pattern"):
+		leds += 1
+	while fileExists("/proc/stb/fp/led%d_pattern" % leds):
+		leds += 1
+	return leds
 
 def getChipSetString():
 	try:
@@ -31,16 +38,6 @@ for cislot in range (0, SystemInfo["CommonInterface"]):
 SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
 SystemInfo["PIPAvailable"] = SystemInfo["NumVideoDecoders"] > 1
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
-
-
-def countFrontpanelLEDs():
-	leds = 0
-	if fileExists("/proc/stb/fp/led_set_pattern"):
-		leds += 1
-	while fileExists("/proc/stb/fp/led%d_pattern" % leds):
-		leds += 1
-	return leds
-
 # General Hardware
 SystemInfo["Chipstring"] = getChipSetString() in ('5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s', '72604') and (["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], {"720p", "1080p", "2160p", "1080i"}) or getChipSetString() in ('7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552') and (["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], {"720p", "1080p", "1080i"})
 SystemInfo["HasInfoButton"] = getBrandOEM() in ('broadmedia', 'ceryon', 'dags', 'formuler', 'gfutures', 'gigablue', 'ini', 'octagon', 'odin', 'skylake', 'tiviar', 'xcore', 'xp', 'xtrend')
