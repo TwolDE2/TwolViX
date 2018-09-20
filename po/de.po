@@ -15505,5 +15505,30 @@ msgstr "umschalten"
 msgid "zap and record"
 msgstr "umschalten und aufnehmen"
 
+
 msgid "zapped"
 msgstr "umgeschaltet"
+
+#: python\Plugins\Extensions\QuadPip
+msgid " <No Channel>"
+msgstr " <Kein Kanal>"
+
+#: python\Plugins\Extensions\QuadPip
+msgid "No channel"
+msgstr "Kein Kanal"
+
+#: python\Plugins\Extensions\QuadPip
+msgid " <empty>"
+msgstr " <leer>"
+
+#: python\Plugins\Extensions\QuadPip
+msgid " (current channel)"
+msgstr " (Aktuelle Sendergruppe)"
+
+#: python\Plugins\Extensions\QuadPip
+msgid "Choice where to put \"%s\""
+msgstr "Positionsauswahl für \"%s\""
+
+#: python\Plugins\Extensions\QuadPip
+msgid "Really delete this entry?"
+msgstr "Sendergruppe wirklich löschen?"
