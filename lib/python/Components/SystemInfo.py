@@ -31,7 +31,7 @@ SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
 SystemInfo["PIPAvailable"] = SystemInfo["NumVideoDecoders"] > 1
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 # General Hardware
-SystemInfo["Chipstring"] = getChipSetString() in ('5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s', '72604') and (
+SystemInfo["Chipstring"] = getChipSetString() in ('5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s', '72604', '3798mv200', '3798cv200', 'hi3798mv200', 'hi3798cv200') and (
 	["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], {"720p", "1080p", "2160p", "1080i"}) or getChipSetString() in (
 	'7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552') and (
 	["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], {"720p", "1080p", "1080i"})
@@ -115,6 +115,7 @@ SystemInfo["no_YPbPr"] = getBoxType() in (
 		'sf128',
 		'sf138',
 		'sf4008',
+		'sf8008',		
 		'tm2t',
 		'tmnano',
 		'tmnano2super',
@@ -152,6 +153,7 @@ SystemInfo["yellow_RCA_no_scart"] = getBoxType() in (
 		'osmini',
 		'osminiplus',
 		'sf138',
+		'sf8008',		
 		'tmnano',
 		'tmnanose',
 		'tmnanosecombo',
