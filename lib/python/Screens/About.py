@@ -74,7 +74,7 @@ class About(Screen):
 
 		if about.getChipSetString() != _("unavailable"):
 			if about.getIsBroadcom():
-				AboutText += _("Chipset:\tBCM%s\n") % about.getChipSetString().upper()
+				AboutText += _("Chipset:\t%s\n") % (about.getIsBroadcom() + " " + about.getChipSetString().upper())
 			else:
 				AboutText += _("Chipset:\t%s\n") % about.getChipSetString().upper()
 
@@ -141,6 +141,16 @@ class About(Screen):
 				tempinfo = f.read()
 				tempinfo = tempinfo[:-4]
 				f.close()
+			except:
+				tempinfo = ""
+		elif path.exists('/proc/hisi/msp/pm_cpu'):
+			try:
+				for line in open('/proc/hisi/msp/pm_cpu').readlines():
+					line = [x.strip() for x in line.strip().split(":")]
+					if line[0] in ("Tsensor"):
+						temp = line[1].split("=")
+						temp = line[1].split(" ")
+						tempinfo = temp[2]
 			except:
 				tempinfo = ""
 		if tempinfo and int(tempinfo.replace('\n', '')) > 0:
