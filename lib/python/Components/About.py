@@ -83,7 +83,7 @@ def getCPUSpeedString():
 		print "[About] getCPUSpeedString, /proc/cpuinfo not available"
 
 	if cpu_speed == 0:
-		if getMachineBuild() in ('sf8008','hd60''):
+		if getMachineBuild() in ('sf8008','hd60'):
 			return "1,6 GHz"
 		if getMachineBuild() in ('hd51','hd52','sf4008'):
 			try:
