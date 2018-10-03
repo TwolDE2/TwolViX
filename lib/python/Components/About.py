@@ -44,12 +44,14 @@ def getIsBroadcom():
 				splitted[1] = splitted[1].replace('\n','')
 				if splitted[0].startswith("Hardware"):
 					system = splitted[1].split(' ')[0]
+					if system == "bigfish":
+						system = "Hisilicon"
 				elif splitted[0].startswith("system type"):
 					if splitted[1].split(' ')[0].startswith('BCM'):
 						system = 'Broadcom'
 		file.close()
-		if 'Broadcom' in system:
-			return True
+		if 'Broadcom' in system or "Hisilicon" in system:
+			return system
 		else:
 			return False
 	except:
@@ -81,6 +83,8 @@ def getCPUSpeedString():
 		print "[About] getCPUSpeedString, /proc/cpuinfo not available"
 
 	if cpu_speed == 0:
+		if getMachineBuild() in ('sf8008','hd60''):
+			return "1,6 GHz"
 		if getMachineBuild() in ('hd51','hd52','sf4008'):
 			try:
 				import binascii
@@ -107,11 +111,13 @@ def getCPUSpeedString():
 	return _("unavailable")
 
 def getCPUArch():
-	if "ARM" in getCPUString():
+	if getCPUString() in ("ARM", "Hisilicon"):
 		return getCPUString()
 	return _("Mipsel")
 
 def getCPUString():
+	if getMachineBuild() in ('sf8008','hd60'):
+		return "Hisilicon"
 	system = _("unavailable")
 	try:
 		file = open('/proc/cpuinfo', 'r')
