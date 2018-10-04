@@ -7,6 +7,7 @@ from Components.ActionMap import ActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.Label import Label
 from Components.SystemInfo import SystemInfo
+from Tools.Directories import pathExists
 from Tools.BoundFunction import boundFunction
 from Tools.Multiboot import GetImagelist, GetCurrentImage, GetCurrentImageMode
 
@@ -34,7 +35,10 @@ class MultiBoot(Screen):
 		self.skinName = "MultiBoot"
 		screentitle = _("Multiboot Image Restart")
 		self["key_red"] = StaticText(_("Cancel"))
-		self["labe14"] = StaticText(_("Use the cursor keys to select an installed image and then Reboot button."))
+		if pathExists('/dev/sda1'): 
+			self["labe14"] = StaticText(_("Use the cursor keys to select an installed image and then Reboot button."))
+		else:
+			self["labe14"] = StaticText(_("SDcard is not initialised for multiboot - Exit and use ViX MultiBoot Manager to initialise"))			
 		self["labe15"] = StaticText(_(" "))
 		self["key_green"] = StaticText(_("Reboot"))
 		if SystemInfo["canMode12"]:
@@ -67,16 +71,19 @@ class MultiBoot(Screen):
 		self.setTitle(self.title)
 
 	def startit(self):
-		self.getImageList = GetImagelist(self.ImageList)
+		if pathExists('/dev/sda1'): 
+			self.getImageList = GetImagelist(self.ImageList)
 
 	def ImageList(self, imagedict):
 		list = []
 		mode = GetCurrentImageMode() or 0
 		currentimageslot = GetCurrentImage()
+		if SystemInfo["HasHiSi"] and currentimageslot > SystemInfo["canMultiBoot"][1]:
+			currentimageslot = 1
 		if not SystemInfo["canMode12"]:
 			for x in sorted(imagedict.keys()):
 				if imagedict[x]["imagename"] != _("Empty slot"):
-					list.append(ChoiceEntryComponent('',((_("slot%s - %s (current image)") if x == currentimageslot else _("slot%s - %s ")) % (x, imagedict[x]['imagename']), x)))
+					list.append(ChoiceEntryComponent('',((_("slot%s -%s - %s (current image)") if x == currentimageslot else _("slot%s -%s- %s ")) % (x, imagedict[x]['part'][0:3], imagedict[x]['imagename']), x)))
 		else:
 			for x in range(1, SystemInfo["canMultiBoot"][1] + 1):
 				if imagedict[x]["imagename"] != _("Empty slot"):

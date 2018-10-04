@@ -83,8 +83,6 @@ def getCPUSpeedString():
 		print "[About] getCPUSpeedString, /proc/cpuinfo not available"
 
 	if cpu_speed == 0:
-		if getMachineBuild() in ('sf8008','hd60'):
-			return "1,6 GHz"
 		if getMachineBuild() in ('hd51','hd52','sf4008'):
 			try:
 				import binascii
@@ -95,7 +93,7 @@ def getCPUSpeedString():
 			except IOError:
 				return "1.7 GHz"
 		else:
-			try: # Solo4K
+			try: # Solo4K sf8008
 				file = open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq', 'r')
 				cpu_speed = float(file.read()) / 1000
 				file.close()
@@ -111,13 +109,11 @@ def getCPUSpeedString():
 	return _("unavailable")
 
 def getCPUArch():
-	if getCPUString() in ("ARM", "Hisilicon"):
+	if "ARM" in getCPUString():
 		return getCPUString()
 	return _("Mipsel")
 
 def getCPUString():
-	if getMachineBuild() in ('sf8008','hd60'):
-		return "Hisilicon"
 	system = _("unavailable")
 	try:
 		file = open('/proc/cpuinfo', 'r')

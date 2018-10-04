@@ -87,9 +87,17 @@ class About(Screen):
 		if SystemInfo["canMultiBoot"]:
 			image = GetCurrentImage()
 			bootmode = ""
+			part = ""
 			if SystemInfo["canMode12"]:
 				bootmode = "bootmode = %s" %GetCurrentImageMode()
-			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(image) + " " + bootmode + "\n"
+			if SystemInfo["HasHiSi"]:
+					f = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()
+					if "sda" in f :
+						part = "SDA"
+					else:
+						part = "MMC"
+						image = 1
+			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(image) + " " + part + " " + bootmode + "\n"
 
 		if getMachineName() in ('ET8500') and path.exists('/proc/mtd'):
 			self.dualboot = self.dualBoot()

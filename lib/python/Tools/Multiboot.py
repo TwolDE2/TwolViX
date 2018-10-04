@@ -1,17 +1,23 @@
 from Components.SystemInfo import SystemInfo
 from Components.Console import Console
+from boxbranding import getMachineMtdRoot
+from Tools.Directories import pathExists
 import os, time
 import shutil
 import subprocess
 
-#		#default layout for 				Mut@nt HD51						& Giga4K
-# boot								/dev/mmcblk0p1						/dev/mmcblk0p1
-# STARTUP_1 			Image 1: boot emmcflash0.kernel1 'root=/dev/mmcblk0p3 rw rootwait'	boot emmcflash0.kernel1: 'root=/dev/mmcblk0p5 
-# STARTUP_2 			Image 2: boot emmcflash0.kernel2 'root=/dev/mmcblk0p5 rw rootwait'      boot emmcflash0.kernel2: 'root=/dev/mmcblk0p7
-# STARTUP_3		        Image 3: boot emmcflash0.kernel3 'root=/dev/mmcblk0p7 rw rootwait'	boot emmcflash0.kernel3: 'root=/dev/mmcblk0p9
+#		#default layout for 				Mut@nt HD51						 Giga4K						SF8008
+# boot								/dev/mmcblk0p1						/dev/mmcblk0p1				/dev/mmcblk0p3
+# STARTUP_1 			Image 1: boot emmcflash0.kernel1 'root=/dev/mmcblk0p3 rw rootwait'	boot emmcflash0.kernel1: 'root=/dev/mmcblk0p5		boot emmcflash0.kernel 'root=/dev/mmcblk0p13 
+# STARTUP_2 			Image 2: boot emmcflash0.kernel2 'root=/dev/mmcblk0p5 rw rootwait'      boot emmcflash0.kernel2: 'root=/dev/mmcblk0p7		boot usb0.sda1 'root=/dev/sda2
+# STARTUP_3		        Image 3: boot emmcflash0.kernel3 'root=/dev/mmcblk0p7 rw rootwait'	boot emmcflash0.kernel3: 'root=/dev/mmcblk0p9		boot usb0.sda3 'root=/dev/sda4
 # STARTUP_4		        Image 4: boot emmcflash0.kernel4 'root=/dev/mmcblk0p9 rw rootwait'	NOT IN USE due to Rescue mode in mmcblk0p3
 
 def GetCurrentImage():
+	if SystemInfo["HasHiSi"]:
+		f = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()
+		if "sda" in f:
+			return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split("sda")[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
 	return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('mmcblk0p')[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
 
 def GetCurrentImageMode():
@@ -20,6 +26,9 @@ def GetCurrentImageMode():
 class GetImagelist():
 	MOUNT = 0
 	UNMOUNT = 1
+	NoRun = 0
+	FirstRun = 1
+	LastRun = 2
 
 	def __init__(self, callback):
 		if SystemInfo["canMultiBoot"]:
@@ -30,14 +39,24 @@ class GetImagelist():
 				os.mkdir('/tmp/testmount')
 			self.container = Console()
 			self.slot = 1
+			self.slot2 = 1
+			self.HiSi = self.NoRun
 			self.phase = self.MOUNT
+			self.part = SystemInfo["canMultiBoot"][2]
 			self.run()
 		else:	
 			callback({})
 	
 	def run(self):
-		self.container.ePopen('mount /dev/mmcblk0p%s /tmp/testmount' % str(self.slot * 2 + self.firstslot) if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
-			
+		if SystemInfo["HasHiSi"] and self.HiSi != self.NoRun:
+			self.part2 = getMachineMtdRoot()
+			self.slot2 = 1
+		else:
+			self.part2 = "%s" %(self.part + str(self.slot * 2 + self.firstslot))
+			if SystemInfo["HasHiSi"] and self.HiSi == self.NoRun:
+				self.slot2 += 1
+		self.container.ePopen('mount /dev/%s /tmp/testmount' %self.part2 if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
+
 	def appClosed(self, data, retval, extra_args):
 		if retval == 0 and self.phase == self.MOUNT:
 			BuildVersion = "  "	
@@ -65,15 +84,22 @@ class GetImagelist():
 						if tm.tm_year >= 2011:
 							Date = time.strftime("%d-%m-%Y", tm).replace("-20", "-")
 						BuildVersion = "%s rel %s" % (Creator, Date)
-				self.imagelist[self.slot] =  { 'imagename': '%s' %BuildVersion}
+				self.imagelist[self.slot2] =  { 'imagename': '%s' %BuildVersion, 'part': '%s' %self.part2 }
 			else:
-				self.imagelist[self.slot] = { 'imagename': _("Empty slot")}
+				self.imagelist[self.slot2] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
 			self.phase = self.UNMOUNT
 			self.run()
 		elif self.slot < self.numberofslots:
 			self.slot += 1
-			self.imagelist[self.slot] = { 'imagename': _("Empty slot")}
+			self.slot2 = self.slot
+#			if SystemInfo["HasHiSi"]:
+#				self.slot2 += 1
+#			self.imagelist[self.slot2] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
 			self.phase = self.MOUNT
+			self.run()
+		elif SystemInfo["HasHiSi"] and self.HiSi == self.NoRun:
+			self.phase = self.MOUNT
+			self.HiSi = self.LastRun
 			self.run()
 		else:
 			self.container.killAll()
@@ -182,7 +208,7 @@ class EmptySlot():
 		self.run()
 
 	def run(self):
-		self.container.ePopen('mount /dev/mmcblk0p%s /tmp/testmount' % str(self.slot * 2 + self.firstslot) if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
+		self.container.ePopen('mount /dev/SystemInfo["canMultiBoot"][2]%s /tmp/testmount' % str(self.slot * 2 + self.firstslot) if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
 
 	
 	def appClosed(self, data, retval, extra_args):
@@ -195,4 +221,24 @@ class EmptySlot():
 			self.container.killAll()
 			if not os.path.ismount('/tmp/testmount'):
 				os.rmdir('/tmp/testmount')
+			self.callback()
+
+class SDInit():
+	def init(self, callback):
+		if pathExists('/dev/sda1'):
+			self.callback()
+		else:
+			self.TITLE = _("Init SDCARD")
+			cmdlist = []
+			cmdlist.append("dd if=/dev/zero of=/dev/sda bs=512 count=1 conv=notrunc")
+			cmdlist.append("rm -f /tmp/init.sh")
+			cmdlist.append("echo -e 'sfdisk /dev/sda <<EOF' >> /tmp/init.sh")
+			cmdlist.append("echo -e ',8M' >> /tmp/init.sh")
+			cmdlist.append("echo -e ',2048M' >> /tmp/init.sh")
+			cmdlist.append("echo -e ',8M' >> /tmp/init.sh")
+			cmdlist.append("echo -e ',2048M' >> /tmp/init.sh")
+			cmdlist.append("echo -e 'EOF' >> /tmp/init.sh")
+			cmdlist.append("chmod +x /tmp/init.sh")
+			cmdlist.append("/tmp/init.sh")
+			self.session.open(Console, title = self.TITLE, cmdlist = cmdlist, closeOnSuccess = True)
 			self.callback()
