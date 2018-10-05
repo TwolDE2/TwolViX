@@ -93,7 +93,8 @@ class About(Screen):
 			if SystemInfo["HasHiSi"]:
 					f = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()
 					if "sda" in f :
-						part = "SDA"
+						part = "SDA%s" %(image*2)
+						image += 1
 					else:
 						part = "MMC"
 						image = 1
