@@ -18,7 +18,7 @@ def GetCurrentImage():
 		if "%s" %(SystemInfo["canMultiBoot"][2]) in f:
 			return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('%s' %(SystemInfo["canMultiBoot"][2]))[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
 		else:
-			return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('mmcblk0p')[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
+			return 0
 
 def GetCurrentImageMode():
 	return SystemInfo["canMultiBoot"] and SystemInfo["canMode12"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
@@ -94,7 +94,7 @@ class GetImagelist():
 			self.slot2 = self.slot
 			self.phase = self.MOUNT
 			self.run()
-		elif SystemInfo["HasHiSi"] and self.HiSi == self.NoRun:
+		elif SystemInfo["HasHiSi"] and self.HiSi == self.NoRun and "sd" in SystemInfo["canMultiBoot"][2]:
 			self.phase = self.MOUNT
 			self.HiSi = self.LastRun
 			self.run()

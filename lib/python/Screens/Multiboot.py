@@ -35,7 +35,7 @@ class MultiBoot(Screen):
 		self.skinName = "MultiBoot"
 		screentitle = _("Multiboot Image Restart")
 		self["key_red"] = StaticText(_("Cancel"))
-		if pathExists('/dev/sda1'): 
+		if pathExists('/dev/%s1' %(SystemInfo["canMultiBoot"][2])): 
 			self["labe14"] = StaticText(_("Use the cursor keys to select an installed image and then Reboot button."))
 		else:
 			self["labe14"] = StaticText(_("SDcard is not initialised for multiboot - Exit and use ViX MultiBoot Manager to initialise"))			
@@ -47,7 +47,8 @@ class MultiBoot(Screen):
 		imagedict = []
 		self.getImageList = None
 		self.title = screentitle
-		self.startit()
+		if not SystemInfo["HasHiSi"] or SystemInfo["HasHiSi"] and pathExists('/dev/%s1' %(SystemInfo["canMultiBoot"][2])):
+			self.startit()
 
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"],
 		{
@@ -71,15 +72,14 @@ class MultiBoot(Screen):
 		self.setTitle(self.title)
 
 	def startit(self):
-		if pathExists('/dev/sda1'): 
-			self.getImageList = GetImagelist(self.ImageList)
+		self.getImageList = GetImagelist(self.ImageList)
 
 	def ImageList(self, imagedict):
 		list = []
 		mode = GetCurrentImageMode() or 0
 		currentimageslot = GetCurrentImage()
-		if SystemInfo["HasHiSi"] and currentimageslot > SystemInfo["canMultiBoot"][1]:
-			currentimageslot = 1
+		if SystemInfo["HasHiSi"] and "sd" in SystemInfo["canMultiBoot"][2]:
+			currentimageslot += 1
 		if not SystemInfo["canMode12"]:
 			for x in sorted(imagedict.keys()):
 				if imagedict[x]["imagename"] != _("Empty slot"):
