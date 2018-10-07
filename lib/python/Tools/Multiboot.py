@@ -13,12 +13,11 @@ import subprocess
 # STARTUP_4		        Image 4: boot emmcflash0.kernel4 'root=/dev/mmcblk0p9 rw rootwait'	NOT IN USE due to Rescue mode in mmcblk0p3
 
 def GetCurrentImage():
-	if SystemInfo["HasHiSi"]:
-		f = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()
-		if "%s" %(SystemInfo["canMultiBoot"][2]) in f:
-			return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('%s' %(SystemInfo["canMultiBoot"][2]))[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
-		else:
-			return 0
+	f = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()
+	if "%s" %(SystemInfo["canMultiBoot"][2]) in f:
+		return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('%s' %(SystemInfo["canMultiBoot"][2]))[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
+	else:
+		return 0
 
 def GetCurrentImageMode():
 	return SystemInfo["canMultiBoot"] and SystemInfo["canMode12"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
