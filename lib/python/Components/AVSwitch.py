@@ -560,6 +560,48 @@ def InitAVSwitch():
 	else:
 		config.av.hdmicolordepth = ConfigNothing()
 
+	if SystemInfo["havehdmihdrtype"] :
+		def setHdmiHdrType(configElement):
+			try:
+				f = open("/proc/stb/video/hdmi_hdrtype", "w")
+				f.write(configElement.value)
+				f.close()
+			except:
+				pass
+		config.av.hdmihdrtype = ConfigSelection(choices={
+				"auto": _("Auto"),
+				"dolby": _("dolby"),
+				"none": _("sdr"),
+				"hdr10": _("hdr10"),
+				"hlg": _("hlg")},
+				default = "auto")
+		config.av.hdmihdrtype.addNotifier(setHdmiHdrType)
+	else:
+		config.av.hdmihdrtype = ConfigNothing()
+
+	if SystemInfo["HDRSupport"]:
+		def setHlgSupport(configElement):
+			open("/proc/stb/hdmi/hlg_support", "w").write(configElement.value)
+		config.av.hlg_support = ConfigSelection(default = "auto(EDID)", 
+			choices = [ ("auto(EDID)", _("controlled by HDMI")), ("yes", _("force enabled")), ("no", _("force disabled")) ])
+		config.av.hlg_support.addNotifier(setHlgSupport)
+
+		def setHdr10Support(configElement):
+			open("/proc/stb/hdmi/hdr10_support", "w").write(configElement.value)
+		config.av.hdr10_support = ConfigSelection(default = "auto(EDID)", 
+			choices = [ ("auto(EDID)", _("controlled by HDMI")), ("yes", _("force enabled")), ("no", _("force disabled")) ])
+		config.av.hdr10_support.addNotifier(setHdr10Support)
+
+		def setDisable12Bit(configElement):
+			open("/proc/stb/video/disable_12bit", "w").write(configElement.value)
+		config.av.allow_12bit = ConfigSelection(default = "0", choices = [ ("0", _("yes")), ("1", _("no")) ]);
+		config.av.allow_12bit.addNotifier(setDisable12Bit)
+
+		def setDisable10Bit(configElement):
+			open("/proc/stb/video/disable_10bit", "w").write(configElement.value)
+		config.av.allow_10bit = ConfigSelection(default = "0", choices = [ ("0", _("yes")), ("1", _("no")) ]);
+		config.av.allow_10bit.addNotifier(setDisable10Bit)
+
 	if SystemInfo["Canaudiosource"]:
 		def setAudioSource(configElement):
 			try:
@@ -627,6 +669,24 @@ def InitAVSwitch():
 		config.av.downmix_ac3 = ConfigYesNo(default = True)
 		config.av.downmix_ac3.addNotifier(setAC3Downmix)
 
+	if SystemInfo["CanDTSHD"]:
+		def setDTSHD(configElement):
+			f = open("/proc/stb/audio/dtshd", "w")
+			f.write(configElement.value)
+			f.close()
+		choice_list = [("downmix",  _("Downmix")), ("force_dts", _("convert to DTS")), ("use_hdmi_caps",  _("controlled by HDMI")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
+		config.av.dtshd = ConfigSelection(choices = choice_list, default = "downmix")
+		config.av.dtshd.addNotifier(setDTSHD)
+
+	if SystemInfo["CanWMAPRO"]:
+		def setWMAPRO(configElement):
+			f = open("/proc/stb/audio/wmapro", "w")
+			f.write(configElement.value)
+			f.close()
+		choice_list = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
+		config.av.wmapro = ConfigSelection(choices = choice_list, default = "downmix")
+		config.av.wmapro.addNotifier(setWMAPRO)
+
 	if SystemInfo["CanDownmixDTS"]:
 		def setDTSDownmix(configElement):
 			open("/proc/stb/audio/dts", "w").write(configElement.value and "downmix" or "passthrough")
@@ -636,9 +696,34 @@ def InitAVSwitch():
 	if SystemInfo["CanDownmixAAC"]:
 		def setAACDownmix(configElement):
 			open("/proc/stb/audio/aac", "w").write(configElement.value and "downmix" or "passthrough")
-		config.av.downmix_aac = ConfigYesNo(default = True)
+		if getBoxType() in ('gbquad4k', 'gbue4k'):
+			choice_list = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("force_ac3", _("convert to AC3")), ("force_dts",  _("convert to DTS")), ("use_hdmi_cacenter",  _("use_hdmi_cacenter")), ("wide",  _("wide")), ("extrawide",  _("extrawide"))]
+			config.av.downmix_aac = ConfigSelection(choices = choice_list, default = "downmix")
+		else:
+			config.av.downmix_aac = ConfigYesNo(default = True)
 		config.av.downmix_aac.addNotifier(setAACDownmix)
 
+	if SystemInfo["CanDownmixAACPlus"]:
+		def setAACDownmixPlus(configElement):
+			f = open("/proc/stb/audio/aacplus", "w")
+			f.write(configElement.value)
+			f.close()
+		choice_list = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("force_ac3", _("convert to AC3")), ("force_dts",  _("convert to DTS")), ("use_hdmi_cacenter",  _("use_hdmi_cacenter")), ("wide",  _("wide")), ("extrawide",  _("extrawide"))]
+		config.av.downmix_aacplus = ConfigSelection(choices = choice_list, default = "downmix")
+		config.av.downmix_aacplus.addNotifier(setAACDownmixPlus)
+
+	if SystemInfo["CanAC3plusTranscode"]:
+		def setAC3plusTranscode(configElement):
+			f = open("/proc/stb/audio/ac3plus", "w")
+			f.write(configElement.value)
+			f.close()
+		if getBoxType() in ('gbquad4k', 'gbue4k'):
+			choice_list = [("downmix", _("Downmix")), ("passthrough", _("Passthrough")), ("force_ac3", _("convert to AC3")), ("multichannel",  _("convert to multi-channel PCM")), ("force_dts",  _("convert to DTS"))]
+			config.av.transcodeac3plus = ConfigSelection(choices = choice_list, default = "force_ac3")
+		else:
+			choice_list = [("use_hdmi_caps", _("controlled by HDMI")), ("force_ac3", _("convert to AC3"))]
+			config.av.transcodeac3plus = ConfigSelection(choices = choice_list, default = "force_ac3")
+		config.av.transcodeac3plus.addNotifier(setAC3plusTranscode)
 
 	if SystemInfo["CanAACTranscode"]:
 		def setAACTranscode(configElement):

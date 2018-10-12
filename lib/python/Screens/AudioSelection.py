@@ -96,20 +96,31 @@ class AudioSelection(Screen, ConfigListScreen):
 			service = self.session.nav.getCurrentService()
 			self.audioTracks = audio = service and service.audioTracks()
 			n = audio and audio.getNumberOfTracks() or 0
+
 			if SystemInfo["CanDownmixAC3"]:
 				self.settings.downmix_ac3 = ConfigOnOff(default=config.av.downmix_ac3.value)
 				self.settings.downmix_ac3.addNotifier(self.changeAC3Downmix, initial_call = False)
 				conflist.append(getConfigListEntry(_("AC3 downmix"), self.settings.downmix_ac3, None))
-				
+
 			if SystemInfo["CanDownmixDTS"]:
 				self.settings.downmix_dts = ConfigOnOff(default=config.av.downmix_dts.value)
 				self.settings.downmix_dts.addNotifier(self.changeDTSDownmix, initial_call = False)
 				conflist.append(getConfigListEntry(_("DTS downmix"), self.settings.downmix_dts, None))
 
 			if SystemInfo["CanDownmixAAC"]:
-				self.settings.downmix_aac = ConfigOnOff(default=config.av.downmix_aac.value)
+				if getBoxType() in ('gbquad4k', 'gbue4k'):
+					choice_list = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("force_ac3", _("convert to AC3")), ("force_dts",  _("convert to DTS")), ("use_hdmi_cacenter",  _("use_hdmi_cacenter")), ("wide",  _("wide")), ("extrawide",  _("extrawide"))]
+					self.settings.downmix_aac = ConfigSelection(choices = choice_list, default=config.av.downmix_aac.value)
+				else:
+					self.settings.downmix_aac = ConfigOnOff(default=config.av.downmix_aac.value)
 				self.settings.downmix_aac.addNotifier(self.changeAACDownmix, initial_call = False)
 				conflist.append(getConfigListEntry(_("AAC downmix"), self.settings.downmix_aac, None))
+
+			if SystemInfo["CanDownmixAACPlus"]:
+				choice_list = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("force_ac3", _("convert to AC3")), ("force_dts",  _("convert to DTS")), ("use_hdmi_cacenter",  _("use_hdmi_cacenter")), ("wide",  _("wide")), ("extrawide",  _("extrawide"))]
+				self.settings.downmix_aacplus = ConfigSelection(choices = choice_list, default=config.av.downmix_aacplus.value)
+				self.settings.downmix_aacplus.addNotifier(self.changeAACDownmixPlus, initial_call = False)
+				conflist.append(getConfigListEntry(_("AAC Plus downmix"), self.settings.downmix_aacplus, None))
 
 			if SystemInfo["CanAACTranscode"]:
 				choice_list = [("off", _("off")), ("ac3", _("AC3")), ("dts", _("DTS"))]
@@ -117,10 +128,32 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.transcodeaac.addNotifier(self.setAACTranscode)
 				conflist.append(getConfigListEntry(_("AAC transcoding"), self.settings.transcodeaac, None))
 
+			if SystemInfo["CanAC3plusTranscode"]:
+				elif getBoxType() in ('gbquad4k', 'gbue4k'):
+					choice_list = [("downmix", _("Downmix")), ("passthrough", _("Passthrough")), ("force_ac3", _("convert to AC3")), ("multichannel",  _("convert to multi-channel PCM")), ("force_dts",  _("convert to DTS"))]
+					self.settings.transcodeac3plus = ConfigSelection(choices = choice_list, default = config.av.transcodeac3plus.value)
+				else:
+					choice_list = [("use_hdmi_caps", _("controlled by HDMI")), ("force_ac3", _("always"))]
+				self.settings.transcodeac3plus = ConfigSelection(choices = choice_list, default = config.av.transcodeac3plus.value)
+				self.settings.transcodeac3plus.addNotifier(self.setAC3plusTranscode, initial_call = False)
+				conflist.append(getConfigListEntry(_("AC3plus transcoding"), self.settings.transcodeac3plus, None))
+
 			if SystemInfo["CanPcmMultichannel"]:
 				self.settings.pcm_multichannel = ConfigOnOff(default=config.av.pcm_multichannel.value)
 				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call = False)
 				conflist.append(getConfigListEntry(_("PCM multichannel"), self.settings.pcm_multichannel, None))
+
+			if SystemInfo["CanDTSHD"]:
+				choice_list = [("downmix",  _("Downmix")), ("force_dts", _("convert to DTS")), ("use_hdmi_caps",  _("controlled by HDMI")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
+				self.settings.dtshd = ConfigSelection(choices = choice_list, default = config.av.dtshd.value)
+				self.settings.dtshd.addNotifier(self.setDTSHD, initial_call = False)
+				conflist.append(getConfigListEntry(_("DTS HD downmix"), self.settings.dtshd, None))
+
+			if SystemInfo["CanWMAPRO"]:
+				choice_list = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
+				self.settings.wmapro = ConfigSelection(choices = choice_list, default = config.av.wmapro.value)
+				self.settings.wmapro.addNotifier(self.setWMAPro, initial_call = False)
+				conflist.append(getConfigListEntry(_("WMA Pro downmix"), self.settings.wmapro, None))
 
 			if n > 0:
 				self.audioChannel = service.audioChannel()
@@ -175,11 +208,11 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.autovolume.addNotifier(self.changeAutoVolume)
 				conflist.append(getConfigListEntry(_("Auto volume level"), self.settings.autovolume, None))
 
-#			if SystemInfo["Canedidchecking"]:
-#				choice_list = [("00000000", _("off")), ("00000001", _("on"))]
-#				self.settings.bypass_edid_checking = ConfigSelection(choices = choice_list, default = config.av.bypass_edid_checking.value)
-#				self.settings.bypass_edid_checking.addNotifier(self.changeEDIDChecking, initial_call = False)
-#				conflist.append(getConfigListEntry(_("Bypass HDMI EDID Check"), self.settings.bypass_edid_checking, None))
+			if SystemInfo["Canedidchecking"]:
+				choice_list = [("00000000", _("off")), ("00000001", _("on"))]
+				self.settings.bypass_edid_checking = ConfigSelection(choices = choice_list, default = config.av.bypass_edid_checking.value)
+				self.settings.bypass_edid_checking.addNotifier(self.changeEDIDChecking, initial_call = False)
+				conflist.append(getConfigListEntry(_("Bypass HDMI EDID Check"), self.settings.bypass_edid_checking, None))
 
 			from Components.PluginComponent import plugins
 			from Plugins.Plugin import PluginDescriptor
@@ -308,6 +341,15 @@ class AudioSelection(Screen, ConfigListScreen):
 			config.av.bypass_edid_checking.value = edidchecking.value
 		config.av.bypass_edid_checking.save()
 
+
+	def changePCMMultichannel(self, multichan):
+		if multichan.value:
+			config.av.pcm_multichannel.setValue(True)
+		else:
+			config.av.pcm_multichannel.setValue(False)
+		config.av.pcm_multichannel.save()
+		self.fillList()
+
 	def changeAC3Downmix(self, downmix):
 		if downmix.value:
 			config.av.downmix_ac3.setValue(True)
@@ -326,25 +368,43 @@ class AudioSelection(Screen, ConfigListScreen):
 		else:
 			config.av.downmix_dts.setValue(False)
 		config.av.downmix_dts.save()
-
-	def changePCMMultichannel(self, multichan):
-		if multichan.value:
-			config.av.pcm_multichannel.setValue(True)
-		else:
-			config.av.pcm_multichannel.setValue(False)
-		config.av.pcm_multichannel.save()
 		self.fillList()
 
 	def changeAACDownmix(self, downmix):
-		if downmix.value:
-			config.av.downmix_aac.setValue(True)
+		if getBoxType() in ('gbquad4k', 'gbue4k'):
+			config.av.downmix_aac.setValue(downmix.value)
 		else:
-			config.av.downmix_aac.setValue(False)
+			if downmix.value:
+				config.av.downmix_aac.setValue(True)
+			else:
+				config.av.downmix_aac.setValue(False)
 		config.av.downmix_aac.save()
+		self.fillList()
+
+	def changeAACDownmixPlus(self, downmix):
+		config.av.downmix_aacplus.setValue(downmix.value)
+		config.av.downmix_aacplus.save()
+		self.fillList()
+
+	def setAC3plusTranscode(self, transcode):
+		config.av.transcodeac3plus.setValue(transcode.value)
+		config.av.transcodeac3plus.save()
+		self.fillList()
+
+	def setWMAPro(self, downmix):
+		config.av.wmapro.setValue(downmix.value)
+		config.av.wmapro.save()
+		self.fillList()
+
+	def setDTSHD(self, downmix):
+		config.av.dtshd.setValue(downmix.value)
+		config.av.dtshd.save()
+		self.fillList()
 
 	def setAACTranscode(self, transcode):
 		config.av.transcodeaac.setValue(transcode)
 		config.av.transcodeaac.save()
+		self.fillList()
 
 	def changeMode(self, mode):
 		if mode is not None and self.audioChannel:

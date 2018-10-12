@@ -145,6 +145,15 @@ class VideoSetup(Screen, ConfigListScreen):
 		if SystemInfo["havehdmicolordepth"]:
 			self.list.append(getConfigListEntry(_("HDMI Colordepth"), config.av.hdmicolordepth,_("This option allows you to change the Colordepth for UHD")))
 
+		if SystemInfo["havehdmihdrtype"]:
+			self.list.append(getConfigListEntry(_("HDMI HDR Type"), config.av.hdmihdrtype,_("This option allows you can force the HDR Modes for UHD")))
+
+		if SystemInfo["HDRSupport"]:
+			self.list.append(getConfigListEntry(_("HLG Support"), config.av.hlg_support,_("This option allows you can force the HLG Modes for UHD")))
+			self.list.append(getConfigListEntry(_("HDR10 Support"), config.av.hdr10_support,_("This option allows you can force the HDR10 Modes for UHD")))
+			self.list.append(getConfigListEntry(_("Allow 12bit"), config.av.allow_12bit,_("This option allows you can enable or disable the 12 Bit Color Mode")))
+			self.list.append(getConfigListEntry(_("Allow 10bit"), config.av.allow_10bit,_("This option allows you can enable or disable the 10 Bit Color Mode")))
+
 		if level >= 1:
 			if SystemInfo["CanDownmixAC3"]:
 				self.list.append(getConfigListEntry(_("AC3 downmix"), config.av.downmix_ac3, _("Choose whether multi channel ac3 sound tracks should be downmixed to stereo.")))
@@ -152,8 +161,16 @@ class VideoSetup(Screen, ConfigListScreen):
 				self.list.append(getConfigListEntry(_("DTS downmix"), config.av.downmix_dts, _("Choose whether multi channel dts sound tracks should be downmixed to stereo.")))
 			if SystemInfo["CanDownmixAAC"]:
 				self.list.append(getConfigListEntry(_("AAC downmix"), config.av.downmix_aac, _("Choose whether multi channel aac sound tracks should be downmixed to stereo.")))
+			if SystemInfo["CanDownmixAACPlus"]:
+				self.list.append(getConfigListEntry(_("AAC Plus downmix"), config.av.downmix_aacplus, _("Choose whether multi channel aac plus sound tracks should be downmixed to stereo.")))
+			if SystemInfo["CanDTSHD"]:
+				self.list.append(getConfigListEntry(_("DTS downmix"), config.av.dtshd, ("Choose whether multi channel DTS sound tracks should be transcoded..")))
+			if SystemInfo["CanWMAPRO"]:
+				conflist.append(getConfigListEntry(_("WMA Pro downmix"), config.av.wmapro, _("Choose whether WMA Pro sound tracks should be downmixed.")))
 			if SystemInfo["CanAACTranscode"]:
 				self.list.append(getConfigListEntry(_("AAC transcoding"), config.av.transcodeaac, _("Choose whether AAC sound tracks should be transcoded.")))
+			if SystemInfo["CanAC3plusTranscode"]:
+				self.list.append(getConfigListEntry(_("AC3plus transcoding"), config.av.transcodeac3plus, _("Choose whether AC3 sound tracks should be transcoded.")))
 			if SystemInfo["CanPcmMultichannel"]:
 				self.list.append(getConfigListEntry(_("PCM Multichannel"), config.av.pcm_multichannel, _("Choose whether multi channel sound tracks should be output as PCM.")))
 			self.list.extend((
