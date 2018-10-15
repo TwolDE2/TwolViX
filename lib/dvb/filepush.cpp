@@ -182,10 +182,12 @@ void eFilePushThread::thread()
 						break;
 					}
 					if (w < 0 && (errno == EINTR || errno == EAGAIN || errno == EBUSY))
-						{
+					{
 #if HAVE_HISILICON
-							usleep(100000);
+						usleep(100000);
 #endif
+						continue;
+					}
 						eDebug("[eFilePushThread] write: %m");
 						sendEvent(evtWriteError);
 						break;
