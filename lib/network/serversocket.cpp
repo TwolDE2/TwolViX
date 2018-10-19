@@ -168,7 +168,7 @@ int eServerSocket::startListening(struct addrinfo *addr)
 		return -1;
 	}
 #if HAVE_HISILICON
-	if listen(getDescriptor(), 10) < 0)
+	if (listen(getDescriptor(), 10) < 0)
 #else
 	if (listen(getDescriptor(), 0) < 0)
 #endif
