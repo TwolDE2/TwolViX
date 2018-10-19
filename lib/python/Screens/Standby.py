@@ -74,7 +74,7 @@ class Standby2(Screen):
 		self.timeHandler = None
 
 		self.setMute()
-	
+
 		if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 			# set LCDminiTV off
 			setLCDMiniTVMode("0")
@@ -229,7 +229,7 @@ class TryQuitMainloop(MessageBox):
 		for job in job_manager.getPendingJobs():
 			if job.name != dgettext('vix', 'SoftcamCheck'):
 				jobs.append(job)
-		
+
 		inTimeshift = Screens.InfoBar.InfoBar and Screens.InfoBar.InfoBar.instance and Screens.InfoBar.InfoBar.ptsGetTimeshiftStatus(Screens.InfoBar.InfoBar.instance)
 		self.connected = False
 		reason = ""

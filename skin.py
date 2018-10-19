@@ -23,7 +23,6 @@ fonts = {
 }
 
 parameters = {}
-setups = {}
 
 def dump(x, i=0):
 	print " " * i + str(x)
@@ -648,17 +647,6 @@ def loadSingleSkinData(desktop, skin, path_prefix):
 				parameters[name] = "," in value and map(parseParameter, value.split(",")) or parseParameter(value)
 			except Exception, ex:
 				print "[Skin] Bad parameter", ex
-
-	for c in skin.findall("setups"):
-		for setup in c.findall("setup"):
-			get = setup.attrib.get
-			key = get("key")
-			image = get("image")
-			if key and image:
-				setups[key] = image
-				# print "[Skin] Setup: '%s' -> '%s'" % (key, image)
-			else:
-				raise SkinError("[Skin] Setup needs key and image, got '%s' '%s'" % (key, image))
 
 	for c in skin.findall("subtitles"):
 		from enigma import eSubtitleWidget
