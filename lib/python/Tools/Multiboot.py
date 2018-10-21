@@ -39,21 +39,24 @@ class GetImagelist():
 			self.container = Console()
 			self.slot = 1
 			self.slot2 = 1
-			self.HiSi = self.NoRun
+			if SystemInfo["HasSDmmc"]:
+				self.SDmmc = self.FirstRun	# process SDcard slots
+			else:
+				self.SDmmc = self.NoRun		# only mmc slots
 			self.phase = self.MOUNT
-			self.part = SystemInfo["canMultiBoot"][2]
+			self.part = SystemInfo["canMultiBoot"][2]	# pick up slot type
 			self.run()
 		else:	
 			callback({})
 	
 	def run(self):
-		if SystemInfo["HasHiSi"] and self.HiSi == self.LastRun:
-			self.part2 = getMachineMtdRoot()
+		if self.SDmmc == self.LastRun:
+			self.part2 = getMachineMtdRoot()	# process mmc slot
 			self.slot2 = 1
 		else:
 			self.part2 = "%s" %(self.part + str(self.slot * 2 + self.firstslot))
-			if SystemInfo["HasHiSi"] and self.HiSi == self.NoRun:
-				self.slot2 += 1
+			if self.SDmmc == self.FirstRun:
+				self.slot2 += 1			# allow for mmc slot"
 		if self.phase == self.MOUNT:
 			self.imagelist[self.slot2] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
 		self.container.ePopen('mount /dev/%s /tmp/testmount' %self.part2 if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
@@ -93,9 +96,9 @@ class GetImagelist():
 			self.slot2 = self.slot
 			self.phase = self.MOUNT
 			self.run()
-		elif SystemInfo["HasHiSi"] and self.HiSi == self.NoRun and "sd" in SystemInfo["canMultiBoot"][2]:
+		elif self.SDmmc == self.FirstRun:
 			self.phase = self.MOUNT
-			self.HiSi = self.LastRun
+			self.SDmmc = self.LastRun	# process mmc slot
 			self.run()
 		else:
 			self.container.killAll()
@@ -200,10 +203,10 @@ class EmptySlot():
 		self.slot = Contents
 		if not os.path.isdir('/tmp/testmount'):
 			os.mkdir('/tmp/testmount')
-		if SystemInfo["HasHiSi"]:
+		if SystemInfo["HasSDmmc"]:			# allow for mmc in passed slot number
 			self.slot -= 1
 		self.part = "%s%s" %(self.mtdboot, str(self.slot * 2 + self.firstslot))
-		if SystemInfo["HasHiSi"] and self.slot == 0:
+		if SystemInfo["HasSDmmc"] and self.slot == 0:	# this is the mmc slot, so pick up from MtdRoot
 			self.part = getMachineMtdRoot()
 		self.phase = self.MOUNT
 		self.run()
