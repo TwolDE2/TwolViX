@@ -79,7 +79,7 @@ class MultiBoot(Screen):
 		mode = GetCurrentImageMode() or 0
 		currentimageslot = GetCurrentImage()
 		if SystemInfo["HasSDmmc"]:
-			currentimageslot += 1			#allow for mmc
+			currentimageslot += 1			#allow for mmc as 1st slot, then SDCard slots 
 		if not SystemInfo["canMode12"]:
 			for x in sorted(imagedict.keys()):
 				if imagedict[x]["imagename"] != _("Empty slot"):
