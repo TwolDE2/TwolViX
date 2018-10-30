@@ -220,7 +220,7 @@ SystemInfo["HasHDMIin"] = getMachineBuild() in ('inihdp', 'hd2400', 'et10000', '
 #	Multiboot/bootmode options
 SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'vs1500') and (1, 4, 'mmcblk0p') or getBoxType() in ('gbue4k', 'gbquad4k') and (3, 3, 'mmcblk0p') or getMachineBuild() in ('sf8008') and fileCheck("/dev/sda") and (0, 2, 'sda')
 SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
-SystemInfo["HasSDmmc"] = "sd" in SystemInfo["canMultiBoot"][2] and "mmcblk" in getMachineMtdRoot() 
+SystemInfo["HasSDmmc"] = SystemInfo["canMultiBoot"] and "sd" in SystemInfo["canMultiBoot"][2] and "mmcblk" in getMachineMtdRoot() 
 SystemInfo["HasHiSi"] = pathExists('/proc/hisi')
 SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
 SystemInfo["canMode12"] = getMachineBuild() in ('hd51') and ('440M@328M brcm_cma=192M@768M', '520M@248M brcm_cma=200M@768M')
