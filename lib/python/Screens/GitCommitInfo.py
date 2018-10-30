@@ -31,7 +31,7 @@ projects = [
 	("https://api.github.com/repos/OpenViX/enigma2/commits?sha=%s" % E2Branches[getImageType()], "Enigma2"),
 	("https://api.github.com/repos/OpenViX/vix-core/commits", "ViX Core"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
-	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits?sha=2.3", "OE-A Plugins"),
+	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
 	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
 	("https://api.github.com/repos/oe-alliance/branding-module/commits", "Branding Module"),
 ]
