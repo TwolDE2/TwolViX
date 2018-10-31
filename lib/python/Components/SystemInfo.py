@@ -3,7 +3,7 @@ from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 from Tools.HardwareInfo import HardwareInfo
 from Components.About import getChipSetString
 
-from boxbranding import getMachineBuild, getBoxType, getBrandOEM, getDisplayType, getMachineMtdRoot
+from boxbranding import getMachineBuild, getBoxType, getBrandOEM, getDisplayType, getHaveRCA, getHaveDVI, getHaveYUV, getHaveSCART, getHaveAVJACK, getHaveSCARTYUV, getHaveHDMI, getMachineMtdRoot
 
 SystemInfo = { }
 
@@ -80,119 +80,14 @@ SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx
 SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
 SystemInfo["StandbyLED"] = fileCheck("/proc/stb/power/standbyled")
 #	Audio/Video Configs
+# Machines that do have SCART component video (red, green and blue RCA sockets).
+SystemInfo["no_YPbPr"] = getHaveYUV() in ('True')
 # Machines that do not have component video (red, green and blue RCA sockets).
-SystemInfo["no_YPbPr"] = getBoxType() in (
-		'dm500hd',
-		'dm500hdv2',
-		'dm800',
-		'e3hd',
-		'ebox7358',
-		'eboxlumi',
-		'ebox5100',
-		'enfinity',
-		'et4x00',
-		'formuler4turbo',
-		'gbquad4k',
-		'gbue4k',
-		'gbx1',
-		'gbx2',		
-		'gbx3',
-		'gbx3h',
-		'iqonios300hd',
-		'ixusszero',
-		'mbmicro',
-		'mbmicrov2',
-		'mbtwinplus',
-		'mutant11',
-		'mutant51',
-		'mutant500c',
-		'mutant1200',
-		'mutant1500',
-		'odimm7',
-		'optimussos1',
-		'osmega',
-		'osmini',
-		'osminiplus',
-		'osnino',
-		'osninoplus',		
-		'sf128',
-		'sf138',
-		'sf4008',
-		'sf8008',		
-		'tm2t',
-		'tmnano',
-		'tmnano2super',
-		'tmnano3t',
-		'tmnanose',
-		'tmnanosecombo',
-		'tmnanoseplus',
-		'tmnanosem2',
-		'tmnanosem2plus',
-		'tmnanom3',
-		'tmsingle',
-		'tmtwin4k',
-		'uniboxhd1',
-		'vusolo2',
-		'vuzero4k',
-		'vusolo4k',
-		'vuuno4k',
-		'vuuno4kse',
-		'vuultimo4k',
-		'xp1000'
-	)
+SystemInfo["no_YPbPr"] = getHaveYUV() in ('False')
 # Machines that have composite video (yellow RCA socket) but do not have Scart.
-SystemInfo["yellow_RCA_no_scart"] = getBoxType() in (
-		'formuler1',
-		'formuler1tc',
-		'formuler4turbo',
-		'gb800ueplus',
-		'gbultraue',
-		'mbmicro',
-		'mbmicrov2',
-		'mbtwinplus',
-		'mutant11',
-		'mutant500c',
-		'osmega',
-		'osmini',
-		'osminiplus',
-		'sf138',
-		'sf8008',		
-		'tmnano',
-		'tmnanose',
-		'tmnanosecombo',
-		'tmnanosem2',
-		'tmnanoseplus',
-		'tmnanosem2plus',
-		'tmnano2super',
-		'tmnano3t',
-		'xpeedlx3'
-	)
+SystemInfo["yellow_RCA_no_scart"] = getHaveSCART() in ('False') and getHaveRCA() in ('True') or getHaveAVJACK() in ('True')
 # Machines that have neither yellow RCA nor Scart sockets
-SystemInfo["no_yellow_RCA__no_scart"] = getBoxType() in (
-		'et5x00',
-		'et6x00',
-		'gbquad',
-		'gbquad4k',
-		'gbue4k',
-		'gbx1',
-		'gbx2',		
-		'gbx3',
-		'gbx3h',
-		'ixussone',
-		'mutant51',
-		'mutant1500',
-		'osnino',
-		'osninoplus',		
-		'sf4008',
-		'tmnano2t',
-		'tmnanom3',
-		'tmtwin4k',
-		'vuzero4k',
-		'vusolo4k',
-		'vuuno4k',
-		'vuuno4kse',
-		'vuultimo4k'
-	)
+SystemInfo["no_yellow_RCA__no_scart"] = getHaveRCA() in ('False') and getHaveSCART() in ('False') and getHaveAVJACK() in ('False')
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 SystemInfo["CanDownmixAC3"] = fileHas("/proc/stb/audio/ac3_choices", "downmix")
