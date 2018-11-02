@@ -3,11 +3,7 @@ from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 from Tools.HardwareInfo import HardwareInfo
 from Components.About import getChipSetString
 
-<<<<<<< HEAD
-from boxbranding import getMachineBuild, getBoxType, getBrandOEM, getDisplayType, getHaveRCA, getHaveDVI, getHaveYUV, getHaveSCART, getHaveAVJACK, getHaveSCARTYUV, getHaveHDMI, getMachineMtdRoot
-=======
 from boxbranding import getMachineBuild, getBoxType, getBrandOEM, getDisplayType, getHaveRCA, getHaveYUV, getHaveSCART, getHaveAVJACK, getMachineMtdRoot
->>>>>>> upstream/Dev
 
 SystemInfo = { }
 
@@ -35,10 +31,6 @@ SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
 SystemInfo["PIPAvailable"] = SystemInfo["NumVideoDecoders"] > 1
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 # General Hardware
-SystemInfo["Chipstring"] = getChipSetString() in ('5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s', '72604', '3798mv200', '3798cv200', 'hi3798mv200', 'hi3798cv200') and (
-	["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], {"720p", "1080p", "2160p", "1080i"}) or getChipSetString() in (
-	'7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552') and (
-	["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], {"720p", "1080p", "1080i"})
 SystemInfo["HasInfoButton"] = getBrandOEM() in ('broadmedia', 'ceryon', 'dags', 'formuler', 'gfutures', 'gigablue', 'ini', 'octagon', 'odin', 'skylake', 'tiviar', 'xcore', 'xp', 'xtrend')
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
 SystemInfo["DeepstandbySupport"] = HardwareInfo().has_deepstandby()
@@ -85,13 +77,28 @@ SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
 SystemInfo["StandbyLED"] = fileCheck("/proc/stb/power/standbyled")
 #	Audio/Video Configs
 # Machines that do have SCART component video (red, green and blue RCA sockets).
-SystemInfo["no_YPbPr"] = getHaveYUV() in ('True')
+SystemInfo["Scart-YPbPr"] = getBrandOEM() == "vuplus" and not "4k" in getBoxType()
 # Machines that do not have component video (red, green and blue RCA sockets).
-SystemInfo["no_YPbPr"] = getHaveYUV() in ('False')
+SystemInfo["no_YPbPr"] = getHaveYUV() in ('False',)
 # Machines that have composite video (yellow RCA socket) but do not have Scart.
-SystemInfo["yellow_RCA_no_scart"] = getHaveSCART() in ('False') and getHaveRCA() in ('True') or getHaveAVJACK() in ('True')
+SystemInfo["yellow_RCA_no_scart"] = getHaveSCART() in ('False',) and (getHaveRCA() in ('True',) or getHaveAVJACK() in ('True',))
 # Machines that have neither yellow RCA nor Scart sockets
-SystemInfo["no_yellow_RCA__no_scart"] = getHaveRCA() in ('False') and getHaveSCART() in ('False') and getHaveAVJACK() in ('False')
+SystemInfo["no_yellow_RCA__no_scart"] = getHaveRCA() in ('False',) and (getHaveSCART() in ('False',) and getHaveAVJACK() in ('False',))
+# Videomodes
+SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
+		'5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s', '72604', '3798mv200', '3798cv200', 'hi3798mv200', 'hi3798cv200'
+	) and (
+		["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
+		{"720p", "1080p", "2160p", "1080i"} # widescreen modes
+	) or getChipSetString() in ( # 1080p capable hardware
+		'7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552'
+	) and (
+		["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
+		{"720p", "1080p", "1080i"} # widescreen modes
+	) or ( # default modes (neither 2160p nor 1080p capable hardware)
+		["720p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
+		{"720p", "1080i"} # widescreen modes
+)
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 SystemInfo["CanDownmixAC3"] = fileHas("/proc/stb/audio/ac3_choices", "downmix")
@@ -122,30 +129,4 @@ SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" 
 SystemInfo["HasSDmmc"] = SystemInfo["canMultiBoot"] and "sd" in SystemInfo["canMultiBoot"][2] and "mmcblk" in getMachineMtdRoot() 
 SystemInfo["HasHiSi"] = pathExists('/proc/hisi')
 SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
-<<<<<<< HEAD
 SystemInfo["canMode12"] = getMachineBuild() in ('hd51') and ('440M@328M brcm_cma=192M@768M', '520M@248M brcm_cma=200M@768M')
-=======
-SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
-# Machines that do have SCART component video (red, green and blue RCA sockets).
-SystemInfo["Scart-YPbPr"] = getBrandOEM() == "vuplus" and not "4k" in getBoxType()
-# Machines that do not have component video (red, green and blue RCA sockets).
-SystemInfo["no_YPbPr"] = getHaveYUV() in ('False',)
-# Machines that have composite video (yellow RCA socket) but do not have Scart.
-SystemInfo["yellow_RCA_no_scart"] = getHaveSCART() in ('False',) and (getHaveRCA() in ('True',) or getHaveAVJACK() in ('True',))
-# Machines that have neither yellow RCA nor Scart sockets
-SystemInfo["no_yellow_RCA__no_scart"] = getHaveRCA() in ('False',) and (getHaveSCART() in ('False',) and getHaveAVJACK() in ('False',))
-SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
-		'5272s', '7251', '7251s', '7252', '7252s', '7366', '7376', '7444s', '72604', '3798mv200', '3798cv200', 'hi3798mv200', 'hi3798cv200'
-	) and (
-		["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080p", "2160p", "1080i"} # widescreen modes
-	) or getChipSetString() in ( # 1080p capable hardware
-		'7241', '7356', '73565', '7358', '7362', '73625', '7424', '7425', '7552'
-	) and (
-		["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080p", "1080i"} # widescreen modes
-	) or ( # default modes (neither 2160p nor 1080p capable hardware)
-		["720p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080i"} # widescreen modes
-	)
->>>>>>> upstream/Dev
