@@ -1103,7 +1103,7 @@ def InitUsageConfig():
 	config.autolanguage = ConfigSubsection()
 	default_autoselect = "eng qaa Englisch" # for audio_autoselect1
 	audio_language_choices=[
-		("---", _("None")),
+		("", _("None")),
 		("und", _("Undetermined")),
 		("orj dos ory org esl qaa und mis mul ORY ORJ Audio_ORJ", _("Original")),
 		("ara", _("Arabic")),
@@ -1144,12 +1144,12 @@ def InitUsageConfig():
 
 	def setEpgLanguage(configElement):
 		eServiceEvent.setEPGLanguage(configElement.value)
-	config.autolanguage.audio_epglanguage = ConfigSelection(default="---", choices=audio_language_choices[:1] + audio_language_choices[2:])
+	config.autolanguage.audio_epglanguage = ConfigSelection(audio_language_choices[:1] + audio_language_choices [2:], default="")
 	config.autolanguage.audio_epglanguage.addNotifier(setEpgLanguage)
 
 	def setEpgLanguageAlternative(configElement):
 		eServiceEvent.setEPGLanguageAlternative(configElement.value)
-	config.autolanguage.audio_epglanguage_alternative = ConfigSelection(default="---", choices=audio_language_choices[:1] + audio_language_choices[2:])
+	config.autolanguage.audio_epglanguage_alternative = ConfigSelection(audio_language_choices[:1] + audio_language_choices [2:], default="")
 	config.autolanguage.audio_epglanguage_alternative.addNotifier(setEpgLanguageAlternative)
 
 	config.autolanguage.audio_autoselect1 = ConfigSelection(default=default_autoselect, choices=audio_language_choices)
@@ -1187,7 +1187,6 @@ def InitUsageConfig():
 		("14", "2,3,4"),
 		("15", _("All"))
 	])
-
 	config.logmanager = ConfigSubsection()
 	config.logmanager.showinextensions = ConfigYesNo(default = False)
 	config.logmanager.user = ConfigText(default='', fixed_size=False)
