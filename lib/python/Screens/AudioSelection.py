@@ -97,6 +97,11 @@ class AudioSelection(Screen, ConfigListScreen):
 			self.audioTracks = audio = service and service.audioTracks()
 			n = audio and audio.getNumberOfTracks() or 0
 
+			if SystemInfo["CanPcmMultichannel"]:
+				self.settings.pcm_multichannel = ConfigOnOff(default=config.av.pcm_multichannel.value)
+				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call = False)
+				conflist.append(getConfigListEntry(_("PCM multichannel"), self.settings.pcm_multichannel, None))
+
 			if SystemInfo["CanDownmixAC3"]:
 				self.settings.downmix_ac3 = ConfigOnOff(default=config.av.downmix_ac3.value)
 				self.settings.downmix_ac3.addNotifier(self.changeAC3Downmix, initial_call = False)
@@ -106,6 +111,12 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.downmix_dts = ConfigOnOff(default=config.av.downmix_dts.value)
 				self.settings.downmix_dts.addNotifier(self.changeDTSDownmix, initial_call = False)
 				conflist.append(getConfigListEntry(_("DTS downmix"), self.settings.downmix_dts, None))
+
+			if SystemInfo["CanDTSHD"]:
+				choice_list = [("downmix",  _("Downmix")), ("force_dts", _("convert to DTS")), ("use_hdmi_caps",  _("controlled by HDMI")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
+				self.settings.dtshd = ConfigSelection(choices = choice_list, default = config.av.dtshd.value)
+				self.settings.dtshd.addNotifier(self.setDTSHD, initial_call = False)
+				conflist.append(getConfigListEntry(_("DTS HD downmix"), self.settings.dtshd, None))
 
 			if SystemInfo["CanDownmixAAC"]:
 				if getBoxType() in ('gbquad4k', 'gbue4k'):
@@ -122,6 +133,12 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.downmix_aacplus.addNotifier(self.changeAACDownmixPlus, initial_call = False)
 				conflist.append(getConfigListEntry(_("AAC Plus downmix"), self.settings.downmix_aacplus, None))
 
+			if SystemInfo["CanWMAPRO"]:
+				choice_list = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
+				self.settings.wmapro = ConfigSelection(choices = choice_list, default = config.av.wmapro.value)
+				self.settings.wmapro.addNotifier(self.setWMAPro, initial_call = False)
+				conflist.append(getConfigListEntry(_("WMA Pro downmix"), self.settings.wmapro, None))
+
 			if SystemInfo["CanAACTranscode"]:
 				choice_list = [("off", _("off")), ("ac3", _("AC3")), ("dts", _("DTS"))]
 				self.settings.transcodeaac = ConfigSelection(choices = choice_list, default = "off")
@@ -131,29 +148,11 @@ class AudioSelection(Screen, ConfigListScreen):
 			if SystemInfo["CanAC3plusTranscode"]:
 				if getBoxType() in ('gbquad4k', 'gbue4k'):
 					choice_list = [("downmix", _("Downmix")), ("passthrough", _("Passthrough")), ("force_ac3", _("convert to AC3")), ("multichannel",  _("convert to multi-channel PCM")), ("force_dts",  _("convert to DTS"))]
-					self.settings.transcodeac3plus = ConfigSelection(choices = choice_list, default = config.av.transcodeac3plus.value)
 				else:
-					choice_list = [("use_hdmi_caps", _("controlled by HDMI")), ("force_ac3", _("convert to AC3""))]
+					choice_list = [("use_hdmi_caps", _("controlled by HDMI")), ("force_ac3", _("convert to AC3"))]
 				self.settings.transcodeac3plus = ConfigSelection(choices = choice_list, default = config.av.transcodeac3plus.value)
 				self.settings.transcodeac3plus.addNotifier(self.setAC3plusTranscode, initial_call = False)
 				conflist.append(getConfigListEntry(_("AC3plus transcoding"), self.settings.transcodeac3plus, None))
-
-			if SystemInfo["CanPcmMultichannel"]:
-				self.settings.pcm_multichannel = ConfigOnOff(default=config.av.pcm_multichannel.value)
-				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call = False)
-				conflist.append(getConfigListEntry(_("PCM multichannel"), self.settings.pcm_multichannel, None))
-
-			if SystemInfo["CanDTSHD"]:
-				choice_list = [("downmix",  _("Downmix")), ("force_dts", _("convert to DTS")), ("use_hdmi_caps",  _("controlled by HDMI")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
-				self.settings.dtshd = ConfigSelection(choices = choice_list, default = config.av.dtshd.value)
-				self.settings.dtshd.addNotifier(self.setDTSHD, initial_call = False)
-				conflist.append(getConfigListEntry(_("DTS HD downmix"), self.settings.dtshd, None))
-
-			if SystemInfo["CanWMAPRO"]:
-				choice_list = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
-				self.settings.wmapro = ConfigSelection(choices = choice_list, default = config.av.wmapro.value)
-				self.settings.wmapro.addNotifier(self.setWMAPro, initial_call = False)
-				conflist.append(getConfigListEntry(_("WMA Pro downmix"), self.settings.wmapro, None))
 
 			if n > 0:
 				self.audioChannel = service.audioChannel()
