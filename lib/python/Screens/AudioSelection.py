@@ -11,6 +11,7 @@ from Components.Sources.List import List
 from Components.Sources.Boolean import Boolean
 from Components.SystemInfo import SystemInfo
 from Components.VolumeControl import VolumeControl
+from boxbranding import getBoxType
 
 from enigma import iPlayableService, eTimer, eSize, eDVBDB, eServiceReference, eServiceCenter, iServiceInformation
 
@@ -141,8 +142,8 @@ class AudioSelection(Screen, ConfigListScreen):
 
 			if SystemInfo["CanAACTranscode"]:
 				choice_list = [("off", _("off")), ("ac3", _("AC3")), ("dts", _("DTS"))]
-				self.settings.transcodeaac = ConfigSelection(choices = choice_list, default = "off")
-				self.settings.transcodeaac.addNotifier(self.setAACTranscode)
+				self.settings.transcodeaac = ConfigSelection(choices = choice_list, default = config.av.transcodeaac.value)
+				self.settings.transcodeaac.addNotifier(self.setAACTranscode, initial_call = False)
 				conflist.append(getConfigListEntry(_("AAC transcoding"), self.settings.transcodeaac, None))
 
 			if SystemInfo["CanAC3plusTranscode"]:
@@ -367,7 +368,6 @@ class AudioSelection(Screen, ConfigListScreen):
 		else:
 			config.av.downmix_dts.setValue(False)
 		config.av.downmix_dts.save()
-		self.fillList()
 
 	def changeAACDownmix(self, downmix):
 		if getBoxType() in ('gbquad4k', 'gbue4k'):
@@ -378,32 +378,26 @@ class AudioSelection(Screen, ConfigListScreen):
 			else:
 				config.av.downmix_aac.setValue(False)
 		config.av.downmix_aac.save()
-		self.fillList()
 
 	def changeAACDownmixPlus(self, downmix):
 		config.av.downmix_aacplus.setValue(downmix.value)
 		config.av.downmix_aacplus.save()
-		self.fillList()
 
 	def setAC3plusTranscode(self, transcode):
 		config.av.transcodeac3plus.setValue(transcode.value)
 		config.av.transcodeac3plus.save()
-		self.fillList()
 
 	def setWMAPro(self, downmix):
 		config.av.wmapro.setValue(downmix.value)
 		config.av.wmapro.save()
-		self.fillList()
 
 	def setDTSHD(self, downmix):
 		config.av.dtshd.setValue(downmix.value)
 		config.av.dtshd.save()
-		self.fillList()
 
 	def setAACTranscode(self, transcode):
 		config.av.transcodeaac.setValue(transcode)
 		config.av.transcodeaac.save()
-		self.fillList()
 
 	def changeMode(self, mode):
 		if mode is not None and self.audioChannel:
