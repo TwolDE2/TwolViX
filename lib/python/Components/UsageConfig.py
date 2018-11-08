@@ -1304,7 +1304,6 @@ def InitUsageConfig():
 		("text", _("Text"))
 	])
 	config.epgselection.graph_highlight_current_events = ConfigYesNo(default=True)
-<<<<<<< HEAD
 	config.epgselection.graph_ok = ConfigSelection(default="Zap", choices=[
 		("Zap", _("Zap")),
 		("Zap + Exit", _("Zap + Exit"))
