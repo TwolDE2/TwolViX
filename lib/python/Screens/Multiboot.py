@@ -78,8 +78,10 @@ class MultiBoot(Screen):
 		list = []
 		mode = GetCurrentImageMode() or 0
 		currentimageslot = GetCurrentImage()
+		print "[MultiBoot Restart] reboot1 slot:\n", currentimageslot 
 		if SystemInfo["HasSDmmc"]:
-			currentimageslot += 1			#allow for mmc as 1st slot, then SDCard slots 
+			currentimageslot += 1			#allow for mmc as 1st slot, then SDCard slots
+			print "[MultiBoot Restart] reboot2 slot:\n", currentimageslot 
 		if not SystemInfo["canMode12"]:
 			for x in sorted(imagedict.keys()):
 				if imagedict[x]["imagename"] != _("Empty slot"):
@@ -99,11 +101,21 @@ class MultiBoot(Screen):
 		self.currentSelected = self["config"].l.getCurrentSelection()
 		if self.currentSelected[0][1] != "Queued":
 			slot = self.currentSelected[0][1]
-
+			print "[MultiBoot Restart] reboot3 slot:\n", slot
 			if slot < 12:
-				import shutil
-				shutil.copyfile("/boot/STARTUP_%s" % slot, "/boot/STARTUP")
-				self.session.open(TryQuitMainloop, 2)
+				if pathExists("/boot/STARTUP_%s" % slot):
+					import shutil
+					shutil.copyfile("/boot/STARTUP_%s" % slot, "/boot/STARTUP")
+					self.session.open(TryQuitMainloop, 2)
+				elif SystemInfo["canMode12"]:
+					print "[MultiBoot Restart] No Boot/Startup - created Startup slot:\n", slot
+					model = getMachineBuild()
+					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=1'\n" % (slot, SystemInfo["canMode12"][0], slot * 2 + SystemInfo["canMultiBoot"][0], model)
+					open('/boot/STARTUP', 'w').write(startupFileContents)
+					self.session.open(TryQuitMainloop, 2)
+				else:
+					self.session.open(TryQuitMainloop, 2)
+
 			else:
 				slot -= 12
 				model = getMachineBuild()
