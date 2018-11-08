@@ -507,11 +507,14 @@ class EPGSelection(Screen, HelpableScreen):
 			if self.StartBouquet.toString().startswith('1:7:0'):
 				self.BouquetRoot = True
 			self.services = self.getBouquetServices(self.StartBouquet)
-			
+			if self.type == EPG_TYPE_GRAPH:
+				self['list'].setShowServiceMode(config.epgselection.graph_servicetitle_mode.value)
+			elif self.type == EPG_TYPE_INFOBARGRAPH:
+				self['list'].setShowServiceMode(config.epgselection.infobar_servicetitle_mode.value)
 			if self.findchannel == False:
 				self['list'].fillGraphEPG(self.services, self.ask_time)
-				self['list'].moveToService(serviceref) #remembers current event
-			self['list'].setCurrentlyPlaying(serviceref) #remembers channel
+				self['list'].moveToService(serviceref)
+			self['list'].setCurrentlyPlaying(serviceref)
 			self['bouquetlist'].recalcEntrySize()
 			self['bouquetlist'].fillBouquetList(self.bouquets)
 			if self.findchannel == False:
@@ -521,12 +524,10 @@ class EPGSelection(Screen, HelpableScreen):
 			self.findchannel = False
 			if self.type == EPG_TYPE_GRAPH:
 				self.makebouqlistlabel()
-				self['list'].setShowServiceMode(config.epgselection.graph_servicetitle_mode.value)
 				self.moveTimeLines()
 				if config.epgselection.graph_channel1.value:
 					self['list'].instance.moveSelectionTo(0)
 			elif self.type == EPG_TYPE_INFOBARGRAPH:
-				self['list'].setShowServiceMode(config.epgselection.infobar_servicetitle_mode.value)
 				self.moveTimeLines()
 		elif self.type == EPG_TYPE_MULTI:
 			self['bouquetlist'].recalcEntrySize()

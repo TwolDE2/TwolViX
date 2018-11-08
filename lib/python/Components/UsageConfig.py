@@ -1304,6 +1304,7 @@ def InitUsageConfig():
 		("text", _("Text"))
 	])
 	config.epgselection.graph_highlight_current_events = ConfigYesNo(default=True)
+<<<<<<< HEAD
 	config.epgselection.graph_ok = ConfigSelection(default="Zap", choices=[
 		("Zap", _("Zap")),
 		("Zap + Exit", _("Zap + Exit"))
@@ -1343,8 +1344,8 @@ def InitUsageConfig():
 		("servicename", _("Service Name")),
 		("picon", _("Picon")),
 		("picon+servicename", _("Picon and Service Name")),
-		("servicenumber+servicename", _("Service Number and Service Name")),
 		("servicenumber+picon", _("Service Number and Picon")),
+		("servicenumber+servicename", _("Service Number and Service Name")),
 		("servicenumber+picon+servicename", _("Service Number, Picon and Service Name"))
 	])
 	config.epgselection.graph_channel1 = ConfigYesNo(default=False)
