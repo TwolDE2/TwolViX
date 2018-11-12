@@ -25,6 +25,14 @@ if [ -e /proc/stb/info/boxtype ]; then
 fi
 
 if [ -x @bindir@/showiframe ]; then
+	if [ -e /proc/stb/info/boxtype ]; then
+		stbcheck=`cat /proc/stb/info/boxtype | cut -c1-2`
+		if [ ! $stbcheck == "u5" ]; then
+			killall -9 showiframe; sleep 1
+		fi
+	else
+		killall -9 showiframe; sleep 1
+	fi
 	if [ -f @sysconfdir@/enigma2/backdrop.mvi ]; then
 		@bindir@/showiframe @sysconfdir@/enigma2/backdrop.mvi
 	elif [ -f @datadir@/backdrop.mvi ]; then
@@ -80,6 +88,10 @@ ret=$?
 
 if [ "$ret" -ne "1" ]; then
 	if [ -e /proc/stb/info/boxtype ]; then
+		stbcheck=`cat /proc/stb/info/boxtype | cut -c1-2`
+		if [ $stbcheck == "u5" ]; then
+			killall -9 showiframe; sleep 5
+		fi
 		stbcheck=`cat /proc/stb/info/boxtype`
 		if [ $stbcheck == "sf8008" ] ; then
 			killall -9 libreader; sleep 5

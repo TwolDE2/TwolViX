@@ -15,7 +15,7 @@
 #include <lib/base/cfile.h>
 #endif
 
-#if defined(CONFIG_HISILICON_FB)
+#if defined(CONFIG_ION) || defined(CONFIG_HISILICON_FB)
 #include <lib/gdi/grc.h>
 
 extern void bcm_accel_blit(
@@ -33,9 +33,10 @@ extern void  dinibot_accel_notify(void);
 gFBDC::gFBDC()
 {
 	fb=new fbClass;
-
+#ifndef CONFIG_ION
 	if (!fb->Available())
 		eFatal("[gFBDC] no framebuffer available");
+#endif
 
 	int xres;
 	int yres;
@@ -174,6 +175,30 @@ void gFBDC::exec(const gOpcode *o)
 #else
 		fb->blit();
 #endif
+#ifdef CONFIG_ION
+		if (surface_back.data_phys)
+		{
+			gUnmanagedSurface s(surface);
+			surface = surface_back;
+			surface_back = s;
+
+			fb->waitVSync();
+			if (surface.data_phys > surface_back.data_phys)
+			{
+				fb->setOffset(0);
+			}
+			else
+			{
+				fb->setOffset(surface_back.y);
+			}
+			bcm_accel_blit(
+				surface_back.data_phys, surface_back.x, surface_back.y, surface_back.stride, 0,
+				surface.data_phys, surface.x, surface.y, surface.stride,
+				0, 0, surface.x, surface.y,
+				0, 0, surface.x, surface.y,
+				0, 0);
+		}
+#endif
 #if defined(CONFIG_HISILICON_FB)
 		if(islocked()==0)
 		{
@@ -251,14 +276,38 @@ void gFBDC::setGamma(int g)
 
 void gFBDC::setResolution(int xres, int yres, int bpp)
 {
-	if (m_pixmap && (surface.x == xres) && (surface.y == yres) && (surface.bpp == bpp))
+#if defined(__sh__)
+	/* if xres and yres are negative call SetMode with the lates xres and yres
+	 * we need that to read the new screen dimesnions after a resolution change
+	 * without changing the frambuffer dimensions
+	 */
+	if (xres<0 && yres<0 ) {
+		fb->SetMode(surface.x, surface.y, bpp);
 		return;
-
+	}
+#else
+	if (m_pixmap && (surface.x == xres) && (surface.y == yres) && (surface.bpp == bpp)
+	#if defined(CONFIG_HISILICON_FB)
+		&& islocked()==0
+	#endif
+		)
+		return;
+#endif
+#ifndef CONFIG_ION
 	if (gAccel::getInstance())
 		gAccel::getInstance()->releaseAccelMemorySpace();
-
+#else
+	gRC *grc = gRC::getInstance();
+	if (grc)
+		grc->lock();
+#endif
 	fb->SetMode(xres, yres, bpp);
 
+#if defined(__sh__)
+	for (int y = 0; y<yres; y++) { // make whole screen transparent
+		memset(fb->lfb+y*fb->Stride(), 0x00, fb->Stride());
+	}
+#endif
 	surface.x = xres;
 	surface.y = yres;
 	surface.bpp = bpp;
@@ -286,11 +335,14 @@ void gFBDC::setResolution(int xres, int yres, int bpp)
 		surface_back.data_phys = 0;
 	}
 
-	eDebug("[gFBDC] resolution: %dx%dx%d stride=%d, %dkB available for acceleration surfaces.",
-		 surface.x, surface.y, surface.bpp, fb->Stride(), (fb->Available() - fb_size)/1024);
+	eDebug("[gFBDC] resolution: %d x %d x %d (stride: %d) pages: %d", surface.x, surface.y, surface.bpp, fb->Stride(), fb->getNumPages());
 
+#ifndef CONFIG_ION
+	/* accel is already set in fb.cpp */
+	eDebug("[gFBDC] %dkB available for acceleration surfaces.", (fb->Available() - fb_size)/1024);
 	if (gAccel::getInstance())
 		gAccel::getInstance()->setAccelMemorySpace(fb->lfb + fb_size, surface.data_phys + fb_size, fb->Available() - fb_size);
+#endif
 
 #ifdef HAVE_HISILICON_ACCEL
 	dinobot_accel_register(&surface,&surface_back);
@@ -314,6 +366,11 @@ void gFBDC::setResolution(int xres, int yres, int bpp)
 #endif
 
 	m_pixmap = new gPixmap(&surface);
+
+#ifdef CONFIG_ION
+	if (grc)
+		grc->unlock();
+#endif
 }
 
 void gFBDC::saveSettings()

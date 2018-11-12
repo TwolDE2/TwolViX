@@ -8,7 +8,7 @@ from Components.SystemInfo import SystemInfo
 from Components.Sources.StaticText import StaticText
 from GlobalActions import globalActionMap
 from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference
-from boxbranding import getMachineBrand, getMachineName, getBoxType
+from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM
 from Tools import Notifications
 from time import localtime, time
 import Screens.InfoBar
@@ -35,8 +35,11 @@ def setLCDMiniTVMode(value):
 
 class Standby2(Screen):
 	def Power(self):
-		if getBoxType() in ('sf8008'):
-			open("/proc/stb/hdmi/output", "w").write("on")
+		if (getBrandOEM() in ('fulan','clap','dinobot') or getBoxType() in ('sf8008','ustym4kpro')):
+			try:
+				open("/proc/stb/hdmi/output", "w").write("on")
+			except:
+				pass
 		print "[Standby] leave standby"
 		self.close(True)
 
@@ -108,8 +111,12 @@ class Standby2(Screen):
 			self.avswitch.setInput("SCART")
 		else:
 			self.avswitch.setInput("AUX")
-		if getBoxType() in ('sf8008'):
-			open("/proc/stb/hdmi/output", "w").write("off")
+		if (getBrandOEM() in ('fulan','clap','dinobot') or getBoxType() in ('sf8008','ustym4kpro')):
+			try:
+				open("/proc/stb/hdmi/output", "w").write("off")
+			except:
+				pass
+
 		self.onFirstExecBegin.append(self.__onFirstExecBegin)
 		self.onClose.append(self.__onClose)
 
