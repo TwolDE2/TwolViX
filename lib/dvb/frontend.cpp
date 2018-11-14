@@ -1111,20 +1111,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.28) - 10.0) * 100);
 	}
-	else if (!strcmp(m_description, "BCM7356 DVB-S2 NIM (internal)")
-		|| !strcmp(m_description, "BCM7346 DVB-S2 NIM (internal)")
-		|| !strcmp(m_description, "BCM7358 DVB-S2 NIM (internal)")
-		|| !strcmp(m_description, "BCM7362 DVB-S2 NIM (internal)")
-		|| !strcmp(m_description, "GIGA DVB-S2 NIM (Internal)")
-		|| !strcmp(m_description, "GIGA DVB-S2 NIM (SP2246T)")
-		|| !strcmp(m_description, "GIGA DVB-S2 NIM (TS2M08)")
-		)
-	{
-		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1710) - 1.0000) * 100);
-	}
-	else if (!strcmp(m_description, "DVB-S2 NIM(45208 FBC)")
-		|| !strstr(m_description, "DVB-S2 NIM(45308 FBC)")
-		)
+	else if (!strcmp(m_description, "DVB-S2 NIM(45208 FBC)"))
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1950) - 1.0000) * 100);
 	}
