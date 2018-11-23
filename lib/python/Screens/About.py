@@ -92,14 +92,14 @@ class About(Screen):
 			part = ""
 			if SystemInfo["canMode12"]:
 				bootmode = "bootmode = %s" %GetCurrentImageMode()
-			if SystemInfo["HasHiSi"]:
+			if SystemInfo["HasSDmmc"]:
 				if image != 0:
-					part = "%s%s" %(SystemInfo["canMultiBoot"][2], image*2)
+					part = "SDC slot %s (%s%s) " %(image, SystemInfo["canMultiBoot"][2], image*2)
 					image += 1
 				else:
-					part = "MMC"
 					image += 1
-			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(image) + " " + part + " " + bootmode + "\n"
+					part = "MMC slot %s" %image
+			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(image) + "  " + part + " " + bootmode + "\n"
 
 		if getMachineName() in ('ET8500') and path.exists('/proc/mtd'):
 			self.dualboot = self.dualBoot()
