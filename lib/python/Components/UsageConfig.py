@@ -400,7 +400,14 @@ def InitUsageConfig():
 		('s', _("Small progress")),
 		('i', _("Icons")),
 	])
+<<<<<<< HEAD
 	config.usage.movielist_unseen = ConfigYesNo(default=True)
+	config.usage.movielist_unseen = ConfigYesNo(default = True)
+	config.usage.movielist_servicename_mode = ConfigSelection(default = "", choices = [
+		("", _("None")), 
+		("picon", _("Picon"))
+	])
+	config.usage.movielist_piconwidth = ConfigSelectionNumber(default = 100, stepwidth = 1, min = 50, max = 500, wraparound = True)
 	config.usage.swap_snr_on_osd = ConfigYesNo(default=False)
 	config.usage.swap_time_display_on_osd = ConfigSelection(default="0", choices=[
 		("0", _("Skin Setting")),
