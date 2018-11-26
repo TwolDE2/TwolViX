@@ -400,7 +400,6 @@ def InitUsageConfig():
 		('s', _("Small progress")),
 		('i', _("Icons")),
 	])
-<<<<<<< HEAD
 	config.usage.movielist_unseen = ConfigYesNo(default=True)
 	config.usage.movielist_unseen = ConfigYesNo(default = True)
 	config.usage.movielist_servicename_mode = ConfigSelection(default = "", choices = [

@@ -15,9 +15,9 @@ import subprocess
 def GetCurrentImage():
 	f = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()
 	if "%s" %(SystemInfo["canMultiBoot"][2]) in f:
-		return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('%s' %(SystemInfo["canMultiBoot"][2]))[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
+		return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("%s" % SystemInfo["canMultiBoot"][2])[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
 	else:
-		return 0	# if multiboot media not in SystemInfo["canMultiBoot"], then assumes using SDcard and mmc is in 1st slot so tell caller with 0 return 
+		return 0	# if media not in SystemInfo["canMultiBoot"], then using SDcard and Image is in eMMC (1st slot) so tell caller with 0 return 
 
 def GetCurrentImageMode():
 	return SystemInfo["canMultiBoot"] and SystemInfo["canMode12"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
@@ -25,13 +25,13 @@ def GetCurrentImageMode():
 class GetImagelist():
 	MOUNT = 0
 	UNMOUNT = 1
-	NoRun = 0		# receivers only uses 1 media for multiboot
+	NoRun = 0		# receiver only uses 1 media for multiboot
 	FirstRun = 1		# receiver uses eMMC and SD card for multiboot - so handle SDcard slots 1st via SystemInfo(canMultiBoot)
 	LastRun = 2		# receiver uses eMMC and SD card for multiboot - and then handle eMMC (currently one time)
 
 	def __init__(self, callback):
 		if SystemInfo["canMultiBoot"]:
-			(self.firstslot, self.numberofslots, self.mtdboot) = SystemInfo["canMultiBoot"]
+			(self.firstslot, self.numberofslots) = SystemInfo["canMultiBoot"][:2]
 			self.callback = callback
 			self.imagelist = {}
 			if not os.path.isdir('/tmp/testmount'):
@@ -42,7 +42,7 @@ class GetImagelist():
 			if SystemInfo["HasSDmmc"]:
 				self.SDmmc = self.FirstRun	# process SDcard slots
 			else:
-				self.SDmmc = self.NoRun		# only mmc slots
+				self.SDmmc = self.NoRun		# only eMMC slots
 			self.phase = self.MOUNT
 			self.part = SystemInfo["canMultiBoot"][2]	# pick up slot type
 			self.run()
@@ -51,12 +51,12 @@ class GetImagelist():
 	
 	def run(self):
 		if self.SDmmc == self.LastRun:
-			self.part2 = getMachineMtdRoot()	# process mmc slot
+			self.part2 = getMachineMtdRoot()	# process eMMC slot
 			self.slot2 = 1
 		else:
 			self.part2 = "%s" %(self.part + str(self.slot * 2 + self.firstslot))
 			if self.SDmmc == self.FirstRun:
-				self.slot2 += 1			# allow for mmc slot"
+				self.slot2 += 1			# allow for eMMC slot"
 		if self.phase == self.MOUNT:
 			self.imagelist[self.slot2] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
 		self.container.ePopen('mount /dev/%s /tmp/testmount' %self.part2 if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
@@ -98,7 +98,7 @@ class GetImagelist():
 			self.run()
 		elif self.SDmmc == self.FirstRun:
 			self.phase = self.MOUNT
-			self.SDmmc = self.LastRun	# process mmc slot
+			self.SDmmc = self.LastRun	# process eMMC slot
 			self.run()
 		else:
 			self.container.killAll()
@@ -203,10 +203,10 @@ class EmptySlot():
 		self.slot = Contents
 		if not os.path.isdir('/tmp/testmount'):
 			os.mkdir('/tmp/testmount')
-		if SystemInfo["HasSDmmc"]:			# allow for mmc & SDcard in passed slot number, so SDcard slot -1
+		if SystemInfo["HasSDmmc"]:			# allow for eMMC & SDcard in passed slot number, so SDcard slot -1
 			self.slot -= 1
 		self.part = "%s%s" %(self.mtdboot, str(self.slot * 2 + self.firstslot))
-		if SystemInfo["HasSDmmc"] and self.slot == 0:	# this is the mmc slot, so pick up from MtdRoot
+		if SystemInfo["HasSDmmc"] and self.slot == 0:	# this is the eMMC slot, so pick up from MtdRoot
 			self.part = getMachineMtdRoot()
 		self.phase = self.MOUNT
 		self.run()
