@@ -160,7 +160,6 @@ class About(Screen):
 		if tempinfo and int(tempinfo) > 0:
 			mark = str('\xc2\xb0')
 			AboutText += _("Processor temp:\t%s") % tempinfo.replace('\n', '').replace(' ','') + mark + "C\n"
-		AboutLcdText = AboutText.replace('\t', ' ')
 
 		fp_version = getFPVersion()
 		if fp_version is None:
