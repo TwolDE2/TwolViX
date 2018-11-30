@@ -952,23 +952,23 @@ def InitUsageConfig():
 	])
 
 	config.crash = ConfigSubsection()
-	config.crash.enabledebug = ConfigYesNo(default=True)
-	config.crash.debugloglimit = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=4, wraparound=True)
-	config.crash.daysloglimit = ConfigSelectionNumber(min=1, max=30, stepwidth=1, default=8, wraparound=True)
-	config.crash.sizeloglimit = ConfigSelectionNumber(min=1, max=20, stepwidth=1, default=10, wraparound=True)
-	debugpath = [("/home/hdd/logs/", "/home/hdd/")]
+	config.crash.enabledebug = ConfigYesNo(default = True)
+	config.crash.debugloglimit = ConfigSelectionNumber(min = 1, max = 10, stepwidth = 1, default = 4, wraparound = True)
+	config.crash.daysloglimit = ConfigSelectionNumber(min = 1, max = 30, stepwidth = 1, default = 8, wraparound = True)
+	config.crash.sizeloglimit = ConfigSelectionNumber(min = 1, max = 20, stepwidth = 1, default = 10, wraparound = True)
+
+	debugpath = [('/home/root/logs/', '/home/root/')]
 	for p in harddiskmanager.getMountedPartitions():
 		if os.path.exists(p.mountpoint):
 			d = os.path.normpath(p.mountpoint)
-			if p.mountpoint != "/":
-				debugpath.append((p.mountpoint + "logs/", d))
-	config.crash.debug_path = ConfigSelection(default="/home/root/logs/", choices=debugpath)
+			if p.mountpoint != '/':
+				debugpath.append((p.mountpoint + 'logs/', d))
+	config.crash.debug_path = ConfigSelection(default = "/home/root/logs/", choices = debugpath)
 
 	def updatedebug_path(configElement):
 		if not os.path.exists(config.crash.debug_path.value):
-			os.mkdir(config.crash.debug_path.value, 0755)
-
-	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback=False)
+			os.mkdir(config.crash.debug_path.value,0755)
+	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback = False)
 
 	config.usage.timerlist_finished_timer_position = ConfigSelection(default="end", choices=[
 		("beginning", _("at beginning")),
