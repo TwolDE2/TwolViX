@@ -101,21 +101,22 @@ class MultiBoot(Screen):
 		self.currentSelected = self["config"].l.getCurrentSelection()
 		if self.currentSelected[0][1] != "Queued":
 			slot = self.currentSelected[0][1]
-			print "[MultiBoot Restart] reboot3 slot:\n", slot
+			print "[MultiBoot Restart] reboot3 slot:", slot
 			if slot < 12:
 				if pathExists("/boot/STARTUP_%s" % slot):
 					import shutil
 					shutil.copyfile("/boot/STARTUP_%s" % slot, "/boot/STARTUP")
 					self.session.open(TryQuitMainloop, 2)
-				elif SystemInfo["canMode12"]:
-					self.session.open(MessageBox, _("Multiboot ERROR! - slot flashed but no STARTUP_%s in /boot - Multiboot generated STARTUP" % self.multibootslot), MessageBox.TYPE_INFO, timeout=10)
-					print "[MultiBoot Restart] No Boot/Startup - created Startup slot:\n", slot
+				elif SystemInfo["canMode12"] and pathExists("/boot/STARTUP"):
+					print "[MultiBoot Restart] No boot/Startup_%s - created Startup slot:" %slot
 					model = getMachineBuild()
 					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=1'\n" % (slot, SystemInfo["canMode12"][0], slot * 2 + SystemInfo["canMultiBoot"][0], model)
 					open('/boot/STARTUP', 'w').write(startupFileContents)
 					self.session.open(TryQuitMainloop, 2)
+				elif pathExists("/boot/STARTUP"):		
+					self.session.open(MessageBox, _("Multiboot ERROR! - no STARTUP_%s in /boot - Image may need manual restart" % slot), MessageBox.TYPE_INFO, timeout=20)
 				else:
-					self.session.open(MessageBox, _("Multiboot ERROR! - slot flashed but no STARTUP_%s in /boot - Image may need manual restart" % self.multibootslot), MessageBox.TYPE_INFO, timeout=10)
+					self.session.open(MessageBox, _("Multiboot ERROR! - no STARTUP in /boot -Please check /etc/fstab for correct boot partition"), MessageBox.TYPE_INFO, timeout=20)
 			else:
 				slot -= 12
 				model = getMachineBuild()
