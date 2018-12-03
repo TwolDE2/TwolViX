@@ -108,14 +108,14 @@ class MultiBoot(Screen):
 					shutil.copyfile("/boot/STARTUP_%s" % slot, "/boot/STARTUP")
 					self.session.open(TryQuitMainloop, 2)
 				elif SystemInfo["canMode12"]:
+					self.session.open(MessageBox, _("Multiboot ERROR! - slot flashed but no STARTUP_%s in /boot - Multiboot generated STARTUP" % self.multibootslot), MessageBox.TYPE_INFO, timeout=10)
 					print "[MultiBoot Restart] No Boot/Startup - created Startup slot:\n", slot
 					model = getMachineBuild()
 					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=1'\n" % (slot, SystemInfo["canMode12"][0], slot * 2 + SystemInfo["canMultiBoot"][0], model)
 					open('/boot/STARTUP', 'w').write(startupFileContents)
 					self.session.open(TryQuitMainloop, 2)
 				else:
-					self.session.open(TryQuitMainloop, 2)
-
+					self.session.open(MessageBox, _("Multiboot ERROR! - slot flashed but no STARTUP_%s in /boot - Image may need manual restart" % self.multibootslot), MessageBox.TYPE_INFO, timeout=10)
 			else:
 				slot -= 12
 				model = getMachineBuild()
