@@ -2,9 +2,10 @@ from enigma import eActionMap
 from sys import maxint
 
 from Components.ActionMap import ActionMap
-from Components.Label import Label
 from Components.HelpMenuList import HelpMenuList
+from Components.Label import Label
 from Components.Sources.StaticText import StaticText
+from Components.Sources.HelpMenuList import HelpMenuList
 from Screens.Rc import Rc
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
