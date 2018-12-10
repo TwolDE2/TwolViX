@@ -1383,7 +1383,7 @@ def InitUsageConfig():
 		("hide", _("hide"))
 	])
 
-	config.epgselection.graph_red = ConfigSelection(default='imdb', choices=[
+	config.epgselection.graph_red = ConfigSelection(default='24minus', choices=[
 		('autotimer', _('Auto Timer')),
 	 	('timer', _('Add/Remove Timer')),
 	 	('24plus', _('24+ Hours')),
@@ -1409,7 +1409,7 @@ def InitUsageConfig():
 	 	('epgsearch', _('EPG search'))
 ])
 
-	config.epgselection.graph_yellow = ConfigSelection(default='epgsearch', choices=[
+	config.epgselection.graph_yellow = ConfigSelection(default='24plus', choices=[
 		('autotimer', _('Auto Timer')),
 	 	('timer', _('Add/Remove Timer')),
 	 	('24plus', _('24+ Hours')),
