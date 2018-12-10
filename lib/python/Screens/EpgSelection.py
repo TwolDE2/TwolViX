@@ -128,7 +128,6 @@ class EPGSelection(Screen, HelpableScreen):
 				'OKLong': (self.OKLong, _('Zap to channel and close (setup in menu)'))
 			}, -1)
 		self['okactions'].csel = self
-<<<<<<< HEAD
 		if self.type == EPG_TYPE_GRAPH:
 			self['colouractions'] = HelpableActionMap(self, 'ColorActions', 
 				{
@@ -149,18 +148,6 @@ class EPGSelection(Screen, HelpableScreen):
 					'blue': (self.blueButtonPressed, _('Add a auto timer for current event')),
 					'bluelong': (self.blueButtonPressedLong, _('Show AutoTimer list'))
 				}, -1)
-=======
-		self['colouractions'] = HelpableActionMap(self, 'ColorActions',
-			{
-				'red': (self.redButtonPressed, _('IMDB search for current event')),
-				'redlong': (self.redButtonPressedLong, _('Sort EPG list')),
-				'green': (self.greenButtonPressed, _('Add/Remove timer for current event')),
-				'greenlong': (self.greenButtonPressedLong, _('Show timer list')),
-				'yellow': (self.yellowButtonPressed, _('Search for similar events')),
-				'blue': (self.blueButtonPressed, _('Add an autotimer for current event')),
-				'bluelong': (self.blueButtonPressedLong, _('Show Autotimer list'))
-			}, -1)
->>>>>>> upstream/Dev
 		self['colouractions'].csel = self
 		self['recordingactions'] = HelpableActionMap(self, 'InfobarInstantRecord',
 			{
