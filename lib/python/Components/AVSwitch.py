@@ -832,7 +832,7 @@ def InitAVSwitch():
 	if SystemInfo["CanDownmixAC3"]:
 
 		choices = [("downmix", _("Downmix")), ("passthrough", _("Passthrough"))]
-		default = "passthrough"
+		default = "downmix"
 
 		if SystemInfo["CanProc"]:
 			f = open("/proc/stb/audio/ac3_choices", "r")
@@ -843,11 +843,9 @@ def InitAVSwitch():
 			choices = [(ac3, _("%s") % ac3) for ac3 in ac3choiceslist]
 			default = ac3choiceslist[0]
 			for ac3choices in ac3choiceslist:
-				if "PASSTHROUGH" in ac3.upper():
+				if "DOWNMIX" in ac3.upper():
 					default = ac3
 					break
-			print "AVSwitch CanDownmixAC3: choices = %s" %choices
-			print "AVSwitch CanDownmixAC3: default = %s" %default
 
 		config.av.downmix_ac3 = ConfigSelection(choices = choices, default = default)
 		config.av.downmix_ac3.addNotifier(setAC3Downmix)
@@ -876,7 +874,7 @@ def InitAVSwitch():
 	if SystemInfo["CanDownmixDTS"]:
 
 		choice_list = [("downmix", _("Downmix")), ("passthrough", _("Passthrough"))]
-		default = "passthrough"
+		default = "downmix"
 
 		if SystemInfo["CanProc"]:
 			f = open("/proc/stb/audio/dts_choices", "r")
@@ -887,11 +885,9 @@ def InitAVSwitch():
 			choices = [(dts, _("%s") % dts) for dts in dtschoiceslist]
 			default = dtschoiceslist[0]
 			for dts in dtschoiceslist:
-				if "PASSTHROUGH" in dts.upper():
+				if "DOWNMIX" in dts.upper():
 					default = dts
 					break
-			print "AVSwitch CanDownmixDTS: choices = %s" %choices
-			print "AVSwitch CanDownmixDTS: default = %s" %default
 
 		config.av.downmix_dts = ConfigSelection(choices = choices, default = default)
 		config.av.downmix_dts.addNotifier(setDTSDownmix)
