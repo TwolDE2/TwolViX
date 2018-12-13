@@ -969,7 +969,7 @@ def InitAVSwitch():
 					default = aactranscode
 					break
 
-		config.av.transcodeaac = ConfigSelection(default = "off", choices = [("off", _("off")), ("ac3", _("AC3")), ("dts", _("DTS"))])
+		config.av.transcodeaac = ConfigSelection( choices = choices, default = default)
 		config.av.transcodeaac.addNotifier(setAACTranscode)
 	else:
 		config.av.transcodeaac = ConfigNothing()
@@ -990,7 +990,7 @@ def InitAVSwitch():
 					default = wmpapro
 					break
 
-		config.av.wmapro = ConfigSelection(choices = choice_list, default = default)
+		config.av.wmapro = ConfigSelection(choices = choices, default = default)
 		config.av.wmapro.addNotifier(setWMAPRO)
 
 	if SystemInfo["haveboxmode"]:
@@ -998,6 +998,7 @@ def InitAVSwitch():
 				"12": _("PIP enabled, no HDR"),
 				"1": _("HDR, 12bit 4:2:0/4:2:2, no PIP")},
 				default = "12")
+
 		config.av.boxmode.addNotifier(setBoxmode)
 	else:
 		config.av.boxmode = ConfigNothing()
@@ -1014,8 +1015,6 @@ def InitAVSwitch():
 	config.av.edid_override = ConfigYesNo(default = False)
 
 	iAVSwitch.setConfiguredMode()
-
-
 
 class VideomodeHotplug:
 	def __init__(self):
