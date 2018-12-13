@@ -612,7 +612,7 @@ def InitAVSwitch():
 
 	if SystemInfo["havecolorspace"]:
 
-		if getBoxType() in ('vuzero4k','vusolo4k','vuuno4k','vuuno4kse','vuultimo4k'):
+		if getBrandOEM() == "vuplus" and SystemInfo["HasMMC"]:
 			choices = [("Edid(Auto)", _("Auto")),
 						("Hdmi_Rgb", _("RGB")),
 						("444", _("YCbCr444")),

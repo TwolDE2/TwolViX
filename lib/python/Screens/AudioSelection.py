@@ -98,71 +98,6 @@ class AudioSelection(Screen, ConfigListScreen):
 			self.audioTracks = audio = service and service.audioTracks()
 			n = audio and audio.getNumberOfTracks() or 0
 
-			if SystemInfo["Can3DSurround"]:
-
-				choices = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
-				default = "none"
-
-				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/3d_surround_choices", "r")
-					Surr3Dchoices = f.read().strip()
-					f.close()
-
-					Surr3Dchoiceslist = Surr3Dchoices.split(" ")
-					choices = [(Surr3D, _("%s") % Surr3D) for Surr3D in Surr3Dchoiceslist]
-					default = Surr3Dchoiceslist[0]
-					for Surr3D in Surr3Dchoiceslist:
-						if "NONE" in Surr3D.upper():
-							default = Surr3D
-							break
-
-				self.settings.surround_3d = ConfigSelection(choices = choices, default = config.av.surround_3d.value)
-				self.settings.surround_3d.addNotifier(self.change3DSurround, initial_call = False)
-				conflist.append(getConfigListEntry(_("3D surround"), self.settings.surround_3d, None))
-
-			if SystemInfo["Can3DSpeaker"] and config.av.surround_3d.value != "none":
-				choices = [("center", _("center")), ("wide", _("wide")), ("extrawide", _("extra wide"))]
-				default = "center"
-
-				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/3d_surround_speaker_position_choices", "r")
-					Speaker3Dchoices = f.read().strip()
-					f.close()
-
-					Speaker3Dchoiceslist = Speaker3Dchoices.split(" ")
-					choices = [(Speaker3D, _("%s") % Speaker3D) for Speaker3D in Speaker3Dchoiceslist]
-					default = Speaker3Dchoiceslist[0]
-					for Speaker3D in Speaker3Dchoiceslist:
-						if "CENTER" in Speaker3D.upper():
-							default = Speaker3D
-							break
-
-				self.settings.surround_3d_speaker = ConfigSelection(choices = choices, default = config.av.surround_3d_speaker.value)
-				self.settings.surround_3d_speaker.addNotifier(self.change3DSurroundSpeaker)
-				conflist.append(getConfigListEntry(_("3D surround speaker position"), self.settings.surround_3d_speaker, None))
-
-			if SystemInfo["CanAutoVolume"]:
-				choices = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
-				default = "none"
-
-				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/avl_choices", "r")
-					AutoVolumechoices = f.read().strip()
-					f.close()
-					AutoVolumechoiceslist = AutoVolumechoices.split(" ")
-					choices = [(AutoVolume, _("%s") % AutoVolume) for AutoVolume in AutoVolumechoiceslist]
-					default = AutoVolumechoiceslist[0]
-
-					for AutoVolume in AutoVolumechoiceslist:
-						if "NONE" in AutoVolume.upper():
-							default = AutoVolume
-							break
-
-
-				self.settings.autovolume = ConfigSelection(choices = choices, default = config.av.autovolume.value)
-				self.settings.autovolume.addNotifier(self.changeAutoVolume)
-				conflist.append(getConfigListEntry(_("Auto volume level"), self.settings.autovolume, None))
-
 			if SystemInfo["CanPcmMultichannel"]:
 				self.settings.pcm_multichannel = ConfigOnOff(default=config.av.pcm_multichannel.value)
 				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call = False)
@@ -333,6 +268,71 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.wmapro = ConfigSelection(choices = choices, default = config.av.wmapro.value)
 				self.settings.wmapro.addNotifier(self.changeWMAPro, initial_call = False)
 				conflist.append(getConfigListEntry(_("WMA Pro downmix"), self.settings.wmapro, None))
+
+			if SystemInfo["Can3DSurround"]:
+
+				choices = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
+				default = "none"
+
+				if SystemInfo["CanProc"]:
+					f = open("/proc/stb/audio/3d_surround_choices", "r")
+					Surr3Dchoices = f.read().strip()
+					f.close()
+
+					Surr3Dchoiceslist = Surr3Dchoices.split(" ")
+					choices = [(Surr3D, _("%s") % Surr3D) for Surr3D in Surr3Dchoiceslist]
+					default = Surr3Dchoiceslist[0]
+					for Surr3D in Surr3Dchoiceslist:
+						if "NONE" in Surr3D.upper():
+							default = Surr3D
+							break
+
+				self.settings.surround_3d = ConfigSelection(choices = choices, default = config.av.surround_3d.value)
+				self.settings.surround_3d.addNotifier(self.change3DSurround, initial_call = False)
+				conflist.append(getConfigListEntry(_("3D surround"), self.settings.surround_3d, None))
+
+			if SystemInfo["Can3DSpeaker"] and config.av.surround_3d.value != "none":
+				choices = [("center", _("center")), ("wide", _("wide")), ("extrawide", _("extra wide"))]
+				default = "center"
+
+				if SystemInfo["CanProc"]:
+					f = open("/proc/stb/audio/3d_surround_speaker_position_choices", "r")
+					Speaker3Dchoices = f.read().strip()
+					f.close()
+
+					Speaker3Dchoiceslist = Speaker3Dchoices.split(" ")
+					choices = [(Speaker3D, _("%s") % Speaker3D) for Speaker3D in Speaker3Dchoiceslist]
+					default = Speaker3Dchoiceslist[0]
+					for Speaker3D in Speaker3Dchoiceslist:
+						if "CENTER" in Speaker3D.upper():
+							default = Speaker3D
+							break
+
+				self.settings.surround_3d_speaker = ConfigSelection(choices = choices, default = config.av.surround_3d_speaker.value)
+				self.settings.surround_3d_speaker.addNotifier(self.change3DSurroundSpeaker)
+				conflist.append(getConfigListEntry(_("3D surround speaker position"), self.settings.surround_3d_speaker, None))
+
+			if SystemInfo["CanAutoVolume"]:
+				choices = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
+				default = "none"
+
+				if SystemInfo["CanProc"]:
+					f = open("/proc/stb/audio/avl_choices", "r")
+					AutoVolumechoices = f.read().strip()
+					f.close()
+					AutoVolumechoiceslist = AutoVolumechoices.split(" ")
+					choices = [(AutoVolume, _("%s") % AutoVolume) for AutoVolume in AutoVolumechoiceslist]
+					default = AutoVolumechoiceslist[0]
+
+					for AutoVolume in AutoVolumechoiceslist:
+						if "NONE" in AutoVolume.upper():
+							default = AutoVolume
+							break
+
+
+				self.settings.autovolume = ConfigSelection(choices = choices, default = config.av.autovolume.value)
+				self.settings.autovolume.addNotifier(self.changeAutoVolume)
+				conflist.append(getConfigListEntry(_("Auto volume level"), self.settings.autovolume, None))
 
 			if n > 0:
 				self.audioChannel = service.audioChannel()
