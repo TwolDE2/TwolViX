@@ -104,233 +104,124 @@ class AudioSelection(Screen, ConfigListScreen):
 				conflist.append(getConfigListEntry(_("PCM multichannel"), self.settings.pcm_multichannel, None))
 
 			if SystemInfo["CanDownmixAC3"]:
-				choices = [("downmix", _("Downmix")), ("passthrough", _("Passthrough"))]
-				default = "passthrough"
+				self.choices = [("downmix", _("Downmix")), ("passthrough", _("Passthrough"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/ac3_choices", "r")
-					ac3choices = f.read().strip()
-					f.close()
+					self.f = "/proc/stb/audio/ac3_choices"
+					self.choices = self.read_choices(self.f)
 
-					ac3choiceslist = ac3choices.split(" ")
-					choices = [(ac3, _("%s") % ac3) for ac3 in ac3choiceslist]
-					default = ac3choiceslist[0]
-					for ac3choices in ac3choiceslist:
-						if "PASSTHROUGH" in ac3.upper():
-							default = ac3
-							break
-
-
-				self.settings.downmix_ac3 = ConfigSelection(choices = choices, default=config.av.downmix_ac3.value)
+				self.settings.downmix_ac3 = ConfigSelection(choices = self.choices, default=config.av.downmix_ac3.value)
 				self.settings.downmix_ac3.addNotifier(self.changeAC3Downmix, initial_call = False)
 				conflist.append(getConfigListEntry(_("AC3 downmix"), self.settings.downmix_ac3, None))
 
 			if SystemInfo["CanAC3plusTranscode"]:
-				choices = [("use_hdmi_caps", _("controlled by HDMI")), ("force_ac3", _("convert to AC3"))]
-				default = "force_ac3"
+				self.choices = [("use_hdmi_caps", _("controlled by HDMI")), ("force_ac3", _("convert to AC3"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/ac3plus_choices", "r")
-					ac3pluschoices = f.read().strip()
-					f.close()
+					self.f = "/proc/stb/audio/ac3plus_choices"
+					self.choices = self.read_choices(self.f)
 
-					ac3pluschoiceslist = ac3pluschoices.split(" ")
-					choices = [(ac3plus, _("%s") % ac3plus) for ac3plus in ac3pluschoiceslist]
-					default = ac3pluschoiceslist[0]
-					for ac3plus in ac3pluschoiceslist:
-						if "FORCE_AC3" in ac3plus.upper():
-							default = ac3plus
-							break
-
-				self.settings.transcodeac3plus = ConfigSelection(choices = choices, default = config.av.transcodeac3plus.value)
+				self.settings.transcodeac3plus = ConfigSelection(choices = self.choices, default = config.av.transcodeac3plus.value)
 				self.settings.transcodeac3plus.addNotifier(self.setAC3plusTranscode, initial_call = False)
 				conflist.append(getConfigListEntry(_("AC3plus transcoding"), self.settings.transcodeac3plus, None))
 
 			if SystemInfo["CanDTSHD"]:
-				choices = [("downmix",  _("Downmix")), ("force_dts", _("convert to DTS")), ("use_hdmi_caps",  _("controlled by HDMI")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
-				default = "downmix"
+				self.choices = [("downmix",  _("Downmix")), ("force_dts", _("convert to DTS")), ("use_hdmi_caps",  _("controlled by HDMI")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/dtshd_choices", "r")
-					dtshdchoices = f.read().strip()
-					f.close()
-					dtshdchoiceslist = dtshdchoices.split(" ")
-					choices = [(dtshd, _("%s") % dtshd) for dtshd in dtshdchoiceslist]
-					default = dtshdchoiceslist[0]
-					for dtshd in dtshdchoiceslist:
-						if "DOWNMIX" in dtshd.upper():
-							default = dtshd
-							break
+					self.f = "/proc/stb/audio/dtshd_choices"
+					self.choices = self.read_choices(self.f)
 
-				self.settings.dtshd = ConfigSelection(choices = choices, default = config.av.dtshd.value)
+				self.settings.dtshd = ConfigSelection(choices = self.choices, default = config.av.dtshd.value)
 				self.settings.dtshd.addNotifier(self.changeDTSHD, initial_call = False)
 				conflist.append(getConfigListEntry(_("DTS HD downmix"), self.settings.dtshd, None))
 
 			elif SystemInfo["CanDownmixDTS"]:
-				choice_list = [("downmix", _("Downmix")), ("passthrough", _("Passthrough"))]
-				default = "passthrough"
+				self.choices = [("downmix", _("Downmix")), ("passthrough", _("Passthrough"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/dts_choices", "r")
-					dtschoices = f.read().strip()
-					f.close()
+					self.f = "/proc/stb/audio/dts_choices"
+					self.choices = self.read_choices(self.f)
 
-					dtschoiceslist = dtschoices.split(" ")
-					choices = [(dts, _("%s") % dts) for dts in dtschoiceslist]
-					default = dtschoiceslist[0]
-					for dts in dtschoiceslist:
-						if "PASSTHROUGH" in dts.upper():
-							default = dts
-							break
-
-
-				self.settings.downmix_dts = ConfigSelection(choices = choices, default=config.av.downmix_dts.value)
+				self.settings.downmix_dts = ConfigSelection(choices = self.choices, default=config.av.downmix_dts.value)
 				self.settings.downmix_dts.addNotifier(self.changeDTSDownmix, initial_call = False)
 				conflist.append(getConfigListEntry(_("DTS downmix"), self.settings.downmix_dts, None))
 
 			if SystemInfo["CanDownmixAACPlus"]:
-				choices = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("force_ac3", _("convert to AC3")), ("force_dts",  _("convert to DTS")), ("use_hdmi_cacenter",  _("use_hdmi_cacenter")), ("wide",  _("wide")), ("extrawide",  _("extrawide"))]
-				default = "downmix"
-
+				self.choices = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("force_ac3", _("convert to AC3")), ("force_dts",  _("convert to DTS")), ("use_hdmi_cacenter",  _("use_hdmi_cacenter")), ("wide",  _("wide")), ("extrawide",  _("extrawide"))]
+				
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/aacplus_choices", "r")
-					aacpluschoices = f.read().strip()
-					f.close()
-					aacpluschoiceslist = aacpluschoices.split(" ")
-					choices = [(aacplus, _("%s") % aacplus) for aacplus in aacpluschoiceslist]
-					default = aacpluschoiceslist[0]
-					for aacplus in aacpluschoiceslist:
-						if "DOWNMIX" in aacplus.upper():
-							default = aacplus
-							break
+					self.f = "/proc/stb/audio/aacplus_choices"
+					self.choices = self.read_choices(self.f)
 
-				self.settings.downmix_aacplus = ConfigSelection(choices = choices, default=config.av.downmix_aacplus.value)
+				self.settings.downmix_aacplus = ConfigSelection(choices = self.choices, default=config.av.downmix_aacplus.value)
 				self.settings.downmix_aacplus.addNotifier(self.changeAACDownmixPlus, initial_call = False)
 				conflist.append(getConfigListEntry(_("AAC Plus downmix"), self.settings.downmix_aacplus, None))
 
 			elif SystemInfo["CanDownmixAAC"]:
-				choices = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough"))]
-				default = "downmix"
+				self.choices = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/aac_choices", "r")
-					aacchoices = f.read().strip()
-					f.close()
-					aacchoiceslist = aacchoices.split(" ")
-					choices = [(aac, _("%s") % aac) for aac in aacchoiceslist]
-					default = aacchoiceslist[0]
-					for aac in aacchoiceslist:
-						if "DOWNMIX" in aac.upper():
-							default = aac
-							break
+					self.f = "/proc/stb/audio/aac_choices"
+					self.choices = self.read_choices(self.f)
 
-				self.settings.downmix_aac = ConfigSelection(choices = choices, default=config.av.downmix_aac.value)
+				self.settings.downmix_aac = ConfigSelection(choices = self.choices, default=config.av.downmix_aac.value)
 				self.settings.downmix_aac.addNotifier(self.changeAACDownmix, initial_call = False)
 				conflist.append(getConfigListEntry(_("AAC downmix"), self.settings.downmix_aac, None))
 
 			if SystemInfo["CanAACTranscode"]:
-				choices = [("off", _("off")), ("ac3", _("AC3")), ("dts", _("DTS"))]
-				default = "off"
+				self.choices = [("off", _("off")), ("ac3", _("AC3")), ("dts", _("DTS"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/aac_transcode_choices", "r")
-					aactranscodechoices = f.read().strip()
-					f.close()
-					aactranscodechoiceslist = aactranscodechoices.split(" ")
-					choices = [(aactranscode, _("%s") % aactranscode) for aactranscode in aactranscodechoiceslist]
-					default = aactranscodechoiceslist[0]
-					for aactranscode in aactranscodechoiceslist:
-						if "OFF" in aactranscode.upper():
-							default = aactranscode
-							break
+					self.f = "/proc/stb/audio/aac_transcode_choices"
+					self.choices = self.read_choices(self.f)
 
-				self.settings.transcodeaac = ConfigSelection(choices = choices, default = config.av.transcodeaac.value)
+				self.settings.transcodeaac = ConfigSelection(choices = self.choices, default = config.av.transcodeaac.value)
 				self.settings.transcodeaac.addNotifier(self.setAACTranscode, initial_call = False)
 				conflist.append(getConfigListEntry(_("AAC transcoding"), self.settings.transcodeaac, None))
 
 
 			if SystemInfo["CanWMAPRO"]:
-				choices = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
-				default = "downmix"
+				self.choices = [("downmix",  _("Downmix")), ("passthrough", _("Passthrough")), ("multichannel",  _("convert to multi-channel PCM")), ("hdmi_best",  _("use best / controlled by HDMI"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/wmapro_choices", "r")
-					wmpaprochoices = f.read().strip()
-					f.close()
-					wmpaprochoiceslist = wmpaprochoices.split(" ")
-					choices = [(wmpapro, _("%s") % wmpapro) for wmpapro in wmpaprochoiceslist]
-					default = wmpaprochoiceslist[0]
-					for wmpapro in wmpaprochoiceslist:
-						if "DOWNMIX" in wmpapro.upper():
-							default = wmpapro
-							break
+					self.f = "/proc/stb/audio/wmapro_choices"
+					self.choices = self.read_choices(self.f)
 
-				self.settings.wmapro = ConfigSelection(choices = choices, default = config.av.wmapro.value)
+				self.settings.wmapro = ConfigSelection(choices = self.choices, default = config.av.wmapro.value)
 				self.settings.wmapro.addNotifier(self.changeWMAPro, initial_call = False)
 				conflist.append(getConfigListEntry(_("WMA Pro downmix"), self.settings.wmapro, None))
 
 			if SystemInfo["Can3DSurround"]:
-
-				choices = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
-				default = "none"
+				self.choices = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/3d_surround_choices", "r")
-					Surr3Dchoices = f.read().strip()
-					f.close()
+					self.f = "/proc/stb/audio/3d_surround_choices"
+					self.choices = self.read_choices(self.f)
 
-					Surr3Dchoiceslist = Surr3Dchoices.split(" ")
-					choices = [(Surr3D, _("%s") % Surr3D) for Surr3D in Surr3Dchoiceslist]
-					default = Surr3Dchoiceslist[0]
-					for Surr3D in Surr3Dchoiceslist:
-						if "NONE" in Surr3D.upper():
-							default = Surr3D
-							break
-
-				self.settings.surround_3d = ConfigSelection(choices = choices, default = config.av.surround_3d.value)
+				self.settings.surround_3d = ConfigSelection(choices = self.choices, default = config.av.surround_3d.value)
 				self.settings.surround_3d.addNotifier(self.change3DSurround, initial_call = False)
 				conflist.append(getConfigListEntry(_("3D surround"), self.settings.surround_3d, None))
 
 			if SystemInfo["Can3DSpeaker"] and config.av.surround_3d.value != "none":
-				choices = [("center", _("center")), ("wide", _("wide")), ("extrawide", _("extra wide"))]
-				default = "center"
+				self.choices = [("center", _("center")), ("wide", _("wide")), ("extrawide", _("extra wide"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/3d_surround_speaker_position_choices", "r")
-					Speaker3Dchoices = f.read().strip()
-					f.close()
-
-					Speaker3Dchoiceslist = Speaker3Dchoices.split(" ")
-					choices = [(Speaker3D, _("%s") % Speaker3D) for Speaker3D in Speaker3Dchoiceslist]
-					default = Speaker3Dchoiceslist[0]
-					for Speaker3D in Speaker3Dchoiceslist:
-						if "CENTER" in Speaker3D.upper():
-							default = Speaker3D
-							break
+					self.f = "/proc/stb/audio/3d_surround_speaker_position_choices"
+					self.choices = self.read_choices(self.f)
 
 				self.settings.surround_3d_speaker = ConfigSelection(choices = choices, default = config.av.surround_3d_speaker.value)
 				self.settings.surround_3d_speaker.addNotifier(self.change3DSurroundSpeaker)
 				conflist.append(getConfigListEntry(_("3D surround speaker position"), self.settings.surround_3d_speaker, None))
 
 			if SystemInfo["CanAutoVolume"]:
-				choices = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
-				default = "none"
+				self.choices = [("none", _("off")), ("hdmi", _("HDMI")), ("spdif", _("SPDIF")), ("dac", _("DAC"))]
 
 				if SystemInfo["CanProc"]:
-					f = open("/proc/stb/audio/avl_choices", "r")
-					AutoVolumechoices = f.read().strip()
-					f.close()
-					AutoVolumechoiceslist = AutoVolumechoices.split(" ")
-					choices = [(AutoVolume, _("%s") % AutoVolume) for AutoVolume in AutoVolumechoiceslist]
-					default = AutoVolumechoiceslist[0]
+					self.f = "/proc/stb/audio/avl_choices"
+					self.choices = self.read_choices(self.f)
 
-					for AutoVolume in AutoVolumechoiceslist:
-						if "NONE" in AutoVolume.upper():
-							default = AutoVolume
-							break
-
-
-				self.settings.autovolume = ConfigSelection(choices = choices, default = config.av.autovolume.value)
+				self.settings.autovolume = ConfigSelection(choices = self.choices, default = config.av.autovolume.value)
 				self.settings.autovolume.addNotifier(self.changeAutoVolume)
 				conflist.append(getConfigListEntry(_("Auto volume level"), self.settings.autovolume, None))
 
@@ -556,6 +447,16 @@ class AudioSelection(Screen, ConfigListScreen):
 		if isinstance(track, int):
 			if self.session.nav.getCurrentService().audioTracks().getNumberOfTracks() > track:
 				self.audioTracks.selectTrack(track)
+
+	def read_choices(self, procx):
+		with open(procx, 'r') as self.myfile:
+			self.choices = self.myfile.read().strip()
+		self.myfile.close()
+		if self.choices:
+			self.choiceslist = self.choices.split(" ")
+			self.choicesx = [(item, _("%s") % item) for item in self.choiceslist]
+#		print "choices", self.choicesx
+		return self.choicesx
 
 	def keyLeft(self):
 		if self.focus == FOCUS_CONFIG:
