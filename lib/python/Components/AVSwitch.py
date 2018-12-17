@@ -803,7 +803,7 @@ def InitAVSwitch():
 		config.av.downmix_ac3 = ConfigSelection(choices = choices, default = default)
 		config.av.downmix_ac3.addNotifier(setAC3Downmix)
 
-	if SystemInfo["CanAC3plusTranscode"]:
+	if SystemInfo["CanAC3Transcode"]:
 
 		choices = [("use_hdmi_caps", _("controlled by HDMI")), ("force_ac3", _("convert to AC3"))]
 		default = "force_ac3"
