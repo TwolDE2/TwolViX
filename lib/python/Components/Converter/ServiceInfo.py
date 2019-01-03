@@ -41,6 +41,11 @@ class ServiceInfo(Converter, object):
 	FREQ_INFO = 32
 	PROGRESSIVE = 33
 	VIDEO_INFO = 34
+	IS_IPSTREAM = 35
+	IS_SDR = 36
+	IS_HDR = 37
+	IS_HDR10 = 38
+	IS_HLG = 39
 
 	def __init__(self, type):
 		Converter.__init__(self, type)
@@ -79,6 +84,11 @@ class ServiceInfo(Converter, object):
 			"Is576": (self.IS_576, (iPlayableService.evVideoSizeChanged,)),
 			"Is480": (self.IS_480, (iPlayableService.evVideoSizeChanged,)),
 			"Is4K": (self.IS_4K, (iPlayableService.evVideoSizeChanged,)),
+			"IsIPStream": (self.IS_IPSTREAM, (iPlayableService.evUpdatedInfo,)),
+			"IsSDR": (self.IS_SDR, (iPlayableService.evVideoGammaChanged,)),
+			"IsHDR": (self.IS_HDR, (iPlayableService.evVideoGammaChanged,)),
+			"IsHDR10": (self.IS_HDR10, (iPlayableService.evVideoGammaChanged,)),
+			"IsHLG": (self.IS_HLG, (iPlayableService.evVideoGammaChanged,)),
 		}[type]
 
 	def getServiceInfoString(self, info, what, convert=lambda x: "%d" % x):
@@ -207,6 +217,16 @@ class ServiceInfo(Converter, object):
 			return video_height > 0 and video_height <= 480
 		elif self.type == self.IS_4K:
 			return video_height >= 2100
+		elif self.type == self.IS_IPSTREAM:
+			return service.streamed() is not None
+		elif self.type == self.IS_SDR:
+			return info.getInfo(iServiceInformation.sGamma) == 0
+		elif self.type == self.IS_HDR:
+			return info.getInfo(iServiceInformation.sGamma) == 1
+		elif self.type == self.IS_HDR10:
+			return info.getInfo(iServiceInformation.sGamma) == 2
+		elif self.type == self.IS_HLG:
+			return info.getInfo(iServiceInformation.sGamma) == 3
 		elif self.PROGRESSIVE:
 			return bool(self._getProgressive(info))
 		return False
