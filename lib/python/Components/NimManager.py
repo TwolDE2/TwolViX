@@ -1427,6 +1427,11 @@ def InitNimManager(nimmgr, update_slots = []):
 		if os.path.exists("/proc/stb/frontend/%d/t2mirawmode" % slot):
 			open("/proc/stb/frontend/%d/t2mirawmode" % slot, "w").write(configElement.value)
 
+	def t2miRawModeChanged(configElement):
+		slot = configElement.slot
+		if os.path.exists("/proc/stb/frontend/%d/t2mirawmode" % slot):
+			open("/proc/stb/frontend/%d/t2mirawmode" % slot, "w").write(configElement.value)
+
 	def createSatConfig(nim, x, empty_slots):
 		try:
 			nim.toneAmplitude
