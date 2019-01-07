@@ -314,6 +314,8 @@ class EPGList(GUIComponent):
 
 		# cache service number width
 		if self.showServiceNumber:
+			print "EPGLIST-PY********************************* %s" %self.type
+			font_conf = config.epgselection.infobar_servfs.value
 			if self.type == EPG_TYPE_GRAPH:
 				font_conf = config.epgselection.graph_servfs.value
 			elif self.type == EPG_TYPE_INFOBARGRAPH:
