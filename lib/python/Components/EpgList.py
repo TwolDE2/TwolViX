@@ -314,14 +314,14 @@ class EPGList(GUIComponent):
 
 		# cache service number width
 		if self.showServiceNumber:
-			print "EPGLIST-PY********************************* %s" %self.type
-			font_conf = config.epgselection.infobar_servfs.value
 			if self.type == EPG_TYPE_GRAPH:
 				font_conf = config.epgselection.graph_servfs.value
+				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + font_conf)
+				self.serviceNumberWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
 			elif self.type == EPG_TYPE_INFOBARGRAPH:
 				font_conf = config.epgselection.infobar_servfs.value
-			font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + font_conf)
-			self.serviceNumberWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
+				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + font_conf)
+				self.serviceNumberWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
 
 		return rc
 
