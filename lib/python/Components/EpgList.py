@@ -313,15 +313,15 @@ class EPGList(GUIComponent):
 		self.setFontsize()
 
 		# cache service number width
-		if self.showServiceNumber:
-			if self.type == EPG_TYPE_GRAPH:
-				font_conf = config.epgselection.graph_servfs.value
-				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + font_conf)
-				self.serviceNumberWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
-			elif self.type == EPG_TYPE_INFOBARGRAPH:
-				font_conf = config.epgselection.infobar_servfs.value
-				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + font_conf)
-				self.serviceNumberWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
+                if self.showServiceNumber:
+                        font_conf = None
+                        if self.type == EPG_TYPE_GRAPH:
+                                font_conf = config.epgselection.graph_servfs.value
+                        elif self.type == EPG_TYPE_INFOBARGRAPH:
+                                font_conf = config.epgselection.infobar_servfs.value
+                        if font_conf != None:
+                                font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + font_conf)
+                                self.serviceNumberWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
 
 		return rc
 
