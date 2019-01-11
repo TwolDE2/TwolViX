@@ -313,15 +313,15 @@ class EPGList(GUIComponent):
 		self.setFontsize()
 
 		# cache service number width
-                if self.showServiceNumber:
-                        font_conf = None
-                        if self.type == EPG_TYPE_GRAPH:
-                                font_conf = config.epgselection.graph_servfs.value
-                        elif self.type == EPG_TYPE_INFOBARGRAPH:
-                                font_conf = config.epgselection.infobar_servfs.value
-                        if font_conf != None:
-                                font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + font_conf)
-                                self.serviceNumberWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
+		if self.showServiceNumber:
+			font_conf = None
+			if self.type == EPG_TYPE_GRAPH:
+				font_conf = config.epgselection.graph_servfs.value
+			elif self.type == EPG_TYPE_INFOBARGRAPH:
+				font_conf = config.epgselection.infobar_servfs.value
+			if font_conf != None:
+				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + font_conf)
+				self.serviceNumberWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000" ).width()
 
 		return rc
 
@@ -1554,11 +1554,13 @@ class TimelineText(GUIComponent):
 		return rc
 
 	def setTimeLineFontsize(self):
+		font_conf = None
 		if self.type == EPG_TYPE_GRAPH:
 			font_conf= config.epgselection.graph_timelinefs.value
 		elif self.type == EPG_TYPE_INFOBARGRAPH:
 			font_conf = config.epgselection.infobar_timelinefs.value
-		self.l.setFont(0, gFont(self.timelineFontName, self.timelineFontSize + font_conf))
+		if font_conf != None:
+			self.l.setFont(0, gFont(self.timelineFontName, self.timelineFontSize + font_conf))
 
 	def postWidgetCreate(self, instance):
 		self.setTimeLineFontsize()
