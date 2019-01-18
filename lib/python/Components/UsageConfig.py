@@ -364,6 +364,7 @@ def InitUsageConfig():
 	config.usage.show_channel_numbers_in_servicelist.addNotifier(refreshServiceList)
 
 	#standby
+
 	if getDisplayType() in ('textlcd7segment'):
 		config.usage.blinking_display_clock_during_recording = ConfigSelection(default = "Rec", choices = [
 						("Rec", _("REC")), 
@@ -684,7 +685,6 @@ def InitUsageConfig():
 		(_("%-m/%d"), _("Day M/DD")),
 		(_("%-m/%-d"), _("Day M/D"))
 	])
-
 	config.usage.date.displayday = ConfigText(default=_("%a %-d+%b_"))
 	config.usage.date.display_template = ConfigText(default=_("%-d+%b_"))
 	config.usage.date.compact = ConfigText(default=_("%-d+%b_"))

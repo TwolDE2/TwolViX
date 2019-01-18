@@ -235,7 +235,8 @@
 		<item level="0" text="LED Normal" description="LED brightness during normal operations." requires="LEDButtons">config.lcd.ledbrightness</item>
 		<item level="0" text="LED Standby" description="LED brightness during standby." requires="LEDButtons">config.lcd.ledbrightnessstandby</item>
 		<item level="0" text="LED Deep Standby" description="LED brightness during deep standby." requires="LEDButtons">config.lcd.ledbrightnessdeepstandby</item>
-		<item level="0" text="StandbyLED" description="Turn on the power LED during standby." requires="StandbyLED">config.usage.standbyLED</item>
+		<item level="0" text="Standby LED" description="Turn on the power LED during standby." requires="StandbyLED">config.usage.standbyLED</item>
+		<item level="0" text="Deep Standby LED" description="Turn on the power LED during deep standby." requires="StandbyLED">config.usage.suspendLED</item>
 		<item level="0" requires="7segment" text="Show in Standby" description="This option allows you choose how to display the Time or nothing in Standby">config.usage.show_in_standby</item>
 		<item level="2" text="Initial scroll delay" description="Delay in milliseconds before start of scrolling text on display." requires="VFD_initial_scroll_delay">config.usage.vfd_initial_scroll_delay</item>
 		<item level="2" text="Final scroll delay" description="Delay in milliseconds after finish scrolling text on display." requires="VFD_final_scroll_delay">config.usage.vfd_final_scroll_delay</item>
