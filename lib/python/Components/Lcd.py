@@ -218,9 +218,9 @@ class LCD:
 		eDBoxLCD.getInstance().setLED(value, 2)
 
 	def setLEDStandby(self, value):
-		open(SystemInfo["StandbyLED"], "w").write(value and "on" or "off"
+		open(SystemInfo["StandbyLED"], "w").write(value and "on" or "off")
 
-	def setLEDSuspend(self, value):
+	def setLEDDeepSuspend(self, value):
 		open(SystemInfo["SuspendLED"], "w").write(value and "on" or "off")
 
 	def setLCDMiniTVMode(self, value):
@@ -279,7 +279,7 @@ def InitLcd():
 
 	if SystemInfo["SuspendLED"]:
 		def setLEDsuspend(configElement):
-			ilcd.setLEDSuspend(configElement.value)
+			ilcd.setLEDDeepSuspend(configElement.value)
 		config.usage.suspendLED = ConfigYesNo(default = True)
 		config.usage.suspendLED.addNotifier(setLEDsuspend)
 
