@@ -929,8 +929,6 @@ def InitUsageConfig():
 	])
 	config.timeshift.permanentrecording = ConfigYesNo(default=False)
 	config.timeshift.isRecording = NoSave(ConfigYesNo(default=False))
-	config.timeshift.stream_warning = ConfigYesNo(default=False)
-
 	config.seek = ConfigSubsection()
 	config.seek.baractivation = ConfigSelection(default="leftright", choices=[
 		("leftright", _("Long Left/Right")),
