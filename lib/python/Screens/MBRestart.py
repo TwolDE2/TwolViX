@@ -48,6 +48,9 @@ class MultiBoot(Screen):
 			self["labe15"] = StaticText(_("Mode 1 suppports Kodi, PiP may not work.\nMode 12 supports PiP, Kodi may not work."))
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent('',((_("Retrieving image slots - Please wait...")), "Queued"))])
 		imagedict = []
+		self.mtdboot = "%s1" % SystemInfo["canMultiBoot"][2]
+ 		if SystemInfo["HasSDmmc"]:
+			self.mtdboot = "mmcblk0p3"
 		self.getImageList = None
 		self.title = screentitle
 		if not SystemInfo["HasSDmmc"] or SystemInfo["HasSDmmc"] and pathExists('/dev/%s4' %(SystemInfo["canMultiBoot"][2])):
@@ -108,7 +111,7 @@ class MultiBoot(Screen):
 				self.ContainterFallback()
 			else:
 				mkdir('/tmp/startupmount')
-				self.container.ePopen('mount /dev/%s1 /tmp/startupmount' % SystemInfo["canMultiBoot"][2], self.ContainterFallback)
+				self.container.ePopen('mount /dev/%s /tmp/startupmount' % self.mtdboot, self.ContainterFallback)
 
 	def ContainterFallback(self, data=None, retval=None, extra_args=None):
 		self.container.killAll()
