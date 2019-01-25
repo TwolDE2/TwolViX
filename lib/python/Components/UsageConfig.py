@@ -1025,6 +1025,7 @@ def InitUsageConfig():
 		("1", _("Show menu"))
 	])
 
+<<<<<<< HEAD
 	if SystemInfo["HasForceLNBOn"]:
 		def forceLNBPowerChanged(configElement):
 			open(SystemInfo["HasForceLNBOn"], "w").write(configElement.value)
@@ -1043,6 +1044,8 @@ def InitUsageConfig():
 		])
 		config.misc.forceToneBurst.addNotifier(forceToneBurstChanged)
 
+=======
+>>>>>>> upstream/Dev
 	config.subtitles = ConfigSubsection()
 	config.subtitles.ttx_subtitle_colors = ConfigSelection(default="1", choices=[
 		("0", _("original")),

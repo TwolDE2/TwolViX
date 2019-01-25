@@ -1047,9 +1047,7 @@ int eMPEGStreamParserTS::processPacket(const unsigned char *pkt, off_t offset)
 				case eDVBVideo::MPEG1:
 				case eDVBVideo::AVS:
 				{
-					eDebug("[eMPEGStreamParserTS]: unknown streamtype: %d ", m_streamtype);
-
-					break;
+					break; /* TODO: add parser for above codecs */
 				}
 			}
 		}
