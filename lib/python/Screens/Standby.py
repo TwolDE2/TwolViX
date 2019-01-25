@@ -7,8 +7,8 @@ import Components.ParentalControl
 from Components.SystemInfo import SystemInfo
 from Components.Sources.StaticText import StaticText
 from GlobalActions import globalActionMap
-from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM
 from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer
+from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM
 from Components.Sources.StreamService import StreamServiceList
 from Tools import Notifications
 from time import localtime, time
