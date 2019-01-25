@@ -364,6 +364,7 @@ def InitUsageConfig():
 	config.usage.show_channel_numbers_in_servicelist.addNotifier(refreshServiceList)
 
 	#standby
+
 	if getDisplayType() in ('textlcd7segment'):
 		config.usage.blinking_display_clock_during_recording = ConfigSelection(default = "Rec", choices = [
 						("Rec", _("REC")), 
@@ -684,7 +685,6 @@ def InitUsageConfig():
 		(_("%-m/%d"), _("Day M/DD")),
 		(_("%-m/%-d"), _("Day M/D"))
 	])
-
 	config.usage.date.displayday = ConfigText(default=_("%a %-d+%b_"))
 	config.usage.date.display_template = ConfigText(default=_("%-d+%b_"))
 	config.usage.date.compact = ConfigText(default=_("%-d+%b_"))
@@ -929,8 +929,6 @@ def InitUsageConfig():
 	])
 	config.timeshift.permanentrecording = ConfigYesNo(default=False)
 	config.timeshift.isRecording = NoSave(ConfigYesNo(default=False))
-	config.timeshift.stream_warning = ConfigYesNo(default=True)
-
 	config.seek = ConfigSubsection()
 	config.seek.baractivation = ConfigSelection(default="leftright", choices=[
 		("leftright", _("Long Left/Right")),
@@ -1024,28 +1022,6 @@ def InitUsageConfig():
 		("0", _("Just zap")),
 		("1", _("Show menu"))
 	])
-
-<<<<<<< HEAD
-	if SystemInfo["HasForceLNBOn"]:
-		def forceLNBPowerChanged(configElement):
-			open(SystemInfo["HasForceLNBOn"], "w").write(configElement.value)
-		config.misc.forceLnbPower = ConfigSelection(default="off", choices=[
-			("on", _("Yes")),
-			("off", _("No"))
-		])
-		config.misc.forceLnbPower.addNotifier(forceLNBPowerChanged)
-
-	if SystemInfo["HasForceToneburst"]:
-		def forceToneBurstChanged(configElement):
-			open(SystemInfo["HasForceToneburst"], "w").write(configElement.value)
-		config.misc.forceToneBurst = ConfigSelection(default="disable", choices=[
-			("enable", _("Yes")),
-			("disable", _("No"))
-		])
-		config.misc.forceToneBurst.addNotifier(forceToneBurstChanged)
-
-=======
->>>>>>> upstream/Dev
 	config.subtitles = ConfigSubsection()
 	config.subtitles.ttx_subtitle_colors = ConfigSelection(default="1", choices=[
 		("0", _("original")),
