@@ -4,7 +4,7 @@ from Tools.CList import CList
 from Components.SystemInfo import SystemInfo
 from Components.Console import Console
 from Tools.HardwareInfo import HardwareInfo
-from boxbranding import getBoxType, getMachineBuild, getMachineMtdRoot
+from boxbranding import getMachineBuild, getMachineMtdRoot
 import Task
 import re
 
