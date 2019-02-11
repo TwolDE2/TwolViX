@@ -4,6 +4,7 @@ from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.Console import Console
 from Components.Label import Label
 from Components.SystemInfo import SystemInfo
+from Screens.Standby import TryQuitMainloop
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Tools.BoundFunction import boundFunction
@@ -42,8 +43,8 @@ class H9SDswap(Screen):
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
 		{
 			"red": boundFunction(self.close, None),
-			"green": self.SDInit,
-			"yellow": self.SDswap,
+			"green": self.SwaptoNand,
+			"yellow": self.SwaptoSD,
 			"blue": self.reboot,
 			"ok": self.reboot,
 			"cancel": boundFunction(self.close, None),
@@ -61,7 +62,7 @@ class H9SDswap(Screen):
 #		cmdlist.append("dd if=/usr/script/bootargs-nand.bin of=/dev/mtdblock1")
 #		self.session.open(Console, cmdlist = cmdlist, closeOnSuccess = True)
 		self.container = Console()
-		self.container.ePopen("dd if=/usr/lib/enigma2/python/Plugins/SystemPlugins/ViX/bootargs-nand.bin of=/dev/mtdblock1", self.ContainterFallback)
+		self.container.ePopen("dd if=/usr/H9S/bootargs-nand.bin of=/dev/mtdblock1", self.ContainterFallback)
 	
 
 	def SwaptoSD(self):
@@ -69,7 +70,7 @@ class H9SDswap(Screen):
 #		cmdlist.append("dd if=/usr/H9S/bootargs-mmc.bin of=/dev/mtdblock1")
 #		self.session.open(Console, cmdlist = cmdlist, closeOnSuccess = True)
 		self.container = Console()
-		self.container.ePopen("dd if=/usr/lib/enigma2/python/Plugins/SystemPlugins/ViX/bootargs-nand.bin of=/dev/mtdblock1", self.ContainterFallback)
+		self.container.ePopen("dd if=/usr/H9S/bootargs-mmc.bin of=/dev/mtdblock1", self.ContainterFallback)
 
 	def reboot(self):
 		self.session.open(TryQuitMainloop, 2)
