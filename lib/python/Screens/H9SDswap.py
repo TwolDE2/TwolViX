@@ -1,3 +1,4 @@
+import os
 from Components.Sources.StaticText import StaticText
 from Components.ActionMap import ActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
@@ -8,6 +9,7 @@ from Screens.Standby import TryQuitMainloop
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Tools.BoundFunction import boundFunction
+from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 
 
 class H9SDswap(Screen):
@@ -28,18 +30,20 @@ class H9SDswap(Screen):
 		<widget source="key_blue" render="Label" position="630,200" size="150,30" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 		<eLabel position="20,200" size="6,40" backgroundColor="#00e61700" /> <!-- Should be a pixmap -->
 		<eLabel position="190,200" size="6,40" backgroundColor="#0061e500" /> <!-- Should be a pixmap -->
+		<eLabel position="407,209" size="6,40" backgroundColor="#00e5b243" />
 	</screen>
 	"""
 
 	def __init__(self, session, *args):
 		Screen.__init__(self, session)
 		self.skinName = "H9SDswap"
-		screentitle = _("H9 swap root to SD card")
+		screentitle = _("H9 switch Nand and SDcard")
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("SwaptoNand"))
 		self["key_yellow"] = StaticText(_("SwaptoSD"))
 		self["key_blue"] = StaticText(_("Reboot"))
 		self.title = screentitle
+		self.switchtype = " "
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
 		{
 			"red": boundFunction(self.close, None),
@@ -53,30 +57,31 @@ class H9SDswap(Screen):
 
 	def layoutFinished(self):
 		self.setTitle(self.title)
-#
-#				if os.path.exists("/usr/scripts/standby_enter.sh"):
-#					Console().ePopen("/usr/scripts/standby_enter.sh")
 
 	def SwaptoNand(self):
-#		cmdlist = []
-#		cmdlist.append("dd if=/usr/script/bootargs-nand.bin of=/dev/mtdblock1")
-#		self.session.open(Console, cmdlist = cmdlist, closeOnSuccess = True)
-		self.container = Console()
-		self.container.ePopen("dd if=/usr/H9S/bootargs-nand.bin of=/dev/mtdblock1", self.ContainterFallback)
-	
+		self.switchtype = "Nand"
+		f = open('/proc/cmdline', 'r').read()
+		if "root=/dev/mmcblk0p1"  in f:
+			self.container = Console()
+			self.container.ePopen("dd if=/usr/share/bootargs-nand.bin of=/dev/mtdblock1", self.Unm)
+		else:
+			self.session.open(MessageBox, _("H9 SDcard switch ERROR! - already on Nand"), MessageBox.TYPE_INFO, timeout=20)
 
 	def SwaptoSD(self):
-#		cmdlist = []
-#		cmdlist.append("dd if=/usr/H9S/bootargs-mmc.bin of=/dev/mtdblock1")
-#		self.session.open(Console, cmdlist = cmdlist, closeOnSuccess = True)
-		self.container = Console()
-		self.container.ePopen("dd if=/usr/H9S/bootargs-mmc.bin of=/dev/mtdblock1", self.ContainterFallback)
+		self.switchtype = "mmc"
+		f = open('/proc/cmdline', 'r').read()
+		print "[H9SDswap] switchtype %s cmdline %s" %(self.switchtype, f) 
+		if "root=/dev/mmcblk0p1" in f:
+			self.session.open(MessageBox, _("H9 SDcard switch ERROR! - already on mmc"), MessageBox.TYPE_INFO, timeout=20)
+		elif os.path.isfile("/media/mmc/usr/bin/enigma2"):
+			self.container = Console()
+			self.container.ePopen("dd if=/usr/share/bootargs-mmc.bin of=/dev/mtdblock1", self.Unm)
+		else:
+			self.session.open(MessageBox, _("H9 SDcard switch ERROR! - H9 root files not transferred to SD card"), MessageBox.TYPE_INFO, timeout=20)
+
+	def Unm(self, data=None, retval=None, extra_args=None):
+		self.container.killAll()
+		self.session.open(TryQuitMainloop, 2)	
 
 	def reboot(self):
 		self.session.open(TryQuitMainloop, 2)
-
-
-	def ContainterFallback(self, data=None, retval=None, extra_args=None):
-		self.container.killAll()	
-
-
