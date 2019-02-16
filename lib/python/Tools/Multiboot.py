@@ -5,7 +5,7 @@ import os, time
 import shutil
 import subprocess
 
-#		#default layout for 				Mut@nt HD51						 Giga4K						SF8008
+#		#default layout for 				Mut@nt HD51						 Giga4K						SF8008/trio4K
 # boot								/dev/mmcblk0p1						/dev/mmcblk0p1				/dev/mmcblk0p3
 # STARTUP_1 			Image 1: boot emmcflash0.kernel1 'root=/dev/mmcblk0p3 rw rootwait'	boot emmcflash0.kernel1: 'root=/dev/mmcblk0p5		boot emmcflash0.kernel 'root=/dev/mmcblk0p13 
 # STARTUP_2 			Image 2: boot emmcflash0.kernel2 'root=/dev/mmcblk0p5 rw rootwait'      boot emmcflash0.kernel2: 'root=/dev/mmcblk0p7		boot usb0.sda1 'root=/dev/sda2
