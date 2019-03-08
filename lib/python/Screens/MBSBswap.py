@@ -67,8 +67,8 @@ class MBSBswap(Screen):
 			cmdlist.append("parted -s /dev/mmcblk1 rm 7")
 			cmdlist.append('parted -s /dev/mmcblk1 rm 8')
 			cmdlist.append("parted -s /dev/mmcblk1 rm 9")
-			cmdlist.append("parted /dev/mmcblk1 unit % resizepart 3 Yes 100%")
-			cmdlist.append("rm -f /.resizerootfs")
+			cmdlist.append("parted -s /dev/mmcblk1 unit % resizepart 3 Yes 100%")
+			cmdlist.append("resize2fs /dev/mmcblk1p3")
 			exec "self.session.open(Console, title = self.TITLE, cmdlist = cmdlist)"
 #			self.session.open(Console, title = self.title, cmdlist = cmdlist, closeOnSuccess = True)
 
