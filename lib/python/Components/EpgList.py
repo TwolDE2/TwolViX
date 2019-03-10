@@ -833,6 +833,8 @@ class EPGList(GUIComponent):
 					color = serviceForeColor, color_sel = serviceForeColor,
 					backcolor = serviceBackColor, backcolor_sel = serviceBackColor,
 					border_width = self.serviceBorderWidth, border_color = self.borderColorService))
+
+		colX = r1.x + self.serviceBorderWidth
 		channelWidth = 0
 		if config.epgselection.graph_showchannel1st.value and self.showServiceNumber:
 			if not isinstance(channel, int):
@@ -842,16 +844,16 @@ class EPGList(GUIComponent):
 				namefont = 0
 				namefontflag = int(config.epgselection.graph_servicenumber_alignment.value)
 				font = gFont(self.serviceFontNameGraph, self.serviceFontSizeGraph + config.epgselection.graph_servfs.value)
-				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000)  and "0000" or str(channel) ).width()
+				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), (channel < 10000) and "0000" or str(channel) ).width()
 				res.append(MultiContentEntryText(
-					pos = (r1.x + self.serviceBorderWidth + self.serviceNamePadding, r1.y + self.serviceBorderWidth),
+					pos = (colX + self.serviceNumberPadding, r1.y + self.serviceBorderWidth),
 					size = (channelWidth, r1.h - 2 * self.serviceBorderWidth),
 					font = namefont, flags = namefontflag,
 					text = str(channel),
 					color = serviceForeColor, color_sel = serviceForeColor,
-					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))			
-
-		colX = r1.x + self.serviceBorderWidth
+					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
+				colX += channelWidth + 2 * self.serviceNumberPadding			
+		displayPicon = None
 		if self.showPicon:
 			if picon is None: # go find picon and cache its location
 				picon = getPiconName(service)
@@ -883,8 +885,6 @@ class EPGList(GUIComponent):
 					backcolor = serviceBackColor, backcolor_sel = serviceBackColor))
 				colX += piconWidth
 
-
-		channelWidth = 0
 		if self.showServiceNumber:
 			if not isinstance(channel, int):
 				channel = self.getChannelNumber(channel)
