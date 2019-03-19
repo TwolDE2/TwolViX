@@ -110,10 +110,7 @@ class SecConfigure:
 
 	def linkNIMs(self, sec, nim1, nim2):
 		print "[SecConfigure] link tuner", nim1, "to tuner", nim2
-		# for internally connect tuner A to B
-		if '7356' not in about.getChipSetString() and nim2 == (nim1 - 1):
-			self.linkInternally(nim1)
-		elif '7356' in about.getChipSetString():
+		if nim2 == (nim1 - 1):
 			self.linkInternally(nim1)
 		sec.setTunerLinked(nim1, nim2)
 
@@ -578,16 +575,12 @@ class NIM(object):
 	def setInternalLink(self):
 		if self.internally_connectable is not None:
 			print "[NimManager] setting internal link on frontend id", self.frontend_id
-			f = open("/proc/stb/frontend/%d/rf_switch" % self.frontend_id, "w")
-			f.write("internal")
-			f.close()
+			open("/proc/stb/frontend/%d/rf_switch" % self.frontend_id, "w").write("internal")
 
 	def removeInternalLink(self):
 		if self.internally_connectable is not None:
 			print "[NimManager] removing internal link on frontend id", self.frontend_id
-			f = open("/proc/stb/frontend/%d/rf_switch" % self.frontend_id, "w")
-			f.write("external")
-			f.close()
+			open("/proc/stb/frontend/%d/rf_switch" % self.frontend_id, "w").write("external")
 
 	def isMultiType(self):
 		return not self.isHotSwitchable() and bool(len(self.multi_type))
@@ -1236,7 +1229,7 @@ def InitNimManager(nimmgr, update_slots = []):
 				def positionsChanged(configEntry):
 					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)], default="%d" % min(lnb, configEntry.value))
 				def scrListChanged(productparameters, srcfrequencylist, configEntry):
-					section.format = ConfigSelection([("unicable", _("SCR Unicable")), ("jess", _("SCR JESS"))], default=getformat(productparameters.get("format", "unicable"), configEntry.index))
+					section.format = ConfigSelection(["unicable", "jess"], default=getformat(productparameters.get("format", "unicable"), configEntry.index))
 					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]))
 					section.positions = ConfigInteger(default=int(productparameters.get("positions", 1)))
 					section.positions.addNotifier(positionsChanged)
@@ -1363,16 +1356,14 @@ def InitNimManager(nimmgr, update_slots = []):
 			tmp = ConfigSelection(lnb_choices, lnb_choices_default)
 			tmp.slot_id = x
 			tmp.lnb_id = lnb
-			tmp.addNotifier(configLOFChanged, initial_call=False)
+			tmp.addNotifier(configLOFChanged)
 			section.lof = tmp
 
 	def scpcSearchRangeChanged(configElement):
 		fe_id = configElement.fe_id
 		slot_id = configElement.slot_id
 		if os.path.exists("/proc/stb/frontend/%d/use_scpc_optimized_search_range" % fe_id):
-			f = open("/proc/stb/frontend/%d/use_scpc_optimized_search_range" % (fe_id), "w")
-			f.write(configElement.value)
-			f.close()
+			open("/proc/stb/frontend/%d/use_scpc_optimized_search_range" % (fe_id), "w").write(configElement.value)
 
 	def toneAmplitudeChanged(configElement):
 		fe_id = configElement.fe_id
@@ -1440,7 +1431,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			tmp.rotorposition = ConfigInteger(default=1, limits=(1, 255))
 			lnb = ConfigSelection(advanced_lnb_choices, "0")
 			lnb.slot_id = slot_id
-			lnb.addNotifier(configLNBChanged, initial_call=False)
+			lnb.addNotifier(configLNBChanged)
 			tmp.lnb = lnb
 			nim.advanced.sat[x[0]] = tmp
 		for x in range(3601, 3607):
@@ -1453,7 +1444,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			lnbnum = 65 + x - 3601
 			lnb = ConfigSelection([("0", _("not configured")), (str(lnbnum), "LNB %d"%(lnbnum))], "0")
 			lnb.slot_id = slot_id
-			lnb.addNotifier(configLNBChanged, initial_call=False)
+			lnb.addNotifier(configLNBChanged)
 			tmp.lnb = lnb
 			nim.advanced.sat[x] = tmp
 
@@ -1565,6 +1556,7 @@ def InitNimManager(nimmgr, update_slots = []):
 				createConfig(nim, slot)
 			else:
 				print "[InitNimManager] disable hotswitchable tuner"
+				eDVBResourceManager.getInstance().setFrontendType(nimmgr.nim_slots[fe_id].frontend_id, "UNDEFINED")
 				nim.configMode.value = nim.configMode.default = "nothing"
 
 	def createConfig(nim, slot):
