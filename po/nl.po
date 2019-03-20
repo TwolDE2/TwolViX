@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ViX\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-19 17:55+0000\n"
-"PO-Revision-Date: 2019-01-20 07:53+0100\n"
+"POT-Creation-Date: 2019-03-03 10:25+0000\n"
+"PO-Revision-Date: 2019-03-03 12:45+0100\n"
 "Last-Translator: Rob van der Does <RobvanderDoes@Gmail.com>\n"
 "Language-Team: Andy Blackburn, Rob van der Does\n"
 "Language: nl\n"
@@ -765,6 +765,10 @@ msgstr[0] "%d kanaal gevonden"
 msgstr[1] "%d kanalen gevonden"
 
 #, python-format
+msgid "%d cores"
+msgstr "%d cores"
+
+#, python-format
 msgid "%d hour"
 msgid_plural "%d hours"
 msgstr[0] "%d uur"
@@ -1226,6 +1230,9 @@ msgstr "Op de achtergrond wordt een controle uitgevoerd. Wacht een paar minuten 
 
 msgid "A background update check is in progress, please wait a few minutes and try again."
 msgstr "Op de achtergrond wordt een controle uitgevoerd. Wacht een paar minuten en probeer het opnieuw."
+
+msgid "A client is streaming from this box!"
+msgstr "Een klant streamt vanaf deze STB!"
 
 #, python-format
 msgid ""
@@ -2948,6 +2955,18 @@ msgstr "Configuratie modus: %s"
 msgid "Configuration..."
 msgstr "Configuratie..."
 
+msgid "Configure ATSC"
+msgstr "Configureer ATSC"
+
+msgid "Configure DVB-C"
+msgstr "Configureer DVB-C"
+
+msgid "Configure DVB-S"
+msgstr "Configureer DVB-S"
+
+msgid "Configure DVB-T"
+msgstr "Configureer DVB-T"
+
 msgid "Configure alignment of service events."
 msgstr "Configureer uitlijning van programma's."
 
@@ -3179,9 +3198,6 @@ msgstr "Stel de mate van transparantie in van de zwarte achtergrond van grafisch
 
 msgid "Configure the tuner mode."
 msgstr "Configureer de tunermodus."
-
-msgid "Configure the type of status indication icons shown in the movie list."
-msgstr "Geef aan welk type icoon moet worden gebruikt in de opnamelijst."
 
 msgid "Configure the vertical position of the subtitles, measured from the bottom of the screen."
 msgstr "Stel de verticale positie in van de ondertitels, gemeten vanaf de onderzijde van het scherm."
@@ -3602,6 +3618,9 @@ msgstr "Deens"
 
 msgid "Date"
 msgstr "Datum"
+
+msgid "Date first"
+msgstr "Datum eerst"
 
 msgid "Date style"
 msgstr "Datumstijl"
@@ -4226,6 +4245,9 @@ msgstr "Drivers: %s"
 
 msgid "Drop unconfigured satellites"
 msgstr "Verwijder niet geconfigureerde satellieten"
+
+msgid "Dual core"
+msgstr "Dual core"
 
 msgid "Dutch"
 msgstr "Nederlands"
@@ -5351,6 +5373,27 @@ msgstr "Guinea-Bissau"
 msgid "Guyana"
 msgstr "Guyana"
 
+msgid "H9 SDcard switch ERROR! - H9 root files not transferred to SD card"
+msgstr "H9 SDcard switch ERROR! - H9 root files not transferred to SD card"
+
+msgid "H9 SDcard switch ERROR! - already on Nand"
+msgstr "H9 SD-kaart switch FOUT! - reeds op Nand"
+
+msgid "H9 SDcard switch ERROR! - already on mmc"
+msgstr "H9 SD-kaart switch FOUT! - reeds op mmc"
+
+msgid "H9 USB switch ERROR! - H9 root files not transferred to USB"
+msgstr "H9 USB switch ERROR! - H9 root files not transferred toUSB"
+
+msgid "H9 USB switch ERROR! - already on USB"
+msgstr "H9 USB switch FOUT! - reeds op USB"
+
+msgid "H9 switch Nand and SDcard"
+msgstr "H9 switch Nand en SD-kaart"
+
+msgid "H9SDroot"
+msgstr "H9SD-root"
+
 msgid "H: = Hourly / D: = Daily / W: = Weekly / M: = Monthly"
 msgstr "U: = Uurlijks / D: = Dagelijks / W: = Wekelijks / M: = Maandelijks"
 
@@ -5554,6 +5597,13 @@ msgstr "Hostname:"
 
 msgid "Hostname: "
 msgstr "Hostname: "
+
+msgid "Hotswitchable"
+msgstr "Het-verwisselbaar"
+
+#
+msgid "Hotswitchable tuner"
+msgstr "Heet-verwisselbare tuner"
 
 msgid "Hour"
 msgstr "Uur"
@@ -6897,7 +6947,7 @@ msgstr "Multi-EPG"
 msgid "Multiboot"
 msgstr "Multiboot"
 
-msgid "Multiboot ERROR! - no STARTUP in boot partition"
+msgid "Multiboot ERROR! - no STARTUP in boot partition."
 msgstr "Multiboot FOUT! - geen STARTUP in bootpartitie."
 
 msgid "Multiboot Image Restart"
@@ -7431,6 +7481,9 @@ msgstr "OScam info"
 msgid "OVR"
 msgstr "OVR"
 
+msgid "Octo core"
+msgstr "Octo core"
+
 msgid "Off"
 msgstr "Uit"
 
@@ -7448,9 +7501,6 @@ msgstr "Bij het einde van bestand"
 
 msgid "On end of movie (as menu)"
 msgstr "Aan het einde van de film (als menu)"
-
-msgid "On reaching the end of a file during playback, you can choose the box's behavior."
-msgstr "U kunt instellen wat er moet gebeuren bij het einde van het afspelen."
 
 msgid "On shutdown/restart warn about any pending jobs being carried out in the background."
 msgstr "Waarschuw bij afsluiten/herstarten als er op de achtergrond taken worden uitgevoerd."
@@ -7504,7 +7554,7 @@ msgid "Open nameserver configuration"
 msgstr "Open naamserverconfiguratie"
 
 msgid "Open service list"
-msgstr "Open de kanaallist"
+msgstr "Open de kanaalljist"
 
 msgid "Open service list and select the next channel"
 msgstr "Open de zenderlijst en selecteer de volgende zender"
@@ -7745,6 +7795,9 @@ msgstr "Maak een settingsback-up; het maken van een back-up alvorens te updaten 
 
 msgid "Perform an online update check in the background"
 msgstr "Controleer op de achtergrond op updates."
+
+msgid "Permanent sort key changes"
+msgstr "Permanente sorteer aanpassingen"
 
 msgid "Permanently delete all recordings in the trash can?"
 msgstr "Alle bestanden in de prullenbak nu permanent verwijderen?"
@@ -8475,6 +8528,9 @@ msgstr "Python:\t%s\n"
 
 msgid "Qatar"
 msgstr "Qatar"
+
+msgid "Quad core"
+msgstr "Quad core"
 
 msgid "Question"
 msgstr "Vraag"
@@ -9326,6 +9382,18 @@ msgstr "Kies 'A' of 'B' als uw antenne-installatie dat vereist, anders kiest u '
 msgid "Select 'FBC SCR' if this tuner will connect to a SCR (Unicable/JESS) device. For all other setups select 'FBC automatic'."
 msgstr "Kies 'FBC SCR' als deze tuner is aangesloten op een SCR-apparaat (Unicable/JESS). Voor alle andere situaties kiest u 'FBC automatisch'."
 
+msgid "Select 'Yes' when you want to configure this tuner for ATSC"
+msgstr "Kies 'Ja' als u deze tuner voor ATSC wilt configureren"
+
+msgid "Select 'Yes' when you want to configure this tuner for DVB-C"
+msgstr "Kies 'Ja' als u deze tuner voor DVB-C wilt configureren"
+
+msgid "Select 'Yes' when you want to configure this tuner for DVB-S"
+msgstr "Kies 'Ja' als u deze tuner voor DVB-S wilt configureren"
+
+msgid "Select 'Yes' when you want to configure this tuner for DVB-T"
+msgstr "Kies 'Ja' als u deze tuner voor DVB-T wilt configureren"
+
 msgid "Select 'band' if using a 'universal' LNB, otherwise consult your LNB spec sheet."
 msgstr "Kies 'band' als u een universele LNB gebruikt. Consulteer de specs van uw LNB."
 
@@ -9792,6 +9860,9 @@ msgstr "Stel de gewenste primetime in (uur)."
 msgid "Set the desired primetime (minutes)."
 msgstr "Stel de gewenste primetime in (minuten)."
 
+msgid "Set the global sort method"
+msgstr "Kies de globale sorteermethode."
+
 msgid "Set the jump-size of the seekbar."
 msgstr "Stel hier de grootte van de tijdsprong van de zoekbalk in."
 
@@ -10124,7 +10195,7 @@ msgstr "Toon menunummers"
 msgid "Show message when recording starts"
 msgstr "Toon bericht wanneer opname begint"
 
-msgid "Show movie lengths in movielist"
+msgid "Show movie lengths in movie list"
 msgstr "Toon opnamelengte in opnamelijst"
 
 msgid "Show movies"
@@ -10238,9 +10309,6 @@ msgstr "Toon de transponderinformatie"
 msgid "Show transponder remaining/elapsed as"
 msgstr "Toon de resterende/verstreken programmatijd als"
 
-msgid "Show warning when in a stream"
-msgstr "Toon waarschuwing wanneer in een stream"
-
 msgid "Show warning when timeshift is stopped"
 msgstr "Toon waarschuwing als timeshift gestopt wordt"
 
@@ -10315,6 +10383,9 @@ msgstr "Enkel"
 
 msgid "Single EPG"
 msgstr "Zender EPG"
+
+msgid "Single core"
+msgstr "Single core"
 
 msgid "Single satellite"
 msgstr "Één satelliet"
@@ -10892,6 +10963,12 @@ msgstr "Wissel tussen SNR in '%' en 'dB'"
 msgid "Swap services"
 msgstr "Zenders omwisselen"
 
+msgid "SwaptoNand"
+msgstr "Swap-naar-Nand"
+
+msgid "SwaptoSD"
+msgstr "Swap-naar-SD"
+
 msgid "Swaziland"
 msgstr "Swaziland"
 
@@ -10947,8 +11024,8 @@ msgid "Switch to the previous channel in history"
 msgstr "Ga naar de vorige zender uit de geschiedenis"
 
 #
-msgid "Switchable tuner types:"
-msgstr "Verwisselbare tunertypes:"
+msgid "Switchable tuner types"
+msgstr "Verwisselbare tunertypes"
 
 msgid "Switzerland"
 msgstr "Switzerland"
@@ -11359,8 +11436,8 @@ msgstr "Hier kunt u het aantal regels dat vertoond wordt aanpassen."
 msgid "This field allows you to search an additional symbol rate up to %s."
 msgstr "Hiermee kunt u aanvullend zoeken met een symbol rate tot %s."
 
-msgid "This is a multitype tuner. Available options depend on the hardware. Cable and terrestrial cannot be configured at the same time. If you want to use as cable + satellite or terrestrial + satellite, configure cable/terrestrial first and then save. Re-open and configure again as satellite."
-msgstr "Dit is een ontvanger met meerdere tunertypes. De beschikbare opties zijn afhankelijk van de hardware. Kabel en terrestrial kunnen niet tegelijkertijd worden geconfigureerd. Als u kabel + satelliet of terrestrial + satelliet wilt gebruiken, configureert eerst de enen en slaat dan op. Vervolgens configureert u de andere."
+msgid "This is a multitype tuner. Available options depend on the hardware."
+msgstr "Dit is een multi-type tuner. De beschikbare opties hangen van de hardware af."
 
 msgid "This is the order in which DiSEqC commands are sent to the aerial system. The order must correspond exactly with the order the physical devices are arranged along the signal cable (starting from the receiver end)."
 msgstr "Dit is de volgorde waarin DiSEqC commando's worden verstuurd naar het antennesysteem. De volgorde moet precies overeenkomen met dat systeem in de volgorde gerekend vanaf de ontvanger.."
@@ -11677,9 +11754,6 @@ msgstr "Timeshift lokatie"
 
 msgid "Timeshift not possible!"
 msgstr "Timeshift is niet mogelijk!"
-
-msgid "Timeshift on a stream is not supported!"
-msgstr "Timeshift van een stream wordt niet ondersteund!"
 
 msgid "Timeshift save failed!"
 msgstr "Opslaan timeshift mislukt!"
@@ -12717,9 +12791,6 @@ msgstr "Indien ingeschakeld mogen opnames live-TV beeindigen als er niet voldoen
 msgid "When enabled, a warning will be displayed and the user will get an option to stop or to continue the timeshift."
 msgstr "Indien ingeschakeld krijgt u de keuze om timeshift te stoppen of door te laten lopen."
 
-msgid "When enabled, a warning will be displayed that timeshift is not supported in an IP stream.."
-msgstr "Indien ingeschakeld wordt een waarschuwing getoond dat timeshift van een IP-stream niet ondersteund wordt."
-
 msgid "When enabled, always descramble receiving http streams. This takes up more resources (descrambling demuxers), only enable if necessary. Individual streams are always descrambled if 0x100 is added to the service type, regardless of this setting. Default off."
 msgstr "Indien ingeschakeld zullen inkomende streams altijd gedecodeerd worden. Dit gebruikt meer systeembronnen (decoderen, demuxen), zodat het verstandig is dit alleen in te schakelen indien nodig. Bovendien wordt dit niet door alle STB's ondersteund. Individuele streams zullen altijd worden gedecodeerd als '0x100' is toegevoegd aan het servicetype, ongeacht de instelling die hier is gemaakt. De standaard waarde is 'uit'."
 
@@ -12834,6 +12905,9 @@ msgstr "Indien 'Ja' wordt gekozen, wordt in de opnamelijst live-TV op de achterg
 msgid "When set, each directory will show the previous state used. When off, the default values will be shown."
 msgstr "Indien ingeschakeld, worden de vorige waarden van elke map getoond. Indien uitgeschakeld worden de defaults getoond. "
 
+msgid "When set, sort changes via the sort key will be permanent."
+msgstr "Indien ingeschakeld, zullen de veranderingen permanent zijn."
+
 msgid "When the content has an aspect ratio of 16:9, choose whether to scale/stretch the picture."
 msgstr "Als het beeld een verhouding heeft van 16:9 kan het beeld worden uitgerekt of geschaald."
 
@@ -12842,6 +12916,9 @@ msgstr "Als het beeld een verhouding heeft van 4:3 kan het beeld worden uitgerek
 
 msgid "When tuned to a service the system will normally scan the transponder for any changes and save them. Only set to 'yes' if you're absolutely sure of what you're doing."
 msgstr "Als uw %s %s op een kanaal is afgestemd, wordt normaal gesproken de transponder gescand op veranderingen. Schakel dit alleen uit, als u zeker bent van wat u doet."
+
+msgid "When unset, sort changes will be temporary - just for this view of a directory."
+msgstr "Indien uitgeschakeld, zullen de veranderingen tijdelijk zijn; alleen voor deze keer dat u deze map inziet."
 
 #, python-format
 msgid ""
@@ -13128,6 +13205,9 @@ msgstr "U zit in timeshift!"
 
 msgid "You seem to be in timeshift, Do you want to leave timeshift ?"
 msgstr "U bent in timeshift modus. Wilt u timeshift beëindigen?"
+
+msgid "You seem to be in timeshift, Do you want to leave timeshift? Streams & IPTV not fully supported!"
+msgstr "U bent in timeshift modus. Wilt u timeshift beëindigen? Timeshift op streams & IPTV wordt niet volledig ondersteund!"
 
 #, python-format
 msgid "Your %s %s does not support PiP HD"
@@ -13705,9 +13785,6 @@ msgstr "ontspanning (algemeenr)"
 msgid "epg cache backup"
 msgstr "epg cache back-up"
 
-msgid "equal to"
-msgstr "gelijk aan"
-
 msgid "equestrian"
 msgstr "ruitersport"
 
@@ -13966,9 +14043,6 @@ msgstr "lang"
 
 msgid "longest"
 msgstr "langste"
-
-msgid "loopthrough to"
-msgstr "doorlus naar"
 
 msgid "magazines/reports/documentary"
 msgstr "tijdschriften/reportages/documentaire"
@@ -14277,9 +14351,6 @@ msgstr "SDR"
 msgid "se"
 msgstr "ZO"
 
-msgid "second cable of motorized LNB"
-msgstr "2e kabel van gemotoriseerde LNB"
-
 msgid "seconds"
 msgstr "seconden"
 
@@ -14435,9 +14506,6 @@ msgstr "ZZO"
 
 msgid "ssw"
 msgstr "ZZW"
-
-msgid "standard"
-msgstr "standaard"
 
 msgid "start cut here"
 msgstr "start knippen hier"
@@ -15081,6 +15149,9 @@ msgstr "zapte"
 #~ msgid "Configure the refresh rate of the screen."
 #~ msgstr "Bepaal de verversingsfrequentie van het scherm."
 
+#~ msgid "Configure the type of status indication icons shown in the movie list."
+#~ msgstr "Geef aan welk type icoon moet worden gebruikt in de opnamelijst."
+
 #~ msgid "Configure which tuner will be preferred for recordings, when more than one tuner is available. 'Disabled' would select a tuner based on preferred tuner in customise screen. 'Auto' would choose based on E2's default rules, ignoring preferred tuner in customise screen."
 #~ msgstr "Stel in welke tuner de voorkeur heeft voor opnames als meerdere tuners beschikbaar zijn. \"Uitgeschakeld\" betekent dat de tunerkeuze wordt bepaald door de instelling \"Voorkeurstuner\" in het scherm \"Aanpassen\". \"Auto\" betekent dat de keuze wordt gebaseerd op de standaard regels van Enigma, waarbij de instelling \"Voorkeurstuner\" in het scherm \"Aanpassen\" wordt genegeerd. "
 
@@ -15620,6 +15691,9 @@ msgstr "zapte"
 #~ msgid "On destination '%s' is %s free space only!"
 #~ msgstr "Bestemming '%s' heeft slechts %s vrije ruimte!"
 
+#~ msgid "On reaching the end of a file during playback, you can choose the box's behavior."
+#~ msgstr "U kunt instellen wat er moet gebeuren bij het einde van het afspelen."
+
 #~ msgid "Open AutoTimer"
 #~ msgstr "Open AutoTimer"
 
@@ -15864,6 +15938,9 @@ msgstr "zapte"
 #~ "Toon tijd in 24-uur formaat.\n"
 #~ "Opm: Deze instelling wordt niet gebruikt als de globale tijdsformaatinstelling beschikbaar is."
 
+#~ msgid "Show warning when in a stream"
+#~ msgstr "Toon waarschuwing wanneer in een stream"
+
 #~ msgid "Show/hide infoBar"
 #~ msgstr "Toon/Verberg infoBar"
 
@@ -15967,6 +16044,9 @@ msgstr "zapte"
 #~ msgid "This can be either the IP or name of the fallback receiver, not including the scheme or port number (e.g. either 'xxx.xxx.xxx.xxx' or 'name_second_box')."
 #~ msgstr "Dit kan het IP-adres of de naam van de remote ontvanger zijn (dus of 'xxx.xxx.xxx.xxx' of 'naam-van-de-box')."
 
+#~ msgid "This is a multitype tuner. Available options depend on the hardware. Cable and terrestrial cannot be configured at the same time. If you want to use as cable + satellite or terrestrial + satellite, configure cable/terrestrial first and then save. Re-open and configure again as satellite."
+#~ msgstr "Dit is een ontvanger met meerdere tunertypes. De beschikbare opties zijn afhankelijk van de hardware. Kabel en terrestrial kunnen niet tegelijkertijd worden geconfigureerd. Als u kabel + satelliet of terrestrial + satelliet wilt gebruiken, configureert eerst de enen en slaat dan op. Vervolgens configureert u de andere."
+
 #~ msgid ""
 #~ "This plugin creates a USB stick which can be used to update the firmware of your %s %s without the need for a network or WLAN connection.\n"
 #~ "First, a USB stick needs to be prepared so that it becomes bootable.\n"
@@ -15986,6 +16066,9 @@ msgstr "zapte"
 
 #~ msgid "Timer overview"
 #~ msgstr "Timer overzicht"
+
+#~ msgid "Timeshift on a stream is not supported!"
+#~ msgstr "Timeshift van een stream wordt niet ondersteund!"
 
 #~ msgid "Timeshift settings"
 #~ msgstr "Timeshift instellingen"
@@ -16079,6 +16162,9 @@ msgstr "zapte"
 #~ msgid "When enabled, Enigma2 will load unlinked bouquets. This means that bouquets that are available, but not included in the bouquets.tv or bouquets.radio files, will still be loaded. This allows you for example to keep your own user bouquet while installed settings are upgraded"
 #~ msgstr "Indien ingeschakeld zal enigma2 niet geregistreerde favorietenlijsten laden. Dat betekent dat de lijsten die beschikbaar zijn maar niet zijn opgenomen in de radio- en TV-lijsten toch geladen zullen worden. Dit stelt u b.v. in staat om eigen lijsten te bewaren, terwijl settings worden geupgrade."
 
+#~ msgid "When enabled, a warning will be displayed that timeshift is not supported in an IP stream.."
+#~ msgstr "Indien ingeschakeld wordt een waarschuwing getoond dat timeshift van een IP-stream niet ondersteund wordt."
+
 #~ msgid "When enabled, graphical DVB subtitles will be centered horizontally."
 #~ msgstr "Indien ingeschakeld zullen grafische DVB-ondertitels horizontaal worden gecentreerd."
 
@@ -16118,11 +16204,17 @@ msgstr "zapte"
 #~ msgid "default"
 #~ msgstr "standaard"
 
+#~ msgid "equal to"
+#~ msgstr "gelijk aan"
+
 #~ msgid "fine-tune your display"
 #~ msgstr "uw scherm fijn-afstellen"
 
 #~ msgid "leave movie player..."
 #~ msgstr "opnamemenu afsluiten"
+
+#~ msgid "loopthrough to"
+#~ msgstr "doorlus naar"
 
 #~ msgid "not used"
 #~ msgstr "niet gebruikt"
@@ -16143,6 +16235,9 @@ msgstr "zapte"
 #~ msgid "reliable"
 #~ msgstr "betrouwbaar"
 
+#~ msgid "second cable of motorized LNB"
+#~ msgstr "2e kabel van gemotoriseerde LNB"
+
 #~ msgid "service PIN"
 #~ msgstr "zender pincode"
 
@@ -16151,6 +16246,9 @@ msgstr "zapte"
 
 #~ msgid "special characters"
 #~ msgstr "speciale tekens"
+
+#~ msgid "standard"
+#~ msgstr "standaard"
 
 #~ msgid "traditional (fast)"
 #~ msgstr "conventioneel (snel)"

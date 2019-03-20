@@ -1,32 +1,19 @@
 from enigma import loadPNG, loadJPG
-from Tools.LRUCache import lru_cache
 
+# If cached is not supplied, LoadPixmap defaults to caching PNGs and not caching JPGs
+# Split alpha channel JPGs are never cached as the C++ layer's caching is based on
+# a single file per image in the cache
 def LoadPixmap(path, desktop=None, cached=None):
-	# default to caching pngs, and not caching jpg (which tend not to be used by skins)
-	# PNGs are also statically cached in the c++ loadPNG method with no ability to clear or refresh, so there's
-	# currently no point adding file modified checking
-	# but there is still overhead fetching them back to the Python layer proportional to their size
-	# hence caching here which reduces load time to a constant <2ms
-	if cached is None:
-		cached = path[-4:] == ".png"
-	if cached:
-		ret = _cached_load(path, desktop)
-	else:
-		ret = _load(path, desktop)
-	return ret
-
-@lru_cache(maxsize=256)
-def _cached_load(path, desktop):
-	return _load(path, desktop)
-
-def _load(path, desktop):
 	if path[-4:] == ".png":
-		ptr = loadPNG(path)
+		# cache unless caller explicity requests to not cache
+		ptr = loadPNG(path, 0, 0 if cached == False else 1)
 	elif path[-4:] == ".jpg":
-		ptr = loadJPG(path)
+		# don't cache unless caller explicity requests caching
+		ptr = loadJPG(path, 1 if cached == True else 0)
 	elif path[-1:] == ".":
-		alpha = loadPNG(path + "a.png")
-		ptr = loadJPG(path + "rgb.jpg", alpha)
+		# caching mechanism isn't suitable for multi file images, so it's explicitly disabled
+		alpha = loadPNG(path + "a.png", 0, 0)
+		ptr = loadJPG(path + "rgb.jpg", alpha, 0)
 	else:
 		raise Exception("neither .png nor .jpg, please fix file extension")
 	if ptr and desktop:

@@ -782,7 +782,7 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 		if (!::close(m_fd))
 			m_fd=-1;
 		else
-			eWarning("[eDVBFrontend $d] couldnt close frontend", m_dvbid);
+			eWarning("[eDVBFrontend %d] couldnt close frontend", m_dvbid);
 	}
 	else if (m_simulate)
 	{
@@ -1964,7 +1964,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 					}
 					else if (sec_fe->m_need_rotor_workaround)
 					{
-						char dev[16];
+						char dev[32];
 						int slotid = sec_fe->m_slotid;
 						// FIXMEEEEEE hardcoded i2c devices for dm7025 and dm8000
 						if (slotid < 2)
@@ -2113,7 +2113,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 			{
 				p[cmdseq.num].cmd = DTV_ROLLOFF, p[cmdseq.num].u.data = rolloff, cmdseq.num++;
 				p[cmdseq.num].cmd = DTV_PILOT, p[cmdseq.num].u.data = pilot, cmdseq.num++;
-								if (m_dvbversion >= DVB_VERSION(5, 11))
+				if (m_dvbversion >= DVB_VERSION(5, 11))
 				{
 					p[cmdseq.num].cmd = DTV_STREAM_ID, p[cmdseq.num].u.data = parm.is_id, cmdseq.num++;
 					p[cmdseq.num].cmd = DTV_SCRAMBLING_SEQUENCE_INDEX, p[cmdseq.num].u.data = parm.pls_code, cmdseq.num++;
@@ -2756,8 +2756,8 @@ int eDVBFrontend::isCompatibleWith(ePtr<iDVBFrontendParameters> &feparm)
 		{
 			return 0;
 		}
-		can_handle_dvbs = supportsDeliverySystem(SYS_DVBS, !m_multitype);
-		can_handle_dvbs2 = supportsDeliverySystem(SYS_DVBS2, !m_multitype);
+		can_handle_dvbs = supportsDeliverySystem(SYS_DVBS, true);
+		can_handle_dvbs2 = supportsDeliverySystem(SYS_DVBS2, true);
 		if (parm.system == eDVBFrontendParametersSatellite::System_DVB_S2 && !can_handle_dvbs2)
 		{
 			return 0;
@@ -2799,15 +2799,15 @@ int eDVBFrontend::isCompatibleWith(ePtr<iDVBFrontendParameters> &feparm)
 #if DVB_API_VERSION > 5 || DVB_API_VERSION == 5 && DVB_API_VERSION_MINOR >= 6
 		if (m_dvbversion >= DVB_VERSION(5, 6))
 		{
-			can_handle_dvbc_annex_a = supportsDeliverySystem(SYS_DVBC_ANNEX_A, !m_multitype);
-			can_handle_dvbc_annex_c = supportsDeliverySystem(SYS_DVBC_ANNEX_C, !m_multitype);
+			can_handle_dvbc_annex_a = supportsDeliverySystem(SYS_DVBC_ANNEX_A, true);
+			can_handle_dvbc_annex_c = supportsDeliverySystem(SYS_DVBC_ANNEX_C, true);
 		}
 		else
 		{
-			can_handle_dvbc_annex_a = can_handle_dvbc_annex_c = supportsDeliverySystem(SYS_DVBC_ANNEX_A, !m_multitype); /* new value for SYS_DVB_ANNEX_AC */
+			can_handle_dvbc_annex_a = can_handle_dvbc_annex_c = supportsDeliverySystem(SYS_DVBC_ANNEX_A, true); /* new value for SYS_DVB_ANNEX_AC */
 		}
 #else
-		can_handle_dvbc_annex_a = can_handle_dvbc_annex_c = supportsDeliverySystem(SYS_DVBC_ANNEX_AC, !m_multitype);
+		can_handle_dvbc_annex_a = can_handle_dvbc_annex_c = supportsDeliverySystem(SYS_DVBC_ANNEX_AC, true);
 #endif
 		if (parm.system == eDVBFrontendParametersCable::System_DVB_C_ANNEX_A && !can_handle_dvbc_annex_a)
 		{
@@ -2823,8 +2823,8 @@ int eDVBFrontend::isCompatibleWith(ePtr<iDVBFrontendParameters> &feparm)
 	{
 		eDVBFrontendParametersTerrestrial parm;
 		bool can_handle_dvbt, can_handle_dvbt2;
-		can_handle_dvbt = supportsDeliverySystem(SYS_DVBT, !m_multitype);
-		can_handle_dvbt2 = supportsDeliverySystem(SYS_DVBT2, !m_multitype);
+		can_handle_dvbt = supportsDeliverySystem(SYS_DVBT, true);
+		can_handle_dvbt2 = supportsDeliverySystem(SYS_DVBT2, true);
 		if (feparm->getDVBT(parm) < 0)
 		{
 			return 0;
@@ -2852,8 +2852,8 @@ int eDVBFrontend::isCompatibleWith(ePtr<iDVBFrontendParameters> &feparm)
 	{
 		eDVBFrontendParametersATSC parm;
 		bool can_handle_atsc, can_handle_dvbc_annex_b;
-		can_handle_dvbc_annex_b = supportsDeliverySystem(SYS_DVBC_ANNEX_B, !m_multitype);
-		can_handle_atsc = supportsDeliverySystem(SYS_ATSC, !m_multitype);
+		can_handle_dvbc_annex_b = supportsDeliverySystem(SYS_DVBC_ANNEX_B, true);
+		can_handle_atsc = supportsDeliverySystem(SYS_ATSC, true);
 		if (feparm->getATSC(parm) < 0)
 		{
 			return 0;

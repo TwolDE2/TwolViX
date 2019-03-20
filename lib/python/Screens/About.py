@@ -17,6 +17,7 @@ from Components.Network import iNetwork
 from Components.SystemInfo import SystemInfo
 from Tools.StbHardware import getFPVersion
 from Tools.Multiboot import GetCurrentImage, GetCurrentImageMode
+from Tools.Directories import fileExists, fileCheck, pathExists
 from os import path
 from re import search
 import skin
@@ -297,6 +298,10 @@ class Devices(Screen):
 				continue
 			device = parts[3]
 			if not search('sd[a-z][1-9]', device) and not search('mmcblk[0-9]p[1-9]', device):
+				continue
+			print "[About1] check HasSDmmc %s" %device
+			if SystemInfo["HasSDmmc"] and pathExists("/dev/sda4") and search('sd[a][1-4]', device):
+				print "[About2] HasSDmmc %s" %device
 				continue
 			if device in list2:
 				continue

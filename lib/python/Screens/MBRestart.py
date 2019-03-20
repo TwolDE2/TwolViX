@@ -1,6 +1,6 @@
 from os import mkdir
 from shutil import copyfile
-from boxbranding import getMachineBuild
+from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Sources.StaticText import StaticText
 from Components.ActionMap import ActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
@@ -49,8 +49,8 @@ class MultiBoot(Screen):
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent('',((_("Retrieving image slots - Please wait...")), "Queued"))])
 		imagedict = []
 		self.mtdboot = "%s1" % SystemInfo["canMultiBoot"][2]
- 		if SystemInfo["HasSDmmc"]:
-			self.mtdboot = "mmcblk0p3"
+ 		if SystemInfo["canMultiBoot"][2] == "sda":
+			self.mtdboot = "%s3" %getMachineMtdRoot()[0:8]
 		self.getImageList = None
 		self.title = screentitle
 		if not SystemInfo["HasSDmmc"] or SystemInfo["HasSDmmc"] and pathExists('/dev/%s4' %(SystemInfo["canMultiBoot"][2])):
