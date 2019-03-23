@@ -615,7 +615,7 @@ class HarddiskManager:
 		BLACKLIST=[]
 		if SystemInfo["HasMMC"]:
 			BLACKLIST=["%s" %(getMachineMtdRoot()[0:7])]
-		if SystemInfo["HasMMC"] and "root=/dev/mmcblk0p1" in z:
+		if SystemInfo["HasMMC"] and "root=/dev/mmcblk0p1" in z:			# Zgemma H9
 			BLACKLIST=["mmcblk0p1"]
 		blacklisted = False
 		if blockdev[:7] in BLACKLIST:
@@ -632,6 +632,8 @@ class HarddiskManager:
 			else:
 				dev = None
 			blacklisted = dev in [1, 7, 31, 253, 254] + (SystemInfo["HasMMC"] and [179] or []) #ram, loop, mtdblock, romblock, ramzswap, mmc
+			if blockdev == "mmcblk1" and "mmcblk1" not in BLACKLIST:
+				blacklisted = False
 			if blockdev[0:2] == 'sr':
 				is_cdrom = True
 			if blockdev[0:2] == 'hd':
