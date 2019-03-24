@@ -124,6 +124,13 @@ except ImportError:
 	def runReactor():
 		enigma.runMainloop()
 
+from twisted.python import log
+if config.misc.enabletwistedlog.value == True:
+	log.startLogging(open('/tmp/twisted.log', 'w'))
+else:
+	log.startLogging(open('/dev/null', 'w'))
+
+
 profile("LOAD:Plugin")
 
 # initialize autorun plugins and plugin menu entries
