@@ -1582,9 +1582,11 @@ def InitNimManager(nimmgr, update_slots = []):
 		slot_id = slot.slot
 		if slot.isCombined() and slot.canBeCompatible("DVB-S") or slot.isCompatible("DVB-S"):
 			if slot.isFBCLink():
-				config_mode_choices = { "nothing": _("FBC automatic"), "advanced": _("FBC SCR (Unicable/JESS)")}
+				config_mode_choices = {"nothing": _("FBC automatic"), "advanced": _("FBC SCR (Unicable/JESS)")}
 			else:
-				config_mode_choices = {"nothing": _("Disabled"), "simple": _("Simple"), "advanced": _("Advanced")}
+				config_mode_choices = {"simple": _("Simple"), "advanced": _("Advanced")}
+				if not slot.multi_type:
+					config_mode_choices["nothing"] = _("Disabled")
 				if len(nimmgr.getNimListOfType(slot.type, exception=slot_id)) > 0:
 					config_mode_choices["equal"] = _("Equal to")
 					config_mode_choices["satposdepends"] = _("Second cable of motorized LNB")
@@ -1607,10 +1609,11 @@ def InitNimManager(nimmgr, update_slots = []):
 		nim = config.Nims[slot_id]
 		nim.force_legacy_signal_stats = ConfigYesNo(default = False)
 
-		nim.configModeDVBS = ConfigYesNo()
-		nim.configModeDVBC = ConfigYesNo()
-		nim.configModeDVBT = ConfigYesNo()
-		nim.configModeATSC = ConfigYesNo()
+		if slot.isCombined():
+			nim.configModeDVBS = ConfigYesNo()
+			nim.configModeDVBC = ConfigYesNo()
+			nim.configModeDVBT = ConfigYesNo()
+			nim.configModeATSC = ConfigYesNo()
 
 		createConfig(nim, slot)
 
@@ -1633,10 +1636,10 @@ def InitNimManager(nimmgr, update_slots = []):
 		if slot.isCombined():
 
 			#Convert during an upgrade that multiType is 'converted' to combined config when needed
-			if nim.configMode.value and not slot.getTunerTypesEnabled():
+			if nim.configMode.value != "nothing" and not slot.getTunerTypesEnabled():
 				nim.multiType = ConfigText(default = "")
 				if nim.multiType.value:
-					type = slot.multi_type[nim.multiType.value][:5]
+					type = slot.multi_type.get(nim.multiType.value[:5], "")
 					nim.configModeDVBS.value = type == "DVB-S"
 					nim.configModeDVBC.value = type == "DVB-C"
 					nim.configModeDVBT.value = type == "DVB-T"
