@@ -979,4 +979,4 @@ class SelectSatsEntryScreen(Screen):
 						reverse_flag = not reverse_flag
 					self["list"].sort(sortType=sort_type, flag=reverse_flag)
 					self["list"].moveToIndex(0)
-self.session.openWithCallback(sortAction, ChoiceBox, title= _("Select sort method:"), list=menu)
+			self.session.openWithCallback(sortAction, ChoiceBox, title= _("Select sort method:"), list=menu)
