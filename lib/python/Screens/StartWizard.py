@@ -2,6 +2,7 @@ from Wizard import wizardManager
 from Screens.WizardLanguage import WizardLanguage
 from Screens.WizardUserInterfacePositioner import UserInterfacePositionerWizard
 from Screens.VideoWizard import VideoWizard
+from Screens.RestoreWizard import RestoreWizard
 from Screens.Rc import Rc
 from boxbranding import getBoxType
 
@@ -33,7 +34,8 @@ class StartWizard(WizardLanguage, Rc):
 		config.misc.firstrun.save()
 		configfile.save()
 
-wizardManager.registerWizard(VideoWizard, config.misc.videowizardenabled.value, priority = 0)
-wizardManager.registerWizard(LanguageWizard, config.misc.languageselected.value, priority = 2)
-wizardManager.registerWizard(UserInterfacePositionerWizard, config.misc.firstrun.value, priority = 4)
+wizardManager.registerWizard(RestoreWizard, config.misc.firstrun.value, priority = 0)
+wizardManager.registerWizard(VideoWizard, config.misc.videowizardenabled.value, priority = 2)
+wizardManager.registerWizard(LanguageWizard, config.misc.languageselected.value, priority = 4)
+wizardManager.registerWizard(UserInterfacePositionerWizard, config.misc.firstrun.value, priority = 6)
 wizardManager.registerWizard(StartWizard, config.misc.firstrun.value, priority = 20)
