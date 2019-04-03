@@ -11,7 +11,7 @@ from Components.Harddisk import harddiskmanager
 from Screens.WizardLanguage import WizardLanguage
 from Screens.Rc import Rc
 from Screens.MessageBox import MessageBox
-from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS
+from Tools.Directories import fileExists, resolveFilename, SCOPE_SKIN
 
 def isRestorableSettings(imageversion):
 	minimum_version = 4.2
@@ -38,7 +38,7 @@ def isRestorableKernel(kernelversion):
 
 class RestoreWizard(WizardLanguage, Rc):
 	def __init__(self, session):
-		self.xmlfile = resolveFilename(SCOPE_PLUGINS, "SystemPlugins/ViX/restorewizard.xml")
+		self.xmlfile = resolveFilename(SCOPE_SKIN, "restorewizard.xml")
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
 		Rc.__init__(self)
 		self.session = session
