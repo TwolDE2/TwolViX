@@ -56,7 +56,6 @@ class RestoreWizard(WizardLanguage, Rc):
 		self.fullbackupfilename = None
 		self.delaymess = None
 		self.selectedDevice = None
-		self.CallNetwork = "dhcp"
 		self.Console = Console()
 
 
