@@ -6,7 +6,7 @@ import os, time
 import shutil
 import subprocess
 
-#		#default layout for 				Mut@nt HD51						 Giga4K						SF8008/trio4K
+#		#default layout for 				Zgemma H7/Mut@nt HD51						 Giga4K						SF8008/trio4K
 # boot								/dev/mmcblk0p1						/dev/mmcblk0p1				/dev/mmcblk0p3
 # STARTUP_1 			Image 1: boot emmcflash0.kernel1 'root=/dev/mmcblk0p3 rw rootwait'	boot emmcflash0.kernel1: 'root=/dev/mmcblk0p5		boot emmcflash0.kernel 'root=/dev/mmcblk0p13 
 # STARTUP_2 			Image 2: boot emmcflash0.kernel2 'root=/dev/mmcblk0p5 rw rootwait'      boot emmcflash0.kernel2: 'root=/dev/mmcblk0p7		boot usb0.sda1 'root=/dev/sda2
@@ -70,26 +70,34 @@ class GetImagelist():
 			Creator = " " 	#Openpli Openvix Openatv etc #
 			Date = " "	
 			BuildType = " "	#release etc #
-			if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
- 				if  os.path.isfile('/tmp/testmount/etc/issue'):
-					Creator = open("/tmp/testmount/etc/issue").readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
-					if Creator.startswith("Openpli"):
-						build = [x.split("-")[-2:-1][0][-8:] for x in open("/tmp/testmount/var/lib/opkg/info/openpli-bootlogo.control").readlines() if x.startswith("Version:")]
-						Date = "%s-%s-%s" % (build[0][6:], build[0][4:6], build[0][2:4])
-						BuildVersion = "%s %s" % (Creator, Date)
-					elif Creator.startswith("Openvix"):
-						reader = boxbranding_reader()
-						BuildType = reader.getImageType()
-						Build = reader.getImageBuild()
-						Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ''
-						BuildVersion = "%s %s %s %s" % (Creator, BuildType[0:3], Build, Dev)
-					else:
-						st = os.stat('/tmp/testmount/var/lib/opkg/status')
-						tm = time.localtime(st.st_mtime)
-						if tm.tm_year >= 2011:
-							Date = time.strftime("%d-%m-%Y", tm).replace("-20", "-")
-						BuildVersion = "%s rel %s" % (Creator, Date)
-				self.imagelist[self.slot2] =  { 'imagename': '%s' %BuildVersion, 'part': '%s' %self.part2 }
+		
+			if SystemInfo["HasRootSubdir"]:
+				if os.path.isfile("/tmp/testmount/linuxrootfs1/usr/bin/enigma2"):
+					self.OsPath = "/tmp/testmount/linuxrootfs1"
+				elif os.path.isfile("/tmp/testmount/linuxrootfs%s/usr/bin/enigma2" % self.slot):
+					self.OsPath = "/tmp/testmount/linuxrootfs%s" % self.slot
+			else:
+				if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
+					self.OsPath = '/tmp/testmount'
+			if os.path.isfile('%s' %self.OsPath):
+				Creator = open("%s/etc/issue" %self.OsPath).readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
+				if Creator.startswith("Openpli"):
+					build = [x.split("-")[-2:-1][0][-8:] for x in open("%s/var/lib/opkg/info/openpli-bootlogo.control" %self.OsPath).readlines() if x.startswith("Version:")]
+					Date = "%s-%s-%s" % (build[0][6:], build[0][4:6], build[0][2:4])
+					BuildVersion = "%s %s" % (Creator, Date)
+				elif Creator.startswith("Openvix"):
+					reader = boxbranding_reader()
+					BuildType = reader.getImageType()
+					Build = reader.getImageBuild()
+					Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ''
+					BuildVersion = "%s %s %s %s" % (Creator, BuildType[0:3], Build, Dev)
+				else:
+					st = os.stat('%s/var/lib/opkg/status' %self.OsPath)
+					tm = time.localtime(st.st_mtime)
+					if tm.tm_year >= 2011:
+						Date = time.strftime("%d-%m-%Y", tm).replace("-20", "-")
+					BuildVersion = "%s rel %s" % (Creator, Date)
+			self.imagelist[self.slot2] =  { 'imagename': '%s' %BuildVersion, 'part': '%s' %self.part2 }
 			self.phase = self.UNMOUNT
 			self.run()
 		elif self.slot < self.numberofslots:
@@ -99,7 +107,7 @@ class GetImagelist():
 			self.run()
 		elif self.SDmmc == self.FirstRun:
 			self.phase = self.MOUNT
-			self.SDmmc = self.LastRun	# process eMMC slot
+			self.SDmmc = self.LastRun	# processed SDcard now process eMMC slot
 			self.run()
 		else:
 			self.container.killAll()
@@ -110,10 +118,10 @@ class GetImagelist():
 
 class boxbranding_reader:		# many thanks to Huevos for creating this reader - well beyond my skill levels! 
 	def __init__(self):
-		if pathExists('/tmp/testmount/usr/lib64'):
-			self.branding_path = "/tmp/testmount/usr/lib64/enigma2/python/"
+		if pathExists('%s/usr/lib64' %self.OsPath):
+			self.branding_path = "%s/usr/lib64/enigma2/python/" %self.OsPath
 		else:
-			self.branding_path = "/tmp/testmount/usr/lib/enigma2/python/"
+			self.branding_path = "%s/usr/lib/enigma2/python/" %self.OsPath
 		self.branding_file = "boxbranding.so"
 		self.tmp_path = "/tmp/"
 		self.helper_file = "helper.py"
