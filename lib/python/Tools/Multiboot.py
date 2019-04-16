@@ -53,7 +53,8 @@ class GetImagelist():
 	def run(self):
 		if SystemInfo["HasRootSubdir"]:
 			if self.phase == self.MOUNT:
-				self.imagelist[self.slot] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part }
+				self.part2 = getMachineMtdRoot()
+				self.imagelist[self.slot] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
 			if self.slot == 1:
 				self.container.ePopen('mount /dev/block/by-name/linuxrootfs /tmp/testmount' if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
 			else:
