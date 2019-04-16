@@ -51,16 +51,24 @@ class GetImagelist():
 			callback({})
 	
 	def run(self):
-		if self.SDmmc == self.LastRun:
-			self.part2 = getMachineMtdRoot()	# process eMMC slot
-			self.slot2 = 1
+		if SystemInfo["HasRootSubdir"]:
+			if self.phase == self.MOUNT:
+				self.imagelist[self.slot] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part }
+			if self.slot == 1:
+				self.container.ePopen('mount /dev/block/by-name/linuxrootfs /tmp/testmount' if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
+			else:
+				self.container.ePopen('mount /dev/block/by-name/userdata /tmp/testmount' if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
 		else:
-			self.part2 = "%s" %(self.part + str(self.slot * 2 + self.firstslot))
-			if self.SDmmc == self.FirstRun:
-				self.slot2 += 1			# allow for eMMC slot"
-		if self.phase == self.MOUNT:
-			self.imagelist[self.slot2] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
-		self.container.ePopen('mount /dev/%s /tmp/testmount' %self.part2 if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
+			if self.SDmmc == self.LastRun:
+				self.part2 = getMachineMtdRoot()	# process eMMC slot
+				self.slot2 = 1
+			else:
+				self.part2 = "%s" %(self.part + str(self.slot * 2 + self.firstslot))
+				if self.SDmmc == self.FirstRun:
+					self.slot2 += 1			# allow for eMMC slot"
+			if self.phase == self.MOUNT:
+				self.imagelist[self.slot2] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
+			self.container.ePopen('mount /dev/%s /tmp/testmount' %self.part2 if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
 
 	def appClosed(self, data, retval, extra_args):
 		if retval == 0 and self.phase == self.MOUNT:
