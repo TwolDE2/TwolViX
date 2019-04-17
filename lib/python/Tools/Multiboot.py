@@ -88,14 +88,17 @@ class GetImagelist():
 			else:
 				if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
 					self.OsPath = '/tmp/testmount'
-			if os.path.isfile('%s' %self.OsPath):
+			print "Tools/Multiboot OsPath %s " %self.OsPath
+			if pathExists('%s' %self.OsPath):
+				print "Tools/Multiboot os.path.isfile " 
 				Creator = open("%s/etc/issue" %self.OsPath).readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
+				print "Tools/Multiboot Creator %s" %Creator 
 				if Creator.startswith("Openpli"):
 					build = [x.split("-")[-2:-1][0][-8:] for x in open("%s/var/lib/opkg/info/openpli-bootlogo.control" %self.OsPath).readlines() if x.startswith("Version:")]
 					Date = "%s-%s-%s" % (build[0][6:], build[0][4:6], build[0][2:4])
 					BuildVersion = "%s %s" % (Creator, Date)
 				elif Creator.startswith("Openvix"):
-					reader = boxbranding_reader()
+					reader = boxbranding_reader(self.OsPath)
 					BuildType = reader.getImageType()
 					Build = reader.getImageBuild()
 					Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ''
@@ -126,11 +129,12 @@ class GetImagelist():
 
 
 class boxbranding_reader:		# many thanks to Huevos for creating this reader - well beyond my skill levels! 
-	def __init__(self):
-		if pathExists('%s/usr/lib64' %self.OsPath):
-			self.branding_path = "%s/usr/lib64/enigma2/python/" %self.OsPath
+	def __init__(self, OsPath):
+		if pathExists('%s/usr/lib64' %OsPath):
+			self.branding_path = "%s/usr/lib64/enigma2/python/" %OsPath
 		else:
-			self.branding_path = "%s/usr/lib/enigma2/python/" %self.OsPath
+			self.branding_path = "%s/usr/lib/enigma2/python/" %OsPath
+		print "Tools/Multiboot boxbranding path %s" %self.branding_path 
 		self.branding_file = "boxbranding.so"
 		self.tmp_path = "/tmp/"
 		self.helper_file = "helper.py"
