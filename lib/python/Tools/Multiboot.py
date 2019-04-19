@@ -55,7 +55,7 @@ class GetImagelist():
 			if self.phase == self.MOUNT:
 				self.part2 = getMachineMtdRoot()
 				self.imagelist[self.slot] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
-			if self.slot == 1:
+			if self.slot == 1 and os.path.islink("/dev/block/by-name/linuxrootfs"):
 				self.container.ePopen('mount /dev/block/by-name/linuxrootfs /tmp/testmount' if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
 			else:
 				self.container.ePopen('mount /dev/block/by-name/userdata /tmp/testmount' if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
@@ -81,7 +81,7 @@ class GetImagelist():
 			BuildType = " "	#release etc #
 		
 			if SystemInfo["HasRootSubdir"]:
-				if os.path.isfile("/tmp/testmount/linuxrootfs1/usr/bin/enigma2"):
+				if self.slot == 1 and os.path.isfile("/tmp/testmount/linuxrootfs1/usr/bin/enigma2"):
 					self.OsPath = "/tmp/testmount/linuxrootfs1"
 				elif os.path.isfile("/tmp/testmount/linuxrootfs%s/usr/bin/enigma2" % self.slot):
 					self.OsPath = "/tmp/testmount/linuxrootfs%s" % self.slot
