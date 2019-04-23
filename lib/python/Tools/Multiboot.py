@@ -21,12 +21,13 @@ def GetCurrentImage():
 		else:
 			return 0	# if media not in SystemInfo["canMultiBoot"], then using SDcard and Image is in eMMC (1st slot) so tell caller with 0 return
 	else:
-		x = (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("rootsubdir=linuxrootfs")[1].split(' ')[0])
+		x = (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("rootsubdir=linuxrootfs")[1].split(' ')[0]))
 		print "multiboot tools ret", x
-		return SystemInfo["HasRootSubdir"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("rootsubdir=linuxrootfs")[1].split(' ')[0])
+		return SystemInfo["HasRootSubdir"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("rootsubdir=linuxrootfs")[1].split(' ')[0]))
 
 def GetCurrentImageMode():
 	return SystemInfo["canMultiBoot"] and SystemInfo["canMode12"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
+
 
 class GetImagelist():
 	MOUNT = 0
@@ -59,7 +60,7 @@ class GetImagelist():
 		if SystemInfo["HasRootSubdir"]:
 			if self.phase == self.MOUNT:
 				self.part2 = getMachineMtdRoot()
-				self.imagelist[self.slot] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
+				self.imagelist[self.slot2] = { 'imagename': _("Empty slot"), 'part': '%s' %self.part2 }
 			if self.slot == 1 and os.path.islink("/dev/block/by-name/linuxrootfs"):
 				self.container.ePopen('mount /dev/block/by-name/linuxrootfs /tmp/testmount' if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
 			else:
@@ -84,18 +85,18 @@ class GetImagelist():
 			Creator = " " 	#Openpli Openvix Openatv etc #
 			Date = " "	
 			BuildType = " "	#release etc #
-		
+			self.OsPath = "NoPath"
 			if SystemInfo["HasRootSubdir"]:
 				if self.slot == 1 and os.path.isfile("/tmp/testmount/linuxrootfs1/usr/bin/enigma2"):
 					self.OsPath = "/tmp/testmount/linuxrootfs1"
 				elif os.path.isfile("/tmp/testmount/linuxrootfs%s/usr/bin/enigma2" % self.slot):
 					self.OsPath = "/tmp/testmount/linuxrootfs%s" % self.slot
+					print "multiboot tools 1 slots", self.slot, self.slot2
 			else:
 				if os.path.isfile("/tmp/testmount/usr/bin/enigma2"):
 					self.OsPath = '/tmp/testmount'
 			print "Tools/Multiboot OsPath %s " %self.OsPath
-			if pathExists('%s' %self.OsPath):
-				print "Tools/Multiboot os.path.isfile " 
+			if self.OsPath != "NoPath":
 				Creator = open("%s/etc/issue" %self.OsPath).readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
 				print "Tools/Multiboot Creator %s" %Creator 
 				if Creator.startswith("Openpli"):
@@ -114,12 +115,13 @@ class GetImagelist():
 					if tm.tm_year >= 2011:
 						Date = time.strftime("%d-%m-%Y", tm).replace("-20", "-")
 					BuildVersion = "%s rel %s" % (Creator, Date)
-			self.imagelist[self.slot2] =  { 'imagename': '%s' %BuildVersion, 'part': '%s' %self.part2 }
+				self.imagelist[self.slot2] =  { 'imagename': '%s' %BuildVersion, 'part': '%s' %self.part2 }
 			self.phase = self.UNMOUNT
 			self.run()
 		elif self.slot < self.numberofslots:
 			self.slot += 1
 			self.slot2 = self.slot
+			print "multiboot tools 2 slots", self.slot, self.slot2
 			self.phase = self.MOUNT
 			self.run()
 		elif self.SDmmc == self.FirstRun:
