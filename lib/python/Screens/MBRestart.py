@@ -14,7 +14,6 @@ from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 from Tools.BoundFunction import boundFunction
 from Tools.Multiboot import GetImagelist, GetCurrentImage, GetCurrentImageMode
 
-
 class MultiBoot(Screen):
 
 	skin = """

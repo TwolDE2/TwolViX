@@ -297,8 +297,12 @@ class Devices(Screen):
 			if not parts:
 				continue
 			device = parts[3]
-			if not search('sd[a-z][1-9]', device) and not search('mmcblk[0-9]p[1-9]', device):
-				continue
+			if SystemInfo["HasRootSubdir"]:
+				if not search('sd[a-z][1-9]', device):
+					continue
+			else:	
+				if not search('sd[a-z][1-9]', device) and not search('mmcblk[0-9]p[1-9]', device):
+					continue
 			print "[About1] check HasSDmmc %s" %device
 			if SystemInfo["HasSDmmc"] and pathExists("/dev/sda4") and search('sd[a][1-4]', device):
 				print "[About2] HasSDmmc %s" %device
