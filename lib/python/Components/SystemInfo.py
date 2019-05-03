@@ -130,7 +130,6 @@ SystemInfo["RecoveryMode"] = SystemInfo["HasRootSubdir"] or fileCheck("/proc/stb
 SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'h9combo') and (1, 4, 'mmcblk0p') or getBoxType() in ('gbue4k', 'gbquad4k') and (3, 3, 'mmcblk0p') or getMachineBuild() in ('sf8008', 'gbmv200', 'beyonwizv2') and fileCheck("/dev/sda") and (0, 2, 'sda') or getMachineBuild() in ('osmio4k') and pathExists("/dev/mmcblk1p5") and (1, 4, 'mmcblk1p')
 SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
 SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
-SystemInfo["HasMBSB"] = SystemInfo["canMultiBoot"] and fileExists("/usr/bin/8gb.sh")
 SystemInfo["HasSDmmc"] = SystemInfo["canMultiBoot"] and "sd" in SystemInfo["canMultiBoot"][2] and "mmcblk" in getMachineMtdRoot() 
 SystemInfo["HasHiSi"] = pathExists('/proc/hisi')
 SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
