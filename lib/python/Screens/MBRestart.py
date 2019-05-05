@@ -124,31 +124,38 @@ class MultiBoot(Screen):
 				else:
 					print "[MultiBoot Restart] mtdboot"
 					self.container.ePopen('mount /dev/%s /tmp/startupmount' % self.mtdboot, self.ContainterFallback)
+# 	Normal STARTUP		STARTUP_1 -> STARTUP_n
+#	fastboot		STARTUP_LINUX_1 -> STARTUP_LINUX_n
+#	BOXMODE			
+#		OE-A		STARTUP_1 -> STARTUP_n
+#		Pli		STARTUP_LINUX_%s_BOXMODE_1 or BOXMODE_12
 
 	def ContainterFallback(self, data=None, retval=None, extra_args=None):
 		self.container.killAll()
 		slot = self.currentSelected[0][1]
+		Startup = False
 		print "[MultiBoot Restart] reboot3 slot:", slot
 		if pathExists("/tmp/startupmount/STARTUP"):
 			if  fileExists("/tmp/startupmount/STARTUP_1"):
-				copyfile("/tmp/startupmount/STARTUP_%s" % slot, "/tmp/startupmount/STARTUP")
-			elif fileExists("/tmp/startupmount/STARTUP_LINUX_4_BOXMODE_12"):
-				if slot < 12:
-					copyfile("/tmp/startupmount/STARTUP_LINUX_%s_BOXMODE_1" % slot, "/tmp/startupmount/STARTUP")
-				else:
-					slot -= 12
-					copyfile("/tmp/startupmount/STARTUP_LINUX_%s_BOXMODE_12" % slot, "/tmp/startupmount/STARTUP")
+				Startup = "/tmp/startupmount/STARTUP_%s" %slot
 			elif fileExists("/tmp/startupmount/STARTUP_LINUX_4"):
-				copyfile("/tmp/startupmount/STARTUP_LINUX_%s" % slot, "/tmp/startupmount/STARTUP")
-			else:
+				Startup = "/tmp/startupmount/STARTUP_LINUX_%s" %slot
+			elif  fileExists("/tmp/startupmount/STARTUP_LINUX_4_BOXMODE_1"):
 				if slot < 12:
-					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=12'\n" % (slot, SystemInfo["canMode12"][0], slot * 2 + SystemInfo["canMultiBoot"][0], model)
+					Startup = "/tmp/startupmount/STARTUP_LINUX_%s_BOXMODE_1" %slot
 				else:
 					slot -= 12
-					model = getMachineBuild()
-					startupFileContents = "boot emmcflash0.kernel%s 'brcm_cma=%s root=/dev/mmcblk0p%s rw rootwait %s_4.boxmode=12'\n" % (slot, SystemInfo["canMode12"][1], slot * 2 + SystemInfo["canMultiBoot"][0], model)
-					open('/tmp/startupmount/STARTUP', 'w').write(startupFileContents)
-			self.session.open(TryQuitMainloop, 2)
+					Startup = "/tmp/startupmount/STARTUP_LINUX_%s_BOXMODE_12" %slot
+			if Startup == False:
+				self.session.open(MessageBox, _("Multiboot ERROR! - invalid STARTUP in boot partition."), MessageBox.TYPE_INFO, timeout=20)
+			else:
+					if slot < 12:
+						copyfile("%s" % Startup, "/tmp/startupmount/STARTUP")
+					else:								#	BOXMODE	OE-A		STARTUP_1 -> STARTUP_n
+						slot -= 12
+						f = open('%s' %Startup, 'r').read().replace("boxmode_1", "boxmode_12").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
+						open('/tmp/startupmount/STARTUP', 'w').write(startupFileContents)
+					self.session.open(TryQuitMainloop, 2)
 		else:
 			self.session.open(MessageBox, _("Multiboot ERROR! - no STARTUP in boot partition."), MessageBox.TYPE_INFO, timeout=20)
 

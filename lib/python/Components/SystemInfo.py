@@ -133,5 +133,5 @@ SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/
 SystemInfo["HasSDmmc"] = SystemInfo["canMultiBoot"] and "sd" in SystemInfo["canMultiBoot"][2] and "mmcblk" in getMachineMtdRoot() 
 SystemInfo["HasHiSi"] = pathExists('/proc/hisi')
 SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
-SystemInfo["canMode12"] = getMachineBuild() in ('hd51', 'h7') and ('440M@328M brcm_cma=192M@768M', '520M@248M brcm_cma=200M@768M')
+SystemInfo["canMode12"] = getMachineBuild() in ('hd51', 'h7') and ('brcm_cma=440M@328M brcm_cma=192M@768M', 'brcm_cma=520M@248M brcm_cma=200M@768M')
 SystemInfo["CanProc"] = SystemInfo["HasMMC"] and getBrandOEM() != "vuplus"
