@@ -153,7 +153,7 @@ class MultiBoot(Screen):
 						copyfile("%s" % Startup, "/tmp/startupmount/STARTUP")
 					else:								#	BOXMODE	OE-A		STARTUP_1 -> STARTUP_n
 						slot -= 12
-						f = open('%s' %Startup, 'r').read().replace("boxmode_1", "boxmode_12").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
+						f = open('%s' %Startup, 'r').read().replace("boxmode_1'", "boxmode_12'").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
 						open('/tmp/startupmount/STARTUP', 'w').write(startupFileContents)
 					self.session.open(TryQuitMainloop, 2)
 		else:
