@@ -83,7 +83,7 @@ class MultiBoot(Screen):
 	def ImageList(self, imagedict):
 		list = []
 		mode = GetCurrentImageMode() or 0
-		currentimageslot = GetCurrentImage() or 1
+		currentimageslot = GetCurrentImage()
 		print "[MultiBoot Restart] reboot1 slot:\n", currentimageslot 
 		if SystemInfo["HasSDmmc"]:
 			currentimageslot += 1			#allow for mmc as 1st slot, then SDCard slots
