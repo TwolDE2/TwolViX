@@ -144,7 +144,7 @@ class MultiBoot(Screen):
 					slot12 = slot 								#	BOXMODE	OE-A		STARTUP_1 -> STARTUP_n
 					slot -= 12
 					Startup = "/tmp/startupmount/STARTUP_%s" %slot
-					f = open('%s' %Startup, 'r').read().replace("boxmode_1'", "boxmode_12'").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
+					f = open('%s' %Startup, 'r').read().replace("boxmode=1'", "boxmode=12'").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
 					print "[MultiBoot Restart] reboot4 mode12:", f
 					open('/tmp/startupmount/STARTUP', 'w').write(f)
 			elif fileExists("/tmp/startupmount/STARTUP_LINUX_4"):
