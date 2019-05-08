@@ -1,6 +1,6 @@
 from Components.SystemInfo import SystemInfo
 from Components.Console import Console
-from boxbranding import getMachineMtdRoot,getMachineMtdKernel,getBoxType,getMachineName
+from boxbranding import getMachineMtdRoot
 from Tools.Directories import pathExists
 import os, time
 import shutil
@@ -25,12 +25,10 @@ def GetCurrentImage():
 def GetCurrentKern():
 	if SystemInfo["HasRootSubdir"]:
 		return SystemInfo["HasRootSubdir"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("kernel=/dev/mmcblk0p")[1].split(' ')[0]))
-	return getMachineMtdKernel()
 
 def GetCurrentRoot():
 	if SystemInfo["HasRootSubdir"]:
 		return SystemInfo["HasRootSubdir"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("root=/dev/mmcblk0p")[1].split(' ')[0]))
-	return getMachineMtdRoot()
 
 def GetCurrentImageMode():
 	return SystemInfo["canMultiBoot"] and SystemInfo["canMode12"] and int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read().replace('\0', '').split('=')[-1])
