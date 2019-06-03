@@ -217,40 +217,6 @@ class LCD:
 	def setLEDBlinkingTime(self, value):
 		eDBoxLCD.getInstance().setLED(value, 2)
 
-	def setPowerLEDstate(value):
-		open(SystemInfo["PowerLed"], "w").write(value and "on" or "off")
-
-	def setLEDStandby(self, value):
-		open(SystemInfo["StandbyLED"], "w").write(value and "on" or "off")
-
-	def setLEDDeepSuspend(self, value):
-		open(SystemInfo["SuspendLED"], "w").write(value and "on" or "off")
-
-	def setLedPowerColor(configElement):
-		f = open("/proc/stb/fp/ledpowercolor", "w")
-		f.write(configElement.value)
-		f.close()
-
-	def setLedStandbyColor(configElement):
-		f = open("/proc/stb/fp/ledstandbycolor", "w")
-		f.write(configElement.value)
-		f.close()
-
-	def setLedSuspendColor(configElement):
-		f = open("/proc/stb/fp/ledsuspendledcolor", "w")
-		f.write(configElement.value)
-		f.close()
-
-	def setPower4x7On(value):
-		open(SystemInfo["Power4x7On"], "w").write(value and "on" or "off")
-
-
-	def setPower4x7Standby(value):
-		open(SystemInfo["Power4x7Standby"], "w").write(value and "on" or "off")
-
-	def setPower4x7Suspend(value):
-		open(SystemInfo["Power4x7Suspend"], "w").write(value and "on" or "off")
-
 
 	def setLCDMiniTVMode(self, value):
 		print 'setLCDMiniTVMode',value
@@ -300,61 +266,81 @@ def InitLcd():
 	else:
 		can_lcdmodechecking = False
 
+	def setPowerLEDstate(value):
+		open(SystemInfo["PowerLed"], "w").write(value and "on" or "off")
+
+	def setLEDStandby(self, value):
+		open(SystemInfo["StandbyLED"], "w").write(value and "on" or "off")
+
+	def setLEDDeepSuspend(self, value):
+		open(SystemInfo["SuspendLED"], "w").write(value and "on" or "off")
+
+	def setLedPowerColor(configElement):
+		f = open("/proc/stb/fp/ledpowercolor", "w")
+		f.write(configElement.value)
+		f.close()
+
+	def setLedStandbyColor(configElement):
+		f = open("/proc/stb/fp/ledstandbycolor", "w")
+		f.write(configElement.value)
+		f.close()
+
+	def setLedSuspendColor(configElement):
+		f = open("/proc/stb/fp/ledsuspendledcolor", "w")
+		f.write(configElement.value)
+		f.close()
+
+	def setPower4x7On(configElement):
+		f = open("/proc/stb/fp/power4x7on", "w")
+		f.write(configElement.value)
+		f.close()
+
+	def setPower4x7Standby(configElement):
+		f = open("/proc/stb/fp/power4x7standby", "w")
+		f.write(configElement.value)
+		f.close()
+
+	def setPower4x7Suspend(configElement):
+		f = open("/proc/stb/fp/power4x7suspend", "w")
+		f.write(configElement.value)
+		f.close()
+
 
 	if SystemInfo["PowerLed"]:
-		def setPowerLed(configElement):
-			ilcd.setPowerLed(configElement.value)
-		config.usage.suspendLED = ConfigYesNo(default = True)
-		config.usage.led_powerled = ConfigYesNo(default = True)
-		config.usage.led_powerled.addNotifier(setPowerLEDstate)
+		config.lcd.powerled = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.powerled.addNotifier(setPowerLEDstate)
 
 	if SystemInfo["StandbyLED"]:
-		def setLEDstandby(configElement):
-			ilcd.setLEDStandby(configElement.value)
-		config.usage.standbyLED = ConfigYesNo(default = True)
-		config.usage.standbyLED.addNotifier(setLEDstandby)
+		config.lcd.standbyLED = ConfigYesNo(default = True)
+		config.lcd.standbyLED.addNotifier(setLEDstandby)
 
 	if SystemInfo["SuspendLED"]:
-		def setLEDsuspend(configElement):
-			ilcd.setLEDDeepSuspend(configElement.value)
-		config.usage.suspendLED = ConfigYesNo(default = True)
-		config.usage.suspendLED.addNotifier(setLEDsuspend)
+		config.lcd.suspendLED = ConfigYesNo(default = True)
+		config.lcd.suspendLED.addNotifier(setLEDsuspend)
 
 	if SystemInfo["LedPowerColor"]:
-		def setLedPowerColor(configElement):
-			ilcd.setLedPowerColor(configElement.value)
-		config.usage.led_ledpowercolor = ConfigSelection(default = "1", choices = [("0", _("off")),("1", _("blue")), ("2", _("red")), ("3", _("violet"))])
-		config.usage.led_ledpowercolor.addNotifier(setLedPowerColor)
+		config.lcd.ledpowercolor = ConfigSelection(default = "1", choices = [("0", _("off")),("1", _("blue")), ("2", _("red")), ("3", _("violet"))])
+		config.lcd.ledpowercolor.addNotifier(setLedPowerColor)
 
 	if SystemInfo["LedStandbyColor"]:
-		def setLedStandbyColor(configElement):
-			ilcd.setLedStandbyColor(configElement.value)
-		config.usage.led_ledstandbycolor = ConfigSelection(default = "3", choices = [("0", _("off")),("1", _("blue")), ("2", _("red")), ("3", _("violet"))])
-		config.usage.led_ledstandbycolor.addNotifier(setLedStandbyColor)
+		config.lcd.ledstandbycolor = ConfigSelection(default = "3", choices = [("0", _("off")),("1", _("blue")), ("2", _("red")), ("3", _("violet"))])
+		config.lcd.ledstandbycolor.addNotifier(setLedStandbyColor)
 
 	if SystemInfo["LedSuspendColor"]:
-		def setLedSuspendColor(configElement):
-			ilcd.setLedSuspendColor(configElement.value)
-		config.usage.led_ledsuspendcolor = ConfigSelection(default = "2", choices = [("0", _("off")),("1", _("blue")), ("2", _("red")), ("3", _("violet"))])
-		config.usage.led_ledsuspendcolor.addNotifier(setLedSuspendColor)
+		config.lcd.ledsuspendcolor = ConfigSelection(default = "2", choices = [("0", _("off")),("1", _("blue")), ("2", _("red")), ("3", _("violet"))])
+		config.lcd.ledsuspendcolor.addNotifier(setLedSuspendColor)
 
 	if SystemInfo["Power4x7On"]:
-		def setPower4x7On(configElement):
-			ilcd.setPower4x7On(configElement.value)
-		config.usage.led_power4x7on = ConfigYesNo(default = True)
-		config.usage.led_power4x7on.addNotifier(setPower4x7On)
+		config.lcd.power4x7on = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.power4x7on.addNotifier(setPower4x7On)
 
 	if SystemInfo["Power4x7Standby"]:
-		def setPower4x7Standby(configElement):
-			ilcd.setPower4x7Standby(configElement.value)
-		config.usage.led_power4x7standby = ConfigYesNo(default = False)
-		config.usage.led_power4x7standby.addNotifier(setPower4x7Standby)
+		config.lcd.power4x7standby = ConfigSelection(default = "off", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.power4x7standby.addNotifier(setPower4x7Standby)
 
 	if SystemInfo["Power4x7Suspend"]:
-		def setPower4x7Suspend(configElement):
-			ilcd.setPower4x7Suspend(configElement.value)
-		config.usage.led_power4x7suspend = ConfigYesNo(default = False)
-		config.usage.led_power4x7suspend.addNotifier(setPower4x7Suspend)
+		config.lcd.power4x7suspend = ConfigSelection(default = "off", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.power4x7suspend.addNotifier(setPower4x7Suspend)
 
 	if SystemInfo["LEDButtons"]:
 		def setLEDnormalstate(configElement):
