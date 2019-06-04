@@ -194,7 +194,7 @@ class LCD:
 		f = open("/proc/stb/lcd/show_symbols", "w")
 		f.write(value)
 		f.close()
-		
+
 	def setPower(self, value):
 		print 'setLCDPower',value
 		f = open("/proc/stb/power/vfd", "w")
@@ -216,7 +216,6 @@ class LCD:
 
 	def setLEDBlinkingTime(self, value):
 		eDBoxLCD.getInstance().setLED(value, 2)
-
 
 	def setLCDMiniTVMode(self, value):
 		print 'setLCDMiniTVMode',value
@@ -248,7 +247,7 @@ def standbyCounterChanged(dummy):
 		config.lcd.ledbrightnessdeepstandby.apply()
 
 def InitLcd():
-	if getBoxType() in ('et4x00', 'et5x00', 'et6x00', 'gb800se', 'gb800solo', 'iqonios300hd', 'mbmicro', 'sf128', 'sf138', 'tmsingle', 'tmnano2super', 'tmnanose', 'tmnanoseplus', 'tmnanosem2', 'tmnanosem2plus', 'tmnanosecombo', 'vusolo', 'vusolose', 'wetekplay', 'wetekplayplus'):
+	if getBoxType() in ('et4x00', 'et5x00', 'et6x00', 'gb800se', 'gb800solo', 'iqonios300hd', 'mbmicro', 'sf128', 'sf138', 'tmsingle', 'tmnano2super', 'tmnanose', 'tmnanoseplus', 'tmnanosem2', 'tmnanosem2plus', 'tmnanosecombo', 'vusolo'):
 		detected = False
 	else:
 		detected = eDBoxLCD.getInstance().detected()
@@ -266,14 +265,23 @@ def InitLcd():
 	else:
 		can_lcdmodechecking = False
 
-	def setPowerLEDstate(value):
-		open(SystemInfo["PowerLed"], "w").write(value and "on" or "off")
+	def setPowerLEDstate(configElement):
+		if fileExists("/proc/stb/power/powerled"):
+			f = open("/proc/stb/power/powerled", "w")
+			f.write(configElement.value)
+			f.close()
 
-	def setLEDStandby(self, value):
-		open(SystemInfo["StandbyLED"], "w").write(value and "on" or "off")
+	def setPowerLEDstanbystate(configElement):
+		if fileExists("/proc/stb/power/standbyled"):
+			f = open("/proc/stb/power/standbyled", "w")
+			f.write(configElement.value)
+			f.close()
 
-	def setLEDDeepSuspend(self, value):
-		open(SystemInfo["SuspendLED"], "w").write(value and "on" or "off")
+	def setPowerLEDdeepstanbystate(configElement):
+		if fileExists("/proc/stb/power/suspendled"):
+			f = open("/proc/stb/power/suspendled", "w")
+			f.write(configElement.value)
+			f.close()
 
 	def setLedPowerColor(configElement):
 		f = open("/proc/stb/fp/ledpowercolor", "w")
@@ -305,18 +313,17 @@ def InitLcd():
 		f.write(configElement.value)
 		f.close()
 
-
 	if SystemInfo["PowerLed"]:
 		config.lcd.powerled = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
 		config.lcd.powerled.addNotifier(setPowerLEDstate)
 
-	if SystemInfo["StandbyLED"]:
-		config.lcd.standbyLED = ConfigYesNo(default = True)
-		config.lcd.standbyLED.addNotifier(setLEDstandby)
+ 	if SystemInfo["StandbyLED"]:
+		config.lcd.standbyLED = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.standbyLED.addNotifier(setPowerLEDstanbystate)
 
-	if SystemInfo["SuspendLED"]:
-		config.lcd.suspendLED = ConfigYesNo(default = True)
-		config.lcd.suspendLED.addNotifier(setLEDsuspend)
+ 	if SystemInfo["SuspendLED"]:
+		config.lcd.suspendLED = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.suspendLED.addNotifier(setPowerLEDdeepstanbystate)
 
 	if SystemInfo["LedPowerColor"]:
 		config.lcd.ledpowercolor = ConfigSelection(default = "1", choices = [("0", _("off")),("1", _("blue")), ("2", _("red")), ("3", _("violet"))])
