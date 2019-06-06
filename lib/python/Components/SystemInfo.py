@@ -132,14 +132,15 @@ SystemInfo["CanDownmixAACPlus"] = fileHas("/proc/stb/audio/aacplus_choices", "do
 SystemInfo["CanAACTranscode"] = fileHas("/proc/stb/audio/aac_transcode_choices", "off")
 SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
 #	Multiboot/bootmode options
+SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
+SystemInfo["CanProc"] = SystemInfo["HasMMC"] and getBrandOEM() != "vuplus"
 SystemInfo["HasRootSubdir"] = fileHas("/proc/cmdline", "rootsubdir=")
 SystemInfo["RecoveryMode"] = SystemInfo["HasRootSubdir"] and getMachineBuild() not in ('hd51','h7') or fileCheck("/proc/stb/fp/boot_mode")
-SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'h9combo') and (1, 4, 'mmcblk0p') or getBoxType() in ('gbue4k', 'gbquad4k') and (3, 3, 'mmcblk0p') or getMachineBuild() in ('sf8008', 'gbmv200', 'beyonwizv2') and fileCheck("/dev/sda") and (0, 2, 'sda') or getMachineBuild() in ('osmio4k') and pathExists("/dev/mmcblk1p5") and (1, 4, 'mmcblk1p')
+SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'h9combo', 'multibox') and (1, 4, 'mmcblk0p') or getBoxType() in ('gbue4k', 'gbquad4k') and (3, 3, 'mmcblk0p') or getMachineBuild() in ('sf8008', 'gbmv200', 'beyonwizv2') and fileCheck("/dev/sda") and (0, 2, 'sda') or getMachineBuild() in ('osmio4k') and (1, 4, 'mmcblk1p')
 SystemInfo["canBackupEMC"] = getMachineBuild() in ('hd51','h7') and ('disk.img', 'mmcblk0p1') or getMachineBuild() in ('osmio4k') and ('emmc.img', 'mmcblk1p1') or getMachineBuild() in ('gbmv200','sf8008','beyonwizv2') and ('usb_update.bin','none')
-SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
 SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
 SystemInfo["HasSDmmc"] = SystemInfo["canMultiBoot"] and "sd" in SystemInfo["canMultiBoot"][2] and "mmcblk" in getMachineMtdRoot() 
+SystemInfo["HasSDnomount"] = getMachineBuild() in ('h9', 'i55plus') and ('No', 'none') or getMachineBuild() in ('multibox', 'h9combo') and ('Yes', 'mmcblk0')
 SystemInfo["HasHiSi"] = pathExists('/proc/hisi')
 SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
 SystemInfo["canMode12"] = getMachineBuild() in ('hd51', 'h7') and ('brcm_cma=440M@328M brcm_cma=192M@768M', 'brcm_cma=520M@248M brcm_cma=200M@768M')
-SystemInfo["CanProc"] = SystemInfo["HasMMC"] and getBrandOEM() != "vuplus"
