@@ -85,7 +85,7 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 		self.current_begin_time=0
 		assert InfoBar.instance is None, "class InfoBar is a singleton class and just one instance of this class is allowed!"
 		InfoBar.instance = self
-		
+
 		cfgbouquets = [(("Disabled"), _("Disabled"))]
 		for bouq in InfoBar.instance.servicelist.getBouquetList():
 			cfgbouquets.append((bouq[0],bouq[0]))
@@ -94,6 +94,7 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 		if config.misc.initialchannelselection.value:
 			self.onShown.append(self.showMenu)
 		self.onShow.append(self.doButtonsCheck)
+
 
 	def showMenu(self):
 		self.onShown.remove(self.showMenu)
