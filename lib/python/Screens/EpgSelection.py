@@ -481,14 +481,19 @@ class EPGSelection(Screen, HelpableScreen):
 				self['list'].fillGraphEPGNoRefresh(self.services, self.ask_time)
 				self['list'].moveToService(serviceref)
 			self['list'].setCurrentlyPlaying(serviceref)
-			self.moveTimeLines()
+			if self.type == EPG_TYPE_GRAPH:
+				self.makebouqlistlabel()
+				self.moveTimeLines()
+				if config.epgselection.graph_channel1.value:
+					self['list'].instance.moveSelectionTo(0)
+			else:
+				self.moveTimeLines()
 		if self.type == EPG_TYPE_MULTI:
 			populateBouquetList()
 			self['bouquetlist'].moveToService(self.StartBouquet)
 			self['list'].fillMultiEPG(self.services, self.ask_time)
 			self['list'].moveToService(serviceref)
 			self['list'].setCurrentlyPlaying(serviceref)
-#			self['list'].moveToService(self.session.nav.getCurrentlyPlayingServiceOrGroup())
 		self.findchannel = False
 		self['lab1'].hide()
 
@@ -514,6 +519,7 @@ class EPGSelection(Screen, HelpableScreen):
 			self.createTimer.stop()
 		self['list'].recalcEntrySize()
 		self.BouquetRoot = False
+		print "EPGSelection.py ************* self.type = %s" %self.type
 		if self.type == EPG_TYPE_GRAPH or self.type == EPG_TYPE_INFOBARGRAPH:
 			self.getCurrentCursorLocation = None
 			if self.type == EPG_TYPE_GRAPH:
@@ -529,9 +535,9 @@ class EPGSelection(Screen, HelpableScreen):
 			self.getCurrentCursorLocation = None
 			if self.StartBouquet.toString().startswith('1:7:0'):
 				self.BouquetRoot = True
-			# set time_base on grid widget so that timeline shows correct time
-			self['list'].time_base = self.ask_time
-			self['timeline_text'].setEntries(self['list'], self['timeline_now'], self.time_lines, False)
+#			set time_base on grid widget so that timeline shows correct time
+#			self['list'].time_base = self.ask_time
+#			self['timeline_text'].setEntries(self['list'], self['timeline_now'], self.time_lines, False)
 		elif self.type == EPG_TYPE_SINGLE or self.type == EPG_TYPE_ENHANCED or self.type == EPG_TYPE_INFOBAR:
 			title = None
 			if self.type == EPG_TYPE_SINGLE:
