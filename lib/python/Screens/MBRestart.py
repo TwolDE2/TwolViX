@@ -132,17 +132,19 @@ class MultiBoot(Screen):
 
 	def ContainterFallback(self, data=None, retval=None, extra_args=None):
 		self.container.killAll()
-		slot12 = 1
 		slot = self.currentSelected[0][1]
-		Startup = False
 		print "[MultiBoot Restart] reboot3 slot:", slot
+		if slot < 12:
+			slot12 = 1
+		else:
+			slot12 = 12
+			slot -= 12
+		Startup = False
 		if pathExists("/tmp/startupmount/STARTUP"):
 			if  fileExists("/tmp/startupmount/STARTUP_1"):
-				if slot < 12:
+				if slot12 < 12:
 					Startup = "/tmp/startupmount/STARTUP_%s" %slot
-				else:
-					slot12 = slot 								#	BOXMODE	OE-A		STARTUP_1 -> STARTUP_n
-					slot -= 12
+				else:		#	BOXMODE	OE-A		STARTUP_1 -> STARTUP_n
 					Startup = "/tmp/startupmount/STARTUP_%s" %slot
 					f = open('%s' %Startup, 'r').read().replace("boxmode=1'", "boxmode=12'").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
 					print "[MultiBoot Restart] reboot4 mode12:", f
@@ -150,11 +152,8 @@ class MultiBoot(Screen):
 			elif fileExists("/tmp/startupmount/STARTUP_LINUX_4"):
 				Startup = "/tmp/startupmount/STARTUP_LINUX_%s" %slot
 			elif  fileExists("/tmp/startupmount/STARTUP_LINUX_4_BOXMODE_1"):
-				if slot < 12:
-					Startup = "/tmp/startupmount/STARTUP_LINUX_%s_BOXMODE_1" %slot
-				else:
-					slot -= 12
-					Startup = "/tmp/startupmount/STARTUP_LINUX_%s_BOXMODE_12" %slot
+				Startup = "/tmp/startupmount/STARTUP_LINUX_%s_BOXMODE_%s" %(slot, slot12)
+				slot12 = 1
 			if Startup == False:
 				self.session.open(MessageBox, _("Multiboot ERROR! - invalid STARTUP in boot partition."), MessageBox.TYPE_INFO, timeout=20)
 			else:
