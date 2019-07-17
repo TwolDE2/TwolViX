@@ -154,11 +154,13 @@ class Harddisk:
 		try:
 			line = readFile(self.sysfsPath('size'))
 			cap = int(line)
+			print "[Harddisk]1 sysfsPath=%s, line=%s, cap=%s" %(self.sysfsPath, line, cap) 
 		except:
 			dev = self.findMount()
 			if dev:
 				stat = os.statvfs(dev)
 				cap = int(stat.f_blocks * stat.f_bsize)
+				print "[Harddisk]2 dev=%s, stat=%s, cap=%s" %(dev, stat, cap) 
 				return cap / 1000 / 1000
 			else:
 				return cap
