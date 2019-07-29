@@ -1105,6 +1105,11 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = snr*10;
 	}
+	else if (!strcmp(m_description, "ATBM7821 DVB-T2/C"))
+	{
+		ret = snr*10;
+		ter_max = cab_max = 4200;
+	}
 	else if (!strcmp(m_description, "Vuplus DVB-S NIM(AVL2108)")) // VU+Ultimo/VU+Uno DVB-S2 NIM
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1600) + 0.2100) * 100);
