@@ -800,6 +800,7 @@ def InitUsageConfig():
 	config.epg.viasat = ConfigYesNo(default=True)
 	config.epg.netmed = ConfigYesNo(default=True)
 	config.epg.virgin = ConfigYesNo(default=True)
+	config.epg.opentv = ConfigYesNo(default = False)
 
 	def EpgSettingsChanged(configElement):
 		mask = 0xffffffff
@@ -815,6 +816,8 @@ def InitUsageConfig():
 			mask &= ~(eEPGCache.NETMED_SCHEDULE | eEPGCache.NETMED_SCHEDULE_OTHER)
 		if not config.epg.virgin.value:
 			mask &= ~(eEPGCache.VIRGIN_NOWNEXT | eEPGCache.VIRGIN_SCHEDULE)
+		if not config.epg.opentv.value:
+			mask &= ~eEPGCache.OPENTV
 		eEPGCache.getInstance().setEpgSources(mask)
 
 	config.epg.eit.addNotifier(EpgSettingsChanged)
@@ -823,6 +826,7 @@ def InitUsageConfig():
 	config.epg.viasat.addNotifier(EpgSettingsChanged)
 	config.epg.netmed.addNotifier(EpgSettingsChanged)
 	config.epg.virgin.addNotifier(EpgSettingsChanged)
+	config.epg.opentv.addNotifier(EpgSettingsChanged)
 	config.epg.histminutes = ConfigSelectionNumber(min=0, max=120, stepwidth=15, default=0, wraparound=True)
 
 	def EpgHistorySecondsChanged(configElement):
