@@ -892,12 +892,13 @@ def InitUsageConfig():
 	config.network = ConfigSubsection()
 	if SystemInfo["WakeOnLAN"]:
 		def wakeOnLANChanged(configElement):
-			if getBoxType() in ("et10000", "gbquadplus", "gbquad", "gb800ueplus", "gb800seplus", "gbipbox"):
-				open(SystemInfo["WakeOnLAN"], "w").write(configElement.value and "on" or "off")
-			else:
+			if "fp" in SystemInfo["WakeOnLAN"]:
 				open(SystemInfo["WakeOnLAN"], "w").write(configElement.value and "enable" or "disable")
+			else:
+				open(SystemInfo["WakeOnLAN"], "w").write(configElement.value and "on" or "off")
 		config.network.wol = ConfigYesNo(default=False)
 		config.network.wol.addNotifier(wakeOnLANChanged)
+
 	config.network.AFP_autostart = ConfigYesNo(default=True)
 	config.network.NFS_autostart = ConfigYesNo(default=True)
 	config.network.OpenVPN_autostart = ConfigYesNo(default=True)
