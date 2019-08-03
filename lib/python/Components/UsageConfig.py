@@ -363,6 +363,16 @@ def InitUsageConfig():
 	config.usage.show_event_progress_in_servicelist.addNotifier(refreshServiceList)
 	config.usage.show_channel_numbers_in_servicelist.addNotifier(refreshServiceList)
 
+	if SystemInfo["WakeOnLAN"]:
+		def wakeOnLANChanged(configElement):
+			if "fp" in SystemInfo["WakeOnLAN"]:
+				open(SystemInfo["WakeOnLAN"], "w").write(configElement.value and "enable" or "disable")
+			else:
+				open(SystemInfo["WakeOnLAN"], "w").write(configElement.value and "on" or "off")
+		config.usage.wakeOnLAN = ConfigYesNo(default = False)
+		config.usage.wakeOnLAN.addNotifier(wakeOnLANChanged)
+
+
 	#standby
 
 	if getDisplayType() in ('textlcd7segment'):
@@ -890,14 +900,6 @@ def InitUsageConfig():
 	config.usage.keytrans = ConfigText(default = eEnv.resolve("${datadir}/enigma2/keytranslation.xml"))
 
 	config.network = ConfigSubsection()
-	if SystemInfo["WakeOnLAN"]:
-		def wakeOnLANChanged(configElement):
-			if "fp" in SystemInfo["WakeOnLAN"]:
-				open(SystemInfo["WakeOnLAN"], "w").write(configElement.value and "enable" or "disable")
-			else:
-				open(SystemInfo["WakeOnLAN"], "w").write(configElement.value and "on" or "off")
-		config.network.wol = ConfigYesNo(default=False)
-		config.network.wol.addNotifier(wakeOnLANChanged)
 
 	config.network.AFP_autostart = ConfigYesNo(default=True)
 	config.network.NFS_autostart = ConfigYesNo(default=True)
