@@ -901,7 +901,6 @@ def InitUsageConfig():
 	config.usage.keytrans = ConfigText(default = eEnv.resolve("${datadir}/enigma2/keytranslation.xml"))
 
 	config.network = ConfigSubsection()
-
 	config.network.AFP_autostart = ConfigYesNo(default=True)
 	config.network.NFS_autostart = ConfigYesNo(default=True)
 	config.network.OpenVPN_autostart = ConfigYesNo(default=True)
