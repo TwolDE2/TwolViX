@@ -880,7 +880,7 @@ class NimManager:
 				entry["multi_type"] = {}
 			if "supports_blind_scan" not in entry:
 				entry["supports_blind_scan"] = False
-			self.nim_slots.append(NIM(slot=id, description=entry["name"], type=entry["type"], has_outputs=entry["has_outputs"], internally_connectable=entry["internally_connectable"], multi_type=entry["multi_type"], frontend_id=entry["frontend_device"], i2c = entry["i2c"], is_empty = entry["isempty"], supports_blind_scan = entry["supports_blind_scan"], number_of_slots=len(entries.keys())))
+			self.nim_slots.append(NIM(slot=id, description=entry["name"], type=entry["type"], has_outputs=entry["has_outputs"], internally_connectable=entry["internally_connectable"], multi_type=entry["multi_type"], frontend_id=entry["frontend_device"], i2c = entry["i2c"], is_empty = entry["isempty"], supports_blind_scan = entry["supports_blind_scan"], number_of_slots=self.number_of_slots))
 
 	def hasNimType(self, chktype):
 		return any(slot.canBeCompatible(chktype) for slot in self.nim_slots)
