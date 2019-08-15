@@ -280,32 +280,6 @@ class LogManager(Screen):
 			self.sel = None
 		self.selectedFiles = self["list"].getSelectedList()
 		if self.selectedFiles:
-			message = _("Do you want to delete all the selected files:\n(choose 'No' to only delete the currently selected file.)")
-			ybox = self.session.openWithCallback(self.doDelete2, MessageBox, message, MessageBox.TYPE_YESNO)
-			ybox.setTitle(_("Delete Confirmation"))
-		elif self.sel:
-			message = _("Are you sure you want to delete this log:\n") + str(self.sel[0])
-			ybox = self.session.openWithCallback(self.doDelete3, MessageBox, message, MessageBox.TYPE_YESNO)
-			ybox.setTitle(_("Delete Confirmation"))
-		else:
-			self.session.open(MessageBox, _("You have not selected any logs to delete."), MessageBox.TYPE_INFO, timeout = 10)
-
-	def doDelete1(self, answer):
-		self.selectedFiles = self["list"].getSelectedList()
-		self.selectedFiles = ",".join(self.selectedFiles).replace(",", " ")
-		self.sel = self["list"].getCurrent()[0]
-		if answer is True:
-			message = _("Are you sure you want to delete all the selected logs:\n") + self.selectedFiles
-			ybox = self.session.openWithCallback(self.doDelete2, MessageBox, message, MessageBox.TYPE_YESNO)
-			ybox.setTitle(_("Delete Confirmation"))
-		else:
-			message = _("Are you sure you want to delete this log:\n") + str(self.sel[0])
-			ybox = self.session.openWithCallback(self.doDelete3, MessageBox, message, MessageBox.TYPE_YESNO)
-			ybox.setTitle(_("Delete Confirmation"))
-
-	def doDelete2(self, answer):
-		if answer is True:
-			self.selectedFiles = self["list"].getSelectedList()
 			self["list"].instance.moveSelectionTo(0)
 			for f in self.selectedFiles:
 				remove(f)
@@ -313,15 +287,14 @@ class LogManager(Screen):
 			config.logmanager.sentfiles.save()
 			configfile.save()
 			self["list"].changeDir(self.defaultDir)
-
-	def doDelete3(self, answer):
-		if answer is True:
-			self.sel = self["list"].getCurrent()[0]
+		elif self.sel:
 			self["list"].instance.moveSelectionTo(0)
 			if path.exists(self.defaultDir + self.sel[0]):
 				remove(self.defaultDir + self.sel[0])
 			self["list"].changeDir(self.defaultDir)
 			self["LogsSize"].update(config.crash.debug_path.value)
+		else:
+			self.session.open(MessageBox, _("You have not selected any logs to delete."), MessageBox.TYPE_INFO, timeout = 10)
 
 	def sendlog(self, addtionalinfo = None):
 		try:
