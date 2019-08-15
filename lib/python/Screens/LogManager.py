@@ -281,7 +281,7 @@ class LogManager(Screen):
 		self.selectedFiles = self["list"].getSelectedList()
 		if self.selectedFiles:
 			message = _("Do you want to delete all the selected files:\n(choose 'No' to only delete the currently selected file.)")
-			ybox = self.session.openWithCallback(self.doDelete1, MessageBox, message, MessageBox.TYPE_YESNO)
+			ybox = self.session.openWithCallback(self.doDelete2, MessageBox, message, MessageBox.TYPE_YESNO)
 			ybox.setTitle(_("Delete Confirmation"))
 		elif self.sel:
 			message = _("Are you sure you want to delete this log:\n") + str(self.sel[0])
