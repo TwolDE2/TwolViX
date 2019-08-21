@@ -956,11 +956,10 @@ def InitUsageConfig():
 
 	config.crash = ConfigSubsection()
 	config.crash.enabledebug = ConfigYesNo(default = False)
-	config.misc.enabletwistedlog = ConfigYesNo(default = False)
 	config.crash.debugloglimit = ConfigSelectionNumber(min = 1, max = 10, stepwidth = 1, default = 4, wraparound = True)
 	config.crash.daysloglimit = ConfigSelectionNumber(min = 1, max = 30, stepwidth = 1, default = 8, wraparound = True)
 	config.crash.sizeloglimit = ConfigSelectionNumber(min = 1, max = 20, stepwidth = 1, default = 10, wraparound = True)
-	config.crash.lastfulljobtrashtime = ConfigInteger(default=-1)
+	config.crash.lastfulljobtrashtime = ConfigInteger(default = 1)
 
 	debugpath = [('/home/root/logs/', '/home/root/')]
 	for p in harddiskmanager.getMountedPartitions():
