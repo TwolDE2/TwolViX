@@ -463,7 +463,7 @@ class LogManagerViewLog(Screen):
 		self["setupActions"] = ActionMap(["SetupActions", "ColorActions", "DirectionActions"],
 		{
 			"cancel": self.cancel,
-			"ok": self.cancel,
+			"ok": self.gotoLastPage,
 			"up": self["list"].up,
 			"down": self["list"].down,
 			"right": self["list"].pageDown,
