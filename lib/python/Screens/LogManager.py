@@ -460,18 +460,23 @@ class LogManagerViewLog(Screen):
 		self.logfile = config.crash.debug_path.value + selected
 		self.log=[]
 		self["list"] = MenuList(self.log)
-		self["setupActions"] = ActionMap(["SetupActions", "ColorActions", "DirectionActions"],
+		self["setupActions"] = ActionMap(["ColorActions", "OkCancelActions", "DirectionActions"],
 		{
+			"ok": self.gotoFirstPage,
 			"cancel": self.cancel,
-			"ok": self.gotoLastPage,
+			"red": self.gotoFirstPage,
+			"green": self["list"].pageDown,
+			"yellow": self["list"].pageUp,
+			"blue": self.gotoLastPage,
 			"up": self["list"].up,
 			"down": self["list"].down,
 			"right": self["list"].pageDown,
-			"left": self["list"].pageUp,
-			"moveUp": self.gotoFirstPage,
-			"moveDown": self.gotoLastPage
+			"left": self["list"].pageUp
 		}, -2)
-
+		self["key_red"] = Button(_("FirstPage"))
+		self["key_green"] = Button(_("PageFwd"))
+		self["key_yellow"] = Button(_("PageBack"))
+		self["key_blue"] = Button(_("LastPage"))
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
