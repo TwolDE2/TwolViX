@@ -58,7 +58,6 @@ SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach") or fileCheck("/pro
 SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and getBoxType() != 'gb800ueplus'
 SystemInfo["LcdPowerOn"] = fileExists("/proc/stb/power/vfd")
-SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx2', 'gbx3', 'gbx3h')
 SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
 SystemInfo["PowerLed"] = fileExists("/proc/stb/power/powerled")
 SystemInfo["StandbyLED"] = fileCheck("/proc/stb/power/standbyled")
@@ -69,6 +68,7 @@ SystemInfo["LedSuspendColor"] = fileExists("/proc/stb/fp/ledsuspendledcolor")
 SystemInfo["Power4x7On"] = fileExists("/proc/stb/fp/power4x7on")
 SystemInfo["Power4x7Standby"] = fileExists("/proc/stb/fp/power4x7standby")
 SystemInfo["Power4x7Suspend"] = fileExists("/proc/stb/fp/power4x7suspend")
+SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx2', 'gbx3', 'gbx3h')
 #	Video Output control
 SystemInfo["ZapMode"] = fileCheck("/proc/stb/video/zapmode") or fileCheck("/proc/stb/video/zapping_mode")
 SystemInfo["FastChannelChange"] = False
