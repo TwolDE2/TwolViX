@@ -59,16 +59,16 @@ SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and getBoxType() != 'gb800ueplus'
 SystemInfo["LcdPowerOn"] = fileExists("/proc/stb/power/vfd")
 SystemInfo["LEDButtons"] = getBoxType() == 'vuultimo'
+SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx2', 'gbx3', 'gbx3h')
 SystemInfo["PowerLed"] = fileExists("/proc/stb/power/powerled")
 SystemInfo["StandbyLED"] = fileCheck("/proc/stb/power/standbyled")
 SystemInfo["SuspendLED"] = fileCheck("/proc/stb/power/suspendled")
 SystemInfo["LedPowerColor"] = fileExists("/proc/stb/fp/ledpowercolor")
 SystemInfo["LedStandbyColor"] = fileExists("/proc/stb/fp/ledstandbycolor")
 SystemInfo["LedSuspendColor"] = fileExists("/proc/stb/fp/ledsuspendledcolor")
-SystemInfo["Power4x7On"] = fileExists("/proc/stb/fp/power4x7on")
-SystemInfo["Power4x7Standby"] = fileExists("/proc/stb/fp/power4x7standby")
-SystemInfo["Power4x7Suspend"] = fileExists("/proc/stb/fp/power4x7suspend")
-SystemInfo["DisplayLED"] = getBoxType() in ('gb800se', 'gb800solo', 'gbx1', 'gbx2', 'gbx3', 'gbx3h')
+SystemInfo["Power24x7On"] = fileExists("/proc/stb/fp/power4x7on")
+SystemInfo["Power24x7Standby"] = fileExists("/proc/stb/fp/power4x7standby")
+SystemInfo["Power24x7Suspend"] = fileExists("/proc/stb/fp/power4x7suspend")
 #	Video Output control
 SystemInfo["ZapMode"] = fileCheck("/proc/stb/video/zapmode") or fileCheck("/proc/stb/video/zapping_mode")
 SystemInfo["FastChannelChange"] = False
