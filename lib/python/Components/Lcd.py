@@ -298,12 +298,12 @@ def InitLcd():
 		f.write(configElement.value)
 		f.close()
 
-	def setPower24x7On(configElement):
+	def setPower4x7On(configElement):
 		f = open("/proc/stb/fp/power4x7on", "w")
 		f.write(configElement.value)
 		f.close()
 
-	def setPower24x7Standby(configElement):
+	def setPower4x7Standby(configElement):
 		f = open("/proc/stb/fp/power4x7standby", "w")
 		f.write(configElement.value)
 		f.close()
@@ -337,17 +337,17 @@ def InitLcd():
 		config.lcd.ledsuspendcolor = ConfigSelection(default = "2", choices = [("0", _("off")),("1", _("blue")), ("2", _("red")), ("3", _("violet"))])
 		config.lcd.ledsuspendcolor.addNotifier(setLedSuspendColor)
 
-	if SystemInfo["Power24x7On"]:
-		config.lcd.power24x7on = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
-		config.lcd.power24x7on.addNotifier(setPower24x7On)
+	if SystemInfo["Power4x7On"]:
+		config.lcd.power4x7on = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.power4x7on.addNotifier(setPower4x7On)
 
-	if SystemInfo["Power24x7Standby"]:
-		config.lcd.power24x7standby = ConfigSelection(default = "off", choices = [("off", _("Off")), ("on", _("On"))])
-		config.lcd.power24x7standby.addNotifier(setPower24x7Standby)
+	if SystemInfo["Power4x7Standby"]:
+		config.lcd.power4x7standby = ConfigSelection(default = "off", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.power4x7standby.addNotifier(setPower4x7Standby)
 
-	if SystemInfo["Power24x7Suspend"]:
-		config.lcd.power24x7suspend = ConfigSelection(default = "off", choices = [("off", _("Off")), ("on", _("On"))])
-		config.lcd.power24x7suspend.addNotifier(setPower24x7Suspend)
+	if SystemInfo["Power4x7Suspend"]:
+		config.lcd.power4x7suspend = ConfigSelection(default = "off", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.power4x7suspend.addNotifier(setPower4x7Suspend)
 
 	if SystemInfo["LEDButtons"]:
 		def setLEDnormalstate(configElement):
@@ -502,7 +502,7 @@ def InitLcd():
 					("4", _("MiniTV") + _(" - video1")),
 					("6", _("MiniTV with OSD") + _(" - video1")),
 					("5", _("MiniTV") + _(" - video0+video1")),
-					("7", _("MiniTV with OSD") + _(" - video0+video1"))])
+					("7", _("MiniTV with OSD") + _(" - video0+video1"))]) 
 			config.lcd.minitvmode.addNotifier(setLCDminitvmode)
 			config.lcd.minitvpipmode = ConfigSelection(default = "0", choices=[
 					("0", _("off")),
