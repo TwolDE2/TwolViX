@@ -90,9 +90,9 @@ class VideoWizard(WizardLanguage, Rc):
 					descr = 'DVI'
 				if descr == 'RCA' and has_rca:
 					descr = 'RCA'
-				if descr == 'RCA' and has_jack:
+				if descr == 'RCA' and has_jack and not has_scart:
 					descr = 'JACK'
-				if descr == 'Scart' and has_rca:
+				if descr == 'Scart' and has_rca and not has_scart:
 					descr = 'RCA'
 				if port != "DVI-PC":
 					list.append((descr,port))
