@@ -1,31 +1,25 @@
 from boxbranding import getImageVersion, getImageType, getMachineBrand, getMachineName
-from urllib import urlopen
-import socket
 import os
-from Screens.ParentalControlSetup import ProtectedScreen
 from enigma import eConsoleAppContainer, eDVBDB, eTimer
-
-from Screens.Screen import Screen
-from Components.OnlineUpdateCheck import feedsstatuscheck, kernelMismatch
 from Components.ActionMap import ActionMap, NumberActionMap
+from Components.Button import Button
 from Components.config import config, ConfigSubsection, ConfigText
-from Components.PluginComponent import plugins
-from Components.PluginList import PluginList, PluginEntryComponent, PluginCategoryComponent, PluginDownloadComponent
+from Components.Harddisk import harddiskmanager
+from Components import Ipkg
 from Components.Label import Label
 from Components.Language import language
-from Components.Button import Button
-from Components.Harddisk import harddiskmanager
+from Components.OnlineUpdateCheck import feedsstatuscheck, kernelMismatch
+from Components.PluginComponent import plugins
+from Components.PluginList import PluginList, PluginEntryComponent, PluginCategoryComponent, PluginDownloadComponent
 from Components.Sources.StaticText import StaticText
-from Components import Ipkg
-from Components.config import config
-from Screens.MessageBox import MessageBox
+from Plugins.Plugin import PluginDescriptor
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
-from Plugins.Plugin import PluginDescriptor
+from Screens.MessageBox import MessageBox
+from Screens.ParentalControlSetup import ProtectedScreen
+from Screens.Screen import Screen
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
-
-
 language.addCallback(plugins.reloadPlugins)
 
 config.misc.pluginbrowser = ConfigSubsection()
