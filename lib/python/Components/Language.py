@@ -85,6 +85,7 @@ class Language:
 			if index not in self.lang:
 				print "[Language] Selected language %s is not installed, fallback to en_US!" % index
 				index = "en_US"
+				Notifications.AddNotification(MessageBox, _("The selected langugage is unavailable - using en_US"), MessageBox.TYPE_INFO, timeout=3)
 			lang = self.lang[index]
 			print "[Language] Activating language " + lang[0]
 			self.catalog = gettext.translation('enigma2', resolveFilename(SCOPE_LANGUAGE, ""), languages=[index], fallback=True)
@@ -185,10 +186,10 @@ class Language:
 
 		if delLang:
 			print "[Language] DELETE LANG", delLang
-			if delLang == "en_US" or delLang == "de_DE" or delLang == "fr_FR":
+			if delLang == "en_US" or delLang == "en_GB" or delLang == "de_DE" or delLang == "fr_FR":
 				print "[Language] Default Language can not be deleted !!"
 				return
-			elif delLang == "en_GB" or delLang == "pt_BR":
+			elif delLang == "pt_BR":
 				delLang = delLang.lower()
 				delLang = delLang.replace('_','-')
 				os.system("opkg remove --autoremove --force-depends " + Lpackagename + delLang)
