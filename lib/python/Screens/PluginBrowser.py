@@ -22,7 +22,6 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
 from time import time
 
-#language.addCallback(plugins.reloadPlugins)
 
 config.misc.pluginbrowser = ConfigSubsection()
 config.misc.pluginbrowser.display = ConfigYesNo(default = True)
@@ -31,7 +30,6 @@ config.misc.pluginbrowser.extensions = ConfigYesNo(default = True)
 config.misc.pluginbrowser.kernel = ConfigYesNo(default = False)
 config.misc.pluginbrowser.m2k = ConfigYesNo(default = True)
 config.misc.pluginbrowser.picons = ConfigYesNo(default = True)
-config.misc.pluginbrowser.pli = ConfigYesNo(default = False)
 config.misc.pluginbrowser.po = ConfigYesNo(default = True)
 config.misc.pluginbrowser.security = ConfigYesNo(default = True)
 config.misc.pluginbrowser.settings = ConfigYesNo(default = True)
@@ -353,11 +351,11 @@ class PluginDownloadBrowser(Screen):
 		})
 		if os.path.isfile('/usr/bin/opkg'):
 			self.ipkg = '/usr/bin/opkg'
-			self.ipkg_install = self.ipkg + ' install --force-overwrite'
-			self.ipkg_remove =  self.ipkg + ' remove --autoremove --force-depends'
+			self.ipkg_install = self.ipkg + ' install'
+			self.ipkg_remove =  self.ipkg + ' remove --autoremove'
 		else:
 			self.ipkg = 'ipkg'
-			self.ipkg_install = 'ipkg install --force-overwrite -force-defaults'
+			self.ipkg_install = 'ipkg install -force-defaults'
 			self.ipkg_remove =  self.ipkg + ' remove'
 
 	def createSummary(self):
