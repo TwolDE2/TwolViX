@@ -120,13 +120,6 @@ class LanguageSelection(Screen):
 		else:
 			self.close()
 
-	def deletelanguagesCB(self, answer):
-		if answer:
-			curlang = config.osd.language.value
-			lang = curlang
-			language.delLanguage(delLang=lang)
-		self.close()
-
 	def cancel(self):
 		language.activateLanguage(self.oldActiveLanguage)
 		config.osd.language.setValue(self.oldActiveLanguage)
@@ -160,7 +153,14 @@ class LanguageSelection(Screen):
 				if curlang == t[0]:
 					lang = t[1]
 					break
-			self.session.openWithCallback(self.deletelanguagesCB, MessageBox, _("Do you want to delete only your selected language:\n\n") + _("%s") %(lang), default = False)
+			self.session.openWithCallback(self.deletelanguagesCB, MessageBox, _("Do you really want to delete selected language:\n\n") + _("%s") %(lang), default = False)
+
+	def deletelanguagesCB(self, answer):
+		if answer:
+			curlang = config.osd.language.value
+			lang = curlang
+			language.delLanguage(delLang=lang)
+		self.close()
 
 	def run(self, justlocal = False):
 #		print "[LanguageSelection] updating language..."
