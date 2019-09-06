@@ -294,6 +294,7 @@ class PluginDownloadBrowser(Screen):
 
 		self["menu_path_compressed"] = StaticText("")
 		if self.type == self.DOWNLOAD:
+			config.misc.pluginbrowser.po.value = True
 			screentitle = _("Install plugins")
 			if config.usage.show_menupath.value == 'large':
 				self.menu_path += screentitle
@@ -306,6 +307,7 @@ class PluginDownloadBrowser(Screen):
 				title = screentitle
 				self["menu_path_compressed"].setText("")
 		elif self.type == self.REMOVE:
+			config.misc.pluginbrowser.po.value = False
 			screentitle = _("Remove plugins")
 			if config.usage.show_menupath.value == 'large':
 				self.menu_path += screentitle
