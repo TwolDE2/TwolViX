@@ -54,7 +54,7 @@ class Language:
 		self.addLanguage("Lietuvių", "lt", "LT", "ISO-8859-15")
 		self.addLanguage("Latviešu", "lv", "LV", "ISO-8859-15")
 		self.addLanguage("Nederlands", "nl", "NL", "ISO-8859-15")
-		self.addLanguage("Norsk Bokmål","nb", "NO", "ISO-8859-15")
+		self.addLanguage("Norsk Bokmål", "nb", "NO", "ISO-8859-15")
 		self.addLanguage("Norsk", "no", "NO", "ISO-8859-15")
 		self.addLanguage("Polski", "pl", "PL", "ISO-8859-15")
 		self.addLanguage("Português", "pt", "PT", "ISO-8859-15")
@@ -186,7 +186,7 @@ class Language:
 
 		if delLang:
 			print "[Language] DELETE LANG", delLang
-			if delLang == "en_US" or delLang == "en_GB" or delLang == "de_DE" or delLang == "fr_FR":
+			if delLang[:2] == "en" or delLang == "de_DE" or delLang == "fr_FR":
 				print "[Language] Default Language can not be deleted !!"
 				return
 			elif delLang == "pt_BR":
