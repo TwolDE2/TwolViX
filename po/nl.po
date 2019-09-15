@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ViX\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-04 07:58+0000\n"
-"PO-Revision-Date: 2019-09-05 17:34+0200\n"
+"POT-Creation-Date: 2019-09-09 16:39+0000\n"
+"PO-Revision-Date: 2019-09-10 05:25+0200\n"
 "Last-Translator: Rob van der Does <RobvanderDoes@Gmail.com>\n"
 "Language-Team: Andy Blackburn, Rob van der Does\n"
 "Language: nl\n"
@@ -1480,6 +1480,9 @@ msgstr "Voeg AutoTimer toe"
 
 msgid "Add Autotimer"
 msgstr "Voeg AutoTimer toe"
+
+msgid "Add Language"
+msgstr "Voeg taal toe"
 
 msgid "Add Timer"
 msgstr "Voeg timer toe"
@@ -8411,14 +8414,14 @@ msgstr "Peuters"
 msgid "Press '0' to toggle PiP mode"
 msgstr "Druk op  '0' om te schakelen tussen de PiP-modi"
 
+msgid "Press 'Add Language' or MENU to add additional language(s). English language can not be deleted"
+msgstr "Druk op MENU of 'Voeg taal toe' om extra talen te installeren. Engels kan niet worden verwijderd."
+
 msgid "Press INFO on your remote control for additional information."
 msgstr "Druk op INFO voor aanvullende informatie."
 
 msgid "Press MENU on your remote control for additional options."
 msgstr "Druk op MENU voor extra opties."
-
-msgid "Press MENU to install additional language(s)."
-msgstr "Druk op MENU om extra talen te installeren."
 
 msgid "Press OK on your remote control to continue."
 msgstr "Druk op de OK toets om door te gaan."
@@ -9481,6 +9484,16 @@ msgstr "Kies 'A' of 'B' als uw antenne-installatie dat vereist, anders kiest u '
 
 msgid "Select 'FBC SCR' if this tuner will connect to a SCR (Unicable/JESS) device. For all other setups select 'FBC automatic'."
 msgstr "Kies 'FBC SCR' als deze tuner is aangesloten op een SCR-apparaat (Unicable/JESS). Voor alle andere situaties kiest u 'FBC automatisch'."
+
+msgid ""
+"Select 'Yes' to delete all languages except English and your chosen language:\n"
+"\n"
+"Select 'No' to delete only the chosen language:\n"
+"\n"
+msgstr ""
+"Kies 'Ja' om alle talen te verwijderen behalve Engels en de door u geselecteerde taal:\n"
+"\n"
+"Kies 'Nee' om alleen de door u geselecteerde taal te verwijderen.\n"
 
 msgid "Select 'Yes' when you want to configure this tuner for ATSC"
 msgstr "Kies 'Ja' als u deze tuner voor ATSC wilt configureren"
@@ -11903,15 +11916,6 @@ msgstr "Titel instellingen"
 msgid "Titleset mode"
 msgstr "Titelset modus"
 
-msgid ""
-"To delete selected language , answer 'No'\n"
-" 'Yes', to delete all other languages,except English, French, German and your selection:\n"
-"\n"
-msgstr ""
-"Om de gekozen taal te verwijderen antwoord met 'Nee'\n"
-"'Ja' om alle andere talen te verwijderen behalve Engels, Frans, Duits en uw selectie:\n"
-"\n"
-
 msgid "Today"
 msgstr "Vandaag"
 
@@ -12266,9 +12270,6 @@ msgstr "Omhoog"
 msgid "Update"
 msgstr "Update"
 
-msgid "Update Cache"
-msgstr "Update cache"
-
 msgid "Update channel list only"
 msgstr "Update alleen de kanaallijst"
 
@@ -12434,9 +12435,8 @@ msgstr "Gebruik de Links/Rechts toetsen op uw AB om de interface naar links/rech
 msgid "Use the LEFT/RIGHT buttons on your remote to move the user interface up/down."
 msgstr "Gebruik de Links/Rechts toetsen op uw AB om de interface naar boven/beneden te verplaatsen."
 
-#, fuzzy
 msgid "Use the UP and DOWN keys to select language, Menu key to install new language. Afterwards press the OK button."
-msgstr "Gebruik de omhoog/omlaag toetsen om de gewenste taal te selecteren. Druk daarna op OK."
+msgstr "Gebruik de omhoog/omlaag toetsen om de gewenste taal te selecteren. Menu-toets om de taal te installeren. Druk daarna op OK."
 
 msgid "Use the alternative or the conventional radio mode."
 msgstr "Gebruik de alternatieve of de conventionele radiomodus."
@@ -16259,6 +16259,15 @@ msgstr "zapte"
 #~ msgstr "Timeshift instellingen"
 
 #~ msgid ""
+#~ "To delete selected language , answer 'No'\n"
+#~ " 'Yes', to delete all other languages,except English, French, German and your selection:\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Om de gekozen taal te verwijderen antwoord met 'Nee'\n"
+#~ "'Ja' om alle andere talen te verwijderen behalve Engels, Frans, Duits en uw selectie:\n"
+#~ "\n"
+
+#~ msgid ""
 #~ "To update your %s %s firmware, please follow these steps:\n"
 #~ "1) Turn off your box with the rear power switch and make sure the bootable USB stick is plugged in.\n"
 #~ "2) Turn mains back on and hold the DOWN button on the front panel pressed for 10 seconds.\n"
@@ -16310,6 +16319,9 @@ msgstr "zapte"
 
 #~ msgid "Unicable Matrix"
 #~ msgstr "Unicable matrix"
+
+#~ msgid "Update Cache"
+#~ msgstr "Update cache"
 
 #~ msgid "Use OpenTV EPG information when it is available."
 #~ msgstr "Gebruik OpenTV EPG informatie indien beschikbaar."
