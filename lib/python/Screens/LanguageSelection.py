@@ -62,8 +62,8 @@ class LanguageSelection(Screen):
 		self["key_red"] = Label(_("Cancel"))
 		self["key_green"] = Label(_("Save"))
 		self["key_yellow"] = Label(_("Add Language"))
-		self["key_blue"] = Label(_("Delete Language"))
-		self["description"] = Label(_("Press 'Add Language' or MENU to add additional language(s). English language can not be deleted"))
+		self["key_blue"] = Label(_("Delete Language(s)"))
+		self["description"] = Label(_("'Add Language' or MENU adds additional language(s).\n'Delete Language' allows deletion of either selected language or all but English and installed language"))
 
 		self["actions"] = ActionMap(["SetupActions", "ColorActions"],
 		{
@@ -136,7 +136,7 @@ class LanguageSelection(Screen):
 			if curlang == t[0]:
 				lang = t[1]
 				break
-		self.session.openWithCallback(self.delLangCB, MessageBox, _("Select 'Yes' to delete all languages except English and your chosen language:\n\nSelect 'No' to delete only the chosen language:\n\n") + _("%s") %(lang), default = False)
+		self.session.openWithCallback(self.delLangCB, MessageBox, _("Select 'Yes' to delete all languages except English and current language:\n\nSelect 'No' to delete only the chosen language:\n\n") + _("%s") %(lang), default = True)
 
 	def delLangCB(self, answer):
 		if answer:
