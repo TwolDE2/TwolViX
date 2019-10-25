@@ -14,7 +14,6 @@ from Screens.Rc import Rc
 from Screens.Standby import TryQuitMainloop
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
-import gettext
 
 inWizzard = False
 

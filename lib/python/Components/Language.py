@@ -177,8 +177,6 @@ class Language:
 
 	def delLanguage(self, delLang = None):
 		from Components.config import config, configfile
-		from shutil import rmtree
-
 		if delLang:
 			lang = config.osd.language.value
 			print "[Language] DELETE LANG", delLang
