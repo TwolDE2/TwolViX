@@ -553,7 +553,6 @@ def InitLcd():
 			config.lcd.showoutputresolution.addNotifier(setLCDshowoutputresolution);
 		else:
 			config.lcd.showoutputresolution = ConfigNothing()
-
 	else:
 		def doNothing():
 			pass
