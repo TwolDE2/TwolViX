@@ -1,9 +1,12 @@
 # -*- coding: UTF-8 -*-
 import gettext
 import locale
-import os
-from time import time, localtime, strftime
-from Tools.Directories import SCOPE_LANGUAGE, resolveFilename
+
+from os import environ, listdir, makedirs, system, stat
+from os.path import exists, expanduser, join as pathjoin
+from time import localtime, strftime, time
+
+from Tools.Directories import resolveFilename, SCOPE_LANGUAGE
 
 LPATH = resolveFilename(SCOPE_LANGUAGE, "")
 Lpackagename = "enigma2-locale-"
@@ -108,24 +111,24 @@ class Language:
 
 		# Also write a locale.conf as /home/root/.config/locale.conf to apply language to interactive shells as well:
 		try:
-			os.stat('/home/root/.config')
+			stat('/home/root/.config')
 		except:
-			os.mkdir('/home/root/.config') 
+			mkdir('/home/root/.config') 
 
 		localeconf = open('/home/root/.config/locale.conf', 'w')
 		for category in ["LC_TIME", "LC_DATE", "LC_MONETARY", "LC_MESSAGES", "LC_NUMERIC", "LC_NAME", "LC_TELEPHONE", "LC_ADDRESS", "LC_PAPER", "LC_IDENTIFICATION", "LC_MEASUREMENT", "LANG" ]:
-			if category == "LANG" or (category == "LC_DATE" and os.path.exists('/usr/lib/locale/' + self.getLanguage() + '/LC_TIME')) or os.path.exists('/usr/lib/locale/' + self.getLanguage() + '/' + category):
+			if category == "LANG" or (category == "LC_DATE" and exists('/usr/lib/locale/' + self.getLanguage() + '/LC_TIME')) or exists('/usr/lib/locale/' + self.getLanguage() + '/' + category):
 				localeconf.write('export %s="%s.%s"\n' % (category, self.getLanguage(), "UTF-8" ))
 			else:
-				if os.path.exists('/usr/lib/locale/C.UTF-8/' + category):
+				if exists('/usr/lib/locale/C.UTF-8/' + category):
 					localeconf.write('export %s="C.UTF-8"\n' % category)
 				else:
 					localeconf.write('export %s="POSIX"\n' % category)
 		localeconf.close()
 		# HACK: sometimes python 2.7 reverts to the LC_TIME environment value, so make sure it has the correct value
-		os.environ["LC_TIME"] = self.getLanguage() + '.UTF-8'
-		os.environ["LANGUAGE"] = self.getLanguage() + '.UTF-8'
-		os.environ["GST_SUBTITLE_ENCODING"] = self.getGStreamerSubtitleEncoding()
+		environ["LC_TIME"] = self.getLanguage() + '.UTF-8'
+		environ["LANGUAGE"] = self.getLanguage() + '.UTF-8'
+		environ["GST_SUBTITLE_ENCODING"] = self.getGStreamerSubtitleEncoding()
 		return True
 
 	def activateLanguage(self, index):
@@ -186,13 +189,13 @@ class Language:
 			elif delLang == "pt_BR":
 				delLang = delLang.lower()
 				delLang = delLang.replace('_','-')
-				os.system("opkg remove --autoremove --force-depends " + Lpackagename + delLang)
+				system("opkg remove --autoremove --force-depends " + Lpackagename + delLang)
 			else:
-				os.system("opkg remove --autoremove --force-depends " + Lpackagename + delLang[:2])
+				system("opkg remove --autoremove --force-depends " + Lpackagename + delLang[:2])
 		else:
 			lang = self.activeLanguage
 			print "[Language] Delete all lang except ", lang
-			ll = os.listdir(LPATH)
+			ll = listdir(LPATH)
 			print "[Language] listdir ", ll
 			for x in ll:
 				if len(x) > 2:
@@ -200,16 +203,16 @@ class Language:
 					if x != lang and x[:2] != "en":
 						x = x.lower()
 						x = x.replace('_','-')
-						os.system("opkg remove --autoremove --force-depends " + Lpackagename + x)
+						system("opkg remove --autoremove --force-depends " + Lpackagename + x)
 				else:
 					print "[Language] 2 lang %s in x %s " %(lang, x)
 					if x != lang[:2] and x != "en":
-						os.system("opkg remove --autoremove --force-depends " + Lpackagename + x)
+						system("opkg remove --autoremove --force-depends " + Lpackagename + x)
 					elif x == "pt":
 						if x != lang:
-							os.system("opkg remove --autoremove --force-depends " + Lpackagename + x)
+							system("opkg remove --autoremove --force-depends " + Lpackagename + x)
 			
-		os.system("touch /etc/enigma2/.removelang")
+		system("touch /etc/enigma2/.removelang")
 
 		self.InitLang()
 
