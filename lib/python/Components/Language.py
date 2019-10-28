@@ -25,7 +25,7 @@ class Language:
 	def InitLang(self):
 		self.langlist = []
 		self.langlistselection = []
-		self.ll = os.listdir(LPATH)
+		self.ll = listdir(LPATH)
 		# FIXME make list dynamically
 		# name, iso-639 language, iso-3166 country. Please don't mix language&country!
 		self.addLanguage("Arabic", "ar", "AE", "ISO-8859-15")
@@ -113,7 +113,7 @@ class Language:
 		try:
 			stat('/home/root/.config')
 		except:
-			mkdir('/home/root/.config') 
+			makedirs('/home/root/.config') 
 
 		localeconf = open('/home/root/.config/locale.conf', 'w')
 		for category in ["LC_TIME", "LC_DATE", "LC_MONETARY", "LC_MESSAGES", "LC_NUMERIC", "LC_NAME", "LC_TELEPHONE", "LC_ADDRESS", "LC_PAPER", "LC_IDENTIFICATION", "LC_MEASUREMENT", "LANG" ]:
