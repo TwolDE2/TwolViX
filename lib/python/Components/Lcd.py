@@ -329,7 +329,7 @@ def InitLcd():
 			f = open("/proc/stb/fp/power4x7standby", "w")
 			f.write(configElement.value)
 			f.close()
-		config.lcd.power24x7standby = ConfigSelection(default = "off", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.power24x7standby = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
 		config.lcd.power24x7standby.addNotifier(setPower24x7Standby)
 
 	if SystemInfo["Power24x7Suspend"]:
@@ -337,7 +337,7 @@ def InitLcd():
 			f = open("/proc/stb/fp/power4x7suspend", "w")
 			f.write(configElement.value)
 			f.close()
-		config.lcd.power24x7suspend = ConfigSelection(default = "off", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.power24x7suspend = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
 		config.lcd.power24x7suspend.addNotifier(setPower24x7Suspend)
 
 	if SystemInfo["LEDButtons"]:
