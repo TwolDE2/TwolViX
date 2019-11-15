@@ -247,14 +247,17 @@ def standbyCounterChanged(dummy):
 		config.lcd.ledbrightnessdeepstandby.apply()
 
 def InitLcd():
-	if getBoxType() in ('et4x00', 'et5x00', 'et6x00', 'gb800se', 'gb800solo', 'iqonios300hd', 'mbmicro', 'sf128', 'sf138', 'tmsingle', 'tmnano2super', 'tmnanose', 'tmnanoseplus', 'tmnanosem2', 'tmnanosem2plus', 'tmnanosecombo', 'vusolo'):
-		detected = False
-	else:
-		detected = eDBoxLCD.getInstance().detected()
+    if SystemInfo["HasNoDisplay"]:
+        detected = False
+    elif getBoxType() in ('gbtrio4',):
+        detected = True
+    else:
+        detected = eDBoxLCD.getInstance().detected()
 
 	ilcd = LCD()
 
 	SystemInfo["Display"] = detected
+	print "[Lcd.py] %s Display is set to %s", %(getBoxType(), detected)
 	config.lcd = ConfigSubsection()
 
 	if fileExists("/proc/stb/lcd/mode"):
@@ -364,7 +367,7 @@ def InitLcd():
 		config.lcd.ledbrightness.apply = lambda : setLEDnormalstate(config.lcd.ledbrightness)
 		config.lcd.ledbrightness.callNotifiersOnSaveAndCancel = True
 
-	if detected:
+	if SystemInfo["Display"]:
 		config.lcd.scroll_speed = ConfigSelection(default = "300", choices = [
 			("500", _("slow")),
 			("300", _("normal")),
