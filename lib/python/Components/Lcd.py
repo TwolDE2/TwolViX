@@ -247,17 +247,17 @@ def standbyCounterChanged(dummy):
 		config.lcd.ledbrightnessdeepstandby.apply()
 
 def InitLcd():
-    if SystemInfo["HasNoDisplay"]:
-        detected = False
-    elif getBoxType() in ('gbtrio4',):
-        detected = True
-    else:
-        detected = eDBoxLCD.getInstance().detected()
+	if SystemInfo["HasNoDisplay"]:
+		detected = False
+	elif getBoxType() in ('gbtrio4',):
+		detected = True
+	else:
+		detected = eDBoxLCD.getInstance().detected()
 
 	ilcd = LCD()
 
 	SystemInfo["Display"] = detected
-	print "[Lcd.py] %s Display is set to %s", %(getBoxType(), detected)
+	print "[Lcd.py] %s Display is set to %s" %(getBoxType(), detected)
 	config.lcd = ConfigSubsection()
 
 	if fileExists("/proc/stb/lcd/mode"):
