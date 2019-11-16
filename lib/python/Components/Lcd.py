@@ -253,11 +253,11 @@ def InitLcd():
 		detected = True
 	else:
 		detected = eDBoxLCD.getInstance().detected()
+		print "[Lcd.py] %s Display is set to %s" %(getBoxType(), detected)
 
 	ilcd = LCD()
 
 	SystemInfo["Display"] = detected
-	print "[Lcd.py] %s Display is set to %s" %(getBoxType(), detected)
 	config.lcd = ConfigSubsection()
 
 	if fileExists("/proc/stb/lcd/mode"):
