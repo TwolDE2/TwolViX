@@ -249,11 +249,11 @@ def standbyCounterChanged(dummy):
 def InitLcd():
 	if SystemInfo["HasNoDisplay"]:
 		detected = False
-	elif getBoxType() in ('gbtrio4',):
-		detected = True
 	else:
 		detected = eDBoxLCD.getInstance().detected()
 		print "[Lcd.py] %s Display is set to %s" %(getBoxType(), detected)
+	if SystemInfo["7segment"]:
+		detected = True
 
 	ilcd = LCD()
 
