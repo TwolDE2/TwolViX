@@ -110,7 +110,7 @@ def getCPUSpeedString():
 	return _("unavailable")
 
 def getCPUArch():
-	if getBoxType() in ('osmio4k',):
+	if getBoxType() in ('osmio4k', 'osmio4kplus'):
 		return "ARM V7"
 	if "ARM" in getCPUString():
 		return getCPUString()
