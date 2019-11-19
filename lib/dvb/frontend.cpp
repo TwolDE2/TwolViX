@@ -517,7 +517,6 @@ RESULT eDVBFrontendParameters::calcLockTimeout(unsigned int &timeout) const
 		{
 				/* high symbol rate transponders tune faster, due to
 					requiring less zigzag and giving more symbols faster.
-
 					5s are definitely not enough on really low SR when
 					zigzag has to find the exact frequency first.
 				*/
@@ -1142,9 +1141,43 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.28) - 10.0) * 100);
 	}
-	else if (!strcmp(m_description, "DVB-S2 NIM(45208 FBC)") || !strcmp(m_description, "DVB-S2 NIM(45308 FBC)"))
+	else if (!strcmp(m_description, "DVB-S2 NIM(45208 FBC)")
+		|| !strcmp(m_description, "DVB-S2 NIM(45308 FBC)")
+		|| !strcmp(m_description, "DVB-S2X NIM(45308X FBC)")
+		)
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1950) - 1.0000) * 100);
+	}
+	else if (!strcmp(m_description, "GIGA DVB-C/T NIM (SP8221L)")
+		|| !strcmp(m_description, "GIGA DVB-C/T NIM (SI4765)")
+		|| !strcmp(m_description, "GIGA DVB-C/T NIM (SI41652)")
+		|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI4768)")
+		|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI41682)")
+		|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT2L10)")
+		|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")
+		)
+	{
+		int type = -1;
+		oparm.getSystem(type);
+		switch (type)
+		{
+			case feCable:
+				ret = (int)(snr / 15);
+				cab_max = 4200;
+				break;
+			case feTerrestrial:
+				ret = (int)(snr / 30);
+				ter_max = 1700;
+				break;
+		}
+	}
+	else if (!strcmp(m_description, "Vuplus DVB-S NIM(7376 FBC)")) // VU+ Solo4k
+	{
+		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1480) + 0.9560) * 100);
+	}
+	else if (!strcmp(m_description, "BCM7362 (internal) DVB-S2")) // Xsarius
+	{
+		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.28) - 10.0) * 100);
 	}
 	else if (!strcmp(m_description, "DVB-C NIM(3128 FBC)"))
 	{
