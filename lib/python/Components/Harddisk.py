@@ -26,37 +26,30 @@ def getextdevices(ext):
 def getProcMounts():
 	try:
 		mounts = open("/proc/mounts", 'r')
-		result = []
-		tmp = [line.strip().split(' ') for line in mounts]
-		mounts.close()
-		for item in tmp:
-			# Spaces are encoded as \040 in mounts
-			item[1] = item[1].replace('\\040', ' ')
-			result.append(item)
-		return result
 	except IOError, ex:
 		print "[Harddisk] Failed to open /proc/mounts", ex
 		return []
+	result = [line.strip().split(' ') for line in mounts]
+	for item in result:
+		# Spaces are encoded as \040 in mounts
+		item[1] = item[1].replace('\\040', ' ')
+	return result
 
 def isFileSystemSupported(filesystem):
 	try:
-		file = open('/proc/filesystems', 'r')
-		for fs in file:
+		for fs in open('/proc/filesystems', 'r'):
 			if fs.strip().endswith(filesystem):
-				file.close()
 				return True
-		file.close()
 		return False
 	except Exception, ex:
 		print "[Harddisk] Failed to read /proc/filesystems:", ex
 
 def findMountPoint(path):
-	"""Example: findMountPoint("/media/hdd/some/file") returns "/media/hdd\""""
+	'Example: findMountPoint("/media/hdd/some/file") returns "/media/hdd"'
 	path = os.path.abspath(path)
 	while not os.path.ismount(path):
 		path = os.path.dirname(path)
 	return path
-
 
 DEVTYPE_UDEV = 0
 DEVTYPE_DEVFS = 1
@@ -141,7 +134,7 @@ class Harddisk:
 		if hw_type == 'elite' or hw_type == 'premium' or hw_type == 'premium+' or hw_type == 'ultra' :
 			internal = "ide" in self.phys_path
 		else:
-			internal = ("pci" or "ahci") in self.phys_path
+			internal = ("pci" or "ahci" or "sata") in self.phys_path
 
 		if card:
 			ret += type_name
@@ -185,7 +178,7 @@ class Harddisk:
 			elif self.device.startswith('mmcblk'):
 				return readFile(self.sysfsPath('device/name'))
 			else:
-				raise Exception, "no hdX or sdX or mmcX"
+				raise Exception, "[Harddisk] no hdX or sdX or mmcX"
 		except Exception, e:
 			print "[Harddisk] Failed to get model:", e
 			return "-?-"
@@ -229,6 +222,7 @@ class Harddisk:
 				self.mount_device = parts[0]
 				self.mount_path = parts[1]
 				return parts[1]
+		return None
 
 	def enumMountDevices(self):
 		for parts in getProcMounts():
@@ -326,7 +320,7 @@ class Harddisk:
 		task.setTool('hdparm')
 		task.args.append('-z')
 		task.args.append(self.disk_path)
-		print "Waiting for partition"
+		print "[Harddisk] Waiting for partition"
 		task = Task.ConditionTask(job, _("Waiting for partition"), timeoutCount=20)
 		task.check = lambda: not os.path.exists(self.partitionPath("1"))
 		task.weighting = 1
@@ -340,7 +334,7 @@ class Harddisk:
 			else:
 				use_parted = False
 
-		print "Creating partition"
+		print "[Harddisk] Creating partition"
 		task = Task.LoggingTask(job, _("Creating partition"))
 		task.weighting = 5
 		if use_parted:
@@ -365,12 +359,12 @@ class Harddisk:
 				# Smaller disks (CF cards, sticks etc) don't need that
 				task.initial_input = "0,\n;\n;\n;\ny\n"
 
-		print "Waiting for partition"
+		print "[Harddisk] Waiting for partition"
 		task = Task.ConditionTask(job, _("Waiting for partition"))
 		task.check = lambda: os.path.exists(self.partitionPath("1"))
 		task.weighting = 1
 
-		print "Creating filesystem"
+		print "[Harddisk] Creating filesystem"
 		task = MkfsTask(job, _("Creating filesystem"))
 		big_o_options = ["dir_index"]
 		if isFileSystemSupported("ext4"):
@@ -848,7 +842,7 @@ class UnmountTask(Task.LoggingTask):
 			dev = self.hdd.disk_path.split('/')[-1]
 			open('/dev/nomount.%s' % dev, "wb").close()
 		except Exception, e:
-			print "[UnmountTask] ERROR: Failed to create /dev/nomount file:", e
+			print "[Harddisk] [UnmountTask] ERROR: Failed to create /dev/nomount file:", e
 		self.setTool('umount')
 		self.args.append('-f')
 		for dev in self.hdd.enumMountDevices():
@@ -856,7 +850,7 @@ class UnmountTask(Task.LoggingTask):
 			self.postconditions.append(Task.ReturncodePostcondition())
 			self.mountpoints.append(dev)
 		if not self.mountpoints:
-			print "[UnmountTask] No mountpoints found?"
+			print "[Harddisk] [UnmountTask] No mountpoints found?"
 			self.cmd = 'true'
 			self.args = [self.cmd]
 	def afterRun(self):
@@ -864,7 +858,7 @@ class UnmountTask(Task.LoggingTask):
 			try:
 				os.rmdir(path)
 			except Exception, ex:
-				print "[UnmountTask] Failed to remove path '%s':" % path, ex
+				print "[Harddisk] [UnmountTask] Failed to remove path '%s':" % path, ex
 
 class MountTask(Task.LoggingTask):
 	def __init__(self, job, hdd):
@@ -875,7 +869,7 @@ class MountTask(Task.LoggingTask):
 			dev = self.hdd.disk_path.split('/')[-1]
 			os.unlink('/dev/nomount.%s' % dev)
 		except Exception, e:
-			print "[MountTask] ERROR: Failed to remove /dev/nomount file:", e
+			print "[Harddisk] [MountTask] ERROR: Failed to remove /dev/nomount file:", e
 		# try mounting through fstab first
 		if self.hdd.mount_device is None:
 			dev = self.hdd.partitionPath("1")
@@ -904,7 +898,7 @@ class MkfsTask(Task.LoggingTask):
 	def prepare(self):
 		self.fsck_state = None
 	def processOutput(self, data):
-		print "[MkfsTask] [Mkfs]", data
+		print "[Harddisk] [MkfsTask] [Mkfs]", data
 		if 'Writing inode tables:' in data:
 			self.fsck_state = 'inode'
 		elif 'Creating journal' in data:
@@ -920,7 +914,7 @@ class MkfsTask(Task.LoggingTask):
 						d[1] = d[1].split('\x08',1)[0]
 					self.setProgress(80*int(d[0])/int(d[1]))
 				except Exception, e:
-					print "[MkfsTask] [Mkfs] E:", e
+					print "[Harddisk] [MkfsTask] [Mkfs] E:", e
 				return # don't log the progess
 		self.log.append(data)
 
@@ -928,7 +922,7 @@ class MkfsTask(Task.LoggingTask):
 def internalHDDNotSleeping():
 	if harddiskmanager.HDDCount():
 		for hdd in harddiskmanager.HDDList():
-			if ("pci" in hdd[1].phys_path or "ahci" in hdd[1].phys_path) and hdd[1].max_idle_time and not hdd[1].isSleeping():
+			if ("sata" in hdd[1].phys_path or "pci" in hdd[1].phys_path or "ahci" in hdd[1].phys_path) and hdd[1].max_idle_time and not hdd[1].isSleeping():
 				return True
 	return False
 
