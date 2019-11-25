@@ -63,9 +63,9 @@ class Harddisk:
 		elif os.access("/dev/.devfsd", 0):
 			self.type = DEVTYPE_DEVFS
 		else:
-			print "[Harddisk] Unable to determine structure of /dev, defaulting to UDEV"
-			self.type = DEVTYPE_UDEV
-
+			print "[Harddisk] Unable to determine structure of /dev"
+			self.type = -1
+			self.card = False
 		self.max_idle_time = 0
 		self.idle_running = False
 		self.last_access = time.time()
@@ -78,10 +78,19 @@ class Harddisk:
 		self.mount_path = None
 		self.mount_device = None
 		self.phys_path = os.path.realpath(self.sysfsPath('device'))
+		self.internal = "pci" in self.phys_path or "ahci" in self.phys_path or "sata" in self.phys_path
+
+
+		try:
+			data = open("/sys/block/%s/queue/rotational" % device, "r").read().strip()
+			self.rotational = int(data)
+		except:
+			self.rotational = True
 
 		if self.type == DEVTYPE_UDEV:
 			self.dev_path = '/dev/' + self.device
 			self.disk_path = self.dev_path
+			self.card = "sdhci" in self.phys_path or "ehci" in self.phys_path or "uhci" in self.phys_path or"mmc" in self.device
 
 		elif self.type == DEVTYPE_DEVFS:
 			tmp = readFile(self.sysfsPath('dev')).split(':')
@@ -98,9 +107,9 @@ class Harddisk:
 					self.dev_path = dev_path
 					self.disk_path = disk_path
 					break
-
+			self.card = self.device[:2] == "hd" and "host0" not in self.dev_path
 		print "[Harddisk] new Harddisk", self.device, '->', self.dev_path, '->', self.disk_path
-		if not removable:
+		if (self.internal or not removable) and not self.card:
 			self.startIdle()
 
 	def __lt__(self, ob):
@@ -127,19 +136,23 @@ class Harddisk:
 		ret = _("External")
 		# SD/MMC(F1 specific)
 		if self.type == DEVTYPE_UDEV:
-			card = "sdhci" in self.phys_path
-			type_name = " (SD/MMC)"
+			if "usb" in self.phys_path:
+				type_name = " (USB)"
+			else:
+				type_name = " (SD/MMC)"
+		# CF(7025 specific)
+		elif self.type == DEVTYPE_DEVFS:
+			type_name = " (CF)"
 
 		hw_type = HardwareInfo().get_device_name()
-		if hw_type == 'elite' or hw_type == 'premium' or hw_type == 'premium+' or hw_type == 'ultra' :
-			internal = "ide" in self.phys_path
-		else:
-			internal = ("pci" or "ahci" or "sata") in self.phys_path
-
-		if card:
+		print "[Harddisk]0 Physical Path = %s hw_type = %s self.type = %s internal = %s card = %s" %(self.phys_path, hw_type, self.type, self.internal, self.card)
+		if self.card:
 			ret += type_name
-		elif internal:
-			ret = _("Internal")
+		else:
+			if self.internal:
+				ret = _("Internal")
+			if not self.rotational:
+				ret += " (SSD)"
 		return ret
 
 	def diskSize(self):
@@ -174,14 +187,17 @@ class Harddisk:
 			elif self.device[:2] == "sd":
 				vendor = readFile(self.phys_path + '/vendor')
 				model = readFile(self.phys_path + '/model')
-				return vendor + '(' + model + ')'
+				if vendor == model:
+					return "Unknown"
+				else:
+					return vendor + '(' + model + ')'
 			elif self.device.startswith('mmcblk'):
 				return readFile(self.sysfsPath('device/name'))
 			else:
 				raise Exception, "[Harddisk] no hdX or sdX or mmcX"
 		except Exception, e:
 			print "[Harddisk] Failed to get model:", e
-			return "-?-"
+			return "Unknown"
 
 	def free(self):
 		dev = self.findMount()
@@ -278,7 +294,7 @@ class Harddisk:
 		res = -1
 		if self.type == DEVTYPE_UDEV:
 			# we can let udev do the job, re-read the partition table
-			res = os.system('hdparm -z ' + self.disk_path)
+			res = os.system("hdparm -z %s" % self.disk_path)
 			# give udev some time to make the mount, which it will do asynchronously
 			from time import sleep
 			sleep(3)
