@@ -80,7 +80,6 @@ class Harddisk:
 		self.phys_path = os.path.realpath(self.sysfsPath('device'))
 		self.internal = "pci" in self.phys_path or "ahci" in self.phys_path or "sata" in self.phys_path
 
-
 		try:
 			data = open("/sys/block/%s/queue/rotational" % device, "r").read().strip()
 			self.rotational = int(data)
@@ -90,7 +89,7 @@ class Harddisk:
 		if self.type == DEVTYPE_UDEV:
 			self.dev_path = '/dev/' + self.device
 			self.disk_path = self.dev_path
-			self.card = "sdhci" in self.phys_path or"mmc" in self.device
+			self.card = "sdhci" in self.phys_path or "mmc" in self.device
 
 		elif self.type == DEVTYPE_DEVFS:
 			tmp = readFile(self.sysfsPath('dev')).split(':')
@@ -162,6 +161,7 @@ class Harddisk:
 			line = readFile(self.sysfsPath('size'))
 			cap = int(line)
 			print "[Harddisk]1 sysfsPath=%s, line=%s, cap=%s" %(self.sysfsPath, line, cap) 
+			return cap / 1000 * 512 / 1000
 		except:
 			dev = self.findMount()
 			if dev:
@@ -171,7 +171,6 @@ class Harddisk:
 				return cap / 1000 / 1000
 			else:
 				return cap
-		return cap / 1000 * 512 / 1000
 
 	def capacity(self):
 		cap = self.diskSize()
