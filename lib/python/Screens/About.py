@@ -304,6 +304,9 @@ class Devices(Screen):
 			for count in range(len(self.hddlist)):
 				hdd = self.hddlist[count][1]
 				hddp = self.hddlist[count][0]
+				if "ATA" in hddp:
+					hddp = hddp.replace('ATA', '')
+					hddp = hddp.replace('Internal', 'ATA Bus ')
 				free = hdd.free()
 				if ((float(free) / 1024) / 1024) >= 1:
 					freeline = _("Free: ") + str(round(((float(free) / 1024) / 1024), 2)) + _("TB")

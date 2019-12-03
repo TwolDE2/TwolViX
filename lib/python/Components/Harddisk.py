@@ -59,13 +59,13 @@ class Harddisk:
 		self.device = device
 
 		if os.access("/dev/.udev", 0):
-			self.type = DEVTYPE_UDEV
+			self.devtype = DEVTYPE_UDEV
 		elif os.access("/dev/.devfsd", 0):
-			self.type = DEVTYPE_DEVFS
+			self.devtype = DEVTYPE_DEVFS
 		else:
 			print "[Harddisk] Unable to determine structure of /dev"
-			self.type = -1
-			self.card = False
+			self.devtype = -1
+			self.sdmmc = False
 		self.max_idle_time = 0
 		self.idle_running = False
 		self.last_access = time.time()
@@ -78,7 +78,7 @@ class Harddisk:
 		self.mount_path = None
 		self.mount_device = None
 		self.phys_path = os.path.realpath(self.sysfsPath('device'))
-		self.internal = "pci" in self.phys_path or "ahci" in self.phys_path or "sata" in self.phys_path
+		self.internal = "pci" in self.phys_path or "ahci" in self.phys_path or "sata" in self.phys_path 			
 
 		try:
 			data = open("/sys/block/%s/queue/rotational" % device, "r").read().strip()
@@ -86,12 +86,12 @@ class Harddisk:
 		except:
 			self.rotational = True
 
-		if self.type == DEVTYPE_UDEV:
+		if self.devtype == DEVTYPE_UDEV:
 			self.dev_path = '/dev/' + self.device
 			self.disk_path = self.dev_path
-			self.card = "sdhci" in self.phys_path or "mmc" in self.device
+			self.sdmmc = "sdhci" in self.phys_path or "mmc" in self.device
 
-		elif self.type == DEVTYPE_DEVFS:
+		elif self.devtype == DEVTYPE_DEVFS:
 			tmp = readFile(self.sysfsPath('dev')).split(':')
 			s_major = int(tmp[0])
 			s_minor = int(tmp[1])
@@ -106,9 +106,9 @@ class Harddisk:
 					self.dev_path = dev_path
 					self.disk_path = disk_path
 					break
-			self.card = self.device[:2] == "hd" and "host0" not in self.dev_path
+			self.sdmmc = self.device[:2] == "hd" and "host0" not in self.dev_path
 		print "[Harddisk] new Harddisk", self.device, '->', self.dev_path, '->', self.disk_path
-		if (self.internal or not removable) and not self.card:
+		if (self.internal or not removable) and not self.sdmmc:
 			print "[Harddisk] new Harddisk start Idle"
 			self.startIdle()
 
@@ -116,12 +116,12 @@ class Harddisk:
 		return self.device < ob.device
 
 	def partitionPath(self, n):
-		if self.type == DEVTYPE_UDEV:
+		if self.devtype == DEVTYPE_UDEV:
 			if self.dev_path.startswith('/dev/mmcblk'):
 				return self.dev_path + "p" + n
 			else:
 				return self.dev_path + n
-		elif self.type == DEVTYPE_DEVFS:
+		elif self.devtype == DEVTYPE_DEVFS:
 			return self.dev_path + '/part' + n
 
 	def sysfsPath(self, filename):
@@ -135,18 +135,17 @@ class Harddisk:
 	def bus(self):
 		ret = _("External")
 		# SD/MMC(F1 specific)
-		if self.type == DEVTYPE_UDEV:
+		if self.devtype == DEVTYPE_UDEV:
 			if "usb" in self.phys_path:
 				type_name = " (USB)"
 			else:
 				type_name = " (SD/MMC)"
 		# CF(7025 specific)
-		elif self.type == DEVTYPE_DEVFS:
+		elif self.devtype == DEVTYPE_DEVFS:
 			type_name = " (CF)"
 
-		hw_type = HardwareInfo().get_device_name()
-		print "[Harddisk]0 Physical Path = %s hw_type = %s self.type = %s internal = %s card = %s" %(self.phys_path, hw_type, self.type, self.internal, self.card)
-		if self.card:
+		print "[Harddisk]0 Physical Path = %s self.devtype = %s internal = %s card = %s" %(self.phys_path, self.devtype, self.internal, self.sdmmc)
+		if self.sdmmc:
 			ret += type_name
 		else:
 			if self.internal:
@@ -211,7 +210,7 @@ class Harddisk:
 
 	def numPartitions(self):
 		numPart = -1
-		if self.type == DEVTYPE_UDEV:
+		if self.devtype == DEVTYPE_UDEV:
 			try:
 				devdir = os.listdir('/dev')
 			except OSError:
@@ -220,7 +219,7 @@ class Harddisk:
 				if filename.startswith(self.device):
 					numPart += 1
 
-		elif self.type == DEVTYPE_DEVFS:
+		elif self.devtype == DEVTYPE_DEVFS:
 			try:
 				idedir = os.listdir(self.dev_path)
 			except OSError:
@@ -292,7 +291,7 @@ class Harddisk:
 				return res >> 8
 		# device is not in fstab
 		res = -1
-		if self.type == DEVTYPE_UDEV:
+		if self.devtype == DEVTYPE_UDEV:
 			# we can let udev do the job, re-read the partition table
 			res = os.system("hdparm -z %s" % self.disk_path)
 			# give udev some time to make the mount, which it will do asynchronously
@@ -729,9 +728,7 @@ class HarddiskManager:
 				physdev = dev
 				print "[Harddisk] couldn't determine blockdev physdev for device", device
 		error, blacklisted, removable, is_cdrom, partitions, medium_found = self.getBlockDevInfo(self.splitDeviceName(device)[0])
-		hw_type = HardwareInfo().get_device_name()
-		if hw_type == 'elite' or hw_type == 'premium' or hw_type == 'premium+' or hw_type == 'ultra' :
-			if device[0:3] == "hda": blacklisted = True
+
 		if not blacklisted and medium_found:
 			description = self.getUserfriendlyDeviceName(device, physdev)
 			p = Partition(mountpoint = self.getMountpoint(device), description = description, force_mounted = True, device = device)
