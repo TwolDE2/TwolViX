@@ -1,7 +1,7 @@
 import os
 import time
 from Tools.CList import CList
-from Components.SystemInfo import SystemInfo
+from SystemInfo import SystemInfo
 from Components.Console import Console
 from Tools.HardwareInfo import HardwareInfo
 from boxbranding import getMachineBuild, getMachineMtdRoot
