@@ -51,6 +51,12 @@ def findMountPoint(path):
 		path = os.path.dirname(path)
 	return path
 
+#	removable if 1 --> with motor
+#	internal if 1 --> SATA disk
+#	rotational if 0 --> SSD or MMC
+#	sdmmc if True -->  MMC/CF
+
+
 DEVTYPE_UDEV = 0
 DEVTYPE_DEVFS = 1
 
