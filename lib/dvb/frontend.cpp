@@ -517,6 +517,7 @@ RESULT eDVBFrontendParameters::calcLockTimeout(unsigned int &timeout) const
 		{
 				/* high symbol rate transponders tune faster, due to
 					requiring less zigzag and giving more symbols faster.
+
 					5s are definitely not enough on really low SR when
 					zigzag has to find the exact frequency first.
 				*/
