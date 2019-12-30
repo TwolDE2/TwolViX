@@ -106,6 +106,22 @@ void eRCDeviceInputDev::handleCode(long rccode)
 	}
 #endif
 
+#if KEY_F1_TO_KEY_HELP
+	if (ev->code == KEY_F1)
+	{
+		/* Gigablue New Remote rc has no help key so use KEY_F1 key */
+		ev->code = KEY_HELP;
+	}
+#endif
+
+#if KEY_OPTION_TO_KEY_HELP
+	if (ev->code == KEY_OPTION)
+	{
+		/* Gigablue New Remote rc has no help key so use KEY_F1 key */
+		ev->code = KEY_HELP;
+	}
+#endif
+
 #if KEY_F1_TO_KEY_F6
 	if (ev->code == KEY_F1)
 	{
