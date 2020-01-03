@@ -341,8 +341,6 @@ if test "$BOXTYPE" == "gb7252" -o "$BOXTYPE" == "gb72604"; then
 	AC_DEFINE(KEY_F2_TO_KEY_F6, 1,[define when rc sends a KEY_F2 event for its KEY_F6 key])
 	AC_DEFINE(KEY_SCREEN_TO_KEY_MODE, 1,[define when rc sends a KEY_MODE event for its KEY_ASPECT key])
 	AC_DEFINE(KEY_CONTEXT_MENU_TO_KEY_AUX, 1,[define when rc sends a KEY_CONTEXT_MENU event for its KEY_AUX key])
-	AC_DEFINE(KEY_F1_TO_KEY_HELP, 1,[define when rc sends a KEY_F1 event for its KEY_HELP key])
-	AC_DEFINE(KEY_OPTION_TO_KEY_HELP, 1,[define when rc sends a KEY_OPTION event for its KEY_HELP key])
 fi
 
 if test "$BOXTYPE" == "gb7252" -o "$BOXTYPE" == "vuduo4k" -o "$BOXTYPE" == "vusolo4k" -o "$BOXTYPE" == "vuuno4k" -o "$BOXTYPE" == "vuuno4kse" -o "$BOXTYPE" == "vuultimo4k"; then
