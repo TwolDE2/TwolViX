@@ -942,6 +942,8 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	int cab_max = 4200; // we assume a max of 42db here
 	int atsc_max = 4200; // we assume a max of 42db here
 
+	eDebug("[eDVBFrontend%d] calculateSignalQuality, tuner name: '%s', snr (raw value 0 - 65535): %d", m_dvbid, m_description, snr);
+
 	if (!strcmp(m_description, "AVL2108")) // ET9000
 	{
 		ret = (int)(snr / 40.5);
