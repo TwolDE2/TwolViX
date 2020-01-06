@@ -35,59 +35,6 @@ fonts = {  # Dictionary of predefined and skin defined font aliases.
 	"ChoiceList": ("Regular", 20, 24, 18),
 }
 
-<<<<<<< HEAD
-parameters = {}
-
-def dump(x, i=0):
-	print " " * i + str(x)
-	try:
-		for n in x.childNodes:
-			dump(n, i + 1)
-	except:
-		None
-
-skinfactor = 0
-def getSkinFactor(refresh = False):
-	global skinfactor
-	if refresh or not skinfactor:
-		try:
-			skinfactor = getDesktop(0).size().width() / 1280.0
-			if not skinfactor in [1, 1.5, 3]:
-				print '[SKIN] getSkinFactor unknown result (%s) -> set skinfactor to 1' %skinfactor
-				skinfactor = 1
-		except Exception, err:
-			skinfactor = 1
-			print '[SKIN] getSkinFactor failed: ', err
-	return skinfactor
-
-class SkinError(Exception):
-	def __init__(self, message):
-		self.msg = message
-	def __str__(self):
-		return "[Skin] {%s}: %s. Please contact the skin's author!" % (config.skin.primary_skin.value, self.msg)
-
-class DisplaySkinError(Exception):
-	def __init__(self, message):
-		self.msg = message
-	def __str__(self):
-		return "[Skin] {%s}: %s. Please contact the skin's author!" % (config.skin.display_skin.value, self.msg)
-
-dom_skins = [ ]
-
-def addSkin(name, scope = SCOPE_SKIN):
-	# read the skin
-	filename = resolveFilename(scope, name)
-	if fileExists(filename):
-		mpath = os.path.dirname(filename) + "/"
-		try:
-			dom_skins.append((mpath, xml.etree.cElementTree.parse(filename).getroot()))
-		except:
-			print "[Skin] error in %s" % filename
-			return False
-		else:
-			return True
-	return False
-=======
 # Skins are loaded in order of priority.  Skin with highest priority is
 # loaded first.  This is usually the user-specified skin.
 #
@@ -110,7 +57,6 @@ if not fileExists(skin) or not os.path.isfile(skin):
 	DEFAULT_SKIN = EMERGENCY_SKIN
 config.skin.primary_skin = ConfigText(default=DEFAULT_SKIN)
 config.skin.display_skin = ConfigText(default=DEFAULT_DISPLAY_SKIN)
->>>>>>> upstream/Dev
 
 # Look for a skin related user skin "skin_user_<SkinName>.xml" file,
 # if one exists.  If a skin related user skin does not exist then a
