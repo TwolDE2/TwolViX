@@ -65,6 +65,21 @@ config.skin.display_skin = ConfigText(default=DEFAULT_DISPLAY_SKIN)
 # ...but first check that the relevant base dir exists, otherwise
 # we may well get into a start-up loop with skin failures
 #
+
+skinfactor = 0
+def getSkinFactor(refresh = False):
+	global skinfactor
+	if refresh or not skinfactor:
+		try:
+			skinfactor = getDesktop(0).size().width() / 1280.0
+			if not skinfactor in [1, 1.5, 3]:
+				print '[SKIN] getSkinFactor unknown result (%s) -> set skinfactor to 1' %skinfactor
+				skinfactor = 1
+		except Exception, err:
+			skinfactor = 1
+			print '[SKIN] getSkinFactor failed: ', err
+	return skinfactor
+
 def findUserRelatedSkin():
 	if os.path.isfile(resolveFilename(SCOPE_SKIN, config.skin.primary_skin.value)):
 		name = USER_SKIN_TEMPLATE % os.path.dirname(config.skin.primary_skin.value)
