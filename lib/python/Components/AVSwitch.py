@@ -1,11 +1,11 @@
-from config import config, ConfigSlider, ConfigSelection, ConfigSubDict, ConfigYesNo, ConfigEnableDisable, ConfigSubsection, ConfigBoolean, ConfigSelectionNumber, ConfigNothing, NoSave
-from Components.About import about
-from Tools.CList import CList
-from Tools.HardwareInfo import HardwareInfo
+import os
 from enigma import eAVSwitch, getDesktop
 from boxbranding import getMachineBuild, getBoxType, getBrandOEM, getDisplayType, getHaveRCA, getHaveDVI, getHaveYUV, getHaveSCART, getHaveAVJACK, getHaveSCARTYUV, getHaveHDMI, getMachineMtdRoot
+from config import config, ConfigSlider, ConfigSelection, ConfigSubDict, ConfigYesNo, ConfigEnableDisable, ConfigSubsection, ConfigBoolean, ConfigSelectionNumber, ConfigNothing, NoSave
+from Components.About import about
 from SystemInfo import SystemInfo
-import os
+from Tools.CList import CList
+from Tools.HardwareInfo import HardwareInfo
 
 config.av = ConfigSubsection()
 
