@@ -30,6 +30,8 @@ domScreens = {}  # Dictionary of skin based screens.
 colorNames = {}  # Dictionary of skin color names.
 switchPixmap = {}  # Dictionary of switch images.
 parameters = {}  # Dictionary of skin parameters used to modify code behavior.
+menus = {}  # Dictionary of images associated with menu entries.
+setups = {}  # Dictionary of images associated with setup menus.
 fonts = {  # Dictionary of predefined and skin defined font aliases.
 	"Body": ("Regular", 18, 22, 16),
 	"ChoiceList": ("Regular", 20, 24, 18),
@@ -464,10 +466,11 @@ class AttributeParser:
 				"blend": 2,
 			}[value])
 		except KeyError:
-			print "[Skin] Error: Invalid alphatest '%s'!  Must be one of 'on', 'off', 'off' or 'blend'." % value
+			print "[Skin] Error: Invalid alphatest '%s'!  Must be one of 'on', 'off' or 'blend'." % value
 
 	def scale(self, value):
-		self.guiObject.setScale(1)
+		value = 1 if value.lower() in ("1", "enabled", "on", "scale", "true", "yes") else 0
+		self.guiObject.setScale(value)
 
 	def orientation(self, value):  # used by eSlider
 		try:
@@ -585,7 +588,8 @@ class AttributeParser:
 			print "[Skin] Error: Invalid scrollbarMode '%s'!  Must be one of 'showOnDemand', 'showAlways', 'showNever' or 'showLeft'." % value
 
 	def enableWrapAround(self, value):
-		self.guiObject.setWrapAround(True)
+		value = True if value.lower() in ("1", "enabled", "enablewraparound", "on", "true", "yes") else False
+		self.guiObject.setWrapAround(value)
 
 	def itemHeight(self, value):
 		self.guiObject.setItemHeight(int(value))
@@ -606,7 +610,8 @@ class AttributeParser:
 		self.guiObject.setShadowOffset(parsePosition(value, self.scaleTuple))
 
 	def noWrap(self, value):
-		self.guiObject.setNoWrap(1)
+		value = 1 if value.lower() in ("1", "enabled", "nowrap", "on", "true", "yes") else 0
+		self.guiObject.setNoWrap(value)
 
 def applySingleAttribute(guiObject, desktop, attrib, value, scale=((1, 1), (1, 1))):
 	# Is anyone still using applySingleAttribute?
@@ -618,7 +623,7 @@ def applyAllAttributes(guiObject, desktop, attributes, scale):
 def loadSingleSkinData(desktop, domSkin, pathSkin, scope=SCOPE_CURRENT_SKIN):
 	"""Loads skin data like colors, windowstyle etc."""
 	assert domSkin.tag == "skin", "root element in skin must be 'skin'!"
-	global colorNames, fonts, parameters, switchPixmap
+	global colorNames, fonts, menus, parameters, setups, switchPixmap
 	for tag in domSkin.findall("output"):
 		id = tag.attrib.get("id")
 		if id:
@@ -771,6 +776,24 @@ def loadSingleSkinData(desktop, domSkin, pathSkin, scope=SCOPE_CURRENT_SKIN):
 				parameters[name] = "," in value and map(parseParameter, value.split(",")) or parseParameter(value)
 			except Exception, ex:
 				print "[Skin] Bad parameter:", ex
+	for tag in domSkin.findall("menus"):
+		for setup in tag.findall("menu"):
+			key = setup.attrib.get("key")
+			image = setup.attrib.get("image")
+			if key and image:
+				menus[key] = image
+				# print "[Skin] Menu key='%s', image='%s'." % (key, image)
+			else:
+				raise SkinError("Tag menu needs key and image, got key='%s' and image='%s'" % (key, image))
+	for tag in domSkin.findall("setups"):
+		for setup in tag.findall("setup"):
+			key = setup.attrib.get("key")
+			image = setup.attrib.get("image")
+			if key and image:
+				setups[key] = image
+				# print "[Skin] Setup: '%s' -> '%s'" % (key, image)
+			else:
+				raise SkinError("Tag setup needs key and image, got key='%s' and image='%s'" % (key, image))
 	for tag in domSkin.findall("subtitles"):
 		from enigma import eSubtitleWidget
 		scale = ((1, 1), (1, 1))
