@@ -17,8 +17,7 @@ def GetCurrentImage():
 	if SystemInfo["HasRootSubdir"]:
 		return SystemInfo["HasRootSubdir"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("rootsubdir=linuxrootfs")[1].split(' ')[0]))
 	else:
-		f = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()
-		if "%s" %(SystemInfo["canMultiBoot"][2]) in f:
+		if "%s" %(SystemInfo["canMultiBoot"][2]) in open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read():
 			return SystemInfo["canMultiBoot"] and (int(open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()[:-1].split("%s" % SystemInfo["canMultiBoot"][2])[1].split(' ')[0])-SystemInfo["canMultiBoot"][0])/2
 		else:
 			return 0	# if media not in SystemInfo["canMultiBoot"], then using SDcard and Image is in eMMC (1st slot) so tell caller with 0 return
