@@ -7,9 +7,7 @@ def getVersionString():
 
 def getFlashDateString():
 	try:
-		f = open("/etc/install","r")
-		flashdate = f.read()
-		f.close()
+		flashdate = open("/etc/install","r").read()
 		return flashdate
 	except:
 		return _("unknown")
@@ -27,18 +25,14 @@ def getGStreamerVersionString():
 
 def getKernelVersionString():
 	try:
-		f = open("/proc/version","r")
-		kernelversion = f.read().split(' ', 4)[2].split('-',2)[0]
-		f.close()
+		kernelversion = open("/proc/version","r").read().split(' ', 4)[2].split('-',2)[0]
 		return kernelversion
 	except:
 		return _("unknown")
 
 def getIsBroadcom():
 	try:
-		file = open('/proc/cpuinfo', 'r')
-		lines = file.readlines()
-		for x in lines:
+		for x in open('/proc/cpuinfo', 'r').readlines():
 			splitted = x.split(': ')
 			if len(splitted) > 1:
 				splitted[1] = splitted[1].replace('\n','')
@@ -47,7 +41,6 @@ def getIsBroadcom():
 				elif splitted[0].startswith("system type"):
 					if splitted[1].split(' ')[0].startswith('BCM'):
 						system = 'Broadcom'
-		file.close()
 		if 'Broadcom' in system:
 			return True
 		else:
@@ -57,9 +50,7 @@ def getIsBroadcom():
 
 def getChipSetString():
 	try:
-		f = open('/proc/stb/info/chipset', 'r')
-		chipset = f.read()
-		f.close()
+		chipset = open('/proc/stb/info/chipset', 'r').read()
 		return str(chipset.lower().replace('\n','').replace('brcm','').replace('bcm',''))
 	except IOError:
 		return _("unavailable")
@@ -67,10 +58,7 @@ def getChipSetString():
 def getCPUSpeedMHzInt():
 	cpu_speed = 0
 	try:
-		file = open('/proc/cpuinfo', 'r')
-		lines = file.readlines()
-		file.close()
-		for x in lines:
+		for x in open('/proc/cpuinfo', 'r').readlines():
 			splitted = x.split(': ')
 			if len(splitted) > 1:
 				splitted[1] = splitted[1].replace('\n','')
@@ -84,17 +72,13 @@ def getCPUSpeedMHzInt():
 		if getMachineBuild() in ('h7','hd51','hd52','sf4008'):
 			try:
 				import binascii
-				f = open('/sys/firmware/devicetree/base/cpus/cpu@0/clock-frequency', 'rb')
-				clockfrequency = f.read()
-				f.close()
+				clockfrequency = open('/sys/firmware/devicetree/base/cpus/cpu@0/clock-frequency', 'rb').read()
 				cpu_speed = round(int(binascii.hexlify(clockfrequency), 16)/1000000,1)
 			except IOError:
 				cpu_speed = 1700
 		else:
 			try: # Solo4K sf8008
-				file = open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq', 'r')
-				cpu_speed = float(file.read()) / 1000
-				file.close()
+				cpu_speed = float(open('/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq', 'r').read()) / 1000
 			except IOError:
 				print "[About] getCPUSpeedMHzInt, /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq not available"
 	return int(cpu_speed)
@@ -119,9 +103,7 @@ def getCPUArch():
 def getCPUString():
 	system = _("unavailable")
 	try:
-		file = open('/proc/cpuinfo', 'r')
-		lines = file.readlines()
-		for x in lines:
+		for x in open('/proc/cpuinfo', 'r').readlines():
 			splitted = x.split(': ')
 			if len(splitted) > 1:
 				splitted[1] = splitted[1].replace('\n','')
@@ -131,7 +113,6 @@ def getCPUString():
 					system = splitted[1].split(' ')[0]
 				elif splitted[0].startswith("Processor"):
 					system = splitted[1].split(' ')[0]
-		file.close()
 		return system
 	except IOError:
 		return _("unavailable")
@@ -139,10 +120,7 @@ def getCPUString():
 def getCpuCoresInt():
 	cores = 0
 	try:
-		file = open('/proc/cpuinfo', 'r')
-		lines = file.readlines()
-		file.close()
-		for x in lines:
+		for x in open('/proc/cpuinfo', 'r').readlines():
 			splitted = x.split(': ')
 			if len(splitted) > 1:
 				splitted[1] = splitted[1].replace('\n','')
@@ -188,12 +166,10 @@ def getIfConfig(ifname):
 	return ifreq
 
 def getIfTransferredData(ifname):
-	f = open('/proc/net/dev', 'r')
-	for line in f:
+	for line in open('/proc/net/dev', 'r'):
 		if ifname in line:
 			data = line.split('%s:' % ifname)[1].split()
 			rx_bytes, tx_bytes = (data[0], data[8])
-			f.close()
 			return rx_bytes, tx_bytes
 
 def getPythonVersionString():

@@ -88,8 +88,7 @@ class About(Screen):
 		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
 
 		if SystemInfo["HasH9SD"]:
-			f = open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read()
-			if "rootfstype=ext4" in f:
+			if "rootfstype=ext4" in open('/sys/firmware/devicetree/base/chosen/bootargs', 'r').read():
 				part = "        - SD card in use for Image root \n" 
 			else:
 				part = "        - eMMC slot in use for Image root \n"
@@ -133,32 +132,22 @@ class About(Screen):
 
 		tempinfo = ""
 		if path.exists('/proc/stb/sensors/temp0/value'):
-			f = open('/proc/stb/sensors/temp0/value', 'r')
-			tempinfo = f.read()
-			f.close()
+			tempinfo = open('/proc/stb/sensors/temp0/value', 'r').read()
 		elif path.exists('/proc/stb/fp/temp_sensor'):
-			f = open('/proc/stb/fp/temp_sensor', 'r')
-			tempinfo = f.read()
-			f.close()
+			tempinfo = open('/proc/stb/fp/temp_sensor', 'r').read()
 		elif path.exists('/proc/stb/sensors/temp/value'):
-			f = open('/proc/stb/sensors/temp/value', 'r')
-			tempinfo = f.read()
-			f.close()
+			tempinfo = open('/proc/stb/sensors/temp/value', 'r').read()
 		if tempinfo and int(tempinfo.replace('\n', '')) > 0:
 			mark = str('\xc2\xb0')
 			AboutText += _("System temp:\t%s") % tempinfo.replace('\n', '').replace(' ','') + mark + "C\n"
 
 		tempinfo = ""
 		if path.exists('/proc/stb/fp/temp_sensor_avs'):
-			f = open('/proc/stb/fp/temp_sensor_avs', 'r')
-			tempinfo = f.read()
-			f.close()
+			tempinfo = open('/proc/stb/fp/temp_sensor_avs', 'r').read()
 		elif path.exists('/sys/devices/virtual/thermal/thermal_zone0/temp'):
 			try:
-				f = open('/sys/devices/virtual/thermal/thermal_zone0/temp', 'r')
-				tempinfo = f.read()
+				tempinfo = open('/sys/devices/virtual/thermal/thermal_zone0/temp', 'r').read()
 				tempinfo = tempinfo[:-4]
-				f.close()
 			except:
 				tempinfo = ""
 		elif path.exists('/proc/hisi/msp/pm_cpu'):
@@ -182,14 +171,12 @@ class About(Screen):
 	def dualBoot(self):
 		rootfs2 = False
 		kernel2 = False
-		f = open("/proc/mtd")
-		self.dualbootL = f.readlines()
+		self.dualbootL = open("/proc/mtd").readlines()
 		for x in self.dualbootL:
 			if 'rootfs2' in x:
 				rootfs2 = True
 			if 'kernel2' in x:
 				kernel2 = True
-		f.close()
 		if rootfs2 and kernel2:
 			return True
 		else:
