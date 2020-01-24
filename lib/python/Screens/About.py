@@ -132,22 +132,27 @@ class About(Screen):
 
 		tempinfo = ""
 		if path.exists('/proc/stb/sensors/temp0/value'):
-			tempinfo = open('/proc/stb/sensors/temp0/value', 'r').read()
+			with open('/proc/stb/sensors/temp0/value', 'r') as f:
+				tempinfo = f.read()
 		elif path.exists('/proc/stb/fp/temp_sensor'):
-			tempinfo = open('/proc/stb/fp/temp_sensor', 'r').read()
+			with open('/proc/stb/fp/temp_sensor', 'r') as f:
+			tempinfo = f.read()
 		elif path.exists('/proc/stb/sensors/temp/value'):
-			tempinfo = open('/proc/stb/sensors/temp/value', 'r').read()
+			with open('/proc/stb/sensors/temp/value', 'r') as f:
+				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace('\n', '')) > 0:
 			mark = str('\xc2\xb0')
 			AboutText += _("System temp:\t%s") % tempinfo.replace('\n', '').replace(' ','') + mark + "C\n"
 
 		tempinfo = ""
 		if path.exists('/proc/stb/fp/temp_sensor_avs'):
-			tempinfo = open('/proc/stb/fp/temp_sensor_avs', 'r').read()
+			with open('/proc/stb/fp/temp_sensor_avs', 'r') as f:
+				tempinfo = f.read()
 		elif path.exists('/sys/devices/virtual/thermal/thermal_zone0/temp'):
 			try:
-				tempinfo = open('/sys/devices/virtual/thermal/thermal_zone0/temp', 'r').read()
-				tempinfo = tempinfo[:-4]
+				with open('/sys/devices/virtual/thermal/thermal_zone0/temp', 'r') as f:
+					tempinfo = f.read()
+					tempinfo = tempinfo[:-4]
 			except:
 				tempinfo = ""
 		elif path.exists('/proc/hisi/msp/pm_cpu'):
@@ -171,16 +176,17 @@ class About(Screen):
 	def dualBoot(self):
 		rootfs2 = False
 		kernel2 = False
-		self.dualbootL = open("/proc/mtd").readlines()
-		for x in self.dualbootL:
-			if 'rootfs2' in x:
-				rootfs2 = True
-			if 'kernel2' in x:
-				kernel2 = True
-		if rootfs2 and kernel2:
-			return True
-		else:
-			return False
+		with open("/proc/mtd") as f:
+			self.dualbootL = f.readlines()
+			for x in self.dualbootL:
+				if 'rootfs2' in x:
+					rootfs2 = True
+				if 'kernel2' in x:
+					kernel2 = True
+			if rootfs2 and kernel2:
+				return True
+			else:
+				return False
 
 	def showTranslationInfo(self):
 		self.session.open(TranslationInfo, self.menu_path)
