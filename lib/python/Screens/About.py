@@ -136,7 +136,7 @@ class About(Screen):
 				tempinfo = f.read()
 		elif path.exists('/proc/stb/fp/temp_sensor'):
 			with open('/proc/stb/fp/temp_sensor', 'r') as f:
-			tempinfo = f.read()
+				tempinfo = f.read()
 		elif path.exists('/proc/stb/sensors/temp/value'):
 			with open('/proc/stb/sensors/temp/value', 'r') as f:
 				tempinfo = f.read()
