@@ -56,10 +56,6 @@ def findMountPoint(path):
 #	rotational if 0 --> SSD or MMC
 #	sdmmc if True -->  MMC/CF
 
-
-DEVTYPE_UDEV = 0
-DEVTYPE_DEVFS = 1
-
 class Harddisk:
 	def __init__(self, device, removable = False):
 		self.device = device
