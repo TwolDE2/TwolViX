@@ -138,8 +138,8 @@ class Harddisk:
 		# CF(7025 specific)
 		else:
 			type_name = " (CF)"
-
 		print "[Harddisk]0 Physical Path = %s internal = %s card = %s" %(self.phys_path, self.internal, self.sdmmc)
+
 		if self.sdmmc:
 			ret += type_name
 		else:
