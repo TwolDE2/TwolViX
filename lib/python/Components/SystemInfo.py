@@ -30,7 +30,7 @@ SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
 SystemInfo["PIPAvailable"] = getMachineBuild() not in ("i55plus") and SystemInfo["NumVideoDecoders"] > 1
 
 # General Hardware
-
+SystemInfo["Udev"] = not fileExists("/dev/.devfsd")
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
 SystemInfo["HasInfoButton"] = getBrandOEM() in ('airdigital', 'broadmedia', 'ceryon', 'dags', 'dinobot', 'edision', 'formuler', 'gfutures', 'gigablue', 'ini', 'maxytec', 'octagon', 'odin', 'skylake', 'tiviar', 'xcore', 'xp', 'xtrend')
 SystemInfo["hasXcoreVFD"] = getBoxType() in ('osmega','spycat4k','spycat4kmini','spycat4kcombo') and fileCheck("/sys/module/brcmstb_%s/parameters/pt6302_cgram" % getBoxType())

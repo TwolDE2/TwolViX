@@ -60,10 +60,6 @@ class Harddisk:
 	def __init__(self, device, removable = False):
 		self.device = device
 
-		if os.access("/dev/.devfsd", os.F_OK):
-			SystemInfo["Udev"] = False
-		else:
-			SystemInfo["Udev"] = True
 		self.sdmmc = False
 		self.max_idle_time = 0
 		self.idle_running = False
