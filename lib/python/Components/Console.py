@@ -1,4 +1,4 @@
-import enigma
+import enigma, ctypes, os
 
 class ConsoleItem:
 	def __init__(self, containers, cmd, callback, extra_args):
@@ -23,6 +23,8 @@ class ConsoleItem:
 		retval = self.container.execute(*cmd)
 		if retval:
 			self.finishedCB(retval)
+		if callback is None:
+			os.waitpid(self.container.getPID(), 0)
 	def dataAvailCB(self, data):
 		self.appResults.append(data)
 	def finishedCB(self, retval):
@@ -30,7 +32,7 @@ class ConsoleItem:
 		del self.containers[self.name]
 		del self.container.dataAvail[:]
 		del self.container.appClosed[:]
-		del self.container
+		self.container = None
 		callback = self.callback
 		if callback is not None:
 			data = ''.join(self.appResults)
