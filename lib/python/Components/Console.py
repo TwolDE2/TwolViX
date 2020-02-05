@@ -24,7 +24,9 @@ class ConsoleItem:
 		if retval:
 			self.finishedCB(retval)
 		if callback is None:
-			os.waitpid(self.container.getPID(), 0)
+			pid = self.container.getPID()
+			if pid != 0 or pid is not None:
+				os.waitpid(pid, 0)
 	def dataAvailCB(self, data):
 		self.appResults.append(data)
 	def finishedCB(self, retval):
