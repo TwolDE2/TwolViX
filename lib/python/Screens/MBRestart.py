@@ -117,22 +117,24 @@ class MultiBoot(Screen):
 			elif self.slot == "Android":
 				copyfile("/tmp/startupmount/STARTUP_ANDROID", "/tmp/startupmount/STARTUP")
 			else:
-				if SystemInfo["canMode12"]:
-					if slot < 12:
+				if not SystemInfo["canMode12"]:
+					copyfile("/tmp/startupmount/%s" %SystemInfo["canMultiBoot"][self.slot]['startupfile'], "/tmp/startupmount/STARTUP")
+				else:
+					if self.slot < 12:
 						slot12 = 1
 					else:
 						slot12 = 12
-						slot -= 12
-					if fileExists("/tmp/startupmount/STARTUP_1") and slot12 == 1:
-						startupfile = "/tmp/startupmount/STARTUP_%s" %slot
-						copyfile(startupfile, "/tmp/startupmount/STARTUP")
+						self.slot -= 12
+					if fileExists("/tmp/startupmount/%s_BOXMODE_1" % SystemInfo["canMultiBoot"][self.slot]['startupfile']) and slot12 == 1:
+						startupfile = "/tmp/startupmount/%s_BOXMODE_1" % SystemInfo["canMultiBoot"][self.slot]['startupfile']
+					elif fileExists("/tmp/startupmount/%s_BOXMODE_12" % SystemInfo["canMultiBoot"][self.slot]['startupfile']) and slot12 == 1:
+						startupfile = "/tmp/startupmount/%s_BOXMODE_1" % SystemInfo["canMultiBoot"][self.slot]['startupfile']
+					elif fileExists("/tmp/startupmount/STARTUP_1") and slot12 == 1:
+						copyfile("/tmp/startupmount/STARTUP_%s" %self.slot, "/tmp/startupmount/STARTUP")
 					elif fileExists("/tmp/startupmount/STARTUP_1") and slot12 == 12:
-						startupfile = "/tmp/startupmount/STARTUP_%s" %slot
+						startupfile = "/tmp/startupmount/STARTUP_%s" %self.slot
 						f = open('%s' %startupfile, 'r').read().replace("boxmode=1'", "boxmode=12'").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
 						open('/tmp/startupmount/STARTUP', 'w').write(f)
-				else:
-					startupfile = "/tmp/startupmount/%s" % SystemInfo["canMultiBoot"][self.slot]['startupfile']
-					copyfile(startupfile, "/tmp/startupmount/STARTUP")
 			self.session.open(TryQuitMainloop, 2)
 
 

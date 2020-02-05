@@ -32,7 +32,8 @@ class ConsoleItem:
 		del self.containers[self.name]
 		del self.container.dataAvail[:]
 		del self.container.appClosed[:]
-		self.container = None
+#		del self.container
+		self.container = None		
 		callback = self.callback
 		if callback is not None:
 			data = ''.join(self.appResults)

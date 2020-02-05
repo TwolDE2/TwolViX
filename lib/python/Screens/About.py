@@ -95,14 +95,16 @@ class About(Screen):
 			AboutText += _("%s") % part
 
 		if SystemInfo["canMultiBoot"]:
-			slot = GetCurrentImage()
+			slot = image= GetCurrentImage()
 			part = "eMMC slot %s" %slot
 			bootmode = ""
 			if SystemInfo["canMode12"]:
-				bootmode = "bootmode = %s" %GetCurrentImageMode()
-			if SystemInfo["HasSDmmc"]:
+				bootmode = "bootmode = %s" %GetCurrentImageMode()		
+			print "[About] HasSDmmc = %s, slot = %s" %(SystemInfo["HasSDmmc"], slot)
+			if SystemInfo["HasHiSi"]:
 				if slot != 1:
-					part = "SDC slot %s (%s) " %(image, SystemInfo["canMultiBoot"][slot]['device'])
+					image =-1
+					part = "SDcard slot %s (%s) " %(image, SystemInfo["canMultiBoot"][slot]['device'])
 			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(slot) + "  " + part + " " + bootmode + "\n"
 
 		if getMachineName() in ('ET8500') and path.exists('/proc/mtd'):
