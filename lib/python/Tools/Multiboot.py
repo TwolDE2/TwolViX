@@ -1,6 +1,6 @@
+from boxbranding import getMachineMtdRoot, getMachineBuild
 from Components.SystemInfo import SystemInfo
 from Components.Console import Console
-from boxbranding import getMachineMtdRoot, getMachineBuild
 from Tools.Directories import pathExists
 import os, glob
 import shutil
@@ -19,25 +19,36 @@ def getMBbootdevice():
 	if not os.path.isdir(TMP_MOUNT):
 		os.mkdir(TMP_MOUNT)
 	for device in ('/dev/block/by-name/bootoptions', '/dev/mmcblk0p1', '/dev/mmcblk1p1', '/dev/mmcblk0p3', '/dev/mmcblk0p4'):
+#	for device in ('/dev/mmcblk0p1'):
 		if os.path.exists(device):
+			print '[Multiboot] Startupdevice found?:', device
 			Console().ePopen('mount %s %s' % (device, TMP_MOUNT))
+			x = os.path.join(TMP_MOUNT, "STARTUP")
 			if os.path.isfile(os.path.join(TMP_MOUNT, "STARTUP")):
 				print '[Multiboot] Startupdevice found:', device
 				return device
 			Console().ePopen('umount %s' % TMP_MOUNT)
 	if not os.path.ismount(TMP_MOUNT):
 		os.rmdir(TMP_MOUNT)
+#	model = getMachineBuild()	
+#	for device in ('/dev/block/by-name/bootoptions', '/dev/block/by-name/bootoptions', "/dev/mmcblk1p1" if model in ('osmio4k', 'osmio4kplus', 'osmini4k') else "/dev/mmcblk0p1"):
+#		if getMachineBuild() in ("sf8008", "sf8008m"):
+#			device = "mmcblk0p3"
+#		print '[Multiboot] Startupdevice found1: %s' %device
+#		if os.path.exists(device):
+#			print '[Multiboot] Startupdevice2 found: %s' %device
+#			return device
 
 def getparam(line, param):
 	return line.rsplit('%s=' % param, 1)[1].split(' ', 1)[0]
 
 def getMultibootslots():
 	bootslots = {}
-	print "Multiboot getMultibootslots MultibootStartupDevice = %s " %SystemInfo["MultibootStartupDevice"]
-	if SystemInfo["MultibootStartupDevice"]:
+	print "Multiboot getMultibootslots MultibootStartupDevice = %s " %SystemInfo["MBbootdevice"]
+	if SystemInfo["MBbootdevice"]:
 		if not os.path.isdir(TMP_MOUNT):
 			os.mkdir(TMP_MOUNT)
-		Console().ePopen('/bin/mount %s %s' % (SystemInfo["MultibootStartupDevice"], TMP_MOUNT))
+		Console().ePopen('/bin/mount %s %s' % (SystemInfo["MBbootdevice"], TMP_MOUNT))
 		for file in glob.glob(os.path.join(TMP_MOUNT, 'STARTUP_*')):
 			print "Multiboot getMultibootslots file = %s " %file
 			slotnumber = file.rsplit('_', 3 if 'BOXMODE' in file else 1)[1]
@@ -135,6 +146,16 @@ class GetImagelist():
 					Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ''
 					BuildVersion = "%s %s %s %s" % (Creator, BuildType[0:3], Build, Dev)
 				else:
+					def getImagename(target):
+						from datetime import datetime
+						date = datetime.fromtimestamp(os.stat(os.path.join(target, "var/lib/opkg/status")).st_mtime).strftime('%Y-%m-%d')
+						if date.startswith("1970"):
+							try:
+								date = datetime.fromtimestamp(os.stat(os.path.join(target, "usr/share/bootlogo.mvi")).st_mtime).strftime('%Y-%m-%d')
+							except:
+								pass
+							date = max(date, datetime.fromtimestamp(os.stat(os.path.join(target, "usr/bin/enigma2")).st_mtime).strftime('%Y-%m-%d'))
+						return "%s (%s)" % (open(os.path.join(target, "etc/issue")).readlines()[-2].capitalize().strip()[:-6], date)
 					BuildVersion = getImagename(imagedir)
 				self.imagelist[self.slot] =  { 'imagename': '%s' %BuildVersion }
 
@@ -149,16 +170,6 @@ class GetImagelist():
 				os.rmdir(TMP_MOUNT)
 			self.callback(self.imagelist)
 
-			def getImagename(target):
-				from datetime import datetime
-				date = datetime.fromtimestamp(os.stat(os.path.join(target, "var/lib/opkg/status")).st_mtime).strftime('%Y-%m-%d')
-				if date.startswith("1970"):
-					try:
-						date = datetime.fromtimestamp(os.stat(os.path.join(target, "usr/share/bootlogo.mvi")).st_mtime).strftime('%Y-%m-%d')
-					except:
-						pass
-					date = max(date, datetime.fromtimestamp(os.stat(os.path.join(target, "usr/bin/enigma2")).st_mtime).strftime('%Y-%m-%d'))
-				return "%s (%s)" % (open(os.path.join(target, "etc/issue")).readlines()[-2].capitalize().strip()[:-6], date)
 
 class boxbranding_reader:		# many thanks to Huevos for creating this reader - well beyond my skill levels! 
 	def __init__(self, OsPath):

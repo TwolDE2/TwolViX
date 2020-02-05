@@ -4,7 +4,10 @@ from Components.About import getChipSetString
 from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 from Tools.HardwareInfo import HardwareInfo
 
+
 SystemInfo = { }
+
+from Tools.Multiboot import getMBbootdevice, getMultibootslots
 
 def getNumVideoDecoders():
 	idx = 0
@@ -139,7 +142,7 @@ SystemInfo["CanDTSHD"] = fileHas("/proc/stb/audio/dtshd_choices", "downmix")
 SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 #	Multiboot/bootmode options
-SystemInfo["MBbootdevice"] = getMultibootStartupDevice()
+SystemInfo["MBbootdevice"] = getMBbootdevice()
 SystemInfo["canMultiBoot"] = getMultibootslots()
 #SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'h9combo', 'multibox') and (1, 4, 'mmcblk0p') or getBoxType() in ('gbue4k', 'gbquad4k', 'gbx43k') and (3, 3, 'mmcblk0p') or getMachineBuild() in ('viper4k', 'sf8008', 'sf8008m', 'gbmv200') and fileCheck("/dev/sda") and (0, 2, 'sda') or getMachineBuild() in ('osmio4k', 'osmio4kplus', 'osmini4k') and (1, 4, 'mmcblk1p')
 SystemInfo["canBackupEMC"] = getMachineBuild() in ('hd51','h7') and ('disk.img', 'mmcblk0p1') or getMachineBuild() in ('osmio4k', 'osmio4kplus', 'osmini4k') and ('emmc.img', 'mmcblk1p1') or getMachineBuild() in ('viper4k', 'sf8008', 'sf8008m', 'gbmv200') and ('usb_update.bin','none')
