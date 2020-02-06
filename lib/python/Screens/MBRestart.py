@@ -14,18 +14,18 @@ from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 from Tools.Multiboot import GetImagelist, GetCurrentImage, GetCurrentImageMode
 
-class MultiBoot(Screen):
+class MultiBootSelector(Screen):
 
 	skin = """
-	<screen name="MultiBoot" position="center,center" size="750,900" flags="wfNoBorder" backgroundColor="transparent">
+	<screen name="Multiboot Image Selector" position="center,center" size="750,900" flags="wfNoBorder" backgroundColor="transparent">
 		<eLabel name="b" position="0,0" size="750,700" backgroundColor="#00ffffff" zPosition="-2" />
 		<eLabel name="a" position="1,1" size="748,698" backgroundColor="#00000000" zPosition="-1" />
 		<widget source="Title" render="Label" position="60,10" foregroundColor="#00ffffff" size="480,50" halign="left" font="Regular; 28" backgroundColor="#00000000" />
 		<eLabel name="line" position="1,60" size="748,1" backgroundColor="#00ffffff" zPosition="1" />
 		<eLabel name="line2" position="1,250" size="748,4" backgroundColor="#00ffffff" zPosition="1" />
 		<widget name="config" position="2,280" size="730,380" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00e5b243" />
-		<widget source="labe14" render="Label" position="2,80" size="730,30" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00ffffff" />
-		<widget source="labe15" render="Label" position="2,130" size="730,60" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00ffffff" />
+		<widget source="description" render="Label" position="2,80" size="730,30" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00ffffff" />
+		<widget source="options" render="Label" position="2,130" size="730,60" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 		<widget source="key_red" render="Label" position="30,200" size="150,30" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 		<widget source="key_green" render="Label" position="200,200" size="150,30" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 		<eLabel position="20,200" size="6,40" backgroundColor="#00e61700" /> <!-- Should be a pixmap -->
@@ -35,21 +35,20 @@ class MultiBoot(Screen):
 
 	def __init__(self, session, *args):
 		Screen.__init__(self, session)
-		self.skinName = "MultiBoot"
-		screentitle = _("Multiboot Image Restart")
+		screentitle = _("Multiboot Image Selector")
 		self["key_red"] = StaticText(_("Cancel"))
-		if not SystemInfo["HasSDmmc"] or SystemInfo["HasSDmmc"] and pathExists('/dev/sda4'):
-			self["labe14"] = StaticText(_("Use the cursor keys to select an installed image and then Reboot button."))
+		if not SystemInfo["HasHiSi"] or SystemInfo["HasHiSi"] and pathExists('/dev/sda4'):
+			self["description"] = StaticText(_("Use the cursor keys to select an installed image and then Reboot button."))
 		else:
-			self["labe14"] = StaticText(_("SDcard is not initialised for multiboot - Exit and use ViX MultiBoot Manager to initialise"))			
-		self["labe15"] = StaticText(_(" "))
+			self["description"] = StaticText(_("SDcard is not initialised for multiboot - Exit and use ViX MultiBoot Manager to initialise"))			
+		self["options"] = StaticText(_(" "))
 		self["key_green"] = StaticText(_("Reboot"))
 		if SystemInfo["canMode12"]:
-			self["labe15"] = StaticText(_("Mode 1 suppports Kodi, PiP may not work.\nMode 12 supports PiP, Kodi may not work."))
+			self["options"] = StaticText(_("Mode 1 suppports Kodi, PiP may not work.\nMode 12 supports PiP, Kodi may not work."))
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent('',((_("Retrieving image slots - Please wait...")), "Queued"))])
 		imagedict = []
 		self.getImageList = None
-		self.setTitle(_("Multiboot Image Restart"))
+		self.title = screentitle
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"],
 		{
 			"red": boundFunction(self.close, None),
@@ -117,24 +116,18 @@ class MultiBoot(Screen):
 			elif self.slot == "Android":
 				copyfile("/tmp/startupmount/STARTUP_ANDROID", "/tmp/startupmount/STARTUP")
 			else:
-				if not SystemInfo["canMode12"]:
-					copyfile("/tmp/startupmount/%s" %SystemInfo["canMultiBoot"][self.slot]['startupfile'], "/tmp/startupmount/STARTUP")
+				if self.slot < 12:
+					startupfile = "/tmp/startupmount/%s" % SystemInfo["canMultiBoot"][self.slot]['startupfile'].replace("boxmode=12'", "boxmode=1'")
+					copyfile(startupfile, "/tmp/startupmount/STARTUP")
 				else:
-					if self.slot < 12:
-						slot12 = 1
-					else:
-						slot12 = 12
-						self.slot -= 12
-					if fileExists("/tmp/startupmount/%s_BOXMODE_1" % SystemInfo["canMultiBoot"][self.slot]['startupfile']) and slot12 == 1:
-						startupfile = "/tmp/startupmount/%s_BOXMODE_1" % SystemInfo["canMultiBoot"][self.slot]['startupfile']
-					elif fileExists("/tmp/startupmount/%s_BOXMODE_12" % SystemInfo["canMultiBoot"][self.slot]['startupfile']) and slot12 == 1:
-						startupfile = "/tmp/startupmount/%s_BOXMODE_1" % SystemInfo["canMultiBoot"][self.slot]['startupfile']
-					elif fileExists("/tmp/startupmount/STARTUP_1") and slot12 == 1:
-						copyfile("/tmp/startupmount/STARTUP_%s" %self.slot, "/tmp/startupmount/STARTUP")
-					elif fileExists("/tmp/startupmount/STARTUP_1") and slot12 == 12:
-						startupfile = "/tmp/startupmount/STARTUP_%s" %self.slot
+					self.slot -=12
+					startupfile = "/tmp/startupmount/%s" % SystemInfo["canMultiBoot"][self.slot]['startupfile']
+					if "BOXMODE" not in startupfile:
 						f = open('%s' %startupfile, 'r').read().replace("boxmode=1'", "boxmode=12'").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
 						open('/tmp/startupmount/STARTUP', 'w').write(f)
+						self.session.open(TryQuitMainloop, 2)
+					else:
+						copyfile(startupfile, "/tmp/startupmount/STARTUP")
 			self.session.open(TryQuitMainloop, 2)
 
 
