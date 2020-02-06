@@ -98,7 +98,7 @@ class GetImagelist():
 
 	def __init__(self, callback):
 		if SystemInfo["canMultiBoot"]:
-			self.slots = SystemInfo["canMultiBoot"].keys()
+			self.slots = sorted(SystemInfo["canMultiBoot"].keys())
 			self.callback = callback
 			self.imagelist = {}
 			if not path.isdir(TMP_MOUNT):
@@ -116,13 +116,15 @@ class GetImagelist():
 			self.slot = self.slots.pop(0)
 			self.container.ePopen('mount %s %s' % (SystemInfo["canMultiBoot"][self.slot]['device'], TMP_MOUNT), self.appClosed)
 
-	def appClosed(self, data, retval, extra_args=None):
+	def appClosed(self, data="", retval=0, extra_args=None):
 		BuildVersion = "  "	
 		Build = " "	#ViX Build No.#
 		Dev = " "	#ViX Dev No.#
 		Creator = " " 	#Openpli Openvix Openatv etc #
 		Date = " "	
 		BuildType = " "	#release etc #
+		if retval:
+			self.imagelist[self.slot] = { 'imagename': _("Empty slot") }
 		if retval == 0 and self.phase == self.MOUNT:
 			imagedir = sep.join(filter(None, [TMP_MOUNT, SystemInfo["canMultiBoot"][self.slot].get('rootsubdir', '')]))
 			if not path.isfile(path.join(imagedir, '/usr/bin/enigma2')):
@@ -148,9 +150,12 @@ class GetImagelist():
 						return "%s (%s)" % (open(path.join(target, "etc/issue")).readlines()[-2].capitalize().strip()[:-6], date)
 					BuildVersion = getImagename(imagedir)
 				self.imagelist[self.slot] =  { 'imagename': '%s' %BuildVersion }
-
-			self.phase = self.UNMOUNT
-			self.run()
+			if self.slots and SystemInfo["canMultiBoot"][self.slot]['device'] == SystemInfo["canMultiBoot"][self.slots[0]]['device']:
+				self.slot = self.slots.pop(0)
+				self.appClosed()
+			else:
+				self.phase = self.UNMOUNT
+				self.run()
 		elif self.slots:
 			self.phase = self.MOUNT
 			self.run()
