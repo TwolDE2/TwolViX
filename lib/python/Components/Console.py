@@ -25,8 +25,12 @@ class ConsoleItem:
 			self.finishedCB(retval)
 		if callback is None:
 			pid = self.container.getPID()
-			if pid != 0 or pid is not None:
+			print "[Console] pid = %s" %pid
+			try:
 				os.waitpid(pid, 0)
+			except OSError:
+				pass
+
 	def dataAvailCB(self, data):
 		self.appResults.append(data)
 	def finishedCB(self, retval):
@@ -34,8 +38,8 @@ class ConsoleItem:
 		del self.containers[self.name]
 		del self.container.dataAvail[:]
 		del self.container.appClosed[:]
-#		del self.container
-		self.container = None		
+		del self.container
+#		self.container = None		
 		callback = self.callback
 		if callback is not None:
 			data = ''.join(self.appResults)
