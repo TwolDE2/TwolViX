@@ -103,8 +103,8 @@ class MultiBootSelector(Screen):
 						list.append("                                 ")
 						list.append("                                 ")
 						list.append(ChoiceEntryComponent('',((_("slot%s - %s mode 12 (current image)") if x == currentimageslot and mode == 12 else _("slot%s - %s mode 12")) % (x, imagedict[x]['imagename']), x + 12)))
-				else:
-					list.append(ChoiceEntryComponent('',((_("No images found")), "Waiter")))
+		else:
+			list.append(ChoiceEntryComponent('',((_("No images found")), "Waiter")))
 		self["config"].setList(list)
 
 	def reboot(self):
