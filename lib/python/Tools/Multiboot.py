@@ -126,11 +126,9 @@ class GetImagelist():
 			self.imagelist[self.slot] = { 'imagename': _("Empty slot") }
 		if retval == 0 and self.phase == self.MOUNT:
 			imagedir = os.sep.join(filter(None, [TMP_MOUNT, SystemInfo["canMultiBoot"][self.slot].get('rootsubdir', '')]))
-			if not os.path.isfile(os.path.join(imagedir, '/usr/bin/enigma2')):
-				print "[multiboot] empty slot= %s" %(self.slot) 
+			if not fileExists("/tmp/multibootcheck/usr/bin/enigma2"):
 				self.imagelist[self.slot] = { 'imagename': _("Empty slot") }
 			else:
-				print "[multiboot] full slot= %s" %(self.slot)
 				Creator = open("%s/etc/issue" %imagedir).readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
 				if Creator.startswith("Openvix"):
 					reader = boxbranding_reader(imagedir)
@@ -277,10 +275,12 @@ class EmptySlot():
 	def appClosed(self, data, retval, extra_args):
 		if retval == 0 and self.phase == self.MOUNT:
 			imagedir = os.sep.join(filter(None, ['/tmp/testmount', SystemInfo["canMultiBoot"][self.slot].get('rootsubdir', '')]))
-			if os.path.isfile(os.path.join(imagedir, '/usr/bin/enigma2')):
+			if fileExists("/tmp/testmount/usr/bin/enigma2"):
 				file = '%s/usr/bin/enigma2' %imagedir
 				print "[multiboot] file = %s" %(file) 
-				os.remove('/tmp/testmount/usr/bin/enigma2')
+				os.rename('/tmp/testmount/usr/bin/enigma2', '/tmp/testmount/usr/bin/enigmax.bin')
+			else:
+				print "[multiboot] NO /tmp/testmount/usr/bin/enigma2"
 			self.phase = self.UNMOUNT
 			self.run()
 		else:
