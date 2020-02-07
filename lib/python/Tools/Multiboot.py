@@ -279,8 +279,8 @@ class EmptySlot():
 			imagedir = os.sep.join(filter(None, ['/tmp/testmount', SystemInfo["canMultiBoot"][self.slot].get('rootsubdir', '')]))
 			if os.path.isfile(os.path.join(imagedir, '/usr/bin/enigma2')):
 				file = '%s/usr/bin/enigma2' %imagedir
-				print "[multiboot] imagedir =%s file = %s" %(imagedir, file) 
-				os.remove('%s%s' %(imagedir, '/usr/bin/enigma2'))
+				print "[multiboot] file = %s" %(file) 
+				os.remove('/tmp/testmount/usr/bin/enigma2')
 			self.phase = self.UNMOUNT
 			self.run()
 		else:
