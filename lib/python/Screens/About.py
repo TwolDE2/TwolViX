@@ -100,7 +100,7 @@ class About(Screen):
 			bootmode = ""
 			if SystemInfo["canMode12"]:
 				bootmode = "bootmode = %s" %GetCurrentImageMode()		
-			print "[About] HasSDmmc = %s, slot = %s" %(SystemInfo["HasSDmmc"], slot)
+			print "[About] HasHiSi = %s, slot = %s" %(SystemInfo["HasHiSi"], slot)
 			if SystemInfo["HasHiSi"]:
 				if slot != 1:
 					image =-1
