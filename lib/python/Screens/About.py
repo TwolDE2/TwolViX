@@ -309,7 +309,7 @@ class Devices(Screen):
 					continue
 				else:
 					freeline = _("Free: ") + _("full")
-				line = "%s      %s" %(hddp, freeline)  
+				line = "%s      %s" %(hddp, freeline)
 				self.list.append(line)
 		self.list = '\n'.join(self.list)
 		self["hdd"].setText(self.list)
