@@ -114,7 +114,6 @@ class Language:
 			stat('/home/root/.config')
 		except:
 			makedirs('/home/root/.config') 
-
 		localeconf = open('/home/root/.config/locale.conf', 'w')
 		for category in ["LC_TIME", "LC_DATE", "LC_MONETARY", "LC_MESSAGES", "LC_NUMERIC", "LC_NAME", "LC_TELEPHONE", "LC_ADDRESS", "LC_PAPER", "LC_IDENTIFICATION", "LC_MEASUREMENT", "LANG" ]:
 			if category == "LANG" or (category == "LC_DATE" and exists('/usr/lib/locale/' + self.getLanguage() + '/LC_TIME')) or exists('/usr/lib/locale/' + self.getLanguage() + '/' + category):
@@ -211,9 +210,7 @@ class Language:
 					elif x == "pt":
 						if x != lang:
 							system("opkg remove --autoremove --force-depends " + Lpackagename + x)
-			
 		system("touch /etc/enigma2/.removelang")
-
 		self.InitLang()
 
 	def updateLanguageCache(self):
