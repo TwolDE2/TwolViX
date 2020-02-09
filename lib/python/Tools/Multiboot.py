@@ -2,7 +2,7 @@ from boxbranding import getMachineMtdRoot, getMachineBuild
 from Components.Console import Console
 from Components.SystemInfo import SystemInfo
 from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
-from os import mkdir, path, rmdir, remove, sep, stat
+from os import mkdir, path, rmdir, rename, remove, sep, stat
 import glob
 import shutil
 import subprocess
