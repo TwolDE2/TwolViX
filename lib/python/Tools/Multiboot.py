@@ -1,6 +1,6 @@
 from boxbranding import getMachineMtdRoot, getMachineBuild
-from Components.SystemInfo import SystemInfo
 from Components.Console import Console
+from Components.SystemInfo import SystemInfo
 from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 import os
 import glob
@@ -126,9 +126,7 @@ class GetImagelist():
 			self.imagelist[self.slot] = { 'imagename': _("Empty slot") }
 		if retval == 0 and self.phase == self.MOUNT:
 			imagedir = os.sep.join(filter(None, [TMP_MOUNT, SystemInfo["canMultiBoot"][self.slot].get('rootsubdir', '')]))
-			if not fileExists("/tmp/multibootcheck/usr/bin/enigma2"):
-				self.imagelist[self.slot] = { 'imagename': _("Empty slot") }
-			else:
+			if fileExists("/tmp/multibootcheck/usr/bin/enigma2"):
 				Creator = open("%s/etc/issue" %imagedir).readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
 				if Creator.startswith("Openvix"):
 					reader = boxbranding_reader(imagedir)
@@ -137,7 +135,7 @@ class GetImagelist():
 					Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ''
 					BuildVersion = "%s %s %s %s" % (Creator, BuildType[0:3], Build, Dev)
 				else:
-					def getImagename(target):
+					try:
 						from datetime import datetime
 						date = datetime.fromtimestamp(os.stat(os.path.join(target, "var/lib/opkg/status")).st_mtime).strftime('%Y-%m-%d')
 						if date.startswith("1970"):
@@ -146,9 +144,12 @@ class GetImagelist():
 							except:
 								pass
 							date = max(date, datetime.fromtimestamp(os.stat(os.path.join(target, "usr/bin/enigma2")).st_mtime).strftime('%Y-%m-%d'))
-						return "%s (%s)" % (open(os.path.join(target, "etc/issue")).readlines()[-2].capitalize().strip()[:-6], date)
-					BuildVersion = getImagename(imagedir)
+					except:
+						date = _("Unknown")
+					BuildVersion = "%s (%s)" % (open(os.path.join(target, "etc/issue")).readlines()[-2].capitalize().strip()[:-6], date)
 				self.imagelist[self.slot] =  { 'imagename': '%s' %BuildVersion }
+			else:
+				self.imagelist[self.slot] = { 'imagename': _("Empty slot") }
 			if self.slots and SystemInfo["canMultiBoot"][self.slot]['device'] == SystemInfo["canMultiBoot"][self.slots[0]]['device']:
 				self.slot = self.slots.pop(0)
 				self.appClosed()
