@@ -265,10 +265,11 @@ class EmptySlot():
 		self.run()
 
 	def run(self):
-		if self.phase == self.UNMOUNT:
-			self.container.ePopen('umount %s' % '/tmp/testmount', self.appClosed)
+		if SystemInfo["HasRootSubdir"]:
+			self.container.ePopen('mount /dev/block/by-name/userdata /tmp/testmount' if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
 		else:
-			self.container.ePopen('mount %s %s' %(SystemInfo["canMultiBoot"][self.slot]['device'], '/tmp/testmount'), self.appClosed)
+			self.container.ePopen('mount %s /tmp/testmount' %(SystemInfo["canMultiBoot"][self.slot]['device']) if self.phase == self.MOUNT else 'umount /tmp/testmount', self.appClosed)
+
 	
 	def appClosed(self, data, retval, extra_args):
 		if retval == 0 and self.phase == self.MOUNT:
@@ -276,8 +277,8 @@ class EmptySlot():
 				rootsub = SystemInfo["canMultiBoot"][self.slot]['rootsubdir']
 				if path.isfile("/tmp/testmount/%s/usr/bin/enigma2" %rootsub):
 					rename('/tmp/testmount/%s/usr/bin/enigma2' %rootsub, '/tmp/testmount/%s/usr/bin/enigmax.bin' %rootsub)
-			elif path.isfile('/tmp/testmount/usr/bin/enigma2'):
-					rename('tmp/testmount/usr/bin/enigma2', 'tmp/testmount/usr/bin/enigmax.bin')
+			elif path.isfile("/tmp/testmount/usr/bin/enigma2"):
+					rename('/tmp/testmount/usr/bin/enigma2', '/tmp/testmount/usr/bin/enigmax.bin')
 			else:
 				print "[multiboot2] NO enigma2 found to rename"
 			self.phase = self.UNMOUNT
