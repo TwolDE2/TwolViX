@@ -14,7 +14,7 @@ import subprocess
 # STARTUP_3		        Image 3: boot emmcflash0.kernel3 'root=/dev/mmcblk0p7 rw rootwait'	boot emmcflash0.kernel3: 'root=/dev/mmcblk0p9		boot usb0.sda3 'root=/dev/sda4
 # STARTUP_4		        Image 4: boot emmcflash0.kernel4 'root=/dev/mmcblk0p9 rw rootwait'	NOT IN USE due to Rescue mode in mmcblk0p3		NOT IN USE due to only 4 partitions on SDcard
 
-Imagemount = imagedir = '/tmp/multibootcheck'
+Imagemount = '/tmp/multibootcheck'
 
 def getMBbootdevice():
 	if not path.isdir(Imagemount):
@@ -124,6 +124,8 @@ class GetImagelist():
 		if retval == 0 and self.phase == self.MOUNT:
 			if SystemInfo["HasRootSubdir"]:
 				imagedir = ('%s/%s' %(Imagemount, SystemInfo["canMultiBoot"][self.slot]['rootsubdir']))
+			else:
+				imagedir = Imagemount
 			if path.isfile('%s/usr/bin/enigma2' %imagedir):
 				Creator = open("%s/etc/issue" %imagedir).readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
 				if Creator.startswith("Openvix"):
