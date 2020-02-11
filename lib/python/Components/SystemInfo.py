@@ -4,7 +4,10 @@ from Components.About import getChipSetString
 from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 from Tools.HardwareInfo import HardwareInfo
 
+
 SystemInfo = { }
+
+from Tools.Multiboot import getMBbootdevice, getMultibootslots
 
 def getNumVideoDecoders():
 	idx = 0
@@ -139,14 +142,14 @@ SystemInfo["CanDTSHD"] = fileHas("/proc/stb/audio/dtshd_choices", "downmix")
 SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 #	Multiboot/bootmode options
-SystemInfo["canMultiBoot"] = getMachineBuild() in ('hd51', 'h7', 'h9combo', 'multibox') and (1, 4, 'mmcblk0p') or getBoxType() in ('gbue4k', 'gbquad4k', 'gbx43k') and (3, 3, 'mmcblk0p') or getMachineBuild() in ('viper4k', 'sf8008', 'sf8008m', 'gbmv200') and fileCheck("/dev/sda") and (0, 2, 'sda') or getMachineBuild() in ('osmio4k', 'osmio4kplus', 'osmini4k') and (1, 4, 'mmcblk1p')
-SystemInfo["canBackupEMC"] = getMachineBuild() in ('hd51','h7') and ('disk.img', 'mmcblk0p1') or getMachineBuild() in ('osmio4k', 'osmio4kplus', 'osmini4k') and ('emmc.img', 'mmcblk1p1') or getMachineBuild() in ('viper4k', 'sf8008', 'sf8008m', 'gbmv200') and ('usb_update.bin','none')
-SystemInfo["canMode12"] = getMachineBuild() in ('hd51', 'h7') and ('brcm_cma=440M@328M brcm_cma=192M@768M', 'brcm_cma=520M@248M brcm_cma=200M@768M')
-SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
-SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
 SystemInfo["HasHiSi"] = pathExists('/proc/hisi')
-SystemInfo["HasSDmmc"] = SystemInfo["canMultiBoot"] and "sd" in SystemInfo["canMultiBoot"][2] and "mmcblk" in getMachineMtdRoot() 
-SystemInfo["HasSDnomount"] = getMachineBuild() in ('h9', 'i55plus') and ('No', 'none') or getMachineBuild() in ('multibox', 'h9combo') and ('Yes', 'mmcblk0')
 SystemInfo["HasRootSubdir"] = fileHas("/proc/cmdline", "rootsubdir=")
+SystemInfo["MBbootdevice"] = getMBbootdevice()
+SystemInfo["canMultiBoot"] = getMultibootslots()
+SystemInfo["canBackupEMC"] = getMachineBuild() in ('hd51','h7') and ('disk.img', '%s' %SystemInfo["MBbootdevice"]) or getMachineBuild() in ('osmio4k', 'osmio4kplus', 'osmini4k') and ('emmc.img', '%s' %SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ('usb_update.bin','none')
+SystemInfo["canMode12"] = getMachineBuild() in ('hd51', 'h7') and ('brcm_cma=440M@328M brcm_cma=192M@768M', 'brcm_cma=520M@248M brcm_cma=200M@768M')
+SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
+SystemInfo["HasSDnomount"] = getMachineBuild() in ('h9', 'i55plus') and ('No', 'none') or getMachineBuild() in ('multibox', 'h9combo') and ('Yes', 'mmcblk0')
+SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
 SystemInfo["RecoveryMode"] = SystemInfo["HasRootSubdir"] and getMachineBuild() not in ('hd51','h7') or fileCheck("/proc/stb/fp/boot_mode")
 SystemInfo["AndroidMode"] = SystemInfo["RecoveryMode"] and getMachineBuild() in ('multibox',)
