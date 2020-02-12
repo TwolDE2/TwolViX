@@ -30,9 +30,7 @@ for cislot in range (0, SystemInfo["CommonInterface"]):
 	SystemInfo["CI%dSupportsHighBitrates" % cislot] = fileCheck("/proc/stb/tsmux/ci%d_tsclk"  % cislot)
 	SystemInfo["CI%dRelevantPidsRoutingSupport" % cislot] = fileCheck("/proc/stb/tsmux/ci%d_relevant_pids_routing"  % cislot)
 SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
-SystemInfo["Udev"] = not fileExists("/dev/.devfsd")
 SystemInfo["PIPAvailable"] = getMachineBuild() not in ("i55plus") and SystemInfo["NumVideoDecoders"] > 1
-
 # General Hardware
 SystemInfo["Udev"] = not fileExists("/dev/.devfsd")
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
@@ -43,11 +41,12 @@ SystemInfo["Fan"] = fileCheck("/proc/stb/fp/fan")
 SystemInfo["FanPWM"] = SystemInfo["Fan"] and fileCheck("/proc/stb/fp/fan_pwm")
 SystemInfo["SABSetup"] = fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/SABnzbd/plugin.pyo")
 SystemInfo["WakeOnLAN"] = getBoxType() not in ('et8000', 'et10000') and fileCheck("/proc/stb/power/wol") or fileCheck("/proc/stb/fp/wol")
-
+SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
 #	Sat Config
 SystemInfo["Blindscan_t2_available"] = fileCheck("/proc/stb/info/vumodel")
 SystemInfo["Blindscan"] = fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/Blindscan/plugin.pyo")
 SystemInfo["Satfinder"] = fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/Satfinder/plugin.pyo")
+SystemInfo["LnbPowerAlwaysOn"] = getBoxType() in ('vusolo4k', 'vuduo4k', 'vuultimo4k', 'vuuno4k')
 # 	LED/LCD
 SystemInfo["7segment"] = getDisplayType() in ('7segment')
 SystemInfo["FrontpanelDisplay"] = fileExists("/dev/dbox/oled0") or fileExists("/dev/dbox/lcd0")
@@ -113,9 +112,8 @@ SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable har
 	) or ( # default modes (neither 2160p nor 1080p capable hardware)
 		["720p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
 		{"720p", "1080i"} # widescreen modes
-)
+	)
 # VideoAudioOptions
-SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
 SystemInfo["CanProc"] = SystemInfo["HasMMC"] and getBrandOEM() != "vuplus"
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
 SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz")
