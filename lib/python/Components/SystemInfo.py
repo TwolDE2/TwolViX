@@ -1,17 +1,17 @@
-from enigma import eDVBResourceManager, Misc_Options, eDVBCIInterfaces
 from boxbranding import getMachineBuild, getBoxType, getBrandOEM, getDisplayType, getHaveRCA, getHaveYUV, getHaveSCART, getHaveAVJACK, getHaveHDMIinHD, getHaveHDMIinFHD, getMachineMtdRoot
+from enigma import eDVBResourceManager, Misc_Options, eDVBCIInterfaces
+
 from Components.About import getChipSetString
 from Tools.Directories import fileExists, fileCheck, pathExists, fileHas
 from Tools.HardwareInfo import HardwareInfo
 
+SystemInfo = {}
 
-SystemInfo = { }
-
-from Tools.Multiboot import getMBbootdevice, getMultibootslots
+from Tools.Multiboot import getMBbootdevice, getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
 
 def getNumVideoDecoders():
 	idx = 0
-	while fileExists("/dev/dvb/adapter0/video%d"% idx, 'f'):
+	while fileExists("/dev/dvb/adapter0/video%d" % idx, "f"):
 		idx += 1
 	return idx
 
@@ -139,7 +139,7 @@ SystemInfo["CanDownmixDTS"] = fileHas("/proc/stb/audio/dts_choices", "downmix")
 SystemInfo["CanDTSHD"] = fileHas("/proc/stb/audio/dtshd_choices", "downmix")
 SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
-#	Multiboot/bootmode options
+#	Multiboot/bootmode options	The following entries need to be in this sequence to avoid a SystemInfo failure.
 SystemInfo["HasHiSi"] = pathExists('/proc/hisi')
 SystemInfo["HasRootSubdir"] = fileHas("/proc/cmdline", "rootsubdir=")
 SystemInfo["MBbootdevice"] = getMBbootdevice()
