@@ -100,8 +100,6 @@ class MultiBoot(Screen):
 						list.append(ChoiceEntryComponent('',((_("slot%s -%s (current image)") if x == currentimageslot else _("slot%s -%s")) % (x, imagedict[x]['imagename']), x)))
 					else:
 						list.insert(index, ChoiceEntryComponent('',((_("slot%s - %s mode 1 (current image)") if x == currentimageslot and mode != 12 else _("slot%s - %s mode 1")) % (x, imagedict[x]['imagename']), x)))
-						list.append("                                 ")
-						list.append("                                 ")
 						list.append(ChoiceEntryComponent('',((_("slot%s - %s mode 12 (current image)") if x == currentimageslot and mode == 12 else _("slot%s - %s mode 12")) % (x, imagedict[x]['imagename']), x + 12)))
 		else:
 			list.append(ChoiceEntryComponent('',((_("No images found")), "Waiter")))
@@ -111,23 +109,18 @@ class MultiBoot(Screen):
 		self.currentSelected = self["config"].l.getCurrentSelection()
 		self.slot = self.currentSelected[0][1]
 		if self.currentSelected[0][1] != "Queued":
-			if self.slot == "Recovery":
-				copyfile("/tmp/startupmount/STARTUP_RECOVERY", "/tmp/startupmount/STARTUP")
-			elif self.slot == "Android":
-				copyfile("/tmp/startupmount/STARTUP_ANDROID", "/tmp/startupmount/STARTUP")
+			if self.slot < 12:
+				startupfile = "/tmp/startupmount/%s" % SystemInfo["canMultiBoot"][self.slot]['startupfile']
+				copyfile(startupfile, "/tmp/startupmount/STARTUP")
 			else:
-				if self.slot < 12:
-					startupfile = "/tmp/startupmount/%s" % SystemInfo["canMultiBoot"][self.slot]['startupfile'].replace("boxmode=12'", "boxmode=1'")
-					copyfile(startupfile, "/tmp/startupmount/STARTUP")
+				self.slot -=12
+				startupfile = "/tmp/startupmount/%s" % SystemInfo["canMultiBoot"][self.slot]['startupfile']replace("BOXMODE_1", "BOXMODE_12")
+				if "BOXMODE" not in startupfile:
+					f = open('%s' %startupfile, 'r').read().replace("boxmode=1'", "boxmode=12'").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
+					open('/tmp/startupmount/STARTUP', 'w').write(f)
+					self.session.open(TryQuitMainloop, 2)
 				else:
-					self.slot -=12
-					startupfile = "/tmp/startupmount/%s" % SystemInfo["canMultiBoot"][self.slot]['startupfile']
-					if "BOXMODE" not in startupfile:
-						f = open('%s' %startupfile, 'r').read().replace("boxmode=1'", "boxmode=12'").replace("%s" %SystemInfo["canMode12"][0], "%s" %SystemInfo["canMode12"][1])
-						open('/tmp/startupmount/STARTUP', 'w').write(f)
-						self.session.open(TryQuitMainloop, 2)
-					else:
-						copyfile(startupfile, "/tmp/startupmount/STARTUP")
+					copyfile(startupfile, "/tmp/startupmount/STARTUP")
 			self.session.open(TryQuitMainloop, 2)
 
 
