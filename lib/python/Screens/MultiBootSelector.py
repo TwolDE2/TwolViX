@@ -110,7 +110,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 						indextot = index+1
 					else:
 						list.append(ChoiceEntryComponent("", (slotSingle % (x, imagedict[x]["imagename"], current if x == currentimageslot else ""), x)))
-			if ystemInfo["canMode12"]:
+			if SystemInfo["canMode12"]:
 					list.insert(indextot, "                                 ")
 		else:
 			list.append(ChoiceEntryComponent("", ((_("No images found")), "Waiter")))
