@@ -46,14 +46,14 @@ class IconCheckPoller:
 		self.timer.startLongTimer(30)
 
 	def JobTask(self):
-		LinkState = 0
+		LinkState = "0"
 		if fileExists('/sys/class/net/wlan0/operstate'):
 			LinkState = open('/sys/class/net/wlan0/operstate').read()
-			if LinkState != 'down':
-				LinkState = open('/sys/class/net/wlan0/operstate').read()
+			if 'down' not in LinkState:
+				LinkState = open('/sys/class/net/wlan0/carrier').read()
 		elif fileExists('/sys/class/net/eth0/operstate'):
 			LinkState = open('/sys/class/net/eth0/operstate').read()
-			if LinkState != 'down':
+			if 'down' not in LinkState:
 				LinkState = open('/sys/class/net/eth0/carrier').read()
 		LinkState = LinkState[:1]
 		if fileExists("/proc/stb/lcd/symbol_network") and config.lcd.mode.value == '1':
