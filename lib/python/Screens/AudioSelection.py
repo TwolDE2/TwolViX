@@ -450,7 +450,6 @@ class AudioSelection(Screen, ConfigListScreen):
 	def read_choices(self, procx):
 		with open(procx, 'r') as self.myfile:
 			self.choices = self.myfile.read().strip()
-		self.myfile.close()
 		if self.choices:
 			self.choiceslist = self.choices.split(" ")
 			self.choicesx = [(item, _("%s") % item) for item in self.choiceslist]

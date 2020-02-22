@@ -1,24 +1,22 @@
-from Screens.Screen import Screen
-from Components.GUIComponent import GUIComponent
-from Components.VariableText import VariableText
-from Components.ActionMap import ActionMap
-from Components.Label import Label
-from Components.Button import Button
-from Components.FileList import FileList
-from Components.MenuList import MenuList
-from Components.ScrollLabel import ScrollLabel
-from Components.config import config, configfile
-from Components.FileList import MultiFileSelectList
-from Screens.MessageBox import MessageBox
+from datetime import datetime
+from glob import glob
 from os import path, remove, walk, stat, rmdir
 from time import time, ctime
-from datetime import datetime
 from enigma import eTimer, eBackgroundFileEraser, eLabel, getDesktop, gFont, fontRenderClass
-from Tools.TextBoundary import getTextBoundarySize
-from glob import glob
-from skin import getSkinFactor
-
+from Components.ActionMap import ActionMap
+from Components.Button import Button
+from Components.config import config, configfile
+from Components.FileList import FileList, MultiFileSelectList
+from Components.GUIComponent import GUIComponent
+from Components.Label import Label
+from Components.MenuList import MenuList
+from Components.ScrollLabel import ScrollLabel
 import Components.Task
+from Components.VariableText import VariableText
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from skin import getSkinFactor
+from Tools.TextBoundary import getTextBoundarySize
 
 # Import smtplib for the actual sending function
 import smtplib, base64
@@ -114,11 +112,10 @@ class LogManagerPoller:
 		mounts = []
 		matches = []
 		print "[LogManager] probing folders"
-		f = open('/proc/mounts', 'r')
-		for line in f.readlines():
-			parts = line.strip().split()
-			mounts.append(parts[1])
-		f.close()
+		with open('/proc/mounts', 'r') as f:
+			for line in f.readlines():
+				parts = line.strip().split()
+				mounts.append(parts[1])
 
 		if (datetime.now().hour == 3) or (time() - config.crash.lastfulljobtrashtime.value > 3600 * 24):
 			#full JobTrash (in all potential log file dirs) between 03:00 and 04:00 AM / every 24h

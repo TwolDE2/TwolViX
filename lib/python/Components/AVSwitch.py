@@ -595,7 +595,6 @@ def InitAVSwitch():
 	def read_choices(procx, defchoice):
 		with open(procx, 'r') as myfile:
 			choices = myfile.read().strip()
-		myfile.close()
 		if choices:
 			choiceslist = choices.split(" ")
 			choicesx = [(item, _("%s") % item) for item in choiceslist]

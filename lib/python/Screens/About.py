@@ -695,9 +695,13 @@ class AboutSummary(Screen):
 
 		AboutText = _("Model: %s %s\n") % (getMachineBrand(), getMachineName())
 
-		if path.exists('/proc/stb/info/chipset'):
-			chipset = open('/proc/stb/info/chipset', 'r').read()
-			AboutText += _("Chipset: BCM%s") % chipset.replace('\n', '') + "\n"
+		if about.getChipSetString() != _("unavailable"):
+			if SystemInfo["HasHiSi"]:
+				AboutText += _("Chipset:\tHiSilicon %s\n") % about.getChipSetString().upper()
+			elif about.getIsBroadcom():
+				AboutText += _("Chipset:\tBroadcom %s\n") % about.getChipSetString().upper()
+			else:
+				AboutText += _("Chipset:\t%s\n") % about.getChipSetString().upper()
 
 		AboutText += _("Version: %s") % getImageVersion() + "\n"
 		AboutText += _("Build: %s") % getImageBuild() + "\n"
@@ -713,12 +717,17 @@ class AboutSummary(Screen):
 
 		tempinfo = ""
 		if path.exists('/proc/stb/sensors/temp0/value'):
-			tempinfo = open('/proc/stb/sensors/temp0/value', 'r').read()
+			with open('/proc/stb/sensors/temp0/value', 'r') as f:
+				tempinfo = f.read()
 		elif path.exists('/proc/stb/fp/temp_sensor'):
-			tempinfo = open('/proc/stb/fp/temp_sensor', 'r').read()
+			with open('/proc/stb/fp/temp_sensor', 'r') as f:
+				tempinfo = f.read()
+		elif path.exists('/proc/stb/sensors/temp/value'):
+			with open('/proc/stb/sensors/temp/value', 'r') as f:
+				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace('\n', '')) > 0:
 			mark = str('\xc2\xb0')
-			AboutText += _("System temperature: %s") % tempinfo.replace('\n', '') + mark + "C\n\n"
+			AboutText += _("System temp:\t%s") % tempinfo.replace('\n', '').replace(' ','') + mark + "C\n"
 
 		self["AboutText"] = StaticText(AboutText)
 
