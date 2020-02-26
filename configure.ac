@@ -362,7 +362,7 @@ if test "$BOXTYPE" == "sf8008" -o "$BOXTYPE" == "sf8008m" -o "$BOXTYPE" == "gbmv
 	AC_DEFINE(HAVE_HISILICON, 1,[define add HISILICON chip])
 	AC_DEFINE(CONFIG_HISILICON_FB, 1,[define add HISILICON framebuffer blit])
 	AC_DEFINE(FORCE_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])	
-	AC_DEFINE(VMSG_TYPE2, 1,[define vtuner_message type 2])
+	AC_DEFINE(TUNER_FBC, 1,[define vtuner_message type 2])
 fi	
 
 if test "$BOXTYPE" == "u5" -o "$BOXTYPE" == "u5pvr" -o "$BOXTYPE" == "u51" -o "$BOXTYPE" == "u52" -o "$BOXTYPE" == "u53" -o "$BOXTYPE" == "u55" -o "$BOXTYPE" == "u532" -o "$BOXTYPE" == "u533"; then
