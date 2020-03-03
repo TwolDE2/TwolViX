@@ -203,7 +203,7 @@ def InitLcd():
 	else:
 		can_lcdmodechecking = False
 
-	if SystemInfo["PowerLed"]:
+	if SystemInfo["PowerLED"]:
 		def setPowerLEDstate(configElement):
 			if fileExists("/proc/stb/power/powerled"):
 				f = open("/proc/stb/power/powerled", "w")
