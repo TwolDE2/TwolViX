@@ -292,6 +292,7 @@ class Devices(Screen):
 		self.hddlist = harddiskmanager.HDDList()
 		self.list = []
 		if self.hddlist:
+			print "[About] hddlist = %s" %(self.hddlist)
 			for count in range(len(self.hddlist)):
 				hdd = self.hddlist[count][1]
 				hddp = self.hddlist[count][0]
