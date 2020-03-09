@@ -530,7 +530,9 @@ class Harddisk:
 		else:
 			ret = self.bus()
 			if "(SD/MMC)" not in ret:
-				runCommand("sdparm --set=SCT=0 %s" % self.disk_path)
+				exitCode = runCommand("sdparm --set=SCT=0 %s" % self.disk_path)
+				if exitCode:
+					runCommand("hdparm -S0 %s" % self.disk_path)
 		self.timer = eTimer()
 		self.timer.callback.append(self.runIdle)
 		self.idle_running = True
@@ -557,7 +559,9 @@ class Harddisk:
 		else:
 			ret = self.bus()
 			if "(SD/MMC)" not in ret:
-				runCommand("sdparm --flexible --readonly --command=stop %s" % self.disk_path)
+				exitCode = runCommand("sdparm --flexible --readonly --command=stop %s" % self.disk_path)
+				if exitCode:
+					runCommand("hdparm -y %s" % self.disk_path)
 
 	def setIdleTime(self, idle):
 		self.max_idle_time = idle
@@ -660,12 +664,12 @@ class HarddiskManager:
 			try:
 				physicalDevice = os.path.realpath(os.path.join("/sys/block", device, "device"))
 			except (IOError, OSError) as err:
-				print "[Harddisk] Error: Couldn't determine physicalDevice for device '%s':" % device, err
+				# print "[Harddisk] Error: Couldn't determine physicalDevice for device '%s':" % device, err
 				continue
 			devicePath = os.path.join("/sys/block/", device)
 			data = readFile(os.path.join(devicePath, "dev"))  # This is the device's major and minor device numbers.
 			if data is None:
-				print "[Harddisk] Error: Device '%s' (%s) does not appear to have valid device numbers!" % (device, physicalDevice)
+				# print "[Harddisk] Error: Device '%s' (%s) does not appear to have valid device numbers!" % (device, physicalDevice)
 				continue
 			devMajor = int(data.split(":")[0])
 			if devMajor in blacklistedDisks:
@@ -687,7 +691,7 @@ class HarddiskManager:
 				self.cd = devicePath
 				self.partitions.append(Partition(mountpoint=self.getMountpoint(device), description=description, forceMounted=True, device=device))
 				# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, forceMounted=True, device=%s)" % (self.getMountpoint(device), description, device)
-				print "[Harddisk] Device '%s' (%s) is an optical disk." % (device, physicalDevice)
+				# print "[Harddisk] Device '%s' (%s) is an optical disk." % (device, physicalDevice)
 			data = readFile(os.path.join(devicePath, "removable"))
 			removable = False if data is None else bool(int(data))
 			# if removable:
@@ -724,7 +728,7 @@ class HarddiskManager:
 		self.hdd.sort()
 
 	def enumerateNetworkMounts(self):
-		print "[Harddisk] Enumerating network mounts..."
+		# print "[Harddisk] Enumerating network mounts..."
 		for entry in sorted(os.listdir("/media")):
 			mountEntry = os.path.join("/media", entry)
 			mounts = os.listdir(mountEntry)
@@ -733,7 +737,7 @@ class HarddiskManager:
 					mountDir = os.path.join(mountEntry, mount, "")
 					# print "[Harddisk] enumerateNetworkMountsNew DEBUG: mountDir='%s', isMount='%s'" % (mountDir, os.path.ismount(mountDir))
 					if os.path.ismount(mountDir) and mountDir not in [x.mountpoint for x in self.partitions]:
-						print "[Harddisk] Network mount (%s) '%s' -> '%s'." % (entry, mount, mountDir)
+						# print "[Harddisk] Network mount (%s) '%s' -> '%s'." % (entry, mount, mountDir)
 						self.partitions.append(Partition(mountpoint=mountDir, description=mount))
 						# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s)" % (mountDir, mount)
 
