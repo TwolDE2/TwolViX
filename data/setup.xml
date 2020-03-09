@@ -401,5 +401,8 @@
 	<setup key="wizardoptions" title="Common options">
 		<item level="0" text="Picons: Show in channel list" description="Configure if service picons will be shown in the channel selection list.">config.usage.service_icon_enable</item>
 	</setup>
-
+	<setup key="languagesettings" title="Language Selection Settings" titleshort="Language">
+		<item level="0" text="Locales to be displayed" description="Display the base locales or all locales for a language.">config.locales.packageLocales</item>
+		<item level="0" text="Locale list sort order" description="Sort order for the language list.">config.locales.localesSortBy</item>
+	</setup>
 </setupxml>
