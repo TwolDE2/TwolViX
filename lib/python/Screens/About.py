@@ -1,4 +1,4 @@
-from os import path
+from os import listdir, path 
 from re import search
 from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
@@ -330,7 +330,10 @@ class Devices(Screen):
 				if self.mountinfo:
 					self.mountinfo += "\n"
 				self.mountinfo += "%s (%sB, %sB %s)" % (ipaddress, mounttotal, mountfree, _("free"))
-
+		if pathExists("/media/autofs"):
+			for entry in sorted(listdir("/media/autofs")):
+				mountEntry = path.join("/media/autofs", entry)
+				self.mountinfo += _("\n %s is also enabled for autofs network mount" % (mountEntry))
 		if self.mountinfo:
 			self["mounts"].setText(self.mountinfo)
 		else:
