@@ -341,7 +341,7 @@ int main(int argc, char **argv)
 	eRCInput::getInstance()->keyEvent.connect(sigc::ptr_fun(&keyEvent));
 
 	printf("[MAIN] executing main\n");
-
+	/* comment out next 2 lines to catch sigp and cause dump */
 	bsodCatchSignals();
 	catchTermSignal();
 
