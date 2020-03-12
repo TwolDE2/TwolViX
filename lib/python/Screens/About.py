@@ -1,4 +1,4 @@
-from os import listdir, path 
+from os import listdir, path
 from re import search
 from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
@@ -731,7 +731,7 @@ class AboutSummary(Screen):
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace('\n', '')) > 0:
 			mark = str('\xc2\xb0')
-			AboutText += _("System temp:\t%s") % tempinfo.replace('\n', '').replace(' ','') + mark + "C\n"
+			AboutText += _("System temperature: %s") % tempinfo.replace('\n', '') + mark + "C\n\n"
 
 		self["AboutText"] = StaticText(AboutText)
 
