@@ -1083,6 +1083,7 @@ class EPGSelection(Screen, HelpableScreen):
 			serviceref = cur[1]
 			addAutotimerFromEvent(self.session, evt=event, service=serviceref)
 			self.refreshTimer.start(3000)
+			self.getCurrentCursorLocation = self['list'].getCurrentCursorLocation()
 		except ImportError:
 			self.session.open(MessageBox, _('The AutoTimer plugin is not installed!\nPlease install it.'), type=MessageBox.TYPE_INFO, timeout=10)
 
@@ -1095,6 +1096,7 @@ class EPGSelection(Screen, HelpableScreen):
 				return
 			serviceref = cur[1]
 			addAutotimerFromEventSilent(self.session, evt=event, service=serviceref)
+			self.getCurrentCursorLocation = self['list'].getCurrentCursorLocation()
 			self.refreshTimer.start(3000)
 		except ImportError:
 			self.session.open(MessageBox, _('The Autotimer plugin is not installed!\nPlease install it.'), type=MessageBox.TYPE_INFO, timeout=10)
