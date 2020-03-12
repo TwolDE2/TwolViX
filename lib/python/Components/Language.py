@@ -8,7 +8,6 @@ from os import environ, listdir, strerror
 from os.path import exists, expanduser, join as pathjoin
 from subprocess import Popen, PIPE
 from time import localtime, strftime, time
-
 from Tools.Directories import resolveFilename, SCOPE_LANGUAGE
 
 def _(x):

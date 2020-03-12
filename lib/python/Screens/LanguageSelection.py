@@ -3,7 +3,7 @@ import xml.etree.cElementTree
 
 from skin import domScreens
 from Components.ActionMap import HelpableActionMap
-from Components.config import config, ConfigSubsection, ConfigSelection
+from Components.config import config, configfile, ConfigSubsection, ConfigSelection
 from Components.Label import Label
 from Components.Language import language
 from Components.Pixmap import Pixmap
@@ -318,8 +318,9 @@ class LanguageSelection(Screen, HelpableScreen):
 
 	def apply(self):
 		# language.activateLocale(self.currentLocale, runCallbacks=True)
-		config.osd.language.value = self.currentLocale
+		config.osd.language.setValue(self.currentLocale)
 		config.osd.language.save()
+		configfile.save()
 		self.close()
 
 	def manage(self):
@@ -407,7 +408,6 @@ class LanguageWizard(LanguageSelection, Rc):
 		global inWizard
 		inWizard = True
 		self.onLayoutFinish.append(self.selectKeys)
-
 		self["wizard"] = Pixmap()
 		self["summarytext"] = StaticText()
 		self["text"] = Label()
