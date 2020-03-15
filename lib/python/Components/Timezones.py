@@ -2,7 +2,6 @@ import errno
 import time
 import xml.etree.cElementTree
 
-from enigma import eTimer
 from os import environ, path, symlink, unlink, walk
 
 from Components.config import ConfigSelection, ConfigSubsection, config
@@ -11,7 +10,7 @@ from Tools.StbHardware import setRTCoffset
 
 # The DEFAULT_AREA setting is usable by the image maintainers to select the
 # default UI mode and location settings used by their image.  If the value
-# of "Classic" is used then images that use the "Timezone area" and 
+# of "Classic" is used then images that use the "Timezone area" and
 # "Timezone" settings will have the "Timezone area" set to "Classic" and the
 # "Timezone" field will be an expanded version of the classic list of GMT
 # related offsets.  Images that only use the "Timezone" setting should use
@@ -31,7 +30,7 @@ from Tools.StbHardware import setRTCoffset
 # options then the DEFAULT_AREA can be set to an area most appropriate for
 # the image.  For example, Beyonwiz would use "Australia", OpenATV, OpenViX
 # and OpenPLi would use "Europe".  If the "Europe" option is selected then
-# the DEFAULT_ZONE can be used to select a more appropriate timezone 
+# the DEFAULT_ZONE can be used to select a more appropriate timezone
 # selection for the image.  For example, OpenATV and OpenPLi may prefer
 # "Berlin" while OpenViX may prefer "London".
 #
@@ -47,17 +46,21 @@ from Tools.StbHardware import setRTCoffset
 # DEFAULT_AREA = "Australia"  # Beyonwiz
 DEFAULT_AREA = "Europe"  # OpenATV, OpenPLi, OpenViX
 DEFAULT_ZONE = "Berlin"  # OpenATV, OpenPLi, Twol
-# DEFAULT_ZONE = "London"  # OpenViX
+#DEFAULT_ZONE = "London"  # OpenViX
 TIMEZONE_FILE = "/etc/timezone.xml"  # This should be SCOPE_TIMEZONES_FILE!  This file moves arond the filesystem!!!  :(
 TIMEZONE_DATA = "/usr/share/zoneinfo/"  # This should be SCOPE_TIMEZONES_DATA!
-AT_POLL_DELAY = 3  # Minutes
 
 def InitTimeZones():
 	tz = geolocation.get("timezone", None)
-	if tz is None:
+	proxy = geolocation.get("proxy", False)
+	if tz is None or proxy is True:
 		area = DEFAULT_AREA
 		zone = timezones.getTimezoneDefault(area=area)
-		print "[Timezones] Geolocation not available!  (area='%s', zone='%s')" % (area, zone)
+		if proxy:
+			msg = " - proxy in use"
+		else:
+			msg = ""
+		print "[Timezones] Geolocation not available%s!  (area='%s', zone='%s')" % (msg, area, zone)
 	elif DEFAULT_AREA == "Classic":
 		area = "Classic"
 		zone = tz
@@ -68,11 +71,6 @@ def InitTimeZones():
 	config.timezone = ConfigSubsection()
 	config.timezone.area = ConfigSelection(default=area, choices=timezones.getTimezoneAreaList())
 	config.timezone.val = ConfigSelection(default=timezones.getTimezoneDefault(), choices=timezones.getTimezoneList())
-	if not config.timezone.area.saved_value:
-		config.timezone.area.value = area
-	if not config.timezone.val.saved_value:
-		config.timezone.val.value = zone
-	config.timezone.save()
 
 	def timezoneAreaChoices(configElement):
 		choices = timezones.getTimezoneList(area=configElement.value)
@@ -93,11 +91,12 @@ class Timezones:
 		self.timezones = {}
 		self.loadTimezones()
 		self.readTimezones()
-		self.autotimerCheck()
-		if self.autotimerPollDelay is None:
-			self.autotimerPollDelay = AT_POLL_DELAY
-		self.timer = eTimer()
-		self.autotimerUpdate = False
+		self.callbacks = []
+		# This is a work around to maintain support of AutoTimers
+		# until AutoTimers are updated to use the Timezones
+		# callbacks.  Once AutoTimers are updated *all* AutoTimer
+		# code should be removed from the Timezones.py code!
+		self.autotimerInit()
 
 	# Scan the zoneinfo directory tree and all load all timezones found.
 	#
@@ -136,8 +135,11 @@ class Timezones:
 				tz = "%s/%s" % (base, file)
 				area, zone = tz.split("/", 1)
 				name = commonTimezoneNames.get(tz, zone)  # Use the more common name if one is defined.
+				area = area.encode(encoding="UTF-8", errors="ignore")
+				zone = zone.encode(encoding="UTF-8", errors="ignore")
 				if name is None:
 					continue
+				name = name.encode(encoding="UTF-8", errors="ignore")
 				zones.append((zone, name.replace("_", " ")))
 			if area:
 				if area in self.timezones:
@@ -199,6 +201,8 @@ class Timezones:
 			for zone in root.findall("zone"):
 				name = zone.get("name", "")
 				zonePath = zone.get("zone", "")
+				name = name.encode(encoding="UTF-8", errors="ignore")
+				zonePath = zonePath.encode(encoding="UTF-8", errors="ignore")
 				if path.exists(path.join(TIMEZONE_DATA, zonePath)):
 					zones.append((zonePath, name))
 				else:
@@ -238,14 +242,8 @@ class Timezones:
 			choices = self.getTimezoneList(area=area)
 		return areaDefaultZone.setdefault(area, choices[0][0])
 
-	def activateTimezone(self, zone, area):
+	def activateTimezone(self, zone, area, runCallbacks=True):
 		# print "[Timezones] activateTimezone DEBUG: Area='%s', Zone='%s'" % (area, zone)
-		self.autotimerCheck()
-		if self.autotimerAvailable and config.plugins.autotimer.autopoll.value:
-			print "[Timezones] Trying to stop main AutoTimer poller."
-			if self.autotimerPoller is not None:
-				self.autotimerPoller.stop()
-			self.autotimerUpdate = True
 		tz = zone if area in ("Classic", "Generic") else path.join(area, zone)
 		file = path.join(TIMEZONE_DATA, tz)
 		if not path.isfile(file):
@@ -272,44 +270,55 @@ class Timezones:
 			e_tzset()
 		if path.exists("/proc/stb/fp/rtc_offset"):
 			setRTCoffset()
-		if self.autotimerAvailable and config.plugins.autotimer.autopoll.value:
-			if self.autotimerUpdate:
-				self.timer.stop()
-			if self.autotimeQuery not in self.timer.callback:
-				self.timer.callback.append(self.autotimeQuery)
-			print "[Timezones] AutoTimer poller will be run in %d minutes." % AT_POLL_DELAY
-			self.timer.startLongTimer(AT_POLL_DELAY * 60)
+		if runCallbacks:
+			for method in self.callbacks:
+				if method:
+					method()
 
-	def autotimerCheck(self):
+	def addCallback(self, callback):
+		if callback not in self.callbacks:
+			self.callbacks.append(callback)
+
+	def removeCallback(self, callback):
+		if callback in self.callbacks:
+			self.callbacks.remove(callback)
+
+	def autotimerInit(self):  # This code should be moved into the AutoTimer plugin!
 		try:
 			# Create attributes autotimer & autopoller for backwards compatibility.
 			# Their use is deprecated.
+			from enigma import eTimer
 			from Plugins.Extensions.AutoTimer.plugin import autotimer, autopoller
 			self.autotimerPoller = autopoller
 			self.autotimerTimer = autotimer
-			self.autotimerAvailable = True
+			self.pollDelay = 3  # Poll delay in minutes.
+			try:
+				self.autotimerPollDelay = config.plugins.autotimer.delay.value
+			except AttributeError:
+				self.autotimerPollDelay = self.pollDelay
+			self.timer = eTimer()
+			self.timer.callback.append(self.autotimeQuery)
+			self.addCallback(self.autotimerCallback)
 		except ImportError:
 			self.autotimerPoller = None
 			self.autotimerTimer = None
-			self.autotimerAvailable = False
-		try:
-			self.autotimerPollDelay = config.plugins.autotimer.delay.value
-		except AttributeError:
-			self.autotimerPollDelay = None
+
+	def autotimerCallback(self):
+		if config.plugins.autotimer.autopoll.value:
+			self.timer.stop()
+			print "[Timezones] Trying to stop main AutoTimer poller."
+			if self.autotimerPoller is not None:
+				self.autotimerPoller.stop()
+			print "[Timezones] AutoTimer poller will be run in %d minutes." % self.pollDelay
+			self.timer.startLongTimer(self.pollDelay * 60)
 
 	def autotimeQuery(self):
 		print "[Timezones] AutoTimer poll is running."
-		self.autotimerUpdate = False
-		if self.autotimeQuery in self.timer.callback:
-			self.timer.callback.remove(self.autotimeQuery)
-		self.timer.stop()
-		self.autotimerCheck()
-		if self.autotimerAvailable:
-			if self.autotimerTimer is not None:
-				print "[Timezones] AutoTimer is parseing the EPG."
-				self.autotimerTimer.parseEPG(autoPoll=True)
-			if self.autotimerPoller is not None:
-				self.autotimerPoller.start()
+		if self.autotimerTimer is not None:
+			print "[Timezones] AutoTimer is parsing the EPG."
+			self.autotimerTimer.parseEPG(autoPoll=True)
+		if self.autotimerPoller is not None:
+			self.autotimerPoller.start()
 
 
 timezones = Timezones()

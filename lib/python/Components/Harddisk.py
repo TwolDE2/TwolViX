@@ -678,12 +678,12 @@ class HarddiskManager:
 			if devMajor == 179 and not SystemInfo["HasSDnomount"]:
 				# print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) doesn't have 'HasSDnomount' set." % (devMajor, device, physicalDevice)
 				continue
-			if devMajor == 179 and devMajor == rootMajor and SystemInfo["HasSDnomount"][0] == "No":
-				# print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) is the root disk." % (devMajor, device, physicalDevice)
+			if devMajor == 179 and devMajor == rootMajor and not SystemInfo["HasSDnomount"][0]:
+				print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) is the root disk." % (devMajor, device, physicalDevice)
 				continue
-			# if device.startswith(SystemInfo["HasSDnomount"][1]) and SystemInfo["HasSDnomount"][0] == "Yes":
-			if device.startswith("mmcblk0") and SystemInfo["HasSDnomount"][0] == "Yes":
-				# print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) starts with 'mmcblk0' and has 'HasSDnomount' set." % (devMajor, device, physicalDevice)
+			# if device.startswith(SystemInfo["HasSDnomount"][1]) and SystemInfo["HasSDnomount"][0]:
+			if SystemInfo["HasSDnomount"] and device.startswith("%s" %(SystemInfo["HasSDnomount"][1]) ) and SystemInfo["HasSDnomount"][0]:
+				print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) starts with 'mmcblk0' and has 'HasSDnomount' set." % (devMajor, device, physicalDevice)
 				continue
 			description = self.getUserfriendlyDeviceName(device, physicalDevice)
 			isCdrom = devMajor in opticalDisks or device.startswith("sr")
