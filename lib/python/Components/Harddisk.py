@@ -273,7 +273,7 @@ class Harddisk:
 				stat = os.statvfs(dev)
 				return (stat.f_bfree / 1000) * (stat.f_bsize / 1000)
 			except (IOError, OSError):
-				# print "[Harddisk] Error: Failed to get free space for '%s':" % dev, err
+				print "[Harddisk] Error: Failed to get free space for '%s':" % dev, err
 		return -1
 
 	def totalFree(self):
@@ -371,7 +371,7 @@ class Harddisk:
 				for i in range(9):  # Delete first 9 sectors, which will likely kill the first partition too.
 					fd.write(zero)
 		except (IOError, OSError) as err:
-			# print "[Harddisk] Error: Failed to wipe partition table on '%s':" % self.dev_path, err
+			print "[Harddisk] Error: Failed to wipe partition table on '%s':" % self.dev_path, err
 
 	def killPartition(self, n):
 		zero = 512 * "\0"
@@ -381,7 +381,7 @@ class Harddisk:
 				for i in range(3):
 					fd.write(zero)
 		except (IOError, OSError) as err:
-			# print "[Harddisk] Error: Failed to wipe partition on '%s':" % partition, err
+			print "[Harddisk] Error: Failed to wipe partition on '%s':" % partition, err
 
 	def createInitializeJob(self):
 		job = Task.Job(_("Initializing storage device..."))
@@ -845,7 +845,7 @@ class HarddiskManager:
 			with open(device, "wb") as fd:
 				ioctl(fd.fileno(), int(0x5322), speed)
 		except (IOError, OSError) as err:
-			# print "[Harddisk] Error: Failed to set '%s' speed to '%s':" % (device, speed), err
+			print "[Harddisk] Error: Failed to set '%s' speed to '%s':" % (device, speed), err
 
 
 class UnmountTask(Task.LoggingTask):
@@ -859,7 +859,7 @@ class UnmountTask(Task.LoggingTask):
 			dev = self.hdd.disk_path.split(os.sep)[-1]
 			open("/dev/nomount.%s" % dev, "wb").close()
 		except (IOError, OSError) as err:
-			# print "[Harddisk] UnmountTask - Error: Failed to create /dev/nomount file:", err
+			print "[Harddisk] UnmountTask - Error: Failed to create /dev/nomount file:", err
 		self.setTool("umount")
 		self.args.append("-f")
 		for dev in self.hdd.enumMountDevices():
@@ -876,7 +876,7 @@ class UnmountTask(Task.LoggingTask):
 			try:
 				os.rmdir(path)
 			except (IOError, OSError) as err:
-				# print "[Harddisk] UnmountTask - Error: Failed to remove path '%s':" % path, err
+				print "[Harddisk] UnmountTask - Error: Failed to remove path '%s':" % path, err
 
 
 class MountTask(Task.LoggingTask):
@@ -889,7 +889,7 @@ class MountTask(Task.LoggingTask):
 			dev = self.hdd.disk_path.split(os.sep)[-1]
 			os.unlink("/dev/nomount.%s" % dev)
 		except (IOError, OSError) as err:
-			# print "[Harddisk] MountTask - Error: Failed to remove '/dev/nomount' file:", err
+			print "[Harddisk] MountTask - Error: Failed to remove '/dev/nomount' file:", err
 		if self.hdd.mount_device is None:
 			dev = self.hdd.partitionPath("1")  # Try mounting through fstab first.
 		else:
@@ -904,7 +904,7 @@ class MountTask(Task.LoggingTask):
 						self.postconditions.append(Task.ReturncodePostcondition())
 						return
 		except (IOError, OSError) as err:
-			# print "[Harddisk] MountTask - Error: Failed to read '/etc/fstab' file:", err
+			print "[Harddisk] MountTask - Error: Failed to read '/etc/fstab' file:", err
 		if SystemInfo["Udev"]:  # Device is not in fstab.
 			# We can let udev do the job, re-read the partition table.
 			# Sorry for the sleep 2 hack...
@@ -933,7 +933,7 @@ class MkfsTask(Task.LoggingTask):
 						d[1] = d[1].split("\x08", 1)[0]
 					self.setProgress(80 * int(d[0]) / int(d[1]))
 				except Exception as err:
-					# print "[Harddisk] MkfsTask - [Mkfs] Error:", err
+					print "[Harddisk] MkfsTask - [Mkfs] Error:", err
 				return  # Don't log the progess.
 		self.log.append(data)
 

@@ -525,7 +525,7 @@ class Language:
 		self.installedPackages = self.getInstalledPackages()
 		self.packageDirectories = self.getPackageDirectories()
 		if self.packageDirectories != self.installedPackages:
-			# print "[Language] Warning: Installed language packages and language directory contents do not match!"
+			print "[Language] Warning: Installed language packages and language directory contents do not match!"
 		uniqueLocales = set(["en_US"])
 		for package in self.installedPackages:
 			# print "[Language] DEBUG: Package='%s'" % package
@@ -549,10 +549,10 @@ class Language:
 
 	def activateLocale(self, loc, runCallbacks=True):
 		if loc not in self.localeList:
-			# print "[Language] Selected locale '%s' is not installed or does not exist!" % loc
+			print "[Language] Selected locale '%s' is not installed or does not exist!" % loc
 		else:
 			if loc == self.activeLocale:
-				# print "[Language] Language '%s', locale '%s' is already active." % (self.getLanguage(loc), loc)
+				print "[Language] Language '%s', locale '%s' is already active." % (self.getLanguage(loc), loc)
 			else:
 				# print "[Language] Activating language '%s', locale '%s'." % (self.getLanguage(loc), loc)
 				self.activeLocale = loc
@@ -597,7 +597,7 @@ class Language:
 			process = Popen(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 			packageText, errorText = process.communicate()
 			if errorText:
-				# print "[Language] Error: %s (getLanguagePackages)" % errorText
+				print "[Language] Error: %s (getLanguagePackages)" % errorText
 			else:
 				for language in packageText.split("\n"):
 					if language and "meta" not in language:
@@ -617,7 +617,7 @@ class Language:
 			process = Popen(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 			packageText, errorText = process.communicate()
 			if errorText:
-				# print "[Language] Error: %s (getInstalledPackages)" % errorText
+				print "[Language] Error: %s (getInstalledPackages)" % errorText
 			else:
 				for package in packageText.split("\n\n"):
 					if package.startswith("Package: enigma2-locale-") and "meta" not in package:
@@ -628,7 +628,7 @@ class Language:
 								break
 				installedPackages = sorted(installedPackages)
 		except (IOError, OSError) as err:
-			# print "[Language] Error %d: getInstalledPackages - %s ('%s')" % (err.errno, err.strerror, command[0])
+			print "[Language] Error %d: getInstalledPackages - %s ('%s')" % (err.errno, err.strerror, command[0])
 		# print "[Language] DEBUG: %d installed languages." % len(installedPackages)
 		# print "[Language] DEBUG: Installed language modules:\n%s" % installedPackages
 		return installedPackages
