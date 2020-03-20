@@ -178,7 +178,7 @@ class Harddisk:
 			self.startIdle()
 		else:
 			msg = ""
-		print "[Harddisk] Device '%s' (%s - %s) -> '%s' -> '%s'%s." % (self.device, self.bus(), self.model(), self.dev_path, self.disk_path, msg)
+		# print "[Harddisk] Device '%s' (%s - %s) -> '%s' -> '%s'%s." % (self.device, self.bus(), self.model(), self.dev_path, self.disk_path, msg)
 
 	def __str__(self):
 		return "Harddisk(device=%s, devPath=%s, diskPath=%s, physPath=%s, internal=%s, rotational=%s, removable=%s)" % (self.device, self.dev_path, self.disk_path, self.phys_path, self.internal, self.rotational, self.removable)
@@ -230,7 +230,7 @@ class Harddisk:
 					stat = os.statvfs(dev)
 					cap = int(stat.f_blocks * stat.f_bsize) / 1000 / 1000
 				except (IOError, OSError) as err:
-					print "[Harddisk] Error: Failed to get disk size for '%s':" % dev, err
+					# print "[Harddisk] Error: Failed to get disk size for '%s':" % dev, err
 					cap = 0
 			else:
 				cap = 0
@@ -261,7 +261,7 @@ class Harddisk:
 		else:
 			msg = "  Device not hdX or sdX or mmcX."
 		if data is None:
-			print "[Harddisk] Error: Failed to get model!%s:" % msg
+			# print "[Harddisk] Error: Failed to get model!%s:" % msg
 			return "Unknown"
 		return data
 
@@ -273,7 +273,7 @@ class Harddisk:
 				stat = os.statvfs(dev)
 				return (stat.f_bfree / 1000) * (stat.f_bsize / 1000)
 			except (IOError, OSError):
-				print "[Harddisk] Error: Failed to get free space for '%s':" % dev, err
+				# print "[Harddisk] Error: Failed to get free space for '%s':" % dev, err
 		return -1
 
 	def totalFree(self):
@@ -371,7 +371,7 @@ class Harddisk:
 				for i in range(9):  # Delete first 9 sectors, which will likely kill the first partition too.
 					fd.write(zero)
 		except (IOError, OSError) as err:
-			print "[Harddisk] Error: Failed to wipe partition table on '%s':" % self.dev_path, err
+			# print "[Harddisk] Error: Failed to wipe partition table on '%s':" % self.dev_path, err
 
 	def killPartition(self, n):
 		zero = 512 * "\0"
@@ -381,7 +381,7 @@ class Harddisk:
 				for i in range(3):
 					fd.write(zero)
 		except (IOError, OSError) as err:
-			print "[Harddisk] Error: Failed to wipe partition on '%s':" % partition, err
+			# print "[Harddisk] Error: Failed to wipe partition on '%s':" % partition, err
 
 	def createInitializeJob(self):
 		job = Task.Job(_("Initializing storage device..."))
@@ -396,7 +396,7 @@ class Harddisk:
 		task.setTool("hdparm")
 		task.args.append("-z")
 		task.args.append(self.disk_path)
-		print "[Harddisk] Waiting for partition."
+		# print "[Harddisk] Waiting for partition."
 		task = Task.ConditionTask(job, _("Waiting for partition."), timeoutCount=20)
 		task.check = lambda: not os.path.exists(self.partitionPath("1"))
 		task.weighting = 1
@@ -408,7 +408,7 @@ class Harddisk:
 				use_parted = True
 			else:
 				use_parted = False
-		print "[Harddisk] Creating partition."
+		# print "[Harddisk] Creating partition."
 		task = Task.LoggingTask(job, _("Creating partition."))
 		task.weighting = 5
 		if use_parted:
@@ -424,15 +424,15 @@ class Harddisk:
 			task.args.append("-uS")
 			task.args.append(self.disk_path)
 			if size > 128000:
-				print "[Harddisk] Detected >128GB disk, using 4k alignment."
+				# print "[Harddisk] Detected >128GB disk, using 4k alignment."
 				task.initial_input = "8,\n;0,0\n;0,0\n;0,0\ny\n"  # Start at sector 8 to better support 4k aligned disks.
 			else:
 				task.initial_input = "0,\n;\n;\n;\ny\n"  # Smaller disks (CF cards, sticks etc) don't need that.
-		print "[Harddisk] Waiting for partition."
+		# print "[Harddisk] Waiting for partition."
 		task = Task.ConditionTask(job, _("Waiting for partition."))
 		task.check = lambda: os.path.exists(self.partitionPath("1"))
 		task.weighting = 1
-		print "[Harddisk] Creating filesystem."
+		# print "[Harddisk] Creating filesystem."
 		task = MkfsTask(job, _("Creating filesystem."))
 		big_o_options = ["dir_index"]
 		if SystemInfo["ext4"]:
@@ -679,11 +679,11 @@ class HarddiskManager:
 				# print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) doesn't have 'HasSDnomount' set." % (devMajor, device, physicalDevice)
 				continue
 			if devMajor == 179 and devMajor == rootMajor and not SystemInfo["HasSDnomount"][0]:
-				print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) is the root disk." % (devMajor, device, physicalDevice)
+				# print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) is the root disk." % (devMajor, device, physicalDevice)
 				continue
 			# if device.startswith(SystemInfo["HasSDnomount"][1]) and SystemInfo["HasSDnomount"][0]:
 			if SystemInfo["HasSDnomount"] and device.startswith("%s" %(SystemInfo["HasSDnomount"][1]) ) and SystemInfo["HasSDnomount"][0]:
-				print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) starts with 'mmcblk0' and has 'HasSDnomount' set." % (devMajor, device, physicalDevice)
+				# print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) starts with 'mmcblk0' and has 'HasSDnomount' set." % (devMajor, device, physicalDevice)
 				continue
 			description = self.getUserfriendlyDeviceName(device, physicalDevice)
 			isCdrom = devMajor in opticalDisks or device.startswith("sr")
@@ -703,7 +703,7 @@ class HarddiskManager:
 				if err.errno in (123, 159):  # ENOMEDIUM - No medium found.  (123=Common Linux, 159=MIPS Linux)
 					mediumFound = False
 				else:
-					print "[Harddisk] Error: Device '%s' (%s) media availability test failed:" % (device, physicalDevice), err
+					# print "[Harddisk] Error: Device '%s' (%s) media availability test failed:" % (device, physicalDevice), err
 					continue
 			# if mediumFound:
 			# 	print "[Harddisk] DEBUG: Device '%s' (%s) has media." % (device, physicalDevice)
@@ -845,7 +845,7 @@ class HarddiskManager:
 			with open(device, "wb") as fd:
 				ioctl(fd.fileno(), int(0x5322), speed)
 		except (IOError, OSError) as err:
-			print "[Harddisk] Error: Failed to set '%s' speed to '%s':" % (device, speed), err
+			# print "[Harddisk] Error: Failed to set '%s' speed to '%s':" % (device, speed), err
 
 
 class UnmountTask(Task.LoggingTask):
@@ -859,7 +859,7 @@ class UnmountTask(Task.LoggingTask):
 			dev = self.hdd.disk_path.split(os.sep)[-1]
 			open("/dev/nomount.%s" % dev, "wb").close()
 		except (IOError, OSError) as err:
-			print "[Harddisk] UnmountTask - Error: Failed to create /dev/nomount file:", err
+			# print "[Harddisk] UnmountTask - Error: Failed to create /dev/nomount file:", err
 		self.setTool("umount")
 		self.args.append("-f")
 		for dev in self.hdd.enumMountDevices():
@@ -867,7 +867,7 @@ class UnmountTask(Task.LoggingTask):
 			self.postconditions.append(Task.ReturncodePostcondition())
 			self.mountpoints.append(dev)
 		if not self.mountpoints:
-			print "[Harddisk] UnmountTask - No mountpoints found?"
+			# print "[Harddisk] UnmountTask - No mountpoints found?"
 			self.cmd = "true"
 			self.args = [self.cmd]
 
@@ -876,7 +876,7 @@ class UnmountTask(Task.LoggingTask):
 			try:
 				os.rmdir(path)
 			except (IOError, OSError) as err:
-				print "[Harddisk] UnmountTask - Error: Failed to remove path '%s':" % path, err
+				# print "[Harddisk] UnmountTask - Error: Failed to remove path '%s':" % path, err
 
 
 class MountTask(Task.LoggingTask):
@@ -889,7 +889,7 @@ class MountTask(Task.LoggingTask):
 			dev = self.hdd.disk_path.split(os.sep)[-1]
 			os.unlink("/dev/nomount.%s" % dev)
 		except (IOError, OSError) as err:
-			print "[Harddisk] MountTask - Error: Failed to remove '/dev/nomount' file:", err
+			# print "[Harddisk] MountTask - Error: Failed to remove '/dev/nomount' file:", err
 		if self.hdd.mount_device is None:
 			dev = self.hdd.partitionPath("1")  # Try mounting through fstab first.
 		else:
@@ -904,7 +904,7 @@ class MountTask(Task.LoggingTask):
 						self.postconditions.append(Task.ReturncodePostcondition())
 						return
 		except (IOError, OSError) as err:
-			print "[Harddisk] MountTask - Error: Failed to read '/etc/fstab' file:", err
+			# print "[Harddisk] MountTask - Error: Failed to read '/etc/fstab' file:", err
 		if SystemInfo["Udev"]:  # Device is not in fstab.
 			# We can let udev do the job, re-read the partition table.
 			# Sorry for the sleep 2 hack...
@@ -917,7 +917,7 @@ class MkfsTask(Task.LoggingTask):
 		self.fsck_state = None
 
 	def processOutput(self, data):
-		print "[Harddisk] MkfsTask - [Mkfs]", data
+		# print "[Harddisk] MkfsTask - [Mkfs]", data
 		if "Writing inode tables:" in data:
 			self.fsck_state = "inode"
 		elif "Creating journal" in data:
@@ -933,7 +933,7 @@ class MkfsTask(Task.LoggingTask):
 						d[1] = d[1].split("\x08", 1)[0]
 					self.setProgress(80 * int(d[0]) / int(d[1]))
 				except Exception as err:
-					print "[Harddisk] MkfsTask - [Mkfs] Error:", err
+					# print "[Harddisk] MkfsTask - [Mkfs] Error:", err
 				return  # Don't log the progess.
 		self.log.append(data)
 

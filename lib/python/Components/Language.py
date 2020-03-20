@@ -525,14 +525,14 @@ class Language:
 		self.installedPackages = self.getInstalledPackages()
 		self.packageDirectories = self.getPackageDirectories()
 		if self.packageDirectories != self.installedPackages:
-			print "[Language] Warning: Installed language packages and language directory contents do not match!"
+			# print "[Language] Warning: Installed language packages and language directory contents do not match!"
 		uniqueLocales = set(["en_US"])
 		for package in self.installedPackages:
-			print "[Language] DEBUG: Package='%s'" % package
+			# print "[Language] DEBUG: Package='%s'" % package
 			locales = self.packageToLocales(package)
 			self.languageListSelection.append((locales[0], self.languageData[self.getLanguage(locales[0])][self.LANG_NAME]))  # For PluginBrowser
 			for loc in locales:
-				print "[Language] DEBUG: Locale='%s'" % loc
+				# print "[Language] DEBUG: Locale='%s'" % loc
 				uniqueLocales.add(loc)
 		self.localeList = sorted(list(uniqueLocales))
 
@@ -544,17 +544,17 @@ class Language:
 			loc = "%s_%s" % (lang, self.languageData[lang][self.LANG_COUNTRYCODE])
 		except IndexError:
 			loc = "en_US"
-		print "[Language] Language '%s' is being activated as locale '%s'." % (lang, loc)
+		# print "[Language] Language '%s' is being activated as locale '%s'." % (lang, loc)
 		return self.activateLocale(loc, runCallbacks=runCallbacks)
 
 	def activateLocale(self, loc, runCallbacks=True):
 		if loc not in self.localeList:
-			print "[Language] Selected locale '%s' is not installed or does not exist!" % loc
+			# print "[Language] Selected locale '%s' is not installed or does not exist!" % loc
 		else:
 			if loc == self.activeLocale:
-				print "[Language] Language '%s', locale '%s' is already active." % (self.getLanguage(loc), loc)
+				# print "[Language] Language '%s', locale '%s' is already active." % (self.getLanguage(loc), loc)
 			else:
-				print "[Language] Activating language '%s', locale '%s'." % (self.getLanguage(loc), loc)
+				# print "[Language] Activating language '%s', locale '%s'." % (self.getLanguage(loc), loc)
 				self.activeLocale = loc
 				self.catalog = gettext.translation("enigma2", self.languagePath, languages=[loc], fallback=True)
 				self.catalog.install(names=("ngettext", "pgettext"))
@@ -575,7 +575,7 @@ class Language:
 								replacement = "en_US"
 							if localeError is None:
 								localeError = replacement
-								print "[Language] Warning: Locale '%s' is not available in Python, using locale '%s' instead." % (loc, replacement)
+								# print "[Language] Warning: Locale '%s' is not available in Python, using locale '%s' instead." % (loc, replacement)
 				environ["LANG"] = "%s.UTF-8" % loc
 				environ["LANGUAGE"] = "%s.UTF-8" % loc
 				environ["GST_SUBTITLE_ENCODING"] = self.getGStreamerSubtitleEncoding()
@@ -597,17 +597,17 @@ class Language:
 			process = Popen(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 			packageText, errorText = process.communicate()
 			if errorText:
-				print "[Language] Error: %s (getLanguagePackages)" % errorText
+				# print "[Language] Error: %s (getLanguagePackages)" % errorText
 			else:
 				for language in packageText.split("\n"):
 					if language and "meta" not in language:
 						availablePackages.add(language[15:].split(" ")[0])
 				availablePackages = sorted(list(availablePackages))
 		except (IOError, OSError) as err:
-			print "[Language] Error %d: getLanguagePackages - %s ('%s')" % (err.errno, err.strerror, command[0])
+			# print "[Language] Error %d: getLanguagePackages - %s ('%s')" % (err.errno, err.strerror, command[0])
 			availablePackages = []
-		print "[Language] DEBUG: %d languages available." % len(availablePackages)
-		print "[Language] DEBUG: Available language modules:\n%s" % availablePackages
+		# print "[Language] DEBUG: %d languages available." % len(availablePackages)
+		# print "[Language] DEBUG: Available language modules:\n%s" % availablePackages
 		return availablePackages
 
 	def getInstalledPackages(self):
@@ -617,7 +617,7 @@ class Language:
 			process = Popen(command, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 			packageText, errorText = process.communicate()
 			if errorText:
-				print "[Language] Error: %s (getInstalledPackages)" % errorText
+				# print "[Language] Error: %s (getInstalledPackages)" % errorText
 			else:
 				for package in packageText.split("\n\n"):
 					if package.startswith("Package: enigma2-locale-") and "meta" not in package:
@@ -628,16 +628,16 @@ class Language:
 								break
 				installedPackages = sorted(installedPackages)
 		except (IOError, OSError) as err:
-			print "[Language] Error %d: getInstalledPackages - %s ('%s')" % (err.errno, err.strerror, command[0])
-		print "[Language] DEBUG: %d installed languages." % len(installedPackages)
-		print "[Language] DEBUG: Installed language modules:\n%s" % installedPackages
+			# print "[Language] Error %d: getInstalledPackages - %s ('%s')" % (err.errno, err.strerror, command[0])
+		# print "[Language] DEBUG: %d installed languages." % len(installedPackages)
+		# print "[Language] DEBUG: Installed language modules:\n%s" % installedPackages
 		return installedPackages
 
 	def getPackageDirectories(self):
 		# Adapt language directory entries to match the package format.
 		packageDirectories = [dir.replace("_", "-").lower() for dir in sorted(listdir(self.languagePath))]
-		print "[Language] DEBUG: %d installed language directories." % len(packageDirectories)
-		print "[Language] DEBUG: Installed language directories:\n%s" % packageDirectories
+		# print "[Language] DEBUG: %d installed language directories." % len(packageDirectories)
+		# print "[Language] DEBUG: Installed language directories:\n%s" % packageDirectories
 		return packageDirectories
 
 	def packageToLocales(self, package):
@@ -695,8 +695,8 @@ class Language:
 		for loc in self.localeList:
 			languageList.add(self.getLanguage(loc))
 		languageList = sorted(languageList)
-		print "[Language] DEBUG: %d installed languages." % len(languageList)
-		print "[Language] DEBUG: Installed languages:\n%s" % languageList
+		# print "[Language] DEBUG: %d installed languages." % len(languageList)
+		# print "[Language] DEBUG: Installed languages:\n%s" % languageList
 		return languageList
 
 	def getLocaleList(self):
@@ -740,15 +740,15 @@ class Language:
 					process = Popen(cmdList, stdout=PIPE, stderr=PIPE, universal_newlines=True)
 					packageText, errorText = process.communicate()
 					if errorText:
-						print "[Language] Package manager error: %s" % errorText
+						# print "[Language] Package manager error: %s" % errorText
 						status.append(_("Error: Language %s (%s) not %s!") % (self.languageData[lang][self.LANG_NAME], self.languageData[lang][self.LANG_NATIVE], action))
 					else:
 						status.append(_("Language %s (%s) %s.") % (self.languageData[lang][self.LANG_NAME], self.languageData[lang][self.LANG_NATIVE], action))
-					print "[Language] DEBUG: Package manager exit status 1 = %d" % process.returncode
+					# print "[Language] DEBUG: Package manager exit status 1 = %d" % process.returncode
 				except (IOError, OSError) as err:
-					print "[Language] Package manager error %d: %s ('%s')" % (err.errno, err.strerror, command[0])
+					# print "[Language] Package manager error %d: %s ('%s')" % (err.errno, err.strerror, command[0])
 					status.append(_("Error: Language %s (%s) not %s!") % (self.languageData[lang][self.LANG_NAME], self.languageData[lang][self.LANG_NATIVE], action))
-					print "[Language] DEBUG: Package manager exit status 2 = %d" % process.returncode
+					# print "[Language] DEBUG: Package manager exit status 2 = %d" % process.returncode
 			self.InitLang()
 		return status
 
