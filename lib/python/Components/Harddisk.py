@@ -713,13 +713,11 @@ class HarddiskManager:
 				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
 					partitions = partitions[4:]
 				self.hdd.append(Harddisk(device, removable))
-				# print "[Harddisk] DEBUG: Harddisk(%s, %s)" % (device, removable)
+				print "[Harddisk] DEBUG: Harddisk(%s, %s)" % (device, removable)
 				self.partitions.append(Partition(mountpoint=self.getMountpoint(device), description=description, forceMounted=True, device=device))
-				# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, forceMounted=True, device=%s)" % (self.getMountpoint(device), description, device)
+				print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, forceMounted=True, device=%s)" % (self.getMountpoint(device), description, device)
 				for partition in partitions:
 					description = self.getUserfriendlyDeviceName(partition, physicalDevice)
-					# if SystemInfo["HasHiSi"] and partition == "sda5":
-					# 	description = "SD card"
 					part = Partition(mountpoint=self.getMountpoint(partition), description=description, forceMounted=True, device=partition)
 					self.partitions.append(part)
 					# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, forceMounted=True, device=%s)" % (self.getMountpoint(partition), description, partition)
