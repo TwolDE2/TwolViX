@@ -10,18 +10,16 @@ SystemInfo = {}
 from Tools.Multiboot import getMBbootdevice, getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
 
 def getNumVideoDecoders():
-	idx = 0
-	while fileExists("/dev/dvb/adapter0/video%d" % idx, "f"):
-		idx += 1
-	return idx
+	numVideoDecoders = 0
+	while fileExists("/dev/dvb/adapter0/video%d" % numVideoDecoders, "f"):
+		numVideoDecoders += 1
+	return numVideoDecoders
 
 def countFrontpanelLEDs():
-	leds = 0
-	if fileExists("/proc/stb/fp/led_set_pattern"):
-		leds += 1
-	while fileExists("/proc/stb/fp/led%d_pattern" % leds):
-		leds += 1
-	return leds
+	numLeds = fileExists("/proc/stb/fp/led_set_pattern") and 1 or 0
+	while fileExists("/proc/stb/fp/led%d_pattern" % numLeds):
+		numLeds += 1
+	return numLeds
 
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
@@ -151,3 +149,4 @@ SystemInfo["HasSDnomount"] = getMachineBuild() in ('h9', 'i55plus') and (False, 
 SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
 SystemInfo["RecoveryMode"] = SystemInfo["HasRootSubdir"] and getMachineBuild() not in ('hd51','h7') or fileCheck("/proc/stb/fp/boot_mode")
 SystemInfo["AndroidMode"] = SystemInfo["RecoveryMode"] and getMachineBuild() in ('multibox',)
+print "[SystemInfo] SystemInfo data initialised."
