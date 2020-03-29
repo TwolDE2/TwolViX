@@ -1,5 +1,6 @@
 from Components.Element import Element
 
+
 class Source(Element):
 	def execBegin(self):
 		pass
@@ -16,9 +17,14 @@ class Source(Element):
 	def destroy(self):
 		self.__dict__.clear()
 
+
 class ObsoleteSource(Source):
-	def __init__(self, new_source, description = None, removal_date = "as soon as possible"):
-		self.new_source = new_source
+	def __init__(self, newSource, description=None, removalDate="AS SOON AS POSSIBLE"):
+		self.newSource = newSource
 		self.description = description
+<<<<<<< HEAD
 		self.removal_date = removal_date
 
+=======
+		self.removalDate = removalDate
+>>>>>>> a611ab51f8... [Source.py] Match message to skin
