@@ -288,7 +288,7 @@ class Harddisk:
 		return self.totalFree()
 
 	def numPartitions(self):
-		print "[Harddisk] numpartition"
+		# print "[Harddisk] numpartition"
 		numPart = -1
 		if SystemInfo["Udev"]:
 			try:
@@ -706,7 +706,7 @@ class HarddiskManager:
 			if devMajor == 179 and devMajor == rootMajor and not SystemInfo["HasSDnomount"][0]:
 				# print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) is the root disk." % (devMajor, device, physicalDevice)
 				continue
-			if SystemInfo["HasSDnomount"] and device.startswith("%s" % (SystemInfo["HasSDnomount"][1])) and SystemInfo["HasSDnomount"][0]:
+			if SystemInfo["HasSDnomount"] and device.startswith("%s" %(SystemInfo["HasSDnomount"][1])) and SystemInfo["HasSDnomount"][0]:
 				# print "[Harddisk] DEBUG: Major device number '%s' for device '%s' (%s) starts with 'mmcblk0' and has 'HasSDnomount' set." % (devMajor, device, physicalDevice)
 				continue
 			description = self.getUserfriendlyDeviceName(device, physicalDevice)
