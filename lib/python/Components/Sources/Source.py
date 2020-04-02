@@ -22,9 +22,4 @@ class ObsoleteSource(Source):
 	def __init__(self, newSource, description=None, removalDate="AS SOON AS POSSIBLE"):
 		self.newSource = newSource
 		self.description = description
-<<<<<<< HEAD
-		self.removal_date = removal_date
-
-=======
 		self.removalDate = removalDate
->>>>>>> a611ab51f8... [Source.py] Match message to skin
