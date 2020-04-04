@@ -179,7 +179,7 @@ fontRenderClass::fontListEntry::~fontListEntry()
 fontRenderClass::fontRenderClass(): fb(fbClass::getInstance())
 {
 	instance=this;
-	eDebug("[Font] Initializing lib.");
+	eDebug("[Font] Initializing lib...");
 	{
 		if (FT_Init_FreeType(&library))
 		{
@@ -187,7 +187,7 @@ fontRenderClass::fontRenderClass(): fb(fbClass::getInstance())
 			return;
 		}
 	}
-	eDebug("[Font] Loading fonts.");
+	eDebug("[Font] Loading fonts...");
 	font=0;
 
 	int maxbytes=4*1024*1024;
@@ -848,7 +848,7 @@ nprint:				isprintable=0;
 					index=(rflags&RS_DIRECT)? chr : FT_Get_Char_Index(replacement_face, chr);
 
 				if (!index)
-					eDebug("[eTextPara] unicode U+%4lx not present", chr);
+					eDebug("[eTextPara] Unicode U+%4lx not present", chr);
 				else
 					appendGlyph(replacement_font, replacement_face, index, flags, rflags, border, i == uc_visual.end() - 1, activate_newcolor, newcolor);
 			} else
