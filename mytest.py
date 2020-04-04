@@ -538,11 +538,6 @@ def runScreenTest():
 	vol = VolumeControl(session)
 	profile("Init:PowerKey")
 	power = PowerKey(session)
-	
-#	if boxtype in ('viper4k','sf8008','gbmv200'):
-#		profile("VFDSYMBOLS")
-#		import Components.VfdSymbols
-#		Components.VfdSymbols.SymbolsCheck(session)
 
 	# we need session.scart to access it from within menu.xml
 	session.scart = AutoScartControl(session)

@@ -600,7 +600,8 @@ def runScreenTest():
 profile("Init:skin")
 print "[Enigma2] Initialising Skin."
 import skin
-skin.loadSkinData(enigma.getDesktop(0))
+skin.InitSkins()
+print "[Enigma2] Initialisation of Skins complete."
 
 profile("InputDevice")
 print "[Enigma2] Initialising InputDevice."
