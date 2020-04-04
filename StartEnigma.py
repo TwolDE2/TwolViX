@@ -24,7 +24,7 @@ if os.path.isfile("/usr/lib/enigma2/python/enigma.zip"):
 	sys.path.append("/usr/lib/enigma2/python/enigma.zip")
 
 profile("PYTHON_START")
-print "[Enigma2] Starting Initialisation."
+print "[Enigma2] Starting Python Level Initialisation."
 print "[Enigma2] Image Type -> '%s'" % getImageType()
 print "[Enigma2] Image Version -> '%s'" % getImageVersion()
 print "[Enigma2] Image Build -> '%s'" % getImageBuild()
@@ -35,6 +35,11 @@ profile("Geolocation")
 print "[Enigma2] Initialising Geolocation."
 import Tools.Geolocation
 Tools.Geolocation.InitGeolocation()
+
+profile("Languages")
+print "[Enigma2] Initialising Languages."
+import Components.Language
+Components.Language.InitLanguages()
 
 profile("ClientMode")
 print "[Enigma2] Initialising ClientMode."
@@ -372,7 +377,10 @@ class Session:
 	def popSummary(self):
 		if self.summary is not None:
 			self.summary.doClose()
-		self.summary = self.summary_stack and self.summary_stack.pop()
+		if not self.summary_stack:
+			self.summary = None
+		else:
+			self.summary = self.summary_stack.pop()
 		if self.summary is not None:
 			self.summary.show()
 
