@@ -68,7 +68,6 @@ class Hotplug(Protocol):
 		self.received = ""
 
 	def dataReceived(self, data):
-		print "[Hotplug] hotplug:", data
 		self.received += data
 		print "[Hotplug] Data received: '%s'." % ", ".join(self.received.split("\0")[:-1])
 
