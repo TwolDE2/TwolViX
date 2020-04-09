@@ -57,6 +57,7 @@ def getMultibootslots():
 								slot["kernel"] = getparam(line, "kernel")
 							if "sda" in line:
 								slot["kernel"] = "/dev/sda%s" % line.split("sda", 1)[1].split(" ", 1)[0]
+								slot["rootsubdir"] = None
 							else:
 								slot["kernel"] = "%sp%s" % (device.split("p")[0], int(device.split("p")[1]) - 1)
 
@@ -124,7 +125,7 @@ class GetImagelist():
 		if retval:
 			self.imagelist[self.slot] = {"imagename": _("Empty slot")}
 		if retval == 0 and self.phase == self.MOUNT:
-			if SystemInfo["HasRootSubdir"]:
+			if SystemInfo["HasRootSubdir"] and SystemInfo["canMultiBoot"][self.slot]["rootsubdir"] != None:
 				imagedir = ('%s/%s' %(Imagemount, SystemInfo["canMultiBoot"][self.slot]["rootsubdir"]))
 			else:
 				imagedir = Imagemount
@@ -268,14 +269,14 @@ class EmptySlot():
 		self.run()
 
 	def run(self):
-		if SystemInfo["HasRootSubdir"]:
+		if SystemInfo["HasRootSubdir"] and SystemInfo["canMultiBoot"][self.slot]["rootsubdir"] != None:
 			self.container.ePopen("mount /dev/block/by-name/userdata /tmp/testmount" if self.phase == self.MOUNT else "umount /tmp/testmount", self.appClosed)
 		else:
 			self.container.ePopen("mount %s /tmp/testmount" % (SystemInfo["canMultiBoot"][self.slot]["device"]) if self.phase == self.MOUNT else "umount /tmp/testmount", self.appClosed)
 
 	def appClosed(self, data, retval, extra_args):
 		if retval == 0 and self.phase == self.MOUNT:
-			if SystemInfo["HasRootSubdir"]:
+			if SystemInfo["HasRootSubdir"] and SystemInfo["canMultiBoot"][self.slot]["rootsubdir"] != None:
 				rootsub = SystemInfo["canMultiBoot"][self.slot]["rootsubdir"]
 				if path.isfile("/tmp/testmount/%s/usr/bin/enigma2" % rootsub):
 					rename("/tmp/testmount/%s/usr/bin/enigma2" % rootsub, "/tmp/testmount/%s/usr/bin/enigmax.bin" % rootsub)
