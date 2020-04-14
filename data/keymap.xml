@@ -1042,6 +1042,8 @@
 		<key id="KEY_MOUSE" mapto="mouse_long" flags="l"/>
 		<key id="KEY_VOD" mapto="vod" flags="b"/>
 		<key id="KEY_VOD" mapto="vod_long" flags="l"/>
+		<key id="KEY_FILE" mapto="file" flags="b"/>
+		<key id="KEY_FILE" mapto="file_long" flags="l"/>
 	</map>
 	<map context="NavigationActions">
 		<key id="KEY_REWIND" mapto="top" flags="m" />
