@@ -722,11 +722,13 @@ class HarddiskManager:
 			# print "[Harddisk] DEBUG: device='%s', physicalDevice='%s', devMajor='%s', description='%s'" % (device, physicalDevice, devMajor, description)
 			if not isCdrom and os.path.exists(devicePath):  # Add HDD check for partitions.
 				print "[Harddisk] Found storage device '%s' (Removable=%s)." % (device, removable)
-				self.hdd.append(Harddisk(device, removable))
-				SystemInfo["Harddisk"] = True
 				partitions = [partition for partition in sorted(os.listdir(devicePath)) if partition.startswith(device)]
 				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
 					partitions = partitions[4:]
+					if len(partitions) == 0:
+						continue	
+				self.hdd.append(Harddisk(device, removable))
+				SystemInfo["Harddisk"] = True
 				# self.partitions.append(Partition(mountpoint=self.getMountpoint(device), description=description, force_mounted, device=device))
 				# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, force_mounted=True, device=%s)" % (self.getMountpoint(device), description, device)
 				for partition in partitions:
