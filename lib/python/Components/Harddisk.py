@@ -725,20 +725,19 @@ class HarddiskManager:
 				partitions = [partition for partition in sorted(os.listdir(devicePath)) if partition.startswith(device)]
 				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
 					partitions = partitions[4:]
-					if len(partitions) == 0:
-						continue	
-				self.hdd.append(Harddisk(device, removable))
-				SystemInfo["Harddisk"] = True
-				# self.partitions.append(Partition(mountpoint=self.getMountpoint(device), description=description, force_mounted, device=device))
-				# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, force_mounted=True, device=%s)" % (self.getMountpoint(device), description, device)
-				for partition in partitions:
-					description = self.getUserfriendlyDeviceName(partition, physicalDevice)
-					print "[Harddisk] Found partition '%s', description='%s', device='%s'." % (partition, description, physicalDevice)
-					part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)
-					self.partitions.append(part)
-					# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, force_mounted=True, device=%s)" % (self.getMountpoint(partition), description, partition)
-					self.on_partition_list_change("add", part)
-					# print "[Harddisk] DEBUG: on_partition_list_change('add', Partition(mountpoint=%s, description=%s, force_mounted=True, device=%s))" % (self.getMountpoint(partition), description, partition)
+				if len(partitions) != 0:
+					self.hdd.append(Harddisk(device, removable))
+					SystemInfo["Harddisk"] = True
+					# self.partitions.append(Partition(mountpoint=self.getMountpoint(device), description=description, force_mounted, device=device))
+					# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, force_mounted=True, device=%s)" % (self.getMountpoint(device), description, device)
+					for partition in partitions:
+						description = self.getUserfriendlyDeviceName(partition, physicalDevice)
+						print "[Harddisk] Found partition '%s', description='%s', device='%s'." % (partition, description, physicalDevice)
+						part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)
+						self.partitions.append(part)
+						# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, force_mounted=True, device=%s)" % (self.getMountpoint(partition), description, partition)
+						self.on_partition_list_change("add", part)
+						# print "[Harddisk] DEBUG: on_partition_list_change('add', Partition(mountpoint=%s, description=%s, force_mounted=True, device=%s))" % (self.getMountpoint(partition), description, partition)
 		self.hdd.sort()
 		print "[Harddisk] Enumerating block devices complete."
 
@@ -755,6 +754,13 @@ class HarddiskManager:
 						print "[Harddisk] Found network mount (%s) '%s' -> '%s'." % (entry, mount, mountDir)
 						self.partitions.append(Partition(mountpoint=mountDir, description=mount))
 						# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s)" % (mountDir, mount)
+					elif "/media/net" in mountEntry and os.path.exists(mountDir) and mountDir not in [partition.mountpoint for partition in self.partitions]:
+						print "[Harddisk] Found network mount (%s) '%s' -> '%s'." % (entry, mount, mountDir)
+						self.partitions.append(Partition(mountpoint=mountDir, description=mount))
+		if os.path.ismount("/media/hdd") and "/media/hdd/" not in [partition.mountpoint for partition in self.partitions]:
+			print "[Harddisk] new Network Mount being used as HDD replacement -> /media/hdd/"
+			self.partitions.append(Partition(mountpoint = "/media/hdd/", description = "/media/hdd"))
+
 		print "[Harddisk] Enumerating network mounts complete."
 
 	def getUserfriendlyDeviceName(self, device, physicalDevice):
@@ -834,15 +840,15 @@ class HarddiskManager:
 					if hdd.device == hddDev:
 						HDDin = True
 						break
-				if HDDin is False:
+				partitions = [partition for partition in sorted(os.listdir(devicePath)) if partition.startswith(hddDev)]
+				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
+					partitions = partitions[4:]
+				if HDDin is False and len(partitions) != 0:
 					print "[Harddisk] Found storage device '%s' (Removable=%s)." % (device, removable)
 					self.hdd.append(Harddisk(hddDev, removable))
 					# print "[Harddisk] DEBUG: Add hotplug HDD device in hddlist. (device='%s', hdd.device='%s', hddDev='%s')" % (device, hdd.device, hddDev)
 					self.hdd.sort()
 					SystemInfo["Harddisk"] = True
-				partitions = [partition for partition in sorted(os.listdir(devicePath)) if partition.startswith(hddDev)]
-				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
-					partitions = partitions[4:]
 				# self.partitions.append(Partition(mountpoint=self.getMountpoint(hddDev), description=description, force_mounted=True, device=hddDev))
 				# print "[Harddisk] DEBUG add hddDev: Partition(mountpoint=%s, description=%s, force_mounted=True, hddDev=%s)" % (self.getMountpoint(device), description, hddDev)
 				for partition in partitions:
