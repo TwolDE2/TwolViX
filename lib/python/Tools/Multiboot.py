@@ -3,6 +3,7 @@ import shutil
 import subprocess
 
 from os import mkdir, path, rmdir, rename, remove, stat
+from time import time, sleep
 
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
@@ -24,8 +25,9 @@ def getMBbootdevice():
 	for device in ('/dev/block/by-name/bootoptions', '/dev/mmcblk0p1', '/dev/mmcblk1p1', '/dev/mmcblk0p3', '/dev/mmcblk0p4'):
 		if path.exists(device):
 			Console().ePopen("mount %s %s" % (device, Imagemount))
+			sleep(1)
 			if path.isfile(path.join(Imagemount, "STARTUP")):
-				print '[Multiboot] Startupdevice found:', device
+				print '[Multiboot] [getMBbootdevices] Bootdevice found: %s' % device
 				return device
 			Console().ePopen("umount %s" % Imagemount)
 	if not path.ismount(Imagemount):
@@ -40,12 +42,13 @@ def getMultibootslots():
 		if not path.isdir(Imagemount):
 			mkdir(Imagemount)
 		Console().ePopen("/bin/mount %s %s" % (SystemInfo["MBbootdevice"], Imagemount))
+		sleep(1)
 		for file in glob.glob(path.join(Imagemount, "STARTUP_*")):
 			slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 			if slotnumber.isdigit() and slotnumber not in bootslots:
 				slot = {}
 				for line in open(file).readlines():
-					print "Multiboot getMultibootslots readlines = %s " %line
+					# print "Multiboot getMultibootslots readlines = %s " %line
 					if "root=" in line:
 						line = line.rstrip("\n")
 						device = getparam(line, "root")
@@ -53,6 +56,7 @@ def getMultibootslots():
 							slot["device"] = device
 							slot["startupfile"] = path.basename(file)
 							if "rootsubdir" in line:
+								SystemInfo["HasRootSubdir"] = True
 								slot["rootsubdir"] = getparam(line, "rootsubdir")
 								slot["kernel"] = getparam(line, "kernel")
 							if "sda" in line:
@@ -64,7 +68,7 @@ def getMultibootslots():
 						break
 				if slot:
 					bootslots[int(slotnumber)] = slot
-		print "[multiboot1] getMultibootslots bootslots = %s" %bootslots
+		print "[multiboot] [getMultibootslots] Finished bootslots = %s" %bootslots
 		Console().ePopen("umount %s" % Imagemount)
 		if not path.ismount(Imagemount):
 			rmdir(Imagemount)
@@ -129,6 +133,7 @@ class GetImagelist():
 				imagedir = ('%s/%s' %(Imagemount, SystemInfo["canMultiBoot"][self.slot]["rootsubdir"]))
 			else:
 				imagedir = Imagemount
+			# print "[multiboot] [GetImagelist] 2 self.slot = %s imagedir = %s" % (self.slot, imagedir)
 			if path.isfile("%s/usr/bin/enigma2" % imagedir):
 				Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
 				if Creator.startswith("Openvix"):
