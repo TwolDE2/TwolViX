@@ -725,6 +725,7 @@ class HarddiskManager:
 				partitions = [partition for partition in sorted(os.listdir(devicePath)) if partition.startswith(device)]
 				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
 					partitions = partitions[4:]
+				print "[Harddisk] len partitions = %s, device = %s" % (len(partitions), device)
 				if len(partitions) != 0:
 					self.hdd.append(Harddisk(device, removable))
 					SystemInfo["Harddisk"] = True
