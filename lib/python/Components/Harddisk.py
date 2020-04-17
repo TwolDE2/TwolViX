@@ -721,12 +721,12 @@ class HarddiskManager:
 			# 	print "[Harddisk] DEBUG: Device '%s' (%s) has media." % (device, physicalDevice)
 			# print "[Harddisk] DEBUG: device='%s', physicalDevice='%s', devMajor='%s', description='%s'" % (device, physicalDevice, devMajor, description)
 			if not isCdrom and os.path.exists(devicePath):  # Add HDD check for partitions.
-				print "[Harddisk] Found storage device '%s' (Removable=%s)." % (device, removable)
 				partitions = [partition for partition in sorted(os.listdir(devicePath)) if partition.startswith(device)]
 				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
 					partitions = partitions[4:]
 				print "[Harddisk] len partitions = %s, device = %s" % (len(partitions), device)
 				if len(partitions) != 0:
+					print "[Harddisk] Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions))
 					self.hdd.append(Harddisk(device, removable))
 					SystemInfo["Harddisk"] = True
 					# self.partitions.append(Partition(mountpoint=self.getMountpoint(device), description=description, force_mounted, device=device))
@@ -761,7 +761,6 @@ class HarddiskManager:
 		if os.path.ismount("/media/hdd") and "/media/hdd/" not in [partition.mountpoint for partition in self.partitions]:
 			print "[Harddisk] new Network Mount being used as HDD replacement -> /media/hdd/"
 			self.partitions.append(Partition(mountpoint = "/media/hdd/", description = "/media/hdd"))
-
 		print "[Harddisk] Enumerating network mounts complete."
 
 	def getUserfriendlyDeviceName(self, device, physicalDevice):
