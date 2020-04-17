@@ -10,12 +10,6 @@ from Components.Console import Console
 from Components.SystemInfo import SystemInfo
 from Tools.Directories import pathExists
 
-# Default layout for:	Zgemma H7/Mut@nt HD51							Giga4K							SF8008/trio4K
-# boot			/dev/mmcblk0p1								/dev/mmcblk0p1						/dev/mmcblk0p3
-# STARTUP_1		Image 1: boot emmcflash0.kernel1 'root=/dev/mmcblk0p3 rw rootwait'	boot emmcflash0.kernel1: root=/dev/mmcblk0p5		boot emmcflash0.kernel root=/dev/mmcblk0p13
-# STARTUP_2		Image 2: boot emmcflash0.kernel2 'root=/dev/mmcblk0p5 rw rootwait'      boot emmcflash0.kernel2: root=/dev/mmcblk0p7		boot usb0.sda1 root=/dev/sda2
-# STARTUP_3	        Image 3: boot emmcflash0.kernel3 'root=/dev/mmcblk0p7 rw rootwait'	boot emmcflash0.kernel3: root=/dev/mmcblk0p9		boot usb0.sda3 root=/dev/sda4
-# STARTUP_4	        Image 4: boot emmcflash0.kernel4 'root=/dev/mmcblk0p9 rw rootwait'	NOT IN USE due to Rescue mode in mmcblk0p3		NOT IN USE due to only 4 partitions on SDcard
 
 Imagemount = "/tmp/multibootcheck"
 
@@ -25,7 +19,6 @@ def getMBbootdevice():
 	for device in ('/dev/block/by-name/bootoptions', '/dev/mmcblk0p1', '/dev/mmcblk1p1', '/dev/mmcblk0p3', '/dev/mmcblk0p4'):
 		if path.exists(device):
 			Console().ePopen("mount %s %s" % (device, Imagemount))
-#			sleep(1)
 			if path.isfile(path.join(Imagemount, "STARTUP")):
 				print '[Multiboot] [getMBbootdevices] Bootdevice found: %s' % device
 				return device

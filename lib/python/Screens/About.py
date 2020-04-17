@@ -103,9 +103,9 @@ class About(Screen):
 			print "[About] HasHiSi = %s, slot = %s" %(SystemInfo["HasHiSi"], slot)
 			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]['device']:
 				if slot > 4:
-					image =-4
+					image -=4
 				else:
-					image =-1
+					image -=1
 				part = "SDcard slot %s (%s) " %(image, SystemInfo["canMultiBoot"][slot]['device'])
 			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(slot) + "  " + part + " " + bootmode + "\n"
 
