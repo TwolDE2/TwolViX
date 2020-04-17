@@ -6,7 +6,8 @@ from Tools.Directories import fileCheck, fileExists, fileHas, pathExists
 from Tools.HardwareInfo import HardwareInfo
 
 SystemInfo = {}
-
+SystemInfo["HasRootSubdir"] = False	# This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["RecoveryMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
 from Tools.Multiboot import getMBbootdevice, getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
 
 def getNumVideoDecoders():
@@ -139,7 +140,7 @@ SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 #	Multiboot/bootmode options	The following entries need to be in this sequence to avoid a SystemInfo failure.
 SystemInfo["HasHiSi"] = pathExists("/proc/hisi")
-SystemInfo["HasRootSubdir"] = fileHas("/proc/cmdline", "rootsubdir=")
+#SystemInfo["HasRootSubdir"] = fileHas("/proc/cmdline", "rootsubdir=")
 SystemInfo["MBbootdevice"] = getMBbootdevice()
 SystemInfo["canMultiBoot"] = getMultibootslots()
 SystemInfo["canBackupEMC"] = getMachineBuild() in ("hd51","h7") and ("disk.img", "%s" %SystemInfo["MBbootdevice"]) or getMachineBuild() in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "%s" %SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ("usb_update.bin","none")
@@ -147,6 +148,6 @@ SystemInfo["canMode12"] = getMachineBuild() in ("hd51", "h7") and ("brcm_cma=440
 SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
 SystemInfo["HasSDnomount"] = getMachineBuild() in ("h9", "i55plus") and (False, "none") or getMachineBuild() in ("multibox", "h9combo", "h9twin") and (True, "mmcblk0")
 SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
-SystemInfo["RecoveryMode"] = SystemInfo["HasRootSubdir"] and getMachineBuild() not in ("hd51","h7") or fileCheck("/proc/stb/fp/boot_mode")
+#SystemInfo["RecoveryMode"] = SystemInfo["HasRootSubdir"] and getMachineBuild() not in ("hd51","h7") or fileCheck("/proc/stb/fp/boot_mode")
 SystemInfo["AndroidMode"] = SystemInfo["RecoveryMode"] and getMachineBuild() in ("multibox",)
 print "[SystemInfo] SystemInfo data initialised."

@@ -44,6 +44,9 @@ def getMultibootslots():
 		Console().ePopen("/bin/mount %s %s" % (SystemInfo["MBbootdevice"], Imagemount))
 #		sleep(1)
 		for file in glob.glob(path.join(Imagemount, "STARTUP_*")):
+			if "STARTUP_RECOVERY" in file:
+				SystemInfo["RecoveryMode"] = True
+				print "[multiboot] [getMultibootslots] RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"]
 			slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 			if slotnumber.isdigit() and slotnumber not in bootslots:
 				slot = {}
@@ -57,6 +60,7 @@ def getMultibootslots():
 							slot["startupfile"] = path.basename(file)
 							if "rootsubdir" in line:
 								SystemInfo["HasRootSubdir"] = True
+								print "[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"]
 								slot["rootsubdir"] = getparam(line, "rootsubdir")
 								slot["kernel"] = getparam(line, "kernel")
 							if "sda" in line:
@@ -68,6 +72,8 @@ def getMultibootslots():
 						break
 				if slot:
 					bootslots[int(slotnumber)] = slot
+
+				
 		print "[multiboot] [getMultibootslots] Finished bootslots = %s" %bootslots
 		Console().ePopen("umount %s" % Imagemount)
 		if not path.ismount(Imagemount):
