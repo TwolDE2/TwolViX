@@ -25,7 +25,7 @@ def getMBbootdevice():
 	for device in ('/dev/block/by-name/bootoptions', '/dev/mmcblk0p1', '/dev/mmcblk1p1', '/dev/mmcblk0p3', '/dev/mmcblk0p4'):
 		if path.exists(device):
 			Console().ePopen("mount %s %s" % (device, Imagemount))
-			sleep(1)
+#			sleep(1)
 			if path.isfile(path.join(Imagemount, "STARTUP")):
 				print '[Multiboot] [getMBbootdevices] Bootdevice found: %s' % device
 				return device
@@ -42,7 +42,7 @@ def getMultibootslots():
 		if not path.isdir(Imagemount):
 			mkdir(Imagemount)
 		Console().ePopen("/bin/mount %s %s" % (SystemInfo["MBbootdevice"], Imagemount))
-		sleep(1)
+#		sleep(1)
 		for file in glob.glob(path.join(Imagemount, "STARTUP_*")):
 			slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 			if slotnumber.isdigit() and slotnumber not in bootslots:
