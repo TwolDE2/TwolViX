@@ -3,13 +3,12 @@ import shutil
 import subprocess
 
 from os import mkdir, path, rmdir, rename, remove, stat
-from time import time, sleep
+# from time import time, sleep
 
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
 from Components.SystemInfo import SystemInfo
 from Tools.Directories import pathExists
-
 
 Imagemount = "/tmp/multibootcheck"
 
@@ -51,22 +50,20 @@ def getMultibootslots():
 						if path.exists(device):
 							slot["device"] = device
 							slot["startupfile"] = path.basename(file)
-							if "rootsubdir" in line:
-								SystemInfo["HasRootSubdir"] = True
-								print "[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"]
-								slot["rootsubdir"] = getparam(line, "rootsubdir")
-								slot["kernel"] = getparam(line, "kernel")
 							if "sda" in line:
 								slot["kernel"] = "/dev/sda%s" % line.split("sda", 1)[1].split(" ", 1)[0]
 								slot["rootsubdir"] = None
 							else:
 								slot["kernel"] = "%sp%s" % (device.split("p")[0], int(device.split("p")[1]) - 1)
+							if "rootsubdir" in line:
+								SystemInfo["HasRootSubdir"] = True
+								print "[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"]
+								slot["rootsubdir"] = getparam(line, "rootsubdir")
+								slot["kernel"] = getparam(line, "kernel")
 
 						break
 				if slot:
 					bootslots[int(slotnumber)] = slot
-
-				
 		print "[multiboot] [getMultibootslots] Finished bootslots = %s" %bootslots
 		Console().ePopen("umount %s" % Imagemount)
 		if not path.ismount(Imagemount):
