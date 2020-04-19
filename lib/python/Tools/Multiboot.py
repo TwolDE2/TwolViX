@@ -50,15 +50,16 @@ def getMultibootslots():
 						if path.exists(root):
 							slot["root"] = root
 							slot["startupfile"] = path.basename(file)
-							slot["kernel"] = "%sp%s" % (root.split("p")[0], int(root.split("p")[1]) - 1)	# oldstyle MB kernel = root-1
 							if "rootsubdir" in line:
 								SystemInfo["HasRootSubdir"] = True
 								print "[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"]
 								slot["rootsubdir"] = getparam(line, "rootsubdir")
 								slot["kernel"] = getparam(line, "kernel")
-							if "sda" in line:
-								slot["kernel"] = "/dev/sda%s" % line.split("sda", 1)[1].split(" ", 1)[0]	# sf8008 SD card slot pairs same as oldsystle MB
+							elif "sda" in line:
+								slot["kernel"] = getparam(line, "kernel")	# sf8008 SD card slot pairs same as oldsystle MB
 								slot["rootsubdir"] = None
+							else:	
+								slot["kernel"] = "%sp%s" % (root.split("p")[0], int(root.split("p")[1]) - 1)	# oldstyle MB kernel = root-1
 						break
 				if slot:
 					bootslots[int(slotnumber)] = slot
