@@ -1,24 +1,14 @@
-import sys
+import enigma
 import os
-from time import time
+import sys
 
-if os.path.isfile("/usr/lib/enigma2/python/enigma.zip"):
-	sys.path.append("/usr/lib/enigma2/python/enigma.zip")
+from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
+from sys import stdout
+from time import localtime, strftime, time
+from traceback import print_exc
 
 from Tools.Profile import profile, profile_final
-profile("PYTHON_START")
-
-# Don't remove this line. It may seem to do nothing, but if removed,
-# it will break output redirection for crash logs.
-import Tools.RedirectOutput
-from boxbranding import getImageVersion, getImageBuild, getImageDevBuild, getImageType, getImageArch
-print "[Image Type] %s" % getImageType()
-print "[Image Version] %s" % getImageVersion()
-print "[Image Build] %s" % getImageBuild()
-if getImageType() != 'release':
-	print "[Image DevBuild] %s" % getImageDevBuild()
-
-import enigma
+import Tools.RedirectOutput  # Don't remove this line. It may seem to do nothing, but if removed it will break output redirection for crash logs.
 import eConsoleImpl
 import eBaseImpl
 enigma.eTimer = eBaseImpl.eTimer
@@ -30,75 +20,90 @@ if getImageArch() in ("aarch64"):
 	import usb.backend.libusb1
 	usb.backend.libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")
 
-from traceback import print_exc
+if os.path.isfile("/usr/lib/enigma2/python/enigma.zip"):
+	sys.path.append("/usr/lib/enigma2/python/enigma.zip")
+
+profile("PYTHON_START")
+print "[Enigma2] Starting Python Level Initialisation."
+print "[Enigma2] Image Type -> '%s'" % getImageType()
+print "[Enigma2] Image Version -> '%s'" % getImageVersion()
+print "[Enigma2] Image Build -> '%s'" % getImageBuild()
+if getImageType() != "release":
+	print "[Enigma2] Image DevBuild -> '%s'" % getImageDevBuild()
 
 profile("Geolocation")
+print "[Enigma2] Initialising Geolocation."
 import Tools.Geolocation
 Tools.Geolocation.InitGeolocation()
 
 profile("ClientMode")
+print "[Enigma2] Initialising ClientMode."
 import Components.ClientMode
 Components.ClientMode.InitClientMode()
 
 profile("SimpleSummary")
+print "[Enigma2] Initialising SimpleSummary."
 from Screens import InfoBar
 from Screens.SimpleSummary import SimpleSummary
 
-from sys import stdout, exc_info
-
 profile("Bouquets")
+print "[Enigma2] Initialising Bouquets."
 from Components.config import config, configfile, ConfigText, ConfigYesNo, ConfigInteger, NoSave
 config.misc.load_unlinked_userbouquets = ConfigYesNo(default=False)
+
 def setLoadUnlinkedUserbouquets(configElement):
 	enigma.eDVBDB.getInstance().setLoadUnlinkedUserbouquets(configElement.value)
+
+
 config.misc.load_unlinked_userbouquets.addNotifier(setLoadUnlinkedUserbouquets)
-if config.clientmode.enabled.value == False:
+if config.clientmode.enabled.value is False:
 	enigma.eDVBDB.getInstance().reloadBouquets()
 
 profile("ParentalControl")
+print "[Enigma2] Initialising ParentalControl."
 import Components.ParentalControl
 Components.ParentalControl.InitParentalControl()
 
 profile("LOAD:Navigation")
+print "[Enigma2] Initialising Navigation."
 from Navigation import Navigation
 
 profile("LOAD:skin")
+print "[Enigma2] Initialising Skin."
 from skin import readSkin
 
 profile("LOAD:Tools")
-from Tools.Directories import InitFallbackFiles, resolveFilename, SCOPE_PLUGINS, SCOPE_ACTIVE_SKIN, SCOPE_CURRENT_SKIN, SCOPE_CONFIG
-from Components.config import config, configfile, ConfigText, ConfigYesNo, ConfigInteger, ConfigSelection, NoSave
+print "[Enigma2] Initialising FallbackFiles."
+from Components.config import ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, NoSave, config, configfile
+from Tools.Directories import InitFallbackFiles, SCOPE_CONFIG, SCOPE_CURRENT_SKIN, SCOPE_PLUGINS, resolveFilename
 InitFallbackFiles()
 
 profile("config.misc")
-config.misc.blackradiopic = ConfigText(default = resolveFilename(SCOPE_ACTIVE_SKIN, "black.mvi"))
-radiopic = resolveFilename(SCOPE_ACTIVE_SKIN, "radio.mvi")
-if os.path.exists(resolveFilename(SCOPE_CONFIG, "radio.mvi")):
-	radiopic = resolveFilename(SCOPE_CONFIG, "radio.mvi")
-config.misc.radiopic = ConfigText(default = radiopic)
+print "[Enigma2] Initialising Misc Config Variables."
+config.misc.radiopic = ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "radio.mvi"))
+config.misc.blackradiopic = ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "black.mvi"))
 config.misc.isNextRecordTimerAfterEventActionAuto = ConfigYesNo(default=False)
 config.misc.isNextPowerTimerAfterEventActionAuto = ConfigYesNo(default=False)
-config.misc.SyncTimeUsing = ConfigSelection(default = "0", choices = [("0", "Transponder Time"), ("1", _("NTP"))])
-config.misc.NTPserver = ConfigText(default = 'pool.ntp.org', fixed_size=False)
+config.misc.SyncTimeUsing = ConfigSelection(default="0", choices=[("0", "Transponder Time"), ("1", _("NTP"))])
+config.misc.NTPserver = ConfigText(default="pool.ntp.org", fixed_size=False)
+config.misc.startCounter = ConfigInteger(default=0)  # number of e2 starts...
+config.misc.standbyCounter = NoSave(ConfigInteger(default=0))  # number of standby
+config.misc.DeepStandby = NoSave(ConfigYesNo(default=False))  # detect deepstandby
 
-config.misc.startCounter = ConfigInteger(default=0) # number of e2 starts...
-config.misc.standbyCounter = NoSave(ConfigInteger(default=0)) # number of standby
-config.misc.DeepStandby = NoSave(ConfigYesNo(default=False)) # detect deepstandby
+# demo code for use of standby enter leave callbacks
+# def leaveStandby():
+# 	print "!!!!!!!!!!!!!!!!!leave standby"
 
-#demo code for use of standby enter leave callbacks
-#def leaveStandby():
-#	print "!!!!!!!!!!!!!!!!!leave standby"
+# def standbyCountChanged(configElement):
+# 	print "!!!!!!!!!!!!!!!!!enter standby num", configElement.value
+# 	from Screens.Standby import inStandby
+# 	inStandby.onClose.append(leaveStandby)
 
-#def standbyCountChanged(configelement):
-#	print "!!!!!!!!!!!!!!!!!enter standby num", configelement.value
-#	from Screens.Standby import inStandby
-#	inStandby.onClose.append(leaveStandby)
+# config.misc.standbyCounter.addNotifier(standbyCountChanged, initial_call = False)
+# ###################################################
 
-#config.misc.standbyCounter.addNotifier(standbyCountChanged, initial_call = False)
-####################################################
-
-def useSyncUsingChanged(configelement):
-	if configelement.value == "0":
+def useSyncUsingChanged(configElement):
+	if configElement.value == "0":
 		print "[Time By]: Transponder"
 		enigma.eDVBLocalTimeHandler.getInstance().setUseDVBTime(True)
 		enigma.eEPGCache.getInstance().timeUpdated()
@@ -106,20 +111,25 @@ def useSyncUsingChanged(configelement):
 		print "[Time By]: NTP"
 		enigma.eDVBLocalTimeHandler.getInstance().setUseDVBTime(False)
 		enigma.eEPGCache.getInstance().timeUpdated()
+
+
 config.misc.SyncTimeUsing.addNotifier(useSyncUsingChanged)
 
-def NTPserverChanged(configelement):
+def NTPserverChanged(configElement):
 	f = open("/etc/default/ntpdate", "w")
-	f.write('NTPSERVERS="' + configelement.value + '"\n')
+	f.write("NTPSERVERS=\"%s\"\n" % configElement.value)
 	f.close()
 	os.chmod("/etc/default/ntpdate", 0755)
 	from Components.Console import Console
 	Console = Console()
-	Console.ePopen('/usr/bin/ntpdate-sync')
-config.misc.NTPserver.addNotifier(NTPserverChanged, immediate_feedback = False)
+	Console.ePopen("/usr/bin/ntpdate-sync")
+
+
+config.misc.NTPserver.addNotifier(NTPserverChanged, immediate_feedback=False)
 config.misc.NTPserver.callNotifiersOnSaveAndCancel = True
 
 profile("Twisted")
+print "[Enigma2] Initialising Twisted."
 try:
 	import e2reactor
 	e2reactor.install()
@@ -130,6 +140,7 @@ try:
 		reactor.run(installSignalHandlers=False)
 except ImportError:
 	print "twisted not available"
+
 	def runReactor():
 		enigma.runMainloop()
 
@@ -138,16 +149,19 @@ from twisted.python import log
 config.misc.enabletwistedlog = ConfigYesNo(default = False)
 if config.misc.enabletwistedlog.value == True:
 	log.startLogging(open('/tmp/twisted.log', 'w'))
+	print "[Enigma2] Twisted log ->  /tmp/twisted.log."
 else:
 	log.startLogging(sys.stdout)
+	print "[Enigma2] Twisted log ->  sys.stdout."
 
 
 profile("LOAD:Plugin")
-
+print "[Enigma2] Initialising Plugins."
 # initialize autorun plugins and plugin menu entries
 from Components.PluginComponent import plugins
 
 profile("LOAD:Wizard")
+print "[Enigma2] Initialising Wizards."
 from Screens.StartWizard import *
 import Screens.Rc
 from Tools.BoundFunction import boundFunction
@@ -159,38 +173,37 @@ FlashInstallTime()
 profile("misc")
 had = dict()
 
-def dump(dir, p = ""):
+def dump(dir, p=""):
 	if isinstance(dir, dict):
 		for (entry, val) in dir.items():
-			dump(val, p + "(dict)/" + entry)
+			dump(val, "%s(dict)/%s" % (p, entry))
 	if hasattr(dir, "__dict__"):
 		for name, value in dir.__dict__.items():
 			if str(value) not in had:
 				had[str(value)] = 1
-				dump(value, p + "/" + str(name))
+				dump(value, "%s/%s" % (p, str(name)))
 			else:
-				print p + "/" + str(name) + ":" + str(dir.__class__) + "(cycle)"
+				print "%s/%s:%s(cycle)" % (p, str(name), str(dir.__class__))
 	else:
-		print p + ":" + str(dir)
+		print "%s:%s" % (p, str(dir))  # + ":" + str(dir.__class__)
 
-# + ":" + str(dir.__class__)
-
-# display
 
 profile("LOAD:ScreenGlobals")
+print "[Enigma2] Initialising ScreenGlobals."
 from Screens.Globals import Globals
 from Screens.SessionGlobals import SessionGlobals
 from Screens.Screen import Screen
 
 profile("Screen")
+print "[Enigma2] Initialising Screen."
 Screen.global_screen = Globals()
 
 # Session.open:
-# * push current active dialog ('current_dialog') onto stack
+# * push current active dialog ("current_dialog") onto stack
 # * call execEnd for this dialog
 #   * clear in_exec flag
 #   * hide screen
-# * instantiate new dialog into 'current_dialog'
+# * instantiate new dialog into "current_dialog"
 #   * create screens, components
 #   * read, apply skin
 #   * create GUI for screen
@@ -198,11 +211,11 @@ Screen.global_screen = Globals()
 #   * set in_exec
 #   * show gui screen
 #   * call components' / screen's onExecBegin
-# ... screen is active, until it calls 'close'...
+# ... screen is active, until it calls "close"...
 # Session.close:
 # * assert in_exec
 # * save return value
-# * start deferred close handler ('onClose')
+# * start deferred close handler ("onClose")
 # * execEnd
 #   * clear in_exec
 #   * hide screen
@@ -211,60 +224,48 @@ Screen.global_screen = Globals()
 # * destroy screen
 
 class Session:
-	def __init__(self, desktop = None, summary_desktop = None, navigation = None):
+	def __init__(self, desktop=None, summary_desktop=None, navigation=None):
 		self.desktop = desktop
 		self.summary_desktop = summary_desktop
 		self.nav = navigation
 		self.delay_timer = enigma.eTimer()
 		self.delay_timer.callback.append(self.processDelay)
-
 		self.current_dialog = None
-
-		self.dialog_stack = [ ]
-		self.summary_stack = [ ]
+		self.dialog_stack = []
+		self.summary_stack = []
 		self.summary = None
-
 		self.in_exec = False
-
 		self.screen = SessionGlobals(self)
-
 		for p in plugins.getPlugins(PluginDescriptor.WHERE_SESSIONSTART):
 			try:
 				p(reason=0, session=self)
-			except:
+			except Exception:
 				print "Plugin raised exception at WHERE_SESSIONSTART"
-				import traceback
-				traceback.print_exc()
+				print_exc()
 
 	def processDelay(self):
 		callback = self.current_dialog.callback
-
 		retval = self.current_dialog.returnValue
-
 		if self.current_dialog.isTmp:
 			self.current_dialog.doClose()
-#			dump(self.current_dialog)
+			# dump(self.current_dialog)
 			del self.current_dialog
 		else:
 			del self.current_dialog.callback
-
 		self.popCurrent()
 		if callback is not None:
 			callback(*retval)
 
-	def execBegin(self, first=True, do_show = True):
+	def execBegin(self, first=True, do_show=True):
 		assert not self.in_exec
 		self.in_exec = True
 		c = self.current_dialog
-
 		# when this is an execbegin after a execend of a "higher" dialog,
 		# popSummary already did the right thing.
 		if first:
 			self.instantiateSummaryDialog(c)
-
 		c.saveKeyboardMode()
 		c.execBegin()
-
 		# when execBegin opened a new dialog, don't bother showing the old one.
 		if c == self.current_dialog and do_show:
 			c.show()
@@ -272,11 +273,9 @@ class Session:
 	def execEnd(self, last=True):
 		assert self.in_exec
 		self.in_exec = False
-
 		self.current_dialog.execEnd()
 		self.current_dialog.restoreKeyboardMode()
 		self.current_dialog.hide()
-
 		if last and self.summary is not None:
 			self.current_dialog.removeSummary(self.summary)
 			self.popSummary()
@@ -331,7 +330,7 @@ class Session:
 		self.pushCurrent()
 		self.current_dialog = dialog
 		self.current_dialog.isTmp = False
-		self.current_dialog.callback = None # would cause re-entrancy problems.
+		self.current_dialog.callback = None  # would cause re-entrancy problems.
 		self.execBegin()
 
 	def openWithCallback(self, callback, screen, *arguments, **kwargs):
@@ -343,7 +342,6 @@ class Session:
 		if self.dialog_stack and not self.in_exec:
 			raise RuntimeError("modal open are allowed only from a screen which is modal!")
 			# ...unless it's the very first screen.
-
 		self.pushCurrent()
 		dlg = self.current_dialog = self.instantiateDialog(screen, *arguments, **kwargs)
 		dlg.isTmp = True
@@ -355,7 +353,6 @@ class Session:
 		if not self.in_exec:
 			print "close after exec!"
 			return
-
 		# be sure that the close is for the right dialog!
 		# if it's not, you probably closed after another dialog
 		# was opened. this can happen if you open a dialog
@@ -364,7 +361,6 @@ class Session:
 		# gain focus again (for a short time), thus triggering
 		# the onExec, which opens the dialog again, closing the loop.
 		assert screen == self.current_dialog
-
 		self.current_dialog.returnValue = retval
 		self.delay_timer.start(0, 1)
 		self.execEnd()
@@ -385,6 +381,7 @@ class Session:
 		if self.summary is not None:
 			self.summary.show()
 
+
 profile("Standby,PowerKey")
 import Screens.Standby
 from Screens.Menu import MainMenu, mdom
@@ -395,11 +392,11 @@ class PowerKey:
 
 	def __init__(self, session):
 		self.session = session
-		globalActionMap.actions["power_down"]=self.powerdown
-		globalActionMap.actions["power_up"]=self.powerup
-		globalActionMap.actions["power_long"]=self.powerlong
-		globalActionMap.actions["deepstandby"]=self.shutdown # frontpanel long power button press
-		globalActionMap.actions["discrete_off"]=self.standby
+		globalActionMap.actions["power_down"] = self.powerdown
+		globalActionMap.actions["power_up"] = self.powerup
+		globalActionMap.actions["power_long"] = self.powerlong
+		globalActionMap.actions["deepstandby"] = self.shutdown  # frontpanel long power button press
+		globalActionMap.actions["discrete_off"] = self.standby
 		self.standbyblocked = 1
 
 	def MenuClosed(self, *val):
@@ -429,7 +426,7 @@ class PowerKey:
 	def powerlong(self):
 		if Screens.Standby.inTryQuitMainloop or (self.session.current_dialog and not self.session.current_dialog.ALLOW_SUSPEND):
 			return
-		self.doAction(action = config.usage.on_long_powerpress.value)
+		self.doAction(action=config.usage.on_long_powerpress.value)
 
 	def doAction(self, action):
 		self.standbyblocked = 1
@@ -455,13 +452,15 @@ class PowerKey:
 
 	def powerup(self):
 		if self.standbyblocked == 0:
-			self.doAction(action = config.usage.on_short_powerpress.value)
+			self.doAction(action=config.usage.on_short_powerpress.value)
 
 	def standby(self):
 		if not Screens.Standby.inStandby and self.session.current_dialog and self.session.current_dialog.ALLOW_SUSPEND and self.session.in_exec:
 			self.session.open(Screens.Standby.Standby)
 
+
 profile("Scart")
+print "[Enigma2] Initialising Scart."
 from Screens.Scart import Scart
 
 class AutoScartControl:
@@ -475,11 +474,11 @@ class AutoScartControl:
 		config.av.vcrswitch.addNotifier(self.recheckVCRSb)
 		enigma.eAVSwitch.getInstance().vcr_sb_notifier.get().append(self.VCRSbChanged)
 
-	def recheckVCRSb(self, configelement):
+	def recheckVCRSb(self, configElement):
 		self.VCRSbChanged(self.current_vcr_sb)
 
 	def VCRSbChanged(self, value):
-		#print "vcr sb changed to", value
+		# print "vcr sb changed to", value
 		self.current_vcr_sb = value
 		if config.av.vcrswitch.value or value > 2:
 			if value:
@@ -487,44 +486,38 @@ class AutoScartControl:
 			else:
 				self.scartDialog.switchToTV()
 
+
 profile("Load:CI")
+print "[Enigma2] Initialising CommonInterface."
 from Screens.Ci import CiHandler
 
 profile("Load:VolumeControl")
+print "[Enigma2] Initialising VolumeControl."
 from Components.VolumeControl import VolumeControl
-
-from time import time, localtime, strftime
 from Tools.StbHardware import setFPWakeuptime, setRTCtime
 
 def runScreenTest():
 	config.misc.startCounter.value += 1
 	config.misc.startCounter.save()
-
 	profile("readPluginList")
 	enigma.pauseInit()
 	plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
 	enigma.resumeInit()
-
 	profile("Init:Session")
 	nav = Navigation(config.misc.isNextRecordTimerAfterEventActionAuto.value, config.misc.isNextPowerTimerAfterEventActionAuto.value)
-	session = Session(desktop = enigma.getDesktop(0), summary_desktop = enigma.getDesktop(1), navigation = nav)
-
+	session = Session(desktop=enigma.getDesktop(0), summary_desktop=enigma.getDesktop(1), navigation=nav)
 	CiHandler.setSession(session)
-
-	screensToRun = [ p.__call__ for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD) ]
-
+	screensToRun = [p.__call__ for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
 	profile("wizards")
 	screensToRun += wizardManager.getWizards()
 	screensToRun.append((100, InfoBar.InfoBar))
 	screensToRun.sort()
-
 	enigma.ePythonConfigQuery.setQueryFunc(configfile.getResolvedKey)
 
 	def runNextScreen(session, screensToRun, *result):
 		if result:
 			enigma.quitMainloop(*result)
 			return
-
 		screen = screensToRun[0][1]
 		args = screensToRun[0][2:]
 		if screensToRun:
@@ -533,43 +526,35 @@ def runScreenTest():
 			session.open(screen, *args)
 
 	runNextScreen(session, screensToRun)
-
 	profile("Init:VolumeControl")
 	vol = VolumeControl(session)
 	profile("Init:PowerKey")
 	power = PowerKey(session)
-
 	# we need session.scart to access it from within menu.xml
 	session.scart = AutoScartControl(session)
-
 	profile("Init:Trashcan")
 	import Tools.Trashcan
 	Tools.Trashcan.init(session)
-
 	profile("Init:AutoVideoMode")
 	import Screens.VideoMode
 	Screens.VideoMode.autostart(session)
-
 	profile("RunReactor")
 	profile_final()
 	runReactor()
-
 	profile("wakeup")
-
-	#get currentTime
+	# get currentTime
 	nowTime = time()
-	wakeupList = [
-		x for x in ((session.nav.RecordTimer.getNextRecordingTime(), 0, session.nav.RecordTimer.isNextRecordAfterEventActionAuto()),
-					(session.nav.RecordTimer.getNextZapTime(), 1),
-					(plugins.getNextWakeupTime(), 2),
-					(session.nav.PowerTimer.getNextPowerManagerTime(), 3, session.nav.PowerTimer.isNextPowerManagerAfterEventActionAuto()))
-		if x[0] != -1
-	]
+	wakeupList = [x for x in (
+		(session.nav.RecordTimer.getNextRecordingTime(), 0, session.nav.RecordTimer.isNextRecordAfterEventActionAuto()),
+		(session.nav.RecordTimer.getNextZapTime(), 1),
+		(plugins.getNextWakeupTime(), 2),
+		(session.nav.PowerTimer.getNextPowerManagerTime(), 3, session.nav.PowerTimer.isNextPowerManagerAfterEventActionAuto())
+	) if x[0] != -1]
 	wakeupList.sort()
 	recordTimerWakeupAuto = False
 	if wakeupList and wakeupList[0][1] != 3:
 		startTime = wakeupList[0]
-		if (startTime[0] - nowTime) < 270: # no time to switch box back on
+		if (startTime[0] - nowTime) < 270:  # no time to switch box back on
 			wptime = nowTime + 30  # so switch back on in 30 seconds
 		else:
 			wptime = startTime[0] - 240
@@ -579,140 +564,154 @@ def runScreenTest():
 		print "set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime))
 		setFPWakeuptime(wptime)
 		recordTimerWakeupAuto = startTime[1] == 0 and startTime[2]
-		print 'recordTimerWakeupAuto',recordTimerWakeupAuto
+		print "recordTimerWakeupAuto", recordTimerWakeupAuto
 	config.misc.isNextRecordTimerAfterEventActionAuto.value = recordTimerWakeupAuto
 	config.misc.isNextRecordTimerAfterEventActionAuto.save()
-
-
 	PowerTimerWakeupAuto = False
 	if wakeupList and wakeupList[0][1] == 3:
 		startTime = wakeupList[0]
-		if (startTime[0] - nowTime) < 60: # no time to switch box back on
+		if (startTime[0] - nowTime) < 60:  # no time to switch box back on
 			wptime = nowTime + 30  # so switch back on in 30 seconds
 		else:
 			wptime = startTime[0]
 		if not config.misc.SyncTimeUsing.value == "0":
 			print "dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime))
 			setRTCtime(nowTime)
-		print "set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime+60))
+		print "set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime + 60))
 		setFPWakeuptime(wptime)
 		PowerTimerWakeupAuto = startTime[1] == 3 and startTime[2]
-		print 'PowerTimerWakeupAuto',PowerTimerWakeupAuto
+		print "PowerTimerWakeupAuto", PowerTimerWakeupAuto
 	config.misc.isNextPowerTimerAfterEventActionAuto.value = PowerTimerWakeupAuto
 	config.misc.isNextPowerTimerAfterEventActionAuto.save()
-
 	profile("stopService")
 	session.nav.stopService()
 	profile("nav shutdown")
 	session.nav.shutdown()
-
 	profile("configfile.save")
 	configfile.save()
 	from Screens import InfoBarGenerics
 	InfoBarGenerics.saveResumePoints()
-
 	return 0
 
+
 profile("Init:skin")
-print "[Enigma2] Initialising Skins."
+print "[Enigma2] Initialising Skin."
 import skin
 skin.InitSkins()
 print "[Enigma2] Initialisation of Skins complete."
 
 profile("InputDevice")
+print "[Enigma2] Initialising InputDevice."
 import Components.InputDevice
 Components.InputDevice.InitInputDevices()
 import Components.InputHotplug
 
 profile("SetupDevices")
+print "[Enigma2] Initialising SetupDevices."
 import Components.SetupDevices
 Components.SetupDevices.InitSetupDevices()
 
 profile("UserInterface")
+print "[Enigma2] Initialising UserInterface."
 import Screens.UserInterfacePositioner
 Screens.UserInterfacePositioner.InitOsd()
 
 profile("AVSwitch")
+print "[Enigma2] Initialising AVSwitch."
 import Components.AVSwitch
 Components.AVSwitch.InitAVSwitch()
 Components.AVSwitch.InitiVideomodeHotplug()
 
 profile("RecordingConfig")
+print "[Enigma2] Initialising RecordingConfig."
 import Components.RecordingConfig
 Components.RecordingConfig.InitRecordingConfig()
 
 profile("UsageConfig")
+print "[Enigma2] Initialising UsageConfig."
 import Components.UsageConfig
 Components.UsageConfig.InitUsageConfig()
 
 profile("TimeZones")
+print "[Enigma2] Initialising Timezones."
 import Components.Timezones
 Components.Timezones.InitTimeZones()
 
 profile("Init:DebugLogCheck")
+print "[Enigma2] Initialising DebugLogCheck."
 import Screens.LogManager
 Screens.LogManager.AutoLogManager()
 
 profile("Init:OnlineCheckState")
+print "[Enigma2] Initialising OnlineCheckState."
 import Components.OnlineUpdateCheck
 Components.OnlineUpdateCheck.OnlineUpdateCheck()
 
 profile("Init:NTPSync")
+print "[Enigma2] Initialising NTPSync."
 import Components.NetworkTime
 Components.NetworkTime.AutoNTPSync()
 
 profile("keymapparser")
+print "[Enigma2] Initialising KeymapParser."
 import keymapparser
 keymapparser.readKeymap(config.usage.keymap.value)
 keymapparser.readKeymap(config.usage.keytrans.value)
 
 profile("Network")
+print "[Enigma2] Initialising Network."
 import Components.Network
 Components.Network.InitNetwork()
 
 profile("LCD")
+print "[Enigma2] Initialising LCD / FrontPanel."
 import Components.Lcd
 Components.Lcd.InitLcd()
+# ------------------>Components.Lcd.IconCheck()
 
 profile("UserInterface")
+print "[Enigma2] Initialising UserInterface."
 import Screens.UserInterfacePositioner
 Screens.UserInterfacePositioner.InitOsdPosition()
 
 profile("EpgCacheSched")
+print "[Enigma2] Initialising EPGCacheScheduler."
 import Components.EpgLoadSave
 Components.EpgLoadSave.EpgCacheSaveCheck()
 Components.EpgLoadSave.EpgCacheLoadCheck()
 
 profile("RFMod")
+print "[Enigma2] Initialising RFMod."
 import Components.RFmod
 Components.RFmod.InitRFmod()
 
 profile("Init:CI")
+print "[Enigma2] Initialising CommonInterface."
 import Screens.Ci
 Screens.Ci.InitCiConfig()
 
 profile("RcModel")
+print "[Enigma2] Initialising RCModel."
 import Components.RcModel
 
 if config.clientmode.enabled.value:
 	import Components.ChannelsImporter
 	Components.ChannelsImporter.autostart()
 
-#from enigma import dump_malloc_stats
-#t = eTimer()
-#t.callback.append(dump_malloc_stats)
-#t.start(1000)
+# from enigma import dump_malloc_stats
+# t = eTimer()
+# t.callback.append(dump_malloc_stats)
+# t.start(1000)
 
 # first, setup a screen
+print "[Enigma2] Starting User Interface."
 try:
 	runScreenTest()
-
 	plugins.shutdown()
-
 	Components.ParentalControl.parentalControl.save()
-except:
-	print 'EXCEPTION IN PYTHON STARTUP CODE:'
-	print '-'*60
+except Exception:
+	print "EXCEPTION IN PYTHON STARTUP CODE:"
+	print "-" * 60
 	print_exc(file=stdout)
 	enigma.quitMainloop(5)
-	print '-'*60
+	print "-" * 60
