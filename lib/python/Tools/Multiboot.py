@@ -58,7 +58,7 @@ def getMultibootslots():
 							elif "sda" in line:
 								slot["kernel"] = getparam(line, "kernel")	# sf8008 SD card slot pairs same as oldsystle MB
 								slot["rootsubdir"] = None
-							else:	
+							else:
 								slot["kernel"] = "%sp%s" % (root.split("p")[0], int(root.split("p")[1]) - 1)	# oldstyle MB kernel = root-1
 						break
 				if slot:
