@@ -216,8 +216,8 @@ def InitLcd():
 			f = open("/proc/stb/power/powerled2", "w")
 			f.write(configElement.value)
 			f.close()
-		config.usage.lcd_powerled2 = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
-		config.usage.lcd_powerled2.addNotifier(setPowerLEDstate2)
+		config.lcd.powerled2 = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
+		config.lcd.powerled2.addNotifier(setPowerLEDstate2)
 
  	if SystemInfo["StandbyLED"]:
 		def setPowerLEDstanbystate(configElement):
