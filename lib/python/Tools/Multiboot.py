@@ -24,7 +24,7 @@ def getMBbootdevice():
 			if path.isfile(path.join(tmp.dir, "STARTUP")):
 				print '[Multiboot] [getMBbootdevices] Bootdevice found: %s' % device
 				return device
-			Console().ePopen("umount %s" % self.tmp_mount)
+			Console().ePopen('umount %s' % tmp.dir)
 	shutil.rmtree(tmp.dir, True)
 
 def getparam(line, param):
