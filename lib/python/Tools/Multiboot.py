@@ -3,7 +3,7 @@ import shutil
 import subprocess
 import tempfile
 
-from os import mkdir, path, rmdir, rename, remove, stat
+from os import mkdir, path, rmdir, rename, remove, sep, stat
 
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
@@ -118,8 +118,8 @@ class GetImagelist():
 		if retval:
 			self.imagelist[self.slot] = {"imagename": _("Empty slot")}
 		if retval == 0 and self.phase == self.MOUNT:
-			imagedir = os.sep.join(filter(None, [self.tmp_mount, SystemInfo["canMultiBoot"][self.slot].get('rootsubdir', '')]))
-			if os.path.isfile(os.path.join(imagedir, 'usr/bin/enigma2')):
+			imagedir = sep.join(filter(None, [self.tmp_mount, SystemInfo["canMultiBoot"][self.slot].get('rootsubdir', '')]))
+			if path.isfile(path.join(imagedir, 'usr/bin/enigma2')):
 			# print "[multiboot] [GetImagelist] 2 self.slot = %s imagedir = %s" % (self.slot, imagedir)
 				Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6].replace("-release", " rel")
 				if Creator.startswith("Openvix"):
