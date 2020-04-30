@@ -464,10 +464,11 @@ class Harddisk:
 			dev = self.mount_device
 		else:
 			dev = self.partitionPath("1")  # Otherwise, assume there is one partition.
-		partType = "ext4"
 		for parts in getProcMounts():
 			if os.path.realpath(parts[0]).startswith(dev):
 				partType = parts[2]
+		if partType not in ("ext3", "ext4", "vfat", "nfs"):
+			partType = "ext4"
 		print "[Harddisk] Filesystem type is '%s'." % partType
 		task = Task.LoggingTask(job, _("Checking disk."))  # "fsck"
 		task.setTool("fsck.%s" % partType)
