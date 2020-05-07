@@ -17,6 +17,7 @@ from Tools.HardwareInfo import HardwareInfo
 
 
 def InitUsageConfig():
+	config.version = ConfigNumber(default = 0)
 	config.misc.useNTPminutes = ConfigSelection(default="30", choices=[
 		("30", "30" + " " + _("minutes")),
 		("60", _("Hour")),
