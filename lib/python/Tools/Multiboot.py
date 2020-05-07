@@ -62,6 +62,7 @@ def getMultibootslots():
 		Console().ePopen("umount %s" % tmp.dir)
 		if not path.ismount(tmp.dir):
 			rmdir(tmp.dir)
+	print '[Multiboot] Bootslots found:', bootslots
 	return bootslots
 
 def GetCurrentImage():
