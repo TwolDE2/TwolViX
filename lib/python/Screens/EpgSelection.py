@@ -1,20 +1,3 @@
-from time import localtime, time, strftime, mktime
-
-from enigma import eServiceReference, eTimer, eServiceCenter, ePoint
-
-from Screen import Screen
-from Screens.HelpMenu import HelpableScreen
-from Components.About import about
-from Components.ActionMap import HelpableActionMap, HelpableNumberActionMap
-from Components.Button import Button
-from Components.config import config, configfile, ConfigClock
-from Components.EpgList import EPGList, EPGBouquetList, TimelineText, EPG_TYPE_SINGLE, EPG_TYPE_SIMILAR, EPG_TYPE_MULTI, EPG_TYPE_ENHANCED, EPG_TYPE_INFOBAR, EPG_TYPE_INFOBARGRAPH, EPG_TYPE_GRAPH, MAX_TIMELINES
-from Components.Label import Label
-from Components.Pixmap import Pixmap
-from Components.Sources.ServiceEvent import ServiceEvent
-from Components.Sources.Event import Event
-from Components.UsageConfig import preferredTimerPath
-from Screens.TimerEdit import TimerSanityConflict
 from Components.ActionMap import HelpableActionMap
 from Components.EpgList import EPG_TYPE_SINGLE
 from Screens.EpgSelectionChannel import EPGSelectionChannel
@@ -64,12 +47,12 @@ class EPGSelection(EPGSelectionChannel):
 		self.sortEpg()
 
 	def greenButtonPressed(self):
+		self.addEditTimer()
 
 	def greenButtonPressedLong(self):
 		self.showTimerList()
 
 	def yellowButtonPressed(self):
-
 		self.openEPGSearch()
 
 	def blueButtonPressed(self):
@@ -113,4 +96,3 @@ class EPGSelection(EPGSelectionChannel):
 			self.refreshlist()
 		except AttributeError:
 			EPGSelectionChannel.refreshList(self)
-
