@@ -358,23 +358,6 @@ class InfoBarTimeshift:
 		ts = self.getTimeshift()
 		return ts and ts.isTimeshiftEnabled()
 
-	def playpauseService2(self):
-		service = self.session.nav.getCurrentService()
-		playingref = self.session.nav.getCurrentlyPlayingServiceReference()
-		if not playingref or playingref.type < eServiceReference.idUser:
-			return 0
-		if service and service.streamed():
-			pauseable = service.pause()
-			if pauseable:
-				if self.seekstate == self.SEEK_STATE_PLAY:
-					pauseable.pause()
-					self.seekstate = self.SEEK_STATE_PAUSE
-				else:
-					pauseable.unpause()
-					self.seekstate = self.SEEK_STATE_PLAY
-				return
-		return 0
-
 	def startTimeshift(self):
 		ts = self.getTimeshift()
 		if ts is None:

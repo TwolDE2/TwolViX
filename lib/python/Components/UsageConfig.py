@@ -44,21 +44,21 @@ def InitUsageConfig():
 		("tunername", _("with tuner name"))
 	])
 	config.usage.multibouquet = ConfigYesNo(default=True)
-	config.usage.alternative_number_mode = ConfigYesNo(default=False)
 	config.usage.maxchannelnumlen = ConfigSelection(default = "4", choices = [("3", _("3")),("4", _("4")), ("5", _("5")), ("6", _("6"))])
 
+	config.usage.alternative_number_mode = ConfigYesNo(default=False)
 	def alternativeNumberModeChange(configElement):
 		eDVBDB.getInstance().setNumberingMode(configElement.value)
 		refreshServiceList()
-
 	config.usage.alternative_number_mode.addNotifier(alternativeNumberModeChange)
+
+	config.usage.hide_number_markers = ConfigYesNo(default = True)
+	config.usage.hide_number_markers.addNotifier(refreshServiceList)
 	config.usage.servicetype_icon_mode = ConfigSelection(default="0", choices=[
 		("0", _("None")),
 		("1", _("Left from servicename")),
 		("2", _("Right from servicename"))
 	])
-	config.usage.hide_number_markers = ConfigYesNo(default = True)
-	config.usage.hide_number_markers.addNotifier(refreshServiceList)
 	config.usage.servicetype_icon_mode.addNotifier(refreshServiceList)
 	config.usage.crypto_icon_mode = ConfigSelection(default="0", choices=[
 		("0", _("None")),
@@ -291,6 +291,7 @@ def InitUsageConfig():
 	dvbt_nims = [("-2", _("Disabled"))]
 	dvbc_nims = [("-2", _("Disabled"))]
 	atsc_nims = [("-2", _("Disabled"))]
+
 	nims = [("-1", _("auto"))]
 	rec_nims = [("-2", _("Disabled")), ("-1", _("auto"))]
 	for x in nimmanager.nim_slots:
@@ -697,6 +698,7 @@ def InitUsageConfig():
 		(_("%-m/%d"), _("Day M/DD")),
 		(_("%-m/%-d"), _("Day M/D"))
 	])
+
 	config.usage.date.displayday = ConfigText(default=_("%a %-d+%b_"))
 	config.usage.date.display_template = ConfigText(default=_("%-d+%b_"))
 	config.usage.date.compact = ConfigText(default=_("%-d+%b_"))
@@ -831,7 +833,6 @@ def InitUsageConfig():
 		if not config.epg.opentv.value:
 			mask &= ~eEPGCache.OPENTV
 		eEPGCache.getInstance().setEpgSources(mask)
-
 	config.epg.eit.addNotifier(EpgSettingsChanged)
 	config.epg.mhw.addNotifier(EpgSettingsChanged)
 	config.epg.freesat.addNotifier(EpgSettingsChanged)
@@ -839,23 +840,21 @@ def InitUsageConfig():
 	config.epg.netmed.addNotifier(EpgSettingsChanged)
 	config.epg.virgin.addNotifier(EpgSettingsChanged)
 	config.epg.opentv.addNotifier(EpgSettingsChanged)
+
 	config.epg.histminutes = ConfigSelectionNumber(min = 0, max = 720, stepwidth = 15, default = 0, wraparound = True)
 	def EpgHistorySecondsChanged(configElement):
 		eEPGCache.getInstance().setEpgHistorySeconds(config.epg.histminutes.value * 60)
-
 	config.epg.histminutes.addNotifier(EpgHistorySecondsChanged)
+
 	config.epg.cachesaveenabled = ConfigYesNo(default = True)
 	config.epg.cacheloadsched = ConfigYesNo(default = False)
 	config.epg.cachesavesched = ConfigYesNo(default = False)
-
 	def EpgCacheLoadSchedChanged(configElement):
 		import EpgLoadSave
 		EpgLoadSave.EpgCacheLoadCheck()
-
 	def EpgCacheSaveSchedChanged(configElement):
 		import EpgLoadSave
 		EpgLoadSave.EpgCacheSaveCheck()
-
 	config.epg.cacheloadsched.addNotifier(EpgCacheLoadSchedChanged, immediate_feedback=False)
 	config.epg.cachesavesched.addNotifier(EpgCacheSaveSchedChanged, immediate_feedback=False)
 	config.epg.cacheloadtimer = ConfigSelectionNumber(default=24, stepwidth=1, min=1, max=24, wraparound=True)
@@ -880,13 +879,13 @@ def InitUsageConfig():
 		if not config.misc.epgcache_filename.value.startswith("/etc/enigma2/"):
 			if os.path.exists("/etc/enigma2/" + config.misc.epgcachefilename.value.replace(".dat", "") + ".dat"):
 				os.remove("/etc/enigma2/" + config.misc.epgcachefilename.value.replace(".dat", "") + ".dat")
-
 	config.misc.epgcachepath.addNotifier(EpgCacheChanged, immediate_feedback=False)
 	config.misc.epgcachefilename.addNotifier(EpgCacheChanged, immediate_feedback=False)
-	config.misc.showradiopic = ConfigYesNo(default=True)
+
 	config.misc.epgratingcountry = ConfigSelection(default="", choices=[("", _("Auto Detect")), ("ETSI", _("Generic")), ("AUS", _("Australia"))])
 	config.misc.epggenrecountry = ConfigSelection(default="", choices=[("", _("Auto Detect")), ("ETSI", _("Generic")), ("AUS", _("Australia"))])
 
+	config.misc.showradiopic = ConfigYesNo(default=True)
 	def setHDDStandby(configElement):
 		for hdd in harddiskmanager.HDDList():
 			hdd[1].setIdleTime(int(configElement.value))
