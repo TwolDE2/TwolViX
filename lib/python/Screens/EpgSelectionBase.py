@@ -70,8 +70,9 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		self["lab1"].hide()
 		self["key_red"] = Button(_("IMDb Search"))
 		self["key_green"] = Button(_("Add Timer"))
-		self["key_yellow"] = Button(_("EPG Search"))
-		self["key_blue"] = Button(_("Add AutoTimer"))
+#		self["key_yellow"] = Button(_("EPG Search"))
+		self["key_yellow"] = Button(_("Add AutoTimer"))
+		self["key_blue"] = Button(_("+/- 24 Hours "))
 
 		helpDescription = _("EPG Commands")
 		self["dialogactions"] = HelpableActionMap(self, "WizardActions", {
@@ -88,9 +89,9 @@ class EPGSelectionBase(Screen, HelpableScreen):
 			"redlong": (self.sortEPG, _("Sort the EPG list")),
 			"green": (ignoreLongKeyPress(self.addEditTimer), _("Add/Remove timer for current event")),
 			"greenlong": (self.openTimerList, _("Show timer list")),
-			"yellow": (ignoreLongKeyPress(self.openEPGSearch), _("Search for similar events")),
-			"blue": (ignoreLongKeyPress(self.addAutoTimer), _("Add an autotimer for current event")),
-			"bluelong": (self.openAutoTimerList, _("Show autotimer list"))
+#			"yellow": (ignoreLongKeyPress(self.openEPGSearch), _("Search for similar events")),
+			"yellow": (ignoreLongKeyPress(self.addAutoTimer), _("Add an autotimer for current event")),
+			"yellowlong": (self.openAutoTimerList, _("Show autotimer list"))
 		}, prio=-1, description=helpDescription)
 		self["recordingactions"] = HelpableActionMap(self, "InfobarInstantRecord", {
 			"ShortRecord": (self.recordTimerQuestion, _("Add a record timer for current event")),

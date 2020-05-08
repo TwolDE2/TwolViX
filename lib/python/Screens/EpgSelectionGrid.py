@@ -12,6 +12,12 @@ from Screens.EpgSelectionBase import EPGSelectionBase, EPGBouquetSelection, EPGS
 from Screens.EventView import EventViewSimple
 from Screens.Setup import Setup
 
+def ignoreLongKeyPress(action):
+	def fn():
+		from Screens.InfoBar import InfoBar
+		if not InfoBar.instance.LongButtonPressed:
+			action()
+	return fn
 
 class EPGSelectionGrid(EPGSelectionBase, EPGBouquetSelection, EPGServiceZap):
 	def __init__(self, session, zapFunc, startBouquet, startRef, bouquets, timeFocus=None, isInfobar=False):
@@ -44,6 +50,10 @@ class EPGSelectionGrid(EPGSelectionBase, EPGBouquetSelection, EPGServiceZap):
 		self.updateTimelineTimer.callback.append(self.moveTimeLines)
 		self.updateTimelineTimer.start(60000)
 		helpDescription = _("EPG Commands")
+		self["colouractions"] = HelpableActionMap(self, "ColorActions", {
+			"blue": (ignoreLongKeyPress(self.forward24Hours), _("Forward 24 hours")),
+			"bluelong": (self.back24Hours, _("Go back 24 hours"))
+		}, prio=-1, description=helpDescription)
 		self["epgcursoractions"] = HelpableActionMap(self, "DirectionActions", {
 			"left": (self.leftPressed, _("Go to previous event")),
 			"right": (self.rightPressed, _("Go to next event")),
