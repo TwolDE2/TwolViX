@@ -3,6 +3,7 @@ from time import localtime, mktime, time
 from enigma import eTimer
 
 from Components.ActionMap import HelpableActionMap
+from Components.Button import Button
 from Components.config import config, configfile
 from Components.EpgListGrid import EPGListGrid, MAX_TIMELINES, TimelineText
 from Components.Label import Label
@@ -50,6 +51,7 @@ class EPGSelectionGrid(EPGSelectionBase, EPGBouquetSelection, EPGServiceZap):
 		self.updateTimelineTimer.callback.append(self.moveTimeLines)
 		self.updateTimelineTimer.start(60000)
 		helpDescription = _("EPG Commands")
+		self["key_blue"] = Button(_("+/- 24 Hours "))
 		self["colouractions"] = HelpableActionMap(self, "ColorActions", {
 			"blue": (ignoreLongKeyPress(self.forward24Hours), _("Forward 24 hours")),
 			"bluelong": (self.back24Hours, _("Go back 24 hours"))
