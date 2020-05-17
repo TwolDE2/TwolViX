@@ -90,14 +90,14 @@ SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/HdmiCEC/plugin.pyo")
 SystemInfo["HasHDMIin"] = getHaveHDMIinHD() in ("True",) or getHaveHDMIinFHD() in ("True",)
 #	Audio/Video Configuration setup values
-	# Machines that do have SCART component video (red, green and blue RCA sockets).
-SystemInfo["Scart-YPbPr"] = getBrandOEM() == "vuplus" and not "4k" in getBoxType()
-	# Machines that do not have component video (red, green and blue RCA sockets).
-SystemInfo["no_YPbPr"] = getHaveYUV() in ("False",)
-	# Machines that have composite video (yellow RCA socket) but do not have Scart.
-SystemInfo["yellow_RCA_no_scart"] = getHaveSCART() in ("False",) and (getHaveRCA() in ("True",) or getHaveAVJACK() in ("True",))
-	# Machines that have neither yellow RCA nor Scart sockets
-SystemInfo["no_yellow_RCA__no_scart"] = getHaveRCA() in ("False",) and (getHaveSCART() in ("False",) and getHaveAVJACK() in ("False",))
+# Machines that do have SCART component video (red, green and blue RCA sockets).
+SystemInfo["Scart-YPbPr"] = getBrandOEM() == "vuplus" and "4k" not in getBoxType()
+# Machines that do not have component video (red, green and blue RCA sockets).
+SystemInfo["no_YPbPr"] = not getHaveYUV()
+# Machines that have composite video (yellow RCA socket) but do not have Scart.
+SystemInfo["yellow_RCA_no_scart"] = not getHaveSCART() and (getHaveRCA() in ("True",) or getHaveAVJACK() in ("True",))
+# Machines that have neither yellow RCA nor Scart sockets.
+SystemInfo["no_yellow_RCA__no_scart"] = not getHaveRCA() and (not getHaveSCART() and not getHaveAVJACK())
 # Videomodes
 SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
 		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "3798mv200", "3798cv200", "hi3798mv200", "hi3798cv200"
