@@ -620,7 +620,6 @@ profile("AVSwitch")
 print "[Enigma2] Initialising AVSwitch."
 import Components.AVSwitch
 Components.AVSwitch.InitAVSwitch()
-Components.AVSwitch.InitiVideomodeHotplug()
 
 profile("RecordingConfig")
 print "[Enigma2] Initialising RecordingConfig."

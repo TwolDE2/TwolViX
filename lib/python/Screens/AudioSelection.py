@@ -1,19 +1,18 @@
-from Screen import Screen
-from Screens.Setup import getConfigMenuItem, Setup
-from Screens.InputBox import PinInput
-from Screens.MessageBox import MessageBox
-from Components.ServiceEventTracker import ServiceEventTracker
-from Components.ActionMap import NumberActionMap
-from Components.ConfigList import ConfigListScreen
-from Components.config import config, ConfigSubsection, getConfigListEntry, ConfigNothing, ConfigSelection, ConfigOnOff, ConfigYesNo
-from Components.Label import Label
-from Components.Sources.List import List
-from Components.Sources.Boolean import Boolean
-from Components.SystemInfo import SystemInfo
-from Components.VolumeControl import VolumeControl
-
 from enigma import iPlayableService, eTimer, eSize, eDVBDB, eServiceReference, eServiceCenter, iServiceInformation
 
+from Components.ActionMap import NumberActionMap
+from Components.config import config, ConfigSubsection, getConfigListEntry, ConfigNothing, ConfigSelection, ConfigOnOff, ConfigYesNo
+from Components.ConfigList import ConfigListScreen
+from Components.Label import Label
+from Components.ServiceEventTracker import ServiceEventTracker
+from Components.Sources.Boolean import Boolean
+from Components.Sources.List import List
+from Components.SystemInfo import SystemInfo
+from Components.VolumeControl import VolumeControl
+from Screen import Screen
+from Screens.InputBox import PinInput
+from Screens.MessageBox import MessageBox
+from Screens.Setup import getConfigMenuItem, Setup
 from Tools.ISO639 import LanguageCodes
 from Tools.BoundFunction import boundFunction
 
@@ -235,7 +234,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				for x in range(n):
 					number = str(x + 1)
 					i = audio.getTrackInfo(x)
-					languages = i.getLanguage().split('/')
+					languages = i.getLanguage().split("/")
 					description = i.getDescription() or ""
 					selected = ""
 					language = ""
@@ -247,7 +246,7 @@ class AudioSelection(Screen, ConfigListScreen):
 					cnt = 0
 					for lang in languages:
 						if cnt:
-							language += ' / '
+							language += " / "
 						if lang in LanguageCodes:
 							language += _(LanguageCodes[lang][0])
 						else:
@@ -257,7 +256,7 @@ class AudioSelection(Screen, ConfigListScreen):
 					streams.append((x, "", number, description, language, selected))
 
 			else:
-				conflist.append(('',))
+				conflist.append(("",))
 
 			if SystemInfo["Canedidchecking"]:
 				choice_list = [("00000000", _("off")), ("00000001", _("on"))]
@@ -279,7 +278,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				Plugins = [ (p.name, PluginCaller(self.infobar.runPlugin, p)) for p in plugins.getPlugins(where = PluginDescriptor.WHERE_AUDIOMENU) ]
 				if len(Plugins):
 					for x in Plugins:
-						if x[0] != 'AudioEffect': # always make AudioEffect Blue button.
+						if x[0] != "AudioEffect": # always make AudioEffect Blue button.
 							conflist.append(getConfigListEntry(x[0], ConfigNothing(),x[1]))
 
 		elif self.settings.menupage.value == PAGE_SUBTITLES:
@@ -448,7 +447,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.audioTracks.selectTrack(track)
 
 	def read_choices(self, procx):
-		with open(procx, 'r') as self.myfile:
+		with open(procx, "r") as self.myfile:
 			self.choices = self.myfile.read().strip()
 		if self.choices:
 			self.choiceslist = self.choices.split(" ")
@@ -499,9 +498,9 @@ class AudioSelection(Screen, ConfigListScreen):
 
 	def keyAudioSubtitle(self):
 		if self.settings.menupage.value == PAGE_AUDIO:
-			self.settings.menupage.setValue('subtitles')
+			self.settings.menupage.setValue("subtitles")
 		else:
-			self.settings.menupage.setValue('audio')
+			self.settings.menupage.setValue("audio")
 
 	def colorkey(self, idx):
 		self["config"].setCurrentIndex(idx)
