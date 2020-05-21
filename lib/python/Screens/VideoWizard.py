@@ -1,19 +1,20 @@
-from boxbranding import getHaveAVJACK, getHaveDVI, getHaveRCA, getHaveSCART 
+from boxbranding import getHaveAVJACK, getHaveDVI, getHaveRCA, getHaveSCART
+
 from Components.AVSwitch import iAVSwitch as iAV
 from Components.config import config, ConfigBoolean, configfile
 from Components.Pixmap import Pixmap
 from Screens.Rc import Rc
 from Screens.Wizard import WizardSummary
 from Screens.WizardLanguage import WizardLanguage
-from Tools.Directories import resolveFilename, SCOPE_SKIN, SCOPE_ACTIVE_SKIN
+from Tools.Directories import SCOPE_CURRENT_SKIN, SCOPE_SKIN, resolveFilename
 from Tools.HardwareInfo import HardwareInfo
 
-config.misc.showtestcard = ConfigBoolean(default = False)
+config.misc.showtestcard = ConfigBoolean(default=False)
 
-has_dvi = getHaveDVI() in ("True",)
-has_jack = getHaveAVJACK() in ("True",)
-has_rca = getHaveRCA() in ("True",)
-has_scart = getHaveSCART() in ("True",)
+hasDVI = getHaveDVI() == "True"
+hasJack = getHaveAVJACK() == "True"
+hasRCA = getHaveRCA() == "True"
+hasScart = getHaveSCART() == "True"
 
 
 class VideoWizardSummary(WizardSummary):
@@ -25,6 +26,7 @@ class VideoWizardSummary(WizardSummary):
 
 	def setLCDPic(self, file):
 		self["pic"].instance.setPixmapFromFile(file)
+
 
 class VideoWizard(WizardLanguage, Rc):
 	skin = """
@@ -54,12 +56,10 @@ class VideoWizard(WizardLanguage, Rc):
 		# FIXME anyone knows how to use relative paths from the plugin's directory?
 		self.xmlfile = resolveFilename(SCOPE_SKIN, "videowizard.xml")
 		iAV = iAVSwitch
-
-		WizardLanguage.__init__(self, session, showSteps = False, showStepSlider = False)
+		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
 		Rc.__init__(self)
 		self["wizard"] = Pixmap()
 		self["portpic"] = Pixmap()
-
 		self.port = None
 		self.mode = None
 		self.rate = None
@@ -75,24 +75,23 @@ class VideoWizard(WizardLanguage, Rc):
 		configfile.save()
 
 	def listInputChannels(self):
-#		hw_type = HardwareInfo().get_device_name()
-#		has_hdmi = HardwareInfo().has_hdmi()
+		# hw_type = HardwareInfo().get_device_name()
+		# has_hdmi = HardwareInfo().has_hdmi()
 		list = []
-
 		for port in iAV.getPortList():
 			if iAV.isPortUsed(port):
 				descr = port
-				if descr == "HDMI" and has_dvi:
+				if descr == "HDMI" and hasDVI:
 					descr = "DVI"
-				if descr == "RCA" and has_rca:
+				if descr == "RCA" and hasRCA:
 					descr = "RCA"
-				if descr == "RCA" and has_jack and not has_scart:
+				if descr == "RCA" and hasJack and not hasScart:
 					descr = "JACK"
-				if descr == "Scart" and has_rca and not has_scart:
+				if descr == "Scart" and hasRCA and not hasScart:
 					descr = "RCA"
 				if port != "DVI-PC":
-					list.append((descr,port))
-		list.sort(key = lambda x: x[0])
+					list.append((descr, port))
+		list.sort(key=lambda x: x[0])
 		print "[VideoWizard] listInputChannels:", list
 		return list
 
@@ -102,21 +101,21 @@ class VideoWizard(WizardLanguage, Rc):
 		self.inputSelect(index)
 
 	def inputSelectionMoved(self):
-#		hw_type = HardwareInfo().get_device_name()
-#		has_hdmi = HardwareInfo().has_hdmi()
+		# hw_type = HardwareInfo().get_device_name()
+		# has_hdmi = HardwareInfo().has_hdmi()
 		print "[VideoWizard] input selection moved:", self.selection
 		self.inputSelect(self.selection)
 		if self["portpic"].instance is not None:
 			picname = self.selection
-			if picname == "HDMI" and has_dvi:
+			if picname == "HDMI" and hasDVI:
 				picname = "DVI"
-			if picname == "RCA" and has_rca:
+			if picname == "RCA" and hasRCA:
 				picname = "RCA"
-			if picname == "RCA" and has_jack:
+			if picname == "RCA" and hasJack:
 				picname = "JACK"
-			if picname == "Scart" and has_rca:
-				picname = "RCA"	
-			self["portpic"].instance.setPixmapFromFile(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/" + picname + ".png"))
+			if picname == "Scart" and hasRCA:
+				picname = "RCA"
+			self["portpic"].instance.setPixmapFromFile(resolveFilename(SCOPE_CURRENT_SKIN, "icons/%s.png" % picname))
 
 	def inputSelect(self, port):
 		print "[VideoWizard] inputSelect:", port
@@ -125,14 +124,14 @@ class VideoWizard(WizardLanguage, Rc):
 		self.port = port
 		if len(modeList) > 0:
 			ratesList = self.listRates(modeList[0][0])
-			iAV.setMode(port = port, mode = modeList[0][0], rate = ratesList[0][0])
+			iAV.setMode(port=port, mode=modeList[0][0], rate=ratesList[0][0])
 
 	def listModes(self):
 		list = []
 		print "[VideoWizard] modes for port", self.port
 		for mode in iAV.getModeList(self.port):
-			#if mode[0] != "PC":
-				list.append((mode[0], mode[0]))
+			# if mode[0] != "PC":
+			list.append((mode[0], mode[0]))
 		print "[VideoWizard] modeslist:", list
 		return list
 
@@ -150,11 +149,11 @@ class VideoWizard(WizardLanguage, Rc):
 		print "[VideoWizard] ratesList:", ratesList
 		if self.port == "HDMI" and mode in ("720p", "1080i", "1080p", "2160p"):
 			self.rate = "multi"
-			iAV.setMode(port = self.port, mode = mode, rate = "multi")
+			iAV.setMode(port=self.port, mode=mode, rate="multi")
 		else:
-			iAV.setMode(port = self.port, mode = mode, rate = ratesList[0][0])
+			iAV.setMode(port=self.port, mode=mode, rate=ratesList[0][0])
 
-	def listRates(self, querymode = None):
+	def listRates(self, querymode=None):
 		if querymode is None:
 			querymode = self.mode
 		list = []
@@ -181,9 +180,9 @@ class VideoWizard(WizardLanguage, Rc):
 		self.rateSelect(self.selection)
 
 	def rateSelect(self, rate):
-		iAV.setMode(port = self.port, mode = self.mode, rate = rate)
+		iAV.setMode(port=self.port, mode=self.mode, rate=rate)
 
-	def showTestCard(self, selection = None):
+	def showTestCard(self, selection=None):
 		if selection is None:
 			selection = self.selection
 		print "[VideoWizard] set config.misc.showtestcard to", {"yes": True, "no": False}[selection]
@@ -193,7 +192,7 @@ class VideoWizard(WizardLanguage, Rc):
 			config.misc.showtestcard.value = False
 
 	def keyNumberGlobal(self, number):
-		if number in (1,2,3):
+		if number in (1, 2, 3):
 			if number == 1:
 				iAV.saveMode("HDMI", "720p", "multi")
 			elif number == 2:
@@ -202,5 +201,4 @@ class VideoWizard(WizardLanguage, Rc):
 				iAV.saveMode("Scart", "Multi", "multi")
 			iAV.setConfiguredMode()
 			self.close()
-
 		WizardLanguage.keyNumberGlobal(self, number)
