@@ -15,6 +15,14 @@ if VUUNO4K
 SUBDIRS += CableScan
 endif
 
+if VUUNO4KSE
+SUBDIRS += CableScan
+endif
+
+if VUDUO4K
+SUBDIRS += CableScan
+endif
+
 if VUULTIMO4K
 SUBDIRS += CableScan
 endif

@@ -621,6 +621,10 @@ print "[Enigma2] Initialising AVSwitch."
 import Components.AVSwitch
 Components.AVSwitch.InitAVSwitch()
 
+profile("EpgConfig")
+import Components.EpgConfig
+Components.EpgConfig.InitEPGConfig()
+
 profile("RecordingConfig")
 print "[Enigma2] Initialising RecordingConfig."
 import Components.RecordingConfig
