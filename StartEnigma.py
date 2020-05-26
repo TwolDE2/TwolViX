@@ -154,8 +154,10 @@ from twisted.python import log
 config.misc.enabletwistedlog = ConfigYesNo(default = False)
 if config.misc.enabletwistedlog.value == True:
 	log.startLogging(open('/tmp/twisted.log', 'w'))
+	print "[Enigma2] Twisted log ->  /tmp/twisted.log."
 else:
 	log.startLogging(sys.stdout)
+	print "[Enigma2] Twisted log ->  sys.stdout."
 
 
 profile("LOAD:Plugin")
@@ -623,6 +625,10 @@ profile("AVSwitch")
 print "[Enigma2] Initialising AVSwitch."
 import Components.AVSwitch
 Components.AVSwitch.InitAVSwitch()
+
+profile("EpgConfig")
+import Components.EpgConfig
+Components.EpgConfig.InitEPGConfig()
 
 profile("RecordingConfig")
 print "[Enigma2] Initialising RecordingConfig."
