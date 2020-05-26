@@ -4,11 +4,9 @@ from enigma import eDVBFrontendParametersSatellite, eDVBSatelliteEquipmentContro
 from time import localtime, mktime
 from datetime import datetime
 import xml.etree.cElementTree
-from Components.About import about
+
 from SystemInfo import SystemInfo
 from Tools.BoundFunction import boundFunction
-from Tools.HardwareInfo import HardwareInfo
-
 
 config.unicable = ConfigSubsection()
 
@@ -169,7 +167,6 @@ class SecConfigure:
 		for slot in nim_slots:
 			x = slot.slot
 			nim = slot.config
-			hw = HardwareInfo()
 			if slot.isCompatible("DVB-S"):
 				print "[SecConfigure] slot: " + str(x) + " configmode: " + str(nim.configMode.value)
 				if nim.configMode.value in ( "loopthrough", "satposdepends", "nothing" ):
@@ -1181,7 +1178,6 @@ def InitSecParams():
 # the configElement should be only visible when diseqc 1.2 is disabled
 
 def InitNimManager(nimmgr, update_slots = []):
-	hw = HardwareInfo()
 
 	if not hasattr(config, "Nims"):
 		InitSecParams()
@@ -1454,7 +1450,7 @@ def InitNimManager(nimmgr, update_slots = []):
 		nim.turningspeedH = ConfigFloat(default = [2,3], limits = [(0,9),(0,9)])
 		nim.turningspeedV = ConfigFloat(default = [1,7], limits = [(0,9),(0,9)])
 		nim.powerMeasurement = ConfigYesNo(True)
-		nim.powerThreshold = ConfigInteger(default=hw.get_device_name() == "dm8000" and 15 or 50, limits=(0, 100))
+		nim.powerThreshold = ConfigInteger(default = 50, limits=(0, 100))
 		nim.turningSpeed = ConfigSelection(turning_speed_choices, "fast")
 		btime = datetime(1970, 1, 1, 7, 0)
 		nim.fastTurningBegin = ConfigDateTime(default = mktime(btime.timetuple()), formatstring = _("%H:%M"), increment = 900)
