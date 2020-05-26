@@ -1,13 +1,13 @@
-from boxbranding import getImageVersion, getImageBuild, getImageDistro, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
+from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
 
 from time import time
 
 from enigma import eTimer
 
 import Components.Task
-from Components.Ipkg import IpkgComponent
-from Components.config import config
 from Components.About import about
+from Components.config import config
+from Components.Ipkg import IpkgComponent
 
 import urllib2, socket, sys
 
