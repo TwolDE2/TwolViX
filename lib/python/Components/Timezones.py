@@ -1,4 +1,6 @@
 from __future__ import print_function, absolute_import
+import six
+
 import errno
 import xml.etree.cElementTree
 from os import environ, path, symlink, unlink, walk
@@ -162,22 +164,13 @@ class Timezones:
 				name = commonTimezoneNames.get(tz, zone)  # Use the more common name if one is defined.
 				if name is None:
 					continue
-				if sys.version_info >= (3, 0):
-					if isinstance(name, str):
-						name = name.encode(encoding="UTF-8", errors="ignore")
-					if isinstance(area, str):
-						area = area.encode(encoding="UTF-8", errors="ignore")
-					if isinstance(zone, str):
-						zone = zone.encode(encoding="UTF-8", errors="ignore")
-					zones.append((zone, name.replace("_", " ")))
-				else:
-					if isinstance(name, unicode):
-						name = name.encode(encoding="UTF-8", errors="ignore")
-					if isinstance(area, unicode):
-						area = area.encode(encoding="UTF-8", errors="ignore")
-					if isinstance(zone, unicode):
-						zone = zone.encode(encoding="UTF-8", errors="ignore")
-					zones.append((zone, name.replace("_", " ")))
+				if isinstance(name, six.text_type):
+					name = name.encode(encoding="UTF-8", errors="ignore")
+				if isinstance(area, six.text_type):
+					area = area.encode(encoding="UTF-8", errors="ignore")
+				if isinstance(zone, six.text_type):
+					zone = zone.encode(encoding="UTF-8", errors="ignore")
+				zones.append((zone, name.replace("_", " ")))
 			if area:
 				if area in self.timezones:
 					zones = self.timezones[area] + zones
@@ -236,16 +229,13 @@ class Timezones:
 		if root is not None:
 			for zone in root.findall("zone"):
 				name = zone.get("name", "")
-				if sys.version_info >= (3, 0):
-					if isinstance(name, str):
-						name = name.encode(encoding="UTF-8", errors="ignore")
-					zonePath = zone.get("zone", "")
-					if isinstance(zonePath, str):
-						zonePath = zonePath.encode(encoding="UTF-8", errors="ignore")
-					if path.exists(path.join(TIMEZONE_DATA, zonePath)):
-						zones.append((zonePath, name))
-					else:
-						print("[Timezones] Warning: Classic time zone '%s' (%s) is not available in '%s'!" % (name, zonePath, TIMEZONE_DATA))
+				if isinstance(name, six.text_type):
+					name = name.encode(encoding="UTF-8", errors="ignore")
+				zonePath = zone.get("zone", "")
+				if isinstance(zonePath, six.text_type):
+					zonePath = zonePath.encode(encoding="UTF-8", errors="ignore")
+				if path.exists(path.join(TIMEZONE_DATA, zonePath)):
+					zones.append((zonePath, name))
 				else:
 					if isinstance(name, unicode):
 						name = name.encode(encoding="UTF-8", errors="ignore")

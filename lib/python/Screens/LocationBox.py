@@ -2,6 +2,8 @@
 # Generic Screen to select a path/filename combination
 #
 from __future__ import absolute_import
+import six
+
 # GUI (Screens)
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
@@ -29,6 +31,7 @@ from Components.MenuList import MenuList
 
 # Timer
 from enigma import eTimer
+import six
 
 defaultInhibitDirs = ["/bin", "/boot", "/dev", "/etc", "/lib", "/proc", "/sbin", "/sys", "/var"]
 
@@ -449,10 +452,8 @@ class LocationBox(Screen, NumericalTextInput, HelpableScreen):
 
 		# Get char and append to text
 		char = self.getKey(number)
-		if sys.version_info >= (3, 0):
-			self.quickselect = self.quickselect[:self.curr_pos] + str(char)
-		else:
-			self.quickselect = self.quickselect[:self.curr_pos] + unicode(char)
+		self.quickselect = self.quickselect[:self.curr_pos] + six.text_type(char)
+
 		# Start Timeout
 		self.qs_timer_type = 0
 		self.qs_timer.start(1000, 1)

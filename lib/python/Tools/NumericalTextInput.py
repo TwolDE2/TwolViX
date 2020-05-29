@@ -1,7 +1,7 @@
 import sys
 from enigma import eTimer
-
 from Components.Language import language
+import six
 
 MAP_SEARCH_UPCASE = "SearchUpper"  # NOTE: Legacy interface for previous and deprecated versions of NumericalTextInput.
 MAP_SEARCH = "SearchLower"
@@ -451,7 +451,5 @@ class NumericalTextInput:
 		return self.mapping[num][self.pos]
 
 	def setUseableChars(self, useable):
-		if sys.version_info >= (3, 0):
-			self.useableChars = str(useable)
-		else:
-			self.useableChars = unicode(useable)
+		self.useableChars = six.text_type(useable)
+
