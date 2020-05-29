@@ -1,4 +1,6 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+import six
+from six.moves import reload_module
 
 from os import path as os_path, stat, mkdir, makedirs, listdir, access, remove, W_OK, R_OK, F_OK
 import sys
@@ -63,6 +65,8 @@ config.plugins.softwaremanager.overwriteConfigFiles = ConfigSelection(
 config.plugins.softwaremanager.onSetupMenu = ConfigYesNo(default=False)
 config.plugins.softwaremanager.onBlueButton = ConfigYesNo(default=False)
 config.plugins.softwaremanager.epgcache = ConfigYesNo(default=False)
+
+
 
 def write_cache(cache_file, cache_data):
 	#Does a cPickle dump
@@ -1665,7 +1669,7 @@ class PacketManager(Screen, NumericalTextInput):
 				self.setNextIdx(keyvalue[0])
 
 	def keyGotAscii(self):
-		keyvalue = chr(getPrevAsciiCode()).encode("utf-8")
+		keyvalue = six.unichr(getPrevAsciiCode()).encode("utf-8")
 		if len(keyvalue) == 1:
 			self.setNextIdx(keyvalue[0])
 
@@ -1690,7 +1694,7 @@ class PacketManager(Screen, NumericalTextInput):
 		rcinput.setKeyboardMode(rcinput.kmNone)
 		self.close()
 
-	def reload(self):
+	def reload_module(self):
 		if os_path.exists(self.cache_file):
 			remove(self.cache_file)
 			self.list_updating = True

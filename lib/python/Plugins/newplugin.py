@@ -1,7 +1,7 @@
 #!/usr/bin/python
+from six.moves import input
 
 import os
-
 os.system("clear")
 internalname = input("Internal plugin name (no whitespaces, plugin directory): ")
 name = input("Visible plugin name: ")

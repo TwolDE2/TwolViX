@@ -1,5 +1,6 @@
 from __future__ import print_function, absolute_import
 from builtins import range
+from six.moves import reload_module
 
 import os
 import struct
@@ -545,7 +546,7 @@ class MovieList(GUIComponent):
 		instance.setContent(None)
 		instance.selectionChanged.get().remove(self.selectionChanged)
 
-	def reload(self, root = None, filter_tags = None):
+	def reload_module(self, root = None, filter_tags = None):
 		if self.reloadDelayTimer is not None:
 			self.reloadDelayTimer.stop()
 			self.reloadDelayTimer = None

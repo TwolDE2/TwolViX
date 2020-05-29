@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from enigma import eLabel
+import six
 
 from Components.GUIComponent import GUIComponent
 from Components.VariableText import VariableText
@@ -242,7 +243,7 @@ class Input(VariableText, GUIComponent, NumericalTextInput):
 		if self.allmarked:
 			self.deleteAllChars()
 			self.allmarked = False
-		self.insertChar(chr(code), self.currPos, False, False)
+		self.insertChar(six.unichr(code), self.currPos, False, False)
 		self.innerright()
 		self.update()
 

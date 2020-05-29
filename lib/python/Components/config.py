@@ -1,5 +1,6 @@
 from __future__ import print_function, absolute_import
 from builtins import range
+import six
 
 from copy import copy as copy_copy
 from os import path as os_path
@@ -1208,10 +1209,7 @@ class ConfigText(ConfigElement, NumericalTextInput):
 			self.overwrite = not self.overwrite
 		elif key == KEY_ASCII:
 			self.timeout()
-			if sys.version_info >= (3, 0):
-				newChar = chr(getPrevAsciiCode())
-			else:
-				newChar = unichr(getPrevAsciiCode())
+			newChar = six.unichr(getPrevAsciiCode())
 			if not self.useableChars or newChar in self.useableChars:
 				if self.allmarked:
 					self.deleteAllChars()
@@ -1409,11 +1407,7 @@ class ConfigNumber(ConfigText):
 					return
 			else:
 				ascii = getKeyNumber(key) + 48
-			if sys.version_info >= (3, 0):
-				newChar = chr(ascii)
-			else:
-				newChar = unichr(ascii)
-			newChar = chr(ascii)
+			newChar = six.unichr(ascii)
 			if self.allmarked:
 				self.deleteAllChars()
 				self.allmarked = False

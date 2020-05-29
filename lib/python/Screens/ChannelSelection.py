@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, absolute_import
 from builtins import range
+import six
 
 import os, unicodedata
 import re
@@ -50,6 +51,7 @@ import Tools.Notifications
 from Tools.NumericalTextInput import NumericalTextInput
 from Tools.Profile import profile
 import Tools.Transponder
+
 
 try:
 	from Plugins.SystemPlugins.PiPServiceRelation.plugin import getRelationDict
@@ -1888,7 +1890,7 @@ class ChannelSelectionBase(Screen):
 		self.selectionNumber = ""
 
 	def keyAsciiCode(self):
-		unichar = chr(getPrevAsciiCode())
+		unichar = six.unichr(getPrevAsciiCode())
 		charstr = unichar.encode('utf-8')
 		if len(charstr) == 1:
 			self.servicelist.moveToChar(charstr[0])
