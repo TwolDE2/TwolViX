@@ -1,4 +1,6 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+import six
+
 import xml.dom.minidom
 import sys
 from boxbranding import getMachineBrand, getMachineName
@@ -7,6 +9,7 @@ from Tools.Directories import fileExists
 from Components.config import ConfigSubsection, ConfigInteger, ConfigText, ConfigSelection, ConfigSequence, ConfigSubList
 from . import DVDTitle
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_FONTS
+
 
 
 class ConfigColor(ConfigSequence):
@@ -57,16 +60,12 @@ class DVDProject:
 
 	def saveProject(self, path):
 		from Tools.XMLTools import stringToXML
+<<<<<<< HEAD:lib/python/Plugins/Extensions/DVDBurn/DVDProject.py
 		list = ['<?xml version="1.0" encoding="utf-8" ?>\n',
 				'<DreamDVDBurnerProject>\n',
 				'\t<settings ']
-		if sys.version_info >= (3, 0):
-			for key, val in self.settings.dict().items():
+		for key, val in six.iteritems(self.settings.dict()):
 				list.append( key + '="' + str(val.value) + '" ' )
-		else:
-			for key, val in self.settings.dict().iteritems():
-				list.append( key + '="' + str(val.value) + '" ' )
-
 		list.append('/>\n')
 		list.append('\t<titles>\n')
 		for title in self.titles:
@@ -76,32 +75,17 @@ class DVDProject:
 			list.append('</path>\n')
 			list.append('\t\t\t<properties ')
 			audiotracks = []
-			if sys.version_info >= (3, 0):
-				for key, val in title.properties.dict().items():
-
-					if isinstance(val, ConfigSubList):
-						audiotracks.append('\t\t\t<audiotracks>\n')
-						for audiotrack in val:
-							audiotracks.append('\t\t\t\t<audiotrack ')
-							for subkey, subval in audiotrack.dict().items():
-								audiotracks.append( subkey + '="' + str(subval.value) + '" ' )
-							audiotracks.append(' />\n')
-						audiotracks.append('\t\t\t</audiotracks>\n')
-					else:
-						list.append( key + '="' + str(val.value) + '" ' )
-			else:
-				for key, val in title.properties.dict().iteritems():
-					if isinstance(val, ConfigSubList):
-						audiotracks.append('\t\t\t<audiotracks>\n')
-						for audiotrack in val:
-							audiotracks.append('\t\t\t\t<audiotrack ')
-							for subkey, subval in audiotrack.dict().iteritems():
-								audiotracks.append( subkey + '="' + str(subval.value) + '" ' )
-							audiotracks.append(' />\n')
-						audiotracks.append('\t\t\t</audiotracks>\n')
-					else:
-						list.append( key + '="' + str(val.value) + '" ' )
-			list.append('/>\n')
+			for key, val in six.iteritems(title.properties.dict()):
+				if isinstance(val, ConfigSubList):
+					audiotracks.append('\t\t\t<audiotracks>\n')
+					for audiotrack in val:
+						audiotracks.append('\t\t\t\t<audiotrack ')
+						for subkey, subval in audiotrack.dict().iteritems():
+							audiotracks.append( subkey + '="' + str(subval.value) + '" ' )
+						audiotracks.append(' />\n')
+					audiotracks.append('\t\t\t</audiotracks>\n')
+				else:
+					list.append( key + '="' + str(val.value) + '" ' )
 			for line in audiotracks:
 				list.append(line)
 			list.append('\t\t</title>\n')
@@ -262,4 +246,5 @@ class MenuTemplate(DVDProject):
 	def loadTemplate(self, filename):
 		ret = DVDProject.loadProject(self, filename)
 		DVDProject.error = self.error
+
 		return ret

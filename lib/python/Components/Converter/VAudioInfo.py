@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import six
 
 from enigma import iPlayableService
 
@@ -75,7 +76,7 @@ class VAudioInfo(Poll, Converter, object):
 		return description_str
 
 	def get_short(self, audioName):
-		for return_codec, codecs in sorted(self.codecs.items()):
+		for return_codec, codecs in sorted(six.iteritems(self.codecs)):
 			for codec in codecs:
 				if codec in audioName:
 					codec = return_codec.split('_')[1]

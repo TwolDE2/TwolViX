@@ -1,4 +1,6 @@
 from __future__ import print_function, absolute_import
+import six
+
 
 from enigma import eTimer, eDVBFrontendParametersSatellite, eComponentScan, \
 	eDVBFrontendParametersTerrestrial, eDVBFrontendParametersCable, eConsoleAppContainer, \
@@ -17,7 +19,6 @@ from Screens.MessageBox import MessageBox
 from Screens.ServiceScan import ServiceScan
 from Tools.HardwareInfo import HardwareInfo
 from Tools.Transponder import getChannelNumber, supportedChannels, channel2frequency
-
 
 
 def buildTerTransponder(frequency,
@@ -1817,6 +1818,8 @@ class ScanSimple(ConfigListScreen, Screen, CableTransponderSearchSupport, Terres
 				self.nim_enable.append(nimconfig)
 				self.list.append(getConfigListEntry(_("Scan ") + nim.slot_name + " (" + nim.friendly_type + ")", nimconfig))
 
+
+
 		ConfigListScreen.__init__(self, self.list)
 		self["introduction"] = self["footer"] = Label(_("Press OK to scan")) # "introduction" is used by all other screens. "footer" just left for skin backwards compatibility
 
@@ -1859,7 +1862,7 @@ class ScanSimple(ConfigListScreen, Screen, CableTransponderSearchSupport, Terres
 				tlist = [ ]
 				if nim.isCompatible("DVB-S"):
 					# get initial transponders for each satellite to be scanned
-					for sat in networks:
+					for sat in six.iteritems(networks):
 						getInitialTransponderList(tlist, sat[0], n.nim_index)
 				elif nim.isCompatible("DVB-C"):
 					if config.Nims[nim.slot].cable.scan_type.value == "provider":

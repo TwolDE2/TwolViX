@@ -1,7 +1,8 @@
 from __future__ import print_function
+import six
+
 from enigma import eActionMap
 from Tools.KeyBindings import queryKeyBinding
-
 
 class ActionMap:
 	def __init__(self, contexts=None, actions=None, prio=0):
@@ -98,7 +99,8 @@ class HelpableActionMap(ActionMap):
 		adict = {}
 		for context in contexts:
 			alist = []
-			for (action, funchelp) in actions.items():
+			import six
+			for (action, funchelp) in six.iteritems(actions):
 				# Check if this is a tuple.
 				if isinstance(funchelp, tuple):
 					if queryKeyBinding(context, action):
