@@ -6,11 +6,13 @@
 # because the log unit looks enough like a file!
 
 import sys
+
 if sys.version_info >= (3, 0):
 	from io import StringIO
 else:
 	from  StringIO import StringIO
 import threading
+
 
 logfile = None
 # Need to make our operations thread-safe.
