@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
+from bisect import insort
+import itertools, datetime
+import os, cPickle
+from sys import maxint
+from time import time, localtime, strftime
+
+from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
+from boxbranding import getBrandOEM, getMachineBuild
+
 from Components.ActionMap import ActionMap, HelpableActionMap, NumberActionMap
+from Components.config import config, configfile, ConfigBoolean, ConfigClock
 from Components.Harddisk import harddiskmanager, findMountPoint
 from Components.Input import Input
 from Components.Label import Label
 from Components.MovieList import AUDIO_EXTENSIONS, MOVIE_EXTENSIONS, DVD_EXTENSIONS
+from Components.Pixmap import MovingPixmap, MultiPixmap
 from Components.PluginComponent import plugins
+from Components.ScrollLabel import ScrollLabel
 from Components.ServiceEventTracker import ServiceEventTracker
-from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.Boolean import Boolean
-from Components.config import config, configfile, ConfigBoolean, ConfigClock
+from Components.Sources.ServiceEvent import ServiceEvent
+from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
+from Components.Timeshift import InfoBarTimeshift
 from Components.UsageConfig import preferredInstantRecordPath, defaultMoviePath, preferredTimerPath, ConfigSelection
 from Components.VolumeControl import VolumeControl
-from Components.Pixmap import MovingPixmap, MultiPixmap
-from Components.Sources.StaticText import StaticText
-from Components.ScrollLabel import ScrollLabel
+import NavigationInstance
 from Plugins.Plugin import PluginDescriptor
-
-from Components.Timeshift import InfoBarTimeshift
-
-from Screens.Screen import Screen
+from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT, findSafeRecordPath
 from Screens import ScreenSaver
 from Screens.ChannelSelection import ChannelSelection, PiPZapSelection, BouquetSelector, EpgBouquetSelector
 from Screens.ChoiceBox import ChoiceBox
@@ -34,34 +42,20 @@ from Screens.EpgSelectionSingle import EPGSelectionSingle
 from Screens.InputBox import InputBox
 from Screens.MessageBox import MessageBox
 from Screens.MinuteInput import MinuteInput
-from Screens.TimerSelection import TimerSelection
 from Screens.PictureInPicture import PictureInPicture
 from Screens.PVRState import PVRState, TimeshiftState
 from Screens.SubtitleDisplay import SubtitleDisplay
 from Screens.RdsDisplay import RdsInfoDisplay, RassInteractive
+from Screens.Screen import Screen
 from Screens.TimeDateInput import TimeDateInput
 from Screens.TimerEdit import TimerEditList
+from Screens.TimerEntry import TimerEntry as TimerEntry
+from Screens.TimerSelection import TimerSelection
 from Screens.UnhandledKey import UnhandledKey
 from ServiceReference import ServiceReference, isPlayableForCur
-
-from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT, findSafeRecordPath
-from Screens.TimerEntry import TimerEntry as TimerEntry
-
 from Tools import Notifications
 from Tools.Directories import pathExists, fileExists
 from Tools.KeyBindings import getKeyDescription
-
-import NavigationInstance
-
-from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
-from boxbranding import getBrandOEM, getMachineBuild
-
-from time import time, localtime, strftime
-from bisect import insort
-from sys import maxint
-import itertools, datetime
-
-import os, cPickle
 
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
