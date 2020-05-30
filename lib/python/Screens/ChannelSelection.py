@@ -1,57 +1,52 @@
 # -*- coding: utf-8 -*-
 import os, unicodedata
-from Tools.Profile import profile
+import re
+from time import localtime, time, strftime
 
-from Screen import Screen
-import Screens.InfoBar
-import Components.ParentalControl
-from Components.Button import Button
-from Components.ServiceList import ServiceList, refreshServiceList
+from enigma import eActionMap, eServiceReference, eEPGCache, eServiceCenter, eRCInput, eTimer, ePoint, eDVBDB, iPlayableService, iServiceInformation, getPrevAsciiCode, eEnv, loadPNG, eDVBLocalTimeHandler
+
 from Components.ActionMap import NumberActionMap, ActionMap, HelpableActionMap
+from Components.Button import Button
+from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
+from Components.config import config, configfile, ConfigSubsection, ConfigText, ConfigYesNo
+from Components.Input import Input
 from Components.MenuList import MenuList
+from Components.NimManager import nimmanager
+import Components.ParentalControl
+from Components.PluginComponent import plugins
+from Components.Renderer.Picon import getPiconName
+from Components.ServiceList import ServiceList, refreshServiceList
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
+from Components.Sources.Event import Event
 from Components.Sources.List import List
+from Components.Sources.RdsDecoder import RdsDecoder
+from Components.Sources.ServiceEvent import ServiceEvent
 from Components.SystemInfo import SystemInfo
 from Components.UsageConfig import preferredTimerPath
-from Components.Renderer.Picon import getPiconName
-from Screens.TimerEdit import TimerSanityConflict
-profile("ChannelSelection.py 1")
+
 from EpgSelectionSingle import EPGSelectionSingle
-from enigma import eActionMap, eServiceReference, eEPGCache, eServiceCenter, eRCInput, eTimer, ePoint, eDVBDB, iPlayableService, iServiceInformation, getPrevAsciiCode, eEnv, loadPNG, eDVBLocalTimeHandler
-from Components.config import config, configfile, ConfigSubsection, ConfigText, ConfigYesNo
-from Tools.NumericalTextInput import NumericalTextInput
-profile("ChannelSelection.py 2")
-from Components.NimManager import nimmanager
-profile("ChannelSelection.py 2.1")
-from Components.Sources.RdsDecoder import RdsDecoder
-profile("ChannelSelection.py 2.2")
-from Components.Sources.ServiceEvent import ServiceEvent
-from Components.Sources.Event import Event
-profile("ChannelSelection.py 2.3")
-from Components.Input import Input
-profile("ChannelSelection.py 3")
-from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
+from Plugins.Plugin import PluginDescriptor
 from RecordTimer import RecordTimerEntry, AFTEREVENT, parseEvent
-from TimerEntry import TimerEntry, InstantRecordTimerEntry
-from Screens.InputBox import InputBox, PinInput
-from Screens.VirtualKeyBoard import VirtualKeyBoard
-from Screens.ChoiceBox import ChoiceBox
-from Screens.MessageBox import MessageBox
-from Screens.ServiceInfo import ServiceInfo
+from Screen import Screen
 from Screens.ButtonSetup import InfoBarButtonSetup, ButtonSetupActionMap, getButtonSetupFunctions
-profile("ChannelSelection.py 4")
+from Screens.ChoiceBox import ChoiceBox
+import Screens.InfoBar
+from Screens.InputBox import InputBox, PinInput
+from Screens.MessageBox import MessageBox
 from Screens.PictureInPicture import PictureInPicture
 from Screens.RdsDisplay import RassInteractive
+from Screens.ServiceInfo import ServiceInfo
+from Screens.TimerEdit import TimerSanityConflict
+from Screens.VirtualKeyBoard import VirtualKeyBoard
 from ServiceReference import ServiceReference
+from TimerEntry import TimerEntry, InstantRecordTimerEntry
+from Tools.Alternatives import GetWithAlternative
 from Tools.BoundFunction import boundFunction
 from Tools import Notifications
-from Tools.Alternatives import GetWithAlternative
+from Tools.NumericalTextInput import NumericalTextInput
+from Tools.Profile import profile
 import Tools.Transponder
-from Plugins.Plugin import PluginDescriptor
-from Components.PluginComponent import plugins
-from Screens.ChoiceBox import ChoiceBox
-from time import localtime, time, strftime
-import re
+
 try:
 	from Plugins.SystemPlugins.PiPServiceRelation.plugin import getRelationDict
 	plugin_PiPServiceRelation_installed = True
@@ -97,13 +92,13 @@ class BouquetSelector(Screen):
 
 
 class EpgBouquetSelector(BouquetSelector):
-	def __init__(self, session, bouquets, selectedFunc, enableWrapAround=False):
-		BouquetSelector.__init__(self, session, bouquets, selectedFunc, enableWrapAround=False)
+	def __init__(self, session, bouquets, enableWrapAround=False):
+		BouquetSelector.__init__(self, session, bouquets, None, enableWrapAround=False)
 		self.skinName = "BouquetSelector"
 		self.bouquets=bouquets
 
 	def okbuttonClick(self):
-		self.selectedFunc(self.getCurrent(),self.bouquets)
+		self.close(True, self.getCurrent(), self.bouquets)
 
 
 class SilentBouquetSelector:
