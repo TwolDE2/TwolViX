@@ -150,9 +150,9 @@ class InitInputDevices:
 			if configElement.value != "":
 				devname = iInputDevices.getDeviceAttribute(self.currentDevice, 'name')
 				if devname != configElement.value:
-					cmd = "config.inputDevices." + self.currentDevice + ".enabled.value = False"
+					cmd = "config.inputDevices.%s.enabled.value = False" % self.currentDevice
 					exec cmd
-					cmd = "config.inputDevices." + self.currentDevice + ".enabled.save()"
+					cmd = "config.inputDevices.%s.enabled.save()" % self.currentDevice
 					exec cmd
 		elif iInputDevices.currentDevice != "":
 			iInputDevices.setName(iInputDevices.currentDevice, configElement.value)
@@ -170,23 +170,23 @@ class InitInputDevices:
 			iInputDevices.setDelay(iInputDevices.currentDevice, configElement.value)
 
 	def setupConfigEntries(self,device):
-		cmd = "config.inputDevices." + device + " = ConfigSubsection()"
+		cmd = "config.inputDevices.%s = ConfigSubsection()" % device
 		exec cmd
-		cmd = "config.inputDevices." + device + ".enabled = ConfigYesNo(default = False)"
+		cmd = "config.inputDevices.%s.enabled = ConfigYesNo(default = False)" % device
 		exec cmd
-		cmd = "config.inputDevices." + device + ".enabled.addNotifier(self.inputDevicesEnabledChanged,config.inputDevices." + device + ".enabled)"
+		cmd = "config.inputDevices.%s.enabled.addNotifier(self.inputDevicesEnabledChanged,config.inputDevices.%s.enabled)" % (device, device)
 		exec cmd
-		cmd = "config.inputDevices." + device + '.name = ConfigText(default="")'
+		cmd = "config.inputDevices.%s.name = ConfigText(default='')" % device
 		exec cmd
-		cmd = "config.inputDevices." + device + ".name.addNotifier(self.inputDevicesNameChanged,config.inputDevices." + device + ".name)"
+		cmd = "config.inputDevices.%s.name.addNotifier(self.inputDevicesNameChanged,config.inputDevices.%s.name)" % (device, device)
 		exec cmd
-		cmd = "config.inputDevices." + device + ".repeat = ConfigSlider(default=100, increment = 10, limits=(0, 500))"
+		cmd = "config.inputDevices.%s.repeat = ConfigSlider(default=100, increment = 10, limits=(0, 500))" % device
 		exec cmd
-		cmd = "config.inputDevices." + device + ".repeat.addNotifier(self.inputDevicesRepeatChanged,config.inputDevices." + device + ".repeat)"
+		cmd = "config.inputDevices.%s.repeat.addNotifier(self.inputDevicesRepeatChanged,config.inputDevices.%s.repeat)" % (device, device)
 		exec cmd
-		cmd = "config.inputDevices." + device + ".delay = ConfigSlider(default=700, increment = 100, limits=(0, 5000))"
+		cmd = "config.inputDevices.%s.delay = ConfigSlider(default=700, increment = 100, limits=(0, 5000))" % device
 		exec cmd
-		cmd = "config.inputDevices." + device + ".delay.addNotifier(self.inputDevicesDelayChanged,config.inputDevices." + device + ".delay)"
+		cmd = "config.inputDevices.%s.delay.addNotifier(self.inputDevicesDelayChanged,config.inputDevices.%s.delay)" % (device, device)
 		exec cmd
 
 
@@ -198,7 +198,7 @@ config.plugins.remotecontroltype.rctype = ConfigInteger(default = 0)
 
 class RcTypeControl():
 	def __init__(self):
-		self.boxType = ""
+		self.boxType = "Default"
 		if os.path.exists('/proc/stb/ir/rc/type') and os.path.exists('/proc/stb/info/boxtype') and getBrandOEM() != 'gigablue':
 			self.isSupported = True
 			with open("/proc/stb/info/boxtype", "r") as fd:

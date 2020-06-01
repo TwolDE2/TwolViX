@@ -176,16 +176,16 @@ class InputDeviceSetup(Screen, ConfigListScreen):
 	def createSetup(self):
 		self.list = [ ]
 		label = _("Change repeat and delay settings?")
-		cmd = "self.enableEntry = getConfigListEntry(label, config.inputDevices." + self.inputDevice + ".enabled)"
+		cmd = "self.enableEntry = getConfigListEntry(label, config.inputDevices.%s.enabled)" % self.inputDevice
 		exec cmd
 		label = _("Interval between keys when repeating:")
-		cmd = "self.repeatEntry = getConfigListEntry(label, config.inputDevices." + self.inputDevice + ".repeat)"
+		cmd = "self.repeatEntry = getConfigListEntry(label, config.inputDevices.%s.repeat)" % self.inputDevice
 		exec cmd
 		label = _("Delay before key repeat starts:")
-		cmd = "self.delayEntry = getConfigListEntry(label, config.inputDevices." + self.inputDevice + ".delay)"
+		cmd = "self.delayEntry = getConfigListEntry(label, config.inputDevices.%s.delay)" % self.inputDevice
 		exec cmd
 		label = _("Devicename:")
-		cmd = "self.nameEntry = getConfigListEntry(label, config.inputDevices." + self.inputDevice + ".name)"
+		cmd = "self.nameEntry = getConfigListEntry(label, config.inputDevices.%s.name)" % self.inputDevice
 		exec cmd
 		if self.enableEntry:
 			if isinstance(self.enableEntry[1], ConfigYesNo):
@@ -236,7 +236,7 @@ class InputDeviceSetup(Screen, ConfigListScreen):
 			return
 		else:
 			self.nameEntry[1].setValue(iInputDevices.getDeviceAttribute(self.inputDevice, 'name'))
-			cmd = "config.inputDevices." + self.inputDevice + ".name.save()"
+			cmd = "config.inputDevices.%s.name.save()" % self.inputDevice
 			exec cmd
 			self.keySave()
 
@@ -305,6 +305,7 @@ class RemoteControlType(Screen, ConfigListScreen):
 			]
 
 	defaultRcList = [
+			("default", 0),
 			("et4000", 13),
 			("et5000", 7),
 			("et6000", 7),
