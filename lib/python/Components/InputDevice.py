@@ -3,7 +3,7 @@ from fcntl import ioctl
 import platform
 import struct
 from boxbranding import getBrandOEM
-from config import config, ConfigSlider, ConfigSubsection, ConfigYesNo, ConfigText, ConfigInteger
+from config import config, ConfigInteger, ConfigSlider, ConfigSubsection, ConfigText, ConfigYesNo
 from SystemInfo import SystemInfo
 
 # include/uapi/asm-generic/ioctl.h

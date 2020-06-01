@@ -289,13 +289,19 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("11", _("et9200/9500/6500")),
 			("13", _("et4000")),
 			("14", _("XP1000")),
-			("16", _("HD11/HD51/HD52/HD1100/HD1200/HD1265/HD1500/HD500C/HD530C/et7x00/et8500/et7000mini")),
+			("16", _("HD11/HD51/HD1100/HD1200/HD1265/HD1500/HD500C/HD530C/et7x00/et8500")),
 			("17", _("XP3000")),
 			("18", _("F1/F3/F4/F4-TURBO/TRIPLEX")),
 			("19", _("HD2400")),
 			("20", _("Zgemma Star S/2S/H1/H2")),
 			("21", _("Zgemma H.S/H.2S/H.2H/H5")),
-			("501", _("OCTAGON_SFXXX8"))
+			("22", _("Zgemma i55")),
+			("23", _("WWIO 4K")),
+			("24", _("Axas E4HD Ultra")),
+			("25", _("Zgemma H9/I55Plus old Model")),
+			("26", _("Protek 4K UHD/HD61")),
+			("27", _("HD60")),
+			("28", _("H7/H9/H9COMBO/H10 new Model"))
 			]
 
 	defaultRcList = [
@@ -322,7 +328,21 @@ class RemoteControlType(Screen, ConfigListScreen):
 			("hd500c",16),
 			("hd530c",16),
 			("hd2400", 19),
-			("sf4018", 501)
+			("h3", 21),
+			("h5", 21),
+			#("h7", 21),# old model
+			("i55", 22),
+			("bre2ze4k", 23),
+			("e4hd", 24),
+			#("h9", 25),# old model
+			("i55plus", 25),
+			("protek4k", 26),
+			("hd61", 26),
+			("hd60", 27),
+			("h7", 28), # new model
+			("h9", 28), # new model
+			("h9combo", 28),
+			("h10", 28)
 		]
 
 	def __init__(self, session, menu_path=""):
@@ -350,9 +370,10 @@ class RemoteControlType(Screen, ConfigListScreen):
 		self.getDefaultRcType()
 
 	def getDefaultRcType(self):
-		data = iRcTypeControl.getBoxType()
+		boxtype = getBoxType()
+		procBoxtype = iRcTypeControl.getBoxType()
 		for x in self.defaultRcList:
-			if x[0] in data:
+			if x[0] in boxtype or x[0] in procBoxtype:
 				self.defaultRcType = x[1]
 				break
 # If there is none in the list, use the current value...
