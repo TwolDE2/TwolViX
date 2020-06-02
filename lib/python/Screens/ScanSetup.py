@@ -1,20 +1,22 @@
-from Screen import Screen
-from ServiceScan import ServiceScan
-from Components.config import config, ConfigSubsection, ConfigSelection, ConfigYesNo, ConfigInteger, getConfigListEntry, ConfigSlider, ConfigEnableDisable
-from Components.ActionMap import NumberActionMap, ActionMap
-from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
-from Components.ConfigList import ConfigListScreen
-from Components.NimManager import nimmanager, getConfigSatlist
-from Components.Label import Label
-from Components.Sources.StaticText import StaticText
-from Tools.HardwareInfo import HardwareInfo
-from Tools.Transponder import getChannelNumber, supportedChannels, channel2frequency
-from Screens.InfoBar import InfoBar
-from Screens.MessageBox import MessageBox
 from enigma import eTimer, eDVBFrontendParametersSatellite, eComponentScan, \
 	eDVBFrontendParametersTerrestrial, eDVBFrontendParametersCable, eConsoleAppContainer, \
 	eDVBResourceManager, eDVBFrontendParametersATSC
+
+from Components.ActionMap import NumberActionMap, ActionMap
+from Components.config import config, ConfigSubsection, ConfigSelection, ConfigYesNo, ConfigInteger, getConfigListEntry, ConfigSlider, ConfigEnableDisable
+from Components.ConfigList import ConfigListScreen
+from Components.Label import Label
+from Components.NimManager import nimmanager, getConfigSatlist
+from Components.Sources.StaticText import StaticText
+from Components.SystemInfo import SystemInfo
+from Screen import Screen
+from Screens.InfoBar import InfoBar
+from Screens.MessageBox import MessageBox
+from ServiceScan import ServiceScan
+from Tools.HardwareInfo import HardwareInfo
+from Tools.Transponder import getChannelNumber, supportedChannels, channel2frequency
+
+
 
 def buildTerTransponder(frequency,
 		inversion=2, bandwidth = 7000000, fechigh = 6, feclow = 6,

@@ -1,6 +1,6 @@
-from Screens.Wizard import Wizard
 from Components.Label import Label
 from Components.Language import language
+from Screens.Wizard import Wizard
 
 class WizardLanguage(Wizard):
 	def __init__(self, session, showSteps = True, showStepSlider = True, showList = True, showConfig = True):

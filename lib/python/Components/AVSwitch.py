@@ -17,6 +17,7 @@ class AVSwitch:
 	has_jack = getHaveAVJACK() == "True"
 	has_rca = getHaveRCA() == "True"
 	has_scart = getHaveSCART() == "True"
+
 	print "SystemInfo", "BoxType", getBoxType()
 	print "SystemInfo", "MachineBuild", getMachineBuild()
 	print "SystemInfo", "BrandOEM", getBrandOEM()
@@ -36,8 +37,10 @@ class AVSwitch:
 	print "AVSwitch", "no_YPbPr", SystemInfo["no_YPbPr"]
 	print "AVSwitch", "yellow_RCA_no_scart", SystemInfo["yellow_RCA_no_scart"]
 	print "AVSwitch", "no_yellow_RCA__no_scart", SystemInfo["no_yellow_RCA__no_scart"]
+
 	rates = {}  # high-level, use selectable modes.
 	modes = {}  # a list of (high-level) modes for a certain port.
+
 	rates["PAL"] = {"50Hz": {50: "pal"}, "60Hz": {60: "pal60"}, "multi": {50: "pal", 60: "pal60"}}
 	rates["NTSC"] = {"60Hz": {60: "ntsc"}}
 	rates["Multi"] = {"multi": {50: "pal", 60: "ntsc"}}
@@ -69,6 +72,7 @@ class AVSwitch:
 	modes["HDMI"] = SystemInfo["VideoModes"][0]
 	widescreen_modes = SystemInfo["VideoModes"][1]
 	modes["YPbPr"] = modes["HDMI"]
+
 	if SystemInfo["Scart-YPbPr"]:
 		modes["Scart-YPbPr"] = modes["HDMI"]
 	# if "DVI-PC" in modes and not getModeList("DVI-PC"):
@@ -606,6 +610,7 @@ def InitAVSwitch():
 		config.av.bypass_edid_checking.addNotifier(setEDIDBypass)
 	else:
 		config.av.bypass_edid_checking = ConfigNothing()
+
 	if SystemInfo["havecolorspace"]:
 		if getBrandOEM() == "vuplus" and SystemInfo["HasMMC"]:
 			choices = [
@@ -633,6 +638,7 @@ def InitAVSwitch():
 		config.av.hdmicolorspace.addNotifier(setHDMIColorspace)
 	else:
 		config.av.hdmicolorspace = ConfigNothing()
+
 	if SystemInfo["havecolorimetry"]:
 		choices = [
 			("auto", _("auto")),
@@ -648,6 +654,7 @@ def InitAVSwitch():
 		config.av.hdmicolorimetry.addNotifier(setHDMIColorimetry)
 	else:
 		config.av.hdmicolorimetry = ConfigNothing()
+
 	if SystemInfo["havehdmicolordepth"]:
 		choices = [
 			("auto", _("auto")),
@@ -663,6 +670,7 @@ def InitAVSwitch():
 		config.av.hdmicolordepth.addNotifier(setHdmiColordepth)
 	else:
 		config.av.hdmicolordepth = ConfigNothing()
+
 	if SystemInfo["havehdmihdrtype"]:
 		def setHdmiHdrType(configElement):
 			try:
@@ -681,6 +689,7 @@ def InitAVSwitch():
 		config.av.hdmihdrtype.addNotifier(setHdmiHdrType)
 	else:
 		config.av.hdmihdrtype = ConfigNothing()
+
 	if SystemInfo["HDRSupport"]:
 		def setHlgSupport(configElement):
 			open("/proc/stb/hdmi/hlg_support", "w").write(configElement.value)
@@ -719,6 +728,7 @@ def InitAVSwitch():
 			("1", _("no"))
 		])
 		config.av.allow_10bit.addNotifier(setDisable10Bit)
+
 	if SystemInfo["Canaudiosource"]:
 		def setAudioSource(configElement):
 			try:
@@ -734,6 +744,7 @@ def InitAVSwitch():
 		config.av.audio_source.addNotifier(setAudioSource)
 	else:
 		config.av.audio_source = ConfigNothing()
+
 	if SystemInfo["Can3DSurround"]:
 		choices = [
 			("none", _("off")),
@@ -749,6 +760,7 @@ def InitAVSwitch():
 		config.av.surround_3d.addNotifier(set3DSurround)
 	else:
 		config.av.surround_3d = ConfigNothing()
+
 	if SystemInfo["Can3DSpeaker"]:
 		choices = [
 			("center", _("center")),
@@ -763,6 +775,7 @@ def InitAVSwitch():
 		config.av.surround_3d_speaker.addNotifier(set3DPosition)
 	else:
 		config.av.surround_3d_speaker = ConfigNothing()
+
 	if SystemInfo["CanAutoVolume"]:
 		choices = [
 			("none", _("off")),
@@ -784,6 +797,7 @@ def InitAVSwitch():
 
 		config.av.pcm_multichannel = ConfigYesNo(default=False)
 		config.av.pcm_multichannel.addNotifier(setPCMMultichannel)
+
 	if SystemInfo["CanDownmixAC3"]:
 		choices = [
 			("downmix", _("Downmix")),
@@ -795,6 +809,7 @@ def InitAVSwitch():
 			(choices, default) = read_choices(f, default)
 		config.av.downmix_ac3 = ConfigSelection(choices=choices, default=default)
 		config.av.downmix_ac3.addNotifier(setAC3Downmix)
+
 	if SystemInfo["CanAC3Transcode"]:
 		choices = [
 			("use_hdmi_caps", _("controlled by HDMI")),
@@ -806,6 +821,7 @@ def InitAVSwitch():
 			(choices, default) = read_choices(f, default)
 		config.av.transcodeac3plus = ConfigSelection(choices=choices, default=default)
 		config.av.transcodeac3plus.addNotifier(setAC3plusTranscode)
+
 	if SystemInfo["CanDownmixDTS"]:
 		choice_list = [
 			("downmix", _("Downmix")),
@@ -831,6 +847,7 @@ def InitAVSwitch():
 			(choices, default) = read_choices(f, default)
 		config.av.dtshd = ConfigSelection(choices=choices, default=default)
 		config.av.dtshd.addNotifier(setDTSHD)
+
 	if SystemInfo["CanDownmixAAC"]:
 		choices = [
 			("downmix", _("Downmix")),
@@ -842,6 +859,7 @@ def InitAVSwitch():
 			(choices, default) = read_choices(f, default)
 		config.av.downmix_aac = ConfigSelection(choices=choices, default=default)
 		config.av.downmix_aac.addNotifier(setAACDownmix)
+
 	if SystemInfo["CanDownmixAACPlus"]:
 		choices = [
 			("downmix", _("Downmix")),
@@ -859,6 +877,7 @@ def InitAVSwitch():
 			(choices, default) = read_choices(f, default)
 		config.av.downmix_aacplus = ConfigSelection(choices=choices, default=default)
 		config.av.downmix_aacplus.addNotifier(setAACDownmixPlus)
+
 	if SystemInfo["CanAACTranscode"]:
 		choices = [
 			("off", _("off")),
@@ -873,6 +892,7 @@ def InitAVSwitch():
 		config.av.transcodeaac.addNotifier(setAACTranscode)
 	else:
 		config.av.transcodeaac = ConfigNothing()
+
 	if SystemInfo["CanWMAPRO"]:
 		choices = [
 			("downmix", _("Downmix")),
@@ -886,6 +906,7 @@ def InitAVSwitch():
 			(choices, default) = read_choices(f, default)
 		config.av.wmapro = ConfigSelection(choices=choices, default=default)
 		config.av.wmapro.addNotifier(setWMAPRO)
+
 	if SystemInfo["haveboxmode"]:
 		config.av.boxmode = ConfigSelection(choices={
 			"12": _("PIP enabled, no HDR"),
@@ -894,6 +915,7 @@ def InitAVSwitch():
 		config.av.boxmode.addNotifier(setBoxmode)
 	else:
 		config.av.boxmode = ConfigNothing()
+
 	if SystemInfo["HasScaler_sharpness"]:
 		if getBoxType() in ("gbquad", "gbquadplus"):
 			config.av.scaler_sharpness = ConfigSlider(default=5, limits=(0, 26))

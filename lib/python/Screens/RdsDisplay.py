@@ -1,10 +1,12 @@
 from enigma import iPlayableService, iRdsDecoder
-from Screens.Screen import Screen
+
+
 from Components.ActionMap import NumberActionMap
-from Components.ServiceEventTracker import ServiceEventTracker
-from Components.Pixmap import Pixmap
 from Components.Label import Label
+from Components.Pixmap import Pixmap
+from Components.ServiceEventTracker import ServiceEventTracker
 from Components.Sources.StaticText import StaticText
+from Screens.Screen import Screen
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
 

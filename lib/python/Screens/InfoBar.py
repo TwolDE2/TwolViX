@@ -1,18 +1,20 @@
-import os
 from Tools.Profile import profile
+
+import os
+
+profile("LOAD:enigma")
+import enigma
+
+from boxbranding import getBrandOEM
+from Components.config import ConfigSelection
+from Components.Label import Label
+from Components.Pixmap import MultiPixmap
+from Screens.MessageBox import MessageBox
 
 # workaround for required config entry dependencies.
 import Screens.MovieSelection
 
 from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
-from Components.Label import Label
-from Components.Pixmap import MultiPixmap
-from Components.config import ConfigSelection
-
-profile("LOAD:enigma")
-import enigma
-from boxbranding import getBrandOEM
 
 profile("LOAD:InfoBarGenerics")
 from Screens.InfoBarGenerics import InfoBarShowHide, \

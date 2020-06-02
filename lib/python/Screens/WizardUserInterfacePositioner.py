@@ -1,10 +1,11 @@
-from Screens.MessageBox import MessageBox
-from Screens.WizardLanguage import WizardLanguage
-from Screens.Rc import Rc
+from Components.Console import Console
 from Components.Pixmap import Pixmap
 from Components.Sources.Boolean import Boolean
+from Screens.MessageBox import MessageBox
+from Screens.Rc import Rc
+from Screens.WizardLanguage import WizardLanguage
 from Tools.Directories import resolveFilename, SCOPE_SKIN
-from Components.Console import Console
+
 
 class UserInterfacePositionerWizard(WizardLanguage, Rc):
 	def __init__(self, session, interface = None):

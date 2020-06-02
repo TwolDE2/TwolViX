@@ -2,7 +2,17 @@ from datetime import datetime
 from glob import glob
 from os import path, remove, walk, stat, rmdir
 from time import time, ctime
+
+# Here are the email package modules we'll need
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.Utils import formatdate
+
+# Import smtplib for the actual sending function
+import smtplib, base64
+
 from enigma import eTimer, eBackgroundFileEraser, eLabel, getDesktop, gFont, fontRenderClass
+
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config, configfile
@@ -17,14 +27,6 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from skin import getSkinFactor
 from Tools.TextBoundary import getTextBoundarySize
-
-# Import smtplib for the actual sending function
-import smtplib, base64
-
-# Here are the email package modules we'll need
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.Utils import formatdate
 
 _session = None
 

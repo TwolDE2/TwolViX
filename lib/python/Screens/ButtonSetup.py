@@ -1,19 +1,23 @@
-from GlobalActions import globalActionMap
+from enigma import eServiceReference, eActionMap
+
 from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Button import Button
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
-from Components.SystemInfo import SystemInfo
 from Components.config import config, ConfigSubsection, ConfigText, ConfigYesNo
+from Components.Label import Label
 from Components.PluginComponent import plugins
 from Components.Sources.StaticText import StaticText
-from Screens.ChoiceBox import ChoiceBox
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
+from Components.SystemInfo import SystemInfo
+from GlobalActions import globalActionMap
 from Plugins.Plugin import PluginDescriptor
-from Tools.BoundFunction import boundFunction
+from Screens.ChoiceBox import ChoiceBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 from ServiceReference import ServiceReference
-from enigma import eServiceReference, eActionMap
-from Components.Label import Label
+from Tools.BoundFunction import boundFunction
+
+
+
 
 ButtonSetupKeys = [	(_("Red"), "red", "Infobar/openSingleServiceEPG/1"),
 	(_("Red long"), "red_long", "Infobar/activateRedButton"),

@@ -1,18 +1,16 @@
-from Screens.Screen import Screen
-from Screens.Setup import setupdom
-from Screens.LocationBox import MovieLocationBox
-from Screens.MessageBox import MessageBox
-from Components.Label import Label
+from Components.ActionMap import ActionMap
 from Components.config import config, configfile, ConfigNothing, ConfigSelection, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
-from Components.ActionMap import ActionMap
+from Components.Label import Label
 from Components.Pixmap import Pixmap
-from Tools.Directories import fileExists
-from Components.UsageConfig import preferredPath
-#from Components.Sources.Boolean import Boolean
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
-
+from Components.UsageConfig import preferredPath
+from Screens.LocationBox import MovieLocationBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Screens.Setup import setupdom
+from Tools.Directories import fileExists
 
 class SetupSummary(Screen):
 	def __init__(self, session, parent):

@@ -1,19 +1,20 @@
-from Screens.Screen import Screen
-from Components.ActionMap import NumberActionMap
-from Components.config import config, ConfigNothing, ConfigBoolean, ConfigSelection
-from Tools.Directories import resolveFilename, SCOPE_CURRENT_PLUGIN
-from Components.SystemInfo import SystemInfo
-from Components.ConfigList import ConfigListScreen
-from Components.Pixmap import Pixmap
-from Components.Sources.StaticText import StaticText
-from Components.Label import Label
-from Components.Sources.Boolean import Boolean
+from gettext import dgettext
+import xml.etree.cElementTree
 
 from enigma import eEnv
-from gettext import dgettext
-from boxbranding import getMachineBrand, getMachineName
 
-import xml.etree.cElementTree
+from boxbranding import getMachineBrand, getMachineName
+from Components.ActionMap import NumberActionMap
+from Components.config import config, ConfigNothing, ConfigBoolean, ConfigSelection
+
+from Components.SystemInfo import SystemInfo
+from Components.ConfigList import ConfigListScreen
+from Components.Label import Label
+from Components.Pixmap import Pixmap
+from Components.Sources.Boolean import Boolean
+from Components.Sources.StaticText import StaticText
+from Screens.Screen import Screen
+from Tools.Directories import resolveFilename, SCOPE_CURRENT_PLUGIN
 
 def setupdom(plugin=None):
 	# read the setupmenu

@@ -1,25 +1,29 @@
+from datetime import datetime
+from time import mktime, localtime, time
+
 from enigma import eDVBDB, getLinkedSlotID, eDVBResourceManager
-from Screens.Screen import Screen
-from Components.SystemInfo import SystemInfo
+
+from boxbranding import getImageType
+
 from Components.ActionMap import ActionMap
-from Components.ConfigList import ConfigListScreen
-from Components.NimManager import nimmanager
 from Components.Button import Button
-from Components.Label import Label
-from Components.SelectionList import SelectionList, SelectionEntryComponent
 from Components.config import getConfigListEntry, config, ConfigNothing, ConfigYesNo, configfile, NoSave, ConfigSelection
+from Components.ConfigList import ConfigListScreen
+from Components.Label import Label
+from Components.NimManager import nimmanager
+from Components.SelectionList import SelectionList, SelectionEntryComponent
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
-from Screens.MessageBox import MessageBox
-from Screens.ChoiceBox import ChoiceBox
-from Screens.ServiceStopScreen import ServiceStopScreen
+from Components.SystemInfo import SystemInfo
 from Screens.AutoDiseqc import AutoDiseqc
+from Screens.ChoiceBox import ChoiceBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Screens.ServiceStopScreen import ServiceStopScreen
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileExists
 
-from boxbranding import getImageType
-from time import mktime, localtime, time
-from datetime import datetime
+
 
 class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 	def createSimpleSetup(self, list, mode):

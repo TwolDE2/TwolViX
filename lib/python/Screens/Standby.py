@@ -1,10 +1,10 @@
 from os import path
 from gettext import dgettext
 from time import localtime, time
-from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer
-from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM, getMachineBuild
-from GlobalActions import globalActionMap
 
+from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer
+
+from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM, getMachineBuild
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config
@@ -13,6 +13,7 @@ import Components.ParentalControl
 from Components.SystemInfo import SystemInfo
 from Components.Sources.StaticText import StaticText
 from Components.Sources.StreamService import StreamServiceList
+from GlobalActions import globalActionMap
 import Screens.InfoBar
 from Screens.Screen import Screen
 from Tools import Notifications

@@ -1,5 +1,7 @@
+import gettext
+
 from enigma import eTimer
-from Screens.Screen import Screen
+
 from Components.ActionMap import ActionMap
 from Components.config import config
 from Components.Label import Label
@@ -11,10 +13,11 @@ from Components.Pixmap import Pixmap
 from Screens.InfoBar import InfoBar
 from Screens.MessageBox import MessageBox
 from Screens.Rc import Rc
+from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
-import gettext
+
 
 inWizzard = False
 

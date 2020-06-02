@@ -1,8 +1,9 @@
-from Components.Pixmap import MovingPixmap, MultiPixmap
-from Tools.Directories import resolveFilename, SCOPE_SKIN
 from xml.etree.ElementTree import ElementTree
+
 from Components.config import config, ConfigInteger
+from Components.Pixmap import MovingPixmap, MultiPixmap
 from Components.RcModel import rc_model
+from Tools.Directories import resolveFilename, SCOPE_SKIN
 
 config.misc.rcused = ConfigInteger(default = 1)
 
