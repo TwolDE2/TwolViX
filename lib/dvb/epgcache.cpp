@@ -1053,6 +1053,11 @@ next:
 	}
 }
 
+void eEPGCache::flushEPG(int sid, int onid, int tsid)
+{
+	flushEPG(uniqueEPGKey(sid, onid, tsid));
+}
+
 void eEPGCache::flushEPG(const uniqueEPGKey & s)
 {
 	eDebug("[eEPGCache] flushEPG %d", (int)(bool)s);
