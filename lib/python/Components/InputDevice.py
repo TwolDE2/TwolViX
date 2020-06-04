@@ -41,17 +41,16 @@ class inputDevices:
 				buffer = "\0"*512
 				self.fd = os.open("/dev/input/" + evdev, os.O_RDWR | os.O_NONBLOCK)
 				self.name = ioctl(self.fd, EVIOCGNAME(256), buffer)
-				self.name = self.name[:self.name.find("\0")]
+				self.name = self.name[:self.name.find(b"\0")]
 				os.close(self.fd)
 			except (IOError,OSError) as err:
 				print("[InputDevice] Error: evdev='%s' getInputDevices <ERROR: ioctl(EVIOCGNAME): '%s'>" % (evdev, str(err)))
 				self.name = None
 
 			if self.name:
-				devtype = self.getInputDeviceType(self.name)
+				devtype = self.getInputDeviceType(six.ensure_str(self.name))
 				print("[InputDevice] Found: evdev='%s', name='%s', type='%s'" % (evdev, self.name, devtype))
 				self.Devices[evdev] = {'name': self.name, 'type': devtype, 'enabled': False, 'configuredName': None }
-
 
 	def getInputDeviceType(self,name):
 		if "remote control" in str(name).lower():
