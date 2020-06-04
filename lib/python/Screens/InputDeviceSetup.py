@@ -65,8 +65,10 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		activepng = None
 		devicepng = None
 		enabled = iInputDevices.getDeviceAttribute(device, 'enabled')
-
-		if type == 'remote':
+		# print "[InputDevice] device = %s, description = %s, type = %s, isinputdevice = %s, enabled = %s" % (device, description, type, isinputdevice, enabled)
+		if type == None:
+			devicepng = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/input_rcold-configured.png"))
+		elif type == 'remote':
 			if config.misc.rcused.value == 0:
 				if enabled:
 					devicepng = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/input_rcnew-configured.png"))
@@ -95,7 +97,7 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		self.list = []
 
 		if iRcTypeControl.multipleRcSupported():
-			self.list.append(self.buildInterfaceList('rctype', _('Configure remote control type'), None, False))
+			self.list.append(self.buildInterfaceList('rctype', _('Select to configure remote control type'), None, False))
 
 		for x in self.devices:
 			dev_type = iInputDevices.getDeviceAttribute(x[1], 'type')
