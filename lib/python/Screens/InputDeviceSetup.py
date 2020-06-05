@@ -9,7 +9,7 @@ from Components.ConfigList import ConfigListScreen
 from Components.ActionMap import ActionMap, HelpableActionMap
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
-from boxbranding import getBoxType, getMachineBrand, getMachineName
+from boxbranding import getBoxType, getMachineBrand, getMachineName, getMachineBuild
 
 class InputDeviceSelection(Screen, HelpableScreen):
 	def __init__(self, session, menu_path=""):
@@ -37,7 +37,7 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		self["introduction"] = StaticText(self.edittext)
 
 		self.devices = [(iInputDevices.getDeviceName(x),x) for x in iInputDevices.getDeviceList()]
-		print "[InputDeviceSetup] found devices :->", len(self.devices),self.devices
+		print("[InputDeviceSetup] found devices :->", len(self.devices),self.devices)
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
 			{
@@ -95,21 +95,23 @@ class InputDeviceSelection(Screen, HelpableScreen):
 
 	def updateList(self):
 		self.list = []
-
+#		print("[InputDevice] iRcTypeControl.multipleRcSupported = {}".format(iRcTypeControl.multipleRcSupported()))
 		if iRcTypeControl.multipleRcSupported():
 			self.list.append(self.buildInterfaceList('rctype', _('Select to configure remote control type'), None, False))
 
 		for x in self.devices:
 			dev_type = iInputDevices.getDeviceAttribute(x[1], 'type')
 			self.list.append(self.buildInterfaceList(x[1],_(x[0]), dev_type))
-
+#		print("[InputDevice] list = {}, self.currentIndex = {}".format(self.list, self.currentIndex))
 		self["list"].setList(self.list)
 		self["list"].setIndex(self.currentIndex)
 
 	def okbuttonClick(self):
 		selection = self["list"].getCurrent()
 		self.currentIndex = self["list"].getIndex()
+#		print "[InputDevice] selection = {}".format(selection)
 		if selection is not None:
+#			print("[InputDevice] selection[0] = {}".format(selection[0]))
 			if selection[0] == 'rctype':
 				self.session.open(RemoteControlType)
 			else:
@@ -179,16 +181,16 @@ class InputDeviceSetup(Screen, ConfigListScreen):
 		self.list = [ ]
 		label = _("Change repeat and delay settings?")
 		cmd = "self.enableEntry = getConfigListEntry(label, config.inputDevices.%s.enabled)" % self.inputDevice
-		exec cmd
+		exec(cmd)
 		label = _("Interval between keys when repeating:")
 		cmd = "self.repeatEntry = getConfigListEntry(label, config.inputDevices.%s.repeat)" % self.inputDevice
-		exec cmd
+		exec(cmd)
 		label = _("Delay before key repeat starts:")
 		cmd = "self.delayEntry = getConfigListEntry(label, config.inputDevices.%s.delay)" % self.inputDevice
-		exec cmd
+		exec(cmd)
 		label = _("Devicename:")
 		cmd = "self.nameEntry = getConfigListEntry(label, config.inputDevices.%s.name)" % self.inputDevice
-		exec cmd
+		exec(cmd)
 		if self.enableEntry:
 			if isinstance(self.enableEntry[1], ConfigYesNo):
 				self.enableConfigEntry = self.enableEntry[1]
@@ -234,12 +236,12 @@ class InputDeviceSetup(Screen, ConfigListScreen):
 
 	def confirm(self, confirmed):
 		if not confirmed:
-			print "[InputDeviceSetup] not confirmed"
+			print("[InputDeviceSetup] not confirmed")
 			return
 		else:
 			self.nameEntry[1].setValue(iInputDevices.getDeviceAttribute(self.inputDevice, 'name'))
 			cmd = "config.inputDevices.%s.name.save()" % self.inputDevice
-			exec cmd
+			exec(cmd)
 			self.keySave()
 
 	def apply(self):
@@ -373,16 +375,19 @@ class RemoteControlType(Screen, ConfigListScreen):
 		self.getDefaultRcType()
 
 	def getDefaultRcType(self):
-		boxtype = getBoxType()
+		boxtype = getMachineBuild()
 		procBoxtype = iRcTypeControl.getBoxType()
+		print("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype))
 		for x in self.defaultRcList:
 			if x[0] in boxtype or x[0] in procBoxtype:
 				self.defaultRcType = x[1]
 				break
 # If there is none in the list, use the current value...
 #
+#		print("[InputDevice] self.defaultRcType 1 = {}".format(self.defaultRcType))
 		if self.defaultRcType == 0:
 			self.defaultRcType = iRcTypeControl.readRcType()
+#		print("[InputDevice] self.defaultRcType 2 = {}".format(self.defaultRcType))
 
 	def setDefaultRcType(self):
 		iRcTypeControl.writeRcType(self.defaultRcType)
