@@ -12,14 +12,14 @@ class ActionMap:
 		self.bound = False
 		self.exec_active = False
 		self.enabled = True
-		unknown = self.actions.keys()
+		unknown = list(self.actions.keys())
 		for action in unknown[:]:
 			for context in self.contexts:
 				if queryKeyBinding(context, action):
 					unknown.remove(action)
 					break
 		if unknown:
-			print "[ActionMap] Keymap(s) '%s' -> Undefined action(s) '%s'." % (", ".join(contexts), ", ".join(unknown))
+			print("[ActionMap] Keymap(s) '%s' -> Undefined action(s) '%s'." % (", ".join(contexts), ", ".join(unknown)))
 
 	def setEnabled(self, enabled):
 		self.enabled = enabled
@@ -53,13 +53,13 @@ class ActionMap:
 
 	def action(self, context, action):
 		if action in self.actions:
-			print "[ActionMap] Keymap '%s' -> Action = '%s'." % (context, action)
+			print("[ActionMap] Keymap '%s' -> Action = '%s'." % (context, action))
 			res = self.actions[action]()
 			if res is not None:
 				return res
 			return 1
 		else:
-			print "[ActionMap] Keymap '%s' -> Unknown action '%s'! (Typo in keymap?)" % (context, action)
+			print("[ActionMap] Keymap '%s' -> Unknown action '%s'! (Typo in keymap?)" % (context, action))
 			return 0
 
 	def destroy(self):
@@ -91,14 +91,14 @@ class HelpableActionMap(ActionMap):
 	# context, action) is added to the screen's "helpList", which will
 	# be picked up by the "HelpableScreen".
 	def __init__(self, parent, contexts, actions=None, prio=0, description=None):
-		if not hasattr(contexts, '__iter__'):
+		if not hasattr(contexts, "__iter__"):
 			contexts = [contexts]
 		actions = actions or {}
 		self.description = description
 		adict = {}
 		for context in contexts:
 			alist = []
-			for (action, funchelp) in actions.iteritems():
+			for (action, funchelp) in actions.items():
 				# Check if this is a tuple.
 				if isinstance(funchelp, tuple):
 					if queryKeyBinding(context, action):

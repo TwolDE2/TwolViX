@@ -1,10 +1,10 @@
 from boxbranding import getBoxType, getDisplayType
-from sys import maxint
+from sys import maxsize
 
 from twisted.internet import threads
 from enigma import eDBoxLCD, eTimer, eActionMap
 
-from config import config, ConfigSubsection, ConfigSelection, ConfigSlider, ConfigYesNo, ConfigNothing
+from Components.config import config, ConfigSubsection, ConfigSelection, ConfigSlider, ConfigYesNo, ConfigNothing
 from Components.SystemInfo import SystemInfo
 from Tools.Directories import fileExists
 from Screens.InfoBar import InfoBar
@@ -123,20 +123,20 @@ class LCD:
 		return eDBoxLCD.getInstance().isOled()
 
 	def setMode(self, value):
-		print 'setLCDMode',value
+		print('setLCDMode',value)
 		f = open("/proc/stb/lcd/show_symbols", "w")
 		f.write(value)
 		f.close()
 
 	def setPower(self, value):
-		print 'setLCDPower',value
+		print('setLCDPower',value)
 		f = open("/proc/stb/power/vfd", "w")
 		f.write(value)
 		f.close()
 
 	def setShowoutputresolution(self, value):
 		if fileExists("/proc/stb/lcd/show_outputresolution"):
-			print 'setLCDShowoutputresolution',value
+			print('setLCDShowoutputresolution',value)
 			f = open("/proc/stb/lcd/show_outputresolution", "w")
 			f.write(value)
 			f.close()
@@ -151,16 +151,16 @@ class LCD:
 		eDBoxLCD.getInstance().setLED(value, 2)
 
 	def setLCDMiniTVMode(self, value):
-		print 'setLCDMiniTVMode',value
+		print('setLCDMiniTVMode',value)
 		f = open('/proc/stb/lcd/mode', "w")
 		f.write(value)
 		f.close()
 
 	def setLCDMiniTVPIPMode(self, value):
-		print 'setLCDMiniTVPIPMode',value
+		print('setLCDMiniTVPIPMode',value)
 
 	def setLCDMiniTVFPS(self, value):
-		print 'setLCDMiniTVFPS',value
+		print('setLCDMiniTVFPS',value)
 		f = open('/proc/stb/lcd/fps', "w")
 		f.write("%d \n" % value)
 		f.close()
@@ -186,7 +186,7 @@ def InitLcd():
 		detected = True
 	else:
 		detected = eDBoxLCD.getInstance().detected()
-		print "[Lcd.py] %s Display is set to %s" %(getBoxType(), detected)
+		print("[Lcd.py] %s Display is set to %s" %(getBoxType(), detected))
 	if SystemInfo["7segment"]:
 		detected = True
 
@@ -198,14 +198,14 @@ def InitLcd():
 	if fileExists("/proc/stb/lcd/mode"):
 		f = open("/proc/stb/lcd/mode", "r")
 		can_lcdmodechecking = f.read().strip().split(" ")
-		print 'LCDMiniTV',can_lcdmodechecking
+		print('LCDMiniTV',can_lcdmodechecking)
 		f.close()
 	else:
 		can_lcdmodechecking = False
 
 	if SystemInfo["PowerLED"]:
 		def setPowerLEDstate(configElement):
-			print "[LCD]PowerLED = %s" %SystemInfo["PowerLED"]
+			print("[LCD]PowerLED = %s" %SystemInfo["PowerLED"])
 			f = open("/proc/stb/power/powerled", "w")
 			f.write(configElement.value)
 			f.close()
@@ -214,7 +214,7 @@ def InitLcd():
 
 	if SystemInfo["PowerLED2"]:
 		def setPowerLEDstate2(configElement):
-			print "[LCD]PowerLED2 = %s" %SystemInfo["PowerLED2"]
+			print("[LCD]PowerLED2 = %s" %SystemInfo["PowerLED2"])
 			f = open("/proc/stb/power/powerled2", "w")
 			f.write(configElement.value)
 			f.close()
@@ -223,7 +223,7 @@ def InitLcd():
 
  	if SystemInfo["StandbyLED"]:
 		def setPowerLEDstanbystate(configElement):
-			print "[LCD]StandbyLED = %s configElement = %s" % (SystemInfo["StandbyLED"], configElement.value)
+			print("[LCD]StandbyLED = %s configElement = %s" % (SystemInfo["StandbyLED"], configElement.value))
 			f = open("/proc/stb/power/standbyled", "w")
 			f.write(configElement.value)
 			f.close()
@@ -232,7 +232,7 @@ def InitLcd():
 
  	if SystemInfo["SuspendLED"]:
 		def setPowerLEDdeepstanbystate(configElement):
-			print "[LCD]SuspendLED = %s configElement = %s" % (SystemInfo["SuspendLED"], configElement.value)
+			print("[LCD]SuspendLED = %s configElement = %s" % (SystemInfo["SuspendLED"], configElement.value))
 			f = open("/proc/stb/power/suspendled", "w")
 			f.write(configElement.value)
 			f.close()

@@ -151,4 +151,4 @@ SystemInfo["HasSDnomount"] = getMachineBuild() in ("h9", "i55plus") and (False, 
 SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
 #SystemInfo["RecoveryMode"] = SystemInfo["HasRootSubdir"] and getMachineBuild() not in ("hd51","h7") or fileCheck("/proc/stb/fp/boot_mode")
 SystemInfo["AndroidMode"] = SystemInfo["RecoveryMode"] and getMachineBuild() in ("multibox",)
-print "[SystemInfo] SystemInfo data initialised."
+print("[SystemInfo] SystemInfo data initialised.")

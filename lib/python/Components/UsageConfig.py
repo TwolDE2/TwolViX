@@ -9,8 +9,8 @@ from enigma import eDVBDB, eEPGCache, setTunerTypePriorityOrder, setPreferredTun
 from Components.Harddisk import harddiskmanager
 from Components.NimManager import nimmanager
 from Components.ServiceList import refreshServiceList
-from config import ConfigSubsection, ConfigYesNo, config, ConfigSelection, ConfigText, ConfigNumber, ConfigSet, ConfigLocations, NoSave, ConfigClock, ConfigInteger, ConfigBoolean, ConfigPassword, ConfigIP, ConfigSlider, ConfigSelectionNumber
-from SystemInfo import SystemInfo
+from .config import ConfigSubsection, ConfigYesNo, config, ConfigSelection, ConfigText, ConfigNumber, ConfigSet, ConfigLocations, NoSave, ConfigClock, ConfigInteger, ConfigBoolean, ConfigPassword, ConfigIP, ConfigSlider, ConfigSelectionNumber
+from .SystemInfo import SystemInfo
 from Tools.Directories import resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation
 from Tools.HardwareInfo import HardwareInfo
 
@@ -172,7 +172,7 @@ def InitUsageConfig():
 	config.usage.pip_last_service_timeout = ConfigSelection(default="0", choices=choicelist)
 	if not os.path.exists(resolveFilename(SCOPE_HDD)):
 		try:
-			os.mkdir(resolveFilename(SCOPE_HDD), 0755)
+			os.mkdir(resolveFilename(SCOPE_HDD), 0o755)
 		except:
 			pass
 	config.usage.default_path = ConfigText(default=resolveFilename(SCOPE_HDD))
@@ -192,7 +192,7 @@ def InitUsageConfig():
 	config.usage.instantrec_path = ConfigText(default="<default>")
 	if not os.path.exists(resolveFilename(SCOPE_TIMESHIFT)):
 		try:
-			os.mkdir(resolveFilename(SCOPE_TIMESHIFT), 0755)
+			os.mkdir(resolveFilename(SCOPE_TIMESHIFT), 0o755)
 		except:
 			pass
 	config.usage.timeshift_path = ConfigText(default=resolveFilename(SCOPE_TIMESHIFT))
@@ -674,7 +674,7 @@ def InitUsageConfig():
 	try:
 		dateEnabled, timeEnabled = skin.parameters.get("AllowUserDatesAndTimes", (0, 0))
 	except Exception as error:
-		print "[UsageConfig] Error loading 'AllowUserDatesAndTimes' skin parameter! (%s)" % error
+		print("[UsageConfig] Error loading 'AllowUserDatesAndTimes' skin parameter! (%s)" % error)
 		dateEnabled, timeEnabled = (0, 0)
 	if dateEnabled:
 		config.usage.date.enabled.value = True
@@ -797,7 +797,7 @@ def InitUsageConfig():
 	try:
 		dateDisplayEnabled, timeDisplayEnabled = skin.parameters.get("AllowUserDatesAndTimesDisplay", (0, 0))
 	except Exception as error:
-		print "[UsageConfig] Error loading 'AllowUserDatesAndTimesDisplay' display skin parameter! (%s)" % error
+		print("[UsageConfig] Error loading 'AllowUserDatesAndTimesDisplay' display skin parameter! (%s)" % error)
 		dateDisplayEnabled, timeDisplayEnabled = (0, 0)
 	if dateDisplayEnabled:
 		config.usage.date.enabled_display.value = True
@@ -861,10 +861,10 @@ def InitUsageConfig():
 	config.epg.cacheloadsched = ConfigYesNo(default = False)
 	config.epg.cachesavesched = ConfigYesNo(default = False)
 	def EpgCacheLoadSchedChanged(configElement):
-		import EpgLoadSave
+		from . import EpgLoadSave
 		EpgLoadSave.EpgCacheLoadCheck()
 	def EpgCacheSaveSchedChanged(configElement):
-		import EpgLoadSave
+		from . import EpgLoadSave
 		EpgLoadSave.EpgCacheSaveCheck()
 	config.epg.cacheloadsched.addNotifier(EpgCacheLoadSchedChanged, immediate_feedback=False)
 	config.epg.cachesavesched.addNotifier(EpgCacheSaveSchedChanged, immediate_feedback=False)
@@ -990,7 +990,7 @@ def InitUsageConfig():
 
 	def updatedebug_path(configElement):
 		if not os.path.exists(config.crash.debug_path.value):
-			os.mkdir(config.crash.debug_path.value,0755)
+			os.mkdir(config.crash.debug_path.value,0o755)
 	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback = False)
 
 	config.usage.timerlist_showpicons = ConfigYesNo(default = True)
@@ -1217,7 +1217,7 @@ def InitUsageConfig():
 	])
 
 	if not os.path.exists('/usr/softcams/'):
-		os.mkdir('/usr/softcams/',0755)
+		os.mkdir('/usr/softcams/',0o755)
 	softcams = os.listdir('/usr/softcams/')
 	config.oscaminfo = ConfigSubsection()
 	config.oscaminfo.showInExtensions = ConfigYesNo(default=False)
@@ -1290,7 +1290,7 @@ def updateChoices(sel, choices):
 				if x < val:
 					defval = str(x)
 					break
-		sel.setChoices(map(str, choices), defval)
+		sel.setChoices(list(map(str, choices)), defval)
 
 def preferredPath(path):
 	if config.usage.setup_level.index < 2 or path == "<default>":
@@ -1334,16 +1334,16 @@ def upgradeConfig():
 				if newvalue is None and mapper is not None:
 					newvalue = mapper(value)
 				if newvalue is not None:
-					print "[UsageConfig] upgrading %s, mapping value %s to %s" % (name, value, newvalue)
+					print("[UsageConfig] upgrading %s, mapping value %s to %s" % (name, value, newvalue))
 				else:
-					print "[UsageConfig] upgrading %s, value %s" % (name, value)
+					print("[UsageConfig] upgrading %s, value %s" % (name, value))
 					newvalue = value
 				if newvalue is not None:
 					# load the string value to convert it to the config item's type
 					configItem.saved_value = newvalue
 					configItem.load()
 
-		print "[UsageConfig] Upgrading EPG settings"
+		print("[UsageConfig] Upgrading EPG settings")
 
 		okMap = {"Zap + Exit": "zapExit", "Zap": "zap"}
 		infoMap = {"Channel Info": "openEventView", "Single EPG": "openSingleEPG"}
@@ -1405,7 +1405,7 @@ def upgradeConfig():
 		upgrade(config.epgselection.grid.piconwidth, "epgselection.graph_piconwidth")
 		upgrade(config.epgselection.grid.infowidth, "epgselection.graph_infowidth")
 		upgrade(config.epgselection.grid.rec_icon_height, "epgselection.graph_rec_icon_height")
-		for (key, item) in config.misc.ButtonSetup.content.items.items():
+		for (key, item) in list(config.misc.ButtonSetup.content.items.items()):
 			if item.value == "Infobar/openGraphEPG":
 				item.value = "Infobar/openGridEPG"
 				item.save()

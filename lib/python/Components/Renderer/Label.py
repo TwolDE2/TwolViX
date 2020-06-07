@@ -1,5 +1,5 @@
 from Components.VariableText import VariableText
-from Renderer import Renderer
+from .Renderer import Renderer
 
 from enigma import eLabel
 
@@ -15,7 +15,7 @@ class Label(VariableText, Renderer):
 			Renderer.connect(self, source)
 			self.changed((self.CHANGED_DEFAULT,))
 		else:
-			print "SKINERROR: render label has no source"
+			print("SKINERROR: render label has no source")
 
 	def changed(self, what):
 		if what[0] == self.CHANGED_CLEAR:
@@ -25,4 +25,4 @@ class Label(VariableText, Renderer):
 				self.text = self.source.text
 		else:
 			self.text = "<No Source>"
-			print "SKINERROR: render label has no source"
+			print("SKINERROR: render label has no source")

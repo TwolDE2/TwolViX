@@ -1,5 +1,5 @@
-from ConditionalWidget import ConditionalWidget
-from GUIComponent import GUIComponent
+from .ConditionalWidget import ConditionalWidget
+from .GUIComponent import GUIComponent
 
 from enigma import ePixmap, eTimer
 
@@ -134,4 +134,4 @@ class MultiPixmap(Pixmap):
 			if len(self.pixmaps) > x:
 				self.instance.setPixmap(self.pixmaps[x])
 			else:
-				print "[Pixmap] setPixmapNum(%d) failed! defined pixmaps:" % x, self.pixmaps
+				print("[Pixmap] setPixmapNum(%d) failed! defined pixmaps:" % x, self.pixmaps)

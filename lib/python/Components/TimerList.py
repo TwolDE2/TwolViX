@@ -1,5 +1,5 @@
-from GUIComponent import GUIComponent
-from config import config
+from .GUIComponent import GUIComponent
+from .config import config
 from skin import parseFont
 
 from Tools.FuzzyDate import FuzzyTime

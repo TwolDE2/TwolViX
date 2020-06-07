@@ -1,5 +1,5 @@
 from twisted.internet import threads
-from config import config
+from .config import config
 from enigma import eDBoxLCD, eTimer, iPlayableService, pNavigation, iServiceInformation
 import NavigationInstance
 from Tools.Directories import fileExists

@@ -148,7 +148,7 @@ class ServiceScan:
 								tp.Inversion_Unknown : _("Auto")
 							}.get(tp.inversion, ""))
 					else:
-						print "[ServiceScan] unknown transponder type in scanStatusChanged"
+						print("[ServiceScan] unknown transponder type in scanStatusChanged")
 				self.network.setText(network)
 				self.transponder.setText(tp_text)
 
@@ -216,7 +216,7 @@ class ServiceScan:
 		self.scan.statusChanged.get().remove(self.scanStatusChanged)
 		self.scan.newService.get().remove(self.newService)
 		if not self.isDone():
-			print "[ServiceScan] *** warning *** scan was not finished!"
+			print("[ServiceScan] *** warning *** scan was not finished!")
 
 		del self.scan
 

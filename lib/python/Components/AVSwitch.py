@@ -18,25 +18,25 @@ class AVSwitch:
 	has_rca = getHaveRCA() == "True"
 	has_scart = getHaveSCART() == "True"
 
-	print "SystemInfo", "BoxType", getBoxType()
-	print "SystemInfo", "MachineBuild", getMachineBuild()
-	print "SystemInfo", "BrandOEM", getBrandOEM()
-	print "SystemInfo", "DisplayType", getDisplayType()
-	print "SystemInfo", "HaveAVJACK", getHaveAVJACK()
-	print "SystemInfo", "getHaveDVI", getHaveDVI()
-	print "SystemInfo", "HaveHDMI", getHaveHDMI()
-	print "SystemInfo", "HaveRCA", getHaveRCA()
-	print "SystemInfo", "HaveSCART", getHaveSCART()
-	print "SystemInfo", "HaveSCARTYUV", getHaveSCARTYUV()
-	print "SystemInfo", "HaveYUV", getHaveYUV()
-	print "VideoWizard", "has_dvi", has_dvi
-	print "VideoWizard", "has_rca", has_rca
-	print "VideoWizard", "has_jack", has_jack
-	print "VideoWizard", "has_scart", has_scart
-	print "AVSwitch", "Scart-YPbPr", SystemInfo["Scart-YPbPr"]
-	print "AVSwitch", "no_YPbPr", SystemInfo["no_YPbPr"]
-	print "AVSwitch", "yellow_RCA_no_scart", SystemInfo["yellow_RCA_no_scart"]
-	print "AVSwitch", "no_yellow_RCA__no_scart", SystemInfo["no_yellow_RCA__no_scart"]
+	print("SystemInfo", "BoxType", getBoxType())
+	print("SystemInfo", "MachineBuild", getMachineBuild())
+	print("SystemInfo", "BrandOEM", getBrandOEM())
+	print("SystemInfo", "DisplayType", getDisplayType())
+	print("SystemInfo", "HaveAVJACK", getHaveAVJACK())
+	print("SystemInfo", "getHaveDVI", getHaveDVI())
+	print("SystemInfo", "HaveHDMI", getHaveHDMI())
+	print("SystemInfo", "HaveRCA", getHaveRCA())
+	print("SystemInfo", "HaveSCART", getHaveSCART())
+	print("SystemInfo", "HaveSCARTYUV", getHaveSCARTYUV())
+	print("SystemInfo", "HaveYUV", getHaveYUV())
+	print("VideoWizard", "has_dvi", has_dvi)
+	print("VideoWizard", "has_rca", has_rca)
+	print("VideoWizard", "has_jack", has_jack)
+	print("VideoWizard", "has_scart", has_scart)
+	print("AVSwitch", "Scart-YPbPr", SystemInfo["Scart-YPbPr"])
+	print("AVSwitch", "no_YPbPr", SystemInfo["no_YPbPr"])
+	print("AVSwitch", "yellow_RCA_no_scart", SystemInfo["yellow_RCA_no_scart"])
+	print("AVSwitch", "no_yellow_RCA__no_scart", SystemInfo["no_yellow_RCA__no_scart"])
 
 	rates = {}  # high-level, use selectable modes.
 	modes = {}  # a list of (high-level) modes for a certain port.
@@ -100,7 +100,7 @@ class AVSwitch:
 			with open("/proc/stb/video/videomode_choices", "r") as fd:
 				modes = fd.read()[:-1]
 		except (IOError, OSError):
-			print "[VideoHardware] couldn't read available videomodes."
+			print("[VideoHardware] couldn't read available videomodes.")
 			modes = []
 			return modes
 		return modes.split(" ")
@@ -111,7 +111,7 @@ class AVSwitch:
 				modes = fd.read()[:-1]
 			self.modes_preferred = modes.split(" ")
 		except (IOError, OSError):
-			print "[VideoHardware] reading preferred modes failed, using all modes"
+			print("[VideoHardware] reading preferred modes failed, using all modes")
 			self.modes_preferred = self.readAvailableModes()
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
@@ -121,7 +121,7 @@ class AVSwitch:
 	#
 	def isModeAvailable(self, port, mode, rate):
 		rate = self.rates[mode][rate]
-		for mode in rate.values():
+		for mode in list(rate.values()):
 			if mode not in self.readAvailableModes():
 				return False
 		return True
@@ -130,7 +130,7 @@ class AVSwitch:
 		return mode in self.widescreen_modes
 
 	def setMode(self, port, mode, rate, force=None):
-		print "[VideoHardware] setMode - port: %s, mode: %s, rate: %s" % (port, mode, rate)
+		print("[VideoHardware] setMode - port: %s, mode: %s, rate: %s" % (port, mode, rate))
 		# config.av.videoport.setValue(port)
 		# we can ignore "port"
 		self.current_mode = mode
@@ -151,30 +151,30 @@ class AVSwitch:
 			with open("/proc/stb/video/videomode_50hz", "w") as fd:
 				fd.write(mode_50)
 		except (IOError, OSError):
-			print "[AVSwitch] cannot open /proc/stb/video/videomode_50hz"
+			print("[AVSwitch] cannot open /proc/stb/video/videomode_50hz")
 		try:
 			with open("/proc/stb/video/videomode_60hz", "w") as fd:
 				fd.write(mode_60)
 		except (IOError, OSError):
-			print "[AVSwitch] cannot open /proc/stb/video/videomode_60hz"
+			print("[AVSwitch] cannot open /proc/stb/video/videomode_60hz")
 		if SystemInfo["Has24hz"]:
 			try:
 				with open("/proc/stb/video/videomode_24hz", "w") as fd:
 					fd.write(mode_24)
 			except (IOError, OSError):
-				print "[AVSwitch] cannot open /proc/stb/video/videomode_24hz"
+				print("[AVSwitch] cannot open /proc/stb/video/videomode_24hz")
 		if getBrandOEM() in ("gigablue",):
 			try:
 				# use 50Hz mode (if available) for booting
 				with open("/etc/videomode", "w") as fd:
 					fd.write(mode_50)
 			except IOError:
-				print "[AVSwitch] GigaBlue writing initial videomode to /etc/videomode failed."
+				print("[AVSwitch] GigaBlue writing initial videomode to /etc/videomode failed.")
 		try:
 			set_mode = modes.get(int(rate[:2]))
 		except Exception:  # Don't support 50Hz, 60Hz for 1080p.
 			set_mode = mode_50
-		print "[AVSwitch] set mode is %s" % set_mode
+		print("[AVSwitch] set mode is %s" % set_mode)
 		with open("/proc/stb/video/videomode", "w") as fd:
 			fd.write(set_mode)
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
@@ -257,17 +257,17 @@ class AVSwitch:
 	def setConfiguredMode(self):
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
-			print "[VideoHardware] current port not available, not setting videomode"
+			print("[VideoHardware] current port not available, not setting videomode")
 			return
 		mode = config.av.videomode[port].value
 		if mode not in config.av.videorate:
-			print "[VideoHardware] current mode not available, not setting videomode"
+			print("[VideoHardware] current mode not available, not setting videomode")
 			return
 		rate = config.av.videorate[mode].value
 		self.setMode(port, mode, rate)
 
 	def setAspect(self, cfgelement):
-		print "[VideoHardware] setting aspect: %s" % cfgelement.value
+		print("[VideoHardware] setting aspect: %s" % cfgelement.value)
 		with open("/proc/stb/video/aspect", "w") as fd:
 			fd.write(cfgelement.value)
 
@@ -276,18 +276,18 @@ class AVSwitch:
 			wss = "auto(4:3_off)"
 		else:
 			wss = "auto"
-		print "[VideoHardware] setting wss: %s" % wss
+		print("[VideoHardware] setting wss: %s" % wss)
 		with open("/proc/stb/denc/0/wss", "w") as fd:
 			fd.write(wss)
 
 	def setPolicy43(self, cfgelement):
-		print "[VideoHardware] setting policy: %s" % cfgelement.value
+		print("[VideoHardware] setting policy: %s" % cfgelement.value)
 		with open("/proc/stb/video/policy", "w") as fd:
 			fd.write(cfgelement.value)
 
 	def setPolicy169(self, cfgelement):
 		if os.path.exists("/proc/stb/video/policy2"):
-			print "[VideoHardware] setting policy2: %s" % cfgelement.value
+			print("[VideoHardware] setting policy2: %s" % cfgelement.value)
 			with open("/proc/stb/video/policy2", "w") as fd:
 				fd.write(cfgelement.value)
 
@@ -295,7 +295,7 @@ class AVSwitch:
 		ret = (16, 9)
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
-			print "[VideoHardware] current port not available in getOutputAspect!!! force 16:9"
+			print("[VideoHardware] current port not available in getOutputAspect!!! force 16:9")
 		else:
 			mode = config.av.videomode[port].value
 			force_widescreen = self.isWidescreenMode(port, mode)
@@ -543,13 +543,13 @@ def InitAVSwitch():
 	def setScaler_sharpness(config):
 		myval = int(config.value)
 		try:
-			print "[VideoHardware] setting scaler_sharpness to: %0.8X" % myval
+			print("[VideoHardware] setting scaler_sharpness to: %0.8X" % myval)
 			with open("/proc/stb/vmpeg/0/pep_scaler_sharpness", "w") as fd:
 				fd.write("%0.8X" % myval)
 			with open("/proc/stb/vmpeg/0/pep_apply", "w") as fd:
 				fd.write("1")
 		except (IOError, OSError):
-			print "[VideoHardware] couldn't write pep_scaler_sharpness"
+			print("[VideoHardware] couldn't write pep_scaler_sharpness")
 
 	def setColorFormat(configElement):
 		if config.av.videoport and config.av.videoport.value in ("YPbPr", "Scart-YPbPr"):

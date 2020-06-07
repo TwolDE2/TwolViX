@@ -1,5 +1,5 @@
 import os, re, unicodedata
-from Renderer import Renderer
+from .Renderer import Renderer
 from enigma import ePixmap, ePicLoad
 from Tools.Alternatives import GetWithAlternative
 from Tools.Directories import pathExists, SCOPE_ACTIVE_SKIN, resolveFilename
@@ -7,7 +7,7 @@ from Components.Harddisk import harddiskmanager
 from boxbranding import getDisplayType
 from ServiceReference import ServiceReference
 from Components.config import config
-from Picon import PiconLocator
+from .Picon import PiconLocator
 
 def useLcdPicons():
 	return getDisplayType() in ('bwlcd255', 'bwlcd140', 'bwlcd128') or config.lcd.picon_pack.value

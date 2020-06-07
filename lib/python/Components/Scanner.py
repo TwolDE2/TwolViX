@@ -135,7 +135,7 @@ class ScanFile:
 		return "<ScanFile " + self.path + " (" + str(self.mimetype) + ", " + str(self.size) + " MB)>"
 
 def execute(option):
-	print "[Scanner] execute", option
+	print("[Scanner] execute", option)
 	if option is None:
 		return
 
@@ -151,7 +151,7 @@ def scanDevice(mountpoint):
 			l = [l]
 		scanner += l
 
-	print "[Scanner] ", scanner
+	print("[Scanner] ", scanner)
 
 	res = { }
 
@@ -204,7 +204,7 @@ def openList(session, files):
 		else:
 			scanner += l
 
-	print "[Scanner] ", scanner
+	print("[Scanner] ", scanner)
 
 	res = { }
 

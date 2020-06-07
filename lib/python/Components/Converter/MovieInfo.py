@@ -37,12 +37,12 @@ class MovieInfo(Converter, object):
 		for arg in args:
 			name, value = self.KEYWORDS.get(arg, ("Error", None))
 			if name == "Error":
-				print "[MovieInfo] ERROR: Unexpected / Invalid argument token '%s'!" % arg
+				print("[MovieInfo] ERROR: Unexpected / Invalid argument token '%s'!" % arg)
 			else:
 				setattr(self, name, value)
 		if ((name == "Error") or (type is None)):
-			print "[MovieInfo] Valid arguments are: ShortDescription|MetaDescription|FullDescription|RecordServiceName|RecordServiceRef|FileSize."
-			print "[MovieInfo] Valid options for descriptions are: Separated|NotSeparated|Trimmed|NotTrimmed."
+			print("[MovieInfo] Valid arguments are: ShortDescription|MetaDescription|FullDescription|RecordServiceName|RecordServiceRef|FileSize.")
+			print("[MovieInfo] Valid options for descriptions are: Separated|NotSeparated|Trimmed|NotTrimmed.")
 		Converter.__init__(self, type)
 
 	def trimText(self, text):

@@ -10,15 +10,15 @@ class VariableValue(object):
 			try:
 				self.instance.setValue(self.__value)
 			except (TypeError, OverflowError) as e:
-				print "[VariableValue::setValue] exception", type(e), "handled"
+				print("[VariableValue::setValue] exception", type(e), "handled")
 				self.instance.setValue(0)
 
 	def getValue(self):
 		return self.__value
 
 	def postWidgetCreate(self, instance):
-		print self
-		print self.GUI_WIDGET
+		print(self)
+		print(self.GUI_WIDGET)
 		self.instance.setValue(self.__value)
 
 	value = property(getValue, setValue)

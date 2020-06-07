@@ -3,7 +3,7 @@ import struct
 import random
 from time import localtime, strftime
 
-from GUIComponent import GUIComponent
+from .GUIComponent import GUIComponent
 from Tools.FuzzyDate import FuzzyTime
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaTest, MultiContentEntryPixmapAlphaBlend, MultiContentEntryProgress
 from Components.config import config
@@ -277,7 +277,7 @@ class MovieList(GUIComponent):
 
 	def applySkin(self, desktop, parent):
 		def warningWrongSkinParameter(string):
-			print "[MovieList] wrong '%s' skin parameters" % string
+			print("[MovieList] wrong '%s' skin parameters" % string)
 		def font(value):
 			font = skin.parseFont(value, ((1,1),(1,1)))
 			self.fontName = font.family
@@ -585,7 +585,7 @@ class MovieList(GUIComponent):
 
 		reflist = root and serviceHandler.list(root)
 		if reflist is None:
-			print "listing of movies failed"
+			print("listing of movies failed")
 			return
 		realtags = set()
 		autotags = {}
@@ -760,14 +760,14 @@ class MovieList(GUIComponent):
 
 		# reverse the dictionary to see which unique movie each tag now references
 		rautotags = {}
-		for tag, movies in autotags.items():
+		for tag, movies in list(autotags.items()):
 			if (len(movies) > 1):
 				movies = tuple(movies) # a tuple can be hashed, but a list not
 				item = rautotags.get(movies, [])
 				if not item: rautotags[movies] = item
 				item.append(tag)
 		self.tags = {}
-		for movies, tags in rautotags.items():
+		for movies, tags in list(rautotags.items()):
 			movie = movies[0]
 			# format the tag lists so that they are in 'original' order
 			tags.sort(key = movie.find)

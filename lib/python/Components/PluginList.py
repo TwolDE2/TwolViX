@@ -1,4 +1,4 @@
-from MenuList import MenuList
+from .MenuList import MenuList
 
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaBlend
