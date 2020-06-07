@@ -2,6 +2,7 @@ from __future__ import print_function, absolute_import
 
 from time import time
 from timer import TimerEntry as RealTimerEntry
+from functools import cmp_to_key
 
 from Components.ActionMap import ActionMap
 from Components.Label import Label
@@ -22,7 +23,6 @@ from Screens.TimerEntry import TimerEntry, TimerLog
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.FuzzyDate import FuzzyTime
-
 
 class TimerEditList(Screen, ProtectedScreen):
 	EMPTY = 0
@@ -298,8 +298,8 @@ class TimerEditList(Screen, ProtectedScreen):
 			list.extend([(timer, True) for timer in self.session.nav.RecordTimer.processed_timers if timer.disabled and timer.end > now])
 		else:
 			list.extend([(timer, True) for timer in self.session.nav.RecordTimer.processed_timers])
-		if config.usage.timerlist_finished_timer_position.index == 1: #end of list
-			list.sort(cmp = eol_compare)
+		if config.usage.timerlist_finished_timer_position.index: #end of list
+			list.sort(key=cmp_to_key(eol_compare))
 		else:
 			list.sort(key = lambda x: x[0].begin)
 
