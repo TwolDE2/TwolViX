@@ -1,4 +1,4 @@
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, division
 from builtins import range
 from six.moves import reload_module
 
@@ -8,6 +8,7 @@ import random
 from time import localtime, strftime
 
 from enigma import eListboxPythonMultiContent, eListbox, gFont, iServiceInformation, eSize, loadPNG, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER, BT_SCALE, BT_KEEP_ASPECT_RATIO, BT_HALIGN_CENTER, BT_VALIGN_CENTER, eServiceReference, eServiceCenter, eTimer
+
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaTest, MultiContentEntryPixmapAlphaBlend, MultiContentEntryProgress
@@ -326,12 +327,12 @@ class MovieList(GUIComponent):
 
 	def setItemsPerPage(self):
 		if self.listHeight > 0:
-			itemHeight = self.listHeight / config.movielist.itemsperpage.value
+			itemHeight = self.listHeight // config.movielist.itemsperpage.value
 		else:
-			itemHeight = 25 # some default (270/5)
+			itemHeight = 25 # some default (270//5)
 		self.itemHeight = itemHeight
 		self.l.setItemHeight(itemHeight)
-		self.instance.resize(eSize(self.listWidth, self.listHeight / itemHeight * itemHeight))
+		self.instance.resize(eSize(self.listWidth, self.listHeight // itemHeight * itemHeight))
 
 	def setFontsize(self):
 		self.l.setFont(0, gFont(self.fontName, self.fontSize + config.movielist.fontsize.value))
@@ -353,7 +354,6 @@ class MovieList(GUIComponent):
 		durationWidth = self.durationWidth if config.usage.load_length_of_movies_in_moviellist.value else 0
 
 		width = self.l.getItemSize().width()
-
 		dateWidth = self.dateWidth
 		if not config.movielist.use_fuzzy_dates.value:
 			dateWidth += 30
@@ -363,7 +363,6 @@ class MovieList(GUIComponent):
 			iconSize = self.pbarLargeWidth
 		ih = self.itemHeight
 		col0iconSize = piconWidth if showPicons else iconSize
-
 		space = self.spaceIconeText
 		r = self.spaceRight
 		pathName = serviceref.getPath()
@@ -382,11 +381,11 @@ class MovieList(GUIComponent):
 					p = os.path.split(p[0])
 				txt = p[1]
 			if txt == ".Trash":
-				res.append(MultiContentEntryPixmapAlphaBlend(pos=((col0iconSize-self.iconTrash.size().width())/2, (self.itemHeight-self.iconFolder.size().height())/2), size=(iconSize,self.iconTrash.size().height()), png=self.iconTrash))
+				res.append(MultiContentEntryPixmapAlphaBlend(pos=((col0iconSize-self.iconTrash.size().width())//2, (self.itemHeight-self.iconFolder.size().height())//2), size=(iconSize,self.iconTrash.size().height()), png=self.iconTrash))
 				res.append(MultiContentEntryText(pos=(col0iconSize + space, 0), size=(width-145, self.itemHeight), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = _("Deleted items")))
 				res.append(MultiContentEntryText(pos=(width-145-r, 0), size=(145, self.itemHeight), font=1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=_("Trash can")))
 				return res
-			res.append(MultiContentEntryPixmapAlphaBlend(pos=((col0iconSize-self.iconFolder.size().width())/2,(self.itemHeight-self.iconFolder.size().height())/2), size=(iconSize,iconSize), png=self.iconFolder))
+			res.append(MultiContentEntryPixmapAlphaBlend(pos=((col0iconSize-self.iconFolder.size().width())//2,(self.itemHeight-self.iconFolder.size().height())/2), size=(iconSize,iconSize), png=self.iconFolder))
 			res.append(MultiContentEntryText(pos=(col0iconSize + space, 0), size=(width-145, self.itemHeight), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = txt))
 			res.append(MultiContentEntryText(pos=(width-145-r, 0), size=(145, self.itemHeight), font=1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=_("Directory")))
 			return res
@@ -468,7 +467,6 @@ class MovieList(GUIComponent):
 			colX += piconWidth + space
 		else:
 			colX += addProgress() + space
-
 		# Recording name
 		res.append(MultiContentEntryText(pos=(colX, 0), size=(width-iconSize-space-durationWidth-dateWidth-r-colX, ih), font = 0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = data.txt))
 		colX = width-iconSize-space-durationWidth-dateWidth-r
@@ -481,7 +479,7 @@ class MovieList(GUIComponent):
 			if data:
 				len = data.len
 				if len > 0:
-					len = ngettext("%d Min", "%d Mins", (len / 60)) % (len / 60)
+					len = ngettext("%d Min", "%d Mins", (len // 60)) % (len // 60)
 					res.append(MultiContentEntryText(pos=(colX, 0), size=(durationWidth, ih), font=1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=len))
 
 		# Date
@@ -546,7 +544,7 @@ class MovieList(GUIComponent):
 		instance.setContent(None)
 		instance.selectionChanged.get().remove(self.selectionChanged)
 
-	def reload_module(self, root = None, filter_tags = None):
+	def reload(self, root = None, filter_tags = None):
 		if self.reloadDelayTimer is not None:
 			self.reloadDelayTimer.stop()
 			self.reloadDelayTimer = None
@@ -682,7 +680,6 @@ class MovieList(GUIComponent):
 
 		self.firstFileEntry = numberOfDirs
 		self.parentDirectory = 0
-
 		self.list.sort(key=self.buildGroupwiseSortkey)
 
 # Have we had a temporary sort method override set in MovieSelectiom.py?
