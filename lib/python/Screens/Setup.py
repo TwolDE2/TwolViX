@@ -22,7 +22,7 @@ def setupdom(plugin=None):
 	# read the setupmenu
 	if plugin:
 		# first we search in the current path
-		setupfile = file(resolveFilename(SCOPE_CURRENT_PLUGIN, plugin + '/setup.xml'), 'r')
+		setupfile = open(resolveFilename(SCOPE_CURRENT_PLUGIN, plugin + '/setup.xml'), 'r')
 	else:
 		# if not found in the current path, we use the global datadir-path
 		setupfile = file(eEnv.resolve('${datadir}/enigma2/setup.xml'), 'r')
@@ -80,6 +80,7 @@ class Setup(ConfigListScreen, Screen):
 	ALLOW_SUSPEND = True
 
 	def __init__(self, session, setup, plugin=None, menu_path=None, PluginLanguageDomain=None):
+
 		Screen.__init__(self, session)
 		# for the skin: first try a setup_<setupID>, then Setup
 		self.skinName = ["setup_" + setup, "Setup" ]
@@ -114,7 +115,7 @@ class Setup(ConfigListScreen, Screen):
 		self.createSetupList()
 		self["config"].onSelectionChanged.append(self.__onSelectionChanged)
 
-		#check for list.entries > 0 else self.close
+		#check for listItems.entries > 0 else self.close
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
 		self["description"] = Label("")
@@ -123,6 +124,7 @@ class Setup(ConfigListScreen, Screen):
 			{
 				"cancel": self.keyCancel,
 				"save": self.keySave,
+				"ok": self.keySave,
 				"menu": self.closeRecursive,
 			}, -2)
 
@@ -147,6 +149,7 @@ class Setup(ConfigListScreen, Screen):
 		currentItem = self["config"].getCurrent()
 		self.list = []
 		for x in self.setup:
+
 			if not x.tag:
 				continue
 			if x.tag == 'item':
@@ -214,11 +217,10 @@ class Setup(ConfigListScreen, Screen):
 			self.force_update_list = False
 		if not (isinstance(self["config"].getCurrent()[1], ConfigBoolean) or isinstance(self["config"].getCurrent()[1], ConfigSelection)):
 			self.force_update_list = True
-
 	def run(self):
 		self.keySave()
 
-def getSetupTitle(id):
+def getSetupTitle(setupId):
 	xmldata = setupdom().getroot()
 	for x in xmldata.findall("setup"):
 		if x.get("key") == id:
@@ -227,3 +229,4 @@ def getSetupTitle(id):
 			else:
 				return six.ensure_str(x.get("title", ""))
 	raise SetupError("unknown setup id '%s'!" % repr(id))
+

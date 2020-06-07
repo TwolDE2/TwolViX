@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-
+# -*- coding: utf-8 -*-
+from __future__ import print_function, absolute_import
 from time import localtime, mktime, time, strftime
 
 from enigma import eEPGCache, eTimer, eServiceReference, ePoint
@@ -22,6 +22,7 @@ from Screens.Screen import Screen
 from Screens.TimerEdit import TimerSanityConflict
 from Screens.TimerEntry import TimerEntry
 from Tools.BoundFunction import boundFunction
+import six
 
 class EventViewContextMenu(Screen):
 	def __init__(self, session, menu):

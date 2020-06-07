@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import
+
+from __future__ import print_function, absolute_import, division
 
 from bisect import insort
 import itertools, datetime
@@ -1695,7 +1696,6 @@ class InfoBarEPG:
 			elif args[0] == 'closemovieplayer' and isMoviePlayerInfoBar(self):
 				self.lastservice = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 				self.close()
-
 	def openSimilarList(self, eventId, refstr):
 		self.session.open(EPGSelectionSimilar, refstr, eventId=eventId)
 
@@ -2323,7 +2323,7 @@ class InfoBarSeek:
 			if not len[0] and not pos[0]:
 				if len[1] <= pos[1]:
 					return 0
-				time = (len[1] - pos[1])*speedden/(90*speednom)
+				time = (len[1] - pos[1])*speedden//(90*speednom)
 				return time
 		return False
 
@@ -2662,7 +2662,7 @@ class InfoBarExtensions:
 			self.session.open(MessageBox, _("The AutoTimer plugin is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
 
 	def showEPGSearch(self):
-		if not os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/EPGSearch/plugin.pyo"):
+		if not os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/EPGSearch/plugin.py*"):
 			self.session.open(MessageBox, _("The EPGSearch plugin is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
 			return
 		from Plugins.Extensions.EPGSearch.EPGSearch import EPGSearch
@@ -2689,7 +2689,7 @@ class InfoBarExtensions:
 			self.session.open(EPGSearch)
 
 	def showIMDB(self):
-		if os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/IMDb/plugin.pyo"):
+		if os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/IMDb/plugin.py*"):
 			from Plugins.Extensions.IMDb.plugin import IMDB
 			s = self.session.nav.getCurrentService()
 			if s:
@@ -2701,7 +2701,7 @@ class InfoBarExtensions:
 			self.session.open(MessageBox, _("The IMDb plugin is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
 
 	def showDreamPlex(self):
-		if os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/DreamPlex/plugin.pyo"):
+		if os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/DreamPlex/plugin.py*"):
 			from Plugins.Extensions.DreamPlex.plugin import DPS_MainMenu
 			self.session.open(DPS_MainMenu)
 		else:
@@ -2937,6 +2937,7 @@ class InfoBarPiP:
 			self.showPiP()
 		elif "stop" == use:
 			self.showPiP()
+
 
 class InfoBarInstantRecord:
 	"""Instant Record - handles the instantRecord action in order to
@@ -3693,11 +3694,12 @@ class InfoBarCueSheetSupport:
 			# Hmm, this implies we don't resume if the length is unknown...
 			if (last > 900000) and (not length[1]  or (last < length[1] - 900000)):
 				self.resume_point = last
-				l = last / 90000
+				l = last // 90000
 				if force_resume:
 					self.playLastCB(True)
 				elif "ask" in config.usage.on_movie_start.value or not length[1]:
 					Notifications.AddNotificationWithCallback(self.playLastCB, MessageBox, _("Do you want to resume playback?") + "\n" + (_("Resume position at %s") % ("%d:%02d:%02d" % (l/3600, l%3600/60, l%60))), timeout=30, default="yes" in config.usage.on_movie_start.value)
+
 				elif config.usage.on_movie_start.value == "resume":
 					Notifications.AddNotificationWithCallback(self.playLastCB, MessageBox, _("Resuming playback"), timeout=2, type=MessageBox.TYPE_INFO)
 
