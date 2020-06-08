@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from bisect import insort
 import itertools, datetime
-import os, cPickle
-from sys import maxint
+import os, pickle
+from sys import maxsize
 from time import time, localtime, strftime
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
@@ -86,7 +86,7 @@ def setResumePoint(session):
 				else:
 					l = None
 				resumePointCache[key] = [lru, pos[1], l]
-				for k, v in resumePointCache.items():
+				for k, v in list(resumePointCache.items()):
 					if v[0] < lru:
 						candidate = k
 						filepath = os.path.realpath(candidate.split(':')[-1])
@@ -118,20 +118,20 @@ def saveResumePoints():
 	global resumePointCache, resumePointCacheLast
 	try:
 		f = open('/etc/enigma2/resumepoints.pkl', 'wb')
-		cPickle.dump(resumePointCache, f, cPickle.HIGHEST_PROTOCOL)
+		pickle.dump(resumePointCache, f, pickle.HIGHEST_PROTOCOL)
 		f.close()
-	except Exception, ex:
-		print "[InfoBarGenerics] Failed to write resumepoints:", ex
+	except Exception as ex:
+		print("[InfoBarGenerics] Failed to write resumepoints:", ex)
 	resumePointCacheLast = int(time())
 
 def loadResumePoints():
 	try:
 		file = open('/etc/enigma2/resumepoints.pkl', 'rb')
-		PickleFile = cPickle.load(file)
+		PickleFile = pickle.load(file)
 		file.close()
 		return PickleFile
-	except Exception, ex:
-		print "[InfoBarGenerics] Failed to load resumepoints:", ex
+	except Exception as ex:
+		print("[InfoBarGenerics] Failed to load resumepoints:", ex)
 		return {}
 
 def updateresumePointCache():
@@ -223,9 +223,9 @@ class InfoBarUnhandledKey:
 	#this function is called on every keypress!
 	def actionA(self, key, flag):
 		try:
-			print '[InfoBarGenerics] KEY: %s %s' % (key,getKeyDescription(key)[0])
+			print('[InfoBarGenerics] KEY: %s %s' % (key,getKeyDescription(key)[0]))
 		except:
-			print '[InfoBarGenerics] KEY: %s' % key
+			print('[InfoBarGenerics] KEY: %s' % key)
 		self.unhandledKeyDialog.hide()
 		if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
 			self.secondInfoBarScreen.hide()
@@ -813,7 +813,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 					service = info and info.getInfoString(service, iServiceInformation.sServiceref)
 					service = service and eServiceReference(service)
 					if service:
-						print service, service and service.toString()
+						print(service, service and service.toString())
 					return service and ":".join(service.toString().split(":")[:11]) in whitelist_vbi
 				else:
 					return ".hidevbi." in servicepath.lower()
@@ -984,7 +984,7 @@ class InfoBarNumberZap:
 			})
 
 	def keyNumberGlobal(self, number):
-		if self.pvrStateDialog.has_key("PTSSeekPointer") and self.timeshiftEnabled() and self.isSeekable():
+		if "PTSSeekPointer" in self.pvrStateDialog and self.timeshiftEnabled() and self.isSeekable():
 			# noinspection PyProtectedMember
 			InfoBarTimeshiftState._mayShow(self)
 			self.pvrStateDialog["PTSSeekPointer"].setPosition((self.pvrStateDialog["PTSSeekBack"].instance.size().width()-4)/2, self.pvrStateDialog["PTSSeekPointer"].position[1])
@@ -1672,7 +1672,7 @@ class InfoBarEPG:
 			if action:
 				action()
 			else:
-				print "[UserDefinedButtons] Missing action method", actionName
+				print("[UserDefinedButtons] Missing action method", actionName)
 		if len(args) == 6 and args[0] == "open":
 			# open another EPG screen
 			self.session.openWithCallback(self.epgClosed, args[1], self.zapToService, 
@@ -2357,7 +2357,7 @@ class InfoBarPVRState:
 		return InfoBarMoviePlayerSummary
 
 	def _mayShow(self):
-		if self.has_key("state") and not config.usage.movieplayer_pvrstate.value:
+		if "state" in self and not config.usage.movieplayer_pvrstate.value:
 			self["state"].setText("")
 			self["statusicon"].setPixmapNum(6)
 			self["speed"].setText("")
@@ -2374,7 +2374,7 @@ class InfoBarPVRState:
 			self.pvrStateDialog["speed"].setText("")
 			speed_summary = self.pvrStateDialog["speed"].text
 			statusicon_summary = 0
-			if self.has_key("state") and config.usage.movieplayer_pvrstate.value:
+			if "state" in self and config.usage.movieplayer_pvrstate.value:
 				self["state"].setText(playstateString)
 				self["statusicon"].setPixmapNum(0)
 				self["speed"].setText("")
@@ -2383,7 +2383,7 @@ class InfoBarPVRState:
 			self.pvrStateDialog["speed"].setText("")
 			speed_summary = self.pvrStateDialog["speed"].text
 			statusicon_summary = 1
-			if self.has_key("state") and config.usage.movieplayer_pvrstate.value:
+			if "state" in self and config.usage.movieplayer_pvrstate.value:
 				self["state"].setText(playstateString)
 				self["statusicon"].setPixmapNum(1)
 				self["speed"].setText("")
@@ -2392,7 +2392,7 @@ class InfoBarPVRState:
 			self.pvrStateDialog["speed"].setText("")
 			speed_summary = self.pvrStateDialog["speed"].text
 			statusicon_summary = 2
-			if self.has_key("state") and config.usage.movieplayer_pvrstate.value:
+			if "state" in self and config.usage.movieplayer_pvrstate.value:
 				self["state"].setText(playstateString)
 				self["statusicon"].setPixmapNum(2)
 				self["speed"].setText("")
@@ -2402,7 +2402,7 @@ class InfoBarPVRState:
 			self.pvrStateDialog["speed"].setText(speed[1])
 			speed_summary = self.pvrStateDialog["speed"].text
 			statusicon_summary = 3
-			if self.has_key("state") and config.usage.movieplayer_pvrstate.value:
+			if "state" in self and config.usage.movieplayer_pvrstate.value:
 				self["state"].setText(playstateString)
 				self["statusicon"].setPixmapNum(3)
 				self["speed"].setText(speed[1])
@@ -2412,7 +2412,7 @@ class InfoBarPVRState:
 			self.pvrStateDialog["speed"].setText(speed[1])
 			speed_summary = self.pvrStateDialog["speed"].text
 			statusicon_summary = 4
-			if self.has_key("state") and config.usage.movieplayer_pvrstate.value:
+			if "state" in self and config.usage.movieplayer_pvrstate.value:
 				self["state"].setText(playstateString)
 				self["statusicon"].setPixmapNum(4)
 				self["speed"].setText(speed[1])
@@ -2421,7 +2421,7 @@ class InfoBarPVRState:
 			self.pvrStateDialog["speed"].setText(playstateString)
 			speed_summary = self.pvrStateDialog["speed"].text
 			statusicon_summary = 5
-			if self.has_key("state") and config.usage.movieplayer_pvrstate.value:
+			if "state" in self and config.usage.movieplayer_pvrstate.value:
 				self["state"].setText(playstateString)
 				self["statusicon"].setPixmapNum(5)
 				self["speed"].setText(playstateString)
@@ -2814,7 +2814,7 @@ class InfoBarPiP:
 				self.lastPiPServiceTimeout.startLongTimer(60)
 				del self.session.pip
 				if SystemInfo["LCDMiniTVPiP"] and int(config.lcd.minitvpipmode.value) >= 1:
-						print '[LCDMiniTV] disable PIP'
+						print('[LCDMiniTV] disable PIP')
 						f = open("/proc/stb/lcd/mode", "w")
 						f.write(config.lcd.minitvmode.value)
 						f.close()
@@ -2835,7 +2835,7 @@ class InfoBarPiP:
 					self.session.pipshown = True
 					self.session.pip.servicePath = self.servicelist.getCurrentServicePath()
 					if SystemInfo["LCDMiniTVPiP"] and int(config.lcd.minitvpipmode.value) >= 1:
-						print '[LCDMiniTV] enable PIP'
+						print('[LCDMiniTV] enable PIP')
 						f = open("/proc/stb/lcd/mode", "w")
 						f.write(config.lcd.minitvpipmode.value)
 						f.close()
@@ -2854,7 +2854,7 @@ class InfoBarPiP:
 						self.session.pipshown = True
 						self.session.pip.servicePath = self.servicelist.getCurrentServicePath()
 						if SystemInfo["LCDMiniTVPiP"] and int(config.lcd.minitvpipmode.value) >= 1:
-							print '[LCDMiniTV] enable PIP'
+							print('[LCDMiniTV] enable PIP')
 							f = open("/proc/stb/lcd/mode", "w")
 							f.write(config.lcd.minitvpipmode.value)
 							f.close()
@@ -2943,10 +2943,10 @@ class InfoBarInstantRecord:
 				self.recording = InfoBarInstance.recording
 
 	def moveToTrash(self, entry):
-		print "[InfoBarGenerics] instantRecord stop and delete recording: ", entry.name
+		print("[InfoBarGenerics] instantRecord stop and delete recording: ", entry.name)
 		import Tools.Trashcan
 		trash = Tools.Trashcan.createTrashFolder(entry.Filename)
-		from MovieSelection import moveServiceFiles
+		from .MovieSelection import moveServiceFiles
 # Don't crash on errors...the sub-handlers trap and re-raise errors...
 		try:
 			moveServiceFiles(entry.Filename, trash, entry.name, allowCopy=False)
@@ -3105,7 +3105,7 @@ class InfoBarInstantRecord:
 			else:
 				self.session.openWithCallback(self.setEndtime, TimerSelection, list)
 		elif answer[1] == "timer":
-			import TimerEdit
+			from . import TimerEdit
 			self.session.open(TimerEdit.TimerEditList)
 		elif answer[1] == "stop":
 			if len(self.recording) == 1:
@@ -3182,7 +3182,7 @@ class InfoBarInstantRecord:
 
 	def inputAddRecordingTime(self, value):
 		if value:
-			print "[InfoBarGenerics] added", int(value), "minutes for recording."
+			print("[InfoBarGenerics] added", int(value), "minutes for recording.")
 			entry = self.recording[self.selectedEntry]
 			if int(value) != 0:
 				entry.autoincrease = False
@@ -3192,7 +3192,7 @@ class InfoBarInstantRecord:
 	def inputCallback(self, value):
 		entry = self.recording[self.selectedEntry]
 		if value is not None:
-			print "[InfoBarGenerics] stopping recording after", int(value), "minutes."
+			print("[InfoBarGenerics] stopping recording after", int(value), "minutes.")
 			if int(value) != 0:
 				entry.autoincrease = False
 			entry.end = int(time()) + 60 * int(value)
@@ -3281,18 +3281,18 @@ class InfoBarAudioSelection:
 		self.session.openWithCallback(self.audioSelected, AudioSelection, infobar=self)
 
 	def audioSelected(self, ret=None):
-		print "[InfoBarGenerics][audioSelected] ", ret
+		print("[InfoBarGenerics][audioSelected] ", ret)
 
 	def audioSelectionLong(self):
 		if SystemInfo["CanDownmixAC3"]:
 			if config.av.downmix_ac3.value:
 				message = _("Dobly Digital downmix is now") + " " + _("disabled")
-				print '[InfoBarGenerics] [Audio] Dobly Digital downmix is now disabled'
+				print('[InfoBarGenerics] [Audio] Dobly Digital downmix is now disabled')
 				config.av.downmix_ac3.setValue(False)
 			else:
 				config.av.downmix_ac3.setValue(True)
 				message = _("Dobly Digital downmix is now") + " " + _("enabled")
-				print '[InfoBarGenerics] [Audio] Dobly Digital downmix is now enabled'
+				print('[InfoBarGenerics] [Audio] Dobly Digital downmix is now enabled')
 			Notifications.AddPopup(text = message, type = MessageBox.TYPE_INFO, timeout = 5, id = "DDdownmixToggle")
 
 
@@ -3732,7 +3732,7 @@ class InfoBarCueSheetSupport:
 		r = seek.getPlayPosition()
 		if r[0]:
 			return None
-		return long(r[1])
+		return int(r[1])
 
 	def cueGetEndCutPosition(self):
 		ret = False
@@ -3973,7 +3973,7 @@ class InfoBarTeletextPlugin:
 					"startTeletext": (self.startTeletext, _("View teletext..."))
 				})
 		else:
-			print "[InfoBarGenerics] no teletext plugin found!"
+			print("[InfoBarGenerics] no teletext plugin found!")
 
 	def startTeletext(self):
 		self.teletext_plugin and self.teletext_plugin(session=self.session, service=self.session.nav.getCurrentService())

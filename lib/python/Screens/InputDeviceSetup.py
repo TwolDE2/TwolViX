@@ -37,7 +37,7 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		self["introduction"] = StaticText(self.edittext)
 
 		self.devices = [(iInputDevices.getDeviceName(x),x) for x in iInputDevices.getDeviceList()]
-		print("[InputDeviceSetup] found devices :->", len(self.devices),self.devices)
+		print(("[InputDeviceSetup] found devices :->", len(self.devices),self.devices))
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
 			{
@@ -65,7 +65,7 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		activepng = None
 		devicepng = None
 		enabled = iInputDevices.getDeviceAttribute(device, 'enabled')
-		# print("[InputDevice] device = %s, description = %s, type = %s, isinputdevice = %s, enabled = %s" % (device, description, type, isinputdevice, enabled))
+		# print "[InputDevice] device = %s, description = %s, type = %s, isinputdevice = %s, enabled = %s" % (device, description, type, isinputdevice, enabled)
 		if type == None:
 			devicepng = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/input_rcold-configured.png"))
 		elif type == 'remote':
@@ -377,7 +377,7 @@ class RemoteControlType(Screen, ConfigListScreen):
 	def getDefaultRcType(self):
 		boxtype = getMachineBuild()
 		procBoxtype = iRcTypeControl.getBoxType()
-		print("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype))
+		print(("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype)))
 		for x in self.defaultRcList:
 			if x[0] in boxtype or x[0] in procBoxtype:
 				self.defaultRcType = x[1]

@@ -84,7 +84,7 @@ class Dish(Screen):
 			self["turnTime"].setText(self.FormatTurnTime(self.turn_time))
 			self.close_timeout -=1
 			if self.close_timeout < 0:
-				print "[Dish] timeout!"
+				print("[Dish] timeout!")
 				self.__toHide()
 
 	def __onShow(self):
@@ -151,13 +151,13 @@ class Dish(Screen):
 			info = service and service.info()
 			pmt = info and info.getInfo(iServiceInformation.sPMTPID)
 			if pmt >= 0:
-				print "[Dish] tuned, closing..."
+				print("[Dish] tuned, closing...")
 				self.__toHide()
 			else:
 				self.pmt_timeout -= 0.5
 		else:
 			self.__toHide()
-			print "[Dish] tuning failed"
+			print("[Dish] tuning failed")
 
 	def dishState(self):
 		return self.__state
@@ -214,7 +214,7 @@ class Dish(Screen):
 					return nim.turningspeedH.float
 			elif nimConfig.configMode.value == "advanced":
 				if self.cur_orbpos != INVALID_POSITION:
-					satlist = nimConfig.advanced.sat.keys()
+					satlist = list(nimConfig.advanced.sat.keys())
 					if self.cur_orbpos in satlist:
 						currSat = nimConfig.advanced.sat[self.cur_orbpos]
 						lnbnum = int(currSat.lnb.value)

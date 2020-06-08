@@ -21,7 +21,7 @@ class CronTimers(Screen):
 		if path.exists('/usr/scripts') and not path.exists('/usr/script'):
 			rename('/usr/scripts', '/usr/script')
 		if not path.exists('/usr/script'):
-			mkdir('/usr/script', 0755)
+			mkdir('/usr/script', 0o755)
 		screentitle = _("Cron manager")
 		menu_path += screentitle
 		if config.usage.show_menupath.value == 'large':
@@ -29,7 +29,7 @@ class CronTimers(Screen):
 			self["menu_path_compressed"] = StaticText("")
 		elif config.usage.show_menupath.value == 'small':
 			title = screentitle
-			print 'menu_path:',menu_path
+			print('menu_path:',menu_path)
 			self["menu_path_compressed"] = StaticText(menu_path + " >" if not menu_path.endswith(' / ') else menu_path[:-3] + " >" or "")
 		else:
 			title = screentitle

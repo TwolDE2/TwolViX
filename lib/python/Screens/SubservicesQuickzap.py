@@ -3,7 +3,7 @@ from Components.ActionMap import NumberActionMap
 from Components.Label import Label
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
-from InfoBarGenerics import InfoBarShowHide, InfoBarMenu, InfoBarInstantRecord, InfoBarSeek, InfoBarTimeshiftState, InfoBarExtensions, InfoBarSubtitleSupport, InfoBarAudioSelection
+from .InfoBarGenerics import InfoBarShowHide, InfoBarMenu, InfoBarInstantRecord, InfoBarSeek, InfoBarTimeshiftState, InfoBarExtensions, InfoBarSubtitleSupport, InfoBarAudioSelection
 from enigma import eServiceReference
 from Components.ServiceEventTracker import InfoBarBase
 from Components.Timeshift import InfoBarTimeshift

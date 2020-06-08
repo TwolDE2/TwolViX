@@ -102,7 +102,7 @@ class PowerTimerEditList(Screen):
 		if cur:
 			t = cur
 			if t.disabled:
-				print "[PowerTimerEdit] try to ENABLE timer"
+				print("[PowerTimerEdit] try to ENABLE timer")
 				t.enable()
 			else:
 				if t.isRunning():
@@ -285,7 +285,7 @@ class PowerTimerEditList(Screen):
 			self.fillTimerList()
 			self.updateState()
 		else:
-			print "[PowerTimerEdit] PowerTimeredit aborted"
+			print("[PowerTimerEdit] PowerTimeredit aborted")
 
 	def finishedAdd(self, answer):
 		if answer[0]:
@@ -294,7 +294,7 @@ class PowerTimerEditList(Screen):
 			self.fillTimerList()
 			self.updateState()
 		else:
-			print "[PowerTimerEdit] Timeredit aborted"
+			print("[PowerTimerEdit] Timeredit aborted")
 
 	def finishSanityCorrection(self, answer):
 		self.finishedAdd(answer)

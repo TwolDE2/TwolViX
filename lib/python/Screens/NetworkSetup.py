@@ -32,7 +32,7 @@ from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS, SCOPE_
 from Tools.LoadPixmap import LoadPixmap
 
 from subprocess import call
-import commands
+import subprocess
 import string
 import sys
 
@@ -365,7 +365,7 @@ class NameserverSetup(Screen, ConfigListScreen, HelpableScreen):
 			self["menu_path_compressed"] = StaticText("")
 		Screen.setTitle(self, title)
 		self.backupNameserverList = iNetwork.getNameserverList()[:]
-		print "[NameserverSetup] backup-list:", self.backupNameserverList
+		print("[NameserverSetup] backup-list:", self.backupNameserverList)
 
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
@@ -425,7 +425,7 @@ class NameserverSetup(Screen, ConfigListScreen, HelpableScreen):
 
 	def cancel(self):
 		iNetwork.clearNameservers()
-		print "[NameserverSetup] backup-list:", self.backupNameserverList
+		print("[NameserverSetup] backup-list:", self.backupNameserverList)
 		for nameserver in self.backupNameserverList:
 			iNetwork.addNameserver(nameserver)
 		self.close()
@@ -436,7 +436,7 @@ class NameserverSetup(Screen, ConfigListScreen, HelpableScreen):
 		self.createSetup()
 
 	def remove(self):
-		print "[NameserverSetup] currentIndex:", self["config"].getCurrentIndex()
+		print("[NameserverSetup] currentIndex:", self["config"].getCurrentIndex())
 		index = self["config"].getCurrentIndex()
 		if index < len(self.nameservers):
 			iNetwork.removeNameserver(self.nameservers[index])
@@ -996,11 +996,12 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 			try:
 				ifobj = Wireless(iface) # a Wireless NIC Object
 				wlanresponse = ifobj.getAPaddr()
-			except IOError, (error_no, error_str):
+			except IOError as xxx_todo_changeme:
+				(error_no, error_str) = xxx_todo_changeme.args
 				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
 					return False
 				else:
-					print "[AdapterSetupConfiguration] error: ",error_no,error_str
+					print("[AdapterSetupConfiguration] error: ",error_no,error_str)
 					return True
 			else:
 				return True
@@ -1797,11 +1798,11 @@ class NetworkMountsMenu(Screen,HelpableScreen):
 			callFnc = p.__call__["ifaceSupported"](self)
 			if callFnc is not None:
 				self.extended = callFnc
-				if p.__call__.has_key("menuEntryName"):
+				if "menuEntryName" in p.__call__:
 					menuEntryName = p.__call__["menuEntryName"](self)
 				else:
 					menuEntryName = _('Extended Setup...')
-				if p.__call__.has_key("menuEntryDescription"):
+				if "menuEntryDescription" in p.__call__:
 					menuEntryDescription = p.__call__["menuEntryDescription"](self)
 				else:
 					menuEntryDescription = _('Extended Networksetup Plugin...')
@@ -1940,17 +1941,17 @@ class NetworkFtp(NSCommon,Screen):
 	def FtpStartStop(self):
 		commands = []
 		if not self.my_ftp_run:
-			commands.append('/etc/init.d/vsftpd start')
+			subprocess.append('/etc/init.d/vsftpd start')
 		elif self.my_ftp_run:
-			commands.append('/etc/init.d/vsftpd stop')
+			subprocess.append('/etc/init.d/vsftpd stop')
 		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def activateFtp(self):
 		commands = []
 		if ServiceIsEnabled('vsftpd'):
-			commands.append('update-rc.d -f vsftpd remove')
+			subprocess.append('update-rc.d -f vsftpd remove')
 		else:
-			commands.append('update-rc.d -f vsftpd defaults')
+			subprocess.append('update-rc.d -f vsftpd defaults')
 		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
@@ -2244,19 +2245,19 @@ class NetworkSamba(NSCommon,Screen):
 	def SambaStartStop(self):
 		commands = []
 		if not self.my_Samba_run:
-			commands.append('/etc/init.d/samba start')
+			subprocess.append('/etc/init.d/samba start')
 		elif self.my_Samba_run:
-			commands.append('/etc/init.d/samba stop')
-			commands.append('killall nmbd')
-			commands.append('killall smbd')
+			subprocess.append('/etc/init.d/samba stop')
+			subprocess.append('killall nmbd')
+			subprocess.append('killall smbd')
 		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def activateSamba(self):
 		commands = []
 		if ServiceIsEnabled('samba'):
-			commands.append('update-rc.d -f samba remove')
+			subprocess.append('update-rc.d -f samba remove')
 		else:
-			commands.append('update-rc.d -f samba defaults')
+			subprocess.append('update-rc.d -f samba defaults')
 		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
@@ -2369,18 +2370,18 @@ class NetworkTelnet(NSCommon,Screen):
 		commands = []
 		if fileExists('/etc/init.d/telnetd.busybox'):
 			if self.my_telnet_run:
-				commands.append('/etc/init.d/telnetd.busybox stop')
+				subprocess.append('/etc/init.d/telnetd.busybox stop')
 			else:
-				commands.append('/bin/su -l -c "/etc/init.d/telnetd.busybox start"')
+				subprocess.append('/bin/su -l -c "/etc/init.d/telnetd.busybox start"')
 			self.Console.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def activateTelnet(self):
 		commands = []
 		if fileExists('/etc/init.d/telnetd.busybox'):
 			if ServiceIsEnabled('telnetd.busybox'):
-				commands.append('update-rc.d -f telnetd.busybox remove')
+				subprocess.append('update-rc.d -f telnetd.busybox remove')
 			else:
-				commands.append('update-rc.d -f telnetd.busybox defaults')
+				subprocess.append('update-rc.d -f telnetd.busybox defaults')
 		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):

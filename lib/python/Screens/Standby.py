@@ -45,7 +45,7 @@ class Standby2(Screen):
 				open("/proc/stb/hdmi/output", "w").write("on")
 			except:
 				pass
-		print "[Standby] leave standby"
+		print("[Standby] leave standby")
 		self.close(True)
 
 	def setMute(self):
@@ -62,7 +62,7 @@ class Standby2(Screen):
 		self.skinName = "Standby"
 		self.avswitch = AVSwitch()
 
-		print "[Standby] enter standby"
+		print("[Standby] enter standby")
 
 		if path.exists("/usr/scripts/standby_enter.sh"):
 			Console().ePopen("/usr/scripts/standby_enter.sh")
@@ -320,11 +320,11 @@ class TryQuitMainloop(MessageBox):
 			self.session.nav.stopService()
 			self.quitScreen = self.session.instantiateDialog(QuitMainloopScreen,retvalue=self.retval)
 			self.quitScreen.show()
-			print "[Standby] quitMainloop #1"
+			print("[Standby] quitMainloop #1")
 			quitMainloopCode = self.retval
 			if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 				# set LCDminiTV off / fix a deep-standby-crash on some boxes / gb4k 
-				print "[Standby] LCDminiTV off"
+				print("[Standby] LCDminiTV off")
 				setLCDMiniTVMode("0")
 			if getBoxType() == "vusolo4k":  #workaround for white display flash
 				open("/proc/stb/fp/oled_brightness", "w").write("0")

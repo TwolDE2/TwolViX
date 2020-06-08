@@ -49,7 +49,7 @@ class MMIDialog(Screen):
 	def __init__(self, session, slotid, action, handler=eDVBCI_UI.getInstance(), wait_text="", screen_data=None):
 		Screen.__init__(self, session)
 
-		print "[CI] MMIDialog with action" + str(action)
+		print("[CI] MMIDialog with action" + str(action))
 
 		self.mmiclosed = False
 		self.tag = None
@@ -124,9 +124,9 @@ class MMIDialog(Screen):
 		if not self.tag:
 			return
 		if self.tag == "WAIT":
-			print "[CI] do nothing - wait"
+			print("[CI] do nothing - wait")
 		elif self.tag == "MENU":
-			print "[CI] answer MENU"
+			print("[CI] answer MENU")
 			cur = self["entries"].getCurrent()
 			if cur:
 				self.handler.answerMenu(self.slotid, cur[2])
@@ -134,7 +134,7 @@ class MMIDialog(Screen):
 				self.handler.answerMenu(self.slotid, 0)
 			self.showWait()
 		elif self.tag == "LIST":
-			print "[CI] answer LIST"
+			print("[CI] answer LIST")
 			self.handler.answerMenu(self.slotid, 0)
 			self.showWait()
 		elif self.tag == "ENQ":
@@ -177,15 +177,15 @@ class MMIDialog(Screen):
 			self.handler.stopMMI(self.slotid)
 			self.closeMmi()
 		elif self.tag in ( "MENU", "LIST" ):
-			print "[CI] cancel list"
+			print("[CI] cancel list")
 			self.handler.answerMenu(self.slotid, 0)
 			self.showWait()
 		elif self.tag == "ENQ":
-			print "[CI] cancel enq"
+			print("[CI] cancel enq")
 			self.handler.cancelEnq(self.slotid)
 			self.showWait()
 		else:
-			print "[CI] give cancel action to ci"
+			print("[CI] give cancel action to ci")
 
 	def keyConfigEntry(self, key):
 		self.timer.stop()

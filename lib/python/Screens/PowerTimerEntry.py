@@ -24,7 +24,7 @@ class TimerEntry(Screen, ConfigListScreen):
 			self["menu_path_compressed"] = StaticText("")
 		elif config.usage.show_menupath.value == 'small':
 			title = screentitle
-			print 'menu_path:',menu_path
+			print('menu_path:',menu_path)
 			self["menu_path_compressed"] = StaticText(menu_path + " >" if not menu_path.endswith(' / ') else menu_path[:-3] + " >" or "")
 		else:
 			title = screentitle
@@ -102,7 +102,7 @@ class TimerEntry(Screen, ConfigListScreen):
 				count = 0
 				for x in (0, 1, 2, 3, 4, 5, 6):
 					if flags == 1: # weekly
-						print "[PowerTimerEntry] Set to weekday " + str(x)
+						print("[PowerTimerEntry] Set to weekday " + str(x))
 						weekday = x
 					if flags & 1 == 1: # set user defined flags
 						day[x] = 1

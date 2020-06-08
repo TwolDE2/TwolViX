@@ -485,7 +485,7 @@ class AutoVideoMode(Screen):
 				resolutionlabel["restxt"].setText(_("Video mode: %s") % write_mode)
 				if config.av.autores.value != "disabled" and config.av.autores_label_timeout.value != "0":
 					resolutionlabel.show()
-				print "[VideoMode] setMode - port: %s, mode: %s" % (config_port, write_mode)
+				print("[VideoMode] setMode - port: %s, mode: %s" % (config_port, write_mode))
 				with open("/proc/stb/video/videomode", "w") as fd:
 					fd.write(write_mode)
 		iAV.setAspect(config.av.aspect)

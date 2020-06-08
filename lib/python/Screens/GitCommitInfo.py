@@ -12,7 +12,7 @@ from sys import modules
 
 from datetime import datetime
 from json import loads
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 # following noops normal ViX code as I use alphanumeric Imageversion which causes crash 
 if getImageType() == 'release':
 	ImageVer = getImageBuild()
@@ -45,19 +45,19 @@ def readGithubCommitLogsSoftwareUpdate():
 	try:
 		try:
 			from ssl import _create_unverified_context
-			log = loads(urllib2.urlopen(url, timeout=5, context=_create_unverified_context()).read())
+			log = loads(urllib.request.urlopen(url, timeout=5, context=_create_unverified_context()).read())
 		except:
-			log = loads(urllib2.urlopen(url, timeout=5).read())
+			log = loads(urllib.request.urlopen(url, timeout=5).read())
 		for c in log:
 			if c['commit']['message'].startswith('openbh:') or (gitstart and not c['commit']['message'].startswith('openvix:') and getScreenTitle() in ("OE-A Core", "Enigma2", "ViX Core", "ViX Skins")):
 					continue
 			if c['commit']['message'].startswith('openvix:'):
 				gitstart = False
 				if getImageType() == 'release' and c['commit']['message'].startswith('openvix: developer'):
-					print '[GitCommitLog] Skipping developer line'
+					print('[GitCommitLog] Skipping developer line')
 					continue
 				elif getImageType() != 'release' and c['commit']['message'].startswith('openvix: release'):
-					print '[GitCommitLog] Skipping release line'
+					print('[GitCommitLog] Skipping release line')
 					continue
 				tmp = c['commit']['message'].split(' ')[2].split('.')
 				if len(tmp) > 2:
@@ -77,21 +77,21 @@ def readGithubCommitLogsSoftwareUpdate():
 			commitlog += date + ' ' + creator + '\n' + title + 2 * '\n'
 		commitlog = commitlog.encode('utf-8')
 		cachedProjects[getScreenTitle()] = commitlog
-	except urllib2.HTTPError, err:
+	except urllib.error.HTTPError as err:
 		if err.code == 403:
-			print '[GitCommitLog] It seems you have hit your API limit - please try again later.', err
+			print('[GitCommitLog] It seems you have hit your API limit - please try again later.', err)
 			commitlog += _("It seems you have hit your API limit - please try again later.")
 		else:
-			print '[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err
+			print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err)
 			commitlog += _("The commit log cannot be retrieved at the moment - please try again later.")
-	except urllib2.URLError, err:
-		print '[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err.reason[0]
+	except urllib.error.URLError as err:
+		print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err.reason[0])
 		commitlog += _("The commit log cannot be retrieved at the moment - please try again later.\n")
-	except urllib2, err:
-		print '[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err
+	except urllib2 as err:
+		print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err)
 		commitlog += _("The commit log cannot be retrieved at the moment - please try again later.\n")
-	except Exception , err:
-		print '[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err
+	except Exception as err:
+		print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err)
 		commitlog += _("The commit log cannot be retrieved at the moment - please try again later.")
 	return commitlog
 
@@ -106,9 +106,9 @@ def readGithubCommitLogs():
 	try:
 		try:
 			from ssl import _create_unverified_context
-			log = loads(urllib2.urlopen(url, timeout=5, context=_create_unverified_context()).read())
+			log = loads(urllib.request.urlopen(url, timeout=5, context=_create_unverified_context()).read())
 		except:
-			log = loads(urllib2.urlopen(url, timeout=5).read())
+			log = loads(urllib.request.urlopen(url, timeout=5).read())
 		for c in log:
 			if c['commit']['message'].startswith('openbh:') or (gitstart and not c['commit']['message'].startswith('openvix:') and getScreenTitle() in ("OE-A Core", "Enigma2", "ViX Core", "ViX Skins")):
 				continue
@@ -116,10 +116,10 @@ def readGithubCommitLogs():
 				blockstart = False
 				gitstart = False
 				if getImageType() == 'release' and c['commit']['message'].startswith('openvix: developer'):
-					print '[GitCommitLog] Skipping developer line'
+					print('[GitCommitLog] Skipping developer line')
 					continue
 				elif getImageType() == 'developer' and c['commit']['message'].startswith('openvix: release'):
-					print '[GitCommitLog] Skipping release line'
+					print('[GitCommitLog] Skipping release line')
 					continue
 				tmp = c['commit']['message'].split(' ')[2].split('.')
 				if len(tmp) > 2:
@@ -142,21 +142,21 @@ def readGithubCommitLogs():
 			commitlog += date + ' ' + creator + '\n' + title + 2 * '\n'
 		commitlog = commitlog.encode('utf-8')
 		cachedProjects[getScreenTitle()] = commitlog
-	except urllib2.HTTPError, err:
+	except urllib.error.HTTPError as err:
 		if err.code == 403:
-			print '[GitCommitLog] It seems you have hit your API limit - please try again later.', err
+			print('[GitCommitLog] It seems you have hit your API limit - please try again later.', err)
 			commitlog += _("It seems you have hit your API limit - please try again later.")
 		else:
-			print '[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err
+			print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err)
 			commitlog += _("The commit log cannot be retrieved at the moment - please try again later.")
-	except urllib2.URLError, err:
-		print '[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err.reason[0]
+	except urllib.error.URLError as err:
+		print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err.reason[0])
 		commitlog += _("The commit log cannot be retrieved at the moment - please try again later.\n")
-	except urllib2, err:
-		print '[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err
+	except urllib2 as err:
+		print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err)
 		commitlog += _("The commit log cannot be retrieved at the moment - please try again later.\n")
-	except Exception , err:
-		print '[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err
+	except Exception as err:
+		print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err)
 		commitlog += _("The commit log cannot be retrieved at the moment - please try again later.")
 	return commitlog
 
@@ -215,7 +215,7 @@ class CommitInfo(Screen):
 		self["AboutScrollLabel"].setText(gitcommitinfo.readGithubCommitLogs().encode("utf8", errors="ignore"))
 
 	def updateCommitLogs(self):
-		if gitcommitinfo.cachedProjects.has_key(gitcommitinfo.getScreenTitle()):
+		if gitcommitinfo.getScreenTitle() in gitcommitinfo.cachedProjects:
 			self.updateScreenTitle(gitcommitinfo.getScreenTitle())
 			self["AboutScrollLabel"].setText(gitcommitinfo.cachedProjects[gitcommitinfo.getScreenTitle()])
 		else:

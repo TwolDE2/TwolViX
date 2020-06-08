@@ -8,8 +8,8 @@ from Screens.EpgSelectionChannel import EPGSelectionChannel
 class EPGSelection(EPGSelectionChannel):
 	def __init__(self, session, service=None, zapFunc=None, eventid=None, bouquetChangeCB=None, serviceChangeCB=None, EPGtype="similar", StartBouquet=None, StartRef=None, bouquets=None):
 		if EPGtype not in ("similar", "single"):
-			print "[EPGSelection] Warning: EPGSelection does not support type '%s'!" % EPGtype
-			print "               Attempting to continue in single EPG mode"
+			print("[EPGSelection] Warning: EPGSelection does not support type '%s'!" % EPGtype)
+			print("               Attempting to continue in single EPG mode")
 		EPGSelectionChannel.__init__(self, session, service)
 
 		# Rewrite the EPG actions to invoke the compatibility functions.
