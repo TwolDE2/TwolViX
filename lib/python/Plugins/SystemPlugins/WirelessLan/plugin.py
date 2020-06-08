@@ -12,7 +12,7 @@ from Components.Network import iNetwork
 from Plugins.Plugin import PluginDescriptor
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
-from Wlan import iWlan, iStatus, getWlanConfigName, existBcmWifi
+from .Wlan import iWlan, iStatus, getWlanConfigName, existBcmWifi
 
 
 plugin_path = eEnv.resolve("${libdir}/enigma2/python/Plugins/SystemPlugins/WirelessLan")
@@ -287,7 +287,7 @@ class WlanScan(Screen):
 		currentListEntry = None
 		currentListIndex = None
 
-		for ap in self.oldlist.keys():
+		for ap in list(self.oldlist.keys()):
 			data = self.oldlist[ap]['data']
 			if data is not None:
 				tmpList.append(data)
@@ -316,7 +316,7 @@ class WlanScan(Screen):
 		self.cleanList = []
 		aps = iWlan.getNetworkList()
 		if aps is not None:
-			print "[WirelessLan.py] got Accespoints!"
+			print("[WirelessLan.py] got Accespoints!")
 			tmpList = []
 			compList = []
 			for ap in aps:

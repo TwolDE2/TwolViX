@@ -1,5 +1,5 @@
 from Components.config import ConfigSubsection, ConfigSubList, ConfigInteger, ConfigText, ConfigSelection
-import TitleCutter
+from . import TitleCutter
 
 class ConfigFixedText(ConfigText):
 	def __init__(self, text, visible_width=60):
@@ -79,7 +79,7 @@ class DVDTitle:
 		template = template.replace("$C", self.DVBchannel)
 
 		#if template.find("$A") >= 0:
-		from TitleProperties import languageChoices
+		from .TitleProperties import languageChoices
 		audiolist = [ ]
 		for audiotrack in self.properties.audiotracks:
 			active = audiotrack.active.value
