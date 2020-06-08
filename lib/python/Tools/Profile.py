@@ -1,7 +1,7 @@
 # the implementation here is a bit crappy.
 from boxbranding import getBoxType, getMachineBuild
 import time
-from Directories import resolveFilename, SCOPE_CONFIG
+from .Directories import resolveFilename, SCOPE_CONFIG
 
 PERCENTAGE_START = 0
 PERCENTAGE_END = 100
@@ -24,12 +24,12 @@ try:
 		total_time = t
 		profile_data[id] = t
 except:
-	print "[Profile] no profile data available"
+	print("[Profile] no profile data available")
 
 try:
 	profile_file = open(resolveFilename(SCOPE_CONFIG, "profile"), "w")
 except IOError:
-	print "[Profile] WARNING: couldn't open profile file!"
+	print("[Profile] WARNING: couldn't open profile file!")
 
 def profile(id):
 	now = time.time() - profile_start
