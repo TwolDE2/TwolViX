@@ -266,7 +266,7 @@ class LoggingTask(Task):
 		Task.__init__(self, job, name)
 		self.log = []
 	def processOutput(self, data):
-		print("[Task] [%s]" % self.name, data, end=' ')
+		print("[Task] [%s  %s]" % (self.name, data))
 		self.log.append(data)
 
 

@@ -2,6 +2,7 @@ import enigma
 import xml.etree.cElementTree
 
 from keyids import KEYIDS
+from _future_ import print_function
 
 # these are only informational (for help)...
 from Tools.KeyBindings import addKeyBinding

@@ -1,28 +1,28 @@
-from boxbranding import getMachineBrand, getMachineName
 import os
+import timer
+import xml.etree.cElementTree
+from bisect import insort
+from sys import maxsize
+from time import localtime, strftime, ctime, time
+
 from enigma import eEPGCache, getBestPlayableServiceReference, eStreamServer, eServiceReference, iRecordableService, quitMainloop, eActionMap, setPreferredTuner, eServiceCenter
+from _future_ import print_function
+from boxbranding import getMachineBrand, getMachineName
 
 from Components.config import config
 from Components.UsageConfig import defaultMoviePath
 from Components.SystemInfo import SystemInfo
 from Components.TimerSanityCheck import TimerSanityCheck
-
 from Screens.MessageBox import MessageBox
 from Screens.PictureInPicture import PictureInPicture
-import Screens.Standby
-import Screens.InfoBar
-import Components.ParentalControl
+from ServiceReference import ServiceReference
 from Tools import Directories, Notifications, ASCIItranslit, Trashcan
 from Tools.XMLTools import stringToXML
 
-import timer
-import xml.etree.cElementTree
+import Components.ParentalControl
 import NavigationInstance
-from ServiceReference import ServiceReference
-
-from time import localtime, strftime, ctime, time
-from bisect import insort
-from sys import maxsize
+import Screens.Standby
+import Screens.InfoBar
 
 # ok, for descriptions etc we have:
 # service reference  (to get the service name)
@@ -482,7 +482,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 			if self.always_zap:
 				if Screens.Standby.inStandby:
 					self.wasInStandby = True
-					eActionMap.getInstance().bindAction('', -maxint - 1, self.keypress)
+					eActionMap.getInstance().bindAction('', -maxsize - 1, self.keypress)
 					#set service to zap after standby
 					Screens.Standby.inStandby.prev_running_service = self.service_ref.ref
 					Screens.Standby.inStandby.paused_service = None
@@ -570,7 +570,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 			if self.justplay:
 				if Screens.Standby.inStandby:
 					self.wasInStandby = True
-					eActionMap.getInstance().bindAction('', -maxint - 1, self.keypress)
+					eActionMap.getInstance().bindAction('', -maxsize - 1, self.keypress)
 					self.log(11, "wakeup and zap")
 					#set service to zap after standby
 					Screens.Standby.inStandby.prev_running_service = self.service_ref.ref

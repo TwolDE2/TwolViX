@@ -1,9 +1,11 @@
 import os
-from boxbranding import getMachineBrand, getMachineName
-import xml.etree.cElementTree
-from time import ctime, time
 from bisect import insort
+from _future_ import print_function
+from time import ctime, time
+import timer
+import xml.etree.cElementTree
 
+from boxbranding import getMachineBrand, getMachineName
 from enigma import eActionMap, quitMainloop
 
 from Components.config import config
@@ -13,7 +15,6 @@ from Screens.MessageBox import MessageBox
 import Screens.Standby
 from Tools import Directories, Notifications
 from Tools.XMLTools import stringToXML
-import timer
 import NavigationInstance
 
 

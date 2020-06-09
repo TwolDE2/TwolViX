@@ -6,6 +6,7 @@ from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageT
 from sys import stdout
 from time import localtime, strftime, time
 from traceback import print_exc
+from _future_ import print_function
 
 from Tools.Profile import profile, profile_final
 import Tools.RedirectOutput  # Don't remove this line. It may seem to do nothing, but if removed it will break output redirection for crash logs.

@@ -2,19 +2,20 @@ from time import time
 from os import path
 
 from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr
+from _future_ import print_function
 
-from Components.ParentalControl import parentalControl
 from Components.config import config
+from Components.ParentalControl import parentalControl
+from Components.Sources.StreamService import StreamServiceList
 from Components.SystemInfo import SystemInfo
+from Screens.InfoBar import InfoBar, MoviePlayer
 from Tools.BoundFunction import boundFunction
 from Tools.StbHardware import getFPWasTimerWakeup
-import RecordTimer
-import PowerTimer
-import Screens.Standby
 import NavigationInstance
+import PowerTimer
+import RecordTimer
+import Screens.Standby
 import ServiceReference
-from Screens.InfoBar import InfoBar, MoviePlayer
-from Components.Sources.StreamService import StreamServiceList
 
 # TODO: remove pNavgation, eNavigation and rewrite this stuff in python.
 class Navigation:

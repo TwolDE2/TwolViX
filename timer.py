@@ -2,6 +2,7 @@ from bisect import insort
 from time import time, localtime, mktime
 from enigma import eTimer, eActionMap
 import datetime
+from _future_ import print_function
 
 class TimerEntry:
 	StateWaiting  = 0
