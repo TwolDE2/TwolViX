@@ -26,34 +26,32 @@
 
 # note that a timeshift can be enabled ("recording") and
 # activated (currently time-shifting).
+import os
+from time import time, localtime, strftime
+from random import randint
+from timer import TimerEntry
+from _future_ import print_function
 
-
+from enigma import eBackgroundFileEraser, eTimer, eServiceCenter, iServiceInformation, iPlayableService, eEPGCache, eServiceReference
+from boxbranding import getBoxType, getBrandOEM
 from Components.ActionMap import ActionMap, HelpableActionMap
-from Components.ServiceEventTracker import ServiceEventTracker
 from Components.config import config
+from Components.ServiceEventTracker import ServiceEventTracker
 from Components.SystemInfo import SystemInfo
 from Components.Task import job_manager as JobManager
-
+from RecordTimer import RecordTimerEntry, parseEvent
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 import Screens.Standby
 from ServiceReference import ServiceReference
-
-from RecordTimer import RecordTimerEntry, parseEvent
-from timer import TimerEntry
-
 from Tools import ASCIItranslit, Notifications
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import pathExists, fileExists, getRecordingFilename, copyfile, resolveFilename, SCOPE_TIMESHIFT
 from Tools.TimeShift import CopyTimeshiftJob, MergeTimeshiftJob, CreateAPSCFilesJob
 
-from enigma import eBackgroundFileEraser, eTimer, eServiceCenter, iServiceInformation, iPlayableService, eEPGCache, eServiceReference
-from boxbranding import getBoxType, getBrandOEM
 
-from time import time, localtime, strftime
-from random import randint
 
-import os
+
 
 class InfoBarTimeshift:
 	def __init__(self):

@@ -1,10 +1,11 @@
 import os
 import re
-from .MenuList import MenuList
-from Components.Harddisk import harddiskmanager
-from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename, fileExists, pathExists
+from _future_ import print_function
 from enigma import RT_HALIGN_LEFT, eListboxPythonMultiContent, \
 	eServiceReference, eServiceCenter, gFont
+from Components.MenuList import MenuList
+from Components.Harddisk import harddiskmanager
+from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename, fileExists, pathExists
 from Tools.LoadPixmap import LoadPixmap
 import skin
 

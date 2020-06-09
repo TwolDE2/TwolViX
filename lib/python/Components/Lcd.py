@@ -1,5 +1,6 @@
 from boxbranding import getBoxType, getDisplayType
 from sys import maxsize
+from _future_ import print_function
 
 from twisted.internet import threads
 from enigma import eDBoxLCD, eTimer, eActionMap

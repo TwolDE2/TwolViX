@@ -2,6 +2,7 @@ import errno
 import os
 import re
 from . import Task
+from _future_ import print_function
 
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from enigma import eTimer

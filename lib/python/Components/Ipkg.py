@@ -1,8 +1,11 @@
 import os
+from _future_ import print_function
+
 from enigma import eConsoleAppContainer
+
+from boxbranding import getImageDistro
 from Components.Harddisk import harddiskmanager
 from Tools.Directories import resolveFilename, SCOPE_LIBDIR
-from boxbranding import getImageDistro
 
 opkgDestinations = []
 opkgStatusPath = ''

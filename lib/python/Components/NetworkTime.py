@@ -1,8 +1,11 @@
-from Components.Console import Console
-from .config import config
-from enigma import eTimer, eDVBLocalTimeHandler, eEPGCache
-from Tools.StbHardware import setRTCtime
 from time import time
+from _future_ import print_function
+
+from enigma import eTimer, eDVBLocalTimeHandler, eEPGCache
+from Components.config import config
+from Components.Console import Console
+from Tools.StbHardware import setRTCtime
+
 
 # _session = None
 #

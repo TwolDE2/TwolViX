@@ -1,8 +1,10 @@
-from Plugins.Plugin import PluginDescriptor
-from Components.PluginComponent import plugins
-
 import os
 from mimetypes import guess_type, add_type
+from _future_ import print_function
+
+from Components.PluginComponent import plugins
+from Plugins.Plugin import PluginDescriptor
+
 
 add_type("audio/dts", ".dts")
 add_type("audio/mpeg", ".mp3")

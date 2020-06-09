@@ -1,6 +1,7 @@
 import struct
 import os
 from sys import maxsize
+from _future_ import print_function
 
 from enigma import eHdmiCEC, eActionMap
 from enigma import eTimer
@@ -57,7 +58,7 @@ class HdmiCec:
 
 			self.volumeForwardingEnabled = False
 			self.volumeForwardingDestination = 0
-			eActionMap.getInstance().bindAction('', -maxint - 1, self.keyEvent)
+			eActionMap.getInstance().bindAction('', -maxsize - 1, self.keyEvent)
 			config.hdmicec.volume_forwarding.addNotifier(self.configVolumeForwarding)
 			config.hdmicec.enabled.addNotifier(self.configVolumeForwarding)
 			if config.hdmicec.handle_deepstandby_events.value:

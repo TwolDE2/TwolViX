@@ -1,6 +1,9 @@
-from ServiceReference import ServiceReference
-from enigma import eServiceReference
 import os
+from _future_ import print_function
+
+from enigma import eServiceReference
+from ServiceReference import ServiceReference
+
 
 class PlaylistIO:
 	def __init__(self):

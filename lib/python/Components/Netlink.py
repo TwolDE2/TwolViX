@@ -2,6 +2,7 @@
 # similar things, like network connections being (un)plugged.
 import os
 import socket
+from _future_ import print_function
 
 class NetlinkSocket(socket.socket):
 	def __init__(self):

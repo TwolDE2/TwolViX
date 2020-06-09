@@ -1,15 +1,25 @@
 from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
 
 from time import time
+from _future_ import print_function
 
+from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
 from enigma import eTimer
 
 import Components.Task
 from Components.About import about
 from Components.config import config
 from Components.Ipkg import IpkgComponent
+import Components.Task
 
-import urllib.request, urllib.error, urllib.parse, socket, sys
+import socket, sys
+# required methods: Request, urlopen, HTTPError, URLError
+try: # python 3
+	from urllib.request import urlopen, Request # raises ImportError in Python 2
+	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
+except ImportError: # Python 2
+	from urllib2 import Request, urlopen, HTTPError, URLError
+
 
 error = 0
 
@@ -80,20 +90,17 @@ class FeedsStatusCheck:
 				if getImageType() == 'release': # we know the network is good now so only do this check on release images where the release domain applies
 					try:
 						print('[OnlineUpdateCheck][getFeedStatus] Checking feeds state')
-						req = urllib.request.Request('http://openvix.co.uk/TrafficLightState.php')
-						d = urllib.request.urlopen(req)
+						req = Request('http://openvix.co.uk/TrafficLightState.php')
+						d = urlopen(req)
 						trafficLight = d.read()
-					except urllib.error.HTTPError as err:
-						print('[OnlineUpdateCheck][getFeedStatus] ERROR:',err)
+					except HTTPError as err:
+						print(('[OnlineUpdateCheck][getFeedStatus] ERROR:',err))
 						trafficLight = err.code
-					except urllib.error.URLError as err:
-						print('[OnlineUpdateCheck][getFeedStatus] ERROR:',err.reason[0])
+					except URLError as err:
+						print(('[OnlineUpdateCheck][getFeedStatus] ERROR:',err.reason[0]))
 						trafficLight = err.reason[0]
-					except urllib2 as err:
-						print('[OnlineUpdateCheck][getFeedStatus] ERROR:',err)
-						trafficLight = err
 					except:
-						print('[OnlineUpdateCheck][getFeedStatus] ERROR:', sys.exc_info()[0])
+						print(('[OnlineUpdateCheck][getFeedStatus] ERROR:', sys.exc_info()[0]))
 						trafficLight = -2
 				else:
 					trafficLight = 'unknown'
@@ -291,8 +298,8 @@ def kernelMismatch():
 
 	uri = "%s/%s/Packages.gz" % (getFeedsUrl(), getMachineBuild())
 	try:
-		req = urllib.request.Request(uri)
-		d = urllib.request.urlopen(req)
+		req = Request(uri)
+		d = urlopen(req)
 		gz_data = d.read()
 	except:
 		print('[OnlineUpdateCheck][kernelMismatch] error fetching %s' % uri)
@@ -320,8 +327,8 @@ def statusMessage():
 	# status-message.php goes in the root folder of the feeds webserver
 	uri = "http://%s/status-message.php?machine=%s&version=%s&build=%s" % (getFeedsUrl().split("/")[2], getBoxType(), getImageVersion(), getImageBuild())
 	try:
-		req = urllib.request.Request(uri)
-		d = urllib.request.urlopen(req)
+		req = Request(uri)
+		d = urlopen(req)
 		message = d.read()
 	except:
 		print('[OnlineUpdateCheck][statusMessage] %s could not be fetched' % uri)

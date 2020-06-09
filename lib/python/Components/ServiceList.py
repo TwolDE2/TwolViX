@@ -1,14 +1,13 @@
-from .GUIComponent import GUIComponent
-from skin import parseColor, parseFont
+from _future_ import print_function
 
 from enigma import eListboxServiceContent, eListbox, eServiceCenter, eServiceReference, gFont, eRect, eSize
+from Components.config import config
+from Components.GUIComponent import GUIComponent
+from Components.Renderer.Picon import getPiconName
+from skin import parseColor, parseFont
+from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
 from Tools.TextBoundary import getTextBoundarySize
-
-from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
-
-from Components.Renderer.Picon import getPiconName
-from Components.config import config
 
 def refreshServiceList(configElement = None):
 	from Screens.InfoBar import InfoBar

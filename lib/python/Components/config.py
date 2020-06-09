@@ -1,11 +1,13 @@
+from os import path as os_path
+from copy import copy as copy_copy
+from time import localtime, strftime
+
 from enigma import getPrevAsciiCode
+from Components.Harddisk import harddiskmanager
 from Tools.NumericalTextInput import NumericalTextInput
 from Tools.Directories import resolveFilename, SCOPE_CONFIG, fileExists
-from Components.Harddisk import harddiskmanager
 from Tools.LoadPixmap import LoadPixmap
-from copy import copy as copy_copy
-from os import path as os_path
-from time import localtime, strftime
+
 
 # ConfigElement, the base class of all ConfigElements.
 

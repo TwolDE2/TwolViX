@@ -2,9 +2,11 @@ import os
 from fcntl import ioctl
 import platform
 import struct
+from _future_ import print_function
+
 from boxbranding import getBrandOEM
-from .config import config, ConfigInteger, ConfigSlider, ConfigSubsection, ConfigText, ConfigYesNo
-from .SystemInfo import SystemInfo
+from Components.config import config, ConfigInteger, ConfigSlider, ConfigSubsection, ConfigText, ConfigYesNo
+from Components.SystemInfo import SystemInfo
 
 # include/uapi/asm-generic/ioctl.h
 IOC_NRBITS = 8

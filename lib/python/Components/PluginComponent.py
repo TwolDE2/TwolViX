@@ -1,10 +1,12 @@
 import os
 from shutil import rmtree
 from bisect import insort
+from _future_ import print_function
+
+from Plugins.Plugin import PluginDescriptor
 from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS
 from Tools.Import import my_import
 from Tools.Profile import profile
-from Plugins.Plugin import PluginDescriptor
 import keymapparser
 
 class PluginComponent:

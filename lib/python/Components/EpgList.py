@@ -1,4 +1,5 @@
 from enigma import eRect
+from _future_ import print_function
 
 from Components.config import config
 from Components.EpgListSingle import EPGListSingle

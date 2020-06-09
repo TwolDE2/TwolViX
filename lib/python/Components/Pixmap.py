@@ -1,10 +1,10 @@
-from .ConditionalWidget import ConditionalWidget
-from .GUIComponent import GUIComponent
+from os import path
+from _future_ import print_function
 
 from enigma import ePixmap, eTimer
-
+from Components.ConditionalWidget import ConditionalWidget
+from Components.GUIComponent import GUIComponent
 from Tools.Directories import resolveFilename, fileExists, SCOPE_SKIN_IMAGE, SCOPE_ACTIVE_SKIN, SCOPE_ACTIVE_LCDSKIN
-from os import path
 from skin import loadPixmap
 
 class Pixmap(GUIComponent):

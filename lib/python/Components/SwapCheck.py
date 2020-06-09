@@ -1,6 +1,7 @@
-from Components.Console import Console
 import os
+from _future_ import print_function
 
+from Components.Console import Console
 swapdevice = None
 
 def bigStorage(minFree):

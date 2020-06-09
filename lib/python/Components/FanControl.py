@@ -1,11 +1,12 @@
 import os
+from _future_ import print_function
+
+from enigma import iRecordableService
+from boxbranding import getBoxType
 
 from Components.config import config, ConfigSubList, ConfigSubsection, ConfigSlider
 from Tools.BoundFunction import boundFunction
-
 import NavigationInstance
-from enigma import iRecordableService
-from boxbranding import getBoxType
 
 class FanControl:
 	# ATM there's only support for one fan
