@@ -5,8 +5,14 @@ from time import mktime, strftime, time, localtime
 from enigma import eTimer
 
 #for downloader
-import os, re, urllib.request, urllib.error, urllib.parse
+import os, re
 from enigma import eServiceReference, eDVBDB
+# required methods: Request, urlopen, HTTPError, URLError
+try: # python 3
+	from urllib.request import urlopen, Request # raises ImportError in Python 2
+	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
+except ImportError: # Python 2
+	from urllib2 import Request, urlopen, HTTPError, URLError
 
 autoClientModeTimer = None
 def autostart():
@@ -346,14 +352,12 @@ class ChannelsImporter():
 		url = "http://%s/api/saveepg" % self.getRemoteAddress()
 		print("[ChannelsImporter][saveEPGonRemoteReceiver] URL: %s" % url)
 		try:
-			req = urllib.request.Request(url)
-			response = urllib.request.urlopen(req)
+			req = Request(url)
+			response = urlopen(req)
 			print("[ChannelsImporter][saveEPGonRemoteReceiver] Response: %d, %s" % (response.getcode(), response.read().strip().replace("\r","").replace("\n","")))
-		except urllib.error.HTTPError as err:
+		except HTTPError as err:
 			print("[ChannelsImporter][saveEPGonRemoteReceiver] ERROR:",err)
-		except urllib.error.URLError as err:
+		except URLError as err:
 			print("[ChannelsImporter][saveEPGonRemoteReceiver] ERROR:",err.reason[0])
-		except urllib2 as err:
-			print("[ChannelsImporter][saveEPGonRemoteReceiver] ERROR:",err)
 		except:
 			print("[ChannelsImporter][saveEPGonRemoteReceiver] undefined error")
