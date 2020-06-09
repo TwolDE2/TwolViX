@@ -1,23 +1,28 @@
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
-from Screens.ChoiceBox import ChoiceBox
+from _future_ import print_function
+import os, time
+from operator import itemgetter
+from xml.etree import ElementTree
+# required methods: Request, urlopen, HTTPError, URLError
+try: # python 3
+	from urllib.request import urlopen, Request # raises ImportError in Python 2
+	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
+	from urllib.parse import urlparse, urlunparse # raises ImportError in Python 2
+except ImportError: # Python 2
+	from urllib2 import Request, urlopen, HTTPError, URLError
+	from urlparse import urlparse, urlunparse
 
+from enigma import eTimer, RT_HALIGN_LEFT, eListboxPythonMultiContent, gFont, getDesktop, eSize, ePoint
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Components.config import config, configfile, getConfigListEntry
 from Components.ConfigList import ConfigList, ConfigListScreen
 from Components.MenuList import MenuList
-
+from Screens.Screen import Screen
+from Screens.MessageBox import MessageBox
+from Screens.ChoiceBox import ChoiceBox
 from Tools.LoadPixmap import LoadPixmap
 from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename, fileExists
-
-from enigma import eTimer, RT_HALIGN_LEFT, eListboxPythonMultiContent, gFont, getDesktop, eSize, ePoint
-from xml.etree import ElementTree
-
-from operator import itemgetter
-import os, time
-import urllib.request, urllib.error, urllib.parse
 import skin
 
 ###global
@@ -160,19 +165,19 @@ class OscamInfo:
 		if part is not None and reader is not None:
 			self.url = "%s://%s:%s/oscamapi.html?part=%s&label=%s" % ( self.proto, self.ip, self.port, part, reader )
 
-		opener = urllib.request.build_opener( urllib.request.HTTPHandler )
+		opener = request.build_opener( urllib.request.HTTPHandler )
 		if not self.username == "":
-			pwman = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+			pwman = request.HTTPPasswordMgrWithDefaultRealm()
 			pwman.add_password( None, self.url, self.username, self.password )
-			handlers = urllib.request.HTTPDigestAuthHandler( pwman )
-			opener = urllib.request.build_opener( urllib.request.HTTPHandler, handlers )
-			urllib.request.install_opener( opener )
-		request = urllib.request.Request( self.url )
+			handlers = request.HTTPDigestAuthHandler( pwman )
+			opener = request.build_opener( urllib.request.HTTPHandler, handlers )
+			request.install_opener( opener )
+		request = Request( self.url )
 		err = False
 		try:
-			data = urllib.request.urlopen( request ).read()
+			data = urlopen( request ).read()
 			# print data
-		except urllib.error.URLError as e:
+		except URLError as e:
 			if hasattr(e, "reason"):
 				err = str(e.reason)
 			elif hasattr(e, "code"):

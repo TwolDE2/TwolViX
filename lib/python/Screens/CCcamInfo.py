@@ -2,6 +2,7 @@
 # CCcam Info by AliAbdul
 from base64 import encodestring
 from os import listdir, remove, rename, system, path
+from _future_ import print_function
 
 from enigma import eListboxPythonMultiContent, eTimer, gFont, loadPNG, RT_HALIGN_RIGHT, getDesktop
 
@@ -25,6 +26,11 @@ from Tools.Directories import fileExists, SCOPE_ACTIVE_SKIN, resolveFilename
 from twisted.internet import reactor
 from twisted.web.client import HTTPClientFactory
 from urllib.parse import urlparse, urlunparse
+# required methods: Request, urlopen, HTTPError, URLError, urlparse
+try: # python 3
+	from urllib.parse import urlparse, urlunparse # raises ImportError in Python 2
+except ImportError: # Python 2
+	from urlparse import urlparse, urlunparse	
 
 #TOGGLE_SHOW = InfoBar.toggleShow
 

@@ -2,7 +2,11 @@ from boxbranding import getMachineBrand, getMachineName
 
 from twisted.web import client
 from twisted.internet import reactor, defer
-from urllib.parse import urlparse
+# required methods: Request, urlopen, HTTPError, URLError, urlparse
+try: # python 3
+	from urllib.parse import urlparse, urlunparse # raises ImportError in Python 2
+except ImportError: # Python 2
+	from urlparse import urlparse, urlunparse
 
 class HTTPProgressDownloader(client.HTTPDownloader):
 	def __init__(self, url, outfile, headers=None):

@@ -1,14 +1,21 @@
 # YWeather by 2boom 2013 v.0.6
 # xml from http://weather.yahooapis.com/forecastrss
+import socket
+import time
+import os
 
 from Components.Converter.Converter import Converter
 from Components.Element import cached
 from Tools.Directories import fileExists
 from .Poll import Poll
-import time
-import os
-from urllib.request import Request, urlopen
-import socket
+
+# required methods: Request, urlopen, HTTPError, URLError
+try: # python 3
+	from urllib.request import urlopen, Request # raises ImportError in Python 2
+	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
+except ImportError: # Python 2
+	from urllib2 import Request, urlopen, HTTPError, URLError
+
 
 class YWeather(Poll, Converter, object):
 	weather_city = '677944'
