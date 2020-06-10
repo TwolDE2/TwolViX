@@ -1,6 +1,9 @@
-from boxbranding import getImageVersion, getImageType, getMachineBrand, getMachineName
+from _future_ import print_function
 import os
+from time import time
+
 from enigma import eConsoleAppContainer, eDVBDB, eTimer
+from boxbranding import getImageVersion, getImageType, getMachineBrand, getMachineName
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.Button import Button
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigText
@@ -20,7 +23,7 @@ from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.Screen import Screen
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
-from time import time
+
 
 
 config.misc.pluginbrowser = ConfigSubsection()

@@ -1,6 +1,6 @@
+from __future__ import print_function
 from os import listdir, path
 from re import search
-from __future__ import print_function
 
 from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild

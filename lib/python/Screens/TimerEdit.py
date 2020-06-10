@@ -1,3 +1,7 @@
+from __future__ import print_function
+from time import time
+from timer import TimerEntry as RealTimerEntry
+
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.config import config
@@ -17,8 +21,7 @@ from Screens.TimerEntry import TimerEntry, TimerLog
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.FuzzyDate import FuzzyTime
-from time import time
-from timer import TimerEntry as RealTimerEntry
+
 
 class TimerEditList(Screen, ProtectedScreen):
 	EMPTY = 0

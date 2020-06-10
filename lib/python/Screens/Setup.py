@@ -6,11 +6,10 @@ from enigma import eEnv
 from boxbranding import getMachineBrand, getMachineName
 from Components.ActionMap import NumberActionMap
 from Components.config import config, ConfigNothing, ConfigBoolean, ConfigSelection
-
-from Components.SystemInfo import SystemInfo
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.Pixmap import Pixmap
+from Components.SystemInfo import SystemInfo
 from Components.Sources.Boolean import Boolean
 from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen

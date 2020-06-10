@@ -1,17 +1,9 @@
-from boxbranding import getImageVersion, getImageBuild, getImageDevBuild, getImageType, getImageDistro, getMachineBrand, getMachineName, getMachineBuild
+from __future__ import print_function
 from os import path
 from gettext import dgettext
 
 from enigma import eTimer, eDVBDB
-
-import Components.Task
-from Components.OnlineUpdateCheck import feedsstatuscheck, kernelMismatch, statusMessage
-from Screens.ChoiceBox import ChoiceBox
-from Screens.MessageBox import MessageBox
-from Screens.ParentalControlSetup import ProtectedScreen
-from Screens.Screen import Screen
-from Screens.Standby import TryQuitMainloop
-from Screens.GitCommitInfo import CommitInfo, gitcommitinfo
+from boxbranding import getImageVersion, getImageBuild, getImageDevBuild, getImageType, getImageDistro, getMachineBrand, getMachineName, getMachineBuild
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.Button import Button
 from Components.config import config
@@ -22,6 +14,15 @@ from Components.Label import Label
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Components.Slider import Slider
+from Screens.ChoiceBox import ChoiceBox
+from Screens.GitCommitInfo import CommitInfo, gitcommitinfo
+from Screens.MessageBox import MessageBox
+from Components.OnlineUpdateCheck import feedsstatuscheck, kernelMismatch, statusMessage
+from Screens.ParentalControlSetup import ProtectedScreen
+from Screens.Screen import Screen
+from Screens.Standby import TryQuitMainloop
+import Components.Task
+
 
 ocram = ''
 

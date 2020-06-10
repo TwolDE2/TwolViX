@@ -1,11 +1,8 @@
-from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
-
-from time import time
 from __future__ import print_function
+from time import time
 
 from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
 from enigma import eTimer
-
 import Components.Task
 from Components.About import about
 from Components.config import config

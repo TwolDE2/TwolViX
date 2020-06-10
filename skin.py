@@ -1,6 +1,6 @@
+from __future__ import print_function
 import errno
 import xml.etree.cElementTree
-from __future__ import print_function
 
 from enigma import addFont, eLabel, ePixmap, ePoint, eRect, eSize, eWindow, eWindowStyleManager, eWindowStyleSkinned, getDesktop, gFont, getFontFaces, gRGB
 from os.path import basename, dirname, isfile

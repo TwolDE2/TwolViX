@@ -1,9 +1,8 @@
+from __future__ import print_function
 import errno
 import xml.etree.cElementTree
-
 from os import environ, path, symlink, unlink, walk
 from time import gmtime, localtime, strftime, time
-from __future__ import print_function
 
 from Components.config import ConfigSelection, ConfigSubsection, config
 from Tools.Geolocation import geolocation

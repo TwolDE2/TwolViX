@@ -1,8 +1,8 @@
-import os
+from __future__ import print_functionimport os
 from fcntl import ioctl
 import platform
 import struct
-from __future__ import print_function
+
 
 from boxbranding import getBrandOEM
 from Components.config import config, ConfigInteger, ConfigSlider, ConfigSubsection, ConfigText, ConfigYesNo

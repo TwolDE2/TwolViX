@@ -1,12 +1,10 @@
+from _future_ import print_function
 from datetime import datetime
 from json import loads
-from _future_ import print_function
-
+from sys import modules
 
 from enigma import eTimer
 from boxbranding import getImageVersion, getImageBuild, getImageDevBuild, getImageType
-from sys import modules
-
 from Components.ActionMap import ActionMap
 from Components.Sources.StaticText import StaticText
 from Components.Button import Button

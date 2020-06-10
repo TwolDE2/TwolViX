@@ -1,7 +1,8 @@
+from __future__ import print_function
 import Components.Netlink
 import enigma
 import os
-from __future__ import print_function
+
 
 class NetlinkReader():
 	def __init__(self):

@@ -1,16 +1,19 @@
-from Screens.Screen import Screen
-from Screens.Setup import setupdom
-from Screens.LocationBox import TimeshiftLocationBox
-from Screens.MessageBox import MessageBox
-from Components.Label import Label
+from __future__ import print_function
+
+from Components.ActionMap import ActionMap
 from Components.config import config, configfile, ConfigYesNo, ConfigNothing, ConfigSelection, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
-from Components.ActionMap import ActionMap
+from Components.Label import Label
 from Components.Pixmap import Pixmap
-from Tools.Directories import fileExists
 from Components.Sources.Boolean import Boolean
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
+from Screens.LocationBox import TimeshiftLocationBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Screens.Setup import setupdom
+from Tools.Directories import fileExists
+
 
 
 class SetupSummary(Screen):

@@ -1,13 +1,15 @@
+from _future_ import print_function
+from time import time
+
 from enigma import getPrevAsciiCode
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
 from Components.ActionMap import NumberActionMap
-from Components.Label import Label
-from Components.Input import Input
 from Components.config import config
+from Components.Input import Input
+from Components.Label import Label
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 from Tools.Notifications import AddPopup
-from time import time
 
 class InputBox(Screen):
 	def __init__(self, session, title = "", windowTitle = None, useableChars = None, **kwargs):

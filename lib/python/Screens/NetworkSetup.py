@@ -1,8 +1,10 @@
-from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType
+from _future_ import print_function
 from os import path as os_path, remove, unlink, rename, chmod, access, X_OK
 from shutil import move
 import time
 
+from enigma import eTimer, eConsoleAppContainer
+from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType
 from Components.About import about
 from Components.ActionMap import ActionMap, NumberActionMap, HelpableActionMap
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigIP, ConfigText, ConfigPassword, ConfigSelection, getConfigListEntry, ConfigNumber, ConfigLocations, NoSave, ConfigMacText
@@ -20,7 +22,6 @@ from Components.Sources.StaticText import StaticText
 from Components.Sources.Boolean import Boolean
 from Components.Sources.List import List
 from Components.SystemInfo import SystemInfo
-from enigma import eTimer, eConsoleAppContainer
 from Plugins.Plugin import PluginDescriptor
 from random import Random
 from Screens.Screen import Screen

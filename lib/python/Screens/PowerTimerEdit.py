@@ -1,19 +1,20 @@
+from time import time
+from timer import TimerEntry as RealTimerEntry
+
 from Components.ActionMap import ActionMap
 from Components.Button import Button
-from Components.Label import Label
 from Components.config import config
+from Components.Label import Label
 from Components.PowerTimerList import PowerTimerList
 from Components.Sources.StaticText import StaticText
 from Components.Sources.StaticText import StaticText
 from PowerTimer import PowerTimerEntry, AFTEREVENT
-from Screens.Screen import Screen
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.PowerTimerEntry import TimerEntry, TimerLog
+from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 from Tools.FuzzyDate import FuzzyTime
-from time import time
-from timer import TimerEntry as RealTimerEntry
 
 class PowerTimerEditList(Screen):
 	EMPTY = 0

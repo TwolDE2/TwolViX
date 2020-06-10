@@ -1,5 +1,5 @@
-from enigma import eActionMap
 from __future__ import print_function
+from enigma import eActionMap
 from Tools.KeyBindings import queryKeyBinding
 
 

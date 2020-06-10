@@ -1,9 +1,8 @@
-import os
 from __future__ import print_function
+import os
 
 from enigma import iRecordableService
 from boxbranding import getBoxType
-
 from Components.config import config, ConfigSubList, ConfigSubsection, ConfigSlider
 from Tools.BoundFunction import boundFunction
 import NavigationInstance

@@ -1,12 +1,14 @@
-from Screens.Screen import Screen
-from Screens.HelpMenu import HelpableScreen
-from Screens.MessageBox import MessageBox
+from _future_ import print_function
+
 from Components.InputDevice import iInputDevices, iRcTypeControl
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
 from Components.config import config, ConfigYesNo, getConfigListEntry, ConfigSelection
 from Components.ConfigList import ConfigListScreen
 from Components.ActionMap import ActionMap, HelpableActionMap
+from Screens.Screen import Screen
+from Screens.HelpMenu import HelpableScreen
+from Screens.MessageBox import MessageBox
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
 from boxbranding import getBoxType, getMachineBrand, getMachineName, getMachineBuild

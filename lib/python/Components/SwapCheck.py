@@ -1,5 +1,5 @@
-import os
 from __future__ import print_function
+import os
 
 from Components.Console import Console
 swapdevice = None

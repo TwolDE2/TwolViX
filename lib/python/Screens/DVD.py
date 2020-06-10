@@ -1,17 +1,20 @@
+from __future__ import print_function
 import os
+
 from enigma import eTimer, iPlayableService, iServiceInformation, eServiceReference, iServiceKeys, getDesktop
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
-from Screens.ChoiceBox import ChoiceBox
-from Screens.HelpMenu import HelpableScreen
-from Screens.InfoBarGenerics import InfoBarSeek, InfoBarPVRState, InfoBarCueSheetSupport, InfoBarShowHide, InfoBarNotifications, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarLongKeyDetection
 from Components.ActionMap import ActionMap, NumberActionMap, HelpableActionMap
+from Components.config import config
+from Components.Harddisk import harddiskmanager
 from Components.Label import Label
 from Components.Pixmap import Pixmap
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
-from Components.config import config
+from Screens.ChoiceBox import ChoiceBox
+from Screens.HelpMenu import HelpableScreen
+from Screens.InfoBarGenerics import InfoBarSeek, InfoBarPVRState, InfoBarCueSheetSupport, InfoBarShowHide, InfoBarNotifications, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarLongKeyDetection
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 from Tools.Directories import pathExists, fileExists
-from Components.Harddisk import harddiskmanager
+
 
 lastpath = ""
 

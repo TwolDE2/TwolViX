@@ -1,5 +1,5 @@
-from os import path
 from __future__ import print_function
+from os import path
 
 from enigma import ePixmap, eTimer
 from Components.ConditionalWidget import ConditionalWidget

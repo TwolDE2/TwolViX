@@ -26,11 +26,11 @@
 
 # note that a timeshift can be enabled ("recording") and
 # activated (currently time-shifting).
+from __future__ import print_function
 import os
 from time import time, localtime, strftime
 from random import randint
 from timer import TimerEntry
-from __future__ import print_function
 
 from enigma import eBackgroundFileEraser, eTimer, eServiceCenter, iServiceInformation, iPlayableService, eEPGCache, eServiceReference
 from boxbranding import getBoxType, getBrandOEM

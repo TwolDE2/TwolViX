@@ -1,10 +1,8 @@
-from .GUIComponent import GUIComponent
-from .VariableText import VariableText
-from .VariableValue import VariableValue
-
 from enigma import iPlayableService
 from enigma import eLabel, eSlider, eTimer
-
+from Components.GUIComponent import GUIComponent
+from Components.VariableText import VariableText
+from Components.VariableValue import VariableValue
 
 class PerServiceBase(object):
 	EventMap = { }

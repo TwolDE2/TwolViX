@@ -1,5 +1,5 @@
-import time
 from __future__ import print_function
+import time
 
 from enigma import eTimer, iPlayableService, ePositionGauge
 from Components.GUIComponent import GUIComponent

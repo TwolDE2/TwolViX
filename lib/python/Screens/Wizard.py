@@ -1,3 +1,4 @@
+from __future__ import print_function
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 

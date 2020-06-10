@@ -1,5 +1,6 @@
-import os
 from __future__ import print_function
+import os
+
 from enigma import eAVSwitch, getDesktop
 from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveDVI, getHaveHDMI, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getMachineBuild
 

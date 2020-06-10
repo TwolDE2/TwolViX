@@ -1,17 +1,16 @@
-from Screens.Screen import Screen
-from Components.Label import Label
+import re
+
+from enigma import getPeerStreamingBoxes
 from Components.ActionMap import ActionMap
+from Components.config import config, configfile, ConfigText, ConfigSubsection, ConfigSelection, ConfigIP, ConfigYesNo, ConfigInteger, getConfigListEntry
+from Components.ConfigList import ConfigListScreen
+from Components.Label import Label
 from Components.Pixmap import Pixmap
 from Components.Sources.Boolean import Boolean
 from Components.Sources.StaticText import StaticText
-from Components.config import config, configfile, ConfigText, ConfigSubsection, ConfigSelection, ConfigIP, ConfigYesNo, ConfigInteger, getConfigListEntry
-from Components.ConfigList import ConfigListScreen
 from Screens.MessageBox import MessageBox
 from Screens.HelpMenu import HelpableScreen
-
-from enigma import getPeerStreamingBoxes
-
-import re
+from Screens.Screen import Screen
 
 class FallbackTunerSetup(ConfigListScreen, Screen):
 	def __init__(self, session, menu_path=""):

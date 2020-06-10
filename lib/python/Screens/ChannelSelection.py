@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import os, unicodedata
 import re
 from time import localtime, time, strftime
 
 from enigma import eActionMap, eServiceReference, eEPGCache, eServiceCenter, eRCInput, eTimer, ePoint, eDVBDB, iPlayableService, iServiceInformation, getPrevAsciiCode, eEnv, loadPNG, eDVBLocalTimeHandler
-
 from Components.ActionMap import NumberActionMap, ActionMap, HelpableActionMap
 from Components.Button import Button
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent

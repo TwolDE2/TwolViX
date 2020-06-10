@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os import path
 
 from enigma import iPlayableService, iServiceInformation, eTimer, eServiceCenter, eServiceReference, eDVBDB

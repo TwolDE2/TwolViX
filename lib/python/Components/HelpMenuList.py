@@ -1,6 +1,5 @@
-from .GUIComponent import GUIComponent
-
 from enigma import eListboxPythonMultiContent, eListbox, gFont
+from Components.GUIComponent import GUIComponent
 from Tools.KeyBindings import queryKeyBinding, getKeyDescription
 import skin
 #getKeyPositions

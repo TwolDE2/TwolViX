@@ -1,7 +1,6 @@
-from enigma import eServiceReference
 from time import time
 
-from ServiceReference import ServiceReference
+from enigma import eServiceReference
 from Components.ActionMap import HelpableActionMap
 from Components.config import config, configfile
 from Components.EpgListSingle import EPGListSingle
@@ -9,7 +8,7 @@ from Components.Sources.Event import Event
 from Screens.EpgSelectionBase import EPGSelectionBase, EPGServiceZap, EPGServiceBrowse, EPGStandardButtons, epgActions, okActions
 from Screens.Setup import Setup
 from Screens.UserDefinedButtons import UserDefinedButtons
-
+from ServiceReference import ServiceReference
 
 class EPGSelectionInfobarSingle(EPGSelectionBase, EPGServiceZap, EPGServiceBrowse, UserDefinedButtons):
 	def __init__(self, session, zapFunc, startBouquet, startRef, bouquets):

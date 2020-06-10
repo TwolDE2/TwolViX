@@ -1,12 +1,12 @@
-from Screens.Screen import Screen
-from Screens.Dish import Dishpip
 from enigma import ePoint, eSize, eRect, eServiceCenter, getBestPlayableServiceReference, eServiceReference, eTimer
+from Components.config import config, ConfigPosition, ConfigSelection
+from Components.Sources.StreamService import StreamServiceList
 from Components.SystemInfo import SystemInfo
 from Components.VideoWindow import VideoWindow
-from Components.Sources.StreamService import StreamServiceList
-from Components.config import config, ConfigPosition, ConfigSelection
-from Tools import Notifications
+from Screens.Dish import Dishpip
 from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Tools import Notifications
 
 MAX_X = 720
 MAX_Y = 576

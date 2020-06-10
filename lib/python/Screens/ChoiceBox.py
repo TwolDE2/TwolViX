@@ -1,12 +1,15 @@
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
+from __future__ import print_function
+
+import enigma
 from Components.ActionMap import ActionMap, NumberActionMap
+from Components.ChoiceList import ChoiceEntryComponent, ChoiceList
 from Components.config import config, ConfigSubsection, ConfigText
 from Components.Label import Label
-from Components.ChoiceList import ChoiceEntryComponent, ChoiceList
-from Components.Sources.StaticText import StaticText
 from Components.Pixmap import Pixmap
-import enigma
+from Components.Sources.StaticText import StaticText
+
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 
 config.misc.pluginlist = ConfigSubsection()
 config.misc.pluginlist.eventinfo_order = ConfigText(default="")

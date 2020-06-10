@@ -1,9 +1,11 @@
-from Screens.Screen import Screen
-from Components.Label import Label
+from _future_ import print_function
+
 from Components.ActionMap import ActionMap
+from Components.Label import Label
 from Components.HelpMenuList import HelpMenuList
 from Components.Sources.StaticText import StaticText
 from Screens.Rc import Rc
+from Screens.Screen import Screen
 
 class HelpMenu(Screen, Rc):
 	def __init__(self, session, list):

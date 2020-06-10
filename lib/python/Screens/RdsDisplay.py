@@ -1,6 +1,6 @@
+from _future_ import print_function
+
 from enigma import iPlayableService, iRdsDecoder
-
-
 from Components.ActionMap import NumberActionMap
 from Components.Label import Label
 from Components.Pixmap import Pixmap

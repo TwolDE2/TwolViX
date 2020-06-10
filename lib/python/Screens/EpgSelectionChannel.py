@@ -1,11 +1,11 @@
 from time import time
-from ServiceReference import ServiceReference
+
 from Components.ActionMap import HelpableActionMap
 from Components.config import config, configfile
 from Components.EpgListSingle import EPGListSingle
 from Screens.EpgSelectionBase import EPGSelectionBase, EPGStandardButtons, ignoreLongKeyPress
 from Screens.Setup import Setup
-
+from ServiceReference import ServiceReference
 
 class EPGSelectionChannel(EPGSelectionBase, EPGStandardButtons):
 	def __init__(self, session, service, timeFocus=None):

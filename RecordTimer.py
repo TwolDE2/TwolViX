@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import timer
 import xml.etree.cElementTree
@@ -6,9 +7,7 @@ from sys import maxsize
 from time import localtime, strftime, ctime, time
 
 from enigma import eEPGCache, getBestPlayableServiceReference, eStreamServer, eServiceReference, iRecordableService, quitMainloop, eActionMap, setPreferredTuner, eServiceCenter
-from __future__ import print_function
 from boxbranding import getMachineBrand, getMachineName
-
 from Components.config import config
 from Components.UsageConfig import defaultMoviePath
 from Components.SystemInfo import SystemInfo

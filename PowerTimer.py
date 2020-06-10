@@ -1,6 +1,6 @@
+from __future__ import print_function
 import os
 from bisect import insort
-from __future__ import print_function
 from time import ctime, time
 import timer
 import xml.etree.cElementTree

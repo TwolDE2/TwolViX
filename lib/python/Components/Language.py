@@ -1,9 +1,10 @@
+from __future__ import print_function
 # -*- coding: UTF-8 -*-
 import gettext
 import locale
 import os
 from time import time, localtime, strftime
-from __future__ import print_function
+
 from Tools.Directories import SCOPE_LANGUAGE, resolveFilename
 
 LPATH = resolveFilename(SCOPE_LANGUAGE, "")

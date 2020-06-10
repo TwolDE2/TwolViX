@@ -1,14 +1,16 @@
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
-from Tools.BoundFunction import boundFunction
-from Components.Sources.StaticText import StaticText
+from __future__ import print_function
+
+from enigma import eTimer, eDVBCI_UI, eDVBCIInterfaces
 from Components.ActionMap import ActionMap
 from Components.ActionMap import NumberActionMap
-from Components.Label import Label
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigSubList, getConfigListEntry, KEY_LEFT, KEY_RIGHT, KEY_0, ConfigNothing, ConfigPIN, ConfigYesNo, NoSave
 from Components.ConfigList import ConfigList, ConfigListScreen
+from Components.Label import Label
+from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
-from enigma import eTimer, eDVBCI_UI, eDVBCIInterfaces
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Tools.BoundFunction import boundFunction
 import Screens.Standby
 
 forceNotShowCiMessages = False

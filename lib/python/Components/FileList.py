@@ -1,6 +1,7 @@
+from __future__ import print_function
 import os
 import re
-from __future__ import print_function
+
 from enigma import RT_HALIGN_LEFT, eListboxPythonMultiContent, \
 	eServiceReference, eServiceCenter, gFont
 from Components.MenuList import MenuList

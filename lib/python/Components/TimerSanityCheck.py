@@ -1,9 +1,8 @@
+from __future__ import print_function
 from time import localtime, mktime, gmtime, time
 from timer import TimerEntry
-from __future__ import print_function
 
 from enigma import iServiceInformation, eServiceCenter, eServiceReference, getBestPlayableServiceReference
-
 from Components.config import config
 from Tools.CIHelper import cihelper
 import NavigationInstance

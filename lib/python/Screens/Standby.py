@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os import path
 from gettext import dgettext
 from time import localtime, time

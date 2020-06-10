@@ -1,10 +1,8 @@
-from .MenuList import MenuList
-
-from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename
 from os import path
 
 from enigma import eListboxPythonMultiContent, RT_VALIGN_CENTER, gFont, eServiceCenter
-
+from Components.MenuList import MenuList
+from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
 import skin
 

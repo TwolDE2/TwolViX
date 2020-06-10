@@ -1,18 +1,19 @@
-from Screens.MessageBox import MessageBox
-from Screens.Screen import Screen
+from __future__ import print_function
+from os import access, R_OK
+
+from enigma import getDesktop
+from boxbranding import getBoxType
 from Components.ActionMap import ActionMap
 from Components.config import config, configfile, ConfigSubsection, getConfigListEntry, ConfigSelectionNumber, ConfigSelection, ConfigSlider, ConfigYesNo, NoSave, ConfigNumber, ConfigText
 from Components.ConfigList import ConfigListScreen
-from Components.SystemInfo import SystemInfo
-from Components.Sources.StaticText import StaticText
-from Components.Pixmap import Pixmap
 from Components.Console import Console
 from Components.Language import language
+from Screens.MessageBox import MessageBox
+from Components.Pixmap import Pixmap
+from Components.Sources.StaticText import StaticText
+from Components.SystemInfo import SystemInfo
+from Screens.Screen import Screen
 from Tools.Directories import fileCheck, fileExists
-from enigma import getDesktop
-from os import access, R_OK
-
-from boxbranding import getBoxType
 
 def getFilePath(setting):
 	return "/proc/stb/fb/dst_%s" % (setting)

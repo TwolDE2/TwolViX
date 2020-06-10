@@ -1,17 +1,16 @@
+from __future__ import print_function
 import errno
 import os
 import re
-from . import Task
-from __future__ import print_function
-
-from boxbranding import getMachineBuild, getMachineMtdRoot
-from enigma import eTimer
 from fcntl import ioctl
 from time import sleep, time
 
+from enigma import eTimer
+from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.SystemInfo import SystemInfo
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
+import Components.Task
 
 # DEBUG: REMINDER: This comment needs to be expanded for the benefit of readers.
 # Removable if 1 --> With motor

@@ -1,14 +1,17 @@
+import time, os
+
+from enigma import eTimer, eServiceCenter, iServiceInformation, eServiceReference, eDVBDB
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigPIN, ConfigYesNo, ConfigSubList, ConfigInteger
 from Components.ServiceList import refreshServiceList
 from Screens.InputBox import PinInput
 from Screens.MessageBox import MessageBox
-from Tools.BoundFunction import boundFunction
 from ServiceReference import ServiceReference
-from Tools import Notifications
+from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_CONFIG
+from Tools import Notifications
 from Tools.Notifications import AddPopup
-from enigma import eTimer, eServiceCenter, iServiceInformation, eServiceReference, eDVBDB
-import time, os
+
+
 
 TYPE_SERVICE = "SERVICE"
 TYPE_BOUQUETSERVICE = "BOUQUETSERVICE"

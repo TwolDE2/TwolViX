@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 from time import localtime, mktime, time, strftime
 from datetime import datetime
 

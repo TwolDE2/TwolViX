@@ -1,5 +1,6 @@
-from Screens.Screen import Screen
-from Screens.ParentalControlSetup import ProtectedScreen
+import xml.etree.cElementTree
+
+from enigma import eTimer
 from Components.Sources.List import List
 from Components.ActionMap import NumberActionMap
 from Components.Sources.StaticText import StaticText
@@ -8,14 +9,11 @@ from Components.PluginComponent import plugins
 from Components.config import config
 from Components.NimManager import nimmanager
 from Components.SystemInfo import SystemInfo
-
+from Screens.Screen import Screen
+from Screens.ParentalControlSetup import ProtectedScreen
+from Screens.Setup import Setup, getSetupTitle
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_SKIN
-from enigma import eTimer
-
-import xml.etree.cElementTree
-
-from Screens.Setup import Setup, getSetupTitle
 
 # read the menu
 file = open(resolveFilename(SCOPE_SKIN, 'menu.xml'), 'r')

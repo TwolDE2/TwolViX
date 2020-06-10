@@ -1,16 +1,16 @@
-from .Screen import Screen
+from _future_ import print_function
+
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, NumberActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
-from Components.MenuList import MenuList
-from Components.MovieList import MovieList, resetMoviePlayState, AUDIO_EXTENSIONS, DVD_EXTENSIONS, IMAGE_EXTENSIONS, moviePlayState
-from Components.DiskInfo import DiskInfo
-from Tools.Trashcan import TrashInfo
-from Components.Pixmap import Pixmap, MultiPixmap
-from Components.Label import Label
-from Components.PluginComponent import plugins
 from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigLocations, ConfigSet, ConfigYesNo, ConfigSelection, getConfigListEntry, ConfigSelectionNumber
 from Components.ConfigList import ConfigListScreen
+from Components.DiskInfo import DiskInfo
+from Components.Label import Label
+from Components.MenuList import MenuList
+from Components.MovieList import MovieList, resetMoviePlayState, AUDIO_EXTENSIONS, DVD_EXTENSIONS, IMAGE_EXTENSIONS, moviePlayState
+from Components.Pixmap import Pixmap, MultiPixmap
+from Components.PluginComponent import plugins
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.StaticText import StaticText
@@ -19,15 +19,17 @@ from Components.UsageConfig import preferredTimerPath
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 #from Components.Sources.Boolean import Boolean
 from Plugins.Plugin import PluginDescriptor
-from Screens.MessageBox import MessageBox
 from Screens.ChoiceBox import ChoiceBox
-from Screens.LocationBox import MovieLocationBox
 from Screens.HelpMenu import HelpableScreen
 from Screens.InputBox import PinInput
+from Screens.LocationBox import MovieLocationBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 import Screens.InfoBar
 from Tools import NumericalTextInput
-from Tools.Directories import resolveFilename, SCOPE_HDD
 from Tools.BoundFunction import boundFunction
+from Tools.Directories import resolveFilename, SCOPE_HDD
+from Tools.Trashcan import TrashInfo
 import Tools.CopyFiles
 import Tools.Trashcan
 import NavigationInstance

@@ -1,3 +1,4 @@
+from _future_ import print_function
 import gettext
 
 from enigma import eTimer

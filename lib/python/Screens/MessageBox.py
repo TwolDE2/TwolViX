@@ -1,5 +1,6 @@
-from enigma import eTimer, ePoint, eSize, getDesktop
+from _future_ import print_function
 
+from enigma import eTimer, ePoint, eSize, getDesktop
 from Components.ActionMap import HelpableActionMap
 from Components.config import config
 from Components.Label import Label

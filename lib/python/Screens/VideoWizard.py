@@ -1,5 +1,6 @@
-from boxbranding import getHaveAVJACK, getHaveDVI, getHaveRCA, getHaveSCART
+from __future__ import print_function
 
+from boxbranding import getHaveAVJACK, getHaveDVI, getHaveRCA, getHaveSCART
 from Components.AVSwitch import iAVSwitch as iAV
 from Components.config import config, ConfigBoolean, configfile
 from Components.Pixmap import Pixmap

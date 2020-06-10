@@ -1,8 +1,6 @@
-from .GUIComponent import GUIComponent
-from .VariableText import VariableText
-
 from enigma import eLabel
-
+from Components.GUIComponent import GUIComponent
+from Components.VariableText import VariableText
 from Tools.NumericalTextInput import NumericalTextInput
 
 class Input(VariableText, GUIComponent, NumericalTextInput):

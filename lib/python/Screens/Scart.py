@@ -1,6 +1,6 @@
-from .Screen import Screen
-from .MessageBox import MessageBox
 from Components.AVSwitch import AVSwitch
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 from Tools import Notifications
 
 class Scart(Screen):

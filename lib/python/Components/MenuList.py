@@ -1,6 +1,5 @@
-from .GUIComponent import GUIComponent
-
 from enigma import eListboxPythonStringContent, eListbox
+from Components.GUIComponent import GUIComponent
 
 class MenuList(GUIComponent):
 	def __init__(self, list, enableWrapAround=True, content=eListboxPythonStringContent):
