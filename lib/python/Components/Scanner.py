@@ -1,6 +1,6 @@
 import os
 from mimetypes import guess_type, add_type
-from _future_ import print_function
+from __future__ import print_function
 
 from Components.PluginComponent import plugins
 from Plugins.Plugin import PluginDescriptor

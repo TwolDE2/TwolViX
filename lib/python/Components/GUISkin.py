@@ -1,4 +1,4 @@
-from _future_ import print_function
+from __future__ import print_function
 
 from Components.GUIComponent import GUIComponent
 from Components.Sources.StaticText import StaticText

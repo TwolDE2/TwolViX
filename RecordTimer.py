@@ -6,7 +6,7 @@ from sys import maxsize
 from time import localtime, strftime, ctime, time
 
 from enigma import eEPGCache, getBestPlayableServiceReference, eStreamServer, eServiceReference, iRecordableService, quitMainloop, eActionMap, setPreferredTuner, eServiceCenter
-from _future_ import print_function
+from __future__ import print_function
 from boxbranding import getMachineBrand, getMachineName
 
 from Components.config import config

@@ -1,5 +1,5 @@
 from time import time
-from _future_ import print_function
+from __future__ import print_function
 
 from enigma import eTimer, eDVBLocalTimeHandler, eEPGCache
 from Components.config import config

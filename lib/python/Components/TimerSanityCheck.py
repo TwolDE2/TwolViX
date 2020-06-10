@@ -1,10 +1,13 @@
-import NavigationInstance
 from time import localtime, mktime, gmtime, time
-from enigma import iServiceInformation, eServiceCenter, eServiceReference, getBestPlayableServiceReference
 from timer import TimerEntry
-import RecordTimer
-from Tools.CIHelper import cihelper
+from __future__ import print_function
+
+from enigma import iServiceInformation, eServiceCenter, eServiceReference, getBestPlayableServiceReference
+
 from Components.config import config
+from Tools.CIHelper import cihelper
+import NavigationInstance
+import RecordTimer
 
 class TimerSanityCheck:
 	def __init__(self, timerlist, newtimer=None):

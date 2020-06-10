@@ -1,14 +1,15 @@
+from time import time
 from twisted.internet import threads
-from .config import config
+
 from enigma import eDBoxLCD, eTimer, iPlayableService, pNavigation, iServiceInformation
-import NavigationInstance
-from Tools.Directories import fileExists
+from boxbranding import getBoxType, getMachineBuild
+from Components.config import config
 from Components.ParentalControl import parentalControl
 from Components.ServiceEventTracker import ServiceEventTracker
 from Components.SystemInfo import SystemInfo
-from boxbranding import getBoxType, getMachineBuild
-from time import time
+from Tools.Directories import fileExists
 import Components.RecordingConfig
+import NavigationInstance
 
 POLLTIME = 5 # seconds
 

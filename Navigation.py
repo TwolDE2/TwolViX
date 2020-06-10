@@ -2,7 +2,7 @@ from time import time
 from os import path
 
 from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr
-from _future_ import print_function
+from __future__ import print_function
 
 from Components.config import config
 from Components.ParentalControl import parentalControl

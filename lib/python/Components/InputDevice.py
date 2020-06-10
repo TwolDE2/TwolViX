@@ -2,7 +2,7 @@ import os
 from fcntl import ioctl
 import platform
 import struct
-from _future_ import print_function
+from __future__ import print_function
 
 from boxbranding import getBrandOEM
 from Components.config import config, ConfigInteger, ConfigSlider, ConfigSubsection, ConfigText, ConfigYesNo

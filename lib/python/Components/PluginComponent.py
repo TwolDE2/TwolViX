@@ -1,7 +1,7 @@
 import os
 from shutil import rmtree
 from bisect import insort
-from _future_ import print_function
+from __future__ import print_function
 
 from Plugins.Plugin import PluginDescriptor
 from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from enigma import eDVBDB, eServiceCenter, eServiceReference, eSize, eTimer, iPlayableService, iServiceInformation
 
 from Components.ActionMap import NumberActionMap

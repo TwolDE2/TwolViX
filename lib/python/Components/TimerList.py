@@ -1,18 +1,16 @@
-from .GUIComponent import GUIComponent
-from .config import config
-from skin import parseFont
-
-from Tools.FuzzyDate import FuzzyTime
-
+from timer import TimerEntry
 from enigma import eListboxPythonMultiContent, eListbox, gFont, loadPNG, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_TOP, RT_VALIGN_BOTTOM, BT_SCALE, BT_KEEP_ASPECT_RATIO, BT_ALIGN_CENTER
+
+from Components.config import config
+from Components.GUIComponent import GUIComponent
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaBlend, MultiContentEntryPixmapAlphaTest
 from Components.Renderer.Picon import getPiconName
+from skin import parseFont
 from Tools.Alternatives import GetWithAlternative
+from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
+from Tools.FuzzyDate import FuzzyTime
 from Tools.LoadPixmap import LoadPixmap
 from Tools.TextBoundary import getTextBoundarySize
-from timer import TimerEntry
-from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
-
 
 class TimerList(GUIComponent, object):
 #

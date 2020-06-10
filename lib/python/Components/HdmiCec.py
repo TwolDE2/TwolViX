@@ -1,7 +1,7 @@
 import struct
 import os
 from sys import maxsize
-from _future_ import print_function
+from __future__ import print_function
 
 from enigma import eHdmiCEC, eActionMap
 from enigma import eTimer

@@ -1,5 +1,5 @@
 import enigma, os
-from _future_ import print_function
+from __future__ import print_function
 
 class ConsoleItem:
 	def __init__(self, containers, cmd, callback, extra_args):

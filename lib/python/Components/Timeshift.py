@@ -30,7 +30,7 @@ import os
 from time import time, localtime, strftime
 from random import randint
 from timer import TimerEntry
-from _future_ import print_function
+from __future__ import print_function
 
 from enigma import eBackgroundFileEraser, eTimer, eServiceCenter, iServiceInformation, iPlayableService, eEPGCache, eServiceReference
 from boxbranding import getBoxType, getBrandOEM
