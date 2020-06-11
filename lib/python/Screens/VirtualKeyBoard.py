@@ -1065,7 +1065,7 @@ class VirtualKeyBoard(Screen, HelpableScreen):
 
 	def processSelect(self):
 		self.smsChar = None
-		text = six.ensure_str(self.keyList[self.shiftLevel][self.selectedKey // self.keyboardWidth][self.selectedKey % self.keyboardWidth])
+		text = self.keyList[self.shiftLevel][self.selectedKey // self.keyboardWidth][self.selectedKey % self.keyboardWidth].encode("UTF-8")
 		cmd = self.cmds.get(text.upper(), None)
 		if cmd is None:
 			self['text'].char(six.ensure_str(text))
