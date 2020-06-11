@@ -317,7 +317,7 @@ def getRecordingFilename(basename, dirname=None):
 	# but must not truncate in the middle of a multi-byte utf8 character!
 	# So convert the truncation to unicode and back, ignoring errors, the
 	# result will be valid utf8 and so xml parsing will be OK.
-	filename = str(filename[:247], "utf8", "ignore").encode("utf8", "ignore")
+	filename = u(filename[:247], "utf8", "ignore").encode("utf8", "ignore")
 	if dirname is not None:
 		if not dirname.startswith("/"):
 			dirname = os.path.join(defaultRecordingLocation(), dirname)

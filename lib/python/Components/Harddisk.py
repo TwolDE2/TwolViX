@@ -10,7 +10,7 @@ from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.SystemInfo import SystemInfo
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
-import Components.Task
+import Task
 
 # DEBUG: REMINDER: This comment needs to be expanded for the benefit of readers.
 # Removable if 1 --> With motor
@@ -665,7 +665,7 @@ class HarddiskManager:
 
 	def enumerateBlockDevices(self):
 		print("[Harddisk] Enumerating block devices...")
-		self.partitions.append(Partition(mountpoint="/", description=_("Internal flash")))  # Add the root device.
+		self.partitions.append(Partition(mountpoint="/", description = ("Internal flash")))  # Add the root device.
 		# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s)" % ("/", _("Internal flash"))
 		try:
 			rootDev = os.stat("/").st_dev
