@@ -161,11 +161,11 @@ class Timezones:
 				name = commonTimezoneNames.get(tz, zone)  # Use the more common name if one is defined.
 				if name is None:
 					continue
-				if isinstance(name, str):
+				if isinstance(name, unicode):
 					name = name.encode(encoding="UTF-8", errors="ignore")
-				if isinstance(area, str):
+				if isinstance(area, unicode):
 					area = area.encode(encoding="UTF-8", errors="ignore")
-				if isinstance(zone, str):
+				if isinstance(zone, unicode):
 					zone = zone.encode(encoding="UTF-8", errors="ignore")
 				zones.append((zone, name.replace("_", " ")))
 			if area:
@@ -226,10 +226,10 @@ class Timezones:
 		if root is not None:
 			for zone in root.findall("zone"):
 				name = zone.get("name", "")
-				if isinstance(name, str):
+				if isinstance(name, unicode):
 					name = name.encode(encoding="UTF-8", errors="ignore")
 				zonePath = zone.get("zone", "")
-				if isinstance(zonePath, str):
+				if isinstance(zonePath, unicode):
 					zonePath = zonePath.encode(encoding="UTF-8", errors="ignore")
 				if path.exists(path.join(TIMEZONE_DATA, zonePath)):
 					zones.append((zonePath, name))
