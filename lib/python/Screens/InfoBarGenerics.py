@@ -2,10 +2,13 @@
 from _future_ import print_function
 from bisect import insort
 import itertools, datetime
-import os, pickle
-from sys import maxsize
+import os
+from sys import maxsize, version_info
 from time import time, localtime, strftime
-
+if version_info >= (3, 0):
+	import pickle as cPickle
+else:
+	import cPickle
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from boxbranding import getBrandOEM, getMachineBuild
 

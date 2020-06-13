@@ -1,4 +1,11 @@
 from _future_ import print_function
+import os
+import sys
+import time
+if sys.version_info >= (3, 0):
+	import pickle as pickle
+else:
+	import cPickle as pickle
 
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, NumberActionMap
@@ -36,9 +43,6 @@ import NavigationInstance
 import RecordTimer
 
 from enigma import eServiceReference, eServiceCenter, eTimer, eSize, iPlayableService, iServiceInformation, getPrevAsciiCode, eRCInput
-import os
-import time
-import pickle as pickle
 
 config.movielist = ConfigSubsection()
 config.movielist.curentlyplayingservice = ConfigText()
