@@ -1,4 +1,5 @@
-from __future__ import print_functionimport os
+from __future__ import print_function
+import os
 from fcntl import ioctl
 import platform
 import struct
