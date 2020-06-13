@@ -228,14 +228,14 @@ class Harddisk:
 			if dev:
 				try:
 					stat = os.statvfs(dev)
-					cap = int(stat.f_blocks * stat.f_bsize) / 1000 / 1000
+					cap = int(stat.f_blocks * stat.f_bsize) // 1000 // 1000
 				except (IOError, OSError) as err:
 					print("[Harddisk] Error: Failed to get disk size for '%s':" % dev, err)
 					cap = 0
 			else:
 				cap = 0
 		else:
-			cap = int(data) / 1000 * 512 / 1000
+			cap = int(data) // 1000 * 512 // 1000
 		return cap
 
 	def capacity(self):
@@ -244,7 +244,7 @@ class Harddisk:
 			return ""
 		if cap < 1000:
 			return _("%03d MB") % cap
-		return _("%d.%03d GB") % (cap / 1000, cap % 1000)
+		return _("%d.%03d GB") % (cap // 1000, cap % 1000)
 
 	def model(self):
 		data = None
@@ -271,7 +271,7 @@ class Harddisk:
 		if dev:
 			try:
 				stat = os.statvfs(dev)
-				return (stat.f_bfree / 1000) * (stat.f_bsize / 1000)
+				return (stat.f_bfree // 1000) * (stat.f_bsize // 1000)
 			except (IOError, OSError):
 				print("[Harddisk] Error: Failed to get free space for '%s':" % dev, err)
 		return -1
