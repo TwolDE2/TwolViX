@@ -2,8 +2,14 @@ from __future__ import print_function
 import errno
 import os
 import re
+import sys
 from fcntl import ioctl
 from time import sleep, time
+
+if sys.version_info >= (3, 0):
+	import builtins	# py3
+else:
+	import __builtin__ as builtins	# py2
 
 from enigma import eTimer
 from boxbranding import getMachineBuild, getMachineMtdRoot
@@ -205,13 +211,13 @@ class Harddisk:
 
 	def bus(self):
 		if self.internal:
-			busName = _("Internal")
+			busName = ("Internal")
 			if self.rotational == 0:
 				busName = "%s%s" % (busName, " (SSD)")
 			else:
 				busName = "%s%s" % (busName, " (HDD)")
 		else:
-			busName = _("External")
+			busName = ("External")
 			busName = "%s (%s)" % (busName, self.busType)
 		return busName
 
