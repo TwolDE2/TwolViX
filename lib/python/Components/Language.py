@@ -1,5 +1,5 @@
-from __future__ import print_function
 # -*- coding: UTF-8 -*-
+from __future__ import print_function
 import gettext
 import locale
 import os
