@@ -1,6 +1,7 @@
-from __future__ import print_function
+from __future__ import print_function, division
 
 import enigma
+
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.ChoiceList import ChoiceEntryComponent, ChoiceList
 from Components.config import config, ConfigSubsection, ConfigText
@@ -166,7 +167,7 @@ class ChoiceBox(Screen):
 		self.instance.resize(enigma.eSize(*wsize))
 
 		# center window
-		self.instance.move(enigma.ePoint((desktop_w-wsizex)/2, (desktop_h-wsizey)/2))
+		self.instance.move(enigma.ePoint((desktop_w-wsizex)//2, (desktop_h-wsizey)//2))
 
 	def left(self):
 		if len(self["list"].list) > 0:
