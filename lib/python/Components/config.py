@@ -1,11 +1,14 @@
-from os import path as os_path
+from __future__ import print_function
 from copy import copy as copy_copy
+from os import path as os_path
+import sys
 from time import localtime, strftime
 
+# DO NOT CHANGE THE ORDER OF THESE IMPORTS OR Harddisk will crash!!
 from enigma import getPrevAsciiCode
-from Components.Harddisk import harddiskmanager
 from Tools.NumericalTextInput import NumericalTextInput
 from Tools.Directories import resolveFilename, SCOPE_CONFIG, fileExists
+from Components.Harddisk import harddiskmanager
 from Tools.LoadPixmap import LoadPixmap
 
 
@@ -1203,7 +1206,10 @@ class ConfigText(ConfigElement, NumericalTextInput):
 			self.overwrite = not self.overwrite
 		elif key == KEY_ASCII:
 			self.timeout()
-			newChar = chr(getPrevAsciiCode())
+			if sys.version_info >= (3, 0):
+				newChar = chr(getPrevAsciiCode())
+			else:
+				newChar = unichr(getPrevAsciiCode())
 			if not self.useableChars or newChar in self.useableChars:
 				if self.allmarked:
 					self.deleteAllChars()
@@ -1401,6 +1407,10 @@ class ConfigNumber(ConfigText):
 					return
 			else:
 				ascii = getKeyNumber(key) + 48
+			if sys.version_info >= (3, 0):
+				newChar = chr(ascii)
+			else:
+				newChar = unichr(ascii)
 			newChar = chr(ascii)
 			if self.allmarked:
 				self.deleteAllChars()
