@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from time import time
 from timer import TimerEntry as RealTimerEntry
+from functools import cmp_to_key
 
 from Components.ActionMap import ActionMap
 from Components.Button import Button
@@ -221,7 +222,7 @@ class PowerTimerEditList(Screen):
 		list.extend([(timer, False) for timer in self.session.nav.PowerTimer.timer_list])
 		list.extend([(timer, True) for timer in self.session.nav.PowerTimer.processed_timers])
 		if config.usage.timerlist_finished_timer_position.index: #end of list
-			list.sort(cmp = eol_compare)
+			list.sort(key=cmp_to_key(eol_compare))
 		else:
 			list.sort(key = lambda x: x[0].begin)
 
