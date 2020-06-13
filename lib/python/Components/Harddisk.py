@@ -6,10 +6,10 @@ import sys
 from fcntl import ioctl
 from time import sleep, time
 
-if sys.version_info >= (3, 0):
-	import builtins	# py3
-else:
-	import __builtin__ as builtins	# py2
+#if sys.version_info >= (3, 0):
+#	import builtins	# py3
+#else:
+#	import __builtin__ as builtins	# py2
 
 from enigma import eTimer
 from boxbranding import getMachineBuild, getMachineMtdRoot
