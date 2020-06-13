@@ -1,4 +1,5 @@
 import os, re, unicodedata
+import sys
 from .Renderer import Renderer
 from enigma import ePixmap, ePicLoad
 from Tools.Alternatives import GetWithAlternative
@@ -85,7 +86,10 @@ class PiconLocator:
 			pngname = self.findPicon('_'.join(fields))
 		if not pngname: # picon by channel name
 			name = ServiceReference(serviceName).getServiceName()
-			name = unicodedata.normalize('NFKD', str(name, 'utf_8', errors='ignore')).encode('ASCII', 'ignore')
+			if sys.version_info >= (3, 0):
+				name = unicodedata.normalize('NFKD', str(name, 'utf_8', errors='ignore')).encode('ASCII', 'ignore')
+			else:
+				name = unicodedata.normalize('NFKD', unicode(name, 'utf_8', errors='ignore')).encode('ASCII', 'ignore')
 			name = re.sub('[^a-z0-9]', '', name.replace('&', 'and').replace('+', 'plus').replace('*', 'star').lower())
 			if len(name) > 0:
 				pngname = self.findPicon(name)

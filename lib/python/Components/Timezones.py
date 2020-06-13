@@ -2,6 +2,7 @@ from __future__ import print_function
 import errno
 import xml.etree.cElementTree
 from os import environ, path, symlink, unlink, walk
+import sys
 from time import gmtime, localtime, strftime, time
 
 from Components.config import ConfigSelection, ConfigSubsection, config
@@ -161,13 +162,22 @@ class Timezones:
 				name = commonTimezoneNames.get(tz, zone)  # Use the more common name if one is defined.
 				if name is None:
 					continue
-				if isinstance(name, unicode):
-					name = name.encode(encoding="UTF-8", errors="ignore")
-				if isinstance(area, unicode):
-					area = area.encode(encoding="UTF-8", errors="ignore")
-				if isinstance(zone, unicode):
-					zone = zone.encode(encoding="UTF-8", errors="ignore")
-				zones.append((zone, name.replace("_", " ")))
+				if sys.version_info >= (3, 0):
+					if isinstance(name, str):
+						name = name.encode(encoding="UTF-8", errors="ignore")
+					if isinstance(area, str):
+						area = area.encode(encoding="UTF-8", errors="ignore")
+					if isinstance(zone, str):
+						zone = zone.encode(encoding="UTF-8", errors="ignore")
+					zones.append((zone, name.replace("_", " ")))
+				else:
+					if isinstance(name, unicode):
+						name = name.encode(encoding="UTF-8", errors="ignore")
+					if isinstance(area, unicode):
+						area = area.encode(encoding="UTF-8", errors="ignore")
+					if isinstance(zone, unicode):
+						zone = zone.encode(encoding="UTF-8", errors="ignore")
+					zones.append((zone, name.replace("_", " ")))
 			if area:
 				if area in self.timezones:
 					zones = self.timezones[area] + zones
@@ -226,15 +236,27 @@ class Timezones:
 		if root is not None:
 			for zone in root.findall("zone"):
 				name = zone.get("name", "")
-				if isinstance(name, unicode):
-					name = name.encode(encoding="UTF-8", errors="ignore")
-				zonePath = zone.get("zone", "")
-				if isinstance(zonePath, unicode):
-					zonePath = zonePath.encode(encoding="UTF-8", errors="ignore")
-				if path.exists(path.join(TIMEZONE_DATA, zonePath)):
-					zones.append((zonePath, name))
+				if sys.version_info >= (3, 0):
+					if isinstance(name, str):
+						name = name.encode(encoding="UTF-8", errors="ignore")
+					zonePath = zone.get("zone", "")
+					if isinstance(zonePath, str):
+						zonePath = zonePath.encode(encoding="UTF-8", errors="ignore")
+					if path.exists(path.join(TIMEZONE_DATA, zonePath)):
+						zones.append((zonePath, name))
+					else:
+						print("[Timezones] Warning: Classic time zone '%s' (%s) is not available in '%s'!" % (name, zonePath, TIMEZONE_DATA))
 				else:
-					print("[Timezones] Warning: Classic time zone '%s' (%s) is not available in '%s'!" % (name, zonePath, TIMEZONE_DATA))
+					if isinstance(name, unicode):
+						name = name.encode(encoding="UTF-8", errors="ignore")
+					zonePath = zone.get("zone", "")
+					if isinstance(zonePath, unicode):
+						zonePath = zonePath.encode(encoding="UTF-8", errors="ignore")
+					if path.exists(path.join(TIMEZONE_DATA, zonePath)):
+						zones.append((zonePath, name))
+					else:
+						print("[Timezones] Warning: Classic time zone '%s' (%s) is not available in '%s'!" % (name, zonePath, TIMEZONE_DATA))
+
 			self.timezones["Classic"] = zones
 		if len(zones) == 0:
 			self.timezones["Classic"] = [("UTC", "UTC")]

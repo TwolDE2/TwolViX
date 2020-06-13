@@ -14,6 +14,7 @@ from Tools.BoundFunction import boundFunction
 from Tools.Directories import pathExists, createDir, removeDir
 from Components.config import config
 import os
+import sysstrstr
 
 # Quickselect
 from Tools.NumericalTextInput import NumericalTextInput
@@ -445,8 +446,10 @@ class LocationBox(Screen, NumericalTextInput, HelpableScreen):
 
 		# Get char and append to text
 		char = self.getKey(number)
-		self.quickselect = self.quickselect[:self.curr_pos] + str(char)
-
+		if sys.version_info >= (3, 0):
+			self.quickselect = self.quickselect[:self.curr_pos] + str(char)
+		else:
+			self.quickselect = self.quickselect[:self.curr_pos] + unicode(char)
 		# Start Timeout
 		self.qs_timer_type = 0
 		self.qs_timer.start(1000, 1)

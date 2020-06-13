@@ -2,6 +2,7 @@
 from __future__ import print_function
 import os, unicodedata
 import re
+import sys
 from time import localtime, time, strftime
 
 from enigma import eActionMap, eServiceReference, eEPGCache, eServiceCenter, eRCInput, eTimer, ePoint, eDVBDB, iPlayableService, iServiceInformation, getPrevAsciiCode, eEnv, loadPNG, eDVBLocalTimeHandler
@@ -1013,7 +1014,10 @@ class ChannelSelectionEdit:
 		mutableBouquet = cur_root.list().startEdit()
 		if mutableBouquet:
 			servicename = cur_service.getServiceName()
-			name = unicodedata.normalize('NFKD', str(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
+			if sys.version_info >= (3, 0):
+				name = unicodedata.normalize('NFKD', str(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
+			else:
+				name = unicodedata.normalize('NFKD', unicode(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
 			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/alternatives.%s.tv' or '/etc/enigma2/alternatives.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
@@ -1048,7 +1052,10 @@ class ChannelSelectionEdit:
 		mutableBouquetList = serviceHandler.list(self.bouquet_root).startEdit()
 		if mutableBouquetList:
 			bName += ' ' + (_("(TV)") if self.mode == MODE_TV else _("(Radio)"))
-			name = unicodedata.normalize('NFKD', str(bName, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
+			if sys.version_info >= (3, 0):
+				name = unicodedata.normalize('NFKD', str(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
+			else:
+				name = unicodedata.normalize('NFKD', unicode(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
 			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/userbouquet.%s.tv' or '/etc/enigma2/userbouquet.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
