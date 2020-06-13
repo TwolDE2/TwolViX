@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from enigma import eServiceReference, eActionMap
 
 from Components.ActionMap import ActionMap, HelpableActionMap

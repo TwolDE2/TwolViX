@@ -14,7 +14,7 @@ from Tools.BoundFunction import boundFunction
 from Tools.Directories import pathExists, createDir, removeDir
 from Components.config import config
 import os
-import sysstrstr
+import sys
 
 # Quickselect
 from Tools.NumericalTextInput import NumericalTextInput
@@ -43,7 +43,10 @@ class LocationBox(Screen, NumericalTextInput, HelpableScreen):
 		HelpableScreen.__init__(self)
 
 		# Set useable chars
-		self.setUseableChars('1234567890abcdefghijklmnopqrstuvwxyz')
+		if sys.version_info >= (3, 0):
+			self.setUseableChars('1234567890abcdefghijklmnopqrstuvwxyz')
+		else:
+			self.setUseableChars(u'1234567890abcdefghijklmnopqrstuvwxyz')
 
 		# Quickselect Timer
 		self.qs_timer = eTimer()

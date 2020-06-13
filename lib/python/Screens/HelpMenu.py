@@ -1,4 +1,4 @@
-from _future_ import print_function
+from __future__ import print_function
 
 from Components.ActionMap import ActionMap
 from Components.Label import Label

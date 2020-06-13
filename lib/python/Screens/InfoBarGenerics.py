@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from _future_ import print_function
+from __future__ import print_function
 from bisect import insort
 import itertools, datetime
 import os

@@ -49,4 +49,4 @@ class Screensaver(Screen):
 		self["picture"].instance.move(ePoint(self.posx, self.posy))
 		self.moveLogoTimer.startLongTimer(9)
 
-from _future_ import print_function
+
