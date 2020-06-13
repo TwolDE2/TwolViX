@@ -1,5 +1,5 @@
 from __future__ import print_function
-import Components.Netlink
+from . import Netlink
 import enigma
 import os
 
