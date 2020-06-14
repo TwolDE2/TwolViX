@@ -3,9 +3,9 @@ import os
 import sys
 import time
 if sys.version_info >= (3, 0):
-	import pickle as pickle
+	import pickle as cPickle
 else:
-	import cPickle as pickle
+	import cPickle
 
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, NumberActionMap
@@ -1388,7 +1388,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		try:
 			path = os.path.join(config.movielist.last_videodir.value, ".e2settings.pkl")
 			file = open(path, "wb")
-			pickle.dump(self.settings, file)
+			cPickle.dump(self.settings, file)
 			file.close()
 		except Exception as e:
 			print("[MovieSelection] Failed to save settings to %s: %s" % (path, e))
@@ -1405,7 +1405,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			try:
 				path = os.path.join(config.movielist.last_videodir.value, ".e2settings.pkl")
 				file = open(path, "rb")
-				updates = pickle.load(file)
+				updates = cPickle.load(file)
 				file.close()
 				self.applyConfigSettings(updates)
 			except IOError as e:
