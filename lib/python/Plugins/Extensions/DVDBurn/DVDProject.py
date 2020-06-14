@@ -1,4 +1,6 @@
+from __future__ import print_function
 import xml.dom.minidom
+import sys
 from boxbranding import getMachineBrand, getMachineName
 
 from Tools.Directories import fileExists
@@ -58,8 +60,13 @@ class DVDProject:
 		list = ['<?xml version="1.0" encoding="utf-8" ?>\n',
 				'<DreamDVDBurnerProject>\n',
 				'\t<settings ']
-		for key, val in self.settings.dict().items():
-			list.append( key + '="' + str(val.value) + '" ' )
+		if sys.version_info >= (3, 0):
+			for key, val in self.settings.dict().items():
+				list.append( key + '="' + str(val.value) + '" ' )
+		else:
+			for key, val in self.settings.dict().iteritems():
+				list.append( key + '="' + str(val.value) + '" ' )
+
 		list.append('/>\n')
 		list.append('\t<titles>\n')
 		for title in self.titles:
@@ -69,17 +76,30 @@ class DVDProject:
 			list.append('</path>\n')
 			list.append('\t\t\t<properties ')
 			audiotracks = []
-			for key, val in title.properties.dict().items():
-				if type(val) is ConfigSubList:
-					audiotracks.append('\t\t\t<audiotracks>\n')
-					for audiotrack in val:
-						audiotracks.append('\t\t\t\t<audiotrack ')
-						for subkey, subval in audiotrack.dict().items():
-							audiotracks.append( subkey + '="' + str(subval.value) + '" ' )
-						audiotracks.append(' />\n')
-					audiotracks.append('\t\t\t</audiotracks>\n')
-				else:
-					list.append( key + '="' + str(val.value) + '" ' )
+			if sys.version_info >= (3, 0):
+				for key, val in title.properties.dict().items():
+					if type(val) is ConfigSubList:
+						audiotracks.append('\t\t\t<audiotracks>\n')
+						for audiotrack in val:
+							audiotracks.append('\t\t\t\t<audiotrack ')
+							for subkey, subval in audiotrack.dict().items():
+								audiotracks.append( subkey + '="' + str(subval.value) + '" ' )
+							audiotracks.append(' />\n')
+						audiotracks.append('\t\t\t</audiotracks>\n')
+					else:
+						list.append( key + '="' + str(val.value) + '" ' )
+			else:
+				for key, val in title.properties.dict().iteritems():
+					if type(val) is ConfigSubList:
+						audiotracks.append('\t\t\t<audiotracks>\n')
+						for audiotrack in val:
+							audiotracks.append('\t\t\t\t<audiotrack ')
+							for subkey, subval in audiotrack.dict().iteritems():
+								audiotracks.append( subkey + '="' + str(subval.value) + '" ' )
+							audiotracks.append(' />\n')
+						audiotracks.append('\t\t\t</audiotracks>\n')
+					else:
+						list.append( key + '="' + str(val.value) + '" ' )
 			list.append('/>\n')
 			for line in audiotracks:
 				list.append(line)

@@ -1,7 +1,11 @@
-from Plugins.Plugin import PluginDescriptor
-from Components.Scanner import scanDevice
-from Screens.InfoBar import InfoBar
+from __future__ import print_function
+
 import os
+
+from Components.Scanner import scanDevice
+from Plugins.Plugin import PluginDescriptor
+from Screens.InfoBar import InfoBar
+
 
 def execute(option):
 	print("execute", option)

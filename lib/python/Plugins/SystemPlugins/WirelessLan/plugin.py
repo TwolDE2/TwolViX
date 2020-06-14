@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from re import escape as re_escape
 
 from enigma import eTimer, eEnv

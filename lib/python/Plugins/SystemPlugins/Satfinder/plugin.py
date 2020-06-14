@@ -1,20 +1,21 @@
+from __future__ import print_function
+
+import sys
+
 from enigma import eDVBResourceManager, eDVBFrontendParametersSatellite, eDVBFrontendParametersTerrestrial
-
-from Screens.ScanSetup import ScanSetup, buildTerTransponder
-from Screens.ServiceScan import ServiceScan
-from Screens.MessageBox import MessageBox
-from Plugins.Plugin import PluginDescriptor
-
-from Components.Sources.FrontendStatus import FrontendStatus
 from Components.ActionMap import ActionMap
-from Components.NimManager import nimmanager, getConfigSatlist
 from Components.config import config, ConfigSelection, getConfigListEntry
+from Components.NimManager import nimmanager, getConfigSatlist
+from Components.Sources.FrontendStatus import FrontendStatus
 from Components.SystemInfo import SystemInfo
 from Components.TuneTest import Tuner
+from Plugins.Plugin import PluginDescriptor
+from Screens.MessageBox import MessageBox
+from Screens.ScanSetup import ScanSetup, buildTerTransponder
+from Screens.Screen import Screen # for services found class
+from Screens.ServiceScan import ServiceScan
 from Tools.Transponder import getChannelNumber, channel2frequency
 from Tools.BoundFunction import boundFunction
-
-from Screens.Screen import Screen # for services found class
 
 try: # for reading the current transport stream (SatfinderExtra)
 	from Plugins.SystemPlugins.AutoBouquetsMaker.scanner import dvbreader
@@ -23,7 +24,10 @@ try: # for reading the current transport stream (SatfinderExtra)
 	from Components.Label import Label
 	import time
 	import datetime
-	import _thread
+	if sys.version_info >= (3, 0):
+		import _thread as thread
+	else:
+		import thread
 	dvbreader_available = True
 except ImportError:
 	print("[Satfinder] import dvbreader not available")
@@ -610,7 +614,7 @@ class SatfinderExtra(Satfinder):
 
 	def dvb_read_stream(self):
 		print("[satfinder][dvb_read_stream] starting")
-		_thread.start_new_thread(self.getCurrentTsidOnid, (True,))
+		thread.start_new_thread(self.getCurrentTsidOnid, (True,))
 
 	def getCurrentTsidOnid(self, from_retune = False):
 		self.currentProcess = currentProcess = datetime.datetime.now()
@@ -630,7 +634,7 @@ class SatfinderExtra(Satfinder):
 		if not self.tunerLock() and not self.waitTunerLock(currentProcess): # dont even try to read the transport stream if tuner is not locked
 			return
 
-		_thread.start_new_thread(self.monitorTunerLock, (currentProcess,)) # if tuner loses lock we start again from scratch
+		thread.start_new_thread(self.monitorTunerLock, (currentProcess,)) # if tuner loses lock we start again from scratch
 
 		adapter = 0
 		demuxer_device = "/dev/dvb/adapter%d/demux%d" % (adapter, self.demux)

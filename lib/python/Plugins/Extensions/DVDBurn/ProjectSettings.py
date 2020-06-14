@@ -1,3 +1,5 @@
+from __future__ import print_function
+import sys
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Screens.HelpMenu import HelpableScreen
@@ -172,10 +174,16 @@ class ProjectSettings(Screen,ConfigListScreen):
 
 		self["config"].setList(self.list)
 		self.keydict = {}
-		for key, val in self.settings.dict().items():
-			self.keydict[val] = key
-		for key, val in self.project.menutemplate.settings.dict().items():
-			self.keydict[val] = key
+		if sys.version_info >= (3, 0):
+			for key, val in self.settings.dict().items():
+				self.keydict[val] = key
+			for key, val in self.project.menutemplate.settings.dict().items():
+				self.keydict[val] = key
+		else:
+			for key, val in self.settings.dict().iteritems():
+				self.keydict[val] = key
+			for key, val in self.project.menutemplate.settings.dict().iteritems():
+				self.keydict[val] = key
 
 	def keyLeft(self):
 		ConfigListScreen.keyLeft(self)

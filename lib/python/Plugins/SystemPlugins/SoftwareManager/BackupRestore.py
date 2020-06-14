@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from os import path, makedirs, listdir, stat, rename, remove
 from datetime import date
 

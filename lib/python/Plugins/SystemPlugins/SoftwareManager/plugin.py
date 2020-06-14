@@ -1,19 +1,21 @@
-from boxbranding import getMachineBrand, getMachineName
-from pickle import dump, load
+from __future__ import print_function
+
 from os import path as os_path, stat, mkdir, makedirs, listdir, access, remove, W_OK, R_OK, F_OK
-from time import time
+import sys
 from stat import ST_MTIME
+from time import time
+
+
+if sys.version_info >= (3, 0):
+	from pickle import dump, load
+else: 
+	from cPickle import dump, load
+
+
 
 from enigma import eTimer, getDesktop, ePicLoad, eRCInput, getPrevAsciiCode, eEnv
 from twisted.web import client
-
-from Plugins.Plugin import PluginDescriptor
-from Screens.ChoiceBox import ChoiceBox
-from Screens.MessageBox import MessageBox
-from Screens.Screen import Screen
-from Screens.Standby import TryQuitMainloop
-from Screens.Ipkg import Ipkg
-from Screens.SoftwareUpdate import UpdatePlugin
+from boxbranding import getMachineBrand, getMachineName
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.Input import Input
 from Components.Ipkg import IpkgComponent
@@ -31,6 +33,14 @@ from Components.PluginComponent import plugins
 from Components.PackageInfo import PackageInfoHandler
 from Components.Language import language
 from Components.AVSwitch import AVSwitch
+from Plugins.Plugin import PluginDescriptor
+from Screens.ChoiceBox import ChoiceBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Screens.Standby import TryQuitMainloop
+from Screens.Ipkg import Ipkg
+from Screens.SoftwareUpdate import UpdatePlugin
+
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_PLUGIN, SCOPE_ACTIVE_SKIN, SCOPE_METADIR
 from Tools.LoadPixmap import LoadPixmap
 from Tools.NumericalTextInput import NumericalTextInput

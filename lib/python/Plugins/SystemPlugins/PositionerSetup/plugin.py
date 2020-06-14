@@ -1,31 +1,36 @@
-from enigma import eTimer, eDVBSatelliteEquipmentControl, eDVBResourceManager, eDVBDiseqcCommand, eDVBFrontendParametersSatellite, iDVBFrontend
-
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
-from Screens.ChoiceBox import ChoiceBox
-from Plugins.Plugin import PluginDescriptor
-from Screens.Satconfig import NimSetup
-from Screens.InfoBar import InfoBar
-from Components.Label import Label
-from Components.Button import Button
-from Components.Sources.StaticText import StaticText
-from Components.ConfigList import ConfigList
-from Components.ConfigList import ConfigListScreen
-from Components.TunerInfo import TunerInfo
-from Components.ActionMap import NumberActionMap, ActionMap
-from Components.NimManager import nimmanager
-from Components.MenuList import MenuList
-from Components.ScrollLabel import ScrollLabel
-from Components.config import config, ConfigSatlist, ConfigNothing, ConfigSelection, \
-	 ConfigSubsection, ConfigInteger, ConfigFloat, KEY_LEFT, KEY_RIGHT, KEY_0, getConfigListEntry
-from Components.TuneTest import Tuner
-from Tools.Transponder import ConvertToHumanReadable
+from __future__ import print_function
 
 from time import sleep
 from operator import mul as mul
 from random import SystemRandom as SystemRandom
+import sys
 from threading import Thread as Thread
 from threading import Event as Event
+
+from enigma import eTimer, eDVBSatelliteEquipmentControl, eDVBResourceManager, eDVBDiseqcCommand, eDVBFrontendParametersSatellite, iDVBFrontend
+
+from Components.ActionMap import NumberActionMap, ActionMap
+from Components.Button import Button
+from Components.config import config, ConfigSatlist, ConfigNothing, ConfigSelection, \
+	 ConfigSubsection, ConfigInteger, ConfigFloat, KEY_LEFT, KEY_RIGHT, KEY_0, getConfigListEntry
+from Components.ConfigList import ConfigList
+from Components.ConfigList import ConfigListScreen
+from Components.Label import Label
+from Components.MenuList import MenuList
+from Components.NimManager import nimmanager
+from Components.ScrollLabel import ScrollLabel
+from Components.Sources.StaticText import StaticText
+from Components.TunerInfo import TunerInfo
+from Components.TuneTest import Tuner
+from Plugins.Plugin import PluginDescriptor
+from Screens.ChoiceBox import ChoiceBox
+from Screens.InfoBar import InfoBar
+from Screens.MessageBox import MessageBox
+from Screens.Satconfig import NimSetup
+from Screens.Screen import Screen
+from Tools.Transponder import ConvertToHumanReadable
+
+
 
 from . import log
 from . import rotor_calc
@@ -96,11 +101,16 @@ class PositionerSetup(Screen):
 			self.advanced = True
 			self.advancedconfig = config.Nims[self.feid].advanced
 			self.advancedsats = self.advancedconfig.sat
-			self.availablesats = [x[0] for x in nimmanager.getRotorSatListForNim(self.feid)]
+			if sys.version_info >= (3, 0):
+				self.availablesats = [x[0] for x in nimmanager.getRotorSatListForNim(self.feid)]
+			else:
+				self.availablesats = map(lambda x: x[0], nimmanager.getRotorSatListForNim(self.feid))
 		else:
 			self.advanced = False
-			self.availablesats = [x[0] for x in nimmanager.getRotorSatListForNim(self.feid)]
-
+			if sys.version_info >= (3, 0):
+				self.availablesats = [x[0] for x in nimmanager.getRotorSatListForNim(self.feid)]
+			else:
+				self.availablesats = map(lambda x: x[0], nimmanager.getRotorSatListForNim(self.feid))
 		cur = { }
 		if not self.openFrontend():
 			service = self.session.nav.getCurrentService()
@@ -945,8 +955,12 @@ class PositionerSetup(Screen):
 			print((_("Lock ratio") + "     %5.1f" + chr(176) + "   : %6.2f") % (pos, lock), file=log)
 
 		def optimise(readings):
-			xi = list(readings.keys())
-			yi = [x_y[0] for x_y in list(readings.values())]
+			if sys.version_info >= (3, 0):
+				xi = list(readings.keys())
+				yi = [x_y1[0] for x_y1 in list(readings.values())]
+			else:
+				xi = readings.keys()
+				yi = map(lambda (x, y) : x, readings.values())
 			x0 = sum(map(mul, xi, yi)) / sum(yi)
 			xm = xi[yi.index(max(yi))]
 			return x0, xm
@@ -1080,8 +1094,12 @@ class PositionerSetup(Screen):
 			print((_("Lock ratio") + " [%2d]       : %6.2f") % (pos, lock), file=log)
 
 		def optimise(readings):
-			xi = list(readings.keys())
-			yi = [x_y1[0] for x_y1 in list(readings.values())]
+			if sys.version_info >= (3, 0):
+				xi = list(readings.keys())
+				yi = [x_y1[0] for x_y1 in list(readings.values())]
+			else:
+				xi = readings.keys()
+				yi = map(lambda (x, y) : x, readings.values())
 			x0 = int(round(sum(map(mul, xi, yi)) / sum(yi)))
 			xm = xi[yi.index(max(yi))]
 			return x0, xm

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # must be fixed for the new plugin interface
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import pathExists, resolveFilename, SCOPE_LIBDIR

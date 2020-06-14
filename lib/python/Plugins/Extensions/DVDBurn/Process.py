@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 
 from Components.Task import Task, Job, DiskspacePrecondition, Condition, ToolExistsPrecondition

@@ -1,15 +1,16 @@
-from boxbranding import getMachineBrand, getMachineName
+from __future__ import print_function
+
 from os import system
 
 from enigma import eTimer
-
-from Screens.WizardLanguage import WizardLanguage
-from Screens.Rc import Rc
-from Screens.MessageBox import MessageBox
+from boxbranding import getMachineBrand, getMachineName
+from Components.Label import Label
+from Components.Network import iNetwork
 from Components.Pixmap import Pixmap
 from Components.Sources.Boolean import Boolean
-from Components.Network import iNetwork
-from Components.Label import Label
+from Screens.MessageBox import MessageBox
+from Screens.Rc import Rc
+from Screens.WizardLanguage import WizardLanguage
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
 

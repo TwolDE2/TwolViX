@@ -1,3 +1,4 @@
+from __future__ import print_function
 from enigma import eDBoxLCD, eRCInput, fbClass, eConsoleAppContainer
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox

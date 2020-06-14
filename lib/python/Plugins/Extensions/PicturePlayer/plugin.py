@@ -1,5 +1,7 @@
-from Plugins.Plugin import PluginDescriptor
+from __future__ import print_function
+
 from enigma import getDesktop
+from Plugins.Plugin import PluginDescriptor
 
 #------------------------------------------------------------------------------------------
 

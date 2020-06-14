@@ -1,7 +1,8 @@
+from __future__ import print_function
 from enigma import iPlayableService, iServiceInformation
 
-from Plugins.Extensions.CutListEditor.ui import CutListEditor
 from Components.ServiceEventTracker import ServiceEventTracker
+from Plugins.Extensions.CutListEditor.ui import CutListEditor
 from Tools.Directories import fileExists
 
 

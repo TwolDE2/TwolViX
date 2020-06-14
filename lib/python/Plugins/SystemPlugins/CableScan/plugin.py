@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from enigma import eCableScan, eDVBFrontendParametersCable, eTimer
 
 from Screens.Screen import Screen
