@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from Components.VariableText import VariableText
 from .Renderer import Renderer
 

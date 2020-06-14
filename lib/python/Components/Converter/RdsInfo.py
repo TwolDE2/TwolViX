@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from enigma import iRdsDecoder, iPlayableService
 from Components.Converter.Converter import Converter
 from Components.Element import cached

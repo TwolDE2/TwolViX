@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from enigma import eCanvas, eRect, gRGB
 
 from .Renderer import Renderer

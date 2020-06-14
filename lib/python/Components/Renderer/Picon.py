@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os, re, unicodedata
 import sys
 from .Renderer import Renderer
