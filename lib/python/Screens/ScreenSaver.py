@@ -1,4 +1,5 @@
 import os, random
+from enigma import ePoint, eTimer, iPlayableService
 
 from Components.MovieList import AUDIO_EXTENSIONS
 from Components.Pixmap import Pixmap
