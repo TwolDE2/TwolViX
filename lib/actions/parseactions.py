@@ -65,14 +65,10 @@ def do_file(f, mode):
 						print (actionname)
 					except:
 						pass
-					continue
 
 					raise Exception("action enum must be simple.")
 
-						try:
-							print (actionname)
-						except:
-							pass
+				counter = 0
 
 				while 1:
 
