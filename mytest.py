@@ -132,6 +132,9 @@ config.misc.NTPserver.callNotifiersOnSaveAndCancel = True
 profile("Twisted")
 print("[Enigma2] Initialising Twisted.")
 try:
+	import twisted.python.runtime
+	twisted.python.runtime.platform.supportsThreads = lambda: True
+
 	import e2reactor
 	e2reactor.install()
 
