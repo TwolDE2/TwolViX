@@ -19,7 +19,7 @@ def filter(g):
 			continue
 
 		if t[1] != "\n":
-#			print t
+#			print (t)
 			yield t[1]
 
 def do_file(f, mode):
@@ -134,12 +134,12 @@ def do_file(f, mode):
 				if actionname[-7:] == "Actions":
 					if tokens.next() != "{":
 						try:
-							print classname
+							print (classname)
 						except:
 							pass
 
 						try:
-							print actionname
+							print (actionname)
 						except:
 							pass
 
