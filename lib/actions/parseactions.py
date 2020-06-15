@@ -5,10 +5,7 @@ import tokenize, sys, string
 
 def filter(g):
 	while 1:
-		if sys.version_info >= (3, 0):
-			t = next(g)
-		else:
-			t = g.next()
+		t = g.next()
 		if t[1] == "/*":
 			while g.next()[1] != "*/":
 				pass
@@ -23,10 +20,7 @@ def filter(g):
 			yield t[1]
 
 def do_file(f, mode):
-	if sys.version_info >= (3, 0):
-		tokens = list(filter(tokenize.generate_tokens(open(f, 'r').readline)))
-	else:
-		tokens = filter(tokenize.generate_tokens(open(f, 'r').readline))
+	tokens = filter(tokenize.generate_tokens(open(f, 'r').readline))
 
 	sys.stderr.write("parsing %s\n" % f)
 
@@ -37,146 +31,79 @@ def do_file(f, mode):
 	firsthit = 1
 
 	while 1:
-		if sys.version_info >= (3, 0):
-			try:
-				t = next(tokens)
-			except:
-				break
-		else:		
-			try:
-				t = tokens.next()
-			except:
-				break
-		if sys.version_info >= (3, 0):
-			if t == "class":
-				classname = next(tokens)
-				classstate = state
+		try:
+			t = tokens.next()
+		except:
+			break
 
-			if t == "{":
-				state += 1
+		if t == "class":
+			classname = tokens.next()
+			classstate = state
 
-			if t == "}":
-				state -= 1
+		if t == "{":
+			state += 1
 
-			if t == "enum" and state == classstate + 1:
-				actionname = next(tokens)
+		if t == "}":
+			state -= 1
 
-				if actionname == "{":
-					while next(tokens) != "}":
+		if t == "enum" and state == classstate + 1:
+			actionname = tokens.next()
+
+			if actionname == "{":
+				while tokens.next() != "}":
+					pass
+				continue
+
+			if actionname[-7:] == "Actions":
+				if tokens.next() != "{":
+					try:
+						print (classname)
+					except:
+						pass
+
+					try:
+						print (actionname)
+					except:
 						pass
 					continue
 
-				if actionname[-7:] == "Actions":
-					if next(tokens) != "{":
-						try:
-							print(classname)
-						except:
-							pass
-
-						try:
-							print(actionname)
-						except:
-							pass
-
-						raise Exception("action enum must be simple.")
-
-					counter = 0
-
-					while 1:
-
-						t = next(tokens)
-
-						if t == "=":
-							next(tokens)
-							t = next(tokens)
-
-						if t == "}":
-							break
-
-						if counter:
-							if t != ",":
-								raise Exception("no comma")
-							t = next(tokens)
-
-						if firsthit:
-
-							if mode == "include":
-								# hack hack hack!!
-								print("#include <lib/" + '/'.join(f.split('/')[-2:]) + ">")
-							else:
-								print("\t// " + f)
-
-							firsthit = 0
-
-						if mode == "parse":
-							print("{\"" + actionname + "\", \"" + t + "\", " + string.join((classname, t), "::") + "},")
-
-						counter += 1
-		else:
-			if t == "class":
-				classname = tokens.next()
-				classstate = state
-
-			if t == "{":
-				state += 1
-
-			if t == "}":
-				state -= 1
-
-			if t == "enum" and state == classstate + 1:
-				actionname = tokens.next()
-
-				if actionname == "{":
-					while tokens.next() != "}":
-						pass
-					continue
-
-				if actionname[-7:] == "Actions":
-					if tokens.next() != "{":
-						try:
-							print (classname)
-						except:
-							pass
+					raise Exception("action enum must be simple.")
 
 						try:
 							print (actionname)
 						except:
 							pass
 
-						raise Exception("action enum must be simple.")
+				while 1:
 
-					counter = 0
+					t = tokens.next()
 
-					while 1:
-
+					if t == "=":
+						tokens.next()
 						t = tokens.next()
 
-						if t == "=":
-							tokens.next()
-							t = tokens.next()
+					if t == "}":
+						break
 
-						if t == "}":
-							break
+					if counter:
+						if t != ",":
+							raise Exception("no comma")
+						t = tokens.next()
 
-						if counter:
-							if t != ",":
-								raise Exception("no comma")
-							t = tokens.next()
+					if firsthit:
 
-						if firsthit:
+						if mode == "include":
+							# hack hack hack!!
+							print ("#include <lib/" + '/'.join(f.split('/')[-2:]) + ">")
+						else:
+							print ("\t// " + f)
 
-							if mode == "include":
-								# hack hack hack!!
-								print("#include <lib/" + '/'.join(f.split('/')[-2:]) + ">")
-							else:
-								print("\t// " + f)
+						firsthit = 0
 
-							firsthit = 0
+					if mode == "parse":
+						print ("{\"" + actionname + "\", \"" + t + "\", " + string.join((classname, t), "::") + "},")
 
-						if mode == "parse":
-							print("{\"" + actionname + "\", \"" + t + "\", " + string.join((classname, t), "::") + "},")
-
-						counter += 1
+					counter += 1
 
 mode = sys.argv[1]
 
