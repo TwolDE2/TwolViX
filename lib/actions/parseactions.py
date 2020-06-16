@@ -16,7 +16,7 @@ def filter(g):
 			continue
 
 		if t[1] != "\n":
-#			print (t)
+#			print(t)
 			yield t[1]
 
 def do_file(f, mode):
@@ -57,12 +57,12 @@ def do_file(f, mode):
 			if actionname[-7:] == "Actions":
 				if tokens.next() != "{":
 					try:
-						print (classname)
+						print(classname)
 					except:
 						pass
 
 					try:
-						print (actionname)
+						print(actionname)
 					except:
 						pass
 
@@ -90,14 +90,14 @@ def do_file(f, mode):
 
 						if mode == "include":
 							# hack hack hack!!
-							print ("#include <lib/" + '/'.join(f.split('/')[-2:]) + ">")
+							print("#include <lib/" + '/'.join(f.split('/')[-2:]) + ">")
 						else:
-							print ("\t// " + f)
+							print("\t// " + f)
 
 						firsthit = 0
 
 					if mode == "parse":
-						print ("{\"" + actionname + "\", \"" + t + "\", " + string.join((classname, t), "::") + "},")
+						print("{\"" + actionname + "\", \"" + t + "\", " + string.join((classname, t), "::") + "},")
 
 					counter += 1
 
