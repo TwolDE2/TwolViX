@@ -1,8 +1,10 @@
 # -*- coding: UTF-8 -*-
+from __future__ import print_function
 import gettext
 import locale
 import os
 from time import time, localtime, strftime
+
 from Tools.Directories import SCOPE_LANGUAGE, resolveFilename
 
 LPATH = resolveFilename(SCOPE_LANGUAGE, "")
@@ -77,17 +79,17 @@ class Language:
 				self.langlist.append(str(lang + "_" + country))
 
 		except:
-			print "[Language] Language " + str(name) + " not found"
+			print("[Language] Language " + str(name) + " not found")
 		self.langlistselection.append((str(lang + "_" + country), name))
 
 	def activateLanguage_TRY(self, index):
 		try:
 			if index not in self.lang:
-				print "[Language] Selected language %s is not installed, fallback to en_US!" % index
+				print("[Language] Selected language %s is not installed, fallback to en_US!" % index)
 				index = "en_US"
 				Notifications.AddNotification(MessageBox, _("The selected langugage is unavailable - using en_US"), MessageBox.TYPE_INFO, timeout=3)
 			lang = self.lang[index]
-			print "[Language] Activating language " + lang[0]
+			print("[Language] Activating language " + lang[0])
 			self.catalog = gettext.translation('enigma2', resolveFilename(SCOPE_LANGUAGE, ""), languages=[index], fallback=True)
 			self.catalog.install(names=("ngettext", "pgettext"))
 			self.activeLanguage = index
@@ -95,7 +97,7 @@ class Language:
 				if x:
 					x()
 		except:
-			print "[Language] Selected language does not exist!"
+			print("[Language] Selected language does not exist!")
 			return False
 
 		# NOTE: we do not use LC_ALL, because LC_ALL will not set any of the categories, when one of the categories fails.
@@ -132,7 +134,7 @@ class Language:
 		from Tools import Notifications
 		from Screens.MessageBox import MessageBox
 		if not self.activateLanguage_TRY(index):
-			print "[Language] - retry with ", "en_US"
+			print("[Language] - retry with ", "en_US")
 			Notifications.AddNotification(MessageBox, _("The selected langugage is unavailable - using en_US"), MessageBox.TYPE_INFO, timeout=3)
 			self.activateLanguage_TRY("en_US")
 
@@ -181,9 +183,9 @@ class Language:
 
 		if delLang:
 			lang = config.osd.language.value
-			print "[Language] DELETE LANG", delLang
+			print("[Language] DELETE LANG", delLang)
 			if delLang[:2] == "en":
-				print "[Language] Default Language can not be deleted !!"
+				print("[Language] Default Language can not be deleted !!")
 				return
 			elif delLang == "pt_BR":
 				delLang = delLang.lower()
@@ -193,7 +195,7 @@ class Language:
 				os.system("opkg remove --autoremove --force-depends " + Lpackagename + delLang[:2])
 		else:
 			lang = self.activeLanguage
-			print "[Language] Delete all lang except ", lang
+			print("[Language] Delete all lang except ", lang)
 			ll = os.listdir(LPATH)
 			for x in ll:
 				if len(x) > 2:

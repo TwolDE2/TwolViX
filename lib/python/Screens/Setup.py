@@ -6,11 +6,10 @@ from enigma import eEnv
 from boxbranding import getMachineBrand, getMachineName
 from Components.ActionMap import NumberActionMap
 from Components.config import config, ConfigNothing, ConfigBoolean, ConfigSelection
-
-from Components.SystemInfo import SystemInfo
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.Pixmap import Pixmap
+from Components.SystemInfo import SystemInfo
 from Components.Sources.Boolean import Boolean
 from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
@@ -67,7 +66,7 @@ class SetupSummary(Screen):
 		self["SetupValue"].text = self.parent.getCurrentValue()
 		if hasattr(self.parent,"getCurrentDescription") and "description" in self.parent:
 			self.parent["description"].text = self.parent.getCurrentDescription()
-		if self.parent.has_key('footnote'):
+		if 'footnote' in self.parent:
 			if self.parent.getCurrentEntry().endswith('*'):
 				self.parent['footnote'].text = (_("* = Restart Required"))
 			else:

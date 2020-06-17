@@ -1,3 +1,7 @@
+from __future__ import print_function
+from time import time
+from timer import TimerEntry as RealTimerEntry
+
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.config import config
@@ -17,8 +21,7 @@ from Screens.TimerEntry import TimerEntry, TimerLog
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.FuzzyDate import FuzzyTime
-from time import time
-from timer import TimerEntry as RealTimerEntry
+
 
 class TimerEditList(Screen, ProtectedScreen):
 	EMPTY = 0
@@ -148,12 +151,12 @@ class TimerEditList(Screen, ProtectedScreen):
 				timersanitycheck = TimerSanityCheck(self.session.nav.RecordTimer.timer_list, cur)
 				if not timersanitycheck.check():
 					t.disable()
-					print "[TimerEdit] Sanity check failed"
+					print("[TimerEdit] Sanity check failed")
 					simulTimerList = timersanitycheck.getSimulTimerList()
 					if simulTimerList is not None:
 						self.session.openWithCallback(self.finishedEdit, TimerSanityConflict, simulTimerList, self.menu_path)
 				else:
-					print "[TimerEdit] Sanity check passed"
+					print("[TimerEdit] Sanity check passed")
 					if timersanitycheck.doubleCheck():
 						t.disable()
 			else:
@@ -394,7 +397,7 @@ class TimerEditList(Screen, ProtectedScreen):
 			else:
 				success = True
 			if success:
-				print "[TimerEdit] Sanity check passed"
+				print("[TimerEdit] Sanity check passed")
 				self.session.nav.RecordTimer.timeChanged(entry)
 
 			self.fillTimerList()
@@ -455,7 +458,7 @@ class TimerSanityConflict(Screen):
 		Screen.setTitle(self, title)
 
 		self.timer = timer
-		print "[TimerEdit] TimerSanityConflict"
+		print("[TimerEdit] TimerSanityConflict")
 
 		self["timer1"] = TimerList(self.getTimerList(timer[0]))
 		self.list = []

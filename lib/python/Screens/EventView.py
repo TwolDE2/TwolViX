@@ -1,27 +1,25 @@
 from time import localtime, mktime, time, strftime
 
 from enigma import eEPGCache, eTimer, eServiceReference, ePoint
-
-from Screens.Screen import Screen
-from Screens.TimerEdit import TimerSanityConflict
-from Screens.ChoiceBox import ChoiceBox
 from Components.ActionMap import ActionMap
 from Components.Button import Button
-from Components.Label import Label
 from Components.config import config
-from Components.Sources.StaticText import StaticText
-from Components.ScrollLabel import ScrollLabel
-from Components.PluginComponent import plugins
+from Components.Label import Label
 from Components.MenuList import MenuList
-from Components.UsageConfig import preferredTimerPath
 from Components.Pixmap import Pixmap
+from Components.PluginComponent import plugins
+from Components.ScrollLabel import ScrollLabel
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.Event import Event
-from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT
-from Screens.TimerEntry import TimerEntry
+from Components.Sources.StaticText import StaticText
+from Components.UsageConfig import preferredTimerPath
 from Plugins.Plugin import PluginDescriptor
+from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT
+from Screens.ChoiceBox import ChoiceBox
+from Screens.Screen import Screen
+from Screens.TimerEdit import TimerSanityConflict
+from Screens.TimerEntry import TimerEntry
 from Tools.BoundFunction import boundFunction
-
 
 class EventViewContextMenu(Screen):
 	def __init__(self, session, menu):
@@ -280,7 +278,7 @@ class EventViewBase:
 			menu = []
 			for p in plugins.getPlugins(PluginDescriptor.WHERE_EVENTINFO):
 				#only list service or event specific eventinfo plugins here, no servelist plugins
-				if 'servicelist' not in p.__call__.func_code.co_varnames:
+				if 'servicelist' not in p.__call__.__code__.co_varnames:
 					menu.append((p.name, boundFunction(self.runPlugin, p)))
 			if menu:
 				self.session.open(EventViewContextMenu, menu)

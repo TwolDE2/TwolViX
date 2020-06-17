@@ -109,7 +109,7 @@ class ServiceInfo(Converter, object):
 			f.close()
 			if val >= 2 ** 31:
 				val -= 2 ** 32
-		except Exception, e:
+		except Exception as e:
 			pass
 		return val
 

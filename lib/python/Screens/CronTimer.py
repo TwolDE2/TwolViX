@@ -1,19 +1,20 @@
+from os import system, listdir, rename, path, mkdir
+from time import sleep
+
+from boxbranding import getMachineBrand, getMachineName, getImageType
 from Components.ActionMap import ActionMap
 from Components.config import getConfigListEntry, config, ConfigSubsection, ConfigText, ConfigSelection, ConfigInteger, ConfigClock, NoSave
 from Components.ConfigList import ConfigListScreen
 from Components.Console import Console
 from Components.Label import Label
-from Components.Sources.List import List
-from Components.Pixmap import Pixmap
 from Components.OnlineUpdateCheck import feedsstatuscheck
+from Components.Pixmap import Pixmap
 from Components.Sources.Boolean import Boolean
+from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
-from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 from Tools.Directories import fileExists
-from os import system, listdir, rename, path, mkdir
-from time import sleep
-from boxbranding import getMachineBrand, getMachineName, getImageType
 
 class CronTimers(Screen):
 	def __init__(self, session, menu_path=""):
@@ -21,7 +22,7 @@ class CronTimers(Screen):
 		if path.exists('/usr/scripts') and not path.exists('/usr/script'):
 			rename('/usr/scripts', '/usr/script')
 		if not path.exists('/usr/script'):
-			mkdir('/usr/script', 0755)
+			mkdir('/usr/script', 0o755)
 		screentitle = _("Cron manager")
 		menu_path += screentitle
 		if config.usage.show_menupath.value == 'large':
@@ -29,7 +30,7 @@ class CronTimers(Screen):
 			self["menu_path_compressed"] = StaticText("")
 		elif config.usage.show_menupath.value == 'small':
 			title = screentitle
-			print 'menu_path:',menu_path
+			print('menu_path:',menu_path)
 			self["menu_path_compressed"] = StaticText(menu_path + " >" if not menu_path.endswith(' / ') else menu_path[:-3] + " >" or "")
 		else:
 			title = screentitle

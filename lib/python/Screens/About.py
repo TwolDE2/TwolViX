@@ -1,5 +1,7 @@
+from __future__ import print_function
 from os import listdir, path
 from re import search
+
 from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
 from Components.About import about
@@ -14,8 +16,8 @@ from Components.Pixmap import MultiPixmap
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
-from Screen import Screen
 from Screens.GitCommitInfo import CommitInfo
+from Screens.Screen import Screen
 from Screens.SoftwareUpdate import UpdatePlugin
 from Tools.Directories import fileExists, fileCheck, pathExists
 from Tools.Multiboot import GetCurrentImage, GetCurrentImageMode
@@ -100,7 +102,7 @@ class About(Screen):
 			bootmode = ""
 			if SystemInfo["canMode12"]:
 				bootmode = "bootmode = %s" %GetCurrentImageMode()		
-			print "[About] HasHiSi = %s, slot = %s" %(SystemInfo["HasHiSi"], slot)
+			print("[About] HasHiSi = %s, slot = %s" %(SystemInfo["HasHiSi"], slot))
 			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]['root']:
 				if slot > 4:
 					image -=4
@@ -294,7 +296,7 @@ class Devices(Screen):
 		self.hddlist = harddiskmanager.HDDList()
 		self.list = []
 		if self.hddlist:
-			print "[About] hddlist = %s" %(self.hddlist)
+			print("[About] hddlist = %s" %(self.hddlist))
 			for count in range(len(self.hddlist)):
 				hdd = self.hddlist[count][1]
 				hddp = self.hddlist[count][0]
@@ -489,47 +491,47 @@ class SystemNetworkInfo(Screen):
 		self.AboutText = ""
 		self.iface = "eth0"
 		eth0 = about.getIfConfig('eth0')
-		if eth0.has_key('addr'):
+		if 'addr' in eth0:
 			self.AboutText += _("IP:") + "\t" + eth0['addr'] + "\n"
-			if eth0.has_key('netmask'):
+			if 'netmask' in eth0:
 				self.AboutText += _("Netmask:") + "\t" + eth0['netmask'] + "\n"
-			if eth0.has_key('hwaddr'):
+			if 'hwaddr' in eth0:
 				self.AboutText += _("MAC:") + "\t" + eth0['hwaddr'] + "\n"
 			self.iface = 'eth0'
 
 		eth1 = about.getIfConfig('eth1')
-		if eth1.has_key('addr'):
+		if 'addr' in eth1:
 			self.AboutText += _("IP:") + "\t" + eth1['addr'] + "\n"
-			if eth1.has_key('netmask'):
+			if 'netmask' in eth1:
 				self.AboutText += _("Netmask:") + "\t" + eth1['netmask'] + "\n"
-			if eth1.has_key('hwaddr'):
+			if 'hwaddr' in eth1:
 				self.AboutText += _("MAC:") + "\t" + eth1['hwaddr'] + "\n"
 			self.iface = 'eth1'
 
 		ra0 = about.getIfConfig('ra0')
-		if ra0.has_key('addr'):
+		if 'addr' in ra0:
 			self.AboutText += _("IP:") + "\t" + ra0['addr'] + "\n"
-			if ra0.has_key('netmask'):
+			if 'netmask' in ra0:
 				self.AboutText += _("Netmask:") + "\t" + ra0['netmask'] + "\n"
-			if ra0.has_key('hwaddr'):
+			if 'hwaddr' in ra0:
 				self.AboutText += _("MAC:") + "\t" + ra0['hwaddr'] + "\n"
 			self.iface = 'ra0'
 
 		wlan0 = about.getIfConfig('wlan0')
-		if wlan0.has_key('addr'):
+		if 'addr' in wlan0:
 			self.AboutText += _("IP:") + "\t" + wlan0['addr'] + "\n"
-			if wlan0.has_key('netmask'):
+			if 'netmask' in wlan0:
 				self.AboutText += _("Netmask:") + "\t" + wlan0['netmask'] + "\n"
-			if wlan0.has_key('hwaddr'):
+			if 'hwaddr' in wlan0:
 				self.AboutText += _("MAC:") + "\t" + wlan0['hwaddr'] + "\n"
 			self.iface = 'wlan0'
 
 		wlan3 = about.getIfConfig('wlan3')
-		if wlan3.has_key('addr'):
+		if 'addr' in wlan3:
 			self.AboutText += _("IP:") + "\t" + wlan3['addr'] + "\n"
-			if wlan3.has_key('netmask'):
+			if 'netmask' in wlan3:
 				self.AboutText += _("Netmask:") + "\t" + wlan3['netmask'] + "\n"
-			if wlan3.has_key('hwaddr'):
+			if 'hwaddr' in wlan3:
 				self.AboutText += _("MAC:") + "\t" + wlan3['hwaddr'] + "\n"
 			self.iface = 'wlan3'
 
@@ -579,10 +581,10 @@ class SystemNetworkInfo(Screen):
 							essid = _("No connection")
 						else:
 							accesspoint = status[self.iface]["accesspoint"]
-					if self.has_key("BSSID"):
+					if "BSSID" in self:
 						self.AboutText += _('Accesspoint:') + '\t' + accesspoint + '\n'
 
-					if self.has_key("ESSID"):
+					if "ESSID" in self:
 						if not status[self.iface]["essid"]:
 							essid = _("Unknown")
 						else:
@@ -592,14 +594,14 @@ class SystemNetworkInfo(Screen):
 								essid = status[self.iface]["essid"]
 						self.AboutText += _('SSID:') + '\t' + essid + '\n'
 
-					if self.has_key("quality"):
+					if "quality" in self:
 						if not status[self.iface]["quality"]:
 							quality = _("Unknown")
 						else:
 							quality = status[self.iface]["quality"]
 						self.AboutText += _('Link quality:') + '\t' + quality + '\n'
 
-					if self.has_key("bitrate"):
+					if "bitrate" in self:
 						if not status[self.iface]["bitrate"]:
 							bitrate = _("Unknown")
 						else:
@@ -609,14 +611,14 @@ class SystemNetworkInfo(Screen):
 								bitrate = str(status[self.iface]["bitrate"]) + " Mb/s"
 						self.AboutText += _('Bitrate:') + '\t' + bitrate + '\n'
 
-					if self.has_key("signal"):
+					if "signal" in self:
 						if not status[self.iface]["signal"]:
 							signal = _("Unknown")
 						else:
 							signal = status[self.iface]["signal"]
 						self.AboutText += _('Signal strength:') + '\t' + signal + '\n'
 
-					if self.has_key("enc"):
+					if "enc" in self:
 						if not status[self.iface]["encryption"]:
 							encryption = _("Unknown")
 						else:
@@ -768,7 +770,7 @@ class TranslationInfo(Screen):
 				continue
 			(type, value) = l
 			infomap[type] = value
-		print infomap
+		print(infomap)
 
 		self["key_red"] = Button(_("Close"))
 		self["TranslationInfo"] = StaticText(info)

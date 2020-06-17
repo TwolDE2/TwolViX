@@ -1,5 +1,8 @@
+from __future__ import print_function
+
 import os, re, unicodedata
-from Renderer import Renderer
+import sys
+from .Renderer import Renderer
 from enigma import ePixmap, ePicLoad
 from Tools.Alternatives import GetWithAlternative
 from Tools.Directories import pathExists, SCOPE_ACTIVE_SKIN, resolveFilename
@@ -24,7 +27,7 @@ class PiconLocator:
 				if os.path.isdir(path) and path not in self.searchPaths:
 					for fn in os.listdir(path):
 						if fn.endswith('.png'):
-							print "[PiconLocator] adding path:", path
+							print("[PiconLocator] adding path:", path)
 							self.searchPaths.append(path)
 							break
 			except:
@@ -35,7 +38,7 @@ class PiconLocator:
 			path = os.path.join(mountpoint, piconDirectory) + '/'
 			try:
 				self.searchPaths.remove(path)
-				print "[PiconLocator] removed path:", path
+				print("[PiconLocator] removed path:", path)
 			except:
 				pass
 
@@ -85,7 +88,10 @@ class PiconLocator:
 			pngname = self.findPicon('_'.join(fields))
 		if not pngname: # picon by channel name
 			name = ServiceReference(serviceName).getServiceName()
-			name = unicodedata.normalize('NFKD', unicode(name, 'utf_8', errors='ignore')).encode('ASCII', 'ignore')
+			if sys.version_info >= (3, 0):
+				name = unicodedata.normalize('NFKD', str(name, 'utf_8', errors='ignore')).encode('ASCII', 'ignore')
+			else:
+				name = unicodedata.normalize('NFKD', unicode(name, 'utf_8', errors='ignore')).encode('ASCII', 'ignore')
 			name = re.sub('[^a-z0-9]', '', name.replace('&', 'and').replace('+', 'plus').replace('*', 'star').lower())
 			if len(name) > 0:
 				pngname = self.findPicon(name)

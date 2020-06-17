@@ -1,5 +1,6 @@
-from GUIComponent import GUIComponent
 from enigma import eTimer
+from Components.GUIComponent import GUIComponent
+
 
 class ConditionalWidget(GUIComponent):
 	def __init__(self, withTimer = True):

@@ -1,19 +1,21 @@
-from boxbranding import getMachineBrand, getMachineName
-from cPickle import dump, load
+from __future__ import print_function
+
 from os import path as os_path, stat, mkdir, makedirs, listdir, access, remove, W_OK, R_OK, F_OK
-from time import time
+import sys
 from stat import ST_MTIME
+from time import time
+
+
+if sys.version_info >= (3, 0):
+	from pickle import dump, load
+else: 
+	from cPickle import dump, load
+
+
 
 from enigma import eTimer, getDesktop, ePicLoad, eRCInput, getPrevAsciiCode, eEnv
 from twisted.web import client
-
-from Plugins.Plugin import PluginDescriptor
-from Screens.ChoiceBox import ChoiceBox
-from Screens.MessageBox import MessageBox
-from Screens.Screen import Screen
-from Screens.Standby import TryQuitMainloop
-from Screens.Ipkg import Ipkg
-from Screens.SoftwareUpdate import UpdatePlugin
+from boxbranding import getMachineBrand, getMachineName
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.Input import Input
 from Components.Ipkg import IpkgComponent
@@ -31,12 +33,20 @@ from Components.PluginComponent import plugins
 from Components.PackageInfo import PackageInfoHandler
 from Components.Language import language
 from Components.AVSwitch import AVSwitch
+from Plugins.Plugin import PluginDescriptor
+from Screens.ChoiceBox import ChoiceBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Screens.Standby import TryQuitMainloop
+from Screens.Ipkg import Ipkg
+from Screens.SoftwareUpdate import UpdatePlugin
+
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_PLUGIN, SCOPE_ACTIVE_SKIN, SCOPE_METADIR
 from Tools.LoadPixmap import LoadPixmap
 from Tools.NumericalTextInput import NumericalTextInput
-from ImageWizard import ImageWizard
-from BackupRestore import BackupSelection, RestoreMenu, BackupScreen, RestoreScreen, getBackupPath, getBackupFilename
-from SoftwareTools import iSoftwareTools
+from .ImageWizard import ImageWizard
+from .BackupRestore import BackupSelection, RestoreMenu, BackupScreen, RestoreScreen, getBackupPath, getBackupFilename
+from .SoftwareTools import iSoftwareTools
 
 
 config.plugins.configurationbackup = ConfigSubsection()
@@ -60,7 +70,7 @@ def write_cache(cache_file, cache_data):
 		try:
 			mkdir( os_path.dirname(cache_file) )
 		except OSError:
-				print os_path.dirname(cache_file), 'is a file'
+				print(os_path.dirname(cache_file), 'is a file')
 	fd = open(cache_file, 'w')
 	dump(cache_data, fd, -1)
 	fd.close()
@@ -126,7 +136,7 @@ class UpdatePluginMenu(Screen):
 		self.text = ""
 		self.backupdirs = ' '.join( config.plugins.configurationbackup.backupdirs.value )
 		if self.menu == 0:
-			print "building menu entries"
+			print("building menu entries")
 			self.list.append(("install-extensions", _("Manage extensions"), _("\nManage extensions or plugins for your %s %s") % (getMachineBrand(), getMachineName()) + self.oktext, None))
 			self.list.append(("software-update", _("Software update"), _("\nOnline update of your %s %s software.") % (getMachineBrand(), getMachineName()) + self.oktext, None))
 			self.list.append(("software-restore", _("Software restore"), _("\nRestore your %s %s with a new firmware.") % (getMachineBrand(), getMachineName()) + self.oktext, None))
@@ -317,7 +327,7 @@ class UpdatePluginMenu(Screen):
 			self.createBackupfolders()
 
 	def createBackupfolders(self):
-		print "Creating backup folder if not already there..."
+		print("Creating backup folder if not already there...")
 		self.backuppath = getBackupPath()
 		try:
 			if not os_path.exists(self.backuppath):
@@ -418,7 +428,7 @@ class SoftwareManagerSetup(Screen, ConfigListScreen):
 
 	def confirm(self, confirmed):
 		if not confirmed:
-			print "not confirmed"
+			print("not confirmed")
 			return
 		else:
 			self.keySave()
@@ -1314,7 +1324,7 @@ class PluginDetails(Screen, PackageInfoHandler):
 
 		if thumbnailUrl is not None:
 			self.thumbnail = "/tmp/" + thumbnailUrl.split('/')[-1]
-			print "[PluginDetails] downloading screenshot " + thumbnailUrl + " to " + self.thumbnail
+			print("[PluginDetails] downloading screenshot " + thumbnailUrl + " to " + self.thumbnail)
 			if iSoftwareTools.NetworkConnectionAvailable:
 				client.downloadPage(thumbnailUrl,self.thumbnail).addCallback(self.setThumbnail).addErrback(self.fetchFailed)
 			else:
@@ -1394,7 +1404,7 @@ class PluginDetails(Screen, PackageInfoHandler):
 
 	def fetchFailed(self,string):
 		self.setThumbnail(noScreenshot = True)
-		print "[PluginDetails] fetch failed " + string.getErrorMessage()
+		print("[PluginDetails] fetch failed " + string.getErrorMessage())
 
 class IPKGMenu(Screen):
 	skin = """
@@ -1598,9 +1608,9 @@ class PacketManager(Screen, NumericalTextInput):
 		self.skin_path = plugin_path
 
 		if config.usage.show_channel_jump_in_servicelist.value == "alpha":
-			self.setUseableChars(u'abcdefghijklmnopqrstuvwxyz1234567890')
+			self.setUseableChars('abcdefghijklmnopqrstuvwxyz1234567890')
 		else:
-			self.setUseableChars(u'1234567890abcdefghijklmnopqrstuvwxyz')
+			self.setUseableChars('1234567890abcdefghijklmnopqrstuvwxyz')
 
 		self["shortcuts"] = NumberActionMap(["ShortcutActions", "WizardActions", "NumberActions", "InputActions", "InputAsciiActions", "KeyboardInputActions" ],
 		{
@@ -1655,7 +1665,7 @@ class PacketManager(Screen, NumericalTextInput):
 				self.setNextIdx(keyvalue[0])
 
 	def keyGotAscii(self):
-		keyvalue = unichr(getPrevAsciiCode()).encode("utf-8")
+		keyvalue = chr(getPrevAsciiCode()).encode("utf-8")
 		if len(keyvalue) == 1:
 			self.setNextIdx(keyvalue[0])
 
@@ -1880,7 +1890,7 @@ class PacketManager(Screen, NumericalTextInput):
 		self.list = []
 		self.cachelist = []
 		if self.cache_ttl > 0 and self.vc != 0:
-			print 'Loading packagelist cache from ',self.cache_file
+			print('Loading packagelist cache from ',self.cache_file)
 			try:
 				self.cachelist = load_cache(self.cache_file)
 				if len(self.cachelist) > 0:
@@ -1891,7 +1901,7 @@ class PacketManager(Screen, NumericalTextInput):
 				self.inv_cache = 1
 
 		if self.cache_ttl == 0 or self.inv_cache == 1 or self.vc == 0:
-			print 'rebuilding fresh package list'
+			print('rebuilding fresh package list')
 			for x in self.packetlist:
 				status = ""
 				if x[0] in self.installed_packetlist:

@@ -1,9 +1,9 @@
 from enigma import eDVBVolumecontrol, eTimer
-from Tools.Profile import profile
+from Components.config import config, ConfigSubsection, ConfigInteger
+from GlobalActions import globalActionMap
 from Screens.Volume import Volume
 from Screens.Mute import Mute
-from GlobalActions import globalActionMap
-from config import config, ConfigSubsection, ConfigInteger
+from Tools.Profile import profile
 
 profile("VolumeControl")
 #TODO .. move this to a own .py file

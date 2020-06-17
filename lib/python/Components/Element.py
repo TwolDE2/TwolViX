@@ -1,3 +1,5 @@
+from functools import reduce
+
 from Tools.CList import CList
 
 # down                       up

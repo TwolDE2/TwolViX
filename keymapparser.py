@@ -1,7 +1,9 @@
+from __future__ import print_function
 import enigma
 import xml.etree.cElementTree
 
 from keyids import KEYIDS
+
 
 # these are only informational (for help)...
 from Tools.KeyBindings import addKeyBinding
@@ -77,7 +79,7 @@ def readKeymap(filename):
 	try:
 		source = open(filename)
 	except:
-		print "[keymapparser] keymap file " + filename + " not found"
+		print("[keymapparser] keymap file " + filename + " not found")
 		return
 
 	try:

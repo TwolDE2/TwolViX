@@ -36,7 +36,7 @@ class CIHelper:
 
 						for caid in slot.findall("caid"):
 							read_caid = caid.get("id").encode("UTF-8")
-							usingcaid.append(long(read_caid,16))
+							usingcaid.append(int(read_caid,16))
 
 						for service in slot.findall("service"):
 							read_service_ref = service.get("ref").encode("UTF-8")
@@ -45,24 +45,24 @@ class CIHelper:
 						for provider in slot.findall("provider"):
 							read_provider_name = provider.get("name").encode("UTF-8")
 							read_provider_dvbname = provider.get("dvbnamespace").encode("UTF-8")
-							read_providers.append((read_provider_name,long(read_provider_dvbname,16)))
+							read_providers.append((read_provider_name,int(read_provider_dvbname,16)))
 						if read_slot is not False and (read_services or read_providers or usingcaid):
 							self.CI_ASSIGNMENT_LIST.append((int(read_slot), (read_services, read_providers, usingcaid)))
 				except:
-					print "[CI_ASSIGNMENT %d] error parsing xml..." % ci
+					print("[CI_ASSIGNMENT %d] error parsing xml..." % ci)
 					try:
 						os.remove(filename)
 					except:
-						print "[CI_ASSIGNMENT %d] error remove damaged xml..." % ci
+						print("[CI_ASSIGNMENT %d] error remove damaged xml..." % ci)
 
 			services = []
 			providers = []
 			for item in self.CI_ASSIGNMENT_LIST:
-				print "[CI_Activate] activate CI%d with following settings:" % item[0]
+				print("[CI_Activate] activate CI%d with following settings:" % item[0])
 				try:
 					eDVBCIInterfaces.getInstance().setDescrambleRules(item[0],item[1])
 				except:
-					print "[CI_Activate_Config_CI%d] error setting DescrambleRules..." %item[0]
+					print("[CI_Activate_Config_CI%d] error setting DescrambleRules..." %item[0])
 				for x in item[1][0]:
 					services.append(x)
 				for x in item[1][1]:

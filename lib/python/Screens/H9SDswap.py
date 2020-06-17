@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 from Components.ActionMap import ActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent

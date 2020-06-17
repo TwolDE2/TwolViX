@@ -1,8 +1,10 @@
-from Plugins.Plugin import PluginDescriptor
-from Components.PluginComponent import plugins
-
+from __future__ import print_function
 import os
 from mimetypes import guess_type, add_type
+
+from Components.PluginComponent import plugins
+from Plugins.Plugin import PluginDescriptor
+
 
 add_type("audio/dts", ".dts")
 add_type("audio/mpeg", ".mp3")
@@ -135,7 +137,7 @@ class ScanFile:
 		return "<ScanFile " + self.path + " (" + str(self.mimetype) + ", " + str(self.size) + " MB)>"
 
 def execute(option):
-	print "[Scanner] execute", option
+	print("[Scanner] execute", option)
 	if option is None:
 		return
 
@@ -151,7 +153,7 @@ def scanDevice(mountpoint):
 			l = [l]
 		scanner += l
 
-	print "[Scanner] ", scanner
+	print("[Scanner] ", scanner)
 
 	res = { }
 
@@ -204,7 +206,7 @@ def openList(session, files):
 		else:
 			scanner += l
 
-	print "[Scanner] ", scanner
+	print("[Scanner] ", scanner)
 
 	res = { }
 

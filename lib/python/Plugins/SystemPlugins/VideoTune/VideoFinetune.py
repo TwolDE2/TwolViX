@@ -119,8 +119,8 @@ class VideoFinetune(Screen):
 		(self.testpic_brightness, self.testpic_contrast, self.testpic_colors, self.testpic_filter, self.testpic_gamma, self.testpic_overscan, self.testpic_fullhd)[key-1]()
 
 	def callNext(self):
-		if self.next:
-			self.next()
+		if self.__next__:
+			next(self)
 
 	def bbox(self, x, y, width, height, col, xx, yy):
 		c = self["Canvas"]
@@ -286,13 +286,13 @@ class VideoFinetune(Screen):
 
 		c.fill(offset - border, yb - border, border * 2 + width, border * 2 + (height * 3 + o * 2), RGB(g1, g1, g1))
 
-		for x in xrange(0, width, 2):
+		for x in range(0, width, 2):
 			c.fill(offset + x, yb, 1, height, RGB(g2,g2,g2))
 
-		for x in xrange(0, width, 4):
+		for x in range(0, width, 4):
 			c.fill(offset + x, yb + (o + height), 2, height, RGB(g2,g2,g2))
 
-		for x in xrange(0, width, 8):
+		for x in range(0, width, 8):
 			c.fill(offset + x, yb + (o + height) * 2, 4, height, RGB(g2,g2,g2))
 
 		c.flush()
@@ -313,13 +313,13 @@ class VideoFinetune(Screen):
 		height = yres - yres/5
 		offset_y = yres/10
 
-		for y in xrange(0, height, 4):
+		for y in range(0, height, 4):
 			c.fill(offset_x, offset_y + y, width/2, 2, RGB(255,255,255))
 
 		l = 0
 		fnt = gFont("Regular", height / 14)
 		import math
-		for i in xrange(1, 15):
+		for i in range(1, 15):
 			y = i * height / 14
 			h = y - l
 			gamma = 0.6 + i * 0.2
@@ -344,7 +344,7 @@ class VideoFinetune(Screen):
 	def testpicCallback(self, key):
 		if key:
 			if key:
-				self.next()
+				next(self)
 			else:
 				self.keyNumber(key)
 		else:

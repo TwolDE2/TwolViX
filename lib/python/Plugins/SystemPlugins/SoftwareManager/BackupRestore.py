@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from os import path, makedirs, listdir, stat, rename, remove
 from datetime import date
 
@@ -274,7 +276,7 @@ class RestoreMenu(Screen):
 	def startDelete(self, ret = False):
 		if ret:
 			self.exe = True
-			print "removing:",self.val
+			print("removing:",self.val)
 			if path.exists(self.val):
 				remove(self.val)
 			self.exe = False

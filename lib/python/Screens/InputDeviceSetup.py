@@ -1,12 +1,14 @@
-from Screens.Screen import Screen
-from Screens.HelpMenu import HelpableScreen
-from Screens.MessageBox import MessageBox
+from __future__ import print_function
+
 from Components.InputDevice import iInputDevices, iRcTypeControl
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
 from Components.config import config, ConfigYesNo, getConfigListEntry, ConfigSelection
 from Components.ConfigList import ConfigListScreen
 from Components.ActionMap import ActionMap, HelpableActionMap
+from Screens.Screen import Screen
+from Screens.HelpMenu import HelpableScreen
+from Screens.MessageBox import MessageBox
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
 from boxbranding import getBoxType, getMachineBrand, getMachineName, getMachineBuild
@@ -37,7 +39,7 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		self["introduction"] = StaticText(self.edittext)
 
 		self.devices = [(iInputDevices.getDeviceName(x),x) for x in iInputDevices.getDeviceList()]
-		print("[InputDeviceSetup] found devices :->", len(self.devices),self.devices)
+		print(("[InputDeviceSetup] found devices :->", len(self.devices),self.devices))
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
 			{
@@ -377,7 +379,7 @@ class RemoteControlType(Screen, ConfigListScreen):
 	def getDefaultRcType(self):
 		boxtype = getMachineBuild()
 		procBoxtype = iRcTypeControl.getBoxType()
-		print("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype))
+		print(("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype)))
 		for x in self.defaultRcList:
 			if x[0] in boxtype or x[0] in procBoxtype:
 				self.defaultRcType = x[1]

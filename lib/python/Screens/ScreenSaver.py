@@ -1,9 +1,10 @@
-from Screens.Screen import Screen
-from Components.MovieList import AUDIO_EXTENSIONS
-from Components.ServiceEventTracker import ServiceEventTracker
-from Components.Pixmap import Pixmap
-from enigma import ePoint, eTimer, iPlayableService
 import os, random
+from enigma import ePoint, eTimer, iPlayableService
+
+from Components.MovieList import AUDIO_EXTENSIONS
+from Components.Pixmap import Pixmap
+from Components.ServiceEventTracker import ServiceEventTracker
+from Screens.Screen import Screen
 
 class Screensaver(Screen):
 	def __init__(self, session):
@@ -48,3 +49,5 @@ class Screensaver(Screen):
 		self.posy = random.randint(1,self.maxy) if self.maxy > 1 else 1
 		self["picture"].instance.move(ePoint(self.posx, self.posy))
 		self.moveLogoTimer.startLongTimer(9)
+
+

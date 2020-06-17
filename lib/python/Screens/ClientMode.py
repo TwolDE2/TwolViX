@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from Components.ActionMap import ActionMap
 from Components.config import config, configfile, getConfigListEntry, ConfigSubList, ConfigSubsection
 from Components.ConfigList import ConfigListScreen
@@ -148,7 +150,7 @@ class ClientModeScreen(ConfigListScreen, Screen):
 			return config.clientmode.serverDomain.value
 
 	def checkFTPconnection(self):
-		print "[ClientMode][checkFTPconnection] Testing FTP connection..."
+		print("[ClientMode][checkFTPconnection] Testing FTP connection...")
 		try:
 			from ftplib import FTP
 			ftp = FTP()
@@ -157,12 +159,12 @@ class ClientModeScreen(ConfigListScreen, Screen):
 			result = ftp.login(user=config.clientmode.serverFTPusername.value, passwd=config.clientmode.serverFTPpassword.value)
 			ftp.quit()
 			if result.startswith("230"):
-				print "[ClientMode][checkFTPconnection] FTP connection success:", result
+				print("[ClientMode][checkFTPconnection] FTP connection success:", result)
 				return True
-			print "[ClientMode][checkFTPconnection] FTP connection failure:", result
+			print("[ClientMode][checkFTPconnection] FTP connection failure:", result)
 			return False
-		except Exception, err:
-			print "[ChannelsImporter][checkFTPconnection] Error:", err
+		except Exception as err:
+			print("[ChannelsImporter][checkFTPconnection] Error:", err)
 			return False
 
 	def restartGUI(self, answer):

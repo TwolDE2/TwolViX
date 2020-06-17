@@ -1,18 +1,21 @@
-from Screens.Screen import Screen
-from Components.config import ConfigSelection, ConfigSubList, ConfigDateTime, ConfigClock, ConfigYesNo, ConfigInteger, getConfigListEntry
-from Components.ActionMap import NumberActionMap
-from Components.ConfigList import ConfigListScreen
-from Components.MenuList import MenuList
-from Components.Button import Button
-from Components.Label import Label
-from Components.Pixmap import Pixmap
-from Components.SystemInfo import SystemInfo
-#from Components.Sources.Boolean import Boolean
-from Components.Sources.StaticText import StaticText
-from Components.config import config
-from PowerTimer import AFTEREVENT, TIMERTYPE
+from __future__ import print_function
 from time import localtime, mktime, time, strftime
 from datetime import datetime
+
+from Components.ActionMap import NumberActionMap
+from Components.Button import Button
+from Components.config import config
+from Components.config import ConfigSelection, ConfigSubList, ConfigDateTime, ConfigClock, ConfigYesNo, ConfigInteger, getConfigListEntry
+from Components.ConfigList import ConfigListScreen
+from Components.Label import Label
+from Components.MenuList import MenuList
+from Components.Pixmap import Pixmap
+from Components.Sources.StaticText import StaticText
+from Components.SystemInfo import SystemInfo
+#from Components.Sources.Boolean import Boolean
+from PowerTimer import AFTEREVENT, TIMERTYPE
+from Screens.Screen import Screen
+
 
 class TimerEntry(Screen, ConfigListScreen):
 	def __init__(self, session, timer, menu_path=""):
@@ -24,7 +27,7 @@ class TimerEntry(Screen, ConfigListScreen):
 			self["menu_path_compressed"] = StaticText("")
 		elif config.usage.show_menupath.value == 'small':
 			title = screentitle
-			print 'menu_path:',menu_path
+			print('menu_path:',menu_path)
 			self["menu_path_compressed"] = StaticText(menu_path + " >" if not menu_path.endswith(' / ') else menu_path[:-3] + " >" or "")
 		else:
 			title = screentitle
@@ -102,7 +105,7 @@ class TimerEntry(Screen, ConfigListScreen):
 				count = 0
 				for x in (0, 1, 2, 3, 4, 5, 6):
 					if flags == 1: # weekly
-						print "[PowerTimerEntry] Set to weekday " + str(x)
+						print("[PowerTimerEntry] Set to weekday " + str(x))
 						weekday = x
 					if flags & 1 == 1: # set user defined flags
 						day[x] = 1

@@ -1,19 +1,20 @@
+from time import time
+from timer import TimerEntry as RealTimerEntry
+
 from Components.ActionMap import ActionMap
 from Components.Button import Button
-from Components.Label import Label
 from Components.config import config
+from Components.Label import Label
 from Components.PowerTimerList import PowerTimerList
 from Components.Sources.StaticText import StaticText
 from Components.Sources.StaticText import StaticText
 from PowerTimer import PowerTimerEntry, AFTEREVENT
-from Screens.Screen import Screen
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.PowerTimerEntry import TimerEntry, TimerLog
+from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 from Tools.FuzzyDate import FuzzyTime
-from time import time
-from timer import TimerEntry as RealTimerEntry
 
 class PowerTimerEditList(Screen):
 	EMPTY = 0
@@ -102,7 +103,7 @@ class PowerTimerEditList(Screen):
 		if cur:
 			t = cur
 			if t.disabled:
-				print "[PowerTimerEdit] try to ENABLE timer"
+				print("[PowerTimerEdit] try to ENABLE timer")
 				t.enable()
 			else:
 				if t.isRunning():
@@ -285,7 +286,7 @@ class PowerTimerEditList(Screen):
 			self.fillTimerList()
 			self.updateState()
 		else:
-			print "[PowerTimerEdit] PowerTimeredit aborted"
+			print("[PowerTimerEdit] PowerTimeredit aborted")
 
 	def finishedAdd(self, answer):
 		if answer[0]:
@@ -294,7 +295,7 @@ class PowerTimerEditList(Screen):
 			self.fillTimerList()
 			self.updateState()
 		else:
-			print "[PowerTimerEdit] Timeredit aborted"
+			print("[PowerTimerEdit] Timeredit aborted")
 
 	def finishSanityCorrection(self, answer):
 		self.finishedAdd(answer)

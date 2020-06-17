@@ -1,7 +1,7 @@
 from Plugins.Plugin import PluginDescriptor
 
 def main(session, **kwargs):
-	import TitleList
+	from . import TitleList
 	#project = DVDProject.DVDProject()
 	#project.addService(service)
 	return session.open(TitleList.TitleList)

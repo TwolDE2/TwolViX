@@ -1,17 +1,15 @@
-import Screens.InfoBar
 from enigma import eServiceReference
-
-from Screens.Screen import Screen
-from Components.ServiceScan import ServiceScan as CScan
-from Components.ProgressBar import ProgressBar
-from Components.Label import Label
 from Components.ActionMap import ActionMap
-from Components.FIFOList import FIFOList
-from Components.Sources.FrontendInfo import FrontendInfo
 from Components.config import config
+from Components.FIFOList import FIFOList
+from Components.Label import Label
+from Components.ProgressBar import ProgressBar
+from Components.ServiceScan import ServiceScan as CScan
 from Components.PluginComponent import plugins
+from Components.Sources.FrontendInfo import FrontendInfo
 from Plugins.Plugin import PluginDescriptor
-
+from Screens.Screen import Screen
+import Screens.InfoBar
 
 class ServiceScanSummary(Screen):
 	skin = """

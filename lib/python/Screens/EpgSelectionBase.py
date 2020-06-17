@@ -1,17 +1,16 @@
 from time import time
 
 from enigma import ePoint, eServiceCenter, eServiceReference, eTimer
-
-from RecordTimer import AFTEREVENT, RecordTimerEntry, parseEvent
 from ServiceReference import ServiceReference
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap
 from Components.Button import Button
+from Components.config import ConfigClock, ConfigDateTime, config, configfile
 from Components.EpgBouquetList import EPGBouquetList
 from Components.Label import Label
 from Components.Sources.Event import Event
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.UsageConfig import preferredTimerPath
-from Components.config import ConfigClock, ConfigDateTime, config, configfile
+from RecordTimer import AFTEREVENT, RecordTimerEntry, parseEvent
 from Screens.ChoiceBox import ChoiceBox
 from Screens.EventView import EventViewEPGSelect
 from Screens.HelpMenu import HelpableScreen

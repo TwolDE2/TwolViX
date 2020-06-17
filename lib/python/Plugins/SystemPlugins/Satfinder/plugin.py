@@ -1,20 +1,21 @@
+from __future__ import print_function
+
+import sys
+
 from enigma import eDVBResourceManager, eDVBFrontendParametersSatellite, eDVBFrontendParametersTerrestrial
-
-from Screens.ScanSetup import ScanSetup, buildTerTransponder
-from Screens.ServiceScan import ServiceScan
-from Screens.MessageBox import MessageBox
-from Plugins.Plugin import PluginDescriptor
-
-from Components.Sources.FrontendStatus import FrontendStatus
 from Components.ActionMap import ActionMap
-from Components.NimManager import nimmanager, getConfigSatlist
 from Components.config import config, ConfigSelection, getConfigListEntry
+from Components.NimManager import nimmanager, getConfigSatlist
+from Components.Sources.FrontendStatus import FrontendStatus
 from Components.SystemInfo import SystemInfo
 from Components.TuneTest import Tuner
+from Plugins.Plugin import PluginDescriptor
+from Screens.MessageBox import MessageBox
+from Screens.ScanSetup import ScanSetup, buildTerTransponder
+from Screens.Screen import Screen # for services found class
+from Screens.ServiceScan import ServiceScan
 from Tools.Transponder import getChannelNumber, channel2frequency
 from Tools.BoundFunction import boundFunction
-
-from Screens.Screen import Screen # for services found class
 
 try: # for reading the current transport stream (SatfinderExtra)
 	from Plugins.SystemPlugins.AutoBouquetsMaker.scanner import dvbreader
@@ -23,10 +24,13 @@ try: # for reading the current transport stream (SatfinderExtra)
 	from Components.Label import Label
 	import time
 	import datetime
-	import thread
+	if sys.version_info >= (3, 0):
+		import _thread as thread
+	else:
+		import thread
 	dvbreader_available = True
 except ImportError:
-	print "[Satfinder] import dvbreader not available"
+	print("[Satfinder] import dvbreader not available")
 	dvbreader_available = False
 
 class Satfinder(ScanSetup, ServiceScan):
@@ -325,7 +329,7 @@ class Satfinder(ScanSetup, ServiceScan):
 
 		satfinder_nim_list = []
 		for n in nimmanager.nim_slots:
-			if not any([n.isCompatible(x) for x in "DVB-S", "DVB-T", "DVB-C", "ATSC"]):
+			if not any([n.isCompatible(x) for x in ("DVB-S", "DVB-T", "DVB-C", "ATSC")]):
 				continue
 			if n.config_mode  in ("loopthrough", "satposdepends", "nothing"):
 				continue
@@ -609,7 +613,7 @@ class SatfinderExtra(Satfinder):
 		Satfinder.prepareFrontend(self)
 
 	def dvb_read_stream(self):
-		print "[satfinder][dvb_read_stream] starting"
+		print("[satfinder][dvb_read_stream] starting")
 		thread.start_new_thread(self.getCurrentTsidOnid, (True,))
 
 	def getCurrentTsidOnid(self, from_retune = False):
@@ -650,7 +654,7 @@ class SatfinderExtra(Satfinder):
 
 		fd = dvbreader.open(demuxer_device, sdt_pid, sdt_current_table_id, mask, self.feid)
 		if fd < 0:
-			print "[Satfinder][getCurrentTsidOnid] Cannot open the demuxer"
+			print("[Satfinder][getCurrentTsidOnid] Cannot open the demuxer")
 			return None
 
 		timeout = datetime.datetime.now()
@@ -658,7 +662,7 @@ class SatfinderExtra(Satfinder):
 
 		while True:
 			if datetime.datetime.now() > timeout:
-				print "[Satfinder][getCurrentTsidOnid] Timed out"
+				print("[Satfinder][getCurrentTsidOnid] Timed out")
 				break
 
 			if self.currentProcess != currentProcess or not self.tunerLock():
@@ -685,7 +689,7 @@ class SatfinderExtra(Satfinder):
 						self.onid = section["header"]["original_network_id"]
 						self["tsid"].setText("%d" % (section["header"]["transport_stream_id"]))
 						self["onid"].setText("%d" % (section["header"]["original_network_id"]))
-						print "[Satfinder][getCurrentTsidOnid] tsid %d, onid %d" % (section["header"]["transport_stream_id"], section["header"]["original_network_id"])
+						print("[Satfinder][getCurrentTsidOnid] tsid %d, onid %d" % (section["header"]["transport_stream_id"], section["header"]["original_network_id"]))
 
 					if len(sdt_current_sections_read) == sdt_current_sections_count:
 						sdt_current_completed = True
@@ -696,7 +700,7 @@ class SatfinderExtra(Satfinder):
 		dvbreader.close(fd)
 
 		if not sdt_current_content:
-			print "[Satfinder][getCurrentTsidOnid] no services found on transponder"
+			print("[Satfinder][getCurrentTsidOnid] no services found on transponder")
 			return
 
 		for i in range(len(sdt_current_content)):
@@ -734,7 +738,7 @@ class SatfinderExtra(Satfinder):
 
 		fd = dvbreader.open(demuxer_device, nit_current_pid, nit_current_table_id, mask, self.feid)
 		if fd < 0:
-			print "[Satfinder][getOrbPosFromNit] Cannot open the demuxer"
+			print("[Satfinder][getOrbPosFromNit] Cannot open the demuxer")
 			return
 
 		timeout = datetime.datetime.now()
@@ -742,7 +746,7 @@ class SatfinderExtra(Satfinder):
 
 		while True:
 			if datetime.datetime.now() > timeout:
-				print "[Satfinder][getOrbPosFromNit] Timed out reading NIT"
+				print("[Satfinder][getOrbPosFromNit] Timed out reading NIT")
 				break
 
 			if self.currentProcess != currentProcess or not self.tunerLock():
@@ -774,7 +778,7 @@ class SatfinderExtra(Satfinder):
 		dvbreader.close(fd)
 
 		if not nit_current_content:
-			print "[Satfinder][getOrbPosFromNit] current transponder not found"
+			print("[Satfinder][getOrbPosFromNit] current transponder not found")
 			return
 
 		transponders = [t for t in nit_current_content if "descriptor_tag" in t and t["descriptor_tag"] == 0x43 and t["original_network_id"] == self.onid and t["transport_stream_id"] == self.tsid]
@@ -782,13 +786,13 @@ class SatfinderExtra(Satfinder):
 		if transponders and "orbital_position" in transponders[0]:
 			orb_pos = self.getOrbitalPosition(transponders[0]["orbital_position"], transponders[0]["west_east_flag"])
 			self["pos"].setText(_("%s") % orb_pos)
-			print "[satfinder][getOrbPosFromNit] orb_pos", orb_pos
+			print("[satfinder][getOrbPosFromNit] orb_pos", orb_pos)
 		elif transponders2 and "orbital_position" in transponders2[0]:
 			orb_pos = self.getOrbitalPosition(transponders2[0]["orbital_position"], transponders2[0]["west_east_flag"])
 			self["pos"].setText(_("%s?") % orb_pos)
-			print "[satfinder][getOrbPosFromNit] orb_pos tentative, tsid match, onid mismatch between NIT and SDT", orb_pos
+			print("[satfinder][getOrbPosFromNit] orb_pos tentative, tsid match, onid mismatch between NIT and SDT", orb_pos)
 		else:
-			print "[satfinder][getOrbPosFromNit] no orbital position found"
+			print("[satfinder][getOrbPosFromNit] no orbital position found")
 
 	def getOrbitalPosition(self, bcd, w_e_flag = 1):
 		# 4 bit BCD (binary coded decimal)
@@ -816,7 +820,7 @@ class SatfinderExtra(Satfinder):
 
 		while True:
 			if datetime.datetime.now() > timeout:
-				print "[Satfinder][waitTunerLock] tuner lock timeout reached, seconds:", lock_timeout
+				print("[Satfinder][waitTunerLock] tuner lock timeout reached, seconds:", lock_timeout)
 				return False
 
 			if self.currentProcess != currentProcess:
@@ -825,7 +829,7 @@ class SatfinderExtra(Satfinder):
 			frontendStatus = {}
 			self.frontend.getFrontendStatus(frontendStatus)
 			if frontendStatus["tuner_state"] == "FAILED":
-				print "[Satfinder][waitTunerLock] TUNING FAILED FATAL" # enigma2 cpp code has given up trying
+				print("[Satfinder][waitTunerLock] TUNING FAILED FATAL") # enigma2 cpp code has given up trying
 				return False
 
 			if frontendStatus["tuner_state"] != "LOCKED":
@@ -841,7 +845,7 @@ class SatfinderExtra(Satfinder):
 			frontendStatus = {}
 			self.frontend.getFrontendStatus(frontendStatus)
 			if frontendStatus["tuner_state"] != "LOCKED":
-				print "[monitorTunerLock] starting again from scratch"
+				print("[monitorTunerLock] starting again from scratch")
 				self.getCurrentTsidOnid(False) # if tuner lock fails start again from beginning
 				return
 			time.sleep(1.0)
@@ -914,7 +918,7 @@ def SatfinderMain(session, close=None, **kwargs):
 	nims = nimmanager.nim_slots
 	nimList = []
 	for n in nims:
-		if not any([n.isCompatible(x) for x in "DVB-S", "DVB-T", "DVB-C", "ATSC"]):
+		if not any([n.isCompatible(x) for x in ("DVB-S", "DVB-T", "DVB-C", "ATSC")]):
 			continue
 		if n.config_mode in ("loopthrough", "satposdepends", "nothing"):
 			continue
@@ -937,7 +941,7 @@ def SatfinderStart(menuid, **kwargs):
 		return []
 
 def Plugins(**kwargs):
-	if any([nimmanager.hasNimType(x) for x in "DVB-S", "DVB-T", "DVB-C", "ATSC"]):
+	if any([nimmanager.hasNimType(x) for x in ("DVB-S", "DVB-T", "DVB-C", "ATSC")]):
 		return PluginDescriptor(name=_("Signal finder"), description=_("Helps setting up your antenna"), where = PluginDescriptor.WHERE_MENU, needsRestart = False, fnc=SatfinderStart)
 	else:
 		return []

@@ -1,11 +1,14 @@
-from Components.GUIComponent import GUIComponent
-from Screens.Screen import Screen
-from Components.ActionMap import ActionMap
-from Components.Label import Label
-from Components.config import config
-from Components.Sources.StaticText import StaticText
-from ServiceReference import ServiceReference
+from enigma import ePoint, eTimer, iPlayableService
+
 from enigma import eListboxPythonMultiContent, eListbox, gFont, iServiceInformation, eServiceCenter, RT_HALIGN_LEFT, eDVBFrontendParametersSatellite
+
+from Components.ActionMap import ActionMap
+from Components.config import config
+from Components.GUIComponent import GUIComponent
+from Components.Label import Label
+from Components.Sources.StaticText import StaticText
+from Screens.Screen import Screen
+from ServiceReference import ServiceReference
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 import skin
 
@@ -25,7 +28,7 @@ def to_unsigned(x):
 	return x & 0xFFFFFFFF
 
 def ServiceInfoListEntry(a, b="", valueType=TYPE_TEXT, param=4):
-	print "b:", b
+	print("b:", b)
 	if not isinstance(b, str):
 		if valueType == TYPE_VALUE_HEX:
 			b = ("%0" + str(param) + "X") % to_unsigned(b)

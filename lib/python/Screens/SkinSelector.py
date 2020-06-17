@@ -1,11 +1,10 @@
+from __future__ import print_function
+from os import listdir
+from os.path import dirname, exists, isdir, join as pathjoin
 import mmap
 import re
 
 from enigma import ePicLoad, getDesktop
-from os import listdir
-from os.path import dirname, exists, isdir, join as pathjoin
-
-from skin import DEFAULT_SKIN, DEFAULT_DISPLAY_SKIN, EMERGENCY_SKIN, currentDisplaySkin, currentPrimarySkin, domScreens
 from Components.ActionMap import HelpableNumberActionMap
 from Components.config import config
 from Components.Pixmap import Pixmap
@@ -15,6 +14,7 @@ from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop, QUIT_RESTART
+from skin import DEFAULT_SKIN, DEFAULT_DISPLAY_SKIN, EMERGENCY_SKIN, currentDisplaySkin, currentPrimarySkin, domScreens
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN, SCOPE_LCDSKIN, SCOPE_SKIN
 
 
@@ -105,7 +105,7 @@ class SkinSelector(Screen, HelpableScreen):
 					name = widget.get("name", None)
 					source = widget.get("source", None)
 					if name and name in ("Preview", "SkinList") or source == "introduction":
-						print "[SkinSelector] Warning: Current skin '%s' does not support this version of SkinSelector!    Please contact the skin's author!" % config.skin.primary_skin.value
+						print("[SkinSelector] Warning: Current skin '%s' does not support this version of SkinSelector!    Please contact the skin's author!" % config.skin.primary_skin.value)
 						del domScreens["SkinSelector"]  # It is incompatible, delete the screen from the skin.
 						buildSkin = True
 						break
@@ -156,7 +156,7 @@ class SkinSelector(Screen, HelpableScreen):
 							resolution = re.search("\<?resolution.*?\syres\s*=\s*\"(\d+)\"", mm)
 							resolution = resolution and resolutions.get(resolution.group(1), None)
 							mm.close()
-						print "[SkinSelector] Resolution of skin '%s': '%s'." % (skinPath, "Unknown" if resolution is None else resolution)
+						print("[SkinSelector] Resolution of skin '%s': '%s'." % (skinPath, "Unknown" if resolution is None else resolution))
 						# Code can be added here to reject unsupported resolutions.
 					# The "piconprev.png" image should be "prevpicon.png" to keep it with its partner preview image.
 					preview = pathjoin(previewPath, "piconprev.png" if skinFile == "skin_display_picon.xml" else "prev.png")
@@ -209,19 +209,19 @@ class SkinSelector(Screen, HelpableScreen):
 		skin = self["skins"].getCurrent()[4]
 		if skin == self.config.value:
 			if skin == self.current:
-				print "[SkinSelector] Selected skin: '%s' (Unchanged!)" % pathjoin(self.rootDir, skin)
+				print("[SkinSelector] Selected skin: '%s' (Unchanged!)" % pathjoin(self.rootDir, skin))
 				self.cancel()
 			else:
-				print "[SkinSelector] Selected skin: '%s' (Trying to restart again!)" % pathjoin(self.rootDir, skin)
+				print("[SkinSelector] Selected skin: '%s' (Trying to restart again!)" % pathjoin(self.rootDir, skin))
 				restartBox = self.session.openWithCallback(self.restartGUI, MessageBox, _("To apply the selected '%s' skin the GUI needs to restart. Would you like to restart the GUI now?") % label, MessageBox.TYPE_YESNO)
 				restartBox.setTitle(_("SkinSelector: Restart GUI"))
 		elif skin == self.current:
-			print "[SkinSelector] Selected skin: '%s' (Pending skin '%s' cancelled!)" % (pathjoin(self.rootDir, skin), pathjoin(self.rootDir, self.config.value))
+			print("[SkinSelector] Selected skin: '%s' (Pending skin '%s' cancelled!)" % (pathjoin(self.rootDir, skin), pathjoin(self.rootDir, self.config.value)))
 			self.config.value = skin
 			self.config.save()
 			self.cancel()
 		else:
-			print "[SkinSelector] Selected skin: '%s'" % pathjoin(self.rootDir, skin)
+			print("[SkinSelector] Selected skin: '%s'" % pathjoin(self.rootDir, skin))
 			restartBox = self.session.openWithCallback(self.restartGUI, MessageBox, _("To save and apply the selected '%s' skin the GUI needs to restart. Would you like to save the selection and restart the GUI now?") % label, MessageBox.TYPE_YESNO)
 			restartBox.setTitle(_("SkinSelector: Restart GUI"))
 

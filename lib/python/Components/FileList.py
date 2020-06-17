@@ -1,10 +1,12 @@
+from __future__ import print_function
 import os
 import re
-from MenuList import MenuList
-from Components.Harddisk import harddiskmanager
-from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename, fileExists, pathExists
+
 from enigma import RT_HALIGN_LEFT, eListboxPythonMultiContent, \
 	eServiceReference, eServiceCenter, gFont
+from Components.MenuList import MenuList
+from Components.Harddisk import harddiskmanager
+from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename, fileExists, pathExists
 from Tools.LoadPixmap import LoadPixmap
 import skin
 
@@ -364,7 +366,7 @@ class MultiFileSelectList(FileList):
 						try:
 							self.selectedFiles.remove(os.path.normpath(realPathname))
 						except:
-							print "Couldn't remove:", realPathname
+							print("Couldn't remove:", realPathname)
 				else:
 					SelectState = True
 					if (realPathname not in self.selectedFiles) and (os.path.normpath(realPathname) not in self.selectedFiles):

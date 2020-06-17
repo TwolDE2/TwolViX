@@ -1,5 +1,10 @@
 from json import loads
-from urllib2 import URLError, urlopen
+# required methods: Request, urlopen, HTTPError, URLError
+try: # python 3
+	from urllib.request import urlopen, Request # raises ImportError in Python 2
+	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
+except ImportError: # Python 2
+	from urllib2 import Request, urlopen, HTTPError, URLError
 
 from Components.config import ConfigYesNo, config
 
@@ -53,23 +58,23 @@ def InitGeolocation():
 					geolocation = loads(response)
 				status = geolocation.get("status", None)
 				if status and status == "success":
-					print "[Geolocation] Geolocation data initialised."
+					print("[Geolocation] Geolocation data initialised.")
 					config.misc.enableGeolocation.value = False
 					config.misc.enableGeolocation.save()
 				else:
-					print "[Geolocation] Error: Geolocation lookup returned a '%s' status!  Message '%s' returned." % (status, geolocation.get("message", None))
+					print("[Geolocation] Error: Geolocation lookup returned a '%s' status!  Message '%s' returned." % (status, geolocation.get("message", None)))
 			except URLError as err:
 				if hasattr(err, 'code'):
-					print "[Geolocation] Error: Geolocation data not available! (Code: %s)" % err.code
+					print("[Geolocation] Error: Geolocation data not available! (Code: %s)" % err.code)
 				if hasattr(err, 'reason'):
-					print "[Geolocation] Error: Geolocation data not available! (Reason: %s)" % err.reason
+					print("[Geolocation] Error: Geolocation data not available! (Reason: %s)" % err.reason)
 			except ValueError:
-				print "[Geolocation] Error: Geolocation data returned can not be processed!"
+				print("[Geolocation] Error: Geolocation data returned can not be processed!")
 		else:
-			print "[Geolocation] Note: Geolocation has already been run for this boot."
+			print("[Geolocation] Note: Geolocation has already been run for this boot.")
 	else:
 		geolocation = {}
-		print "[Geolocation] Warning: Geolocation has been disabled by user configuration!"
+		print("[Geolocation] Warning: Geolocation has been disabled by user configuration!")
 
 def RefreshGeolocation():
 	global geolocation

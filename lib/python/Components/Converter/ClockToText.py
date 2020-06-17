@@ -1,4 +1,4 @@
-from Converter import Converter
+from .Converter import Converter
 from time import localtime, strftime
 from Components.Element import cached
 from Components.config import config

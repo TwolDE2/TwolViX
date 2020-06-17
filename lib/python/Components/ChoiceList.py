@@ -1,8 +1,7 @@
-from MenuList import MenuList
-from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename
 from enigma import RT_HALIGN_LEFT, eListboxPythonMultiContent, gFont
+from Components.MenuList import MenuList
+from Tools.Directories import fileExists, SCOPE_ACTIVE_SKIN, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
-from Tools.Directories import fileExists
 import skin
 
 def row_delta_y():

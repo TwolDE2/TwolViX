@@ -1,10 +1,10 @@
-from Screens.Screen import Screen
-from Components.ConfigList import ConfigListScreen
-from Components.Sources.StaticText import StaticText
-from Components.config import config, ConfigSubsection, ConfigBoolean, getConfigListEntry, ConfigSelection, ConfigYesNo, ConfigIP
-from Components.Network import iNetwork
-from Components.Ipkg import IpkgComponent
 from enigma import eDVBDB
+from Components.config import config, ConfigSubsection, ConfigBoolean, getConfigListEntry, ConfigSelection, ConfigYesNo, ConfigIP
+from Components.ConfigList import ConfigListScreen
+from Components.Ipkg import IpkgComponent
+from Components.Network import iNetwork
+from Components.Sources.StaticText import StaticText
+from Screens.Screen import Screen
 
 config.misc.installwizard = ConfigSubsection()
 config.misc.installwizard.hasnetwork = ConfigBoolean(default = False)
@@ -108,10 +108,10 @@ class InstallWizard(Screen, ConfigListScreen):
 		elif self.index == self.STATE_CHOISE_CHANNELLIST and self.enabled.value:
 			self.session.open(InstallWizardIpkgUpdater, self.index, _('Please wait (downloading channel list)'), IpkgComponent.CMD_REMOVE, {'package': 'enigma2-plugin-settings-henksat-' + self.channellist_type.value})
 		elif self.index == self.INSTALL_PLUGINS and self.enabled.value:
-			from PluginBrowser import PluginDownloadBrowser
+			from .PluginBrowser import PluginDownloadBrowser
 			self.session.open(PluginDownloadBrowser, 0, True, "", "PluginDownloadBrowserWizard")
 		elif self.index == self.INSTALL_SKINS and self.enabled.value:
-			from SkinSelector import SkinSelector
+			from .SkinSelector import SkinSelector
 			self.session.open(SkinSelector, "", "SkinSelectorWizard")
 		return
 

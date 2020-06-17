@@ -1,14 +1,17 @@
+import time, os
+
+from enigma import eTimer, eServiceCenter, iServiceInformation, eServiceReference, eDVBDB
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigPIN, ConfigYesNo, ConfigSubList, ConfigInteger
 from Components.ServiceList import refreshServiceList
 from Screens.InputBox import PinInput
 from Screens.MessageBox import MessageBox
-from Tools.BoundFunction import boundFunction
 from ServiceReference import ServiceReference
-from Tools import Notifications
+from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_CONFIG
+from Tools import Notifications
 from Tools.Notifications import AddPopup
-from enigma import eTimer, eServiceCenter, iServiceInformation, eServiceReference, eDVBDB
-import time, os
+
+
 
 TYPE_SERVICE = "SERVICE"
 TYPE_BOUQUETSERVICE = "BOUQUETSERVICE"
@@ -197,7 +200,7 @@ class ParentalControl:
 		#Replaces saveWhiteList and saveBlackList:
 		#I don't like to have two functions with identical code...
 		file = open(resolveFilename(SCOPE_CONFIG, sWhichList), 'w')
-		for sService,sType in vList.iteritems():
+		for sService,sType in list(vList.items()):
 			#Only Services that are selected directly and Bouqets are saved.
 			#Services that are added by a bouquet are not saved.
 			#This is the reason for the change in self.whitelist and self.blacklist
@@ -266,7 +269,7 @@ class ParentalControl:
 			if not self.filesOpened:
 				self.open()
 				return getattr(self, name)
-		raise AttributeError, name
+		raise AttributeError(name)
 
 	def hideBlacklist(self):
 		if self.blacklist:

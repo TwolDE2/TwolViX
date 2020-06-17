@@ -1,6 +1,7 @@
+from __future__ import print_function
 from enigma import eRect
 
-from config import config
+from Components.config import config
 from Components.EpgListSingle import EPGListSingle
 import Screens.InfoBar
 
@@ -39,15 +40,15 @@ class Rect:
 class EPGList(EPGListSingle):
 	def __init__(self, type=EPG_TYPE_SINGLE, selChangedCB=None, timer=None, time_epoch=120, overjump_empty=False, graphic=False):
 		if type != EPG_TYPE_SINGLE:
-			print "[EPGList] Warning: EPGList no longer supports", {
+			print("[EPGList] Warning: EPGList no longer supports", {
 				"infobar": "EPG_TYPE_INFOBAR",
 				"enhanced": "EPG_TYPE_ENHANCED",
 				"graph": "EPG_TYPE_GRAPH",
 				"infobargraph": "EPG_TYPE_INFOBARGRAPH",
 				"multi": "EPG_TYPE_MULTI",
 				None: "EPGtype == None"
-			}.get(type, type)
-			print "          attempting to continue in single EPG mode"
+			}.get(type, type))
+			print("          attempting to continue in single EPG mode")
 		EPGListSingle.__init__(self, Screens.InfoBar.InfoBar.instance.session, config.epgselection.single, selChangedCB)
 
 		# Attributes for backwards compatibility.

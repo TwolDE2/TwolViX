@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 from time import localtime, mktime, time, strftime
 from datetime import datetime
 
@@ -36,7 +37,7 @@ class TimerEntry(ConfigListScreen, Screen):
 			self["menu_path_compressed"] = StaticText("")
 		elif config.usage.show_menupath.value == 'small':
 			title = screentitle
-			print 'menu_path:',menu_path
+			print('menu_path:',menu_path)
 			self["menu_path_compressed"] = StaticText(menu_path + " >" if not menu_path.endswith(' / ') else menu_path[:-3] + " >" or "")
 		else:
 			title = screentitle

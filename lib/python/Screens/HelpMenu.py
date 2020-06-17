@@ -1,9 +1,11 @@
-from Screens.Screen import Screen
-from Components.Label import Label
+from __future__ import print_function
+
 from Components.ActionMap import ActionMap
+from Components.Label import Label
 from Components.HelpMenuList import HelpMenuList
 from Components.Sources.StaticText import StaticText
 from Screens.Rc import Rc
+from Screens.Screen import Screen
 
 class HelpMenu(Screen, Rc):
 	def __init__(self, session, list):
@@ -30,7 +32,7 @@ class HelpMenu(Screen, Rc):
 		if selection:
 			selection = selection[3]
 		#arrow = self["arrowup"]
-		print "[HelpMenu] selection:", selection
+		print("[HelpMenu] selection:", selection)
 
 		longText = ""
 		if selection and len(selection) > 1:
@@ -42,7 +44,7 @@ class HelpMenu(Screen, Rc):
 
 		self.selectKey(selection[0])
 		#if selection is None:
-		print "[HelpMenu] select arrow"
+		print("[HelpMenu] select arrow")
 		#	arrow.moveTo(selection[1], selection[2], 1)
 		#	arrow.startMoving()
 		#	arrow.show()

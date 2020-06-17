@@ -1,8 +1,9 @@
+from __future__ import print_function
 # must be fixed for the new plugin interface
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import pathExists, resolveFilename, SCOPE_LIBDIR
 from Plugins.Plugin import PluginDescriptor
-from pluginrunner import PluginRunner
+from .pluginrunner import PluginRunner
 
 from os import listdir
 
@@ -30,13 +31,13 @@ def getPluginParams(file):
 			params[split[0]] = split[1]
 		file.close()
 	except IOError:
-		print "[Tuxbox] no tuxbox plugins found"
+		print("[Tuxbox] no tuxbox plugins found")
 
 	return params
 
 def main(session, plugin, **kwargs):
-	print "[Tuxbox] Running plugin " + plugin[:-4] + ".so with config file", plugin
-	print getPluginParams(plugin)
+	print("[Tuxbox] Running plugin " + plugin[:-4] + ".so with config file", plugin)
+	print(getPluginParams(plugin))
 	session.open(PluginRunner, plugin[:-4].split(".so")[0])
 
 def Plugins(**kwargs):

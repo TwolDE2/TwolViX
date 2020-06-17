@@ -1,9 +1,8 @@
-from GUIComponent import GUIComponent
-from VariableText import VariableText
+import time
 
 from enigma import eTimer, eLabel
-
-import time
+from Components.GUIComponent import GUIComponent
+from Components.VariableText import VariableText
 # now some "real" components:
 
 class Clock(VariableText, GUIComponent):

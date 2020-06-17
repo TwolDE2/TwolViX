@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import datetime
 from glob import glob
 from os import path, remove, walk, stat, rmdir
@@ -69,11 +70,11 @@ class LogManagerPoller:
 		self.TrashTimer.stop()
 
 	def TrimTimerJob(self):
-		print '[LogManager] Trim Poll Started'
+		print('[LogManager] Trim Poll Started')
 		Components.Task.job_manager.AddJob(self.createTrimJob())
 
 	def TrashTimerJob(self):
-		print '[LogManager] Trash Poll Started'
+		print('[LogManager] Trash Poll Started')
 		Components.Task.job_manager.AddJob(self.createTrashJob())
 
 	def createTrimJob(self):
@@ -113,7 +114,7 @@ class LogManagerPoller:
 
 		mounts = []
 		matches = []
-		print "[LogManager] probing folders"
+		print("[LogManager] probing folders")
 		with open('/proc/mounts', 'r') as f:
 			for line in f.readlines():
 				parts = line.strip().split()
@@ -132,10 +133,10 @@ class LogManagerPoller:
 			#small JobTrash (in selected log file dir only) twice a day
 			matches.append(config.crash.debug_path.value)
 
-		print "[LogManager] found following log's:", matches
+		print("[LogManager] found following log's:", matches)
 		if len(matches):
 			for logsfolder in matches:
-				print "[LogManager] looking in:", logsfolder
+				print("[LogManager] looking in:", logsfolder)
 				logssize = get_size(logsfolder)
 				bytesToRemove = logssize - allowedBytes
 				candidates = []
@@ -149,14 +150,14 @@ class LogManagerPoller:
 							#print "Last created: %s" % ctime(st.st_ctime)
 							#print "Last modified: %s" % ctime(st.st_mtime)
 							if st.st_mtime < ctimeLimit:
-								print "[LogManager] " + str(fn) + ": Too old:", ctime(st.st_mtime)
+								print("[LogManager] " + str(fn) + ": Too old:", ctime(st.st_mtime))
 								eBackgroundFileEraser.getInstance().erase(fn)
 								bytesToRemove -= st.st_size
 							else:
 								candidates.append((st.st_mtime, fn, st.st_size))
 								size += st.st_size
-						except Exception, e:
-							print "[LogManager] Failed to stat %s:"% name, e
+						except Exception as e:
+							print("[LogManager] Failed to stat %s:"% name, e)
 					# Remove empty directories if possible
 					for name in dirs:
 						try:
@@ -166,7 +167,7 @@ class LogManagerPoller:
 					candidates.sort()
 					# Now we have a list of ctime, candidates, size. Sorted by ctime (=deletion time)
 					for st_ctime, fn, st_size in candidates:
-						print "[LogManager] " + str(logsfolder) + ": bytesToRemove", bytesToRemove
+						print("[LogManager] " + str(logsfolder) + ": bytesToRemove", bytesToRemove)
 						if bytesToRemove < 0:
 							break
 						eBackgroundFileEraser.getInstance().erase(fn)
@@ -430,7 +431,7 @@ class LogManager(Screen):
 			wos_pwd = base64.b64decode('elZMRFMwaFprNUdp')
 
 			try:
-				print "[LogManager] connecting to server: mail.oe-alliance.com"
+				print("[LogManager] connecting to server: mail.oe-alliance.com")
 				#socket.setdefaulttimeout(30)
 				s = smtplib.SMTP("mail.oe-alliance.com", 26)
 				s.login(wos_user, wos_pwd)
@@ -442,7 +443,7 @@ class LogManager(Screen):
 					s.sendmail(fromlogman, tovixlogs, msg.as_string())
 					s.quit()
 					self.session.open(MessageBox, sentfiles + ' ' + _('has been sent to the ViX team.\nplease quote') + ' ' + str(ref) + ' ' + _('when asking questions about this log'), MessageBox.TYPE_INFO)
-			except Exception, e:
+			except Exception as e:
 				self.session.open(MessageBox, _("Error:\n%s" % e), MessageBox.TYPE_INFO, timeout = 10)
 		else:
 			self.session.open(MessageBox, _('You have not setup your user info in the setup screen\nPress MENU, enter your info, and then try again'), MessageBox.TYPE_INFO, timeout = 10)
