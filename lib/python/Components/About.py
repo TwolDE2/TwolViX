@@ -175,7 +175,8 @@ def getIfConfig(ifname):
 	try:
 		for k, v in list(infos.items()):
 			ifreq[k] = _ifinfo(sock, v, ifname)
-	except:
+	except Exception as ex:
+		print("[About] getIfConfig Ex:", ex)
 		pass
 	sock.close()
 	return ifreq
