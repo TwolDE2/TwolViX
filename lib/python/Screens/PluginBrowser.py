@@ -665,7 +665,7 @@ class PluginDownloadBrowser(Screen):
 			self.pluginlist.sort()
 
 	def updateList(self):
-		list = []
+		_list = []
 		expandableIcon = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/expandable-plugins.png"))
 		expandedIcon = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/expanded-plugins.png"))
 		verticallineIcon = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/verticalline-plugins.png"))
@@ -673,8 +673,8 @@ class PluginDownloadBrowser(Screen):
 		self.plugins = {}
 
 		if self.type == self.UPDATE:
-			self.list = list
-			self["list"].l.setList(list)
+			self.list = _list
+			self["list"].l.setList(_list)
 			return
 
 		for x in self.pluginlist:
@@ -718,11 +718,11 @@ class PluginDownloadBrowser(Screen):
 			temp.sort()
 		for x in temp:
 			if x in self.expanded:
-				list.append(PluginCategoryComponent(x, expandedIcon, self.listWidth))
-				list.extend([PluginDownloadComponent(plugin[0], plugin[1], plugin[2], self.listWidth) for plugin in self.plugins[x]])
+				_list.append(PluginCategoryComponent(x, expandedIcon, self.listWidth))
+				_list.extend([PluginDownloadComponent(plugin[0], plugin[1], plugin[2], self.listWidth) for plugin in self.plugins[x]])
 			else:
-				list.append(PluginCategoryComponent(x, expandableIcon, self.listWidth))
-		self.list = list
-		self["list"].l.setList(list)
+				_list.append(PluginCategoryComponent(x, expandableIcon, self.listWidth))
+		self.list = _list
+		self["list"].l.setList(_list)
 
 language.addCallback(languageChanged)
