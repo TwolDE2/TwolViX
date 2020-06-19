@@ -1,28 +1,34 @@
 from __future__ import print_function
 from builtins import range
-from Screens.Screen import Screen
-from Screens.ChannelSelection import *
-from Screens.ChoiceBox import ChoiceBox
-from Screens.Standby import TryQuitMainloop
-from Screens.MessageBox import MessageBox
+import six
+
+import os
+from xml.etree.cElementTree import parse
+
+from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter
+
+
 from Components.ActionMap import ActionMap
-from Components.Sources.List import List
-from Components.Sources.StaticText import StaticText
 from Components.config import ConfigNothing
 from Components.ConfigList import ConfigList
 from Components.Label import Label
-from Components.SelectionList import SelectionList
 from Components.MenuList import MenuList
+from Components.SelectionList import SelectionList
 from Components.SystemInfo import SystemInfo
 from ServiceReference import ServiceReference
 from Plugins.Plugin import PluginDescriptor
-from xml.etree.cElementTree import parse
-from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter
+from Screens.ChannelSelection import *
+from Screens.ChoiceBox import ChoiceBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Components.Sources.List import List
+from Components.Sources.StaticText import StaticText
+from Screens.Standby import TryQuitMainloop
 from Tools.BoundFunction import boundFunction
 from Tools.CIHelper import cihelper
 from Tools.XMLTools import stringToXML
 
-import os
+
 
 class CIselectMainMenu(Screen):
 	skin = """
@@ -319,7 +325,7 @@ class CIconfigMenu(Screen):
 		try:
 			tree = parse(self.filename).getroot()
 			for slot in tree.findall("slot"):
-				read_slot = getValue(slot.findall("id"), False).encode("UTF-8")
+				read_slot = six.ensure_str(getValue(slot.findall("id"), False))
 				i = 0
 				for caid in slot.findall("caid"):
 					read_caid = caid.get("id").encode("UTF-8")
@@ -328,15 +334,14 @@ class CIconfigMenu(Screen):
 					i += 1
 
 				for service in  slot.findall("service"):
-					read_service_name = service.get("name").encode("UTF-8")
-					read_service_ref = service.get("ref").encode("UTF-8")
+					read_service_name = six.ensure_str(service.get("name"))
+					read_service_ref = six.ensure_str(service.get("ref"))
 					self.read_services.append (read_service_ref)
 
 				for provider in  slot.findall("provider"):
-					read_provider_name = provider.get("name").encode("UTF-8")
-					read_provider_dvbname = provider.get("dvbnamespace").encode("UTF-8")
-					self.read_providers.append((read_provider_name,read_provider_dvbname))
-
+					read_provider_name = six.ensure_str(provider.get("name"))
+					read_provider_dvbname = six.ensure_str(provider.get("dvbnamespace"))
+					self.read_providers.append((read_provider_name, read_provider_dvbname))
 				self.ci_config.append((int(read_slot), (self.read_services, self.read_providers, self.usingcaid)))
 		except:
 			print("[CI_Config_CI%d] error parsing xml..." % self.ci_slot)

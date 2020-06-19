@@ -23,9 +23,9 @@ class ConfigFilename(ConfigText):
 
 	def getMulti(self, selected):
 		if self.text == "":
-			return "mtext"[1-selected:], "", 0
-		cut_len = min(len(self.text),40)
-		filename = (self.text.rstrip("/").rsplit("/", 1))[1].encode("utf-8")[:cut_len] + " "
+			return ("mtext"[1-selected:], "", 0)
+		cut_len = min(len(self.text), 40)
+		filename = six.ensure_str((self.text.rstrip("/").rsplit("/", 1))[1])[:cut_len] + " "
 		if self.allmarked:
 			mark = list(range(0, len(filename)))
 		else:
@@ -60,7 +60,6 @@ class DVDProject:
 
 	def saveProject(self, path):
 		from Tools.XMLTools import stringToXML
-<<<<<<< HEAD:lib/python/Plugins/Extensions/DVDBurn/DVDProject.py
 		list = ['<?xml version="1.0" encoding="utf-8" ?>\n',
 				'<DreamDVDBurnerProject>\n',
 				'\t<settings ']
@@ -157,11 +156,11 @@ class DVDProject:
 				#raise AttributeError
 			while i < node.attributes.length:
 				item = node.attributes.item(i)
-				key = item.name.encode("utf-8")
+				key = six.ensure_str(item.name)
 				try:
 					val = eval(item.nodeValue)
 				except (NameError, SyntaxError):
-					val = item.nodeValue.encode("utf-8")
+					val = six.ensure_str(item.nodeValue)
 				try:
 					print("config[%s].setValue(%s)" % (key, val))
 					config.dict()[key].setValue(val)
@@ -188,7 +187,7 @@ class DVDProject:
 				if subnode.tagName == 'path':
 					print("path:", subnode.firstChild.data)
 					filename = subnode.firstChild.data
-					self.titles[title_idx].addFile(filename.encode("utf-8"))
+					self.titles[title_idx].addFile(six.ensure_str(filename))
 				if subnode.tagName == 'properties':
 					self.xmlAttributesToConfig(node, self.titles[title_idx].properties)
 				if subnode.tagName == 'audiotracks':
