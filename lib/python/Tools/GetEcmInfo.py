@@ -1,6 +1,9 @@
-from Components.config import config
+import six
+
 import os
 import time
+
+from Components.config import config
 
 ECM_INFO = '/tmp/ecm.info'
 EMPTY_ECM_INFO = ' ','0','0','0'
@@ -48,7 +51,7 @@ class GetEcmInfo:
 			# print 'ECM DATA:',ecm
 			for line in ecm:
 				# print 'ECM LINE:',line
-				d = line.split(':', 1)
+				d = six.ensure_str(line).split(':', 1)
 				if len(d) > 1:
 					info[d[0].strip()] = d[1].strip()
 				mgcam = line.strip()
@@ -155,6 +158,7 @@ class GetEcmInfo:
 						share = file.readlines()
 						file.close()
 						for line in share:
+							l = six.ensure_str(line)
 							if cardid in line:
 								self.textvalue = line.strip()
 								break
