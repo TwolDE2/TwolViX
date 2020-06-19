@@ -1,5 +1,6 @@
 from __future__ import print_function, division
 from builtins import range
+import six
 
 import os
 from bisect import insort
@@ -407,10 +408,9 @@ def createTimer(xml):
 
 	for l in xml.findall("log"):
 		ltime = int(l.get("time"))
-		lcode = int(l.get("code"))
-		msg = l.text.strip().encode("utf-8")
+		code = int(l.get("code"))
+		msg = six.ensure_str(l.text).strip()
 		entry.log_entries.append((ltime, lcode, msg))
-
 	return entry
 
 class PowerTimer(timer.Timer):
