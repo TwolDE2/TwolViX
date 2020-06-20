@@ -35,9 +35,10 @@ class GetEcmInfo:
 			info = {'ecminterval2': oecmi1, 'ecminterval1': oecmi0}
 			old_ecm_time = ecm_time
 			try:
-				file = open(ECM_INFO, 'rb')
-				ecm = file.readlines()
-				file.close()
+				if six.PY2:
+					ecm = open(ECM_INFO, 'rb').readlines()
+				else:
+					ecm = open(ECM_INFO, 'r').readlines()
 			except:
 				ecm = ''
 			info['caid'] = "0"
@@ -51,7 +52,7 @@ class GetEcmInfo:
 			# print 'ECM DATA:',ecm
 			for line in ecm:
 				# print 'ECM LINE:',line
-				d = six.ensure_str(line).split(':', 1)
+				d = line.split(':', 1)
 				if len(d) > 1:
 					info[d[0].strip()] = d[1].strip()
 				mgcam = line.strip()
@@ -154,9 +155,10 @@ class GetEcmInfo:
 				if info['decode'] == 'Network':
 					cardid = 'id:' + info.get('prov', '')
 					try:
-						file = open('/tmp/share.info', 'rb')
-						share = file.readlines()
-						file.close()
+						if six.PY2:
+							share = open('/tmp/share.info', 'rb').readlines()
+						else:
+							share = open('/tmp/share.info', 'r').readlines()
 						for line in share:
 							l = six.ensure_str(line)
 							if cardid in line:
@@ -195,5 +197,5 @@ class GetEcmInfo:
 		decCI = info.get('caid', info.get('CAID', '0'))
 		provid = info.get('provid', info.get('prov', info.get('Provider', '0')))
 		ecmpid = info.get('pid', info.get('ECM PID', '0'))
-		return str(self.textvalue), decCI, provid, ecmpid
+		return self.textvalue, decCI, provid, ecmpid
 
