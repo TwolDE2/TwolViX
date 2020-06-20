@@ -34,6 +34,7 @@ add_type("image/gif", ".gif")
 add_type("image/bmp", ".bmp")
 add_type("image/jpeg", ".jpeg")
 add_type("image/jpeg", ".jpe")
+add_type("image/svg+xml", ".svg")
 add_type("video/mpeg", ".mpg")
 add_type("video/dvd", ".vob")
 add_type("video/mp4", ".m4v")
@@ -82,11 +83,7 @@ def getType(file):
 
 
 class Scanner:
-	def __init__(self, name, mimetypes=None, paths_to_scan=None, description="", openfnc=None):
-		if not mimetypes:
-			mimetypes = []
-		if not paths_to_scan:
-			paths_to_scan = []
+	def __init__(self, name, mimetypes=[], paths_to_scan=[], description="", openfnc=None):
 		self.mimetypes = mimetypes
 		self.name = name
 		self.paths_to_scan = paths_to_scan
@@ -116,17 +113,18 @@ class ScanPath:
 	def __repr__(self):
 		return self.path + "(" + str(self.with_subdirs) + ")"
 
-	# we will use this in a set(), so we need to implement __hash__ and __cmp__
+	# we will use this in a set(), so we need in python 3 to implement __hash__ and __eq__ ,   __lt__ ,  __gt__
 	def __hash__(self):
 		return self.path.__hash__() ^ self.with_subdirs.__hash__()
 
-	def __cmp__(self, other):
-		if self.path < other.path:
-			return -1
-		elif self.path > other.path:
-			return +1
-		else:
-			return self.with_subdirs.__cmp__(other.with_subdirs)
+	def __eq__(self, other):
+		return ((self.with_subdirs, self.path) == (other.with_subdirs, other.path))
+
+	def __lt__(self, other):
+		return ((self.with_subdirs, self.path) < (other.with_subdirs, other.path))
+
+	def __gt__(self, other):
+		return ((self.with_subdirs, self.path) > (other.with_subdirs, other.path))
 
 
 class ScanFile:
