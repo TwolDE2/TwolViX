@@ -195,4 +195,5 @@ class GetEcmInfo:
 		decCI = info.get('caid', info.get('CAID', '0'))
 		provid = info.get('provid', info.get('prov', info.get('Provider', '0')))
 		ecmpid = info.get('pid', info.get('ECM PID', '0'))
-		return self.textvalue,decCI,provid,ecmpid
+		return str(self.textvalue), decCI, provid, ecmpid
+
