@@ -38,10 +38,11 @@ class inputDevices:
 
 		for evdev in devices:
 			try:
-				buffer = "\0"*512
+				devbuffer = "\0"*512
 				self.fd = os.open("/dev/input/" + evdev, os.O_RDWR | os.O_NONBLOCK)
-				self.name = ioctl(self.fd, EVIOCGNAME(256), buffer)
+				self.name = ioctl(self.fd, EVIOCGNAME(256), devbuffer)
 				self.name = self.name[:self.name.find(b"\0")]
+				self.name = six.ensure_str(self.name)
 				os.close(self.fd)
 			except (IOError,OSError) as err:
 				print("[InputDevice] Error: evdev='%s' getInputDevices <ERROR: ioctl(EVIOCGNAME): '%s'>" % (evdev, str(err)))
