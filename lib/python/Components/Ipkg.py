@@ -1,4 +1,5 @@
 from __future__ import print_function, absolute_import
+import six
 
 import os
 
@@ -117,6 +118,7 @@ class IpkgComponent:
 		self.cmd.dataAvail.remove(self.cmdData)
 
 	def cmdData(self, data):
+		data = six.ensure_str(data)
 # 		print "data:", data
 		if self.cache is None:
 			self.cache = data

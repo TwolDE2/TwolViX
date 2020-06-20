@@ -3,6 +3,7 @@ from enigma import getDesktop
 from os import path as os_path, remove, unlink, rename, chmod, access, X_OK
 from shutil import move
 import time
+import six
 
 from enigma import eTimer, eConsoleAppContainer
 from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType
@@ -102,6 +103,7 @@ class NSCommon:
 		self.Console.ePopen('/usr/bin/opkg list_installed ' + self.service_name, self.RemovedataAvail)
 
 	def RemovedataAvail(self, str, retval, extra_args):
+		str = six.ensure_str(str)
 		if str:
 			if self.reboot_at_end:
 				restartbox = self.session.openWithCallback(self.RemovePackage,MessageBox,_('Your %s %s will be restarted after the removal of the service\nDo you want to remove the service now ?') % (getMachineBrand(), getMachineName()), MessageBox.TYPE_YESNO)
@@ -1942,6 +1944,7 @@ class NetworkFtp(NSCommon, Screen):
 		self.onLayoutFinish.append(self.updateService)
 		self.reboot_at_end = False
 
+
 	def FtpStartStop(self):
 		commands = []
 		if not self.my_ftp_run:
@@ -2242,6 +2245,7 @@ class NetworkSamba(NSCommon, Screen):
 		self.service_name = 'packagegroup-base-smbfs-server'
 		self.onLayoutFinish.append(self.InstallCheck)
 		self.reboot_at_end = True
+
 
 	def Sambashowlog(self):
 		self.session.open(NetworkSambaLog)
@@ -2805,6 +2809,7 @@ class NetworkuShare(NSCommon, Screen):
 		self.service_name = 'ushare'
 		self.onLayoutFinish.append(self.InstallCheck)
 		self.reboot_at_end = False
+
 
 	def uShareStartStop(self):
 		if not self.my_ushare_run:

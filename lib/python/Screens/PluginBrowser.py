@@ -1,4 +1,5 @@
 from __future__ import print_function, absolute_import
+import six
 
 import os
 from time import time
@@ -612,6 +613,7 @@ class PluginDownloadBrowser(Screen):
 					self["text"].setText(_("Sorry the feeds are down for maintenance"))
 
 	def dataAvail(self, str):
+		str = six.ensure_str(str)
 		if self.type == self.DOWNLOAD and ('wget returned 1' or 'wget returned 255' or '404 Not Found') in str:
 			self.run = 3
 			return
