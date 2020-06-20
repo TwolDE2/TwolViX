@@ -1,5 +1,6 @@
 from __future__ import print_function, absolute_import
 from builtins import range
+import six
 
 import os
 import re
@@ -9,6 +10,7 @@ from socket import *
 from Components.Console import Console
 from Components.PluginComponent import plugins
 from Plugins.Plugin import PluginDescriptor
+
 
 class Network:
 	def __init__(self):
@@ -409,6 +411,7 @@ class Network:
 	def getLinkStateFinished(self, result, retval, extra_args):
 		(callback) = extra_args
 		if not self.linkConsole.appContainers:
+			result = six.ensure_str(result)
 			callback(result)
 
 	def stopPingConsole(self):

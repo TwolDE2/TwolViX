@@ -1,7 +1,6 @@
 from __future__ import print_function
-import sys
 import six
-from six.moves import range
+import sys
 
 from os import system, path as os_path
 if sys.version_info[0] < 3:

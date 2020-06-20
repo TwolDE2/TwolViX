@@ -667,6 +667,7 @@ class SystemNetworkInfo(Screen):
 		self["devicepic"].show()
 
 	def dataAvail(self, data):
+		data = six.ensure_str(data)
 		self.LinkState = None
 		for line in data.splitlines():
 			line = line.strip()
