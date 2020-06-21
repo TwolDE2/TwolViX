@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import six
 
 from timer import TimerEntry
 
@@ -14,6 +15,8 @@ from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.FuzzyDate import FuzzyTime
 from Tools.LoadPixmap import LoadPixmap
 from Tools.TextBoundary import getTextBoundarySize
+
+SIGN = '°' if six.PY3 else str('\xc2\xb0')
 
 class TimerList(GUIComponent, object):
 #
@@ -232,4 +235,4 @@ class TimerList(GUIComponent, object):
 		if op > 1800:
 			op = 3600 - op
 			direction = 'W'
-		return ("%d.%d\xb0%s") % (op // 10, op % 10, direction)
+		return ("%d.%d" + SIGN + "%s") % (op // 10, op % 10, direction)
