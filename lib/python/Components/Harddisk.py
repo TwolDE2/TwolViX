@@ -16,6 +16,7 @@ from enigma import eTimer
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.SystemInfo import SystemInfo
 import Components.Task
+<<<<<<< HEAD
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
 
@@ -70,6 +71,10 @@ opticalDisks = [
 	91,  # Tenth IDE hard disk/CD-ROM interface
 	113  # IBM iSeries virtual CD-ROM
 ]
+=======
+import re
+import six
+>>>>>>> a3389958f... Fix delete Partition
 
 def readFile(filename):
 	try:
@@ -367,7 +372,7 @@ class Harddisk:
 		return 1  # No longer supported, use createCheckJob instead.
 
 	def killPartitionTable(self):
-		zero = 512 * "\0"
+		zero = 512 * b"\0"
 		try:
 			with open(self.dev_path, "wb") as fd:
 				for i in list(range(9)):  # Delete first 9 sectors, which will likely kill the first partition too.
@@ -376,7 +381,7 @@ class Harddisk:
 			print("[Harddisk] Error: Failed to wipe partition table on '%s':" % self.dev_path, err)
 
 	def killPartition(self, n):
-		zero = 512 * "\0"
+		zero = 512 * b"\0"
 		partition = self.partitionPath(n)
 		try:
 			with open(partition, "wb") as fd:
@@ -384,6 +389,7 @@ class Harddisk:
 					fd.write(zero)
 		except (IOError, OSError) as err:
 			print("[Harddisk] Error: Failed to wipe partition on '%s':" % partition, err)
+
 
 	def createInitializeJob(self):
 		print("[Harddisk] Initializing storage device...")
@@ -961,12 +967,22 @@ class UnmountTask(Task.LoggingTask):
 
 	def prepare(self):
 		try:
+<<<<<<< HEAD
 			dev = self.hdd.disk_path.split(os.sep)[-1]
 			open("/dev/nomount.%s" % dev, "wb").close()
 		except (IOError, OSError) as err:
 			print("[Harddisk] UnmountTask - Error: Failed to create /dev/nomount file:", err)
 		self.setTool("umount")
 		self.args.append("-f")
+=======
+			dev = self.hdd.disk_path.split('/')[-1]
+			dev = six.ensure_binary(dev)
+			open('/dev/nomount.%s' % dev, "wb").close()
+		except Exception as e:
+			print("ERROR: Failed to create /dev/nomount file:", e)
+		self.setTool('umount')
+		self.args.append('-f')
+>>>>>>> a3389958f... Fix delete Partition
 		for dev in self.hdd.enumMountDevices():
 			self.args.append(dev)
 			self.postconditions.append(Task.ReturncodePostcondition())
