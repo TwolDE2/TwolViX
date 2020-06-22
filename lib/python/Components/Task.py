@@ -495,12 +495,7 @@ class ToolExistsPrecondition(Condition):
 			self.realpath = task.cmd
 			path = os.environ.get('PATH', '').split(os.pathsep)
 			path.append(task.cwd + '/')
-<<<<<<< HEAD
-			absolutes = [file for file in map(lambda directory, file = task.cmd: os.path.join(directory, file), path) if os.access(file, os.X_OK)]
-=======
-			# FIXME PY3 map,filter
 			absolutes = list(filter(lambda _file: os.access(_file, os.X_OK), map(lambda directory, _file = task.cmd: os.path.join(directory, _file), path)))
->>>>>>> f2e6d2747... fix task filter
 			if absolutes:
 				self.realpath = absolutes[0]
 				return True

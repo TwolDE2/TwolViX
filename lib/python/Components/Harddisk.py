@@ -1,5 +1,7 @@
 from __future__ import print_function, absolute_import
 from builtins import range
+import six
+
 import errno
 import os
 import re
@@ -16,7 +18,6 @@ from enigma import eTimer
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.SystemInfo import SystemInfo
 import Components.Task
-<<<<<<< HEAD
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
 
@@ -71,10 +72,6 @@ opticalDisks = [
 	91,  # Tenth IDE hard disk/CD-ROM interface
 	113  # IBM iSeries virtual CD-ROM
 ]
-=======
-import re
-import six
->>>>>>> a3389958f... Fix delete Partition
 
 def readFile(filename):
 	try:
@@ -967,22 +964,12 @@ class UnmountTask(Task.LoggingTask):
 
 	def prepare(self):
 		try:
-<<<<<<< HEAD
 			dev = self.hdd.disk_path.split(os.sep)[-1]
 			open("/dev/nomount.%s" % dev, "wb").close()
 		except (IOError, OSError) as err:
 			print("[Harddisk] UnmountTask - Error: Failed to create /dev/nomount file:", err)
 		self.setTool("umount")
 		self.args.append("-f")
-=======
-			dev = self.hdd.disk_path.split('/')[-1]
-			dev = six.ensure_binary(dev)
-			open('/dev/nomount.%s' % dev, "wb").close()
-		except Exception as e:
-			print("ERROR: Failed to create /dev/nomount file:", e)
-		self.setTool('umount')
-		self.args.append('-f')
->>>>>>> a3389958f... Fix delete Partition
 		for dev in self.hdd.enumMountDevices():
 			self.args.append(dev)
 			self.postconditions.append(Task.ReturncodePostcondition())
@@ -1038,6 +1025,7 @@ class MkfsTask(Task.LoggingTask):
 		self.fsck_state = None
 
 	def processOutput(self, data):
+		data = six.ensure_str(data)
 		print("[Harddisk] MkfsTask - [Mkfs]", data)
 		if "Writing inode tables:" in data:
 			self.fsck_state = "inode"
