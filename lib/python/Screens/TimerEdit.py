@@ -283,25 +283,27 @@ class TimerEditList(Screen, ProtectedScreen):
 
 	def fillTimerList(self):
 		#helper function to move finished timers to end of list
+		def _cmp(a, b):
+			return (a > b) - (a < b)
 		def eol_compare(x, y):
 			if x[0].state != y[0].state and x[0].state == RealTimerEntry.StateEnded or y[0].state == RealTimerEntry.StateEnded:
-				return cmp(x[0].state, y[0].state)
-			return cmp(x[0].begin, y[0].begin)
+				return _cmp(x[0].state, y[0].state)
+			return _cmp(x[0].begin, y[0].begin)
 
-		list = self.list
-		del list[:]
-		list.extend([(timer, False) for timer in self.session.nav.RecordTimer.timer_list])
+		xlist = self.list
+		del xlist[:]
+		xlist.extend([(timer, False) for timer in self.session.nav.RecordTimer.timer_list])
 		now = time()
 		if config.usage.timerlist_finished_timer_position.index == 2:
 			# if the "hide" option is set, continue to add disabled timers so
 			# timer conflicts remain visible
-			list.extend([(timer, True) for timer in self.session.nav.RecordTimer.processed_timers if timer.disabled and timer.end > now])
+			xlist.extend([(timer, True) for timer in self.session.nav.RecordTimer.processed_timers if timer.disabled and timer.end > now])
 		else:
-			list.extend([(timer, True) for timer in self.session.nav.RecordTimer.processed_timers])
+			xlist.extend([(timer, True) for timer in self.session.nav.RecordTimer.processed_timers])
 		if config.usage.timerlist_finished_timer_position.index: #end of list
-			list.sort(key=cmp_to_key(eol_compare))
+			xlist.sort(key=cmp_to_key(eol_compare))
 		else:
-			list.sort(key = lambda x: x[0].begin)
+			xlist.sort(key = lambda x: x[0].begin)
 
 	def showLog(self):
 		cur = self["timerlist"].getCurrent()
