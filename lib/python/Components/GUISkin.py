@@ -44,7 +44,7 @@ class GUISkin:
 			applyAllAttributes(w.instance, desktop, w.skinAttributes, self.scale)
 
 		for f in self.onLayoutFinish:
-			if type(f) is not type(self.close): # is this the best way to do this?
+			if not isinstance(f, type(self.close)): # is this the best way to do this?
 				exec(f, globals(), locals())
 			else:
 				f()

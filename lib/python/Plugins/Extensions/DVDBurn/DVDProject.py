@@ -78,7 +78,8 @@ class DVDProject:
 			audiotracks = []
 			if sys.version_info >= (3, 0):
 				for key, val in title.properties.dict().items():
-					if type(val) is ConfigSubList:
+
+					if isinstance(val, ConfigSubList):
 						audiotracks.append('\t\t\t<audiotracks>\n')
 						for audiotrack in val:
 							audiotracks.append('\t\t\t\t<audiotrack ')
@@ -90,7 +91,7 @@ class DVDProject:
 						list.append( key + '="' + str(val.value) + '" ' )
 			else:
 				for key, val in title.properties.dict().iteritems():
-					if type(val) is ConfigSubList:
+					if isinstance(val, ConfigSubList):
 						audiotracks.append('\t\t\t<audiotracks>\n')
 						for audiotrack in val:
 							audiotracks.append('\t\t\t\t<audiotrack ')
