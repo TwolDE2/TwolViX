@@ -98,6 +98,7 @@ class InputDeviceSelection(Screen, HelpableScreen):
 	def updateList(self):
 		self.list = []
 #		print("[InputDevice] iRcTypeControl.multipleRcSupported = {}".format(iRcTypeControl.multipleRcSupported()))
+
 		if iRcTypeControl.multipleRcSupported():
 			self.list.append(self.buildInterfaceList('rctype', _('Select to configure remote control type'), None, False))
 
