@@ -122,21 +122,20 @@ class LCD:
 	def isOled(self):
 		return eDBoxLCD.getInstance().isOled()
 
-	def setMode(self, value):
-		print('setLCDMode',value)
+	def setMode(self, value): 
 		f = open("/proc/stb/lcd/show_symbols", "w")
 		f.write(value)
 		f.close()
 
 	def setPower(self, value):
-		print('setLCDPower',value)
+		print('setLCDPower', value)
 		f = open("/proc/stb/power/vfd", "w")
 		f.write(value)
 		f.close()
 
 	def setShowoutputresolution(self, value):
 		if fileExists("/proc/stb/lcd/show_outputresolution"):
-			print('setLCDShowoutputresolution',value)
+			print('setLCDShowoutputresolution', value)
 			f = open("/proc/stb/lcd/show_outputresolution", "w")
 			f.write(value)
 			f.close()
@@ -157,10 +156,10 @@ class LCD:
 		f.close()
 
 	def setLCDMiniTVPIPMode(self, value):
-		print('setLCDMiniTVPIPMode',value)
+		print('setLCDMiniTVPIPMode', value)
 
 	def setLCDMiniTVFPS(self, value):
-		print('setLCDMiniTVFPS',value)
+		print('setLCDMiniTVFPS', value)
 		f = open('/proc/stb/lcd/fps', "w")
 		f.write("%d \n" % value)
 		f.close()
@@ -198,7 +197,7 @@ def InitLcd():
 	if fileExists("/proc/stb/lcd/mode"):
 		f = open("/proc/stb/lcd/mode", "r")
 		can_lcdmodechecking = f.read().strip().split(" ")
-		print('LCDMiniTV',can_lcdmodechecking)
+		print('LCDMiniTV', can_lcdmodechecking)
 		f.close()
 	else:
 		can_lcdmodechecking = False
@@ -297,16 +296,16 @@ def InitLcd():
 		def setLEDblinkingtime(configElement):
 			ilcd.setLEDBlinkingTime(configElement.value)
 
-		config.lcd.ledblinkingtime = ConfigSlider(default = 5, increment = 1, limits = (0,15))
+		config.lcd.ledblinkingtime = ConfigSlider(default = 5, increment = 1, limits = (0, 15))
 		config.lcd.ledblinkingtime.addNotifier(setLEDblinkingtime)
-		config.lcd.ledbrightnessdeepstandby = ConfigSlider(default = 1, increment = 1, limits = (0,15))
+		config.lcd.ledbrightnessdeepstandby = ConfigSlider(default = 1, increment = 1, limits = (0, 15))
 		config.lcd.ledbrightnessdeepstandby.addNotifier(setLEDnormalstate)
 		config.lcd.ledbrightnessdeepstandby.addNotifier(setLEDdeepstandby)
 		config.lcd.ledbrightnessdeepstandby.apply = lambda : setLEDdeepstandby(config.lcd.ledbrightnessdeepstandby)
-		config.lcd.ledbrightnessstandby = ConfigSlider(default = 1, increment = 1, limits = (0,15))
+		config.lcd.ledbrightnessstandby = ConfigSlider(default = 1, increment = 1, limits = (0, 15))
 		config.lcd.ledbrightnessstandby.addNotifier(setLEDnormalstate)
 		config.lcd.ledbrightnessstandby.apply = lambda : setLEDnormalstate(config.lcd.ledbrightnessstandby)
-		config.lcd.ledbrightness = ConfigSlider(default = 3, increment = 1, limits = (0,15))
+		config.lcd.ledbrightness = ConfigSlider(default = 3, increment = 1, limits = (0, 15))
 		config.lcd.ledbrightness.addNotifier(setLEDnormalstate)
 		config.lcd.ledbrightness.apply = lambda : setLEDnormalstate(config.lcd.ledbrightness)
 		config.lcd.ledbrightness.callNotifiersOnSaveAndCancel = True

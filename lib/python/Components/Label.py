@@ -47,7 +47,7 @@ class BlinkingLabelConditional(BlinkingWidgetConditional, LabelConditional):
 
 class MultiColorLabel(Label):
 	def __init__(self, text=""):
-		Label.__init__(self,text)
+		Label.__init__(self, text)
 		self.foreColors = []
 		self.backColors = []
 
@@ -74,11 +74,11 @@ class MultiColorLabel(Label):
 				elif attrib == "foregroundColor":
 					foregroundColor = value
 				else:
-					attribs.append((attrib,value))
+					attribs.append((attrib, value))
 			if foregroundColor:
-				attribs.append(("foregroundColor",foregroundColor))
+				attribs.append(("foregroundColor", foregroundColor))
 			if backgroundColor:
-				attribs.append(("backgroundColor",backgroundColor))
+				attribs.append(("backgroundColor", backgroundColor))
 			self.skinAttributes = attribs
 		return GUIComponent.applySkin(self, desktop, screen)
 

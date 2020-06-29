@@ -10,7 +10,7 @@ def getVersionString():
 
 def getFlashDateString():
 	try:
-		with  open("/etc/install","r") as f:
+		with  open("/etc/install", "r") as f:
 			flashdate = f.read()
 			return flashdate
 	except:
@@ -23,13 +23,13 @@ def getGStreamerVersionString():
 	try:
 		from glob import glob
 		gst = [x.split("Version: ") for x in open(glob("/var/lib/opkg/info/gstreamer[0-9].[0-9].control")[0], "r") if x.startswith("Version:")][0]
-		return "%s" % gst[1].split("+")[0].replace("\n","")
+		return "%s" % gst[1].split("+")[0].replace("\n", "")
 	except:
 		return _("unknown")
 
 def getKernelVersionString():
 	try:
-		with open("/proc/version","r") as f:
+		with open("/proc/version", "r") as f:
 			kernelversion = f.read().split(" ", 4)[2].split("-",2)[0]
 			return kernelversion
 	except:
@@ -58,7 +58,7 @@ def getIsBroadcom():
 def getChipSetString():
 	try:
 		with open("/proc/stb/info/chipset", "r") as f:
-			return str(f.read().lower().replace("\n","").replace("brcm","").replace("bcm",""))
+			return str(f.read().lower().replace("\n", "").replace("brcm", "").replace("bcm", ""))
 	except IOError:
 		return _("unavailable")
 
@@ -70,7 +70,7 @@ def getCPUSpeedMHzInt():
 			for x in lines:
 				splitted = x.split(": ")
 				if len(splitted) > 1:
-					splitted[1] = splitted[1].replace("\n","")
+					splitted[1] = splitted[1].replace("\n", "")
 					if splitted[0].startswith("cpu MHz"):
 						cpu_speed = float(splitted[1].split(" ")[0])
 						break
@@ -78,12 +78,12 @@ def getCPUSpeedMHzInt():
 		print("[About] getCPUSpeedMHzInt, /proc/cpuinfo not available")
 
 	if cpu_speed == 0:
-		if getMachineBuild() in ("h7","hd51", "sf4008"):
+		if getMachineBuild() in ("h7", "hd51", "sf4008"):
 			try:
 				import binascii
 				with open("/sys/firmware/devicetree/base/cpus/cpu@0/clock-frequency", "rb") as f:
 					clockfrequency = f.read()
-					cpu_speed = round(int(binascii.hexlify(clockfrequency), 16)/1000000,1)
+					cpu_speed = round(int(binascii.hexlify(clockfrequency), 16)/1000000, 1)
 			except IOError:
 				cpu_speed = 1700
 		else:
@@ -119,7 +119,7 @@ def getCPUString():
 			for x in lines:
 				splitted = x.split(": ")
 				if len(splitted) > 1:
-					splitted[1] = splitted[1].replace("\n","")
+					splitted[1] = splitted[1].replace("\n", "")
 					if splitted[0].startswith("system type"):
 						system = splitted[1].split(" ")[0]
 					elif splitted[0].startswith("model name"):
@@ -138,7 +138,7 @@ def getCpuCoresInt():
 			for x in lines:
 				splitted = x.split(": ")
 				if len(splitted) > 1:
-					splitted[1] = splitted[1].replace("\n","")
+					splitted[1] = splitted[1].replace("\n", "")
 					if splitted[0].startswith("processor"):
 						cores = int(splitted[1]) + 1
 	except IOError:
@@ -173,7 +173,7 @@ def getIfConfig(ifname):
 	infos["hwaddr"]  = 0x8927 # SIOCSIFHWADDR
 	infos["netmask"] = 0x891b # SIOCGIFNETMASK
 	try:
-		for k,v in list(infos.items()):
+		for k, v in list(infos.items()):
 			ifreq[k] = _ifinfo(sock, v, ifname)
 	except:
 		pass

@@ -75,7 +75,7 @@ class CopyMeta(Task):
 		Task.__init__(self, job, "Copy title meta files")
 		self.setTool("cp")
 		from os import listdir
-		path, filename = sourcefile.rstrip("/").rsplit("/",1)
+		path, filename = sourcefile.rstrip("/").rsplit("/", 1)
 		tsfiles = listdir(path)
 		for file in tsfiles:
 			if file.startswith(filename+"."):
@@ -131,7 +131,7 @@ class DemuxTask(Task):
 			self.haveProgress(progress)
 		elif line.startswith(MSG_NEW_MP2) or line.startswith(MSG_NEW_AC3):
 			try:
-				self.currentPID = str(int(line.split(': PID 0x',1)[1].split(' ',1)[0],16))
+				self.currentPID = str(int(line.split(': PID 0x',1)[1].split(' ', 1)[0], 16))
 			except ValueError:
 				print("[DemuxTask] ERROR: couldn't detect Audio PID (projectx too old?)")
 

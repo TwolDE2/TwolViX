@@ -114,7 +114,7 @@ class RunningText(Renderer):
 			attribs = [ ]
 			for (attrib, value) in self.skinAttributes:
 				if attrib == "font":
-					self.txfont = parseFont(value, ((1,1),(1,1)))
+					self.txfont = parseFont(value, ((1, 1), (1, 1)))
 				elif attrib == "foregroundColor":
 					self.scroll_label.setForegroundColor(parseColor(value))
 				elif attrib in ("shadowColor","borderColor"):	# fake for openpli-enigma2
@@ -190,8 +190,8 @@ class RunningText(Renderer):
 			self.scroll_label.setNoWrap(1)
 		self.scroll_label.setVAlign(valign)
 		self.scroll_label.setHAlign(self.halign)
-		self.scroll_label.move( ePoint(0,0) )
-		self.scroll_label.resize( eSize(self.W,self.H) )
+		self.scroll_label.move( ePoint(0, 0) )
+		self.scroll_label.resize( eSize(self.W, self.H) )
 		# test for auto correction text height:
 		if self.direction in (TOP,BOTTOM):
 			from enigma import fontRenderClass
@@ -222,7 +222,7 @@ class RunningText(Renderer):
 			if self.mShown:
 				self.txtext = self.source.text or ""
 				if self.instance and not self.calcMoving():
-					self.scroll_label.resize(eSize(self.W,self.H))
+					self.scroll_label.resize(eSize(self.W, self.H))
 					self.moveLabel(self.X, self.Y)
 
 	def moveLabel(self, X, Y):
@@ -240,19 +240,19 @@ class RunningText(Renderer):
 		   self.scroll_label is None:
 			return False
 
-		if self.direction in (LEFT,RIGHT) or not (self.txtflags & RT_WRAP):
+		if self.direction in (LEFT, RIGHT) or not (self.txtflags & RT_WRAP):
 			self.scroll_label.resize(eSize(self.txfont.pointSize * len(self.txtext),self.H)) # stupid workaround, have no better idea right now...
 		
 		text_size = self.scroll_label.calculateSize()
 		text_width = text_size.width()
 		text_height = text_size.height()
 
-		if self.direction in (LEFT,RIGHT) or not (self.txtflags & RT_WRAP):
+		if self.direction in (LEFT, RIGHT) or not (self.txtflags & RT_WRAP):
 			text_width +=10
 		
 		self.mStop = None
 		# text height correction if necessary:
-		if self.lineHeight and self.direction in (TOP,BOTTOM):
+		if self.lineHeight and self.direction in (TOP, BOTTOM):
 			text_height = max(text_height, (text_height + self.lineHeight - 1) / self.lineHeight * self.lineHeight)
 			
 		

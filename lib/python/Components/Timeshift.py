@@ -63,12 +63,12 @@ class InfoBarTimeshift:
 				"restartTimeshift": self.restartTimeshift,
 				"seekFwdManual": (self.seekFwdManual, _("Seek forward (enter time)")),
 				"seekBackManual": (self.seekBackManual, _("Seek backward (enter time)")),
-				"seekdef:1": (boundFunction(self.seekdef,1), _("Seek")),
-				"seekdef:3": (boundFunction(self.seekdef,3), _("Seek")),
-				"seekdef:4": (boundFunction(self.seekdef,4), _("Seek")),
-				"seekdef:6": (boundFunction(self.seekdef,6), _("Seek")),
-				"seekdef:7": (boundFunction(self.seekdef,7), _("Seek")),
-				"seekdef:9": (boundFunction(self.seekdef,9), _("Seek"))
+				"seekdef:1": (boundFunction(self.seekdef, 1), _("Seek")),
+				"seekdef:3": (boundFunction(self.seekdef, 3), _("Seek")),
+				"seekdef:4": (boundFunction(self.seekdef, 4), _("Seek")),
+				"seekdef:6": (boundFunction(self.seekdef, 6), _("Seek")),
+				"seekdef:7": (boundFunction(self.seekdef, 7), _("Seek")),
+				"seekdef:9": (boundFunction(self.seekdef,  9), _("Seek"))
 			}, prio=1)
 
 		self["TimeshiftActivateActions"] = ActionMap(["InfobarTimeshiftActivateActions"],
@@ -812,12 +812,12 @@ class InfoBarTimeshift:
 				if statinfo.st_mtime < (time()-3.0):
 				# try:
 					# print "[TimeShift] Erasing stranded timeshift %s" % filename
-					self.BgFileEraser.erase("%s%s" % (config.usage.timeshift_path.value,filename))
+					self.BgFileEraser.erase("%s%s" % (config.usage.timeshift_path.value, filename))
 
 					# Delete Meta and EIT File too
 					# if filename.startswith("pts_livebuffer_") is True:
-					# 	self.BgFileEraser.erase("%s%s.meta" % (config.usage.timeshift_path.value,filename))
-					# 	self.BgFileEraser.erase("%s%s.eit" % (config.usage.timeshift_path.value,filename))
+					# 	self.BgFileEraser.erase("%s%s.meta" % (config.usage.timeshift_path.value, filename))
+					# 	self.BgFileEraser.erase("%s%s.eit" % (config.usage.timeshift_path.value, filename))
 				# except:
 				# 	print "[TimeShift] IO-Error while cleaning Timeshift Folder ..."
 
@@ -895,8 +895,8 @@ class InfoBarTimeshift:
 					os.link("%s%s.sc" % (config.usage.timeshift_path.value,filename), "%spts_livebuffer_%s.sc" % (config.usage.timeshift_path.value,self.pts_eventcount))
 
 					# Create a Meta File
-					metafile = open("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value,self.pts_eventcount), "w")
-					metafile.write("%s\n%s\n%s\n%i\n" % (self.pts_curevent_servicerefname,self.pts_curevent_name.replace("\n", ""),self.pts_curevent_description.replace("\n", ""),int(self.pts_starttime)))
+					metafile = open("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value, self.pts_eventcount), "w")
+					metafile.write("%s\n%s\n%s\n%i\n" % (self.pts_curevent_servicerefname, self.pts_curevent_name.replace("\n", ""),self.pts_curevent_description.replace("\n", ""), int(self.pts_starttime)))
 					metafile.close()
 				except Exception as errormsg:
 					Notifications.AddNotification(MessageBox, _("Creating Hardlink to Timeshift file failed!")+"\n"+_("The Filesystem on your Timeshift-Device does not support hardlinks.\nMake sure it is formatted in EXT2, EXT3 or EXT4!")+"\n\n%s" % errormsg, MessageBox.TYPE_ERROR)
@@ -911,7 +911,7 @@ class InfoBarTimeshift:
 						os.link("%s%s" % (config.usage.timeshift_path.value,filename), "%s.ts" % fullname)
 						# Create a Meta File
 						metafile = open("%s.ts.meta" % fullname, "w")
-						metafile.write("%s\n%s\n%s\n%i\nautosaved\n" % (self.pts_curevent_servicerefname,self.pts_curevent_name.replace("\n", ""),self.pts_curevent_description.replace("\n", ""),int(self.pts_starttime)))
+						metafile.write("%s\n%s\n%s\n%i\nautosaved\n" % (self.pts_curevent_servicerefname, self.pts_curevent_name.replace("\n", ""), self.pts_curevent_description.replace("\n", ""), int(self.pts_starttime)))
 						metafile.close()
 					except Exception as errormsg:
 						print("[Timeshift] %s" % errormsg)
@@ -979,14 +979,14 @@ class InfoBarTimeshift:
 
 					# If still recording or transfering, try again later ...
 					if fileExists("%s%s" % (config.usage.default_path.value,ptsmergeDEST)):
-						statinfo = os.stat("%s%s" % (config.usage.default_path.value,ptsmergeDEST))
+						statinfo = os.stat("%s%s" % (config.usage.default_path.value, ptsmergeDEST))
 						if statinfo.st_mtime > (time()-10.0):
 							self.pts_mergeRecords_timer.start(120000, True)
 							return
 
 					# Rewrite Meta File to get rid of pts_merge tag
-					metafile = open("%s%s.meta" % (config.usage.default_path.value,ptsmergeDEST), "w")
-					metafile.write("%s\n%s\n%s\n%i\n" % (servicerefname,eventname.replace("\n", ""),eventtitle.replace("\n", ""),int(eventtime)))
+					metafile = open("%s%s.meta" % (config.usage.default_path.value, ptsmergeDEST), "w")
+					metafile.write("%s\n%s\n%s\n%i\n" % (servicerefname,eventname.replace("\n", ""), eventtitle.replace("\n", ""), int(eventtime)))
 					metafile.close()
 
 		# Merging failed :(

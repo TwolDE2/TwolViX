@@ -29,7 +29,7 @@ def InitParentalControl():
 	config.ParentalControl.retries.servicepin.time = ConfigInteger(default = 3)
 	config.ParentalControl.servicepin = ConfigSubList()
 	config.ParentalControl.servicepin.append(ConfigPIN(default = 0))
-	config.ParentalControl.age = ConfigSelection(default = "18", choices = [("0", _("No age block"))] + list((str(x), "%d+" % x) for x in range(3,19)))
+	config.ParentalControl.age = ConfigSelection(default = "18", choices = [("0", _("No age block"))] + list((str(x), "%d+" % x) for x in range(3, 19)))
 	config.ParentalControl.hideBlacklist = ConfigYesNo(default = False)
 	config.ParentalControl.config_sections = ConfigSubsection()
 	config.ParentalControl.config_sections.main_menu = ConfigYesNo(default = False)
@@ -196,7 +196,7 @@ class ParentalControl:
 			else:
 				AddPopup(messageText, MessageBox.TYPE_ERROR, timeout = 3)
 
-	def saveListToFile(self,sWhichList,vList):
+	def saveListToFile(self, sWhichList, vList):
 		#Replaces saveWhiteList and saveBlackList:
 		#I don't like to have two functions with identical code...
 		file = open(resolveFilename(SCOPE_CONFIG, sWhichList), 'w')
@@ -208,7 +208,7 @@ class ParentalControl:
 				file.write(str(sService) + "\n")
 		file.close()
 
-	def openListFromFile(self,sWhichList):
+	def openListFromFile(self, sWhichList):
 		#Replaces openWhiteList and openBlackList:
 		#I don't like to have two functions with identical code...
 		result = {}
@@ -240,7 +240,7 @@ class ParentalControl:
 			if not vList[service]:
 				del vList[service]
 
-	def readServicesFromBouquet(self,sBouquetSelection,formatstring):
+	def readServicesFromBouquet(self, sBouquetSelection, formatstring):
 		#This method gives back a list of services for a given bouquet
 		from enigma import eServiceCenter, eServiceReference
 		serviceHandler = eServiceCenter.getInstance()

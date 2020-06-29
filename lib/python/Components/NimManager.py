@@ -1128,27 +1128,27 @@ class NimManager:
 
 def InitSecParams():
 	config.sec = ConfigSubsection()
-	config.sec.delay_after_continuous_tone_disable_before_diseqc = ConfigInteger(default=25, limits = (0, 9999))
-	config.sec.delay_after_final_continuous_tone_change = ConfigInteger(default=10, limits = (0, 9999))
-	config.sec.delay_after_final_voltage_change = ConfigInteger(default=10, limits = (0, 9999))
-	config.sec.delay_between_diseqc_repeats = ConfigInteger(default=120, limits = (0, 9999))
-	config.sec.delay_after_last_diseqc_command = ConfigInteger(default=100, limits = (0, 9999))
-	config.sec.delay_after_toneburst = ConfigInteger(default=50, limits = (0, 9999))
-	config.sec.delay_after_change_voltage_before_switch_command = ConfigInteger(default=75, limits = (0, 9999))
-	config.sec.delay_after_enable_voltage_before_switch_command = ConfigInteger(default=200, limits = (0, 9999))
-	config.sec.delay_between_switch_and_motor_command = ConfigInteger(default=700, limits = (0, 9999))
-	config.sec.delay_after_voltage_change_before_measure_idle_inputpower = ConfigInteger(default=500, limits = (0, 9999))
-	config.sec.delay_after_enable_voltage_before_motor_command = ConfigInteger(default=900, limits = (0, 9999))
-	config.sec.delay_after_motor_stop_command = ConfigInteger(default=500, limits = (0, 9999))
-	config.sec.delay_after_voltage_change_before_motor_command = ConfigInteger(default=500, limits = (0, 9999))
-	config.sec.delay_before_sequence_repeat = ConfigInteger(default=70, limits = (0, 9999))
-	config.sec.motor_running_timeout = ConfigInteger(default=360, limits = (0, 9999))
-	config.sec.motor_command_retries = ConfigInteger(default=1, limits = (0, 5))
-	config.sec.delay_after_diseqc_reset_cmd = ConfigInteger(default=50, limits = (0, 9999))
-	config.sec.delay_after_diseqc_peripherial_poweron_cmd = ConfigInteger(default=150, limits = (0, 9999))
-	config.sec.unicable_delay_after_enable_voltage_before_switch_command = ConfigInteger(default=200, limits = (0, 9999))
-	config.sec.unicable_delay_after_change_voltage_before_switch_command = ConfigInteger(default=75, limits = (0, 9999))
-	config.sec.unicable_delay_after_last_diseqc_command = ConfigInteger(default=150, limits = (0, 9999))
+	config.sec.delay_after_continuous_tone_disable_before_diseqc = ConfigInteger(default = 25, limits = (0, 9999))
+	config.sec.delay_after_final_continuous_tone_change = ConfigInteger(default = 10, limits = (0, 9999))
+	config.sec.delay_after_final_voltage_change = ConfigInteger(default = 10, limits = (0, 9999))
+	config.sec.delay_between_diseqc_repeats = ConfigInteger(default = 120, limits = (0, 9999))
+	config.sec.delay_after_last_diseqc_command = ConfigInteger(default = 100, limits = (0, 9999))
+	config.sec.delay_after_toneburst = ConfigInteger(default = 50, limits = (0, 9999))
+	config.sec.delay_after_change_voltage_before_switch_command = ConfigInteger(default = 75, limits = (0, 9999))
+	config.sec.delay_after_enable_voltage_before_switch_command = ConfigInteger(default = 200, limits = (0, 9999))
+	config.sec.delay_between_switch_and_motor_command = ConfigInteger(default = 700, limits = (0, 9999))
+	config.sec.delay_after_voltage_change_before_measure_idle_inputpower = ConfigInteger(default = 500, limits = (0, 9999))
+	config.sec.delay_after_enable_voltage_before_motor_command = ConfigInteger(default = 900, limits = (0, 9999))
+	config.sec.delay_after_motor_stop_command = ConfigInteger(default = 500, limits = (0, 9999))
+	config.sec.delay_after_voltage_change_before_motor_command = ConfigInteger(default = 500, limits = (0, 9999))
+	config.sec.delay_before_sequence_repeat = ConfigInteger(default = 70, limits = (0, 9999))
+	config.sec.motor_running_timeout = ConfigInteger(default = 360, limits = (0, 9999))
+	config.sec.motor_command_retries = ConfigInteger(default = 1, limits = (0, 5))
+	config.sec.delay_after_diseqc_reset_cmd = ConfigInteger(default = 50, limits = (0, 9999))
+	config.sec.delay_after_diseqc_peripherial_poweron_cmd = ConfigInteger(default = 150, limits = (0, 9999))
+	config.sec.unicable_delay_after_enable_voltage_before_switch_command = ConfigInteger(default = 200, limits = (0, 9999))
+	config.sec.unicable_delay_after_change_voltage_before_switch_command = ConfigInteger(default = 75, limits = (0, 9999))
+	config.sec.unicable_delay_after_last_diseqc_command = ConfigInteger(default = 150, limits = (0, 9999))
 
 	config.sec.delay_before_sequence_repeat.addNotifier(lambda configElement: secClass.setParam(secClass.DELAY_BEFORE_SEQUENCE_REPEAT, configElement.value))
 	config.sec.motor_running_timeout.addNotifier(lambda configElement: secClass.setParam(secClass.MOTOR_RUNNING_TIMEOUT, configElement.value))
@@ -1257,23 +1257,23 @@ def InitNimManager(nimmgr, update_slots = []):
 				def getformat(value, index):
 					return ("jess" if index >= int(value.split(",")[1] if "," in value else 4) else "unicable") if value.startswith("dSCR") else value
 				def positionsChanged(configEntry):
-					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)], default="%d" % min(lnb, configEntry.value))
+					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)], default = "%d" % min(lnb, configEntry.value))
 				def scrListChanged(productparameters, srcfrequencylist, configEntry):
-					section.format = ConfigSelection([("unicable", _("SCR Unicable")), ("jess", _("SCR JESS"))], default=getformat(productparameters.get("format", "unicable"), configEntry.index))
-					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]))
-					section.positions = ConfigInteger(default=int(productparameters.get("positions", 1)))
+					section.format = ConfigSelection([("unicable", _("SCR Unicable")), ("jess", _("SCR JESS"))], default = getformat(productparameters.get("format", "unicable"), configEntry.index))
+					section.scrfrequency = ConfigInteger(default = int(srcfrequencylist[configEntry.index]))
+					section.positions = ConfigInteger(default = int(productparameters.get("positions", 1)))
 					section.positions.addNotifier(positionsChanged)
-					section.positionsOffset = ConfigInteger(default=int(productparameters.get("positionsoffset", 0)))
-					section.lofl = ConfigInteger(default=int(productparameters.get("lofl", 9750)), limits = (0, 99999))
-					section.lofh = ConfigInteger(default=int(productparameters.get("lofh", 10600)), limits = (0, 99999))
-					section.threshold = ConfigInteger(default=int(productparameters.get("threshold", 11700)), limits = (0, 99999))
+					section.positionsOffset = ConfigInteger(default = int(productparameters.get("positionsoffset", 0)))
+					section.lofl = ConfigInteger(default = int(productparameters.get("lofl", 9750)), limits = (0, 99999))
+					section.lofh = ConfigInteger(default = int(productparameters.get("lofh", 10600)), limits = (0, 99999))
+					section.threshold = ConfigInteger(default = int(productparameters.get("threshold", 11700)), limits = (0, 99999))
 				def unicableProductChanged(manufacturer, lnb_or_matrix, configEntry):
 					config.unicable.unicableProduct.value = configEntry.value
 					config.unicable.unicableProduct.save()
 					productparameters = [p for p in [m.getchildren() for m in unicable_xml.find(lnb_or_matrix) if m.get("name") == manufacturer][0] if p.get("name") == configEntry.value][0]
-					section.bootuptime = ConfigInteger(default=int(productparameters.get("bootuptime", 1000)), limits = (0, 9999))
+					section.bootuptime = ConfigInteger(default = int(productparameters.get("bootuptime", 1000)), limits = (0, 9999))
 					section.bootuptime.save_forced = True
-					section.powerinserter = ConfigYesNo(default=SystemInfo["LnbPowerAlwaysOn"])
+					section.powerinserter = ConfigYesNo(default = SystemInfo["LnbPowerAlwaysOn"])
 					section.powerinserter.save_forced = True
 					section.powerinserter.addNotifier(setPowerInserter)
 					srcfrequencylist = productparameters.get("scrs").split(",")
@@ -1287,26 +1287,26 @@ def InitNimManager(nimmgr, update_slots = []):
 					if not config.unicable.content.items.get("unicableProduct", False) or config.unicable.unicableProduct.value not in productslist:
 						config.unicable.unicableProduct = ConfigSelection(productslist)
 					config.unicable.unicableProduct.save_forced = True
-					section.unicableProduct = ConfigSelection(productslist, default=config.unicable.unicableProduct.value)
+					section.unicableProduct = ConfigSelection(productslist, default = config.unicable.unicableProduct.value)
 					section.unicableProduct.save_forced = True
 					section.unicableProduct.addNotifier(boundFunction(unicableProductChanged, configEntry.value, lnb_or_matrix))
 				def userScrListChanged(srcfrequencyList, configEntry):
-					section.scrfrequency = ConfigInteger(default=int(srcfrequencyList[configEntry.index]), limits = (0, 99999))
-					section.lofl = ConfigInteger(default=9750, limits = (0, 99999))
-					section.lofh = ConfigInteger(default=10600, limits = (0, 99999))
-					section.threshold = ConfigInteger(default=11700, limits = (0, 99999))
+					section.scrfrequency = ConfigInteger(default = int(srcfrequencyList[configEntry.index]), limits = (0, 99999))
+					section.lofl = ConfigInteger(default = 9750, limits = (0, 99999))
+					section.lofh = ConfigInteger(default = 10600, limits = (0, 99999))
+					section.threshold = ConfigInteger(default = 11700, limits = (0, 99999))
 				def formatChanged(configEntry):
-					section.positions = ConfigInteger(default=configEntry.value == "jess" and 64 or 2)
+					section.positions = ConfigInteger(default = configEntry.value == "jess" and 64 or 2)
 					section.positions.addNotifier(positionsChanged)
-					section.positionsOffset = ConfigInteger(default=0)
+					section.positionsOffset = ConfigInteger(default = 0)
 					section.scrList = ConfigSelection([("%d" % (x + 1), "User Band %d" % (x + 1)) for x in range(configEntry.value == "jess" and 32 or 8)])
 					section.scrList.save_forced = True
 					srcfrequencyList = configEntry.value=="jess" and (1210, 1420, 1680, 2040, 984, 1020, 1056, 1092, 1128, 1164, 1256, 1292, 1328, 1364, 1458, 1494, 1530, 1566, 1602,\
 						1638, 1716, 1752, 1788, 1824, 1860, 1896, 1932, 1968, 2004, 2076, 2112, 2148) or (1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096)
 					section.scrList.addNotifier(boundFunction(userScrListChanged, srcfrequencyList))
-					section.bootuptime = ConfigInteger(default=1000, limits = (0, 9999))
+					section.bootuptime = ConfigInteger(default = 1000, limits = (0, 9999))
 					section.bootuptime.save_forced = True
-					section.powerinserter = ConfigYesNo(default=SystemInfo["LnbPowerAlwaysOn"])
+					section.powerinserter = ConfigYesNo(default = SystemInfo["LnbPowerAlwaysOn"])
 					section.powerinserter.save_forced = True
 					section.powerinserter.addNotifier(setPowerInserter)
 				def unicableChanged(configEntry):
@@ -1316,7 +1316,7 @@ def InitNimManager(nimmgr, update_slots = []):
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("matrix")]
 						if not config.unicable.content.items.get("unicableManufacturer", False) or config.unicable.unicableManufacturer.value not in manufacturerlist:
 							config.unicable.unicableManufacturer = ConfigSelection(manufacturerlist)
-						section.unicableManufacturer = ConfigSelection(manufacturerlist, default=config.unicable.unicableManufacturer.value)
+						section.unicableManufacturer = ConfigSelection(manufacturerlist, default = config.unicable.unicableManufacturer.value)
 						section.unicableManufacturer.save_forced = True
 						config.unicable.unicableManufacturer.save_forced = True
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "matrix"))
@@ -1324,7 +1324,7 @@ def InitNimManager(nimmgr, update_slots = []):
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("lnb")]
 						if not config.unicable.content.items.get("unicableManufacturer", False) or config.unicable.unicableManufacturer.value not in manufacturerlist:
 							config.unicable.unicableManufacturer = ConfigSelection(manufacturerlist)
-						section.unicableManufacturer = ConfigSelection(manufacturerlist, default=config.unicable.unicableManufacturer.value)
+						section.unicableManufacturer = ConfigSelection(manufacturerlist, default = config.unicable.unicableManufacturer.value)
 						section.unicableManufacturer.save_forced = True
 						config.unicable.unicableManufacturer.save_forced = True
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "lnb"))
@@ -1336,28 +1336,28 @@ def InitNimManager(nimmgr, update_slots = []):
 				unicableList = [("unicable_lnb", _("SCR (Unicable/JESS)") + " " + _("LNB")), ("unicable_matrix", _("SCR (Unicable/JESS)") + " " + _("Switch")), ("unicable_user", _("SCR (Unicable/JESS)") + " " + _("User defined"))]
 				if not config.unicable.content.items.get("unicable", False):
 					config.unicable.unicable = ConfigSelection(unicableList)
-				section.unicable = ConfigSelection(unicableList, default=config.unicable.unicable.value)
+				section.unicable = ConfigSelection(unicableList, default = config.unicable.unicable.value)
 				section.unicable.addNotifier(unicableChanged)
 
-				nim.advanced.unicableconnected = ConfigYesNo(default=False)
+				nim.advanced.unicableconnected = ConfigYesNo(default = False)
 				nim.advanced.unicableconnectedTo = ConfigSelection([(str(id), nimmgr.getNimDescription(id)) for id in nimmgr.getNimListOfType("DVB-S") if id != x])
 
 	def configDiSEqCModeChanged(configElement):
 		section = configElement.section
 		if configElement.value == "1_2" and isinstance(section.longitude, ConfigNothing):
-			section.longitude = ConfigFloat(default = [5,100], limits = [(0,359),(0,999)])
+			section.longitude = ConfigFloat(default = [5, 100], limits = [(0, 359), (0, 999)])
 			section.longitudeOrientation = ConfigSelection(longitude_orientation_choices, "east")
-			section.latitude = ConfigFloat(default = [50,767], limits = [(0,359),(0,999)])
+			section.latitude = ConfigFloat(default = [50, 767], limits = [(0, 359), (0, 999)])
 			section.latitudeOrientation = ConfigSelection(latitude_orientation_choices, "north")
-			section.tuningstepsize = ConfigFloat(default = [0,360], limits = [(0,9),(0,999)])
-			section.rotorPositions = ConfigInteger(default = 99, limits = [1,999])
-			section.turningspeedH = ConfigFloat(default = [2,3], limits = [(0,9),(0,9)])
-			section.turningspeedV = ConfigFloat(default = [1,7], limits = [(0,9),(0,9)])
-			section.powerMeasurement = ConfigYesNo(default=True)
-			section.powerThreshold = ConfigInteger(default=15, limits=(0, 100))
+			section.tuningstepsize = ConfigFloat(default = [0, 360], limits = [(0, 9), (0, 999)])
+			section.rotorPositions = ConfigInteger(default = 99, limits = [1, 999])
+			section.turningspeedH = ConfigFloat(default = [2, 3], limits = [(0, 9), (0, 9)])
+			section.turningspeedV = ConfigFloat(default = [1, 7], limits = [(0, 9), (0, 9)])
+			section.powerMeasurement = ConfigYesNo(default = True)
+			section.powerThreshold = ConfigInteger(default = 15, limits=(0, 100))
 			section.turningSpeed = ConfigSelection(turning_speed_choices, "fast")
-			section.fastTurningBegin = ConfigDateTime(default=advanced_lnb_fast_turning_btime, formatstring = _("%H:%M"), increment = 600)
-			section.fastTurningEnd = ConfigDateTime(default=advanced_lnb_fast_turning_etime, formatstring = _("%H:%M"), increment = 600)
+			section.fastTurningBegin = ConfigDateTime(default = advanced_lnb_fast_turning_btime, formatstring = _("%H:%M"), increment = 600)
+			section.fastTurningEnd = ConfigDateTime(default = advanced_lnb_fast_turning_etime, formatstring = _("%H:%M"), increment = 600)
 
 	def configLNBChanged(configElement):
 		x = configElement.slot_id
@@ -1369,9 +1369,9 @@ def InitNimManager(nimmgr, update_slots = []):
 		lnbs = nim.advanced.lnb
 		if lnb and lnb not in lnbs:
 			section = lnbs[lnb] = ConfigSubsection()
-			section.lofl = ConfigInteger(default=9750, limits = (0, 99999))
-			section.lofh = ConfigInteger(default=10600, limits = (0, 99999))
-			section.threshold = ConfigInteger(default=11700, limits = (0, 99999))
+			section.lofl = ConfigInteger(default = 9750, limits = (0, 99999))
+			section.lofh = ConfigInteger(default = 10600, limits = (0, 99999))
+			section.threshold = ConfigInteger(default = 11700, limits = (0, 99999))
 			section.increased_voltage = ConfigYesNo(False)
 			section.toneburst = ConfigSelection(advanced_lnb_toneburst_choices, "none")
 			section.longitude = ConfigNothing()
@@ -1442,14 +1442,14 @@ def InitNimManager(nimmgr, update_slots = []):
 		nim.positionerMode = ConfigSelection(positioner_mode_choices, "usals")
 		nim.userSatellitesList = ConfigText('[]')
 		nim.pressOKtoList = ConfigNothing()
-		nim.longitude = ConfigFloat(default=[5,100], limits=[(0,359),(0,999)])
+		nim.longitude = ConfigFloat(default = [5, 100], limits=[(0, 359),(0, 999)])
 		nim.longitudeOrientation = ConfigSelection(longitude_orientation_choices, "east")
-		nim.latitude = ConfigFloat(default=[50,767], limits=[(0,359),(0,999)])
+		nim.latitude = ConfigFloat(default = [50, 767], limits=[(0, 359),(0, 999)])
 		nim.latitudeOrientation = ConfigSelection(latitude_orientation_choices, "north")
-		nim.tuningstepsize = ConfigFloat(default = [0,360], limits = [(0,9),(0,999)])
-		nim.rotorPositions = ConfigInteger(default = 99, limits = [1,999])
-		nim.turningspeedH = ConfigFloat(default = [2,3], limits = [(0,9),(0,9)])
-		nim.turningspeedV = ConfigFloat(default = [1,7], limits = [(0,9),(0,9)])
+		nim.tuningstepsize = ConfigFloat(default = [0, 360], limits = [(0, 9),(0, 999)])
+		nim.rotorPositions = ConfigInteger(default = 99, limits = [1, 999])
+		nim.turningspeedH = ConfigFloat(default = [2, 3], limits = [(0, 9), (0, 9)])
+		nim.turningspeedV = ConfigFloat(default = [1, 7], limits = [(0, 9), (0, 9)])
 		nim.powerMeasurement = ConfigYesNo(True)
 		nim.powerThreshold = ConfigInteger(default = 50, limits=(0, 100))
 		nim.turningSpeed = ConfigSelection(turning_speed_choices, "fast")
@@ -1468,7 +1468,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			tmp.voltage = ConfigSelection(advanced_voltage_choices, "polarization")
 			tmp.tonemode = ConfigSelection(advanced_tonemode_choices, "band")
 			tmp.usals = ConfigYesNo(True)
-			tmp.rotorposition = ConfigInteger(default=1, limits=(1, 255))
+			tmp.rotorposition = ConfigInteger(default = 1, limits=(1, 255))
 			lnb = ConfigSelection(advanced_lnb_choices, "0")
 			lnb.slot_id = slot_id
 			lnb.addNotifier(configLNBChanged)
@@ -1478,9 +1478,9 @@ def InitNimManager(nimmgr, update_slots = []):
 			tmp = ConfigSubsection()
 			tmp.voltage = ConfigSelection(advanced_voltage_choices, "polarization")
 			tmp.tonemode = ConfigSelection(advanced_tonemode_choices, "band")
-			tmp.usals = ConfigYesNo(default=True)
+			tmp.usals = ConfigYesNo(default = True)
 			tmp.userSatellitesList = ConfigText('[]')
-			tmp.rotorposition = ConfigInteger(default=1, limits=(1, 255))
+			tmp.rotorposition = ConfigInteger(default = 1, limits=(1, 255))
 			lnbnum = 65 + x - 3601
 			lnb = ConfigSelection([("0", _("not configured")), (str(lnbnum), "LNB %d"%(lnbnum))], "0")
 			lnb.slot_id = slot_id
@@ -1614,9 +1614,9 @@ def InitNimManager(nimmgr, update_slots = []):
 			nim.configMode = ConfigSelection(config_mode_choices, "nothing" if slot.isFBCLink() else "simple")
 			nim.configMode.slot_id = slot_id
 		elif slot.canBeCompatible("DVB-C") or slot.canBeCompatible("DVB-T") or slot.canBeCompatible("ATSC"):
-			nim.configMode = ConfigSelection(choices = {"enabled": _("Enabled"), "nothing": _("Disabled")}, default="enabled")
+			nim.configMode = ConfigSelection(choices = {"enabled": _("Enabled"), "nothing": _("Disabled")}, default = "enabled")
 		else:
-			nim.configMode = ConfigSelection(choices = {"nothing": _("Disabled")}, default="nothing")
+			nim.configMode = ConfigSelection(choices = {"nothing": _("Disabled")}, default = "nothing")
 			if not slot.canBeCompatible("DVB-S"):
 				if slot.type is not None:
 					print("[InitNimManager] pls add support for this frontend type!", slot.type)

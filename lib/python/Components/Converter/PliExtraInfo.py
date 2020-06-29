@@ -339,21 +339,21 @@ class PliExtraInfo(Poll, Converter, object):
 				if int(caid_entry[0], 16) <= int(self.current_caid, 16) <= int(caid_entry[1], 16):
 					caid_name = caid_entry[2]
 					break
-			return caid_name + ":%04x:%04x:%04x" % (int(self.current_caid,16), int(self.current_provid,16), info.getInfo(iServiceInformation.sSID))
+			return caid_name + ":%04x:%04x:%04x" % (int(self.current_caid, 16), int(self.current_provid, 16), info.getInfo(iServiceInformation.sSID))
 		except:
 			pass
 		return ""
 
 	def createCryptoNameCaid(self, info):
 		caid_name = "FTA"
-		if int(self.current_caid,16) == 0:
+		if int(self.current_caid, 16) == 0:
 			return caid_name
 		try:
 			for caid_entry in self.caid_data:
 				if int(caid_entry[0], 16) <= int(self.current_caid, 16) <= int(caid_entry[1], 16):
 					caid_name = caid_entry[2]
 					break
-			return caid_name + ":%04x" % (int(self.current_caid,16))
+			return caid_name + ":%04x" % (int(self.current_caid, 16))
 		except:
 			pass
 		return ""
@@ -366,21 +366,21 @@ class PliExtraInfo(Poll, Converter, object):
 		if path.exists("/proc/stb/vmpeg/0/yres"):
 			f = open("/proc/stb/vmpeg/0/yres", "r")
 			try:
-				video_height = int(f.read(),16)
+				video_height = int(f.read(), 16)
 			except:
 				pass
 			f.close()
 		if path.exists("/proc/stb/vmpeg/0/xres"):
 			f = open("/proc/stb/vmpeg/0/xres", "r")
 			try:
-				video_width = int(f.read(),16)
+				video_width = int(f.read(), 16)
 			except:
 				pass
 			f.close()
 		if path.exists("/proc/stb/vmpeg/0/progressive"):
 			f = open("/proc/stb/vmpeg/0/progressive", "r")
 			try:
-				video_pol = "p" if int(f.read(),16) else "i"
+				video_pol = "p" if int(f.read(), 16) else "i"
 			except:
 				pass
 			f.close()
