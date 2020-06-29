@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 import bisect
 
 from enigma import getDesktop, iPlayableService
@@ -206,7 +207,7 @@ class CutListEditor(Screen, InfoBarBase, InfoBarSeek, InfoBarCueSheetSupport, He
 			self.session.open(MessageBox, _("Welcome to the cutlist editor.\n\nSeek to the start of the stuff you want to cut away. Press OK, select 'start cut'.\n\nThen seek to the end, press OK, select 'end cut'. That's it."), MessageBox.TYPE_INFO)
 
 	def checkSkipShowHideLock(self):
-		pass 
+		pass
 
 	def setType(self, index, type):
 		if len(self.cut_list):
@@ -397,6 +398,6 @@ class CutListEditor(Screen, InfoBarBase, InfoBarSeek, InfoBarCueSheetSupport, He
 		path = self.session.nav.getCurrentlyPlayingServiceReference().getPath()
 		from Components.Console import Console
 		grabConsole = Console()
-		cmd = 'grab -vblpr%d "%s"' % (180, path.rsplit('.',1)[0] + ".png")
+		cmd = 'grab -vblpr%d "%s"' % (180, path.rsplit('.', 1)[0] + ".png")
 		grabConsole.ePopen(cmd)
 		self.playpauseService()

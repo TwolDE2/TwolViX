@@ -1,7 +1,11 @@
 from __future__ import print_function
+import sys
+import six
+from six.moves import range
 
 from os import system, path as os_path
-from string import maketrans, strip
+if sys.version_info[0] < 3:
+	from string import maketrans, strip
 
 from enigma import eConsoleAppContainer
 
@@ -38,14 +42,16 @@ class Wlan:
 		self.oldInterfaceState = None
 
 		a = ''; b = ''
-		for i in range(0, 255):
+		for i in list(range(0, 255)):
 			a += chr(i)
 			if i < 32 or i > 127:
 				b += ' '
 			else:
 				b += chr(i)
-
-		self.asciitrans = maketrans(a, b)
+		if sys.version_info[0] >=3:
+			self.asciitrans = str.maketrans(a, b)
+		else:
+			self.asciitrans = maketrans(a, b)
 
 	def asciify(self, str):
 		return str.translate(self.asciitrans)
@@ -173,7 +179,7 @@ class wpaSupplicant:
 
 			for line in lines:
 				try:
-					(key, value) = line.strip().split('=',1)
+					(key, value) = line.strip().split('=', 1)
 				except:
 					continue
 
@@ -186,7 +192,7 @@ class wpaSupplicant:
 				else:
 					continue
 		except:
-			print("[Wlan.py] Error parsing ",configfile)
+			print("[Wlan.py] Error parsing ", configfile)
 			wsconfig = {
 					'hiddenessid': False,
 					'ssid': "",
@@ -195,8 +201,8 @@ class wpaSupplicant:
 					'key': "",
 				}
 
-		for (k,v) in list(wsconf.items()):
-			print("[wsconf][%s] %s" % (k , v))
+		for (k, v) in list(wsconf.items()):
+			print("[wsconf][%s] %s" % (k, v))
 
 		return wsconf
 
@@ -211,7 +217,7 @@ class wpaSupplicant:
 			self.writeBcmWifiConfig(iface, essid, encryption, psk)
 			return
 
-		fp = file(getWlanConfigName(iface), 'w')
+		fp = open(getWlanConfigName(iface), 'w')
 		fp.write('#WPA Supplicant Configuration by enigma2\n')
 		fp.write('ctrl_interface=/var/run/wpa_supplicant\n')
 		fp.write('eapol_version=1\n')
@@ -251,7 +257,7 @@ class wpaSupplicant:
 		fp.close()
 		#system('cat ' + getWlanConfigName(iface))
 
-	def loadConfig(self,iface):
+	def loadConfig(self, iface):
 		if existBcmWifi(iface):
 			return self.loadBcmWifiConfig(iface)
 
@@ -260,15 +266,15 @@ class wpaSupplicant:
 			configfile = '/etc/wpa_supplicant.conf'
 		try:
 			#parse the wpasupplicant configfile
-			print("[Wlan.py] parsing configfile: ",configfile)
-			fp = file(configfile, 'r')
+			print("[Wlan.py] parsing configfile: ", configfile)
+			fp = open(configfile, 'r')
 			supplicant = fp.readlines()
 			fp.close()
 			essid = None
 			encryption = "Unencrypted"
 
 			for s in supplicant:
-				split = s.strip().split('=',1)
+				split = s.strip().split('=', 1)
 				if split[0] == 'scan_ssid':
 					if split[1] == '1':
 						config.plugins.wlan.hiddenessid.value = True
@@ -313,7 +319,7 @@ class wpaSupplicant:
 				}
 
 			for (key, item) in list(wsconfig.items()):
-				if item is "None" or item is "":
+				if item == "None" or item == "":
 					if key == 'hiddenessid':
 						wsconfig['hiddenessid'] = False
 					if key == 'ssid':
@@ -325,7 +331,7 @@ class wpaSupplicant:
 					if key == 'key':
 						wsconfig['key'] = ""
 		except:
-			print("[Wlan.py] Error parsing ",configfile)
+			print("[Wlan.py] Error parsing ", configfile)
 			wsconfig = {
 					'hiddenessid': False,
 					'ssid': "",
@@ -357,6 +363,7 @@ class Status:
 		self.WlanConsole.ePopen(cmd, self.iwconfigFinished, iface)
 
 	def iwconfigFinished(self, result, retval, extra_args):
+		result = six.ensure_str(result)
 		iface = extra_args
 		data = { 'essid': False, 'frequency': False, 'accesspoint': False, 'bitrate': False, 'encryption': False, 'quality': False, 'signal': False }
 		for line in result.splitlines():
@@ -434,7 +441,7 @@ class Status:
 			if not self.WlanConsole.appContainers:
 				print("[Wlan.py] self.wlaniface after loading:", self.wlaniface)
 				if self.statusCallback is not None:
-						self.statusCallback(True,self.wlaniface)
+						self.statusCallback(True, self.wlaniface)
 						self.statusCallback = None
 
 	def getAdapterAttribute(self, iface, attribute):

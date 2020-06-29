@@ -1,11 +1,14 @@
-from __future__ import print_function
-# must be fixed for the new plugin interface
-from Tools.BoundFunction import boundFunction
-from Tools.Directories import pathExists, resolveFilename, SCOPE_LIBDIR
-from Plugins.Plugin import PluginDescriptor
-from .pluginrunner import PluginRunner
+from __future__ import (print_function, absolute_import)
 
 from os import listdir
+# must be fixed for the new plugin interface
+
+from Plugins.Plugin import PluginDescriptor
+from .pluginrunner import PluginRunner
+from Tools.BoundFunction import boundFunction
+from Tools.Directories import pathExists, resolveFilename, SCOPE_LIBDIR
+
+
 
 TUXBOX_PLUGINS_PATH = resolveFilename(SCOPE_LIBDIR, "tuxbox/plugins/")
 

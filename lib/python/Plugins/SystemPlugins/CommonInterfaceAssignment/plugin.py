@@ -1,5 +1,5 @@
 from __future__ import print_function
-
+from builtins import range
 from Screens.Screen import Screen
 from Screens.ChannelSelection import *
 from Screens.ChoiceBox import ChoiceBox
@@ -66,8 +66,7 @@ class CIselectMainMenu(Screen):
 						appname = _("Slot %d") %(slot+1) + " - " + eDVBCI_UI.getInstance().getAppName(slot)
 					self.list.append( (appname, ConfigNothing(), 0, slot) )
 		else:
-			self.list.append( (_("no CI slots found") , ConfigNothing(), 1, -1) )
-
+			self.list.append( (_("no CI slots found"), ConfigNothing(), 1, -1) )
 		menuList = ConfigList(self.list)
 		menuList.list = self.list
 		menuList.l.setList(self.list)
@@ -279,7 +278,7 @@ class CIconfigMenu(Screen):
 
 	def saveXML(self):
 		try:
-			fp = file(self.filename, 'w')
+			fp = open(self.filename, 'w')
 			fp.write("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n")
 			fp.write("<ci>\n")
 			fp.write("\t<slot>\n")
@@ -487,7 +486,7 @@ class myProviderSelection(ChannelSelectionBase):
 				self.dvbnamespace = splited_ref[6]
 				self.enterPath(ref)
 			elif (ref.flags & 7) == 7 and 'provider' in ref.toString():
-				menu = [(_("Provider"), "provider"),(_("All services provider"), "providerlist")]
+				menu = [(_("Provider"), "provider"), (_("All services provider"), "providerlist")]
 				def addAction(choice):
 					if choice is not None:
 						if choice[1] == "provider":

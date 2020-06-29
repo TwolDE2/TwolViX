@@ -1,4 +1,8 @@
 from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
+
+from enigma import eTimer, eDVBResourceManager, eDVBDiseqcCommand, eDVBFrontendParametersSatellite, iDVBFrontend
 
 from time import sleep
 from operator import mul as mul
@@ -369,7 +373,7 @@ class PositionerSetup(Screen):
 	def createConfig(self):
 		rotorposition = 1
 		orb_pos = 0
- 		self.printMsg(_("Using tuner %s") % chr(0x41 + self.feid))
+		self.printMsg(_("Using tuner %s") % chr(0x41 + self.feid))
 		if not self.advanced:
 			self.printMsg(_("Configuration mode: %s") % _("simple"))
 			nim = config.Nims[self.feid]

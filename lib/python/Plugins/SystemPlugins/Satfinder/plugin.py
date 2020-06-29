@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins mport range
 
 import sys
 
@@ -509,21 +510,21 @@ class Satfinder(ScanSetup, ServiceScan):
 		tlist = []
 		if self.DVB_type.value == "DVB-S":
 			self.addSatTransponder(tlist,
-				self.transponder[0], # frequency
-				self.transponder[1], # sr
-				self.transponder[2], # pol
-				self.transponder[3], # fec
-				self.transponder[4], # inversion
+				self.transponder[0],  # frequency
+				self.transponder[1],  # sr
+				self.transponder[2],  # pol
+				self.transponder[3],  # fec
+				self.transponder[4],  # inversion
 				self.tuning_sat.orbital_position,
-				self.transponder[6], # system
-				self.transponder[7], # modulation
-				self.transponder[8], # rolloff
-				self.transponder[9], # pilot
-				self.transponder[10],# input stream id
-				self.transponder[11],# pls mode
-				self.transponder[12],# pls code
-				self.transponder[13],# t2mi_plp_id
-				self.transponder[14] # t2mi_pid
+				self.transponder[6],  # system
+				self.transponder[7],  # modulation
+				self.transponder[8],  # rolloff
+				self.transponder[9],  # pilot
+				self.transponder[10], # input stream id
+				self.transponder[11], # pls mode
+				self.transponder[12], # pls code
+				self.transponder[13], # t2mi_plp_id
+				self.transponder[14]  # t2mi_pid
 			)
 		elif self.DVB_type.value == "DVB-T":
 			parm = buildTerTransponder(

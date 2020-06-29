@@ -1,3 +1,4 @@
+from __future__ import division
 from Components.config import ConfigSubsection, ConfigSubList, ConfigInteger, ConfigText, ConfigSelection
 from . import TitleCutter
 
@@ -163,9 +164,9 @@ class DVDTitle:
 		else:
 			chapters = self.chaptermarks
 		for p in chapters:
-			timestring = template.replace("$h", str(p / (90000 * 3600)))
-			timestring = timestring.replace("$m", ("%02d" % (p % (90000 * 3600) / (90000 * 60))))
-			timestring = timestring.replace("$s", ("%02d" % (p % (90000 * 60) / 90000)))
-			timestring = timestring.replace("$t", ("%03d" % ((p % 90000) / 90)))
+			timestring = template.replace("$h", str(p // (90000 * 3600)))
+			timestring = timestring.replace("$m", ("%02d" % (p % (90000 * 3600) // (90000 * 60))))
+			timestring = timestring.replace("$s", ("%02d" % (p % (90000 * 60) // 90000)))
+			timestring = timestring.replace("$t", ("%03d" % ((p % 90000) // 90)))
 			timestamps.append(timestring)
 		return timestamps

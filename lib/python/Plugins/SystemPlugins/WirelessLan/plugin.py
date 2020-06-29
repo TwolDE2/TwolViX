@@ -1,17 +1,17 @@
 from __future__ import print_function
-
+from __future__ import absolute_import
 from re import escape as re_escape
 
 from enigma import eTimer, eEnv
 
-from Screens.Screen import Screen
 from Components.ActionMap import ActionMap, NumberActionMap
-from Components.Pixmap import MultiPixmap
-from Components.Sources.StaticText import StaticText
-from Components.Sources.List import List
 from Components.config import config, ConfigYesNo, NoSave, ConfigSubsection, ConfigText, ConfigSelection, ConfigPassword
 from Components.Network import iNetwork
+from Components.Pixmap import MultiPixmap
+from Components.Sources.List import List
+from Components.Sources.StaticText import StaticText
 from Plugins.Plugin import PluginDescriptor
+from Screens.Screen import Screen
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
 from .Wlan import iWlan, iStatus, getWlanConfigName, existBcmWifi
@@ -106,9 +106,9 @@ class WlanStatus(Screen):
 		self.setTitle(_("Wireless network state"))
 
 	def resetList(self):
-		iStatus.getDataForInterface(self.iface,self.getInfoCB)
+		iStatus.getDataForInterface(self.iface, self.getInfoCB)
 
-	def getInfoCB(self,data,status):
+	def getInfoCB(self, data, status):
 		if data is not None:
 			if data is True:
 				if status is not None:
@@ -137,7 +137,7 @@ class WlanStatus(Screen):
 					if "bitrate" in self:
 						self["bitrate"].setText(bitrate)
 
-					signal = status[self.iface]["signal"]
+					signal = str(status[self.iface]["signal"])
 					if "signal" in self:
 						self["signal"].setText(signal)
 
@@ -168,14 +168,13 @@ class WlanStatus(Screen):
 		self["IF"].setText(iNetwork.getFriendlyAdapterName(self.iface))
 		self["Statustext"].setText(_("Link:"))
 
-	def updateStatusLink(self,status):
+	def updateStatusLink(self, status):
 		if status is not None:
 			if status[self.iface]["essid"] == "off" or status[self.iface]["accesspoint"] == "Not-Associated" or status[self.iface]["accesspoint"] == False:
 				self["statuspic"].setPixmapNum(1)
 			else:
 				self["statuspic"].setPixmapNum(0)
 			self["statuspic"].show()
-
 
 class WlanScan(Screen):
 	skin = """

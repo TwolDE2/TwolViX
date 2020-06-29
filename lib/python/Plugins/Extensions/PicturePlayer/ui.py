@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 from boxbranding import getMachineBrand
 
 from enigma import ePicLoad, eTimer, getDesktop, gMainDC, eSize
@@ -87,7 +88,7 @@ class picshow(Screen):
 			self["thn"].instance.setPixmap(ptr.__deref__())
 			self["thn"].show()
 
-		text = picInfo.split('\n',1)
+		text = picInfo.split('\n', 1)
 		self["label"].setText(text[1])
 		self["key_yellow"].setText(_("Exif"))
 
@@ -264,7 +265,7 @@ class Pic_Thumb(Screen):
 
 		self.textcolor = config.pic.textcolor.value
 		self.color = config.pic.bgcolor.value
-		self.spaceX, self.picX, self.spaceY, self.picY, textsize, thumtxt  = skin.parameters.get("PicturePlayerThumb",(35, 190, 30, 200, 20, 14))
+		self.spaceX, self.picX, self.spaceY, self.picY, textsize, thumtxt  = skin.parameters.get("PicturePlayerThumb", (35, 190, 30, 200, 20, 14))
 
 		pic_frame = resolveFilename(SCOPE_ACTIVE_SKIN, "icons/pic_frame.png")
 
@@ -545,7 +546,7 @@ class Pic_Full_View(Screen):
 			self["pic"].instance.setPixmap(self.currPic[2].__deref__())
 			self.currPic = []
 
-			next(self)
+			self.next()
 			self.start_decode()
 
 	def finish_decode(self, picInfo=""):
@@ -554,7 +555,7 @@ class Pic_Full_View(Screen):
 		if ptr is not None:
 			text = ""
 			try:
-				text = picInfo.split('\n',1)
+				text = picInfo.split('\n', 1)
 				text = "(" + str(self.index+1) + "/" + str(self.maxentry+1) + ") " + text[0].split('/')[-1]
 			except:
 				pass
@@ -580,7 +581,7 @@ class Pic_Full_View(Screen):
 
 	def slidePic(self):
 		print("slide to next Picture index=" + str(self.lastindex))
-		if config.pic.loop.value==False and self.lastindex == self.maxentry:
+		if config.pic.loop.value == False and self.lastindex == self.maxentry:
 			self.PlayPause()
 		self.shownow = True
 		self.ShowPicture()

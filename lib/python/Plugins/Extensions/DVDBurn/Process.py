@@ -1,10 +1,11 @@
-from __future__ import print_function
+from __future__ import (print_function, absolute_import, division)
+from builtins import range
 import os
 
 from Components.Task import Task, Job, DiskspacePrecondition, Condition, ToolExistsPrecondition
 from Components.Harddisk import harddiskmanager
 from Screens.MessageBox import MessageBox
-
+import Tools.Notifications
 
 class png2yuvTask(Task):
 	def __init__(self, job, inputfile, outputfile):
@@ -201,8 +202,8 @@ class MplexTaskPostcondition(Condition):
 
 	def getErrorMessage(self, task):
 		return {
-			task.ERROR_UNDERRUN: "Can't multiplex source video!",
-			task.ERROR_UNKNOWN: "An unknown error occurred!"
+			task.ERROR_UNDERRUN: ("Can't multiplex source video!"),
+			task.ERROR_UNKNOWN: ("An unknown error occurred!")
 		}[task.error]
 
 class MplexTask(Task):
@@ -291,7 +292,7 @@ class WaitForResidentTasks(Task):
 		Task.__init__(self, job, "waiting for dvdauthor to finalize")
 
 	def run(self, callback):
-		print("waiting for %d resident task(s) %s to finish..." % (len(self.job.resident_tasks),str(self.job.resident_tasks)))
+		print("waiting for %d resident task(s) %s to finish..." % (len(self.job.resident_tasks), str(self.job.resident_tasks)))
 		self.callback = callback
 		if self.job.resident_tasks == 0:
 			callback(self, [])
@@ -433,14 +434,13 @@ class PreviewTask(Task):
 			if Screens.Standby.inStandby:
 				self.previewCB(False)
 			else:
-				from Tools import Notifications
-				Notifications.AddNotificationWithCallback(self.previewCB, MessageBox, _("Do you want to preview this DVD before burning?"), timeout = 60, default = False)
+				Tools.Notifications.AddNotificationWithCallback(self.previewCB, MessageBox, _("Do you want to preview this DVD before burning?"), timeout = 60, default = False, domain = "JobManager")
 
 	def abort(self):
 		self.finish(aborted = True)
 
 	def previewCB(self, answer):
-		if answer:
+		if answer == True:
 			self.previewProject()
 		else:
 			self.closedCB(True)
@@ -449,8 +449,7 @@ class PreviewTask(Task):
 		if self.job.menupreview:
 			self.closedCB(True)
 		else:
-			from Tools import Notifications
-			Notifications.AddNotificationWithCallback(self.closedCB, MessageBox, _("Do you want to burn this collection to DVD medium?") )
+			Tools.Notifications.AddNotificationWithCallback(self.closedCB, MessageBox, _("Do you want to burn this collection to DVD medium?"), domain = "JobManager" )
 
 	def closedCB(self, answer):
 		if answer:
@@ -583,7 +582,7 @@ class MenuImageTask(Task):
 			if bottom > s_height:
 				bottom = s_height
 			#draw_bg.rectangle((left, top, right, bottom), outline=(255,0,0))
-			im_cell_bg = Image.new("RGBA", (width, height),(0,0,0,0))
+			im_cell_bg = Image.new("RGBA", (width, height), (0, 0, 0, 0))
 			draw_cell_bg = ImageDraw.Draw(im_cell_bg)
 			im_cell_high = Image.new("P", (width, height), 0)
 			im_cell_high.putpalette(self.Menus.spu_palette)
@@ -593,10 +592,10 @@ class MenuImageTask(Task):
 				thumbPos = self.getPosition(s.offset_thumb.value, 0, 0, width, height, thumb_size)
 				box = (thumbPos[0], thumbPos[1], thumbPos[0]+thumb_size[0], thumbPos[1]+thumb_size[1])
 				try:
-					thumbIm = Image_open(title.inputfile.rsplit('.',1)[0] + ".png")
+					thumbIm = Image_open(title.inputfile.rsplit('.', 1)[0] + ".png")
 					im_cell_bg.paste(thumbIm,thumbPos)
 				except:
-					draw_cell_bg.rectangle(box, fill=(64,127,127,127))
+					draw_cell_bg.rectangle(box, fill=(64, 127, 127, 127))
 				border = s.thumb_border.value
 				if border:
 					draw_cell_high.rectangle(box, fill=1)
@@ -641,7 +640,7 @@ class MenuImageTask(Task):
 			draw_bg.text(pos, prev_page_text, fill=self.Menus.color_button, font=fonts[1])
 			draw_high.text(pos, prev_page_text, fill=1, font=fonts[1])
 			spuxml += """
-	<button name="button_prev" x0="%d" x1="%d" y0="%d" y1="%d"/>""" % (pos[0],pos[0]+textsize[0],pos[1],pos[1]+textsize[1])
+	<button name="button_prev" x0="%d" x1="%d" y0="%d" y1="%d"/>""" % (pos[0], pos[0]+textsize[0],pos[1],pos[1]+textsize[1])
 		del draw_bg
 		del draw_high
 		fd=open(self.menubgpngfilename,"w")
