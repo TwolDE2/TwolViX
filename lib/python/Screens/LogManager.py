@@ -1,5 +1,6 @@
 from __future__ import print_function, absolute_import
 
+import sys
 from datetime import datetime
 from glob import glob
 from os import path, remove, walk, stat, rmdir
@@ -8,7 +9,10 @@ from time import time, ctime
 # Here are the email package modules we'll need
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.Utils import formatdate
+if sys.version_info[0] >= 3:
+	from email.utils import formatdate
+else:
+	from email.Utils import formatdate
 
 # Import smtplib for the actual sending function
 import smtplib, base64
