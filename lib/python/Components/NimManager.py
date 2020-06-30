@@ -1534,7 +1534,6 @@ def InitNimManager(nimmgr, update_slots = []):
 		list = [(x[0], x[0]) for x in nimmgr.atscList]
 		nim.atsc = ConfigSelection(choices = list)
 
-<<<<<<< HEAD
 	def tunerTypeChanged(nimmgr, configElement, initial=False):
 		fe_id = configElement.fe_id
 		if configElement.value == 'nothing':

@@ -1,4 +1,6 @@
 from __future__ import print_function, absolute_import
+import six
+
 import os
 from fcntl import ioctl
 import platform
@@ -69,7 +71,7 @@ class inputDevices:
 			return "Unknown device name"
 
 	def getDeviceList(self):
-		return sorted(self.Devices.keys())
+		return sorted(six.iterkeys(self.Devices))
 
 	def setDeviceAttribute(self, device, attribute, value):
 		#print "[InputDevice] setting for device", device, "attribute", attribute, " to value", value
@@ -135,7 +137,7 @@ class InitInputDevices:
 
 	def createConfig(self, *args):
 		config.inputDevices = ConfigSubsection()
-		for device in sorted(iInputDevices.Devices.keys()):
+		for device in sorted(six.iterkeys(iInputDevices.Devices)):
 			self.currentDevice = device
 			#print "[InputDevice] creating config entry for device: %s -> %s  " % (self.currentDevice, iInputDevices.Devices[device]["name"])
 			self.setupConfigEntries(self.currentDevice)
