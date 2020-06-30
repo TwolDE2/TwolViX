@@ -1,9 +1,9 @@
-from __future__ import print_function
-
-from Components.VariableText import VariableText
-from .Renderer import Renderer
+from __future__ import print_function, absolute_import
 
 from enigma import eLabel
+
+from Components.Renderer.Renderer import Renderer
+from Components.VariableText import VariableText
 
 class Label(VariableText, Renderer):
 	def __init__(self):

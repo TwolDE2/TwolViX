@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 from enigma import eTimer, ePoint, eSize, getDesktop
 from Components.ActionMap import HelpableActionMap

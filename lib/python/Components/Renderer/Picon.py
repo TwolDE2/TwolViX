@@ -1,13 +1,15 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 import os, re, unicodedata
 import sys
-from .Renderer import Renderer
+
 from enigma import ePixmap, ePicLoad
+
+from Components.Harddisk import harddiskmanager
+from Components.Renderer.Renderer import Renderer
+from ServiceReference import ServiceReference
 from Tools.Alternatives import GetWithAlternative
 from Tools.Directories import pathExists, SCOPE_ACTIVE_SKIN, resolveFilename
-from Components.Harddisk import harddiskmanager
-from ServiceReference import ServiceReference
 
 class PiconLocator:
 	def __init__(self, piconDirectories = ['picon']):

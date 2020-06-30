@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from builtins import range
+
 from enigma import eRFmod
 from Components.config import config, ConfigSelection, ConfigSubsection, ConfigOnOff, ConfigSlider, ConfigNothing
 from Components.SystemInfo import SystemInfo

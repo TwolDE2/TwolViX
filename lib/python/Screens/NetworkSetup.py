@@ -1,10 +1,12 @@
-from __future__ import print_function
+from enigma import getDesktop
+
 from os import path as os_path, remove, unlink, rename, chmod, access, X_OK
 from shutil import move
 import time
 
 from enigma import eTimer, eConsoleAppContainer
 from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType
+
 from Components.About import about
 from Components.ActionMap import ActionMap, NumberActionMap, HelpableActionMap
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigIP, ConfigText, ConfigPassword, ConfigSelection, getConfigListEntry, ConfigNumber, ConfigLocations, NoSave, ConfigMacText

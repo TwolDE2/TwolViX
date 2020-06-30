@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+from builtins import range
+
 from time import localtime, mktime, time, strftime
 from datetime import datetime
 

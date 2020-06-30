@@ -1,3 +1,5 @@
+from __future__ importprint_function, absolute_import
+
 from enigma import ePoint, eSize, eRect, eServiceCenter, getBestPlayableServiceReference, eServiceReference, eTimer
 from Components.config import config, ConfigPosition, ConfigSelection
 from Components.Sources.StreamService import StreamServiceList
@@ -6,7 +8,7 @@ from Components.VideoWindow import VideoWindow
 from Screens.Dish import Dishpip
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from Tools import Notifications
+import Tools.Notifications
 
 MAX_X = 720
 MAX_Y = 576
@@ -188,13 +190,13 @@ class PictureInPicture(Screen):
 				self.currentService = None
 				self.currentServiceReference = None
 				if not config.usage.hide_zap_errors.value:
-					Notifications.AddPopup(text = "PiP...\n" + _("Connected transcoding, limit - no PiP!"), type = MessageBox.TYPE_ERROR, timeout = 5, id = "ZapPipError")
+					Tools.Notifications.AddPopup(text = "PiP...\n" + _("Connected transcoding, limit - no PiP!"), type = MessageBox.TYPE_ERROR, timeout = 5, id = "ZapPipError")
 				return False
 			if self.isPlayableForPipService(ref):
 				print("[PictureInPicture] playing pip service", ref and ref.toString())
 			else:
 				if not config.usage.hide_zap_errors.value:
-					Notifications.AddPopup(text = "PiP...\n" + _("No free tuner!"), type = MessageBox.TYPE_ERROR, timeout = 5, id = "ZapPipError")
+					Tools.Notifications.AddPopup(text = "PiP...\n" + _("No free tuner!"), type = MessageBox.TYPE_ERROR, timeout = 5, id = "ZapPipError")
 				return False
 			self.pipservice = eServiceCenter.getInstance().play(ref)
 			if self.pipservice and not self.pipservice.setTarget(1, True):
@@ -209,7 +211,7 @@ class PictureInPicture(Screen):
 				self.currentService = None
 				self.currentServiceReference = None
 				if not config.usage.hide_zap_errors.value:
-					Notifications.AddPopup(text = _("Incorrect service type for PiP!"), type = MessageBox.TYPE_ERROR, timeout = 5, id = "ZapPipError")
+					Tools.Notifications.AddPopup(text = _("Incorrect service type for PiP!"), type = MessageBox.TYPE_ERROR, timeout = 5, id = "ZapPipError")
 		return False
 
 	def getCurrentService(self):

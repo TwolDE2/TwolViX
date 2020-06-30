@@ -1,9 +1,13 @@
-from .Converter import Converter
-from .Poll import Poll
+from __future__ import absolute_import
+
 from time import time
-from Components.Element import cached, ElementError
-from Components.config import config
+
 from enigma import eEPGCache
+
+from Components.config import config
+from Components.Converter.Converter import Converter
+from Components.Converter.Poll import Poll
+from Components.Element import cached, ElementError
 
 class EventTime(Poll, Converter, object):
 	STARTTIME = 0

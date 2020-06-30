@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from Components.ActionMap import ActionMap
 from Components.config import config, configfile, ConfigNothing, ConfigSelection, getConfigListEntry
 from Components.ConfigList import ConfigListScreen

@@ -1,6 +1,7 @@
-from __future__ import print_function
-from time import time
+from __future__ import (print_function, absolute_import)
+
 from os import path
+from time import time
 
 from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr
 
@@ -82,8 +83,8 @@ class Navigation:
 
 	def gotostandby(self):
 		print('[Navigation] TIMER: now entering standby')
-		from Tools import Notifications
-		Notifications.AddNotification(Screens.Standby.Standby)
+		import Tools.Notifications
+		Tools.Notifications.AddNotification(Screens.Standby.Standby)
 
 	def dispatchEvent(self, i):
 		for x in self.event:

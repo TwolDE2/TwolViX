@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import absolute_import
 
 from enigma import eListboxServiceContent, eListbox, eServiceCenter, eServiceReference, gFont, eRect, eSize
 from Components.config import config

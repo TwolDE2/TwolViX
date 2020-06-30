@@ -1,9 +1,9 @@
-from __future__ import print_function
-
-from .Converter import Converter
-from Components.Element import cached
+from __future__ import print_function, absolute_import
 
 from Components.config import configfile
+from Components.Converter.Converter import Converter
+from Components.Element import cached
+
 
 class ConfigEntryTest(Converter, object):
 	def __init__(self, argstr):

@@ -1,7 +1,10 @@
+from __future__ import absolute_import
+
 from timer import TimerEntry
 
 from enigma import eListboxPythonMultiContent, eListbox, gFont, getDesktop, \
 	RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_TOP, RT_VALIGN_BOTTOM
+
 from Components.GUIComponent import GUIComponent
 from PowerTimer import AFTEREVENT, TIMERTYPE
 from skin import parseFont

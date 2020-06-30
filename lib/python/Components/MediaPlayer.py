@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from os import path
 
 from enigma import eListboxPythonMultiContent, RT_VALIGN_CENTER, gFont, eServiceCenter

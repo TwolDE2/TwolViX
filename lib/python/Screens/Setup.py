@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from gettext import dgettext
 import xml.etree.cElementTree
 

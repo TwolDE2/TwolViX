@@ -1,4 +1,6 @@
 from __future__ import print_function
+from builtins import range
+
 from enigma import eDVBFrontendParametersSatellite, eDVBFrontendParametersTerrestrial, eDVBFrontendParametersCable, eDVBFrontendParametersATSC, eDVBFrontendParameters, eDVBResourceManager, eTimer
 
 class Tuner:

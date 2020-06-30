@@ -16,12 +16,14 @@
 # www.vuplus-support.org
 #
 ####################################################################### 
+from __future__ import absolute_import
 
 import os
-from Components.Label import Label
+
 from Components.Converter.Converter import Converter
+from Components.Converter.Poll import Poll
 from Components.Element import cached
-from .Poll import Poll
+from Components.Label import Label
 
 class VNetSpeedInfo(Poll, Converter, object):
 	RCL = 0 			# Receive Lan in Megabit/s = Geschwindigkeit/Bandbreite

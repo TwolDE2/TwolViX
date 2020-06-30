@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from time import time
 from twisted.internet import threads
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from sys import maxsize
 
 from enigma import eTimer, getDesktop, eActionMap, gFont

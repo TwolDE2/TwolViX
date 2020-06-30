@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from os import system, listdir, rename, path, mkdir
 from time import sleep
 

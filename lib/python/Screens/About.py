@@ -1,9 +1,12 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+from builtins import range
+
 from os import listdir, path
 from re import search
 
 from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
+
 from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button

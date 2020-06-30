@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+
 from boxbranding import getBoxType
+
 from Components.config import config, ConfigBoolean, configfile
 #from Components.Language import Language
 from Components.Pixmap import Pixmap
@@ -7,7 +10,7 @@ from Screens.Rc import Rc
 from Screens.WizardLanguage import WizardLanguage
 from Screens.WizardUserInterfacePositioner import UserInterfacePositionerWizard
 from Screens.VideoWizard import VideoWizard
-from .Wizard import wizardManager
+from Sceens.Wizard import wizardManager
 
 config.misc.firstrun = ConfigBoolean(default = True)
 config.misc.languageselected = ConfigBoolean(default = True)

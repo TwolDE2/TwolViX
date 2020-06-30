@@ -1,4 +1,7 @@
+from __future__ import print_function, absolute_import
+
 from enigma import eListboxPythonMultiContent, eListbox, gFont
+
 from Components.GUIComponent import GUIComponent
 from Tools.KeyBindings import queryKeyBinding, getKeyDescription
 import skin

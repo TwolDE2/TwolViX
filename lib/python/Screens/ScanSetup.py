@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 from enigma import eTimer, eDVBFrontendParametersSatellite, eComponentScan, \
 	eDVBFrontendParametersTerrestrial, eDVBFrontendParametersCable, eConsoleAppContainer, \
 	eDVBResourceManager, eDVBFrontendParametersATSC
@@ -10,10 +11,10 @@ from Components.Label import Label
 from Components.NimManager import nimmanager, getConfigSatlist
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
-from .Screen import Screen
+from Screens.Screen import Screen
 from Screens.InfoBar import InfoBar
 from Screens.MessageBox import MessageBox
-from .ServiceScan import ServiceScan
+from Screens.ServiceScan import ServiceScan
 from Tools.HardwareInfo import HardwareInfo
 from Tools.Transponder import getChannelNumber, supportedChannels, channel2frequency
 

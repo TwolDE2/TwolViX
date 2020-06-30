@@ -1,6 +1,9 @@
-from Components.VariableText import VariableText
+from __future__ import print_function, absolute_import
+
 from enigma import eLabel, iServiceInformation
-from .Renderer import Renderer
+
+from Components.Renderer.Renderer import Renderer
+from Components.VariableText import VariableText
 
 #
 # borrowed from vali, addapter for openpli

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from xml.etree.ElementTree import ElementTree
 
 from Components.config import config, ConfigInteger

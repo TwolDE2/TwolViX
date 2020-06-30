@@ -1,8 +1,9 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
+from enigma import iServiceInformation, eServiceReference
 
 from Components.Converter.Converter import Converter
 from Components.Element import cached, ElementError
-from enigma import iServiceInformation, eServiceReference
 from ServiceReference import ServiceReference
 
 class MovieInfo(Converter, object):

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from enigma import eTimer
 
 from Components.config import config

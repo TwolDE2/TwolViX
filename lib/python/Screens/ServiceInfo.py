@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from enigma import ePoint, eTimer, iPlayableService
 
 from enigma import eListboxPythonMultiContent, eListbox, gFont, iServiceInformation, eServiceCenter, RT_HALIGN_LEFT, eDVBFrontendParametersSatellite

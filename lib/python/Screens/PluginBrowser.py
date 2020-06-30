@@ -1,9 +1,11 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 import os
 from time import time
 
 from enigma import eConsoleAppContainer, eDVBDB, eTimer
 from boxbranding import getImageVersion, getImageType, getMachineBrand, getMachineName
+
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.Button import Button
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigText

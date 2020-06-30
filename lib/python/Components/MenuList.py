@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from enigma import eListboxPythonStringContent, eListbox
 from Components.GUIComponent import GUIComponent
 

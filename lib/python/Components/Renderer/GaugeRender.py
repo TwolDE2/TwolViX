@@ -1,7 +1,10 @@
-from Components.VariableValue import VariableValue
-from .Renderer import Renderer
+from __future__ import print_function, absolute_import
 
 from enigma import eGauge
+
+from Components.Renderer.Renderer import Renderer
+from Components.VariableValue import VariableValue
+
 
 class GaugeRender(VariableValue, Renderer):
 	def __init__(self):

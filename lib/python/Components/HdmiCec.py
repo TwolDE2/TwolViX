@@ -1,11 +1,9 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import struct
 import os
 from sys import maxsize
-from __future__ import print_function
 
-from enigma import eHdmiCEC, eActionMap
-from enigma import eTimer
+from enigma import eActionMap, eHdmiCEC, eTimer
 
 from Components.config import config, ConfigSelection, ConfigYesNo, ConfigSubsection, ConfigText
 from Tools.StbHardware import getFPWasTimerWakeup

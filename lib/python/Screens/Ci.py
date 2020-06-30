@@ -1,6 +1,7 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 from enigma import eTimer, eDVBCI_UI, eDVBCIInterfaces
+
 from Components.ActionMap import ActionMap
 from Components.ActionMap import NumberActionMap
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigSubList, getConfigListEntry, KEY_LEFT, KEY_RIGHT, KEY_0, ConfigNothing, ConfigPIN, ConfigYesNo, NoSave

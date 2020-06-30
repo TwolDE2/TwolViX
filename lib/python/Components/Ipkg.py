@@ -1,8 +1,10 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 import os
 
 from enigma import eConsoleAppContainer
 from boxbranding import getImageDistro
+
 from Components.Harddisk import harddiskmanager
 from Tools.Directories import resolveFilename, SCOPE_LIBDIR
 

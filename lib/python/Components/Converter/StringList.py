@@ -1,7 +1,8 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
-from .Converter import Converter
 from enigma import eListboxPythonStringContent
+
+from Components.Converter.Converter import Converter
 from Components.Element import cached
 
 class StringList(Converter):

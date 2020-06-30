@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from enigma import eServiceCenter, eTimer, eServiceReference
 from operator import itemgetter
 from Components.ConfigList import ConfigListScreen

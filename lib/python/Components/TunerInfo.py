@@ -1,3 +1,4 @@
+from builtins import range
 from math import log
 
 from enigma import eLabel, eSlider, iFrontendInformation

@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
-from Components.Converter.Converter import Converter
+from __future__ import absolute_import
+
 from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceCenter
+
+from Components.Converter.Converter import Converter
 from Components.Element import cached
-from ServiceReference import resolveAlternate,  ServiceReference
-from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 from Components.NimManager import nimmanager
 import Screens.InfoBar
+from ServiceReference import resolveAlternate,  ServiceReference
+from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
+
+
 
 class TransponderInfo(Converter, object):
 	def __init__(self, type):

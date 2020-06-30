@@ -5,9 +5,11 @@
 # Version: 0.4 (11.04.2012 14:05)
 # Support: http://dream.altmaster.net/
 #
-                                          
-from .Converter import Converter
-from .Poll import Poll
+from __future__ import absolute_import
+from builtins import range
+
+from Components.Converter.Converter import Converter
+from Components.Converter.Poll import Poll
 from Components.Element import cached
 
 

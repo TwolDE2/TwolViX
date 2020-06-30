@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 from Components.InputDevice import iInputDevices, iRcTypeControl
 from Components.Sources.StaticText import StaticText

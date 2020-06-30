@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from Components.config import config
 from Screens.EpgSelectionBase import epgActions, infoActions, okActions
 from Screens.EpgSelectionGrid import EPGSelectionGrid

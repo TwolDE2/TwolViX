@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import xml.etree.cElementTree
 
 from enigma import eTimer

@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+
 from enigma import eConsoleAppContainer
+
 from Components.ActionMap import ActionMap
 from Components.ScrollLabel import ScrollLabel
 from Screens.Screen import Screen

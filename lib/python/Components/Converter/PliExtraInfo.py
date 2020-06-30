@@ -1,4 +1,5 @@
 # shamelessly copied from pliExpertInfo (Vali, Mirakels, Littlesat)
+from __future__ import absolute_import
 
 from os import path
 from enigma import iServiceInformation, iPlayableService
@@ -8,7 +9,7 @@ from Components.config import config
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 from Tools.GetEcmInfo import GetEcmInfo
 from Tools.Hex2strColor import Hex2strColor
-from .Poll import Poll
+from Components.Converter.Poll import Poll
 from skin import parameters
 
 caid_data = (

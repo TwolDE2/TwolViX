@@ -1,4 +1,7 @@
+from __future__ import absolute_import
+
 from enigma import eServiceReference
+
 from Components.ActionMap import ActionMap
 from Components.config import config
 from Components.FIFOList import FIFOList

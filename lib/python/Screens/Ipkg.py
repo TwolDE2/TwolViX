@@ -1,10 +1,14 @@
+from __future__ import absolute_import
+
+from enigma import eTimer
+
 from Components.ActionMap import ActionMap
 from Components.Ipkg import IpkgComponent
 from Components.Label import Label
 from Components.Slider import Slider
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
-from enigma import eTimer
+
 
 class Ipkg(Screen):
 	def __init__(self, session, cmdList=None):

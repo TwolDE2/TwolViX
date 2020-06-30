@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
+
 from enigma import eDVBSatelliteEquipmentControl, eTimer, iPlayableService, eServiceCenter, iServiceInformation
+
 from Components.BlinkingPixmap import BlinkingPixmapConditional
 from Components.config import config, ConfigInteger
 from Components.Label import Label

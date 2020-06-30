@@ -1,6 +1,9 @@
-from .Renderer import Renderer
+from __future__ import absolute_import
+
 from enigma import ePixmap
+
 from Components.config import config
+from Components.Renderer.Renderer import Renderer
 from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename
 
 class PiconBg(Renderer):

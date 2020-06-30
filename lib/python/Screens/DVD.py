@@ -1,7 +1,9 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 import os
 
 from enigma import eTimer, iPlayableService, iServiceInformation, eServiceReference, iServiceKeys, getDesktop
+
 from Components.ActionMap import ActionMap, NumberActionMap, HelpableActionMap
 from Components.config import config
 from Components.Harddisk import harddiskmanager

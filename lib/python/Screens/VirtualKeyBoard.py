@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 from copy import copy, deepcopy
 
 from enigma import BT_SCALE, RT_HALIGN_CENTER, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_BOTTOM, RT_VALIGN_CENTER, RT_VALIGN_TOP, eListboxPythonMultiContent, getPrevAsciiCode, gFont

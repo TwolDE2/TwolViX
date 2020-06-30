@@ -1,7 +1,10 @@
-from __future__ import print_function
-from enigma import getDesktop
+from __future__ import print_function, absolute_import
+
+
 from os import mkdir, path, rmdir
 import tempfile
+
+from enigma import getDesktop
 
 from Components.ActionMap import HelpableActionMap
 from Components.ChoiceList import ChoiceEntryComponent, ChoiceList

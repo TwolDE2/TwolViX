@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 from Components.ActionMap import HelpableActionMap
 from Components.EpgList import EPG_TYPE_SINGLE
 from Screens.EpgSelectionChannel import EPGSelectionChannel

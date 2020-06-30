@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
-from Components.Converter.Converter import Converter
-from Components.config import config
+from __future__ import absolute_import
+
 from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceReference, eEPGCache, eServiceCenter
-from ServiceReference import resolveAlternate
+
+from Components.config import config
+from Components.Converter.Converter import Converter
 from Components.Element import cached
+from ServiceReference import resolveAlternate
 from Tools.Directories import fileExists
 
 class ServiceName(Converter, object):

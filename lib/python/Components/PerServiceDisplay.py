@@ -1,5 +1,6 @@
-from enigma import iPlayableService
-from enigma import eLabel, eSlider, eTimer
+from __future__ import absolute_import
+
+from enigma import eLabel, eSlider, eTimer, iPlayableService
 from Components.GUIComponent import GUIComponent
 from Components.VariableText import VariableText
 from Components.VariableValue import VariableValue

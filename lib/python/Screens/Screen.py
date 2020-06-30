@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from builtins import range
+
 from Tools.Profile import profile
 
 profile("LOAD:GUISkin")

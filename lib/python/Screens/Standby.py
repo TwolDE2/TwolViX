@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 from os import path
 from gettext import dgettext
 from time import localtime, time
@@ -17,7 +18,7 @@ from Components.Sources.StreamService import StreamServiceList
 from GlobalActions import globalActionMap
 import Screens.InfoBar
 from Screens.Screen import Screen
-from Tools import Notifications
+import Tools.Notifications
 
 inStandby = None
 
@@ -193,7 +194,7 @@ class Standby(Standby2):
 			self.onClose.append(self.doStandby)
 
 	def doStandby(self):
-		Notifications.AddNotification(Screens.Standby.Standby2)
+		Tools.Notifications.AddNotification(Screens.Standby.Standby2)
 
 class StandbySummary(Screen):
 	skin = """

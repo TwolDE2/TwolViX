@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from builtins import range
+
 from time import time
 
 from enigma import ePoint, eServiceCenter, eServiceReference, eTimer

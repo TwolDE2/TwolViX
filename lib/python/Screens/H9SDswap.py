@@ -1,5 +1,7 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 import os
+
 from Components.ActionMap import ActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.Console import Console

@@ -1,6 +1,9 @@
+from __future__ import absolute_import
+
 from Components.Converter.Converter import Converter
-from Components.Element import cached
+
 from Components.config import config
+from Components.Element import cached
 from Components.NimManager import nimmanager
 from skin import parameters
 from Tools.Hex2strColor import Hex2strColor

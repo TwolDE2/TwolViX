@@ -4,6 +4,8 @@ from Components.Sources.EventInfo import EventInfo
 from Components.Sources.FrontendStatus import FrontendStatus
 from Components.Sources.FrontendInfo import FrontendInfo
 from Components.Sources.Source import Source
+from __future__ import absolute_import
+
 from Components.Sources.TunerInfo import TunerInfo
 from Components.Sources.Boolean import Boolean
 from Components.Sources.RecordState import RecordState

@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+from builtins import range
+
 import os, unicodedata
 import re
 import sys
 from time import localtime, time, strftime
 
 from enigma import eActionMap, eServiceReference, eEPGCache, eServiceCenter, eRCInput, eTimer, ePoint, eDVBDB, iPlayableService, iServiceInformation, getPrevAsciiCode, eEnv, loadPNG, eDVBLocalTimeHandler
+
 from Components.ActionMap import NumberActionMap, ActionMap, HelpableActionMap
 from Components.Button import Button
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
@@ -24,13 +27,12 @@ from Components.Sources.RdsDecoder import RdsDecoder
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.SystemInfo import SystemInfo
 from Components.UsageConfig import preferredTimerPath
-
-from .EpgSelectionSingle import EPGSelectionSingle
 from Plugins.Plugin import PluginDescriptor
 from RecordTimer import RecordTimerEntry, AFTEREVENT, parseEvent
-from .Screen import Screen
+from Screens.Screen import Screen
 from Screens.ButtonSetup import InfoBarButtonSetup, ButtonSetupActionMap, getButtonSetupFunctions
 from Screens.ChoiceBox import ChoiceBox
+from Screens.EpgSelectionSingle import EPGSelectionSingle
 import Screens.InfoBar
 from Screens.InputBox import InputBox, PinInput
 from Screens.MessageBox import MessageBox
@@ -38,12 +40,13 @@ from Screens.PictureInPicture import PictureInPicture
 from Screens.RdsDisplay import RassInteractive
 from Screens.ServiceInfo import ServiceInfo
 from Screens.TimerEdit import TimerSanityConflict
+from Screens.TimerEntry import TimerEntry, InstantRecordTimerEntry
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from ServiceReference import ServiceReference
-from .TimerEntry import TimerEntry, InstantRecordTimerEntry
+
 from Tools.Alternatives import GetWithAlternative
 from Tools.BoundFunction import boundFunction
-from Tools import Notifications
+import Tools.Notifications
 from Tools.NumericalTextInput import NumericalTextInput
 from Tools.Profile import profile
 import Tools.Transponder
@@ -2327,7 +2330,7 @@ class ChannelSelection(ChannelSelectionEdit, ChannelSelectionBase, ChannelSelect
 					self.mainScreenRoot = self.getRoot()
 				self.revertMode = None
 			else:
-				Notifications.RemovePopup("Parental control")
+				Tools.Notifications.RemovePopup("Parental control")
 				self.setCurrentSelection(nref)
 		else:
 			self.setStartRoot(self.curRoot)

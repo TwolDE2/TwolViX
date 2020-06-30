@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 from bisect import insort
 import itertools, datetime
 import os
 from sys import maxsize, version_info
 from time import time, localtime, strftime
+
 if version_info >= (3, 0):
 	import pickle as cPickle
 else:
 	import cPickle
+
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from boxbranding import getBrandOEM, getMachineBuild
 
@@ -3112,7 +3115,7 @@ class InfoBarInstantRecord:
 			else:
 				self.session.openWithCallback(self.setEndtime, TimerSelection, list)
 		elif answer[1] == "timer":
-			from . import TimerEdit
+			import Screens.TimerEdit
 			self.session.open(TimerEdit.TimerEditList)
 		elif answer[1] == "stop":
 			if len(self.recording) == 1:

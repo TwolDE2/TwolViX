@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from enigma import eComponentScan, iDVBFrontend
 from Components.NimManager import nimmanager as nimmgr
 from Tools.Transponder import getChannelNumber

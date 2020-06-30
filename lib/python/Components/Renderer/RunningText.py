@@ -27,12 +27,13 @@
 # - fixed left / right scrolling , fixed nowrap-mode
 # take a look at the discussion: http://board.dreambox-tools.info/showthread.php?6050-Erweiterung-Running-Text-render
 ################################################################################
+from __future__ import absolute_import
 
 from enigma import eWidget, eLabel, eTimer, ePoint, eSize, gFont, \
 	RT_HALIGN_LEFT, RT_HALIGN_CENTER, RT_HALIGN_RIGHT, RT_HALIGN_BLOCK, \
 	RT_VALIGN_TOP, RT_VALIGN_CENTER, RT_VALIGN_BOTTOM, RT_WRAP
 
-from .Renderer import Renderer
+from Components.Renderer.Renderer import Renderer
 from skin import parseColor, parseFont
 
 

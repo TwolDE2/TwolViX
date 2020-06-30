@@ -1,10 +1,13 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+from builtins import range
+
 import locale
 import os
 import skin
 from time import time
 
 from enigma import eDVBDB, eEPGCache, setTunerTypePriorityOrder, setPreferredTuner, setSpinnerOnOff, setEnableTtCachingOnOff, eEnv, Misc_Options, eBackgroundFileEraser, eServiceEvent, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_HALIGN_CENTER, RT_VALIGN_CENTER, RT_WRAP
+
 from boxbranding import getBrandOEM, getBoxType, getDisplayType
 from Components.Harddisk import harddiskmanager
 from Components.NimManager import nimmanager
@@ -861,11 +864,11 @@ def InitUsageConfig():
 	config.epg.cacheloadsched = ConfigYesNo(default = False)
 	config.epg.cachesavesched = ConfigYesNo(default = False)
 	def EpgCacheLoadSchedChanged(configElement):
-		from . import EpgLoadSave
-		EpgLoadSave.EpgCacheLoadCheck()
+		import Components.EpgLoadSave
+		Components.EpgLoadSave.EpgCacheLoadCheck()
 	def EpgCacheSaveSchedChanged(configElement):
-		from . import EpgLoadSave
-		EpgLoadSave.EpgCacheSaveCheck()
+		import Components.EpgLoadSave
+		Components.EpgLoadSave.EpgCacheSaveCheck(
 	config.epg.cacheloadsched.addNotifier(EpgCacheLoadSchedChanged, immediate_feedback=False)
 	config.epg.cachesavesched.addNotifier(EpgCacheSaveSchedChanged, immediate_feedback=False)
 	config.epg.cacheloadtimer = ConfigSelectionNumber(default=24, stepwidth=1, min=1, max=24, wraparound=True)

@@ -1,3 +1,4 @@
+from builtins import range
 from Components.FanControl import fancontrol
 
 class Sensors:

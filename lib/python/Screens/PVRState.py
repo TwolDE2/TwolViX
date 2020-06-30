@@ -1,7 +1,8 @@
-from .Screen import Screen
+from __future__ import absolute_import
 
 from Components.Label import Label
 from Components.Pixmap import Pixmap, MultiPixmap
+from Screens.Screen import Screen
 
 class PVRState(Screen):
 	def __init__(self, session):

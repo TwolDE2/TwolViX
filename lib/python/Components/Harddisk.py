@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+from builtins import range
 import errno
 import os
 import re
@@ -14,9 +15,10 @@ from time import sleep, time
 from enigma import eTimer
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.SystemInfo import SystemInfo
+import Components.Task
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
-import Task
+
 
 # DEBUG: REMINDER: This comment needs to be expanded for the benefit of readers.
 # Removable if 1 --> With motor
@@ -124,10 +126,10 @@ def internalHDDNotSleeping():
 	return False
 
 def addInstallTask(job, package):
-	task = Task.LoggingTask(job, _("Update packages..."))
+	task = Components.Task.LoggingTask(job, _("Update packages..."))
 	task.setTool("opkg")
 	task.args.append("update")
-	task = Task.LoggingTask(job, _("Install '%s'") % package)
+	task = Components.Task.LoggingTask(job, _("Install '%s'") % package)
 	task.setTool("opkg")
 	task.args.append("install")
 	task.args.append(package)
@@ -389,15 +391,15 @@ class Harddisk:
 		size = self.diskSize()
 		print("[Harddisk] Disk size: %s MB." % size)
 		task = UnmountTask(job, self)
-		task = Task.PythonTask(job, _("Removing partition table."))
+		task = Components.Task.PythonTask(job, _("Removing partition table."))
 		task.work = self.killPartitionTable
 		task.weighting = 1
-		task = Task.LoggingTask(job, _("Rereading partition table."))
+		task = Components.Task.LoggingTask(job, _("Rereading partition table."))
 		task.weighting = 1
 		task.setTool("hdparm")
 		task.args.append("-z")
 		task.args.append(self.disk_path)
-		task = Task.ConditionTask(job, _("Waiting for partition."), timeoutCount=20)
+		task = Components.Task.ConditionTask(job, _("Waiting for partition."), timeoutCount=20)
 		task.check = lambda: not os.path.exists(self.partitionPath("1"))
 		task.weighting = 1
 		if os.path.exists("/usr/sbin/parted"):
@@ -409,7 +411,7 @@ class Harddisk:
 			else:
 				use_parted = False
 		print("[Harddisk] Creating partition.")
-		task = Task.LoggingTask(job, _("Creating partition."))
+		task = Components.Task.LoggingTask(job, _("Creating partition."))
 		task.weighting = 5
 		if use_parted:
 			task.setTool("parted")
@@ -428,7 +430,7 @@ class Harddisk:
 				task.initial_input = "8,\n;0,0\n;0,0\n;0,0\ny\n"  # Start at sector 8 to better support 4k aligned disks.
 			else:
 				task.initial_input = "0,\n;\n;\n;\ny\n"  # Smaller disks (CF cards, sticks etc) don't need that.
-		task = Task.ConditionTask(job, _("Waiting for partition."))
+		task = Components.Task.ConditionTask(job, _("Waiting for partition."))
 		task.check = lambda: os.path.exists(self.partitionPath("1"))
 		task.weighting = 1
 		print("[Harddisk] Creating filesystem.")
@@ -450,7 +452,7 @@ class Harddisk:
 		task = MountTask(job, self)
 		task.weighting = 3
 		print("[Harddisk] Mounting storage device.")
-		task = Task.ConditionTask(job, _("Waiting for mount."), timeoutCount=20)
+		task = Components.Task.ConditionTask(job, _("Waiting for mount."), timeoutCount=20)
 		task.check = self.mountDevice
 		task.weighting = 1
 		print("[Harddisk] Initialization complete.")
@@ -476,13 +478,13 @@ class Harddisk:
 		if partType not in ("ext3", "ext4", "vfat", "nfs"):
 			partType = "ext4"
 		print("[Harddisk] Filesystem type is '%s'." % partType)
-		task = Task.LoggingTask(job, _("Checking disk."))  # "fsck"
+		task = Components.Task.LoggingTask(job, _("Checking disk."))  # "fsck"
 		task.setTool("fsck.%s" % partType)
 		task.args.append("-f")
 		task.args.append("-p")
 		task.args.append(dev)
 		MountTask(job, self)
-		task = Task.ConditionTask(job, _("Waiting for mount."))
+		task = Components.Task.ConditionTask(job, _("Waiting for mount."))
 		task.check = self.mountDevice
 		print("[Harddisk] Check complete.")
 		return job

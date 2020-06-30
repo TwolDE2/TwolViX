@@ -1,7 +1,9 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 from os import path
 
 from enigma import ePixmap, eTimer
+
 from Components.ConditionalWidget import ConditionalWidget
 from Components.GUIComponent import GUIComponent
 from Tools.Directories import resolveFilename, fileExists, SCOPE_SKIN_IMAGE, SCOPE_ACTIVE_SKIN, SCOPE_ACTIVE_LCDSKIN

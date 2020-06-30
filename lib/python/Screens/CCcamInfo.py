@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 # CCcam Info by AliAbdul
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 from base64 import encodestring
 from os import listdir, remove, rename, system, path
 

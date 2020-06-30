@@ -1,6 +1,7 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
-from Source import Source
+from Components.Sources.Source import Source
+
 from enigma import eDVBResourceManager
 
 class TunerInfo(Source):

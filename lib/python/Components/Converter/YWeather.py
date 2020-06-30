@@ -1,13 +1,15 @@
 # YWeather by 2boom 2013 v.0.6
 # xml from http://weather.yahooapis.com/forecastrss
+from __future__ import absolute_import
+
 import socket
 import time
 import os
 
 from Components.Converter.Converter import Converter
+from Components.Converter.Poll import Poll
 from Components.Element import cached
 from Tools.Directories import fileExists
-from .Poll import Poll
 
 # required methods: Request, urlopen, HTTPError, URLError
 try: # python 3

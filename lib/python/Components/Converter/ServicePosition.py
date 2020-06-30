@@ -1,8 +1,12 @@
-from .Converter import Converter
-from .Poll import Poll
+from __future__ import absolute_import
+
 from enigma import iPlayableService
-from Components.Element import cached, ElementError
+
 from Components.config import config
+from Components.Converter.Converter import Converter
+from Components.Converter.Poll import Poll
+from Components.Element import cached, ElementError
+
 
 class ServicePosition(Poll, Converter, object):
 	TYPE_LENGTH = 0

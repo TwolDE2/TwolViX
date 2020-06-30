@@ -1,5 +1,8 @@
-from .Converter import Converter
+from __future__ import absolute_import
+
 from time import localtime, strftime
+
+from Components.Converter.Converter import Converter
 from Components.Element import cached
 from Components.config import config
 

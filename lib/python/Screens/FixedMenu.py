@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from Components.ActionMap import ActionMap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText

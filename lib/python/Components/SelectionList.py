@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from enigma import eListboxPythonMultiContent, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER
 from Components.MenuList import MenuList
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN

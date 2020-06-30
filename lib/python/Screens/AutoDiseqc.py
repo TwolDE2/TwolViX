@@ -1,4 +1,7 @@
+from __future__ import print_function, absolute_import
+
 from enigma import eDVBFrontendParametersSatellite, eDVBResourceManager, eTimer
+
 from Components.ActionMap import ActionMap
 from Components.config import config, configfile, getConfigListEntry
 from Components.ConfigList import ConfigListScreen

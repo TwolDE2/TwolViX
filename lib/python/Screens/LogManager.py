@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 from datetime import datetime
 from glob import glob
 from os import path, remove, walk, stat, rmdir

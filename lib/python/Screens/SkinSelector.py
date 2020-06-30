@@ -1,4 +1,5 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
+
 from os import listdir
 from os.path import dirname, exists, isdir, join as pathjoin
 import mmap

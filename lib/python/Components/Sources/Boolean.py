@@ -1,6 +1,11 @@
-from .Source import Source
-from Components.Element import cached
+from __future__ import absolute_import
+from Components.Sources.Source import Source
+
+
 from enigma import eTimer
+
+from Components.Element import cached
+
 
 # a small warning:
 # you can use that boolean well to express screen-private

@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from builtins import range
+
 from enigma import eLabel, eWidget, eSlider, fontRenderClass, ePoint, eSize
 from Components.GUIComponent import GUIComponent
 import skin

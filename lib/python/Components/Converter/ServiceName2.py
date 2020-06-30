@@ -17,11 +17,14 @@
 # Version: 1.5 (04.07.2014) fix iptv reference cosmetic - 2boom
 # Support: http://dream.altmaster.net/ & http://gisclub.tv
 #
+from __future__ import absolute_import
 
-from Components.Converter.Converter import Converter
 from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceReference, eServiceCenter, eTimer, getBestPlayableServiceReference
-from Components.Element import cached
+
 from Components.config import config
+from Components.Converter.Converter import Converter
+from Components.Element import cached
+
 import NavigationInstance
 try:
 	from Components.Renderer.ChannelNumber import ChannelNumberClasses

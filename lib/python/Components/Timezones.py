@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import errno
 import xml.etree.cElementTree
 from os import environ, path, symlink, unlink, walk

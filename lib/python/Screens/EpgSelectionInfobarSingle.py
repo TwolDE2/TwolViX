@@ -1,6 +1,9 @@
+from __future__ import absolute_import
+
 from time import time
 
 from enigma import eServiceReference
+
 from Components.ActionMap import HelpableActionMap
 from Components.config import config, configfile
 from Components.EpgListSingle import EPGListSingle

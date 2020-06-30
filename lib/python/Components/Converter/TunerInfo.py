@@ -1,6 +1,10 @@
-from Components.Sources.TunerInfo import TunerInfo as TunerInfoSource
+from __future__ import absolute_import
+
 from Components.Converter.Converter import Converter
+from Components.Converter.Poll import Poll
 from Components.Element import cached
+from Components.Sources.TunerInfo import TunerInfo as TunerInfoSource
+
 
 class TunerInfo(Converter, object):
 	def __init__(self, type):
