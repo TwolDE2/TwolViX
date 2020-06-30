@@ -5,7 +5,9 @@ from os.path import dirname, exists, isdir, join as pathjoin
 import mmap
 import re
 
+
 from enigma import ePicLoad, getDesktop
+
 from Components.ActionMap import HelpableNumberActionMap
 from Components.config import config
 from Components.Pixmap import Pixmap
@@ -15,7 +17,7 @@ from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop, QUIT_RESTART
-from skin import DEFAULT_SKIN, DEFAULT_DISPLAY_SKIN, EMERGENCY_SKIN, currentDisplaySkin, currentPrimarySkin, domScreens
+from skin import DEFAULT_SKIN, DEFAULT_DISPLAY_SKIN, EMERGENCY_NAME, EMERGENCY_SKIN, currentDisplaySkin, currentPrimarySkin, domScreens
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN, SCOPE_LCDSKIN, SCOPE_SKIN
 
 
@@ -113,7 +115,7 @@ class SkinSelector(Screen, HelpableScreen):
 		if buildSkin:  # Build the embedded skin and scale it to the current screen resolution.
 			# The skin template is designed for a HD screen so the scaling factor is 720.
 			SkinSelector.skin = SkinSelector.skinTemplate % tuple([x * getDesktop(0).size().height() / 720 for x in SkinSelector.scaleData])
-			# print "[SkinSelector] DEBUG: Height=%d\n" % getDesktop(0).size().height(), SkinSelector.skin
+			# print("[SkinSelector] DEBUG: Height=%d\n%s" % (getDesktop(0).size().height(), SkinSelector.skin))
 		else:
 			SkinSelector.skin = "<screen />"
 
@@ -136,11 +138,11 @@ class SkinSelector(Screen, HelpableScreen):
 			"4320": _("8K"),
 			"8640": _("16K")
 		}
-		emergency = _("< Emergency >")
-		default = _("< Default >")
-		defaultPicon = _("< Default + Picon >")
-		current = _("< Current >")
-		pending = _("< Pending restart >")
+		emergency = _("<Emergency>")
+		default = _("<Default>")
+		defaultPicon = _("<Default+Picon>")
+		current = _("<Current>")
+		pending = _("<Pending restart>")
 		displayPicon = pathjoin(dirname(DEFAULT_DISPLAY_SKIN), "skin_display_picon.xml")
 		skinList = []
 		# Find and list the available skins...
@@ -150,33 +152,42 @@ class SkinSelector(Screen, HelpableScreen):
 				skin = pathjoin(dir, skinFile)
 				skinPath = pathjoin(self.rootDir, skin)
 				if exists(skinPath):
+					skinSize = None
 					resolution = None
 					if skinFile == "skin.xml":
 						with open(skinPath, "r") as fd:
 							mm = mmap.mmap(fd.fileno(), 0, prot=mmap.PROT_READ)
-							resolution = re.search("\<?resolution.*?\syres\s*=\s*\"(\d+)\"", mm)
-							resolution = resolution and resolutions.get(resolution.group(1), None)
+							skinWidth = re.search("\<?resolution.*?\sxres\s*=\s*\"(\d+)\"", mm)
+							skinHeight = re.search("\<?resolution.*?\syres\s*=\s*\"(\d+)\"", mm)
+							if skinWidth and skinHeight:
+								skinSize = "%sx%s" % (skinWidth.group(1), skinHeight.group(1))
+							resolution = skinHeight and resolutions.get(skinHeight.group(1), None)
 							mm.close()
+<<<<<<< HEAD
 						print("[SkinSelector] Resolution of skin '%s': '%s'." % (skinPath, "Unknown" if resolution is None else resolution))
+=======
+						print("[SkinSelector] Resolution of skin '%s': '%s' (%s)." % (skinPath, "Unknown" if resolution is None else resolution, skinSize))
+>>>>>>> upstream/Dev
 						# Code can be added here to reject unsupported resolutions.
 					# The "piconprev.png" image should be "prevpicon.png" to keep it with its partner preview image.
 					preview = pathjoin(previewPath, "piconprev.png" if skinFile == "skin_display_picon.xml" else "prev.png")
 					if skin == EMERGENCY_SKIN:
-						list = [emergency, emergency, dir, skin, resolution, preview]
+						skinEntry = [EMERGENCY_NAME, emergency, dir, skin, resolution, skinSize, preview]
 					elif skin == DEFAULT_SKIN:
-						list = [dir, default, dir, skin, resolution, preview]
+						skinEntry = [dir, default, dir, skin, resolution, skinSize, preview]
 					elif skin == DEFAULT_DISPLAY_SKIN:
-						list = [default, default, dir, skin, resolution, preview]
+						skinEntry = [default, default, dir, skin, resolution, skinSize, preview]
 					elif skin == displayPicon:
-						list = [dir, defaultPicon, dir, skin, resolution, preview]
+						skinEntry = [dir, defaultPicon, dir, skin, resolution, skinSize, preview]
 					else:
-						list = [dir, "", dir, skin, resolution, preview]
+						skinEntry = [dir, "", dir, skin, resolution, skinSize, preview]
 					if skin == self.current:
-						list[1] = current
+						skinEntry[1] = current
 					elif skin == self.config.value:
-						list[1] = pending
-					# 0=SortKey, 1=Label, 2=Flag, 3=Directory, 4=Skin, 5=Resolution, 6=Preview
-					skinList.append(tuple([list[0].upper()] + list))
+						skinEntry[1] = pending
+					skinEntry.append("%s  %s" % (skinEntry[0], skinEntry[1]))
+					# 0=SortKey, 1=Label, 2=Flag, 3=Directory, 4=Skin, 5=Resolution, 6=SkinSize, 7=Preview, 8=Label + Flag
+					skinList.append(tuple([skinEntry[0].upper()] + skinEntry))
 		skinList.sort()
 		self["skins"].setList(skinList)
 		# Set the list pointer to the current skin...
@@ -188,13 +199,14 @@ class SkinSelector(Screen, HelpableScreen):
 
 	def loadPreview(self):
 		self.changedEntry()
-		preview = self["skins"].getCurrent()[6]
+		current = self["skins"].getCurrent()
+		preview = current[7]
 		if not exists(preview):
 			preview = resolveFilename(SCOPE_CURRENT_SKIN, "noprev.png")
 		self.picload.startDecode(preview)
-		resolution = self["skins"].getCurrent()[5]
+		resolution = current[5]
 		msg = "" if resolution is None else " %s" % resolution
-		if self["skins"].getCurrent()[4] == self.config.value:
+		if current[4] == self.config.value:
 			self["description"].setText(_("Press OK to keep the currently selected%s skin.") % msg)
 		else:
 			self["description"].setText(_("Press OK to activate the selected%s skin.") % msg)
@@ -206,8 +218,9 @@ class SkinSelector(Screen, HelpableScreen):
 		self.close(True)
 
 	def save(self):
-		label = self["skins"].getCurrent()[1]
-		skin = self["skins"].getCurrent()[4]
+		current = self["skins"].getCurrent()
+		label = current[1]
+		skin = current[4]
 		if skin == self.config.value:
 			if skin == self.current:
 				print("[SkinSelector] Selected skin: '%s' (Unchanged!)" % pathjoin(self.rootDir, skin))
