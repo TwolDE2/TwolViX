@@ -549,7 +549,7 @@ class SystemNetworkInfo(Screen):
 		result_tmp = result.split('\n')
 		for line in result_tmp:
 			if 'Speed:' in line:
-				speed = line.split(': ')[1][:-4]
+				speed = str(line.split(': ')[1][:-4])
 				self.AboutText += _("Speed:") + "\t" + speed + _('Mb/s')
 
 		hostname = open('/proc/sys/kernel/hostname').read()
