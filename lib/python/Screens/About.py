@@ -147,7 +147,7 @@ class About(Screen):
 			with open('/proc/stb/sensors/temp/value', 'r') as f:
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace('\n', '')) > 0:
-			mark = str('\xc2\xb0')
+			mark = str('\xb0')
 			AboutText += _("System temp:\t%s") % tempinfo.replace('\n', '').replace(' ','') + mark + "C\n"
 
 		tempinfo = ""
@@ -167,7 +167,7 @@ class About(Screen):
 			except:
 				tempinfo = ""
 		if tempinfo and int(tempinfo) > 0:
-			mark = str('\xc2\xb0')
+			mark = str('\xb0')
 			AboutText += _("Processor temp:\t%s") % tempinfo.replace('\n', '').replace(' ','') + mark + "C\n"
 
 		fp_version = getFPVersion()
@@ -380,7 +380,7 @@ class SystemMemoryInfo(Screen):
 										"red": self.close,
 									})
 
-		out_lines = file("/proc/meminfo").readlines()
+		out_lines = open("/proc/meminfo").readlines()
 		self.AboutText = _("RAM") + '\n\n'
 		RamTotal = "-"
 		RamFree = "-"
@@ -552,7 +552,7 @@ class SystemNetworkInfo(Screen):
 				speed = line.split(': ')[1][:-4]
 				self.AboutText += _("Speed:") + "\t" + speed + _('Mb/s')
 
-		hostname = file('/proc/sys/kernel/hostname').read()
+		hostname = open('/proc/sys/kernel/hostname').read()
 		self.AboutText += "\n" + _("Hostname:") + "\t" + hostname + "\n"
 		self["AboutScrollLabel"].setText(self.AboutText)
 

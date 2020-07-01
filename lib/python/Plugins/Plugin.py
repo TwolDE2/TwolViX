@@ -98,7 +98,15 @@ class PluginDescriptor:
 
 		self.wakeupfnc = wakeupfnc
 
-		self.__call__ = fnc
+		self._fnc = fnc
+		self.__call__ = (fnc)
+
+	def __call__(self, *args, **kwargs):
+		if self._fnc:
+			return self._fnc(*args, **kwargs)
+		else:
+			print("PluginDescriptor called without a function!")
+			return []
 
 	def updateIcon(self, path):
 		self.path = path
@@ -115,10 +123,10 @@ class PluginDescriptor:
 			return self._icon
 
 	def __eq__(self, other):
-		return self.__call__ == other.__call__
+		return self._fnc == other._fnc
 
 	def __ne__(self, other):
-		return self.__call__ != other.__call__
+		return self._fnc != other._fnc
 
 	def __lt__(self, other):
 		if self.weight < other.weight:

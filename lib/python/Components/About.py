@@ -1,5 +1,5 @@
 from __future__ import print_function
-from sys import modules
+from sys import modules, version_info
 import socket, fcntl, struct
 
 from boxbranding import getImageVersion, getMachineBuild, getBoxType
@@ -189,8 +189,7 @@ def getIfTransferredData(ifname):
 				return rx_bytes, tx_bytes
 
 def getPythonVersionString():
-	import sys
-	return "%s.%s.%s" % (sys.version_info.major,sys.version_info.minor,sys.version_info.micro)
+	return "%s.%s.%s" % (version_info.major, version_info.minor, version_info.micro)
 
 # For modules that do "from About import about"
 about = modules[__name__]

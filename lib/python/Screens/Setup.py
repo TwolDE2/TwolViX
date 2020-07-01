@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import six
 
 from gettext import dgettext
 import xml.etree.cElementTree
@@ -103,9 +104,9 @@ class Setup(ConfigListScreen, Screen):
 				break
 
 		if config.usage.show_menupath.value in ('large', 'small') and x.get("titleshort", "").encode("UTF-8") != "":
-			self.setup_title = x.get("titleshort", "").encode("UTF-8")
+			self.setup_title = six.ensure_str(x.get("titleshort", ""))
 		else:
-			self.setup_title = x.get("title", "").encode("UTF-8")
+			self.setup_title = six.ensure_str(x.get("title", ""))
 		self.seperation = int(self.setup.get('separation', '0'))
 
 
@@ -172,11 +173,11 @@ class Setup(ConfigListScreen, Screen):
 						continue
 
 				if self.PluginLanguageDomain:
-					item_text = dgettext(self.PluginLanguageDomain, x.get("text", "??").encode("UTF-8"))
-					item_description = dgettext(self.PluginLanguageDomain, x.get("description", " ").encode("UTF-8"))
+					item_text = dgettext(self.PluginLanguageDomain, six.ensure_str(x.get("text", "??")))
+					item_description = dgettext(self.PluginLanguageDomain, six.ensure_str(x.get("description", " ")))
 				else:
-					item_text = _(x.get("text", "??").encode("UTF-8"))
-					item_description = _(x.get("description", " ").encode("UTF-8"))
+					item_text = _(six.ensure_str(x.get("text", "??")))
+					item_description = _(six.ensure_str(x.get("description", " ")))
 
 				item_text = item_text.replace("%s %s","%s %s" % (getMachineBrand(), getMachineName()))
 				item_description = item_description.replace("%s %s","%s %s" % (getMachineBrand(), getMachineName()))
@@ -221,8 +222,8 @@ def getSetupTitle(id):
 	xmldata = setupdom().getroot()
 	for x in xmldata.findall("setup"):
 		if x.get("key") == id:
-			if x.get("titleshort", "").encode("UTF-8") != "":
-				return _(x.get("titleshort", "").encode("UTF-8"))
+			if six.ensure_str(x.get("titleshort", "")) != "":
+				return six.ensure_str(x.get("titleshort", ""))
 			else:
-				return _(x.get("title", "").encode("UTF-8"))
+				return six.ensure_str(x.get("title", ""))
 	raise SetupError("unknown setup id '%s'!" % repr(id))
