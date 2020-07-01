@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, division
 import os
 import timer
 import xml.etree.cElementTree
@@ -290,7 +290,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 			return False
 
 		s = os.statvfs(dirname)
-		if (s.f_bavail * s.f_bsize) / 1000000 < 1024:
+		if (s.f_bavail * s.f_bsize) // 1000000 < 1024:
 			self.log(0, "Not enough free space to record")
 			return False
 		else:
@@ -1263,7 +1263,7 @@ class RecordTimer(timer.Timer):
 			bt = localtime(begin)
 			bday = bt.tm_wday
 			begin2 = 1440 + bt.tm_hour * 60 + bt.tm_min
-			end2 = begin2 + duration / 60
+			end2 = begin2 + duration // 60
 			xbt = localtime(x.begin)
 			xet = localtime(timer_end)
 			offset_day = False
@@ -1273,15 +1273,15 @@ class RecordTimer(timer.Timer):
 				if oday == -1: oday = 6
 				offset_day = x.repeated & (1 << oday)
 			xbegin = 1440 + xbt.tm_hour * 60 + xbt.tm_min
-			xend = xbegin + ((timer_end - x.begin) / 60)
+			xend = xbegin + ((timer_end - x.begin) // 60)
 			if xend < xbegin:
 				xend += 1440
 			if x.repeated & (1 << bday) and checking_time:
 				if begin2 < xbegin <= end2:
-					# recording within / last part of event
+					# recording within // last part of event
 					return 2 if xend < end2 else 0
 				elif xbegin <= begin2 <= xend:
-					# recording first part / whole event
+					# recording first part // whole event
 					return 1 if xend < end2 else 3
 				elif offset_day:
 					xbegin -= 1440

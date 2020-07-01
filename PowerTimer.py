@@ -1,4 +1,6 @@
-from __future__ import print_function
+from __future__ import print_function, division
+from builtins import range
+
 import os
 from bisect import insort
 from time import ctime, time
