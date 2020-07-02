@@ -1067,43 +1067,43 @@ class RecordTimer(timer.Timer):
 			AddPopup(_("Timer overlap in timers.xml detected!\nPlease recheck it!") + timer_text, type = MessageBox.TYPE_ERROR, timeout = 0, id = "TimerLoadFailed")
 
 	def saveTimer(self):
-		list = ['<?xml version="1.0" ?>\n', '<timers>\n']
+		xlist = ['<?xml version="1.0" ?>\n', '<timers>\n']
 
 		for timer in self.timer_list + self.processed_timers:
 			if timer.dontSave:
 				continue
-			list.append('<timer')
-			list.append(' begin="' + str(int(timer.begin)) + '"')
-			list.append(' end="' + str(int(timer.end)) + '"')
-			list.append(' serviceref="' + stringToXML(str(timer.service_ref)) + '"')
-			list.append(' repeated="' + str(int(timer.repeated)) + '"')
-			list.append(' rename_repeat="' + str(int(timer.rename_repeat)) + '"')
-			list.append(' name="' + str(stringToXML(timer.name)) + '"')
-			list.append(' description="' + str(stringToXML(timer.description)) + '"')
-			list.append(' afterevent="' + str(stringToXML({
+			xlist.append('<timer')
+			xlist.append(' begin="' + str(int(timer.begin)) + '"')
+			xlist.append(' end="' + str(int(timer.end)) + '"')
+			xlist.append(' serviceref="' + stringToXML(str(timer.service_ref)) + '"')
+			xlist.append(' repeated="' + str(int(timer.repeated)) + '"')
+			xlist.append(' rename_repeat="' + str(int(timer.rename_repeat)) + '"')
+			xlist.append(' name="' + str(stringToXML(timer.name)) + '"')
+			xlist.append(' description="' + str(stringToXML(timer.description)) + '"')
+			xlist.append(' afterevent="' + str(stringToXML({
 				AFTEREVENT.NONE: "nothing",
 				AFTEREVENT.STANDBY: "standby",
 				AFTEREVENT.DEEPSTANDBY: "deepstandby",
 				AFTEREVENT.AUTO: "auto"
 				}[timer.afterEvent])) + '"')
 			if timer.eit is not None:
-				list.append(' eit="' + str(timer.eit) + '"')
+				xlist.append(' eit="' + str(timer.eit) + '"')
 			if timer.dirname:
-				list.append(' location="' + str(stringToXML(timer.dirname)) + '"')
+				xlist.append(' location="' + str(stringToXML(timer.dirname)) + '"')
 			if timer.tags:
-				list.append(' tags="' + str(stringToXML(' '.join(timer.tags))) + '"')
+				xlist.append(' tags="' + str(stringToXML(' '.join(timer.tags))) + '"')
 			if timer.disabled:
-				list.append(' disabled="' + str(int(timer.disabled)) + '"')
-			list.append(' justplay="' + str(int(timer.justplay)) + '"')
-			list.append(' always_zap="' + str(int(timer.always_zap)) + '"')
-			list.append(' pipzap="' + str(int(timer.pipzap)) + '"')
-			list.append(' conflict_detection="' + str(int(timer.conflict_detection)) + '"')
-			list.append(' descramble="' + str(int(timer.descramble)) + '"')
-			list.append(' record_ecm="' + str(int(timer.record_ecm)) + '"')
-			list.append(' isAutoTimer="' + str(int(timer.isAutoTimer)) + '"')
+				xlist.append(' disabled="' + str(int(timer.disabled)) + '"')
+			xlist.append(' justplay="' + str(int(timer.justplay)) + '"')
+			xlist.append(' always_zap="' + str(int(timer.always_zap)) + '"')
+			xlist.append(' pipzap="' + str(int(timer.pipzap)) + '"')
+			xlist.append(' conflict_detection="' + str(int(timer.conflict_detection)) + '"')
+			xlist.append(' descramble="' + str(int(timer.descramble)) + '"')
+			xlist.append(' record_ecm="' + str(int(timer.record_ecm)) + '"')
+			xlist.append(' isAutoTimer="' + str(int(timer.isAutoTimer)) + '"')
 			if timer.flags:
-				list.append(' flags="' + ' '.join([stringToXML(x) for x in timer.flags]) + '"')
-			list.append('>\n')
+				xlist.append(' flags="' + ' '.join([stringToXML(x) for x in timer.flags]) + '"')
+			xlist.append('>\n')
 
 #		Handle repeat entries, which never end and so never get pruned by cleanupDaily
 #       Repeating timers get, e.g., repeated="127" (dow bitmap)
@@ -1116,16 +1116,19 @@ class RecordTimer(timer.Timer):
 			for log_time, code, msg in timer.log_entries:
 				if log_time < ignore_before:
 					continue
-				list.append('<log')
-				list.append(' code="' + str(code) + '"')
-				list.append(' time="' + str(log_time) + '"')
-				list.append('>')
-				list.append(str(stringToXML(msg)))
-				list.append('</log>\n')
+				xlist.append('<log')
+				xlist.append(' code="' + str(code) + '"')
+				xlist.append(' time="' + str(log_time) + '"')
+				xlist.append('>')
+				if isinstance(msg, int):
+						xlist.append(str(msg))
+					else:
+						xlist.append(str(stringToXML(msg)))
+				xlist.append('</log>\n')
 
-			list.append('</timer>\n')
+			xlist.append('</timer>\n')
 
-		list.append('</timers>\n')
+		xlist.append('</timers>\n')
 
 # We have to run this section with a lock.
 #  Imagine setting a timer manually while the (background) AutoTimer
@@ -1142,11 +1145,11 @@ class RecordTimer(timer.Timer):
 #
 # NOTE that as Python threads are not concurrent (they run serially and
 # switch when one does something like I/O) we don't need to run the
-# list-creating loop under the lock.
+# xlist-creating loop under the lock.
 #
 		with write_lock:
 			file = open(self.Filename + ".writing", "w")
-			for x in list:
+			for x in xlist:
 				file.write(x)
 			file.flush()
 
