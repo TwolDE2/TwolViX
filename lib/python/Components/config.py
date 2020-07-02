@@ -1045,7 +1045,7 @@ class ConfigClock(ConfigSequence):
 		newtime = list(self.t)
 		newtime[3] = self._value[0]
 		newtime[4] = self._value[1]
-		value = strftime(config.usage.time.short.value.replace("%-I", "%_I").replace("%-H", "%_H"), newtime)
+		value = strftime(config.usage.time.short.value.replace("%-I", "%_I").replace("%-H", "%_H"), tuple(newtime))
 		return value, mPos
 
 date_limits = [(1, 31), (1, 12), (1970, 2050)]
