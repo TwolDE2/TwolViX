@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from six.moves import zip
 
 from enigma import eListbox, eListboxPythonConfigContent, eRCInput, eTimer
 from Components.ActionMap import NumberActionMap, ActionMap

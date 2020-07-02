@@ -89,7 +89,7 @@ def GetCurrentImageMode():
 def GetImagelist():
 	Imagelist = {}
 	tmp.dir = tempfile.mkdtemp(prefix="Multiboot")
-	for slot in sorted(SystemInfo["canMultiBoot"].keys()):
+	for slot in sorted(list(SystemInfo["canMultiBoot"].keys())):
 		Console().ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
 		BuildVersion = "  "
 		Build = " "  # ViX Build No.

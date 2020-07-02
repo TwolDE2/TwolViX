@@ -193,7 +193,7 @@ class ConfigElement(object):
 		self.extra_args.append((notifier, extra_args))
 
 	def __removeExtraArgs(self, notifier):
-		for i in range(len(self.extra_args)):
+		for i in list(range(len(self.extra_args))):
 			if self.extra_args[i][0] == notifier:
 				del self.extra_args[i]
 
