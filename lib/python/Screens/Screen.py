@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import print_function, absolute_import
 from builtins import range
 
 from Tools.Profile import profile
@@ -15,7 +15,7 @@ from Components.Sources.Source import Source
 
 
 class Screen(dict, GUISkin):
-	NO_SUSPEND, SUSPEND_STOPS, SUSPEND_PAUSES = range(3)
+	NO_SUSPEND, SUSPEND_STOPS, SUSPEND_PAUSES = list(range(3))
 	ALLOW_SUSPEND = NO_SUSPEND
 	global_screen = None
 
