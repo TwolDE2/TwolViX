@@ -332,7 +332,7 @@ class TimerEntry(ConfigListScreen, Screen):
 		if cur == self.channelEntry:
 			self.session.openWithCallback(
 				self.finishedChannelSelection,
-				ChannelSelection.SimpleChannelSelection,
+				Screns.ChannelSelection.SimpleChannelSelection,
 				_("Select channel to record from"),
 				currentBouquet=True
 			)
@@ -386,7 +386,7 @@ class TimerEntry(ConfigListScreen, Screen):
 	def selectChannelSelector(self, *args):
 		self.session.openWithCallback(
 				self.finishedChannelSelectionCorrection,
-				ChannelSelection.SimpleChannelSelection,
+				Screens.ChannelSelection.SimpleChannelSelection,
 				_("Select channel to record from")
 			)
 
