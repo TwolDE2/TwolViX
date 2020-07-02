@@ -82,11 +82,7 @@ if grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings; then
 	[ -n "${debug_dir}" -a -d "${debug_dir}" ] || debug_dir=/home/root/logs/
 	LD_PRELOAD=$LIBS @bindir@/enigma2 &> "${debug_dir}Enigma2_debug_$(date +%Y-%m-%d_%H-%M-%S).log"
 else
-	if grep -q 'config\.misc\.firstrun=False' @sysconfdir@/enigma2/settings; then
-		LD_PRELOAD=$LIBS @bindir@/enigma2 &> /dev/null
-	else
-		LD_PRELOAD=$LIBS @bindir@/enigma2
-	fi
+	LD_PRELOAD=$LIBS @bindir@/enigma2
 fi
 
 # enigma2 exit codes:
