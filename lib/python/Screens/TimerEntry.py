@@ -474,7 +474,7 @@ class TimerEntry(ConfigListScreen, Screen):
 					ref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 					parent = self.timer.service_ref.ref
 					selection = 0
-					for x in range(n):
+					for x in list(range(n)):
 						i = event.getLinkageService(parent, x)
 						if i.toString() == ref.toString():
 							selection = x

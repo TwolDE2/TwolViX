@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from builtins import range
 import six
 
 import errno
@@ -221,7 +222,7 @@ def comparePath(leftPath, rightPath):
 		rightPath = rightPath[:-1]
 	left = leftPath.split(os.sep)
 	right = rightPath.split(os.sep)
-	for segment in range(len(left)):
+	for segment in list(range(len(left))):
 		if left[segment] != right[segment]:
 			return False
 	return True

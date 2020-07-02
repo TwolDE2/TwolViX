@@ -138,7 +138,7 @@ class EPGListSingle(EPGListBase):
 		# time is after "now".
 		# NOTE: that the list is a list of tuples, so we can't modify just the
 		#       Title, but have to replace it with a modified tuple.
-		for i in range(0, len(self.list)):
+		for i in list(range(0, len(self.list))):
 			if self.list[i][4][:2] == odds and self.list[i][4][-2:] == odde:
 				tlist = list(self.list[i])
 				tlist[4] = tlist[4][2:-2]
@@ -147,7 +147,7 @@ class EPGListSingle(EPGListBase):
 				if self.list[i][2] > now:
 					break
 		# Add explicit gaps if data isn't available.
-		for i in range(len(self.list) - 1, 0, -1):
+		for i in list(range(len(self.list) - 1, 0, -1)):
 			thisBeg = self.list[i][2]
 			prevEnd = self.list[i - 1][2] + self.list[i - 1][3]
 			if prevEnd + 5 * SECS_IN_MIN < thisBeg:

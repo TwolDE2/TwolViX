@@ -54,7 +54,7 @@ class CIselectMainMenu(Screen):
 		self.state = { }
 		self.list = [ ]
 		if  NUM_CI and NUM_CI > 0:
-			for slot in range(NUM_CI):
+			for slot in list(range(NUM_CI)):
 				state = eDVBCI_UI.getInstance().getState(slot)
 				if state != -1:
 					appname = _("Slot %d") %(slot+1) + " - " + _("Unknown error")
@@ -401,7 +401,7 @@ class CAidSelect(Screen):
 		self.list = SelectionList()
 		self["list"] = self.list
 
-		for listindex in range(len(list)):
+		for listindex in list(range(len(list))):
 			if find_in_list(selected_caids,list[listindex][0],0):
 				self.list.addSelection(list[listindex][0], list[listindex][1], listindex, True)
 			else:
@@ -682,7 +682,7 @@ def find_in_list(list, search, listpos=0):
 def isModule():
 	NUM_CI = SystemInfo["CommonInterface"]
 	if NUM_CI and NUM_CI > 0:
-		for slot in range(NUM_CI):
+		for slot in list(range(NUM_CI)):
 			state = eDVBCI_UI.getInstance().getState(slot)
 			if state > 0:
 				return True

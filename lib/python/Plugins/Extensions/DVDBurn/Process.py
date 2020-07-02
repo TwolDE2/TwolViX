@@ -568,7 +568,7 @@ class MenuImageTask(Task):
 			menu_end_title = nr_titles+1
 		col = 1
 		row = 1
-		for title_no in range( menu_start_title , menu_end_title ):
+		for title_no in list(range( menu_start_title , menu_end_title )):
 			title = self.job.project.titles[title_no-1]
 			col_width  = ( s_width  - s_left - s_right  ) / nr_cols
 			row_height = ( s_height - s_top  - s_bottom ) / nr_rows
@@ -693,7 +693,7 @@ class Menus:
 		job.nr_menus = ((nr_titles+job.titles_per_menu-1)/job.titles_per_menu)
 
 		#a new menu_count every 4 titles (1,2,3,4->1 ; 5,6,7,8->2 etc.)
-		for menu_count in range(1 , job.nr_menus+1):
+		for menu_count in list(range(1 , job.nr_menus+1)):
 			num = str(menu_count)
 			spuxmlfilename = job.workspace+"/spumux"+num+".xml"
 			menubgpngfilename = job.workspace+"/dvd_menubg"+num+".png"
@@ -728,7 +728,7 @@ def CreateAuthoringXML_singleset(job):
 	if mode.startswith("menu"):
 		authorxml.append('   <menus lang="' + job.project.menutemplate.settings.menulang.value + '">\n')
 		authorxml.append('    <video aspect="4:3"/>\n')
-		for menu_count in range(1 , job.nr_menus+1):
+		for menu_count in list(range(1 , job.nr_menus+1)):
 			if menu_count == 1:
 				authorxml.append('    <pgc entry="root">\n')
 			else:
@@ -737,7 +737,7 @@ def CreateAuthoringXML_singleset(job):
 			menu_end_title = menu_count *job.titles_per_menu + 1
 			if menu_end_title > nr_titles:
 				menu_end_title = nr_titles+1
-			for i in range( menu_start_title , menu_end_title ):
+			for i in list(range( menu_start_title , menu_end_title )):
 				authorxml.append('     <button name="button' + (str(i).zfill(2)) + '"> jump title ' + str(i) +'; </button>\n')
 			if menu_count > 1:
 				authorxml.append('     <button name="button_prev"> jump menu ' + str(menu_count-1) + '; </button>\n')
@@ -748,7 +748,7 @@ def CreateAuthoringXML_singleset(job):
 			authorxml.append('    </pgc>\n')
 		authorxml.append('   </menus>\n')
 	authorxml.append('   <titles>\n')
-	for i in range( nr_titles ):
+	for i in list(range( nr_titles )):
 		chapters = ','.join(job.project.titles[i].getChapterMarks())
 		title_no = i+1
 		title_filename = job.workspace + "/dvd_title_%d.mpg" % title_no
@@ -784,7 +784,7 @@ def CreateAuthoringXML_multiset(job):
 				 '   <menus lang="' + job.project.menutemplate.settings.menulang.value + '">\n',
 				 '    <video aspect="4:3"/>\n']
 	if mode.startswith("menu"):
-		for menu_count in range(1 , job.nr_menus+1):
+		for menu_count in list(range(1 , job.nr_menus+1)):
 			if menu_count == 1:
 				authorxml.append('    <pgc>\n')
 			else:
@@ -793,7 +793,7 @@ def CreateAuthoringXML_multiset(job):
 			menu_end_title = menu_count *job.titles_per_menu + 1
 			if menu_end_title > nr_titles:
 				menu_end_title = nr_titles+1
-			for i in range( menu_start_title , menu_end_title ):
+			for i in list(range( menu_start_title , menu_end_title )):
 				authorxml.append('     <button name="button' + (str(i).zfill(2)) + '"> jump titleset ' + str(i) +' title 1; </button>\n')
 			if menu_count > 1:
 				authorxml.append('     <button name="button_prev"> jump menu ' + str(menu_count-1) + '; </button>\n')
@@ -810,7 +810,7 @@ def CreateAuthoringXML_multiset(job):
 	authorxml.append('   </menus>\n')
 	authorxml.append('  </vmgm>\n')
 
-	for i in range( nr_titles ):
+	for i in list(range( nr_titles )):
 		title = job.project.titles[i]
 		authorxml.append('  <titleset>\n')
 		authorxml.append('   <menus lang="' + job.project.menutemplate.settings.menulang.value + '">\n')
@@ -902,7 +902,7 @@ class DVDJob(Job):
 		else:
 			hasProjectX = os.path.exists('/usr/bin/projectx')
 			print("[DVDJob] hasProjectX=", hasProjectX)
-			for self.i in range(nr_titles):
+			for self.i in list(range(nr_titles)):
 				self.title = self.project.titles[self.i]
 				link_name =  self.workspace + "/source_title_%d.ts" % (self.i+1)
 				title_filename = self.workspace + "/dvd_title_%d.mpg" % (self.i+1)
@@ -949,7 +949,7 @@ class DVDdataJob(Job):
 		if self.project.settings.output.value == "iso":
 			CheckDiskspaceTask(self)
 		nr_titles = len(self.project.titles)
-		for self.i in range(nr_titles):
+		for self.i in list(range(nr_titles)):
 			title = self.project.titles[self.i]
 			filename = title.inputfile.rstrip("/").rsplit("/",1)[1]
 			link_name =  self.workspace + filename

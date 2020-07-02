@@ -561,7 +561,7 @@ class EPGServiceNumberSelection:
 		self["numberzapokactions"].setEnabled(False)
 		helpMsg = _("Enter a number to jump to a service/channel")
 		self["input_actions"] = HelpableNumberActionMap(self, "NumberActions", 
-			dict([(str(i), (self.keyNumberGlobal, helpMsg)) for i in range(0,9)]),
+			dict([(str(i), (self.keyNumberGlobal, helpMsg)) for i in list(range(0,9))]),
 			prio=-1, description=_("Service/Channel number zap commands"))
 
 		self["zapbackground"] = Label()

@@ -1,4 +1,5 @@
 from __future__ import print_function, absolute_import, division
+from builtins import range
 
 from enigma import eTimer, ePoint, eSize, getDesktop
 from Components.ActionMap import HelpableActionMap
@@ -33,7 +34,7 @@ class MessageBox(Screen, HelpableScreen):
 			self.text = _(text)
 		else:
 			self.text = text
-		if type in range(self.TYPE_MESSAGE + 1):
+		if type in list(range(self.TYPE_MESSAGE + 1)):
 			self.type = type
 		else:
 			self.type = self.TYPE_MESSAGE

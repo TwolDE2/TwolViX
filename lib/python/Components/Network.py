@@ -1,4 +1,5 @@
 from __future__ import print_function, absolute_import
+from builtins import range
 
 import os
 import re
@@ -305,7 +306,7 @@ class Network:
 
 	def changeNameserver(self, oldnameserver, newnameserver):
 		if oldnameserver in self.nameservers:
-			for i in range(len(self.nameservers)):
+			for i in list(range(len(self.nameservers))):
 				if self.nameservers[i] == oldnameserver:
 					self.nameservers[i] = newnameserver
 

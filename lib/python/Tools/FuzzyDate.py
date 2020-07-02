@@ -1,5 +1,7 @@
-from Components.config import config
+from builtins import range
 from time import localtime, time, strftime
+
+from Components.config import config
 
 def FuzzyTime(t, inPast=False):
 	d = localtime(t)
@@ -32,7 +34,7 @@ def FuzzyTime(t, inPast=False):
 if __name__ == "__main__":
 	def _(x): return x
 	print("now: %s %s" % FuzzyTime(time()))
-	for i in range(1, 14):
+	for i in list(range(1, 14)):
 		print("+%2s day(s):  %s " % (i, FuzzyTime(time() + 86400 * i)))
-	for i in range(1, 14):
+	for i in list(range(1, 14)):
 		print("-%2s day(s):  %s " % (i, FuzzyTime(time() - 86400 * i, True)))

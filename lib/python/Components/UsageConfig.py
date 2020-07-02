@@ -76,7 +76,7 @@ def InitUsageConfig():
 	])
 	config.usage.record_indicator_mode.addNotifier(refreshServiceList)
 	choicelist = [("-1", _("Disable"))]
-	for i in range(0, 1300, 25):
+	for i in list(range(0, 1300, 25)):
 		choicelist.append((str(i), ngettext("%d pixel wide", "%d pixels wide", i) % i))
 	config.usage.servicelist_column = ConfigSelection(default="-1", choices=choicelist)
 	config.usage.servicelist_column.addNotifier(refreshServiceList)
@@ -93,7 +93,7 @@ def InitUsageConfig():
 	config.usage.quickzap_bouquet_change = ConfigYesNo(default=False)
 	config.usage.e1like_radio_mode = ConfigYesNo(default=True)
 	choicelist = [("0", _("No timeout"))]
-	for i in range(1, 21):
+	for i in list(range(1, 21)):
 		choicelist.append((str(i), ngettext("%d second", "%d seconds", i) % i))
 	config.usage.infobar_timeout = ConfigSelection(default="5", choices=choicelist)
 	config.usage.show_infobar_do_dimming = ConfigYesNo(default=False)
@@ -1066,10 +1066,10 @@ def InitUsageConfig():
 	config.subtitles.subtitle_rewrap = ConfigYesNo(default=False)
 	config.subtitles.colourise_dialogs = ConfigYesNo(default=False)
 	config.subtitles.subtitle_borderwidth = ConfigSelection(default="3", choices=["1", "2", "3", "4", "5"])
-	config.subtitles.subtitle_fontsize = ConfigSelection(default="40", choices=["%d" % x for x in range(16, 101) if not x % 2])
+	config.subtitles.subtitle_fontsize = ConfigSelection(default="40", choices=["%d" % x for x in list(range(16, 101) if not x % 2]))
 	config.subtitles.showbackground = ConfigYesNo(default=False)
 	subtitle_delay_choicelist = []
-	for i in range(-900000, 1845000, 45000):
+	for i in list(range(-900000, 1845000, 45000)):
 		if i == 0:
 			subtitle_delay_choicelist.append(("0", _("No delay")))
 		else:

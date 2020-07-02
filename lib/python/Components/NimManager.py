@@ -262,11 +262,11 @@ class SecConfigure:
 			pass
 
 		lnbSat = {}
-		for x in range(1, 71):
+		for x in list(range(1, 71)):
 			lnbSat[x] = []
 
 		#wildcard for all satellites ( for rotor )
-		for x in range(3601, 3605):
+		for x in list(range(3601, 3605)):
 			lnb = int(config.Nims[slotid].advanced.sat[x].lnb.value)
 			if lnb != 0:
 				for x in self.NimManager.satList:
@@ -274,7 +274,7 @@ class SecConfigure:
 					lnbSat[lnb].append(x[0])
 
 		#wildcard for user satellites ( for rotor )
-		for x in range(3605, 3607):
+		for x in list(range(3605, 3607)):
 			lnb = int(config.Nims[slotid].advanced.sat[x].lnb.value)
 			if lnb != 0:
 				userSatlist = config.Nims[slotid].advanced.sat[x].userSatellitesList.value
@@ -291,7 +291,7 @@ class SecConfigure:
 				print("[SecConfigure] add", x[0], "to", lnb)
 				lnbSat[lnb].append(x[0])
 
-		for x in range(1, 71):
+		for x in list(range(1, 71)):
 			if len(lnbSat[x]) > 0:
 				currLnb = config.Nims[slotid].advanced.lnb[x]
 				sec.addLNB()
@@ -977,7 +977,7 @@ class NimManager:
 			mode = self.getNimConfig(nim)
 			nimHaveRotor = mode.configMode.value == "simple" and mode.diseqcMode.value  in ("positioner", "positioner_select")
 			if not nimHaveRotor and mode.configMode.value == "advanced":
-				for x in range(3601, 3607):
+				for x in list(range(3601, 3607)):
 					lnb = int(mode.advanced.sat[x].lnb.value)
 					if lnb != 0:
 						nimHaveRotor = True
@@ -1016,7 +1016,7 @@ class NimManager:
 	# if slotid == -1, returns if something is connected to ANY nim
 	def somethingConnected(self, slotid = -1):
 		if slotid == -1:
-			for id in range(self.getSlotCount()):
+			for id in list(range(self.getSlotCount())):
 				if self.somethingConnected(id) and not (self.nim_slots[id].isFBCLink() or self.getNimConfig(id).configMode.value == "loopthrough"):
 					return True
 			return False
@@ -1070,7 +1070,7 @@ class NimManager:
 						if userSatlist and ("," not in userSatlist and sat_str == userSatlist) or ((', ' + sat_str + ',' in userSatlist) or (userSatlist.startswith(sat_str + ',')) or (userSatlist.endswith(', ' + sat_str))):
 							list.append(x)
 			elif configMode == "advanced":
-				for x in range(3601, 3605):
+				for x in list(range(3601, 3605)):
 					if int(nim.advanced.sat[x].lnb.value) != 0:
 						for x in self.satList:
 							list.append(x)
@@ -1078,7 +1078,7 @@ class NimManager:
 					for x in self.satList:
 						if int(nim.advanced.sat[x[0]].lnb.value) != 0:
 							list.append(x)
-				for x in range(3605, 3607):
+				for x in list(range(3605, 3607)):
 					if int(nim.advanced.sat[x].lnb.value) != 0:
 						userSatlist = nim.advanced.sat[x].userSatellitesList.value
 						userSatlist = userSatlist.replace("]", "").replace("[", "")
@@ -1108,7 +1108,7 @@ class NimManager:
 						if userSatlist and ("," not in userSatlist and sat_str == userSatlist) or ((', ' + sat_str + ',' in userSatlist) or (userSatlist.startswith(sat_str + ',')) or (userSatlist.endswith(', ' + sat_str))):
 							list.append(x)
 			elif configMode == "advanced":
-				for x in range(3601, 3605):
+				for x in list(range(3601, 3605)):
 					if int(nim.advanced.sat[x].lnb.value) != 0:
 						for x in self.satList:
 							list.append(x)
@@ -1119,7 +1119,7 @@ class NimManager:
 							lnb = nim.advanced.lnb[lnbnum]
 							if lnb.diseqcMode.value == "1_2":
 								list.append(x)
-				for x in range(3605, 3607):
+				for x in list(range(3605, 3607)):
 					if int(nim.advanced.sat[x].lnb.value) != 0:
 						userSatlist = nim.advanced.sat[x].userSatellitesList.value
 						userSatlist = userSatlist.replace("]", "").replace("[", "")
@@ -1186,7 +1186,7 @@ def InitNimManager(nimmgr, update_slots = []):
 	if not hasattr(config, "Nims"):
 		InitSecParams()
 		config.Nims = ConfigSubList()
-		for x in range(len(nimmgr.nim_slots)):
+		for x in list(range(len(nimmgr.nim_slots))):
 			config.Nims.append(ConfigSubsection())
 
 	lnb_choices = {
@@ -1214,7 +1214,7 @@ def InitNimManager(nimmgr, update_slots = []):
 
 	advanced_lnb_csw_choices = [("none", _("None")), ("AA", _("Port A")), ("AB", _("Port B")), ("BA", _("Port C")), ("BB", _("Port D"))]
 
-	advanced_lnb_ucsw_choices = [("0", _("None"))] + [(str(y), _("Input ") + str(y)) for y in range(1, 17)]
+	advanced_lnb_ucsw_choices = [("0", _("None"))] + [(str(y), _("Input ") + str(y)) for y in list(range(1, 17))]
 
 	diseqc_mode_choices = [
 		("single", _("Single")), ("toneburst_a_b", _("Toneburst A/B")),
@@ -1232,7 +1232,7 @@ def InitNimManager(nimmgr, update_slots = []):
 	advanced_satlist_choices = nimmgr.satList + [
 		(3601, _('All satellites 1 (USALS)'), 1), (3602, _('All satellites 2 (USALS)'), 1),
 		(3603, _('All satellites 3 (USALS)'), 1), (3604, _('All satellites 4 (USALS)'), 1), (3605, _('Selecting satellites 1 (USALS)'), 1), (3606, _('Selecting satellites 2 (USALS)'), 1)]
-	advanced_lnb_choices = [("0", _("not configured"))] + [(str(y), "LNB " + str(y)) for y in range(1, 65)]
+	advanced_lnb_choices = [("0", _("not configured"))] + [(str(y), "LNB " + str(y)) for y in list(range(1, 65))]
 	advanced_voltage_choices = [("polarization", _("Polarization")), ("13V", _("13 V")), ("18V", _("18 V"))]
 	advanced_tonemode_choices = [("band", _("Band")), ("on", _("On")), ("off", _("Off"))]
 	advanced_lnb_toneburst_choices = [("none", _("None")), ("A", _("A")), ("B", _("B"))]
@@ -1260,7 +1260,7 @@ def InitNimManager(nimmgr, update_slots = []):
 				def getformat(value, index):
 					return ("jess" if index >= int(value.split(",")[1] if "," in value else 4) else "unicable") if value.startswith("dSCR") else value
 				def positionsChanged(configEntry):
-					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in range(configEntry.value)], default = "%d" % min(lnb, configEntry.value))
+					section.positionNumber = ConfigSelection(["%d" % (x+1) for x in list(range(configEntry.value))], default = "%d" % min(lnb, configEntry.value))
 				def scrListChanged(productparameters, srcfrequencylist, configEntry):
 					section.format = ConfigSelection([("unicable", _("SCR Unicable")), ("jess", _("SCR JESS"))], default = getformat(productparameters.get("format", "unicable"), configEntry.index))
 					section.scrfrequency = ConfigInteger(default = int(srcfrequencylist[configEntry.index]))
@@ -1280,7 +1280,7 @@ def InitNimManager(nimmgr, update_slots = []):
 					section.powerinserter.save_forced = True
 					section.powerinserter.addNotifier(setPowerInserter)
 					srcfrequencylist = productparameters.get("scrs").split(",")
-					section.scrList = ConfigSelection([("%d" % (x + 1), "User Band %d (%s)" % ((x + 1), srcfrequencylist[x])) for x in range(len(srcfrequencylist))])
+					section.scrList = ConfigSelection([("%d" % (x + 1), "User Band %d (%s)" % ((x + 1), srcfrequencylist[x])) for x in list(range(len(srcfrequencylist)))])
 					section.scrList.save_forced = True
 					section.scrList.addNotifier(boundFunction(scrListChanged, productparameters, srcfrequencylist))
 				def unicableManufacturerChanged(lnb_or_matrix, configEntry):
@@ -1302,7 +1302,7 @@ def InitNimManager(nimmgr, update_slots = []):
 					section.positions = ConfigInteger(default = configEntry.value == "jess" and 64 or 2)
 					section.positions.addNotifier(positionsChanged)
 					section.positionsOffset = ConfigInteger(default = 0)
-					section.scrList = ConfigSelection([("%d" % (x + 1), "User Band %d" % (x + 1)) for x in range(configEntry.value == "jess" and 32 or 8)])
+					section.scrList = ConfigSelection([("%d" % (x + 1), "User Band %d" % (x + 1)) for x in list(range(configEntry.value == "jess" and 32 or 8))])
 					section.scrList.save_forced = True
 					srcfrequencyList = configEntry.value=="jess" and (1210, 1420, 1680, 2040, 984, 1020, 1056, 1092, 1128, 1164, 1256, 1292, 1328, 1364, 1458, 1494, 1530, 1566, 1602,\
 						1638, 1716, 1752, 1788, 1824, 1860, 1896, 1932, 1968, 2004, 2076, 2112, 2148) or (1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096)
@@ -1477,7 +1477,7 @@ def InitNimManager(nimmgr, update_slots = []):
 			lnb.addNotifier(configLNBChanged)
 			tmp.lnb = lnb
 			nim.advanced.sat[x[0]] = tmp
-		for x in range(3601, 3607):
+		for x in list(range(3601, 3607)):
 			tmp = ConfigSubsection()
 			tmp.voltage = ConfigSelection(advanced_voltage_choices, "polarization")
 			tmp.tonemode = ConfigSelection(advanced_tonemode_choices, "band")

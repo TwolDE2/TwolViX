@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import range
 
 from time import localtime, mktime, time
 
@@ -38,7 +39,7 @@ class EPGSelectionGrid(EPGSelectionBase, EPGBouquetSelection, EPGServiceZap, Use
 		self["jump"] = Label(_("JUMP 24 HOURS"))
 		self["page"] = Label(_("PAGE UP/DOWN"))
 		self.timeLines = []
-		for x in range(0, MAX_TIMELINES):
+		for x in list(range(0, MAX_TIMELINES)):
 			pm = Pixmap()
 			self.timeLines.append(pm)
 			self["timeline%d" % x] = pm

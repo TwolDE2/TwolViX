@@ -209,7 +209,7 @@ class EPGListGrid(EPGListBase):
 
 	def getIndexFromService(self, serviceref):
 		if serviceref is not None:
-			for x in range(len(self.list)):
+			for x in list(range(len(self.list))):
 				if CompareWithAlternatives(self.list[x][0], serviceref):
 					return x
 				if CompareWithAlternatives(self.list[x][1], serviceref):
@@ -996,7 +996,7 @@ class TimelineText(GUIComponent):
 					backcolor=backColor,
 					border_width=self.borderWidth, border_color=self.borderColor))
 
-			for x in range(0, numLines):
+			for x in list(range(0, numLines)):
 				ttime = localtime(timeBase + (x * timeStepsCalc))
 				if config.usage.time.enabled.value:
 					timetext = strftime(config.usage.time.short.value, ttime)
@@ -1020,7 +1020,7 @@ class TimelineText(GUIComponent):
 				line.setPosition(xpos + eventLeft, oldPos[1])
 				line.visible = True
 				xpos += incWidth
-			for x in range(numLines, MAX_TIMELINES):
+			for x in list(range(numLines, MAX_TIMELINES)):
 				timeLines[x].visible = False
 			self.l.setList([res])
 			self.timeBase = timeBase
