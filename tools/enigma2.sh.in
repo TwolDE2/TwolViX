@@ -78,6 +78,7 @@ if grep -q 'config\.crash\.logtimeformat' @sysconfdir@/enigma2/settings; then
 fi
 
 if grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings; then
+	DEBUG_LVL='4'
 	debug_dir=$(sed -n 's/config.crash.debug_path=//p' @sysconfdir@/enigma2/settings)
 	[ -n "${debug_dir}" -a -d "${debug_dir}" ] || debug_dir=/home/root/logs/
 	LD_PRELOAD=$LIBS @bindir@/enigma2 &> "${debug_dir}Enigma2_debug_$(date +%Y-%m-%d_%H-%M-%S).log"
