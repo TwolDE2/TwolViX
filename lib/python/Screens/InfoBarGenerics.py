@@ -15,6 +15,7 @@ else:
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from boxbranding import getBrandOEM, getMachineBuild
+from keyids import KEYFLAGS, KEYIDS, invertKeyIds
 
 from Components.ActionMap import ActionMap, HelpableActionMap, NumberActionMap
 from Components.config import config, configfile, ConfigBoolean, ConfigClock
@@ -163,7 +164,7 @@ def reload_subservice_groupslist(force=False):
 			groupedservices = "/etc/enigma2/groupedservices"
 			if not os.path.isfile(groupedservices):
 				groupedservices = "/usr/share/enigma2/groupedservices"
-			subservice_groupslist = [list(g) for k,g in itertools.groupby([line.split('#')[0].strip() for line in open(groupedservices).readlines()], lambda x:not x) if not k]
+			subservice_groupslist = [list(g) for k, g in itertools.groupby([line.split('#')[0].strip() for line in open(groupedservices).readlines()], lambda x:not x) if not k]
 		except:
 			subservice_groupslist = []
 reload_subservice_groupslist()
@@ -202,17 +203,18 @@ class InfoBarDish:
 		self.dishDialog = self.session.instantiateDialog(Dish)
 		self.dishDialog.setAnimationMode(0)
 
+
 class InfoBarLongKeyDetection:
 	def __init__(self):
-		eActionMap.getInstance().bindAction('', -maxsize -1, self.detection) #highest prio
+		eActionMap.getInstance().bindAction('', -maxsize -1, self.detection)  # Highest priority
 		self.LongButtonPressed = False
 
-	#this function is called on every keypress!
-	def detection(self, key, flag):
+	def detection(self, key, flag):  # This function is called on every keypress!
 		if flag == 3:
 			self.LongButtonPressed = True
 		elif flag == 0:
 			self.LongButtonPressed = False
+
 
 class InfoBarUnhandledKey:
 	def __init__(self):
@@ -223,45 +225,44 @@ class InfoBarUnhandledKey:
 		self.checkUnusedTimer = eTimer()
 		self.checkUnusedTimer.callback.append(self.checkUnused)
 		self.onLayoutFinish.append(self.unhandledKeyDialog.hide)
-		eActionMap.getInstance().bindAction('', -maxsize -1, self.actionA) #highest prio
-		eActionMap.getInstance().bindAction('', maxsize, self.actionB) #lowest prio
-		self.flags = (1<<1)
+		eActionMap.getInstance().bindAction("", -maxsize - 1, self.actionA)  # Highest priority.
+		eActionMap.getInstance().bindAction("", maxsize, self.actionB)  # Lowest priority.
+		self.flags = (1 << 1)
 		self.uflags = 0
+		self.invKeyIds = invertKeyIds()
+		self.sibIgnoreKeys = (
+			KEYIDS["KEY_VOLUMEDOWN"], KEYIDS["KEY_VOLUMEUP"],
+			KEYIDS["KEY_OK"], KEYIDS["KEY_UP"], KEYIDS["KEY_DOWN"],
+			KEYIDS["KEY_CHANNELUP"], KEYIDS["KEY_CHANNELDOWN"],
+			KEYIDS["KEY_NEXT"], KEYIDS["KEY_PREVIOUS"]
+		)
 
-	#this function is called on every keypress!
-	def actionA(self, key, flag):
-		try:
-			print('[InfoBarGenerics] KEY: %s %s' % (key,getKeyDescription(key)[0]))
-		except:
-			print('[InfoBarGenerics] KEY: %s' % key)
+	def actionA(self, key, flag):  # This function is called on every keypress!
+		print "[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS[flag], self.invKeyIds.get(key, ""), getKeyDescription(key))
 		self.unhandledKeyDialog.hide()
 		if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
 			self.secondInfoBarScreen.hide()
 			self.secondInfoBarWasShown = False
-
 		if flag != 4:
-			if self.flags & (1<<1):
+			if self.flags & (1 << 1):
 				self.flags = self.uflags = 0
-			self.flags |= (1<<flag)
-			if flag == 1: # break
+			self.flags |= (1 << flag)
+			if flag == 1:  # Break
 				self.checkUnusedTimer.start(0, True)
 		return 0
 
 	def closeSIB(self, key):
-		if key >= 12 and key not in (114, 115, 352, 103, 108, 402, 403, 407, 412):
-			return True
-		else:
-			return False
+		return True if key >= 12 and key not in self.sibIgnoreKeys else False  # (114, 115, 352, 103, 108, 402, 403, 407, 412)
 
-	#this function is only called when no other action has handled this key
-	def actionB(self, key, flag):
+	def actionB(self, key, flag):  # This function is only called when no other action has handled this key.
 		if flag != 4:
-			self.uflags |= (1<<flag)
+			self.uflags |= (1 << flag)
 
 	def checkUnused(self):
 		if self.flags == self.uflags:
 			self.unhandledKeyDialog.show()
 			self.hideUnhandledKeySymbolTimer.start(2000, True)
+
 
 class InfoBarScreenSaver:
 	def __init__(self):
@@ -1038,7 +1039,6 @@ class InfoBarNumberZap:
 					bqrootstr = '1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "bouquets.tv" ORDER BY bouquet'
 				else:
 					bqrootstr = '%s FROM BOUQUET "userbouquet.favourites.tv" ORDER BY bouquet'% service_types_tv
-					
 				serviceHandler = eServiceCenter.getInstance()
 				rootbouquet = eServiceReference(bqrootstr)
 				bouquet = eServiceReference(bqrootstr)
@@ -1637,12 +1637,11 @@ class InfoBarEPG:
 		self.reopen(ret)
 
 	def multiServiceEPG(self, type, showBouquet):
-		def openEPG(open, bouquet, bouquets):
-			if open:
-				bouquet = bouquet or self.servicelist.getRoot()
-				startRef = self.lastservice if isMoviePlayerInfoBar(self) else self.session.nav.getCurrentlyPlayingServiceOrGroup()
-				self.session.openWithCallback(self.epgClosed, type, self.zapToService, bouquet, startRef, bouquets)
-
+		def openEPG(bouquet, bouquets):
+			bouquet = bouquet or self.servicelist.getRoot()
+			startRef = self.lastservice if isMoviePlayerInfoBar(self) else self.session.nav.getCurrentlyPlayingServiceOrGroup()
+			self.dlg_stack.append(self.session.openWithCallback(self.closed, type,
+				self.zapToService, bouquet, startRef, bouquets))
 		bouquets = self.servicelist.getEPGBouquetList()
 		bouquetCount = len(bouquets) if bouquets else 0
 		if bouquetCount > 1 and showBouquet:
@@ -1665,7 +1664,9 @@ class InfoBarEPG:
 		if startRef:
 			bouquets = self.servicelist.getEPGBouquetList()
 			services = self.getBouquetServices(startBouquet)
-			self.session.openWithCallback(self.epgClosed, EPGSelectionSingle, self.zapToService, startBouquet, startRef, bouquets)
+			self.serviceSel = SimpleServicelist(services)
+			self.session.openWithCallback(self.singleServiceEPGClosed, EPGSelectionSingle,
+				self.zapToService, startBouquet, startRef, bouquets)
 
 	def openInfoBarEPG(self):
 		if self.servicelist is None:
@@ -2662,10 +2663,11 @@ class InfoBarExtensions:
 			self.session.open(MessageBox, _("The AutoTimer plugin is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
 
 	def showEPGSearch(self):
-		if not os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/EPGSearch/plugin.py*"):
+		try:
+			from Plugins.Extensions.EPGSearch.EPGSearch import EPGSearch
+		except ImportError:
 			self.session.open(MessageBox, _("The EPGSearch plugin is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
 			return
-		from Plugins.Extensions.EPGSearch.EPGSearch import EPGSearch
 		s = self.session.nav.getCurrentService()
 		if s:
 			info = s.info()
@@ -2689,7 +2691,7 @@ class InfoBarExtensions:
 			self.session.open(EPGSearch)
 
 	def showIMDB(self):
-		if os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/IMDb/plugin.py*"):
+		try:
 			from Plugins.Extensions.IMDb.plugin import IMDB
 			s = self.session.nav.getCurrentService()
 			if s:
@@ -2697,14 +2699,14 @@ class InfoBarExtensions:
 				event = info.getEvent(0) # 0 = now, 1 = next
 				name = event and event.getEventName() or ''
 				self.session.open(IMDB, name)
-		else:
+		except ImportError:
 			self.session.open(MessageBox, _("The IMDb plugin is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
 
 	def showDreamPlex(self):
-		if os.path.exists("/usr/lib/enigma2/python/Plugins/Extensions/DreamPlex/plugin.py*"):
+		try:
 			from Plugins.Extensions.DreamPlex.plugin import DPS_MainMenu
 			self.session.open(DPS_MainMenu)
-		else:
+		except ImportError:
 			self.session.open(MessageBox, _("The DreamPlex plugin is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
 
 from Tools.BoundFunction import boundFunction

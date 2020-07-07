@@ -199,8 +199,8 @@ from Screens.SessionGlobals import SessionGlobals
 from Screens.Screen import Screen
 
 profile("Screen")
-print("[Enigma2] Initialising Screen.")
-Screen.global_screen = Globals()
+Screen.globalScreen = Globals()
+
 
 # Session.open:
 # * push current active dialog ("current_dialog") onto stack
