@@ -1,4 +1,4 @@
-from __future__ import (print_function, absolute_import)
+from __future__ import print_function, absolute_import
 
 from enigma import getDesktop
 from Plugins.Plugin import PluginDescriptor
