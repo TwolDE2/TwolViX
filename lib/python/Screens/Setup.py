@@ -25,7 +25,7 @@ def setupdom(plugin=None):
 		setupfile = open(resolveFilename(SCOPE_CURRENT_PLUGIN, plugin + '/setup.xml'), 'r')
 	else:
 		# if not found in the current path, we use the global datadir-path
-		setupfile = file(eEnv.resolve('${datadir}/enigma2/setup.xml'), 'r')
+		setupfile = open(eEnv.resolve('${datadir}/enigma2/setup.xml'), 'r')
 	setupfiledom = xml.etree.cElementTree.parse(setupfile)
 	setupfile.close()
 	return setupfiledom
@@ -49,25 +49,25 @@ class SetupSummary(Screen):
 		self["SetupTitle"] = StaticText(_(parent.setup_title))
 		self["SetupEntry"] = StaticText("")
 		self["SetupValue"] = StaticText("")
-		if hasattr(self.parent,"onChangedEntry"):
+		if hasattr(self.parent, "onChangedEntry"):
 			self.onShow.append(self.addWatcher)
 			self.onHide.append(self.removeWatcher)
 
 	def addWatcher(self):
-		if hasattr(self.parent,"onChangedEntry"):
+		if hasattr(self.parent, "onChangedEntry"):
 			self.parent.onChangedEntry.append(self.selectionChanged)
 			self.parent["config"].onSelectionChanged.append(self.selectionChanged)
 			self.selectionChanged()
 
 	def removeWatcher(self):
-		if hasattr(self.parent,"onChangedEntry"):
+		if hasattr(self.parent, "onChangedEntry"):
 			self.parent.onChangedEntry.remove(self.selectionChanged)
 			self.parent["config"].onSelectionChanged.remove(self.selectionChanged)
 
 	def selectionChanged(self):
 		self["SetupEntry"].text = self.parent.getCurrentEntry()
 		self["SetupValue"].text = self.parent.getCurrentValue()
-		if hasattr(self.parent,"getCurrentDescription") and "description" in self.parent:
+		if hasattr(self.parent, "getCurrentDescription") and "description" in self.parent:
 			self.parent["description"].text = self.parent.getCurrentDescription()
 		if 'footnote' in self.parent:
 			if self.parent.getCurrentEntry().endswith('*'):
@@ -92,7 +92,7 @@ class Setup(ConfigListScreen, Screen):
 		self["VKeyIcon"] = Boolean(False)
 		self.onChangedEntry = [ ]
 		self.item = None
-		self.list = []
+		self.xlist = []
 		self.force_update_list = False
 		self.plugin = plugin
 		self.PluginLanguageDomain = PluginLanguageDomain
@@ -111,7 +111,7 @@ class Setup(ConfigListScreen, Screen):
 		self.seperation = int(self.setup.get('separation', '0'))
 
 
-		ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry)
+		ConfigListScreen.__init__(self, self.xlist, session = session, on_change = self.changedEntry)
 		self.createSetupList()
 		self["config"].onSelectionChanged.append(self.__onSelectionChanged)
 
@@ -147,7 +147,7 @@ class Setup(ConfigListScreen, Screen):
 
 	def createSetupList(self):
 		currentItem = self["config"].getCurrent()
-		self.list = []
+		self.xlist = []
 		for x in self.setup:
 
 			if not x.tag:
@@ -182,8 +182,8 @@ class Setup(ConfigListScreen, Screen):
 					item_text = _(six.ensure_str(x.get("text", "??")))
 					item_description = _(six.ensure_str(x.get("description", " ")))
 
-				item_text = item_text.replace("%s %s","%s %s" % (getMachineBrand(), getMachineName()))
-				item_description = item_description.replace("%s %s","%s %s" % (getMachineBrand(), getMachineName()))
+				item_text = item_text.replace("%s %s", "%s %s" % (getMachineBrand(), getMachineName()))
+				item_description = item_description.replace("%s %s", "%s %s" % (getMachineBrand(), getMachineName()))
 				b = eval(x.text or "")
 				if b == "":
 					continue
@@ -192,8 +192,8 @@ class Setup(ConfigListScreen, Screen):
 				# the first b is the item itself, ignored by the configList.
 				# the second one is converted to string.
 				if not isinstance(item, ConfigNothing):
-					self.list.append((item_text, item, item_description))
-		self["config"].setList(self.list)
+					self.xlist.append((item_text, item, item_description))
+		self["config"].setList(self.xlist)
 		if config.usage.sort_settings.value:
 			self["config"].list.sort()
 		self.moveToItem(currentItem)
