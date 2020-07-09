@@ -10,6 +10,7 @@ SystemInfo = {}
 SystemInfo["HasRootSubdir"] = False	# This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["RecoveryMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
 from Tools.Multiboot import getMBbootdevice, getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
+SystemInfo["HasHiSi"] = pathExists("/proc/hisi")	# This needs to be for later checks
 
 def getNumVideoDecoders():
 	numVideoDecoders = 0
@@ -141,7 +142,6 @@ SystemInfo["CanDTSHD"] = fileHas("/proc/stb/audio/dtshd_choices", "downmix")
 SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 #	Multiboot/bootmode options	The following entries need to be in this sequence to avoid a SystemInfo failure.
-SystemInfo["HasHiSi"] = pathExists("/proc/hisi")
 SystemInfo["MBbootdevice"] = getMBbootdevice()
 SystemInfo["canMultiBoot"] = getMultibootslots()
 SystemInfo["canBackupEMC"] = getMachineBuild() in ("hd51","h7") and ("disk.img", "%s" %SystemInfo["MBbootdevice"]) or getMachineBuild() in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "%s" %SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ("usb_update.bin","none")

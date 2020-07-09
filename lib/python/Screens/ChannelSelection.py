@@ -70,7 +70,7 @@ SIGN = '°' if six.PY3 else str('\xc2\xb0')
 class BouquetSelector(Screen):
 	def __init__(self, session, bouquets, selectedFunc, enableWrapAround=True):
 		Screen.__init__(self, session)
-		Screen.setTitle(self, _("Choose Bouquet"))
+		self.setTitle(_("Choose Bouquet"))
 
 		self.selectedFunc=selectedFunc
 
@@ -156,7 +156,7 @@ class ChannelContextMenu(Screen):
 	def __init__(self, session, csel):
 
 		Screen.__init__(self, session)
-		Screen.setTitle(self, _("Channel list context menu"))
+		self.setTitle(_("Channel List Context Menu"))
 		self.csel = csel
 		self.bsel = None
 		if self.isProtected():
@@ -1346,19 +1346,19 @@ class ChannelSelectionEdit:
 		l.setFontsize()
 		l.setItemsPerPage()
 		l.setMode('MODE_TV')
-		
-		# l.setMode('MODE_TV') automatically sets "hide number marker" to 
+
+		# l.setMode('MODE_TV') automatically sets "hide number marker" to
 		# the config.usage.hide_number_markers.value so when we are in "movemode"
-		# we need to force display of the markers here after l.setMode('MODE_TV') 
-		# has run. If l.setMode('MODE_TV') were ever removed above, 
-		# "self.servicelist.l.setHideNumberMarker(False)" could be moved 
+		# we need to force display of the markers here after l.setMode('MODE_TV')
+		# has run. If l.setMode('MODE_TV') were ever removed above,
+		# "self.servicelist.l.setHideNumberMarker(False)" could be moved
 		# directly to the "else" clause of "def toggleMoveMode".
-		if self.movemode: 
+		if self.movemode:
 			self.servicelist.l.setHideNumberMarker(False)
 
 		if close:
 			self.cancel()
-			
+
 
 MODE_TV = 0
 MODE_RADIO = 1
@@ -2725,7 +2725,7 @@ class PiPZapSelection(ChannelSelection):
 class RadioInfoBar(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
-		Screen.setTitle(self, _("Radio Channel Selection"))
+		self.setTitle(_("Radio Channel Selection"))
 		self['RdsDecoder'] = RdsDecoder(self.session.nav)
 
 
@@ -2948,7 +2948,7 @@ class HistoryZapSelector(Screen):
 				"jumpNextMark": self.__next__,
 				"toggleMark": self.okbuttonClick,
 			})
-		self.setTitle(_("History zap..."))
+		self.setTitle(_("History Zap"))
 		self.list = []
 		cnt = 0
 		serviceHandler = eServiceCenter.getInstance()

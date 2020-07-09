@@ -18,7 +18,7 @@ from Tools.Directories import fileExists
 class SetupSummary(Screen):
 	def __init__(self, session, parent):
 		Screen.__init__(self, session, parent = parent)
-		self["SetupTitle"] = StaticText(_(parent.setup_title))
+		self["SetupTitle"] = StaticText(parent.getTitle())
 		self["SetupEntry"] = StaticText("")
 		self["SetupValue"] = StaticText("")
 		self.onShow.append(self.addWatcher)
@@ -59,14 +59,12 @@ class RecordingSettings(Screen,ConfigListScreen):
 			if x.get("key") != self.setup:
 				continue
 			self.addItems(list, x)
-			self.setup_title = six.ensure_str(x.get("title", ""))
+			self.setTitle = _(six.ensure_str(x.get("title", "Setup")))
 			self.seperation = int(x.get('separation', '0'))
 
-	def __init__(self, session, menu_path=""):
+	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.skinName = "Setup"
-		self.menu_path = menu_path
-		self["menu_path_compressed"] = StaticText()
 		self['footnote'] = Label()
 
 		self["key_red"] = StaticText(_("Cancel"))
@@ -87,10 +85,9 @@ class RecordingSettings(Screen,ConfigListScreen):
 			"ok": self.ok,
 			"menu": self.closeRecursive,
 		}, -2)
-		self.onLayoutFinish.append(self.layoutFinished)
 
 	def checkReadWriteDir(self, configele):
-# 		print "checkReadWrite: ", configele.value
+# 		print("checkReadWrite: %s" % configele.value)
 		if configele.value in [x[0] for x in self.styles] or fileExists(configele.value, "w"):
 			configele.last_value = configele.value
 			return True
@@ -112,21 +109,21 @@ class RecordingSettings(Screen,ConfigListScreen):
 		if default not in tmp:
 			tmp = tmp[:]
 			tmp.append(default)
-# 		print "DefaultPath: ", default, tmp
+# 		print("DefaultPath: %s %s" % (default, tmp))
 		self.default_dirname = ConfigSelection(default = default, choices = tmp)
 		tmp = config.movielist.videodirs.value
 		default = config.usage.timer_path.value
 		if default not in tmp and default not in styles_keys:
 			tmp = tmp[:]
 			tmp.append(default)
-# 		print "TimerPath: ", default, tmp
+# 		print("TimerPath: %s %s" % (default, tmp))
 		self.timer_dirname = ConfigSelection(default = default, choices = self.styles+tmp)
 		tmp = config.movielist.videodirs.value
 		default = config.usage.instantrec_path.value
 		if default not in tmp and default not in styles_keys:
 			tmp = tmp[:]
 			tmp.append(default)
-# 		print "InstantrecPath: ", default, tmp
+# 		print("InstantrecPath: %s %s" % (default, tmp)
 		self.instantrec_dirname = ConfigSelection(default = default, choices = self.styles+tmp)
 		self.default_dirname.addNotifier(self.checkReadWriteDir, initial_call=False, immediate_feedback=False)
 		self.timer_dirname.addNotifier(self.checkReadWriteDir, initial_call=False, immediate_feedback=False)
@@ -149,19 +146,6 @@ class RecordingSettings(Screen,ConfigListScreen):
 		self["config"].setList(list)
 		if config.usage.sort_settings.value:
 			self["config"].list.sort()
-
-	def layoutFinished(self):
-		if config.usage.show_menupath.value == 'large' and self.menu_path:
-			title = self.menu_path + _(self.setup_title)
-			self["menu_path_compressed"].setText("")
-		elif config.usage.show_menupath.value == 'small':
-			title = _(self.setup_title)
-			self["menu_path_compressed"].setText(self.menu_path + " >" if not self.menu_path.endswith(' / ') else self.menu_path[:-3] + " >" or "")
-		else:
-			title = _(self.setup_title)
-			self["menu_path_compressed"].setText("")
-		self.setup_title = title
-		self.setTitle(title)
 
 	def changedEntry(self):
 		if self["config"].getCurrent()[0] in (_("Default movie location"), _("Timer record location"), _("Instant record location"), _("Movie location")):

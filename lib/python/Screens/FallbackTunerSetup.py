@@ -15,20 +15,9 @@ from Screens.HelpMenu import HelpableScreen
 from Screens.Screen import Screen
 
 class FallbackTunerSetup(ConfigListScreen, Screen):
-	def __init__(self, session, menu_path=""):
+	def __init__(self, session):
 		Screen.__init__(self, session)
-		self.setup_title = screentitle = _("Fallback tuner setup")
-		if config.usage.show_menupath.value == 'large':
-			menu_path += screentitle
-			title = menu_path
-			self["menu_path_compressed"] = StaticText("")
-		elif config.usage.show_menupath.value == 'small':
-			title = screentitle
-			self["menu_path_compressed"] = StaticText(menu_path + " >" if not menu_path.endswith(' / ') else menu_path[:-3] + " >" or "")
-		else:
-			title = screentitle
-			self["menu_path_compressed"] = StaticText("")
-		Screen.setTitle(self, title)
+		self.setTitle(_("Fallback Tuner Setup"))
 		self.skinName = ["FallbackTunerSetup", "Setup"]
 		self.onChangedEntry = []
 		self.session = session

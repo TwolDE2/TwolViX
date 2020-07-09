@@ -31,23 +31,9 @@ from Screens.VirtualKeyBoard import VirtualKeyBoard
 from RecordTimer import AFTEREVENT
 
 class TimerEntry(ConfigListScreen, Screen):
-	def __init__(self, session, timer, menu_path=""):
+	def __init__(self, session, timer):
 		Screen.__init__(self, session)
-		screentitle = _("Timer entry")
-		menu_path += screentitle
-		if config.usage.show_menupath.value == 'large':
-			title = menu_path
-			self["menu_path_compressed"] = StaticText("")
-		elif config.usage.show_menupath.value == 'small':
-			title = screentitle
-			print('menu_path:',menu_path)
-			self["menu_path_compressed"] = StaticText(menu_path + " >" if not menu_path.endswith(' / ') else menu_path[:-3] + " >" or "")
-		else:
-			title = screentitle
-			self["menu_path_compressed"] = StaticText("")
-		self.setup_title = title
-		Screen.setTitle(self, title)
-
+		self.setTitle(_("Timer Edit"))
 		self.timer = timer
 
 		self.entryDate = None
@@ -125,7 +111,7 @@ class TimerEntry(ConfigListScreen, Screen):
 				count = 0
 				for x in (0, 1, 2, 3, 4, 5, 6):
 					if flags == 1: # weekly
-# 						print "Set to weekday " + str(x)
+# 						print ("Set to weekday %s" % str(x))
 						weekday = x
 					if flags & 1 == 1: # set user defined flags
 						day[x] = 1
@@ -548,20 +534,9 @@ class TimerEntry(ConfigListScreen, Screen):
 			self["config"].invalidate(self.tagsSet)
 
 class TimerLog(Screen):
-	def __init__(self, session, timer, menu_path="",tmp=""):
+	def __init__(self, session, timer):
 		Screen.__init__(self, session)
-		screentitle = _("Log")
-		if config.usage.show_menupath.value == 'large':
-			menu_path += screentitle
-			title = menu_path
-			self["menu_path_compressed"] = StaticText("")
-		elif config.usage.show_menupath.value == 'small':
-			title = screentitle
-			self["menu_path_compressed"] = StaticText(menu_path + " >" if not menu_path.endswith(' / ') else menu_path[:-3] + " >" or "")
-		else:
-			title = screentitle
-			self["menu_path_compressed"] = StaticText("")
-		Screen.setTitle(self, title)
+		self.setTitle(_("Log"))
 
 		self.timer = timer
 		self.log_entries = self.timer.log_entries[:]
@@ -638,7 +613,6 @@ class TimerLog(Screen):
 class InstantRecordTimerEntry(TimerEntry):
 	def __init__(self, session, timer, zap):
 		Screen.__init__(self, session)
-		self.setup_title = ""
 		self.timer = timer
 		self.timer.justplay = zap
 		self.entryDate = None
