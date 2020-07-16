@@ -1053,11 +1053,6 @@ next:
 	}
 }
 
-void eEPGCache::flushEPG(int sid, int onid, int tsid)
-{
-	flushEPG(uniqueEPGKey(sid, onid, tsid));
-}
-
 void eEPGCache::flushEPG(const uniqueEPGKey & s)
 {
 	eDebug("[eEPGCache] flushEPG %d", (int)(bool)s);
@@ -3879,46 +3874,7 @@ PyObject *eEPGCache::search(ePyObject arg)
 								textlen = text.length();
 							}
 						}
-<<<<<<< HEAD
 						else if ( data[0] == 0x4E && querytype == 5 ) // extended event descriptor
-=======
-					}
-					Py_END_ALLOW_THREADS;
-				}
-				else
-				{
-					PyErr_SetString(PyExc_StandardError,
-						"type error");
-					eDebug("[EPGCache] tuple arg 4 is not a string");
-					return NULL;
-				}
-			}
-			else if (tuplesize > 4 && (querytype == PARTIAL_DESCRIPTION_SEARCH) )
-			{
-				ePyObject obj = PyTuple_GET_ITEM(arg, 3);
-				if (PyString_Check(obj))
-				{
-					int casetype = PyLong_AsLong(PyTuple_GET_ITEM(arg, 4));
-#if PY_VERSION_HEX < 0x02060000
-					ssize_t textlen = PyString_GET_SIZE(obj);
-					const char *str = PyString_AS_STRING(obj);
-#elif PY_VERSION_HEX < 0x03000000
-					ssize_t textlen = PyString_Size(obj);
-					const char *str = PyString_AS_STRING(obj);
-#else
-					ssize_t textlen;
-					const char *str = PyUnicode_AsUTF8AndSize(obj, &textlen);
-#endif
-					int lloop=0;
-					const char *ctype = casetypestr(casetype);
-					eDebug("[EPGCache] lookup events with '%s' in content (%s)", str, ctype);
-					Py_BEGIN_ALLOW_THREADS; /* No Python code in this section, so other threads can run */
-					{
-						singleLock s(cache_lock);
-						std::string content;
-						for (DescriptorMap::iterator it(eventData::descriptors.begin());
-							it != eventData::descriptors.end(); ++it)
->>>>>>> 8ead0ca6b... Fix crash in EventView
 						{
 							textptr = (const char*)&data[8];
 							textlen = data[7];
