@@ -28,8 +28,7 @@ for file in sys.argv[1:]:
 
 	for i in info[:]:
 		package.set(i.tag, i.text)
-	packagestr = p.tostring(package, encoding=encoding)
-	root.append(packagestr)
+	root.append(package)
 
 def indent(elem, level=0):
 	i = "\n" + level*"\t"
@@ -48,6 +47,6 @@ def indent(elem, level=0):
 
 indent(root)
 
-ElementTree(root).write(sys.stdout)
+ElementTree(root, encoding=encoding).write(sys.stdout)
 # ElementTree(root).write(sys.stdout, encoding=encoding)
 
