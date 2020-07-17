@@ -3826,16 +3826,15 @@ PyObject *eEPGCache::search(ePyObject arg)
 				{
 					int casetype = PyLong_AsLong(PyTuple_GET_ITEM(arg, 4));
 #if PY_VERSION_HEX < 0x02060000
-					ssize_t textlen = PyString_GET_SIZE(obj);
+					ssize_t strlen = PyString_GET_SIZE(obj);
 					const char *str = PyString_AS_STRING(obj);
 #elif PY_VERSION_HEX < 0x03000000
-					ssize_t textlen = PyString_Size(obj);
+					ssize_t strlen = PyString_Size(obj);
 					const char *str = PyString_AS_STRING(obj);
 #else
-					ssize_t textlen;
-					const char *str = PyUnicode_AsUTF8AndSize(obj, &textlen);
+					ssize_t strlen;
+					const char *str = PyUnicode_AsUTF8AndSize(obj, &strlen);
 #endif
-					const char *ctype = casetypestr(casetype);
 					switch (querytype)
 					{
 						case 1:
