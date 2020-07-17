@@ -1,9 +1,10 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import six
 
 import sys
 import os
-import string
 import re
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler, property_lexical_handler
@@ -32,7 +33,7 @@ class parseXML(ContentHandler, LexicalHandler):
 			try:
 				k = six.ensure_str(attrs[x])
 				if k.strip() != "" and not self.ishex.match(k):
-					attrlist.add((attrs[x], self.last_comment))
+					attrlist.add((k, self.last_comment))
 					self.last_comment = None
 			except KeyError:
 				pass
@@ -57,10 +58,10 @@ for arg in sys.argv[1:]:
 	attrlist = list(attrlist)
 	attrlist.sort(key=lambda a: a[0])
 
-	for (k,c) in attrlist:
-		print
-		print '#: ' + arg
-		string.replace(k, "\\n", "\"\n\"")
+	for (k, c) in attrlist:
+		print()
+		print('#: ' + arg)
+		k.replace("\\n", "\"\n\"")
 		if c:
 			for l in c.split('\n'):
 				print("#. ", l)
