@@ -47,6 +47,5 @@ def indent(elem, level=0):
 
 indent(root)
 
-ElementTree(root).decode.write(sys.stdout)
-# ElementTree(root).write(sys.stdout, encoding=encoding)
+ElementTree(root).write(sys.stdout, encoding=encoding)
 
