@@ -1,6 +1,6 @@
 from __future__ import print_function, absolute_import
 from builtins import range
-
+import sys
 from enigma import eRCInput, eTimer, eWindow  # , getDesktop
 
 from skin import GUI_SKIN_ID, applyAllAttributes
@@ -271,7 +271,10 @@ class Screen(dict):
 			# DEBUG: if type(f) is not type(self.close):  # Is this the best way to do this?
 			# DEBUG: Is the following an acceptable fix?
 			if not isinstance(f, type(self.close)):
-				exec(f, globals(), locals())
+				if sys.version_info >= (3, 0):
+					exec(f, globals(), locals())  # Python 3
+				else:
+					exec f in globals(), locals()  # Python 2
 			else:
 				f()
 
