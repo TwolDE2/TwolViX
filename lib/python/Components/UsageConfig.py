@@ -871,11 +871,11 @@ def InitUsageConfig():
 		Components.EpgLoadSave.EpgCacheLoadCheck()
 	def EpgCacheSaveSchedChanged(configElement):
 		import Components.EpgLoadSave
-		Components.EpgLoadSave.EpgCacheSaveCheck(
-	config.epg.cacheloadsched.addNotifier(EpgCacheLoadSchedChanged, immediate_feedback=False)
-	config.epg.cachesavesched.addNotifier(EpgCacheSaveSchedChanged, immediate_feedback=False)
-	config.epg.cacheloadtimer = ConfigSelectionNumber(default=24, stepwidth=1, min=1, max=24, wraparound=True)
-	config.epg.cachesavetimer = ConfigSelectionNumber(default=24, stepwidth=1, min=1, max=24, wraparound=True)
+		Components.EpgLoadSave.EpgCacheSaveCheck()
+	config.epg.cacheloadsched.addNotifier(EpgCacheLoadSchedChanged, immediate_feedback = False)
+	config.epg.cachesavesched.addNotifier(EpgCacheSaveSchedChanged, immediate_feedback = False)
+	config.epg.cacheloadtimer = ConfigSelectionNumber(default = 24, stepwidth = 1, min = 1, max = 24, wraparound = True)
+	config.epg.cachesavetimer = ConfigSelectionNumber(default = 24, stepwidth = 1, min = 1, max = 24, wraparound = True)
 
 	hddchoises = [("/etc/enigma2/", "Internal Flash")]
 	for p in harddiskmanager.getMountedPartitions():
@@ -883,9 +883,9 @@ def InitUsageConfig():
 			d = os.path.normpath(p.mountpoint)
 			if p.mountpoint != "/":
 				hddchoises.append((p.mountpoint, d))
-	config.misc.epgcachepath = ConfigSelection(default="/etc/enigma2/", choices=hddchoises)
-	config.misc.epgcachefilename = ConfigText(default="epg", fixed_size=False)
-	config.misc.epgcache_filename = ConfigText(default=(config.misc.epgcachepath.value + config.misc.epgcachefilename.value.replace(".dat", "") + ".dat"))
+	config.misc.epgcachepath = ConfigSelection(default = "/etc/enigma2/", choices = hddchoises)
+	config.misc.epgcachefilename = ConfigText(default = "epg", fixed_size = False)
+	config.misc.epgcache_filename = ConfigText(default = (config.misc.epgcachepath.value + config.misc.epgcachefilename.value.replace(".dat", "") + ".dat"))
 
 	def EpgCacheChanged(configElement):
 		config.misc.epgcache_filename.setValue(os.path.join(config.misc.epgcachepath.value, config.misc.epgcachefilename.value.replace(".dat", "") + ".dat"))
@@ -902,7 +902,7 @@ def InitUsageConfig():
 	config.misc.epgratingcountry = ConfigSelection(default="", choices=[("", _("Auto Detect")), ("ETSI", _("Generic")), ("AUS", _("Australia"))])
 	config.misc.epggenrecountry = ConfigSelection(default="", choices=[("", _("Auto Detect")), ("ETSI", _("Generic")), ("AUS", _("Australia"))])
 
-	config.misc.showradiopic = ConfigYesNo(default=True)
+	config.misc.showradiopic = ConfigYesNo(default = True)
 	def setHDDStandby(configElement):
 		for hdd in harddiskmanager.HDDList():
 			hdd[1].setIdleTime(int(configElement.value))
@@ -917,21 +917,21 @@ def InitUsageConfig():
 	config.usage.keytrans = ConfigText(default = eEnv.resolve("${datadir}/enigma2/keytranslation.xml"))
 
 	config.network = ConfigSubsection()
-	config.network.AFP_autostart = ConfigYesNo(default=True)
-	config.network.NFS_autostart = ConfigYesNo(default=True)
-	config.network.OpenVPN_autostart = ConfigYesNo(default=True)
-	config.network.Samba_autostart = ConfigYesNo(default=True)
-	config.network.Inadyn_autostart = ConfigYesNo(default=True)
-	config.network.uShare_autostart = ConfigYesNo(default=True)
+	config.network.AFP_autostart = ConfigYesNo(default = True)
+	config.network.NFS_autostart = ConfigYesNo(default = True)
+	config.network.OpenVPN_autostart = ConfigYesNo(default = True)
+	config.network.Samba_autostart = ConfigYesNo(default = True)
+	config.network.Inadyn_autostart = ConfigYesNo(default = True)
+	config.network.uShare_autostart = ConfigYesNo(default = True)
 
 	config.softwareupdate = ConfigSubsection()
-	config.softwareupdate.autosettingsbackup = ConfigYesNo(default=True)
-	config.softwareupdate.autoimagebackup = ConfigYesNo(default=False)
-	config.softwareupdate.check = ConfigYesNo(default=True)
-	config.softwareupdate.checktimer = ConfigSelectionNumber(min=1, max=48, stepwidth=1, default=24, wraparound=True)
+	config.softwareupdate.autosettingsbackup = ConfigYesNo(default = True)
+	config.softwareupdate.autoimagebackup = ConfigYesNo(default = False)
+	config.softwareupdate.check = ConfigYesNo(default = True)
+	config.softwareupdate.checktimer = ConfigSelectionNumber(min = 1, max = 48, stepwidth = 1, default = 24, wraparound = True)
 	config.softwareupdate.updatelastcheck = ConfigInteger(default=0)
-	config.softwareupdate.updatefound = NoSave(ConfigBoolean(default=False))
-	config.softwareupdate.updatebeta = ConfigYesNo(default=False)
+	config.softwareupdate.updatefound = NoSave(ConfigBoolean(default = False))
+	config.softwareupdate.updatebeta = ConfigYesNo(default = False)
 	config.softwareupdate.updateisunstable = ConfigInteger(default=0)
 
 	config.timeshift = ConfigSubsection()
@@ -941,32 +941,34 @@ def InitUsageConfig():
 	for i in (60, 120, 300):
 		m = i / 60
 		choicelist.append(("%d" % i, ngettext("%d minute", "%d minutes", m) % m))
-	config.timeshift.startdelay = ConfigSelection(default="0", choices=choicelist)
-	config.timeshift.showinfobar = ConfigYesNo(default=True)
-	config.timeshift.stopwhilerecording = ConfigYesNo(default=False)
-	config.timeshift.favoriteSaveAction = ConfigSelection(default="askuser", choices=[
+	config.timeshift.startdelay = ConfigSelection(default = "0", choices = choicelist)
+	config.timeshift.showinfobar = ConfigYesNo(default = True)
+	config.timeshift.stopwhilerecording = ConfigYesNo(default = False)
+	config.timeshift.favoriteSaveAction = ConfigSelection(default = "askuser", choices = [
 		("askuser", _("Ask user")),
 		("savetimeshift", _("Save and stop")),
 		("savetimeshiftandrecord", _("Save and record")),
 		("noSave", _("Don't save"))
 	])
-	config.timeshift.permanentrecording = ConfigYesNo(default=False)
-	config.timeshift.isRecording = NoSave(ConfigYesNo(default=False))
+	config.timeshift.permanentrecording = ConfigYesNo(default = False)
+	config.timeshift.isRecording = NoSave(ConfigYesNo(default = False))
 	config.seek = ConfigSubsection()
-	config.seek.baractivation = ConfigSelection(default="leftright", choices=[
+	config.seek.baractivation = ConfigSelection(default = "leftright", choices = [
 		("leftright", _("Long Left/Right")),
 		("ffrw", _("Long << / >>"))
 	])
-	config.seek.sensibility = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=10, wraparound=True)
-	config.seek.selfdefined_13 = ConfigSelectionNumber(min=1, max=120, stepwidth=1, default=15, wraparound=True)
-	config.seek.selfdefined_46 = ConfigSelectionNumber(min=1, max=240, stepwidth=1, default=60, wraparound=True)
-	config.seek.selfdefined_79 = ConfigSelectionNumber(min=1, max=480, stepwidth=1, default=300, wraparound=True)
+	config.seek.sensibility = ConfigSelectionNumber(min = 1, max = 10, stepwidth = 1, default = 10, wraparound = True)
+	config.seek.selfdefined_13 = ConfigSelectionNumber(min = 1, max = 120, stepwidth = 1, default = 15, wraparound = True)
+	config.seek.selfdefined_46 = ConfigSelectionNumber(min = 1, max = 240, stepwidth = 1, default = 60, wraparound = True)
+	config.seek.selfdefined_79 = ConfigSelectionNumber(min = 1, max = 480, stepwidth = 1, default = 300, wraparound = True)
 	config.seek.speeds_forward = ConfigSet(default=[2, 4, 8, 16, 32, 64, 128], choices=[2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128])
 	config.seek.speeds_backward = ConfigSet(default=[2, 4, 8, 16, 32, 64, 128], choices=[1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128])
 	config.seek.speeds_slowmotion = ConfigSet(default=[2, 4, 8], choices=[2, 4, 6, 8, 12, 16, 25])
-	config.seek.enter_forward = ConfigSelection(default="2", choices=["2", "4", "6", "8", "12", "16", "24", "32", "48", "64", "96", "128"])
-	config.seek.enter_backward = ConfigSelection(default="1", choices=["1", "2", "4", "6", "8", "12", "16", "24", "32", "48", "64", "96", "128"])
-	config.seek.on_pause = ConfigSelection(default="play", choices=[
+
+	config.seek.enter_forward = ConfigSelection(default = "2", choices = ["2", "4", "6", "8", "12", "16", "24", "32", "48", "64", "96", "128"])
+	config.seek.enter_backward = ConfigSelection(default = "1", choices = ["1", "2", "4", "6", "8", "12", "16", "24", "32", "48", "64", "96", "128"])
+
+	config.seek.on_pause = ConfigSelection(default = "play", choices = [
 		("play", _("Play")),
 		("step", _("Single step (GOP)")),
 		("last", _("Last speed"))
@@ -1060,17 +1062,17 @@ def InitUsageConfig():
 		("2", _("yellow"))
 	])
 	config.subtitles.ttx_subtitle_original_position = ConfigYesNo(default=False)
-	config.subtitles.subtitle_position = ConfigSelection(default="50", choices=["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "150", "200", "250", "300", "350", "400", "450"])
-	config.subtitles.subtitle_alignment = ConfigSelection(default="center", choices=[
+	config.subtitles.subtitle_position = ConfigSelection(default = "50", choices = ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "150", "200", "250", "300", "350", "400", "450"])
+	config.subtitles.subtitle_alignment = ConfigSelection(default = "center", choices = [
 		("left", _("left")),
 		("center", _("center")),
 		("right", _("right"))
 	])
-	config.subtitles.subtitle_rewrap = ConfigYesNo(default=False)
-	config.subtitles.colourise_dialogs = ConfigYesNo(default=False)
-	config.subtitles.subtitle_borderwidth = ConfigSelection(default="3", choices=["1", "2", "3", "4", "5"])
-	config.subtitles.subtitle_fontsize = ConfigSelection(default="40", choices=["%d" % x for x in list(range(16, 101) if not x % 2]))
-	config.subtitles.showbackground = ConfigYesNo(default=False)
+	config.subtitles.subtitle_rewrap = ConfigYesNo(default = False)
+	config.subtitles.colourise_dialogs = ConfigYesNo(default = False)
+	config.subtitles.subtitle_borderwidth = ConfigSelection(default = "3", choices = ["1", "2", "3", "4", "5"])
+	config.subtitles.subtitle_fontsize = ConfigSelection(default = "40", choices = ["%d" % x for x in list(range(16, 101)) if not x % 2])
+	config.subtitles.showbackground = ConfigYesNo(default = False)
 	subtitle_delay_choicelist = []
 	for i in list(range(-900000, 1845000, 45000)):
 		if i == 0:
@@ -1227,18 +1229,18 @@ def InitUsageConfig():
 	softcams = os.listdir('/usr/softcams/')
 	config.oscaminfo = ConfigSubsection()
 	config.oscaminfo.showInExtensions = ConfigYesNo(default=False)
-	config.oscaminfo.userdatafromconf = ConfigYesNo(default=True)
-	config.oscaminfo.autoupdate = ConfigYesNo(default=False)
-	config.oscaminfo.username = ConfigText(default="username", fixed_size=False, visible_width=12)
-	config.oscaminfo.password = ConfigPassword(default="password", fixed_size=False)
-	config.oscaminfo.ip = ConfigIP(default=[127, 0, 0, 1], auto_jump=True)
-	config.oscaminfo.port = ConfigInteger(default=16002, limits=(0, 65536))
-	config.oscaminfo.intervall = ConfigSelectionNumber(min=1, max=600, stepwidth=1, default=10, wraparound=True)
+	config.oscaminfo.userdatafromconf = ConfigYesNo(default = True)
+	config.oscaminfo.autoupdate = ConfigYesNo(default = False)
+	config.oscaminfo.username = ConfigText(default = "username", fixed_size = False, visible_width=12)
+	config.oscaminfo.password = ConfigPassword(default = "password", fixed_size = False)
+	config.oscaminfo.ip = ConfigIP( default = [ 127,0,0,1 ], auto_jump=True)
+	config.oscaminfo.port = ConfigInteger(default = 16002, limits=(0,65536) )
+	config.oscaminfo.intervall = ConfigSelectionNumber(min = 1, max = 600, stepwidth = 1, default = 10, wraparound = True)
 	SystemInfo["OScamInstalled"] = False
 
 	config.cccaminfo = ConfigSubsection()
 	config.cccaminfo.showInExtensions = ConfigYesNo(default=False)
-	config.cccaminfo.serverNameLength = ConfigSelectionNumber(min=10, max=100, stepwidth=1, default=22, wraparound=True)
+	config.cccaminfo.serverNameLength = ConfigSelectionNumber(min = 10, max = 100, stepwidth = 1, default = 22, wraparound = True)
 	config.cccaminfo.name = ConfigText(default="Profile", fixed_size=False)
 	config.cccaminfo.ip = ConfigText(default="192.168.2.12", fixed_size=False)
 	config.cccaminfo.username = ConfigText(default="", fixed_size=False)
@@ -1246,7 +1248,7 @@ def InitUsageConfig():
 	config.cccaminfo.port = ConfigInteger(default=16001, limits=(1, 65535))
 	config.cccaminfo.profile = ConfigText(default="", fixed_size=False)
 	config.cccaminfo.ecmInfoEnabled = ConfigYesNo(default=True)
-	config.cccaminfo.ecmInfoTime = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=5, wraparound=True)
+	config.cccaminfo.ecmInfoTime = ConfigSelectionNumber(min = 1, max = 10, stepwidth = 1, default = 5, wraparound = True)
 	config.cccaminfo.ecmInfoForceHide = ConfigYesNo(default=True)
 	config.cccaminfo.ecmInfoPositionX = ConfigInteger(default=50)
 	config.cccaminfo.ecmInfoPositionY = ConfigInteger(default=50)
@@ -1262,12 +1264,12 @@ def InitUsageConfig():
 			SystemInfo["OScamInstalled"] = True
 
 	config.streaming = ConfigSubsection()
-	config.streaming.stream_ecm = ConfigYesNo(default=False)
-	config.streaming.descramble = ConfigYesNo(default=True)
-	config.streaming.descramble_client = ConfigYesNo(default=False)
-	config.streaming.stream_eit = ConfigYesNo(default=True)
-	config.streaming.stream_ait = ConfigYesNo(default=True)
-	config.streaming.authentication = ConfigYesNo(default=False)
+	config.streaming.stream_ecm = ConfigYesNo(default = False)
+	config.streaming.descramble = ConfigYesNo(default = True)
+	config.streaming.descramble_client = ConfigYesNo(default = False)
+	config.streaming.stream_eit = ConfigYesNo(default = True)
+	config.streaming.stream_ait = ConfigYesNo(default = True)
+	config.streaming.authentication = ConfigYesNo(default = False)
 
 	config.pluginbrowser = ConfigSubsection()
 	config.pluginbrowser.po = ConfigYesNo(default = False)

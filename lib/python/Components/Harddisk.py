@@ -390,7 +390,7 @@ class Harddisk:
 
 	def createInitializeJob(self):
 		print("[Harddisk] Initializing storage device...")
-		job = Task.Job(_("Initializing storage device..."))
+		job = Components.Task.Job(_("Initializing storage device..."))
 		size = self.diskSize()
 		print("[Harddisk] Disk size: %s MB." % size)
 		task = UnmountTask(job, self)
@@ -469,7 +469,7 @@ class Harddisk:
 
 	def createCheckJob(self):
 		print("[Harddisk] Checking filesystem...")
-		job = Task.Job(_("Checking filesystem..."))
+		job = Components.Task.Job(_("Checking filesystem..."))
 		if self.findMount():
 			UnmountTask(job, self)  # Create unmount task if it was not mounted.
 			dev = self.mount_device
@@ -955,16 +955,16 @@ class HarddiskManager:
 		except (IOError, OSError) as err:
 			print("[Harddisk] Error: Failed to set '%s' speed to '%s':" % (device, speed), err)
 
-
-class UnmountTask(Task.LoggingTask):
+class UnmountTask(Components.Task.LoggingTask):
 	def __init__(self, job, hdd):
-		Task.LoggingTask.__init__(self, job, _("Unmount."))
+		Components.Task.LoggingTask.__init__(self, job, _("Unmount."))
 		self.hdd = hdd
 		self.mountpoints = []
 
 	def prepare(self):
 		try:
 			dev = self.hdd.disk_path.split(os.sep)[-1]
+			dev = six.ensure_binary(dev)
 			open("/dev/nomount.%s" % dev, "wb").close()
 		except (IOError, OSError) as err:
 			print("[Harddisk] UnmountTask - Error: Failed to create /dev/nomount file:", err)
@@ -986,10 +986,9 @@ class UnmountTask(Task.LoggingTask):
 			except (IOError, OSError) as err:
 				print("[Harddisk] UnmountTask - Error: Failed to remove path '%s':" % path, err)
 
-
-class MountTask(Task.LoggingTask):
+class MountTask(Components.Task.LoggingTask):
 	def __init__(self, job, hdd):
-		Task.LoggingTask.__init__(self, job, _("Mount."))
+		Components.Task.LoggingTask.__init__(self, job, _("Mount."))
 		self.hdd = hdd
 
 	def prepare(self):
@@ -1009,7 +1008,7 @@ class MountTask(Task.LoggingTask):
 					fspath = os.path.realpath(parts[0])
 					if os.path.realpath(fspath) == dev:
 						self.setCmdline("mount -t auto %s" % fspath)
-						self.postconditions.append(Task.ReturncodePostcondition())
+						self.postconditions.append(Components.Task.ReturncodePostcondition())
 						return
 		except (IOError, OSError) as err:
 			print("[Harddisk] MountTask - Error: Failed to read '/etc/fstab' file:", err)
@@ -1017,10 +1016,10 @@ class MountTask(Task.LoggingTask):
 			# We can let udev do the job, re-read the partition table.
 			# Sorry for the sleep 2 hack...
 			self.setCmdline("sleep 2; hdparm -z %s" % self.hdd.disk_path)
-			self.postconditions.append(Task.ReturncodePostcondition())
+			self.postconditions.append(Components.Task.ReturncodePostcondition())
 
 
-class MkfsTask(Task.LoggingTask):
+class MkfsTask(Components.Task.LoggingTask):
 	def prepare(self):
 		self.fsck_state = None
 

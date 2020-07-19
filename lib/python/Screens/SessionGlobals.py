@@ -1,16 +1,17 @@
-from Screens.Screen import Screen
+from __future__ import absolute_import
+
+from Components.Converter.Combine import Combine
+from Components.Renderer.FrontpanelLed import FrontpanelLed
+from Components.Sources.Boolean import Boolean
 from Components.Sources.CurrentService import CurrentService
 from Components.Sources.EventInfo import EventInfo
 from Components.Sources.FrontendStatus import FrontendStatus
 from Components.Sources.FrontendInfo import FrontendInfo
 from Components.Sources.Source import Source
-from __future__ import absolute_import
-
 from Components.Sources.TunerInfo import TunerInfo
-from Components.Sources.Boolean import Boolean
 from Components.Sources.RecordState import RecordState
-from Components.Converter.Combine import Combine
-from Components.Renderer.FrontpanelLed import FrontpanelLed
+
+from Screens.Screen import Screen
 
 class SessionGlobals(Screen):
 	def __init__(self, session):

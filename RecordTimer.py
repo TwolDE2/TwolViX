@@ -602,7 +602,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 							else:
 								del self.InfoBarInstance.session.pip
 								self.InfoBarInstance.session.pipshown = False
- 					if self.checkingTimeshiftRunning():
+					if self.checkingTimeshiftRunning():
 						if self.ts_dialog is None:
 							self.openChoiceActionBeforeZap()
 					else:
@@ -1015,7 +1015,7 @@ class RecordTimer(timer.Timer):
 				timer.state = RecordTimerEntry.StateWaiting
 				self.timeChanged(timer)
 
- 	def isRecording(self):
+	def isRecording(self):
 		for timer in self.timer_list:
 			if timer.isRunning() and not timer.justplay:
 				return True
@@ -1116,9 +1116,9 @@ class RecordTimer(timer.Timer):
 				xlist.append(' time="' + str(log_time) + '"')
 				xlist.append('>')
 				if isinstance(msg, int):
-						xlist.append(str(msg))
-					else:
-						xlist.append(str(stringToXML(msg)))
+					xlist.append(str(msg))
+				else:
+					xlist.append(str(stringToXML(msg)))
 				xlist.append('</log>\n')
 
 			xlist.append('</timer>\n')

@@ -55,7 +55,7 @@ class MenuSummary(Screen):
 
 	def addWatcher(self):
 		self.parent["menu"].onSelectionChanged.append(self.selectionChanged)
-	 	self.selectionChanged()
+		self.selectionChanged()
 
 	def removeWatcher(self):
 		self.parent["menu"].onSelectionChanged.remove(self.selectionChanged)

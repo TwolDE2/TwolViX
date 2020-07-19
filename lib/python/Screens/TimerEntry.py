@@ -9,7 +9,6 @@ from datetime import datetime
 
 from enigma import eEPGCache
 
-import ChannelSelection
 from ServiceReference import ServiceReference
 from Components.config import config, ConfigSelection, ConfigText, ConfigSubList, ConfigDateTime, ConfigClock, ConfigYesNo, getConfigListEntry
 from Components.ActionMap import NumberActionMap, ActionMap
@@ -28,6 +27,7 @@ from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
+import Screens.ChannelSelection
 from RecordTimer import AFTEREVENT
 
 class TimerEntry(ConfigListScreen, Screen):
@@ -318,7 +318,7 @@ class TimerEntry(ConfigListScreen, Screen):
 		if cur == self.channelEntry:
 			self.session.openWithCallback(
 				self.finishedChannelSelection,
-				Screns.ChannelSelection.SimpleChannelSelection,
+				Screens.ChannelSelection.SimpleChannelSelection,
 				_("Select channel to record from"),
 				currentBouquet=True
 			)

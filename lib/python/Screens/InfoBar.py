@@ -1,4 +1,5 @@
 from __future__ import print_function, absolute_import
+from Tools.Profile import profile
 
 import os
 
@@ -10,7 +11,6 @@ from Components.config import ConfigSelection
 from Components.Label import Label
 from Components.Pixmap import MultiPixmap
 from Screens.MessageBox import MessageBox
-from Tools.Profile import profile
 
 # workaround for required config entry dependencies.
 import Screens.MovieSelection

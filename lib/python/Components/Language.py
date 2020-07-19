@@ -4,8 +4,7 @@ from __future__ import print_function, absolute_import
 import gettext
 import locale
 import os
-from time import time, localtime, strftimeran
-
+from time import time, localtime, strftime
 from Tools.Directories import SCOPE_LANGUAGE, resolveFilename
 
 LPATH = resolveFilename(SCOPE_LANGUAGE, "")

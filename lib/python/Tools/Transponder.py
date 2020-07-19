@@ -1,17 +1,22 @@
-from enigma import eDVBFrontendParametersSatellite, eDVBFrontendParametersCable, eDVBFrontendParametersTerrestrial, eDVBFrontendParametersATSC
-from Components.NimManager import nimmanager
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import six
+
+from enigma import eDVBFrontendParametersSatellite, eDVBFrontendParametersCable, eDVBFrontendParametersTerrestrial, eDVBFrontendParametersATSC
+
+from Components.NimManager import nimmanager
 
 SIGN = '°' if six.PY3 else str('\xc2\xb0')
 
 def orbpos(pos):
-	return pos > 3600 and "N/A" or "%d.%d%s%s" % (pos > 1800 and ((3600 - pos) / 10, (3600 - pos) % 10, SIGN, "W") or (pos / 10, pos % 10, SIGN, "E")
+	return pos > 3600 and "N/A" or "%d.%d%s%s" % (pos > 1800 and ((3600 - pos) / 10, (3600 - pos) % 10, SIGN, "W") or (pos / 10, pos % 10, SIGN, "E"))
 
 def getTunerDescription(nim):
 	try:
 		return nimmanager.getTerrestrialDescription(nim)
 	except:
-		print("[ChannelNumber] nimmanager.getTerrestrialDescription(nim) failed, nim:", nim)
+		print("[ChannelNumber] nimmanager.getTerrestrialDescription(nim) failed, nim:%s" % nim)
 	return ""
 
 def getMHz(frequency):
@@ -163,7 +168,7 @@ def ConvertToHumanReadable(tp, tunertype = None):
 		else:
 			x = ""
 		ret["bandwidth"] = x
-		#print 'bandwidth:',tp.get("bandwidth")
+		#print('bandwidth:%s' % tp.get("bandwidth"))
 		ret["code_rate_lp"] = {
 			eDVBFrontendParametersTerrestrial.FEC_Auto : _("Auto"),
 			eDVBFrontendParametersTerrestrial.FEC_1_2 : "1/2",
@@ -254,7 +259,7 @@ def ConvertToHumanReadable(tp, tunertype = None):
 			eDVBFrontendParametersATSC.System_DVB_C_ANNEX_B : "DVB-C ANNEX B"}.get(tp.get("system"))
 	elif tunertype != "None":
 		print("ConvertToHumanReadable: no or unknown tunertype in tpdata dict for tunertype:", tunertype)
-	for k,v in list(tp.items()):
+	for k, v in list(tp.items()):
 		if k not in ret:
 			ret[k] = v
 	return ret

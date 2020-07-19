@@ -1,11 +1,7 @@
 from __future__ import print_function
-<<<<<<< HEAD
-=======
-from enigma import eActionMap
->>>>>>> 56810b951... [2to3] ActionMap rework again replace __iter__ check with is list
 import six
-
 from enigma import eActionMap
+
 from Tools.KeyBindings import queryKeyBinding
 
 class ActionMap:

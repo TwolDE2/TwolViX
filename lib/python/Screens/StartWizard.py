@@ -10,7 +10,7 @@ from Screens.Rc import Rc
 from Screens.WizardLanguage import WizardLanguage
 from Screens.WizardUserInterfacePositioner import UserInterfacePositionerWizard
 from Screens.VideoWizard import VideoWizard
-from Sceens.Wizard import wizardManager
+from Screens.Wizard import wizardManager
 
 config.misc.firstrun = ConfigBoolean(default = True)
 config.misc.languageselected = ConfigBoolean(default = True)

@@ -494,7 +494,7 @@ class EPGServiceZap:
 			if self.epgConfig.preview_mode.value:
 				if "0:0:0:0:0:0:0:0:0" in self.originalPlayingServiceOrGroup.toString():
   					# Restart movie playback, MoviePlayer screen is still active.
-  					from Screens.InfoBar import MoviePlayer
+					from Screens.InfoBar import MoviePlayer
 					if MoviePlayer.instance:
 						MoviePlayer.instance.forceNextResume()
 				self.session.nav.playService(self.originalPlayingServiceOrGroup)
@@ -590,8 +590,8 @@ class EPGServiceNumberSelection:
 		self["zapnumber"].show()
 		self["zapservice"].newService(service)
 		if self["number"].skinAttributes:
-		 	serviceName = ServiceReference(service).getServiceName()
-		 	self["number"].setText("%s\n%s" % (serviceName, self.numberZapField))
+			serviceName = ServiceReference(service).getServiceName()
+			self["number"].setText("%s\n%s" % (serviceName, self.numberZapField))
 			self["number"].show()
 
 		if len(self.numberZapField) >= 4:

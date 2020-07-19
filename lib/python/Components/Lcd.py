@@ -101,7 +101,7 @@ class LCD:
 			value = 255
 		self.dimBrightness = value
 
-	def setDimDelay(self, value):lib/python/Components/InputDevice.py
+	def setDimDelay(self, value):
 		self.dimDelay = int(value)
 
 	def setContrast(self, value):
@@ -220,7 +220,7 @@ def InitLcd():
 		config.lcd.powerled2 = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
 		config.lcd.powerled2.addNotifier(setPowerLEDstate2)
 
- 	if SystemInfo["StandbyLED"]:
+	if SystemInfo["StandbyLED"]:
 		def setPowerLEDstanbystate(configElement):
 			print("[LCD]StandbyLED = %s configElement = %s" % (SystemInfo["StandbyLED"], configElement.value))
 			f = open("/proc/stb/power/standbyled", "w")
@@ -229,7 +229,7 @@ def InitLcd():
 		config.lcd.standbyLED = ConfigSelection(default = "on", choices = [("off", _("Off")), ("on", _("On"))])
 		config.lcd.standbyLED.addNotifier(setPowerLEDstanbystate)
 
- 	if SystemInfo["SuspendLED"]:
+	if SystemInfo["SuspendLED"]:
 		def setPowerLEDdeepstanbystate(configElement):
 			print("[LCD]SuspendLED = %s configElement = %s" % (SystemInfo["SuspendLED"], configElement.value))
 			f = open("/proc/stb/power/suspendled", "w")

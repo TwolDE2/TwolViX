@@ -99,7 +99,7 @@ class EPGListGrid(EPGListBase):
 		self.loadConfig()
 
 	def loadConfig(self):
- 		self.graphic = self.epgConfig.type_mode.value == "graphics"
+		self.graphic = self.epgConfig.type_mode.value == "graphics"
 		self.graphicsloaded = False
 		self.epgHistorySecs = int(config.epg.histminutes.value) * SECS_IN_MIN
 		self.roundBySecs = int(self.epgConfig.roundto.value) * SECS_IN_MIN

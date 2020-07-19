@@ -610,7 +610,7 @@ class MovieList(GUIComponent):
 			MovieList.InTrashFolder = here.startswith(getTrashFolder(here))
 		else:
 	 		MovieList.InTrashFolder = False
- 		MovieList.UsingTrashSort = False
+		MovieList.UsingTrashSort = False
 		if MovieList.InTrashFolder:
 			if (config.usage.trashsort_deltime.value == "show record time"):
 		 		MovieList.UsingTrashSort = MovieList.TRASHSORT_SHOWRECORD
