@@ -1,9 +1,13 @@
-from enigma import getDesktop
+from __future__ import print_function
+import six
 
 from os import path as os_path, remove, unlink, rename, chmod, access, X_OK
+from random import Randomfrom subprocess import call
 from shutil import move
+import subprocess
+import string
+import sys
 import time
-import six
 
 from enigma import eTimer, eConsoleAppContainer
 from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType
@@ -26,19 +30,14 @@ from Components.Sources.Boolean import Boolean
 from Components.Sources.List import List
 from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
-from random import Random
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
-from Screens.Standby import TryQuitMainloop
 from Screens.HelpMenu import HelpableScreen
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+from Screens.Standby import TryQuitMainloop
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
 
-from subprocess import call
-import subprocess
-import string
-import sys
 
 # Define a function to determine whether a service is configured to
 # start at boot time.
@@ -132,7 +131,7 @@ class NSCommon:
 	def createSummary(self):
 		return NetworkServicesSummary
 
-class NetworkAdapterSelection(Screen,HelpableScreen):
+class NetworkAdapterSelection(Screen, HelpableScreen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
@@ -166,7 +165,7 @@ class NetworkAdapterSelection(Screen,HelpableScreen):
 
 		self["DefaultInterfaceAction"] = HelpableActionMap(self, "ColorActions",
 			{
-			"yellow": (self.setDefaultInterface, [_("Set interface as the default Interface"),_("* Only available if more than one interface is active.")] ),
+			"yellow": (self.setDefaultInterface, [_("Set interface as the default Interface"), _("* Only available if more than one interface is active.")] ),
 			})
 
 		self.adapters = [(iNetwork.getFriendlyAdapterName(x), x) for x in iNetwork.getAdapterList()]
@@ -243,7 +242,6 @@ class NetworkAdapterSelection(Screen,HelpableScreen):
 	def updateList(self):
 		self.list = []
 		default_gw = None
-		iNetwork.getInterfaces()
 		num_configured_if = len(iNetwork.getConfiguredAdapters())
 		if num_configured_if >= 2:
 			self["key_yellow"].setText(_("Default"))
@@ -334,7 +332,7 @@ class NetworkAdapterSelection(Screen,HelpableScreen):
 			try:
 				from Plugins.SystemPlugins.NetworkWizard.NetworkWizard import NetworkWizard
 			except ImportError:
-				self.session.open(MessageBox, _("The network wizard extension is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
+				self.session.open(MessageBox, _("The network wizard extension is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO, timeout = 10 )
 			else:
 				selection = self["list"].getCurrent()
 				if selection != None:
@@ -347,7 +345,7 @@ class NameserverSetup(Screen, ConfigListScreen, HelpableScreen):
 		HelpableScreen.__init__(self)
 		self.setTitle(_("Nameserver Settings"))
 		self.backupNameserverList = iNetwork.getNameserverList()[:]
-		print("[NameserverSetup] backup-list:", self.backupNameserverList)
+		print("[NameserverSetup] backup-list:%s" % self.backupNameserverList)
 
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
@@ -407,7 +405,7 @@ class NameserverSetup(Screen, ConfigListScreen, HelpableScreen):
 
 	def cancel(self):
 		iNetwork.clearNameservers()
-		print("[NameserverSetup] backup-list:", self.backupNameserverList)
+		print("[NameserverSetup] backup-list:%s" % self.backupNameserverList)
 		for nameserver in self.backupNameserverList:
 			iNetwork.addNameserver(nameserver)
 		self.close()
@@ -418,7 +416,7 @@ class NameserverSetup(Screen, ConfigListScreen, HelpableScreen):
 		self.createSetup()
 
 	def remove(self):
-		print("[NameserverSetup] currentIndex:", self["config"].getCurrentIndex())
+		print("[NameserverSetup] currentIndex:%s" % self["config"].getCurrentIndex())
 		index = self["config"].getCurrentIndex()
 		if index < len(self.nameservers):
 			iNetwork.removeNameserver(self.nameservers[index])
@@ -615,8 +613,13 @@ class AdapterSetup(Screen, ConfigListScreen, HelpableScreen):
 		self.default = None
 
 		if iNetwork.isWirelessInterface(self.iface):
-			from Plugins.SystemPlugins.WirelessLan.Wlan import wpaSupplicant
-			self.ws = wpaSupplicant()
+			driver = iNetwork.detectWlanModule(self.iface)
+			if driver in ('brcm-wl', ):
+				from Plugins.SystemPlugins.WirelessLan.Wlan import brcmWLConfig
+				self.ws = brcmWLConfig()
+			else:
+				from Plugins.SystemPlugins.WirelessLan.Wlan import wpaSupplicant
+				self.ws = wpaSupplicant()
 			self.encryptionlist = []
 			self.encryptionlist.append(("Unencrypted", _("Unencrypted")))
 			self.encryptionlist.append(("WEP", _("WEP")))
@@ -640,15 +643,15 @@ class AdapterSetup(Screen, ConfigListScreen, HelpableScreen):
 
 		self.activateInterfaceEntry = NoSave(ConfigYesNo(default=iNetwork.getAdapterAttribute(self.iface, "up") or False))
 		self.dhcpConfigEntry = NoSave(ConfigYesNo(default=iNetwork.getAdapterAttribute(self.iface, "dhcp") or False))
-		self.ipConfigEntry = NoSave(ConfigIP(default=iNetwork.getAdapterAttribute(self.iface, "ip")) or [0,0,0,0])
-		self.netmaskConfigEntry = NoSave(ConfigIP(default=iNetwork.getAdapterAttribute(self.iface, "netmask") or [255,0,0,0]))
+		self.ipConfigEntry = NoSave(ConfigIP(default=iNetwork.getAdapterAttribute(self.iface, "ip")) or [0, 0, 0, 0])
+		self.netmaskConfigEntry = NoSave(ConfigIP(default=iNetwork.getAdapterAttribute(self.iface, "netmask") or [255, 0, 0, 0]))
 		if iNetwork.getAdapterAttribute(self.iface, "gateway"):
 			self.dhcpdefault = True
 		else:
 			self.dhcpdefault = False
 		self.hasGatewayConfigEntry = NoSave(ConfigYesNo(default=self.dhcpdefault or False))
-		self.gatewayConfigEntry = NoSave(ConfigIP(default=iNetwork.getAdapterAttribute(self.iface, "gateway") or [0,0,0,0]))
-		nameserver = (iNetwork.getNameserverList() + [[0,0,0,0]] * 2)[0:2]
+		self.gatewayConfigEntry = NoSave(ConfigIP(default=iNetwork.getAdapterAttribute(self.iface, "gateway") or [0, 0, 0, 0]))
+		nameserver = (iNetwork.getNameserverList() + [[0, 0, 0, 0]] * 2)[0:2]
 		self.primaryDNS = NoSave(ConfigIP(default=nameserver[0]))
 		self.secondaryDNS = NoSave(ConfigIP(default=nameserver[1]))
 
@@ -926,16 +929,15 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		self.selectionChanged()
 		self.onLayoutFinish.append(self.updateStatusbar)
 
-	def queryWirelessDevice(self,iface):
+	def queryWirelessDevice(self, iface):
 		try:
-			from pythonwifi.iwlibs import Wireless
+			from wifi.scan import Cell
 			import errno
 		except ImportError:
 			return False
 		else:
 			try:
-				ifobj = Wireless(iface) # a Wireless NIC Object
-				wlanresponse = ifobj.getAPaddr()
+				wlanresponse = list(Cell.all(iface))
 			except IOError as xxx_todo_changeme:
 				(error_no, error_str) = xxx_todo_changeme.args
 				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
@@ -953,7 +955,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 				try:
 					from Plugins.SystemPlugins.WirelessLan.plugin import WlanScan
 				except ImportError:
-					self.session.open(MessageBox, self.missingwlanplugintxt, type = MessageBox.TYPE_INFO,timeout = 10 )
+					self.session.open(MessageBox, self.missingwlanplugintxt, type = MessageBox.TYPE_INFO, timeout = 10 )
 				else:
 					if self.queryWirelessDevice(self.iface):
 						self.session.openWithCallback(self.AdapterSetupClosed, AdapterSetup, self.iface)
@@ -962,12 +964,11 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 			else:
 				self.session.openWithCallback(self.AdapterSetupClosed, AdapterSetup, self.iface)
 		if self["menulist"].getCurrent()[1] == 'test':
-
 			self.session.open(NetworkAdapterTest, self.iface)
 		if self["menulist"].getCurrent()[1] == 'dns':
-			self.session.open(NameserverSetup, self.menu_path)
+			self.session.open(NameserverSetup)
 		if self["menulist"].getCurrent()[1] == 'mac':
-			self.session.open(NetworkMacSetup, self.menu_path)
+			self.session.open(NetworkMacSetup)
 		if self["menulist"].getCurrent()[1] == 'scanwlan':
 			try:
 				from Plugins.SystemPlugins.WirelessLan.plugin import WlanScan
@@ -1088,8 +1089,8 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 						menuEntryDescription = p.__call__["menuEntryDescription"](self.iface)
 					else:
 						menuEntryDescription = _('Extended network setup plugin...')
-					self.extendedSetup = ('extendedSetup',menuEntryDescription, self.extended)
-					menu.append((menuEntryName,self.extendedSetup))
+					self.extendedSetup = ('extendedSetup', menuEntryDescription, self.extended)
+					menu.append((menuEntryName, self.extendedSetup))
 
 		if os_path.exists(resolveFilename(SCOPE_PLUGINS, "SystemPlugins/NetworkWizard/networkwizard.xml")):
 			menu.append((_("Network wizard"), "openwizard"))
@@ -1108,7 +1109,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 					self.session.open(MessageBox, self.missingwlanplugintxt, type = MessageBox.TYPE_INFO, timeout = 10 )
 				else:
 					if self.queryWirelessDevice(self.iface):
-						self.session.openWithCallback(self.WlanStatusClosed, WlanStatus,self.iface)
+						self.session.openWithCallback(self.WlanStatusClosed, WlanStatus, self.iface)
 					else:
 						self.showErrorMessage()	# Display Wlan not available Message
 			else:
@@ -3444,9 +3445,9 @@ class NetworkPassword(ConfigListScreen, Screen):
 	def SetPasswd(self):
 		password = self.password.value
 		if not password:
-			self.session.open(MessageBox, _("The password can not be blank.") , MessageBox.TYPE_ERROR)
+			self.session.open(MessageBox, _("The password can not be blank."), MessageBox.TYPE_ERROR)
 			return
-		#print ("[NetworkPassword] Changing the password for %s to %s" % (self.user,self.password))
+		#print("[NetworkPassword] Changing the password for %s to %s" % (self.user,self.password))
 		self.container = eConsoleAppContainer()
 		self.container.appClosed.append(self.runFinished)
 		self.container.dataAvail.append(self.dataAvail)
