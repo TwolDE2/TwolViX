@@ -43,7 +43,7 @@ class EPGSelectionChannel(EPGSelectionBase, EPGStandardButtons):
 			self["list"].setItemsPerPage()
 			self["list"].recalcEntrySize()
 
- 		self.closeEventViewDialog()
+		self.closeEventViewDialog()
 		self.session.openWithCallback(onClose, Setup, "epgsingle")
 
 	def onCreate(self):
