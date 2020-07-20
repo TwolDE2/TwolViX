@@ -48,6 +48,8 @@ class PluginComponent:
 			if not os.path.isdir(directory_category):
 				continue
 			for pluginname in os.listdir(directory_category):
+				if pluginname == "__pycache__":
+					continue
 				path = os.path.join(directory_category, pluginname)
 				if os.path.isdir(path):
 						profile('plugin '+pluginname)
@@ -64,7 +66,7 @@ class PluginComponent:
 									print_exc()
 									break
 							else:
-								if path.find('WebInterface') == -1:
+								if not pluginname == "WebInterface":
 									print("[PluginComponent] Plugin probably removed, but not cleanly in", path)
 									print("[PluginComponent] trying to remove:", path)
                                                 # allow single entry not to be a list
