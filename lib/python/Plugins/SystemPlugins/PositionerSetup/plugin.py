@@ -1,5 +1,6 @@
 from __future__ import print_function, absolute_import
 from builtins import range
+import six
 
 from enigma import eTimer, eDVBResourceManager, eDVBDiseqcCommand, eDVBFrontendParametersSatellite, iDVBFrontend
 
@@ -958,9 +959,9 @@ class PositionerSetup(Screen):
 			print((_("Lock ratio") + "     %5.1f" + chr(176) + "   : %6.2f") % (pos, lock), file=log)
 
 		def optimise(readings):
-			if sys.version_info >= (3, 0):
+			if six.PY3:
 				xi = list(readings.keys())
-				yi = [x_y1[0] for x_y1 in list(readings.values())]
+				yi = [x_y[0] for x_y in list(readings.values())]
 			else:
 				xi = readings.keys()
 				yi = map(lambda (x, y) : x, readings.values())
