@@ -1,5 +1,5 @@
 from __future__ import print_function
-from builtins mport range
+from builtins import range
 
 import sys
 
