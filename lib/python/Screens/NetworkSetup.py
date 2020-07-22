@@ -2,7 +2,8 @@ from __future__ import print_function
 import six
 
 from os import path as os_path, remove, unlink, rename, chmod, access, X_OK
-from random import Randomfrom subprocess import call
+from random import Random
+from subprocess import call
 from shutil import move
 import subprocess
 import string
@@ -1631,7 +1632,7 @@ class NetworkAdapterTest(Screen):
 			iStatus.stopWlanConsole()
 
 class NetworkMountsMenu(Screen, HelpableScreen):
-	def __init__(self, session:
+	def __init__(self, session):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
 		self.setTitle(_("Mounts"))
