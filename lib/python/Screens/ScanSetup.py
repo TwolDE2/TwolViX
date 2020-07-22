@@ -1835,6 +1835,7 @@ class ScanSimple(ConfigListScreen, Screen, CableTransponderSearchSupport, Terres
 				flags = 0
 				nim = nimmanager.nim_slots[n.nim_index]
 				networks = set(self.getNetworksForNim(nim))
+				print("[ScanSetup] [buildTransponderList] networks:%s" % networks)
 				networkid = 0
 
 				# don't scan anything twice
@@ -1843,7 +1844,8 @@ class ScanSimple(ConfigListScreen, Screen, CableTransponderSearchSupport, Terres
 				tlist = [ ]
 				if nim.isCompatible("DVB-S"):
 					# get initial transponders for each satellite to be scanned
-					for sat in six.iteritems(networks):
+#					for sat in six.iteritems(networks):
+					for sat in networks:
 						getInitialTransponderList(tlist, sat[0], n.nim_index)
 				elif nim.isCompatible("DVB-C"):
 					if config.Nims[nim.slot].cable.scan_type.value == "provider":
