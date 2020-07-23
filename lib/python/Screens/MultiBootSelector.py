@@ -129,7 +129,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 				else:
 					f = open(startupfile, "r").read().replace("boxmode=1'", "boxmode=12'").replace("%s" % SystemInfo["canMode12"][0], "%s" % SystemInfo["canMode12"][1])
 					open(path.join(self.tmp_dir, "STARTUP"), "w").write(f)
-			self.cancel(QUIT_REBOOT)
+			self.session.open(TryQuitMainloop, QUIT_REBOOT)
 
 	def deleteImage(self):
 		self.currentSelected = self["config"].l.getCurrentSelection()
