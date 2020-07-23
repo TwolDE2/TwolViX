@@ -135,7 +135,7 @@ class Menu(Screen, ProtectedScreen):
 		conditional = node.get("conditional")
 		if conditional and not eval(conditional):
 			return
-		item_text = node.get("text", "").encode("UTF-8")
+		item_text = six.ensure_str(node.get("text", ""))
 		entryID = node.get("entryID", "undefined")
 		weight = node.get("weight", 50)
 		for x in node:
@@ -278,8 +278,8 @@ class Menu(Screen, ProtectedScreen):
 				"9": self.keyNumberGlobal
 			})
 
-		a = parent.get("title", "").encode("UTF-8") or None
-		a = a and _(a) or _(parent.get("text", "").encode("UTF-8"))
+		a = six.ensure_str(parent.get("title", "")) or None
+		a = a and _(a) or _(six.ensure_str(parent.get("text", "")))
 		self.setTitle(a)
 
 		self.number = 0
