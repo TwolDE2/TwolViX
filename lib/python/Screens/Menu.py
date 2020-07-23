@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import print_function, absolute_import
 import six
 
 import xml.etree.cElementTree
@@ -191,10 +191,12 @@ class Menu(Screen, ProtectedScreen):
 				return
 			elif x.tag == 'setup':
 				id = x.get("id")
+				print("[Menu.py1] id=%s, item_text=%s" % (id, item_text))
 				if item_text == "":
 					item_text = _(getSetupTitle(id))
 				else:
 					item_text = _(item_text)
+				print("[Menu.py2] id=%s, item_text=%s" % (id, item_text))
 				destList.append((item_text, boundFunction(self.openSetup, id), entryID, weight))
 				return
 		destList.append((item_text, self.nothing, entryID, weight))
