@@ -189,7 +189,6 @@ def getAboutText():
 	AboutLcdText = AboutText.replace('\t', ' ')
 
 	return AboutText, AboutLcdText
->>>>>>> 0572acc08... update SIGN
 
 class About(Screen):
 	def __init__(self, session):
