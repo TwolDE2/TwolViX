@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import print_function, absolute_import
 import six
 
 from gettext import dgettext
@@ -102,11 +102,14 @@ class Setup(ConfigListScreen, Screen):
 				self.setup = x
 				break
 
-		if config.usage.show_menupath.value in ('large', 'small') and x.get("titleshort", "").encode("UTF-8") != "":
+		if config.usage.show_menupath.value in ('large', 'small') and six.ensure_str(x.get("titleshort", "")) != "":
 			title = six.ensure_str(x.get("titleshort", ""))
+#			print("[Setup.py1] title=%s" % (title))
 		else:
 			title = six.ensure_str(x.get("title", ""))
+#			print("[Setup.py2] title=%s" % (title))
 		title = _("Setup" if title == "" else title)
+#		print("[Setup.py3] title=%s" % (title))
 		self.setTitle(title)
 		self.seperation = int(self.setup.get("separation", "0"))
 		ConfigListScreen.__init__(self, self.xlist, session = session, on_change = self.changedEntry)
@@ -208,10 +211,10 @@ class Setup(ConfigListScreen, Screen):
 def getSetupTitle(setupId):
 	xmldata = setupdom().getroot()
 	for x in xmldata.findall("setup"):
-		if x.get("key") == id:
+		if x.get("key") == setupId:
 			if six.ensure_str(x.get("titleshort", "")) != "":
 				return six.ensure_str(x.get("titleshort", ""))
 			else:
 				return six.ensure_str(x.get("title", ""))
-	raise SetupError("unknown setup id '%s'!" % repr(id))
+	raise SetupError("unknown setup id '%s'!" % repr(setupId))
 
