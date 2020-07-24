@@ -2,7 +2,7 @@ from __future__ import print_function, absolute_import
 from builtins import range
 import six
 
-from os import listdir, path
+from os import listdir, path, popen
 from re import search
 
 from enigma import eTimer, getEnigmaVersionString, getDesktop
@@ -654,17 +654,11 @@ class SystemNetworkInfo(Screen):
 		rx_bytes, tx_bytes = about.getIfTransferredData(self.iface)
 		self.AboutText += "\n" + _("Bytes received:") + "\t" + rx_bytes + "\n"
 		self.AboutText += _("Bytes sent:") + "\t" + tx_bytes + "\n"
-
-		self.console = Console()
-		self.console.ePopen('ethtool %s' % self.iface, self.SpeedFinished)
-
-	def SpeedFinished(self, result, retval, extra_args):
-		result_tmp = result.split('\n')
-		for line in result_tmp:
+		for line in popen("ethtool %s |grep Speed" % self.iface, 'r'):
+			line = line.strip().split(":")
+			line =line[1].replace(' ', '')
 			if 'Speed:' in line:
-				speed = str(line.split(': ')[1][:-4])
-				self.AboutText += _("Speed:") + "\t" + speed + _('Mb/s')
-
+				self.AboutText += _("Speed:") + "\t" + line + _('Mb/s')
 		hostname = open('/proc/sys/kernel/hostname').read()
 		self.AboutText += "\n" + _("Hostname:") + "\t" + hostname + "\n"
 		self["AboutScrollLabel"].setText(self.AboutText)
