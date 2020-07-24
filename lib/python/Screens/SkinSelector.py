@@ -1,4 +1,5 @@
 from __future__ import print_function, absolute_import
+import six
 
 from os import listdir
 from os.path import dirname, exists, isdir, join as pathjoin
@@ -146,18 +147,14 @@ class SkinSelector(Screen, HelpableScreen):
 					resolution = None
 					if skinFile == "skin.xml":
 						with open(skinPath, "r") as fd:
-							mm = mmap.mmap(fd.fileno(), 0, prot=mmap.PROT_READ)
+							mm = fd.read(65535)
 							skinWidth = re.search("\<?resolution.*?\sxres\s*=\s*\"(\d+)\"", mm)
 							skinHeight = re.search("\<?resolution.*?\syres\s*=\s*\"(\d+)\"", mm)
 							if skinWidth and skinHeight:
 								skinSize = "%sx%s" % (skinWidth.group(1), skinHeight.group(1))
 							resolution = skinHeight and resolutions.get(skinHeight.group(1), None)
-							mm.close()
-<<<<<<< HEAD
-						print("[SkinSelector] Resolution of skin '%s': '%s'." % (skinPath, "Unknown" if resolution is None else resolution))
-=======
+							mm = ""
 						print("[SkinSelector] Resolution of skin '%s': '%s' (%s)." % (skinPath, "Unknown" if resolution is None else resolution, skinSize))
->>>>>>> upstream/Dev
 						# Code can be added here to reject unsupported resolutions.
 					# The "piconprev.png" image should be "prevpicon.png" to keep it with its partner preview image.
 					preview = pathjoin(previewPath, "piconprev.png" if skinFile == "skin_display_picon.xml" else "prev.png")
