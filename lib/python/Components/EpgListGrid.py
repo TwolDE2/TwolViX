@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from builtins import range
+from __future__ import absolute_import, print_function
+# from builtins import range
 
 from time import localtime, time, strftime
 
@@ -253,27 +253,30 @@ class EPGListGrid(EPGListBase):
 	def setItemsPerPage(self):
 		if self.numberOfRows:
 			self.epgConfig.itemsperpage.default = self.numberOfRows
-		itemHeight = self.listHeight / self.epgConfig.itemsperpage.value if self.listHeight > 0 else 54  # Some default (270 / 5).
+		itemHeight = self.listHeight // self.epgConfig.itemsperpage.value if self.listHeight > 0 else 54  # Some default (270 // 5).
 
 		if not self.isInfobar and config.epgselection.grid.heightswitch.value:
-			if ((self.listHeight / config.epgselection.grid.itemsperpage.value) / 3) >= 27:
-				tmpItemHeight = ((self.listHeight / config.epgselection.grid.itemsperpage.value) / 3)
-			elif ((self.listHeight / config.epgselection.grid.itemsperpage.value) / 2) >= 27:
-				tmpItemHeight = ((self.listHeight / config.epgselection.grid.itemsperpage.value) / 2)
+			if ((self.listHeight // config.epgselection.grid.itemsperpage.value) // 3) >= 27:
+				tmpItemHeight = ((self.listHeight // config.epgselection.grid.itemsperpage.value) // 3)
+			elif ((self.listHeight // config.epgselection.grid.itemsperpage.value) // 2) >= 27:
+				tmpItemHeight = ((self.listHeight // config.epgselection.grid.itemsperpage.value) // 2)
 			else:
 				tmpItemHeight = 27
 			if tmpItemHeight < itemHeight:
 				itemHeight = tmpItemHeight
 			else:
-				if ((self.listHeight / config.epgselection.grid.itemsperpage.value) * 3) <= 45:
-					itemHeight = ((self.listHeight / config.epgselection.grid.itemsperpage.value) * 3)
-				elif ((self.listHeight / config.epgselection.grid.itemsperpage.value) * 2) <= 45:
-					itemHeight = ((self.listHeight / config.epgselection.grid.itemsperpage.value) * 2)
+				if ((self.listHeight // config.epgselection.grid.itemsperpage.value) * 3) <= 45:
+					itemHeight = ((self.listHeight // config.epgselection.grid.itemsperpage.value) * 3)
+				elif ((self.listHeight // config.epgselection.grid.itemsperpage.value) * 2) <= 45:
+					itemHeight = ((self.listHeight // config.epgselection.grid.itemsperpage.value) * 2)
 				else:
 					itemHeight = 45
-
+#				itemHeight = int(itemHeight)
+#		self.listWidth = int(self.listWidth)
+#		self.listHeight = int(self.listHeight)
+		print("[EpgListGrid] itemHeight %s, self.listHeight %s, self.listWidth %s" % (itemHeight, self.listHeight, self.listWidth))
 		self.l.setItemHeight(itemHeight)
-		self.instance.resize(eSize(self.listWidth, self.listHeight / itemHeight * itemHeight))
+		self.instance.resize(eSize(self.listWidth, self.listHeight // itemHeight * itemHeight))
 		self.listHeight = self.instance.size().height()
 		self.listWidth = self.instance.size().width()
 		self.itemHeight = itemHeight
@@ -346,8 +349,8 @@ class EPGListGrid(EPGListBase):
 		self.eventRect = eRect(w, 0, width - w, height)
 
 	def calcEventPosAndWidthHelper(self, stime, duration, start, end, width):
-		xpos = (stime - start) * width / (end - start)
-		ewidth = (stime + duration - start) * width / (end - start)
+		xpos = (stime - start) * width // (end - start)
+		ewidth = (stime + duration - start) * width // (end - start)
 		ewidth -= xpos
 		if xpos < 0:
 			ewidth += xpos
@@ -654,7 +657,7 @@ class EPGListGrid(EPGListBase):
 					if config.epgselection.grid.rec_icon_height.value != "hide":
 						clockSize = 26 if self.isFullHd else 21
 						if config.epgselection.grid.rec_icon_height.value == "middle":
-							recIconHeight = top + (height - clockSize) / 2
+							recIconHeight = top + (height - clockSize) // 2
 						elif config.epgselection.grid.rec_icon_height.value == "top":
 							recIconHeight = top + 3
 						else:
@@ -901,6 +904,7 @@ class TimelineText(GUIComponent):
 		self.listHeight = self.instance.size().height()
 		self.listWidth = self.instance.size().width()
 		self.setFontsize()
+		print("[EpgListGrid1] itemHeight %s" % (self.itemHeight))
 		self.l.setItemHeight(self.itemHeight)
 		if self.graphic:
 			self.timelineDate = loadPNG(resolveFilename(SCOPE_CURRENT_SKIN, "epg/TimeLineDate.png"))
@@ -931,8 +935,8 @@ class TimelineText(GUIComponent):
 		if self.timeBase != timeBase or self.timeEpoch != timeEpoch or force:
 			serviceRect = list.getServiceRect()
 			timeSteps = 60 if timeEpoch > 180 else 30
-			numLines = timeEpoch / timeSteps
-			incWidth = eventRect.width() / numLines
+			numLines = timeEpoch // timeSteps
+			incWidth = eventRect.width() // numLines
 			timeStepsCalc = timeSteps * SECS_IN_MIN
 
 			nowTime = localtime(time())
@@ -996,7 +1000,7 @@ class TimelineText(GUIComponent):
 					backcolor=backColor,
 					border_width=self.borderWidth, border_color=self.borderColor))
 
-			for x in list(range(0, numLines)):
+			for x in range(0, numLines):
 				ttime = localtime(timeBase + (x * timeStepsCalc))
 				if config.usage.time.enabled.value:
 					timetext = strftime(config.usage.time.short.value, ttime)
@@ -1020,7 +1024,7 @@ class TimelineText(GUIComponent):
 				line.setPosition(xpos + eventLeft, oldPos[1])
 				line.visible = True
 				xpos += incWidth
-			for x in list(range(numLines, MAX_TIMELINES)):
+			for x in range(numLines, MAX_TIMELINES):
 				timeLines[x].visible = False
 			self.l.setList([res])
 			self.timeBase = timeBase
@@ -1028,7 +1032,7 @@ class TimelineText(GUIComponent):
 
 		now = time()
 		if timeBase <= now < (timeBase + timeEpoch * SECS_IN_MIN):
-			xpos = int((((now - timeBase) * eventRect.width()) / (timeEpoch * SECS_IN_MIN)) - (timelineNow.instance.size().width() / 2))
+			xpos = int((((now - timeBase) * eventRect.width()) // (timeEpoch * SECS_IN_MIN)) - (timelineNow.instance.size().width() // 2))
 			oldPos = timelineNow.position
 			newPos = (xpos + eventLeft, oldPos[1])
 			if oldPos != newPos:
