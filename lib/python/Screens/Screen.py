@@ -277,7 +277,7 @@ class Screen(dict):
 			# DEBUG: Is the following an acceptable fix?
 			if not isinstance(f, type(self.close)):
 				#	if sys.version_info >= (3, 0):
-				exec(f, globals(), locals())  # Python 3
+				exec(f , globals(), locals())  # Python 3
 				#	else:
 				#	exec f in globals(), locals()  # Python 2
 			else:
