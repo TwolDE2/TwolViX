@@ -108,24 +108,9 @@ class EpgBouquetSelector(BouquetSelector):
 	def okbuttonClick(self):
 		self.close(True, self.getCurrent(), self.bouquets)
 
+	def cancelClick(self):
+		self.close(False, None, None)
 
-class SilentBouquetSelector:
-	def __init__(self, bouquets, enableWrapAround=False, current=0):
-		self.bouquets = [b[1] for b in bouquets]
-		self.pos = current
-		self.count = len(bouquets)
-		self.enableWrapAround = enableWrapAround
-
-	def up(self):
-		if self.pos > 0 or self.enableWrapAround:
-			self.pos = (self.pos - 1) % self.count
-
-	def down(self):
-		if self.pos < (self.count - 1) or self.enableWrapAround:
-			self.pos = (self.pos + 1) % self.count
-
-	def getCurrent(self):
-		return self.bouquets[self.pos]
 
 # csel.bouquet_mark_edit values
 OFF = 0
@@ -1022,7 +1007,7 @@ class ChannelSelectionEdit:
 		mutableBouquet = cur_root.list().startEdit()
 		if mutableBouquet:
 			servicename = cur_service.getServiceName()
-			if sys.version_info >= (3, 0):
+			if sys.version_info[0] >= 3:
 				name = unicodedata.normalize('NFKD', str(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
 			else:
 				name = unicodedata.normalize('NFKD', unicode(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
@@ -1060,7 +1045,7 @@ class ChannelSelectionEdit:
 		mutableBouquetList = serviceHandler.list(self.bouquet_root).startEdit()
 		if mutableBouquetList:
 			bName += ' ' + (_("(TV)") if self.mode == MODE_TV else _("(Radio)"))
-			if sys.version_info >= (3, 0):
+			if sys.version_info[0] >= 3:
 				name = unicodedata.normalize('NFKD', str(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
 			else:
 				name = unicodedata.normalize('NFKD', unicode(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
@@ -1153,7 +1138,7 @@ class ChannelSelectionEdit:
 				direction = _("W")
 			else:
 				direction = _("E")
-			messageText = _("Are you sure yoy want to remove all %d.%d%s%s services?") % (unsigned_orbpos/10, unsigned_orbpos%10, SIGN, direction)
+			messageText = _("Are you sure you want to remove all %d.%d%s%s services?") % (unsigned_orbpos/10, unsigned_orbpos%10, SIGN, direction)
 		self.session.openWithCallback(self.removeSatelliteServicesCallback, MessageBox, messageText)
 
 	def removeSatelliteServicesCallback(self, answer):
@@ -2945,7 +2930,7 @@ class HistoryZapSelector(Screen):
 				"ok": self.okbuttonClick,
 				"cancel": self.cancelClick,
 				"jumpPreviousMark": self.prev,
-				"jumpNextMark": self.__next__,
+				"jumpNextMark": self.next,
 				"toggleMark": self.okbuttonClick,
 			})
 		self.setTitle(_("History Zap"))
@@ -3010,7 +2995,7 @@ class HistoryZapSelector(Screen):
 		else:
 			self.up()
 
-	def __next__(self):
+	def next(self):
 		if self.redirectButton:
 			self.up()
 		else:

@@ -122,7 +122,8 @@ class ChoiceBox(Screen):
 			"right": self.right,
 			"shiftUp": self.additionalMoveUp,
 			"shiftDown": self.additionalMoveDown,
-			"menu": self.setDefaultChoiceList
+			"menu": self.setDefaultChoiceList,
+			"back": self.cancel
 		}, prio=-2)
 
 		self["cancelaction"] = ActionMap(["WizardActions"],
@@ -305,3 +306,21 @@ class ChoiceBox(Screen):
 				self["list"].up()
 			self.config_type.value = ",".join(x[0][0] for x in self.list)
 			self.config_type.save()
+
+
+# This choicebox overlays the current screen
+class PopupChoiceBox(ChoiceBox):
+	def __init__(self, session, title="", list=None, keys=None, selection=0, skin_name=None, text="", reorderConfig="", windowTitle=None, var="", closeCB=None):
+		ChoiceBox.__init__(self, session, title, list, keys, selection, skin_name, text, reorderConfig, windowTitle, var)
+		self.closeCB = closeCB
+
+	def show(self):
+		self["actions"].execBegin()
+		ChoiceBox.show(self)
+
+	def hide(self):
+		self["actions"].execEnd()
+		ChoiceBox.hide(self)
+
+	def cancel(self):
+		self.closeCB()
