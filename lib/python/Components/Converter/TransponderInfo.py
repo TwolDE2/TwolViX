@@ -60,7 +60,7 @@ class TransponderInfo(Converter, object):
 			return _("Stream") + " " + ref.rsplit("@", 1)[1].split("/")[0]
 		elif "://" in ref:
 			return _("Stream") + " " + ref.rsplit("://", 1)[1].split("/")[0]
- 		return ""
+		return ""
 
 	text = property(getText)
 

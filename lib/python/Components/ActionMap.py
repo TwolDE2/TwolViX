@@ -96,6 +96,7 @@ class HelpableActionMap(ActionMap):
 					print("[HelpActionMap] removed duplicity: %s %s" % (context[1], record))
 					return True
 			return False
+
 		if not type(contexts) is list:
 			contexts = [contexts]
 		actions = actions or {}
