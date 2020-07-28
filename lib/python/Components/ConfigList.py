@@ -68,14 +68,13 @@ class ConfigList(GUIComponent, object):
 	GUI_WIDGET = eListbox
 
 	def selectionChanged(self):
-		if isinstance(self.current,tuple) and len(self.current) >= 2:
+		if isinstance(self.current, tuple) and len(self.current) >= 2:
 			self.current[1].onDeselect(self.session)
 		self.current = self.getCurrent()
-		if isinstance(self.current,tuple) and len(self.current) >= 2:
+		if isinstance(self.current, tuple) and len(self.current) >= 2:
 			self.current[1].onSelect(self.session)
 		else:
 			return
-
 		for x in self.onSelectionChanged:
 			x()
 
@@ -130,7 +129,7 @@ class ConfigList(GUIComponent, object):
 			self.instance.moveSelection(self.instance.pageDown)
 
 class ConfigListScreen:
-	def __init__(self, list, session=None, on_change=None):
+	def __init__(self, list, session = None, on_change = None):
 		self["config_actions"] = NumberActionMap(["SetupActions", "InputAsciiActions", "KeyboardInputActions"], {
 			"gotAsciiCode": self.keyGotAscii,
 			"ok": self.keyOK,
@@ -163,7 +162,7 @@ class ConfigListScreen:
 		}, -2)
 		self["VirtualKB"].setEnabled(False)
 
-		self["config"] = ConfigList(list, session=session)
+		self["config"] = ConfigList(list, session = session)
 
 		if on_change is not None:
 			self.__changed = on_change
@@ -213,9 +212,9 @@ class ConfigListScreen:
 	def KeyText(self):
 		self["config"].hideHelp()
 		from Screens.VirtualKeyBoard import VirtualKeyBoard
-		self.session.openWithCallback(self.VirtualKeyBoardCallback, VirtualKeyBoard, title=self["config"].getCurrent()[0], text=self["config"].getCurrent()[1].value)
+		self.session.openWithCallback(self.VirtualKeyBoardCallback, VirtualKeyBoard, title = self["config"].getCurrent()[0], text = self["config"].getCurrent()[1].value)
 
-	def VirtualKeyBoardCallback(self, callback=None):
+	def VirtualKeyBoardCallback(self, callback = None):
 		if callback is not None:
 			self["config"].getCurrent()[1].setValue(callback)
 			self["config"].invalidate(self["config"].getCurrent())
@@ -302,7 +301,7 @@ class ConfigListScreen:
 			x[1].cancel()
 		self.close()
 
-	def closeMenuList(self, recursive=False):
+	def closeMenuList(self, recursive = False):
 		if self["config"].isChanged():
 			self["config"].hideHelp()
 			self.session.openWithCallback(self.cancelConfirm, MessageBox, _("Really close without saving settings?"), default = False)
