@@ -271,7 +271,10 @@ class EPGListGrid(EPGListBase):
 					itemHeight = ((self.listHeight // config.epgselection.grid.itemsperpage.value) * 2)
 				else:
 					itemHeight = 45
-#		print("[EpgListGrid] itemHeight %s, self.listHeight %s, self.listWidth %s" % (itemHeight, self.listHeight, self.listWidth))
+#				itemHeight = int(itemHeight)
+#		self.listWidth = int(self.listWidth)
+#		self.listHeight = int(self.listHeight)
+		print("[EpgListGrid] itemHeight %s, self.listHeight %s, self.listWidth %s" % (itemHeight, self.listHeight, self.listWidth))
 		self.l.setItemHeight(itemHeight)
 		self.instance.resize(eSize(self.listWidth, self.listHeight // itemHeight * itemHeight))
 		self.listHeight = self.instance.size().height()
@@ -678,7 +681,7 @@ class EPGListGrid(EPGListBase):
 		sely = self.instance.position().y() + self.itemHeight * index
 		if sely >= self.instance.position().y() + self.listHeight:
 			sely -= self.listHeight
-		return self.selectionRect.left() + self.selectionRect.width(), sely
+		return self.listWidth, sely
 
 	def refreshSelection(self):
 		events = self.selectedService and self.selectedService[2]  # (service, serviceName, events, picon)
@@ -901,7 +904,7 @@ class TimelineText(GUIComponent):
 		self.listHeight = self.instance.size().height()
 		self.listWidth = self.instance.size().width()
 		self.setFontsize()
-#		print("[EpgListGrid1] itemHeight %s" % (self.itemHeight))
+		print("[EpgListGrid1] itemHeight %s" % (self.itemHeight))
 		self.l.setItemHeight(self.itemHeight)
 		if self.graphic:
 			self.timelineDate = loadPNG(resolveFilename(SCOPE_CURRENT_SKIN, "epg/TimeLineDate.png"))

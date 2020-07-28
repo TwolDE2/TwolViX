@@ -4,7 +4,7 @@ from enigma import RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_HALIGN_CENTER, RT_VALIGN_
 
 from Components.config import config, ConfigClock, ConfigSelection, ConfigSelectionNumber, ConfigSubsection, ConfigYesNo, NoSave
 from Components.SystemInfo import SystemInfo
-from Screens.EpgSelectionBase import channelDownActions, channelUpActions, epgActions, infoActions, okActions, recActions
+from Screens.EpgSelectionBase import epgActions, infoActions, okActions
 
 
 def InitEPGConfig():
@@ -62,10 +62,8 @@ def InitEPGConfig():
 	config.epgselection.infobar.btn_greenlong = ConfigSelection(choices=epgActions, default="openTimerList")
 	config.epgselection.infobar.btn_yellow = ConfigSelection(choices=epgActions, default="openEPGSearch")
 	config.epgselection.infobar.btn_yellowlong = ConfigSelection(choices=epgActions, default="")
-	config.epgselection.infobar.btn_blue = ConfigSelection(choices=epgActions, default="addEditAutoTimer")
+	config.epgselection.infobar.btn_blue = ConfigSelection(choices=epgActions, default="addAutoTimer")
 	config.epgselection.infobar.btn_bluelong = ConfigSelection(choices=epgActions, default="openAutoTimerList")
-	config.epgselection.infobar.btn_rec = ConfigSelection(choices=recActions, default="addEditTimerMenu")
-	config.epgselection.infobar.btn_reclong = ConfigSelection(choices=recActions, default="addEditZapTimerSilent")
 
 	config.epgselection.single = ConfigSubsection()
 	config.epgselection.single.browse_mode = ConfigSelection(default = "lastepgservice", choices = singleBrowseModeChoices)
@@ -78,7 +76,7 @@ def InitEPGConfig():
 	config.epgselection.single.btn_greenlong = ConfigSelection(choices=epgActions, default="openTimerList")
 	config.epgselection.single.btn_yellow = ConfigSelection(choices=epgActions, default="openEPGSearch")
 	config.epgselection.single.btn_yellowlong = ConfigSelection(choices=epgActions, default="")
-	config.epgselection.single.btn_blue = ConfigSelection(choices=epgActions, default="addEditAutoTimer")
+	config.epgselection.single.btn_blue = ConfigSelection(choices=epgActions, default="addAutoTimer")
 	config.epgselection.single.btn_bluelong = ConfigSelection(choices=epgActions, default="openAutoTimerList")
 	config.epgselection.single.btn_ok = ConfigSelection(choices=okActions, default="zap")
 	config.epgselection.single.btn_oklong = ConfigSelection(choices=okActions, default="zapExit")
@@ -86,8 +84,6 @@ def InitEPGConfig():
 	config.epgselection.single.btn_epglong = ConfigSelection(choices=infoActions, default="")
 	config.epgselection.single.btn_info = ConfigSelection(choices=infoActions, default="openEventView")
 	config.epgselection.single.btn_infolong = ConfigSelection(choices=infoActions, default="openSingleEPG")
-	config.epgselection.single.btn_rec = ConfigSelection(choices=recActions, default="addEditTimerMenu")
-	config.epgselection.single.btn_reclong = ConfigSelection(choices=recActions, default="addEditZapTimerSilent")
 
 	config.epgselection.multi = ConfigSubsection()
 	config.epgselection.multi.showbouquet = ConfigYesNo(default = False)
@@ -102,15 +98,13 @@ def InitEPGConfig():
 	config.epgselection.multi.btn_epglong = ConfigSelection(choices=infoActions, default="")
 	config.epgselection.multi.btn_info = ConfigSelection(choices=infoActions, default="openEventView")
 	config.epgselection.multi.btn_infolong = ConfigSelection(choices=infoActions, default="openSingleEPG")
-	config.epgselection.multi.btn_rec = ConfigSelection(choices=recActions, default="addEditTimerMenu")
-	config.epgselection.multi.btn_reclong = ConfigSelection(choices=recActions, default="addEditZapTimerSilent")
 	config.epgselection.multi.btn_red = ConfigSelection(choices=epgActions, default="openIMDb")
 	config.epgselection.multi.btn_redlong = ConfigSelection(choices=epgActions, default="sortEPG")
 	config.epgselection.multi.btn_green = ConfigSelection(choices=epgActions, default="addEditTimer")
 	config.epgselection.multi.btn_greenlong = ConfigSelection(choices=epgActions, default="openTimerList")
 	config.epgselection.multi.btn_yellow = ConfigSelection(choices=epgActions, default="openEPGSearch")
 	config.epgselection.multi.btn_yellowlong = ConfigSelection(choices=epgActions, default="")
-	config.epgselection.multi.btn_blue = ConfigSelection(choices=epgActions, default="addEditAutoTimer")
+	config.epgselection.multi.btn_blue = ConfigSelection(choices=epgActions, default="addAutoTimer")
 	config.epgselection.multi.btn_bluelong = ConfigSelection(choices=epgActions, default="openAutoTimerList")
 
 	config.epgselection.grid = ConfigSubsection()
@@ -145,22 +139,17 @@ def InitEPGConfig():
 	config.epgselection.grid.piconwidth = ConfigSelectionNumber(default = 100, stepwidth = 1, min = 50, max = 500, wraparound = True)
 	config.epgselection.grid.infowidth = ConfigSelectionNumber(default = 50, stepwidth = 25, min = 0, max = 150, wraparound = True)
 	config.epgselection.grid.rec_icon_height = ConfigSelection(choices = [("bottom",_("bottom")),("top", _("top")), ("middle", _("middle")),  ("hide", _("hide"))], default = "bottom")
-	config.epgselection.grid.number_buttons_mode = ConfigSelection(choices = [("paging", _("Standard")), ("service", _("Enter service number"))], default="paging")
 	config.epgselection.grid.btn_ok = ConfigSelection(choices=okActions, default="zap")
 	config.epgselection.grid.btn_oklong = ConfigSelection(choices=okActions, default="zapExit")
 	config.epgselection.grid.btn_epg = ConfigSelection(choices=infoActions, default="openSingleEPG")
 	config.epgselection.grid.btn_epglong = ConfigSelection(choices=infoActions, default="")
 	config.epgselection.grid.btn_info = ConfigSelection(choices=infoActions, default="openEventView")
 	config.epgselection.grid.btn_infolong = ConfigSelection(choices=infoActions, default="openSingleEPG")
-	config.epgselection.grid.btn_rec = ConfigSelection(choices=recActions, default="addEditTimerMenu")
-	config.epgselection.grid.btn_reclong = ConfigSelection(choices=recActions, default="addEditZapTimerSilent")
-	config.epgselection.grid.btn_channelup = ConfigSelection(choices=channelUpActions, default="forward24Hours")
-	config.epgselection.grid.btn_channeldown = ConfigSelection(choices=channelDownActions, default="back24Hours")
 	config.epgselection.grid.btn_red = ConfigSelection(choices=epgActions, default="openIMDb")
 	config.epgselection.grid.btn_redlong = ConfigSelection(choices=epgActions, default="sortEPG")
 	config.epgselection.grid.btn_green = ConfigSelection(choices=epgActions, default="addEditTimer")
 	config.epgselection.grid.btn_greenlong = ConfigSelection(choices=epgActions, default="openTimerList")
 	config.epgselection.grid.btn_yellow = ConfigSelection(choices=epgActions, default="openEPGSearch")
 	config.epgselection.grid.btn_yellowlong = ConfigSelection(choices=epgActions, default="")
-	config.epgselection.grid.btn_blue = ConfigSelection(choices=epgActions, default="addEditAutoTimer")
+	config.epgselection.grid.btn_blue = ConfigSelection(choices=epgActions, default="addAutoTimer")
 	config.epgselection.grid.btn_bluelong = ConfigSelection(choices=epgActions, default="openAutoTimerList")

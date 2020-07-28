@@ -9,17 +9,16 @@ from Components.config import config, ConfigSelection, ConfigSubsection
 from Components.EpgListMulti import EPGListMulti
 from Components.Label import Label
 from Components.Pixmap import Pixmap
-from Screens.EpgSelectionBase import EPGBouquetSelection, EPGSelectionBase, EPGServiceNumberSelection, EPGServiceZap, epgActions, infoActions, okActions
+from Screens.EpgSelectionBase import EPGBouquetSelection, EPGSelectionBase, EPGServiceZap, epgActions, infoActions, okActions
 from Screens.Setup import Setup
 from Screens.UserDefinedButtons import UserDefinedButtons
 
 
-class EPGSelectionMulti(EPGSelectionBase, EPGBouquetSelection, EPGServiceNumberSelection, EPGServiceZap, UserDefinedButtons):
+class EPGSelectionMulti(EPGSelectionBase, EPGBouquetSelection, EPGServiceZap, UserDefinedButtons):
 	def __init__(self, session, zapFunc, startBouquet, startRef, bouquets, timeFocus=-1):
 		UserDefinedButtons.__init__(self, config.epgselection.multi, epgActions, okActions)
 		EPGSelectionBase.__init__(self, session, config.epgselection.multi, startBouquet, startRef, bouquets)
 		EPGBouquetSelection.__init__(self, False)
-		EPGServiceNumberSelection.__init__(self)
 		EPGServiceZap.__init__(self, zapFunc)
 
 		self.skinName = ["MultiEPG", "EPGSelectionMulti"]
@@ -56,7 +55,6 @@ class EPGSelectionMulti(EPGSelectionBase, EPGBouquetSelection, EPGServiceNumberS
 			"tv": (self.toggleBouquetList, _("Toggle between bouquet/epg lists")),
 			"timer": (self.openTimerList, _("Show timer list")),
 			"timerlong": (self.openAutoTimerList, _("Show autotimer list")),
-			"back": (self.goToCurrentTimeOrServiceOrTop, _("Go to current time, then the start service")),
 			"menu": (self.createSetup, _("Setup menu"))
 		}, prio=-1, description=helpDescription)
 
@@ -92,9 +90,6 @@ class EPGSelectionMulti(EPGSelectionBase, EPGBouquetSelection, EPGServiceNumberS
 		self.refreshTimer.stop()
 		self["list"].updateEPG(0)
 
-	def moveToService(self, serviceRef):
-		self["list"].moveToService(serviceRef)
-
 	def leftPressed(self):
 		self["list"].updateEPG(-1)
 
@@ -109,17 +104,6 @@ class EPGSelectionMulti(EPGSelectionBase, EPGBouquetSelection, EPGServiceNumberS
 	def getCurrentService(self):
 		service = self["list"].getCurrent()[1]
 		return service
-
-	def goToCurrentTimeOrServiceOrTop(self):
-		list = self["list"]
-		oldEvent, service = list.getCurrent()
-		self["list"].fillEPG(self.services, time())
-		newEvent, service = list.getCurrent()
-		if oldEvent and newEvent and oldEvent.getEventId() == newEvent.getEventId():
-			if self.startRef and service and service.ref.toString() != self.startRef.toString():
-				self.moveToService(self.startRef)
-			else:
-				self.toTop()
 
 	def onDateTimeInputClosed(self, ret):
 		if len(ret) > 1 and ret[0]:
