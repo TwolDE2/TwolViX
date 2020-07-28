@@ -275,11 +275,11 @@ class ServiceInfo(Converter, object):
 		elif self.type == self.SID:
 			return self.getServiceInfoString(info, iServiceInformation.sSID)
 		elif self.type == self.FRAMERATE:
-			return self._getFrameRateStr(info, convert=lambda x: "%d fps" % ((x + 500) / 1000))
+			return self._getFrameRateStr(info, convert=lambda x: "%d fps" % ((x + 500) // 1000))
 		elif self.type == self.PROGRESSIVE:
 			return self._getProgressiveStr(info)
 		elif self.type == self.TRANSFERBPS:
-			return self.getServiceInfoString(info, iServiceInformation.sTransferBPS, lambda x: "%d kB/s" % (x / 1024))
+			return self.getServiceInfoString(info, iServiceInformation.sTransferBPS, lambda x: "%d kB/s" % (x // 1024))
 		elif self.type == self.HAS_HBBTV:
 			return info.getInfoString(iServiceInformation.sHBBTVUrl)
 		elif self.type == self.FREQ_INFO:

@@ -36,11 +36,11 @@ class EventTime(Poll, Converter, object):
 			self.type = self.ENDTIME
 		elif type == "Remaining":
 			self.type = self.REMAINING
-			self.poll_interval = 60*1000
+			self.poll_interval = 60 * 1000
 			self.poll_enabled = True
 		elif type == "VFDRemaining":
 			self.type = self.REMAINING_VFD
-			self.poll_interval = 60*1000
+			self.poll_interval = 60 * 1000
 			self.poll_enabled = True
 		elif type == "StartTime":
 			self.type = self.STARTTIME
@@ -48,15 +48,15 @@ class EventTime(Poll, Converter, object):
 			self.type = self.DURATION
 		elif type == "Progress":
 			self.type = self.PROGRESS
-			self.poll_interval = 30*1000
+			self.poll_interval = 30 * 1000
 			self.poll_enabled = True
 		elif type == "Elapsed":
 			self.type = self.ELAPSED
-			self.poll_interval = 60*1000
+			self.poll_interval = 60 * 1000
 			self.poll_enabled = True
 		elif type == "VFDElapsed":
 			self.type = self.ELAPSED_VFD
-			self.poll_interval = 60*1000
+			self.poll_interval = 60 * 1000
 			self.poll_enabled = True
 		elif type == "NextStartTime":
 			self.type = self.NEXT_START_TIME
@@ -102,7 +102,7 @@ class EventTime(Poll, Converter, object):
 		if self.type == self.TIMES:
 			return (st, et)
 
-		if self.type == self.REMAINING or self.type == self.REMAINING_VFD or self.type == self.ELAPSED or self.type == self.ELAPSED_VFD:
+		if self.type in (self.REMAINING, self.REMAINING_VFD, self.ELAPSED, self.ELAPSED_VFD):
 			now = int(time())
 			remaining = et - now
 			if remaining < 0:
@@ -151,7 +151,7 @@ class EventTime(Poll, Converter, object):
 			info = reference and self.source.info
 			if info is None:
 				return
-			test = [ 'IBDCX', (reference.toString(), 1, -1, 1440) ] # search next 24 hours
+			test = ['IBDCX', (reference.toString(), 1, -1, 1440)] # search next 24 hours
 			self.list = [] if self.epgcache is None else self.epgcache.lookupEvent(test)
 			if self.list:
 				try:
@@ -177,7 +177,6 @@ class EventTime(Poll, Converter, object):
 				except:
 					# failed to return any epg data.
 					return None
-
 
 	@cached
 	def getValue(self):
