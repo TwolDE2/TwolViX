@@ -114,18 +114,18 @@ class JobView(InfoBarNotifications, Screen, ConfigListScreen):
 			self["summary_job_task"].text = j.getStatustext()
 		if j.status in (j.FINISHED, j.FAILED):
 			self.performAfterEvent()
-			self.backgroundable.boolean = False
+			self.backgroundable = False
 			self["key_blue"].setText("")
 			if j.status == j.FINISHED:
 				self["key_green"].setText(_("OK"))
-				self.cancelable.boolean = False
+				self.cancelable = False
 				self["key_red"].setText("")
 			elif j.status == j.FAILED:
-				self.cancelable.boolean = True
+				self.cancelable = True
 				self["key_red"].setText(_("Cancel"))
 
 	def background(self):
-		if self.backgroundable.boolean:
+		if self.backgroundable:
 			self.close(True)
 
 	def ok(self):
@@ -138,7 +138,7 @@ class JobView(InfoBarNotifications, Screen, ConfigListScreen):
 		if self.job.status == self.job.NOT_STARTED:
 			job_manager.active_jobs.remove(self.job)
 			self.close(False)
-		elif self.job.status == self.job.IN_PROGRESS and self.cancelable.boolean == True:
+		elif self.job.status == self.job.IN_PROGRESS and self.cancelable == True:
 			self.job.cancel()
 		else:
 			self.close(False)
