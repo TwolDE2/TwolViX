@@ -2946,7 +2946,7 @@ class InfoBarInstantRecord:
 		print("[InfoBarGenerics] instantRecord stop and delete recording: %s" % entry.name)
 		import Tools.Trashcan
 		trash = Tools.Trashcan.createTrashFolder(entry.Filename)
-		from .MovieSelection import moveServiceFiles
+		from Screens.MovieSelection import moveServiceFiles
 # Don't crash on errors...the sub-handlers trap and re-raise errors...
 		try:
 			moveServiceFiles(entry.Filename, trash, entry.name, allowCopy=False)

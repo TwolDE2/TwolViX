@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from Components.config import config
 from Screens.EpgSelectionBase import epgActions, infoActions, okActions
 from Screens.EpgSelectionGrid import EPGSelectionGrid
+from Screens.EventView import EventViewSimple
 from Screens.Setup import Setup
 
 
@@ -23,7 +24,10 @@ class EPGSelectionInfobarGrid(EPGSelectionGrid):
 		self.session.openWithCallback(onClose, Setup, "epginfobargrid")
 
 	def infoPressed(self):
-		self.openEventView()
+		event, service = self["list"].getCurrent()[:2]
+		if event is not None:
+			self.eventviewDialog = self.session.instantiateDialog(EventViewSimple, event, service, skin='InfoBarEventView')
+			self.eventviewDialog.show()
 
 	def infoLongPressed(self):
 		self.openSingleEPG()

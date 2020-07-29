@@ -39,6 +39,7 @@ class EPGSelectionSingle(EPGSelectionBase, EPGServiceNumberSelection, EPGService
 			"tv": (self.toggleBouquetList, _("Toggle between bouquet/epg lists")),
 			"timer": (self.openTimerList, _("Show timer list")),
 			"timerlong": (self.openAutoTimerList, _("Show autotimer list")),
+			"back": (self.goToCurrentTimeOrService, _("Go to current time, then the start service")),
 			"menu": (self.createSetup, _("Setup menu"))
 		}, prio=-1, description=helpDescription)
 		self["epgcursoractions"] = HelpableActionMap(self, "DirectionActions", {
@@ -81,11 +82,39 @@ class EPGSelectionSingle(EPGSelectionBase, EPGServiceNumberSelection, EPGService
 		else:
 			self["list"].setCurrentIndex(index)
 
+	def moveToService(self, serviceRef):
+		self.setCurrentService(serviceRef)
+		self.refreshList(self.timeFocus)
+
 	def bouquetChanged(self):
-		self.refreshList(time())
+		self.refreshList(self.timeFocus)
 
 	def serviceChanged(self):
-		self.refreshList(time())
+		self.refreshList(self.timeFocus)
+
+	def moveUp(self):
+		EPGSelectionBase.moveUp(self)
+		self.timeFocus = self["list"].getSelectedEventStartTime() or time()
+
+	def moveDown(self):
+		EPGSelectionBase.moveDown(self)
+		self.timeFocus = self["list"].getSelectedEventStartTime() or time()
+
+	def nextPage(self):
+		EPGSelectionBase.nextPage(self)
+		self.timeFocus = self["list"].getSelectedEventStartTime() or time()
+
+	def prevPage(self):
+		EPGSelectionBase.prevPage(self)
+		self.timeFocus = self["list"].getSelectedEventStartTime() or time()
+
+	def toTop(self):
+		EPGSelectionBase.toTop(self)
+		self.timeFocus = self["list"].getSelectedEventStartTime() or time()
+
+	def toEnd(self):
+		EPGSelectionBase.toEnd(self)
+		self.timeFocus = self["list"].getSelectedEventStartTime() or time()
 
 	def eventViewCallback(self, setEvent, setService, val):
 		if val == -1:
@@ -105,8 +134,20 @@ class EPGSelectionSingle(EPGSelectionBase, EPGServiceNumberSelection, EPGService
 		configfile.save()
 		self["list"].sortEPG()
 
+	def goToCurrentTimeOrService(self):
+		list = self["list"]
+		oldEvent, service = list.getCurrent()
+		self.timeFocus = time()
+		self.refreshList(self.timeFocus)
+		newEvent, service = list.getCurrent()
+		if oldEvent and newEvent and oldEvent.getEventId() == newEvent.getEventId():
+			if self.startRef and service and service.ref.toString() != self.startRef.toString():
+				self.moveToService(self.startRef)
+
 	def forward24Hours(self):
-		self.refreshList(self["list"].getSelectedEventStartTime() + 86400)
+		self.timeFocus = (self["list"].getSelectedEventStartTime() or time()) + 86400
+		self.refreshList(self.timeFocus)
 
 	def back24Hours(self):
-		self.refreshList(self["list"].getSelectedEventStartTime() - 86400)
+		self.timeFocus = (self["list"].getSelectedEventStartTime() or time()) - 86400
+		self.refreshList(self.timeFocus)
