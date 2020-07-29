@@ -1007,10 +1007,11 @@ class ChannelSelectionEdit:
 		mutableBouquet = cur_root.list().startEdit()
 		if mutableBouquet:
 			servicename = cur_service.getServiceName()
-			if sys.version_info[0] >= 3:
+			if six.PY3:
 				name = unicodedata.normalize('NFKD', str(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
 			else:
 				name = unicodedata.normalize('NFKD', unicode(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
+			print("[ChannelSelection] [unicodedata1] name =%s" % name)
 			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/alternatives.%s.tv' or '/etc/enigma2/alternatives.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
@@ -1045,10 +1046,11 @@ class ChannelSelectionEdit:
 		mutableBouquetList = serviceHandler.list(self.bouquet_root).startEdit()
 		if mutableBouquetList:
 			bName += ' ' + (_("(TV)") if self.mode == MODE_TV else _("(Radio)"))
-			if sys.version_info[0] >= 3:
+			if six.PY3:
 				name = unicodedata.normalize('NFKD', str(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
 			else:
 				name = unicodedata.normalize('NFKD', unicode(servicename, 'utf_8', errors='ignore')).encode('ASCII', 'ignore').translate(None, '<>:"/\\|?*() ')
+			print("[ChannelSelection] [unicodedata2] name =%s" % name)
 			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/userbouquet.%s.tv' or '/etc/enigma2/userbouquet.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
@@ -1426,9 +1428,9 @@ class ChannelSelectionBase(Screen):
 
 	def applyKeyMap(self):
 		if config.usage.show_channel_jump_in_servicelist.value == "alpha":
-			self.numericalTextInput.setUseableChars('abcdefghijklmnopqrstuvwxyz1234567890')
+			self.numericalTextInput.setUseableChars(u'abcdefghijklmnopqrstuvwxyz1234567890')
 		else:
-			self.numericalTextInput.setUseableChars('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+			self.numericalTextInput.setUseableChars(u'1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
 	def getBouquetNumOffset(self, bouquet):
 		if not config.usage.multibouquet.value:
@@ -1886,7 +1888,7 @@ class ChannelSelectionBase(Screen):
 
 	def keyAsciiCode(self):
 		unichar = six.unichr(getPrevAsciiCode())
-		charstr = unichar.encode('utf-8')
+		charstr = six.ensure_str(unichar)
 		if len(charstr) == 1:
 			self.servicelist.moveToChar(charstr[0])
 
@@ -2750,7 +2752,7 @@ class ChannelSelectionRadio(ChannelSelectionEdit, ChannelSelectionBase, ChannelS
 		self["RdsActions"] = HelpableActionMap(self, "InfobarRdsActions",
 		{
 			"startRassInteractive": (self.startRassInteractive, _("View Rass interactive..."))
-		},-1)
+		}, -1)
 		self["RdsActions"].setEnabled(False)
 		infobar.rds_display.onRassInteractivePossibilityChanged.append(self.RassInteractivePossibilityChanged)
 		self.onClose.append(self.__onClose)
