@@ -78,7 +78,7 @@ class TimerList(GUIComponent, object):
 			else:
 				repeatedtext = ", ".join(repeatedtext)
 			if self.iconRepeat:
-				res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, colX + self.iconMargin, self.rowSplit + (self.itemHeight - self.rowSplit - self.iconHeight) / 2, self.iconWidth, self.iconHeight, self.iconRepeat))
+				res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, colX + self.iconMargin, self.rowSplit + (self.itemHeight - self.rowSplit - self.iconHeight) // 2, self.iconWidth, self.iconHeight, self.iconRepeat))
 		else:
 			repeatedtext = begin[0] # date
 		if timer.justplay:
@@ -87,7 +87,7 @@ class TimerList(GUIComponent, object):
 				extra_text = _("(ZAP as PiP)")
 			text = repeatedtext + ((" %s "+ extra_text) % (begin[1]))
 		else:
-			text = repeatedtext + ((" %s ... %s (%d " + _("mins") + ")") % (begin[1], FuzzyTime(timer.end)[1], (timer.end - timer.begin) / 60))
+			text = repeatedtext + ((" %s ... %s (%d " + _("mins") + ")") % (begin[1], FuzzyTime(timer.end)[1], (timer.end - timer.begin) // 60))
 		icon = None
 		if not processed:
 			if timer.state == TimerEntry.StateWaiting:
@@ -165,11 +165,11 @@ class TimerList(GUIComponent, object):
 		def itemHeight(value):
 			self.itemHeight = int(value)
 		def setServiceNameFont(value):
-			self.serviceNameFont = parseFont(value, ((1,1),(1,1)))
+			self.serviceNameFont = parseFont(value, ((1, 1), (1, 1)))
 		def setEventNameFont(value):
-			self.eventNameFont = parseFont(value, ((1,1),(1,1)))
+			self.eventNameFont = parseFont(value, ((1, 1), (1, 1)))
 		def setFont(value):
-			self.font = parseFont(value, ((1,1),(1,1)))
+			self.font = parseFont(value, ((1, 1), (1, 1)))
 		def rowSplit(value):
 			self.rowSplit = int(value)
 		def iconMargin(value):
@@ -226,7 +226,7 @@ class TimerList(GUIComponent, object):
 		refstr = refstr and GetWithAlternative(refstr)
 		if '%3a//' in refstr:
 			return "%s" % _("Stream")
-		op = int(refstr.split(':', 10)[6][:-4] or "0",16)
+		op = int(refstr.split(':', 10)[6][:-4] or "0", 16)
 		if op == 0xeeee:
 			return "%s" % _("DVB-T")
 		if op == 0xffff:

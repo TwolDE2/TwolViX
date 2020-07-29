@@ -495,13 +495,13 @@ class PliExtraInfo(Poll, Converter, object):
 			return str((float(orbpos)) / 10.0) + SIGN + "E"
 		return ""
 
-	def createOrbPosOrTunerSystem(self, fedata,feraw):
+	def createOrbPosOrTunerSystem(self, fedata, feraw):
 		orbpos = self.createOrbPos(feraw)
 		if orbpos != "":
 			return orbpos
 		return self.createTunerSystem(fedata)
 
-	def createTransponderName(self,feraw):
+	def createTransponderName(self, feraw):
 		orbpos = feraw.get("orbital_position")
 		if orbpos is None: # Not satellite
 			return ""
@@ -611,7 +611,7 @@ class PliExtraInfo(Poll, Converter, object):
 		else:
 			return str((float(orbpos)) / 10.0) + "E"
 
-	def createProviderName(self,info):
+	def createProviderName(self, info):
 		return info.getInfoString(iServiceInformation.sProvider)
 
 	def createMisPls(self, fedata):
@@ -818,7 +818,7 @@ class PliExtraInfo(Poll, Converter, object):
 			return self.createTunerSystem(fedata)
 
 		if self.type == "OrbitalPositionOrTunerSystem":
-			return self.createOrbPosOrTunerSystem(fedata,feraw)
+			return self.createOrbPosOrTunerSystem(fedata, feraw)
 
 		if self.type == "TerrestrialChannelNumber":
 			return self.createChannelNumber(fedata, feraw)
@@ -885,6 +885,6 @@ class PliExtraInfo(Poll, Converter, object):
 			if what[1] == iPlayableService.evEnd:
 				self.feraw = self.fedata = None
 			Converter.changed(self, what)
-		elif what[0] == self.CHANGED_POLL and self.updateFEdata != None:
+		elif what[0] == self.CHANGED_POLL and self.updateFEdata is not None:
 			self.updateFEdata = False
 			Converter.changed(self, what)
