@@ -13,10 +13,10 @@ except ImportError: # Python 2
 # 	status		"success" or "fail"			success			string
 # 	message		Included only when status is fail. Can
 # 			be one of the following: private range,
-# 			reserved range, invalid query		invalid query		string	Yes
-# 	continent	Continent name				North America		string	No
-# 	continentCode	Two-letter continent code		NA			string	No
-# 	country		Country name				United States		string	No
+# 			reserved range, invalid query		invalid query		string
+# 	continent	Continent name				North America		string
+# 	continentCode	Two-letter continent code		NA			string
+# 	country		Country name				United States		string
 # 	countryCode	Two-letter country code
 # 			ISO 3166-1 alpha-2			US			string
 # 	region		Region/state short code (FIPS or ISO)	CA or 10		string
@@ -32,8 +32,8 @@ except ImportError: # Python 2
 # 	isp		ISP name				Google			string
 # 	org		Organization name			Google			string
 # 	as		AS number and organization, separated
-# 			by space (RIR). Empty for IP blocks 
-# 			not being announced in BGP tables.	AS15169 Google Inc.	string	No
+# 			by space (RIR). Empty for IP blocks
+# 			not being announced in BGP tables.	AS15169 Google Inc.	string
 # 	asname		AS name (RIR). Empty for IP blocks not
 # 			being announced in BGP tables.		GOOGLE			string
 # 	reverse		Reverse DNS of the IP			wi-in-f94.1e100.net	string
@@ -72,36 +72,6 @@ geolocationFields = {
 	"offset": 0x02000000
 }
 
-<<<<<<< HEAD
-def InitGeolocation():
-	global geolocation
-	if config.misc.enableGeolocation.value:
-		if len(geolocation) == 0:
-			try:
-				response = urlopen("http://ip-api.com/json/?fields=status,message,timezone,proxy", data=None, timeout=10).read()
-				# print "[Geolocation] DEBUG:", response
-				if response:
-					geolocation = loads(response)
-				status = geolocation.get("status", None)
-				if status and status == "success":
-					print("[Geolocation] Geolocation data initialised.")
-					config.misc.enableGeolocation.value = False
-					config.misc.enableGeolocation.save()
-				else:
-					print("[Geolocation] Error: Geolocation lookup returned a '%s' status!  Message '%s' returned." % (status, geolocation.get("message", None)))
-			except URLError as err:
-				if hasattr(err, 'code'):
-					print("[Geolocation] Error: Geolocation data not available! (Code: %s)" % err.code)
-				if hasattr(err, 'reason'):
-					print("[Geolocation] Error: Geolocation data not available! (Reason: %s)" % err.reason)
-			except ValueError:
-				print("[Geolocation] Error: Geolocation data returned can not be processed!")
-		else:
-			print("[Geolocation] Note: Geolocation has already been run for this boot.")
-	else:
-		geolocation = {}
-		print("[Geolocation] Warning: Geolocation has been disabled by user configuration!")
-=======
 
 class Geolocation:
 	def __init__(self):
@@ -153,6 +123,5 @@ class Geolocation:
 	def clearGeolocationData(self):
 		self.geolocation = {}
 
->>>>>>> upstream/Dev
 
 geolocation = Geolocation()
