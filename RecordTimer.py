@@ -327,8 +327,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 			filename = ASCIItranslit.legacyEncode(filename)
 
 		self.Filename = Directories.getRecordingFilename(filename, self.MountPath)
-		if debug:
-			self.log(0, "Filename calculated as: '%s'" % self.Filename)
+		self.log(0, "Filename calculated as: '%s'" % self.Filename)
 		return self.Filename
 
 	def tryPrepare(self):
