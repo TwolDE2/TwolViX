@@ -32,11 +32,6 @@ print("[Enigma2] Image Build -> '%s'" % getImageBuild())
 if getImageType() != "release":
 	print("[Enigma2] Image DevBuild -> '%s'" % getImageDevBuild())
 
-profile("Geolocation")
-print("[Enigma2] Initialising Geolocation.")
-import Tools.Geolocation
-Tools.Geolocation.InitGeolocation()
-
 profile("ClientMode")
 print("[Enigma2] Initialising ClientMode.")
 import Components.ClientMode

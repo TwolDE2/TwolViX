@@ -8,7 +8,6 @@ import sys
 from time import gmtime, localtime, strftime, time
 
 from Components.config import ConfigSelection, ConfigSubsection, config
-from Tools.Geolocation import geolocation
 from Tools.StbHardware import setRTCoffset
 
 # The DEFAULT_AREA setting is usable by the image maintainers to select the
@@ -20,30 +19,25 @@ from Tools.StbHardware import setRTCoffset
 # "Classic" to maintain their chosen UI for time zone selection.  That is,
 # users will only be presented with the list of GMT related offsets.
 #
-# The DEFAULT_ZONE is used to select the default time zone if the "Time zone
-# area" is selected to be "Europe".  This allows OpenViX to have the
-# European default of "London" while OpenATV and OpenPLi can select "Berlin",
-# etc. (These are only examples.)  Images can select any defaults they deem
-# appropriate.
+# The DEFAULT_ZONE is used to select the default time zone within the time
+# zone area.  For example, if the "Time zone area" is selected to be
+# "Europe" then openATV can select "Berlin" as the European default while
+# OpenPLi can have "Amsterdam" as its default and OpenViX can have the the
+# European default of "London" etc.  (These are only examples.)  Images can
+# select any defaults they deem appropriate.
 #
 # NOTE: Even if the DEFAULT_AREA of "Classic" is selected a DEFAULT_ZONE
 # must still be selected.
 #
 # For images that use both the "Time zone area" and "Time zone" configuration
-# options then the DEFAULT_AREA can be set to an area most appropriate for
-# the image.  For example, Beyonwiz would use "Australia", OpenATV, OpenViX
-# and OpenPLi would use "Europe".  If the "Europe" option is selected then
-# the DEFAULT_ZONE can be used to select a more appropriate time zone
-# selection for the image.  For example, OpenATV and OpenPLi may prefer
-# "Berlin" while OpenViX may prefer "London".
+# options then the DEFAULT_AREA should be set to an area most appropriate for
+# the image.  For example, Beyonwiz would use "Australia" while openATV,
+# OpenViX and OpenPLi would use "Europe".  If the "Europe" option is selected
+# then the DEFAULT_ZONE should be used to select the most appropriate time
+# zone selection for the image.
 #
 # Please ensure that any defaults selected are valid, unique and available
 # in the "/usr/share/zoneinfo/" directory tree.
-#
-# This version of Timezones.py now incorporates access to a new Geolocation
-# feature that will try and determine the appropriate time zone for the user
-# based on their WAN IP address.  If the receiver is not connected to the
-# Internet the defaults described above and listed below will be used.
 #
 # DEFAULT_AREA = "Classic"  # Use the classic time zone based list of time zones.
 # DEFAULT_AREA = "Australia"  # Beyonwiz
@@ -56,6 +50,7 @@ TIMEZONE_DATA = "/usr/share/zoneinfo/"  # This should be SCOPE_TIMEZONES_DATA!
 def InitTimeZones():
 	config.timezone = ConfigSubsection()
 	config.timezone.area = ConfigSelection(default=DEFAULT_AREA, choices=timezones.getTimezoneAreaList())
+<<<<<<< HEAD
 	config.timezone.val = ConfigSelection(default=DEFAULT_ZONE, choices=timezones.getTimezoneList())
 	if config.misc.firstrun.value:
 		proxy = geolocation.get("proxy", False)
@@ -97,6 +92,33 @@ def InitTimeZones():
 				print("[Timezones] Warning: Enigma2 time zone does not match system time zone (%s), setting system to Enigma2 time zone!" % ",".join(msgs))
 		except (IOError, OSError):
 			pass
+=======
+	config.timezone.val = ConfigSelection(default=timezones.getTimezoneDefault(), choices=timezones.getTimezoneList())
+	if not config.timezone.area.value and config.timezone.val.value.find("/") == -1:
+		config.timezone.area.value = "Generic"
+	try:
+		tzLink = path.realpath("/etc/localtime")[20:]
+		msgs = []
+		if config.timezone.area.value == "Classic":
+			if config.timezone.val.value != tzLink:
+				msgs.append("time zone '%s' != '%s'" % (config.timezone.val.value, tzLink))
+		else:
+			tzSplit = tzLink.find("/")
+			if tzSplit == -1:
+				tzArea = "Generic"
+				tzVal = tzLink
+			else:
+				tzArea = tzLink[:tzSplit]
+				tzVal = tzLink[tzSplit + 1:]
+			if config.timezone.area.value != tzArea:
+				msgs.append("area '%s' != '%s'" % (config.timezone.area.value, tzArea))
+			if config.timezone.val.value != tzVal:
+				msgs.append("zone '%s' != '%s'" % (config.timezone.val.value, tzVal))
+		if len(msgs):
+			print("[Timezones] Warning: Enigma2 time zone does not match system time zone (%s), setting system to Enigma2 time zone!" % ",".join(msgs))
+	except (IOError, OSError):
+		pass
+>>>>>>> upstream/Dev
 
 	def timezoneAreaChoices(configElement):
 		choices = timezones.getTimezoneList(area=configElement.value)
@@ -237,6 +259,7 @@ class Timezones:
 				if path.exists(path.join(TIMEZONE_DATA, zonePath)):
 					zones.append((zonePath, name))
 				else:
+<<<<<<< HEAD
 					if isinstance(name, unicode):
 						name = six.ensure_str(name.encode(encoding="UTF-8", errors="ignore"))
 					zonePath = zone.get("zone", "")
@@ -247,6 +270,9 @@ class Timezones:
 					else:
 						print("[Timezones] Warning: Classic time zone '%s' (%s) is not available in '%s'!" % (name, zonePath, TIMEZONE_DATA))
 
+=======
+					print("[Timezones] Warning: Classic time zone '%s' (%s) is not available in '%s'!" % (name, zonePath, TIMEZONE_DATA))
+>>>>>>> upstream/Dev
 			self.timezones["Classic"] = zones
 		if len(zones) == 0:
 			self.timezones["Classic"] = [("UTC", "UTC")]
