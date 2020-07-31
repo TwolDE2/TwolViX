@@ -2280,6 +2280,7 @@ void eDVBChannel::flushPVR(iDVBDemux *decoding_demux)
 			   a.) the filepush's internal buffer
 			   b.) the PVR buffer (before demux)
 			   c.) the ratebuffer (after demux)
+
 			   it's important to clear them in the correct order, otherwise
 			   the ratebuffer (for example) would immediately refill from
 			   the not-yet-flushed PVR buffer.
