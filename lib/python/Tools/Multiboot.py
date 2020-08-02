@@ -1,3 +1,6 @@
+from __future__ import print_function
+import six
+
 import glob
 import shutil
 import subprocess
@@ -100,13 +103,15 @@ def GetImagelist():
 		Imagelist[slot] = {"imagename": _("Empty slot")}
 		imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
-		# print "[multiboot] [GetImagelist] 2 slot = %s imagedir = %s" % (slot, imagedir)
+			#	print("[multiboot] [GetImagelist] 2 slot = %s imagedir = %s" % (slot, imagedir))
 			Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
+			#	print("[multiboot] [GetImagelist] Creator = %s imagedir = %s" % (Creator, imagedir))
 			if Creator.startswith("Openvix"):
 				Creator = Creator.replace("-release", " rel")
 				reader = boxbranding_reader(imagedir)
 				BuildType = reader.getImageType()
 				Build = reader.getImageBuild()
+				#	print("[multiboot] [GetImagelist] Creator = %s BuildType = %s Build = %s" % (Creator, BuildType, Build))
 				Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ""
 				BuildVersion = "%s %s %s %s" % (Creator, BuildType[0:3], Build, Dev)
 			else:
@@ -203,7 +208,7 @@ class boxbranding_reader:  # Many thanks to Huevos for creating this reader - we
 		if output:
 			for att in list(self.output.keys()):
 				self.output[att] = output[att]
-
+			print("[readBrandingFile1] self.output = %s" % self.output)
 	def addBrandingMethods(self):  # This creates reader.getBoxType(), reader.getImageDevBuild(), etc
 		loc = {}
 		for att in list(self.output.keys()):
