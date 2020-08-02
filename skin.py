@@ -354,7 +354,7 @@ def collectAttributes(skinAttributes, node, context, skinPath=None, ignore=(), f
 	size = None
 	pos = None
 	font = None
-	for attrib, value in node.items():  # Walk all attributes.
+	for attrib, value in list(node.items()):  # Walk all attributes.
 		if attrib not in ignore:
 			if attrib in filenames:
 				# DEBUG: Why does a SCOPE_CURRENT_LCDSKIN image replace the GUI image?!?!?!
@@ -381,7 +381,7 @@ def collectAttributes(skinAttributes, node, context, skinPath=None, ignore=(), f
 	if pos != None:
 		pos, size = context.parse(pos, size, font)
 		skinAttributes.append(("position", pos))
-	if size is not None:
+	if size != None:
 		skinAttributes.append(("size", size))
 
 
@@ -791,7 +791,7 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 			try:
 				name = parameter.attrib.get("name")
 				value = parameter.attrib.get("value")
-				parameters[name] = map(parseParameter, [x.strip() for x in value.split(",")]) if "," in value else parseParameter(value)
+				parameters[name] = list(map(parseParameter, [x.strip() for x in value.split(",")])) if "," in value else parseParameter(value)
 			except Exception as err:
 				raise SkinError("Bad parameter: '%s'" % str(err))
 	for tag in domSkin.findall("menus"):
