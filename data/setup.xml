@@ -328,6 +328,8 @@
 		<item level="2" text="EPG button (long)" description="Set to what you want the button to do.">config.epgselection.multi.btn_epglong</item>
 		<item level="2" text="OK button (short)" description="Set to what you want the button to do.">config.epgselection.multi.btn_ok</item>
 		<item level="2" text="OK button (long)" description="Set to what you want the button to do.">config.epgselection.multi.btn_oklong</item>
+		<item level="2" text="Rec button (short)" description="Set to what you want the button to do.">config.epgselection.multi.btn_rec</item>
+		<item level="2" text="Rec button (long)" description="Set to what you want the button to do.">config.epgselection.multi.btn_reclong</item>
 		<item level="2" text="Red button (short)" description="Set to what you want the button to do.">config.epgselection.multi.btn_red</item>
 		<item level="2" text="Red button (long)" description="Set to what you want the button to do.">config.epgselection.multi.btn_redlong</item>
 		<item level="2" text="Green button (short)" description="Set to what you want the button to do.">config.epgselection.multi.btn_green</item>
@@ -348,6 +350,8 @@
 		<item level="2" text="Info button (long)" description="Set to what you want the button to do.">config.epgselection.single.btn_infolong</item>
 		<item level="2" text="EPG button (short)" description="Set to what you want the button to do.">config.epgselection.single.btn_epg</item>
 		<item level="2" text="EPG button (long)" description="Set to what you want the button to do.">config.epgselection.single.btn_epglong</item>
+		<item level="2" text="Rec button (short)" description="Set to what you want the button to do.">config.epgselection.single.btn_rec</item>
+		<item level="2" text="Rec button (long)" description="Set to what you want the button to do.">config.epgselection.single.btn_reclong</item>
 		<item level="2" text="OK button (short)" description="Set to what you want the button to do.">config.epgselection.single.btn_ok</item>
 		<item level="2" text="OK button (long)" description="Set to what you want the button to do.">config.epgselection.single.btn_oklong</item>
 		<item level="2" text="Red button (short)" description="Set to what you want the button to do.">config.epgselection.single.btn_red</item>
@@ -370,8 +374,16 @@
 		<item level="2" text="Event font size" description="Configure the font size relative to skin size, so 1 increases by 1 point size, and -1 decreases by 1 point size.">config.epgselection.infobar.eventfs</item>
 		<item level="2" text="OK button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_ok</item>
 		<item level="2" text="OK button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_oklong</item>
-		<item level="2" text="Number of rows" description="Configure the number of rows shown.">config.epgselection.infobar.itemsperpage</item>
-		<item level="2" text="Event font size" description="Configure the font size relative to skin size, so 1 increases by 1 point size, and -1 decreases by 1 point size.">config.epgselection.infobar.eventfs</item>
+		<item level="2" text="Rec button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_rec</item>
+		<item level="2" text="Rec button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_reclong</item>
+		<item level="2" text="Red button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_red</item>
+		<item level="2" text="Red button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_redlong</item>
+		<item level="2" text="Green button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_green</item>
+		<item level="2" text="Green button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_greenlong</item>
+		<item level="2" text="Yellow button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_yellow</item>
+		<item level="2" text="Yellow button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_yellowlong</item>
+		<item level="2" text="Blue button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_blue</item>
+		<item level="2" text="Blue button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_bluelong</item>
 	</setup>
 	<setup key="epginfobargrid" title="Infobar Grid EPG">
 		<item level="2" text="View mode" description="Choose the layout. Single channel, Graphics Grid EPG or Text Grid EPG.">config.epgselection.infobar.type_mode</item>
@@ -393,6 +405,8 @@
 		<item level="2" text="Time scale" description="Configure the amount of time that will be presented.">config.epgselection.infobar.prevtimeperiod</item>
 		<item level="2" text="OK button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_ok</item>
 		<item level="2" text="OK button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_oklong</item>
+		<item level="2" text="Rec button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_rec</item>
+		<item level="2" text="Rec button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_reclong</item>
 		<item level="2" text="Red button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_red</item>
 		<item level="2" text="Red button (long)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_redlong</item>
 		<item level="2" text="Green button (short)" description="Set to what you want the button to do.">config.epgselection.infobar.btn_green</item>
@@ -427,12 +441,17 @@
 		<item level="2" text="Timeline font size" description="Configure the font size relative to skin size, so 1 increases by 1 point size, and -1 decreases by 1 point size.">config.epgselection.grid.timelinefs</item>
 		<item level="2" text="Timeline 24 Hour" description="Show time in 24 hour clock format." requires="config.usage.time.disabled">config.epgselection.grid.timeline24h</item>
 		<item level="2" text="Time scale" description="Configure the amount of time that will be presented.">config.epgselection.grid.prevtimeperiod</item>
+		<item level="2" text="Number buttons mode" description="If set to 'Standard' number buttons page up/down/left/right.">config.epgselection.grid.number_buttons_mode</item>
 		<item level="2" text="Info button (short)" description="Set to what you want the button to do.">config.epgselection.grid.btn_info</item>
 		<item level="2" text="Info button (long)" description="Set to what you want the button to do.">config.epgselection.grid.btn_infolong</item>
 		<item level="2" text="EPG button (short)" description="Set to what you want the button to do.">config.epgselection.grid.btn_epg</item>
 		<item level="2" text="EPG button (long)" description="Set to what you want the button to do.">config.epgselection.grid.btn_epglong</item>
 		<item level="2" text="OK button (short)" description="Set to what you want the button to do.">config.epgselection.grid.btn_ok</item>
 		<item level="2" text="OK button (long)" description="Set to what you want the button to do.">config.epgselection.grid.btn_oklong</item>
+		<item level="2" text="Rec button (short)" description="Set to what you want the button to do.">config.epgselection.grid.btn_rec</item>
+		<item level="2" text="Rec button (long)" description="Set to what you want the button to do.">config.epgselection.grid.btn_reclong</item>
+		<item level="2" text="Ch+ button" description="Set to what you want the button to do.">config.epgselection.grid.btn_channelup</item>
+		<item level="2" text="Ch- button" description="Set to what you want the button to do.">config.epgselection.grid.btn_channeldown</item>
 		<item level="2" text="Red button (short)" description="Set to what you want the button to do.">config.epgselection.grid.btn_red</item>
 		<item level="2" text="Red button (long)" description="Set to what you want the button to do.">config.epgselection.grid.btn_redlong</item>
 		<item level="2" text="Green button (short)" description="Set to what you want the button to do.">config.epgselection.grid.btn_green</item>
