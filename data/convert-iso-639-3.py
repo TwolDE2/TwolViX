@@ -1,7 +1,7 @@
 import sys
-if sys.version_info >= (3, 0):
+try: # python 3
 	import pickle as cPickle
-else:
+except ImportError: # Python 2
 	import cPickle
 
 infilename = "iso-639-3.tab"
