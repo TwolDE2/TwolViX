@@ -126,11 +126,6 @@ class ChoiceBox(Screen):
 			"back": self.cancel
 		}, prio=-2)
 
-		self["cancelaction"] = ActionMap(["WizardActions"],
-		{
-			"back": self.cancel,
-		}, prio=-1)
-
 	def autoResize(self):
 		desktop_w = enigma.getDesktop(0).size().width()
 		desktop_h = enigma.getDesktop(0).size().height()
