@@ -7,6 +7,7 @@ from gettext import dgettext
 from os.path import getmtime, join as pathJoin
 from skin import setups
 
+from boxbranding import getMachineBrand, getMachineName
 from Components.config import ConfigBoolean, ConfigNothing, ConfigSelection, config
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
@@ -124,14 +125,24 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				conditional = element.get("conditional")
 				if conditional and not eval(conditional):  # The item conditions are not met.
 					continue
+				print("[Setup]SystemInfo Box: Type '%s'" % type(SystemInfo["MachineBrand"])
+				print("[Setup]Boxbranding Box: Type '%s'" % type(getMachineBrand())
 				if self.PluginLanguageDomain:
-					itemText = dgettext(self.PluginLanguageDomain, element.get("text", "??").encode("UTF-8"))
-					itemDescription = dgettext(self.PluginLanguageDomain, element.get("description", " ").encode("UTF-8"))
+					itemtext = dgettext(self.PluginLanguageDomain, element.get("text", "??"))
+					itemdescription = dgettext(self.PluginLanguageDomain, element.get("description", " "))
 				else:
-					itemText = _(element.get("text", "??").encode("UTF-8"))
-					itemDescription = _(element.get("description", " ").encode("UTF-8"))
-				itemText = itemText.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
-				itemDescription = itemDescription.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
+					itemtext = _(element.get("text", "??"))
+					itemdescription = _(element.get("description", " "))
+				print("[Setup]itemtext: Type '%s'" % type(itemtext)
+				print("[Setup]itemdescription: Type '%s'" % type(itemdescription)
+				itemtext = itemtext.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
+				itemdescription = itemdescription.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
+				print("[Setup]itemtext: Text '%s'" % (itemtext)
+				print("[Setup]itemdescription: Text '%s'" % (itemdescription)
+				itemText = itemtext.encode()
+				itemDescription = itemdescription.encode()
+				print("[Setup]itemText: Type '%s'" % type(itemText)
+				print("[Setup]itemDescription: Type '%s'" % type(itemDdescription)
 				item = eval(element.text or "")
 				if item != "" and not isinstance(item, ConfigNothing):
 					itemDefault = "(Default: %s)" % item.toDisplayString(item.default)
