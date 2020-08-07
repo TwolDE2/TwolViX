@@ -1,11 +1,8 @@
-from __future__ import absolute_import
-from six.moves import zip
-
 from enigma import eListbox, eListboxPythonConfigContent, ePoint, eRCInput, eTimer
 from skin import parameters
 
 from Components.ActionMap import HelpableActionMap, HelpableNumberActionMap
-from Components.config import ConfigBoolean, ConfigElement, ConfigInteger, ConfigMacText, ConfigSelection, ConfigSequence, ConfigText, KEYA_0, KEYA_ASCII, KEYA_BACKSPACE, KEYA_DELETE, KEYA_END, KEYA_ERASE, KEYA_HOME, KEYA_LEFT, KEYA_NUMBERS, KEYA_RIGHT, KEYA_SELECT, KEYA_TIMEOUT, KEYA_TOGGLEOW, config, configfile
+from Components.config import ConfigBoolean, ConfigElement, ConfigInteger, ConfigMacText, ConfigSelection, ConfigSequence, ConfigText, KEYA_0, KEYA_ASCII, KEYA_BACKSPACE, KEYA_DELETE, KEYA_END, KEYA_HOME, KEYA_LEFT, KEYA_NUMBERS, KEYA_RIGHT, KEYA_SELECT, KEYA_TIMEOUT, KEYA_TOGGLEOW, config, configfile
 from Components.GUIComponent import GUIComponent
 from Components.Pixmap import Pixmap
 from Components.Sources.Boolean import Boolean
@@ -283,7 +280,7 @@ class ConfigListScreen:
 	def keyText(self):
 		self.session.openWithCallback(self.VirtualKeyBoardCallback, VirtualKeyBoard, title=self.getCurrentEntry(), text=str(self.getCurrentValue()))
 
-	def VirtualKeyBoardCallback(self, callback = None):
+	def VirtualKeyBoardCallback(self, callback=None):
 		if callback is not None:
 			prev = str(self.getCurrentValue())
 			self["config"].getCurrent()[1].setValue(callback)
@@ -305,7 +302,7 @@ class ConfigListScreen:
 		if currConfig and currConfig[1].enabled and hasattr(currConfig[1], "description"):
 			self.session.openWithCallback(
 				self.handleKeyMenuCallback, ChoiceBox, title=currConfig[0],
-				list=list(zip(currConfig[1].description, currConfig[1].choices)),
+				list=zip(currConfig[1].description, currConfig[1].choices),
 				selection=currConfig[1].getIndex(),
 				keys=[]
 			)
@@ -359,7 +356,7 @@ class ConfigListScreen:
 		self.entryChanged()
 
 	def keyErase(self):
-		self["config"].handleKey(KEYA_DELETE)
+		# self["config"].handleKey(KEYA_ERASE)
 		self.entryChanged()
 
 	def keyToggleOW(self):
@@ -390,7 +387,7 @@ class ConfigListScreen:
 
 	def restartConfirm(self, result):
 		if result:
-			self.session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
+			self.session.instantiateDialog(TryQuitMainloop, retvalue=QUIT_RESTART)
 
 	def keyCancel(self):
 		self.closeConfigList(False)
