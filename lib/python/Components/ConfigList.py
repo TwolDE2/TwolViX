@@ -356,7 +356,7 @@ class ConfigListScreen:
 		self.entryChanged()
 
 	def keyErase(self):
-		# self["config"].handleKey(KEYA_ERASE)
+		self["config"].handleKey(KEYA_ERASE)
 		self.entryChanged()
 
 	def keyToggleOW(self):
@@ -383,7 +383,7 @@ class ConfigListScreen:
 			x[1].save()
 		configfile.save()
 		if restart:
-			self.session.openWithCallback(self.restartConfirm, MessageBox, self.restartMsg, default=True, type=MessageBox.TYPE_YESNO)
+			self.session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
 
 	def restartConfirm(self, result):
 		if result:
