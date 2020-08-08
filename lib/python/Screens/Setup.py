@@ -7,7 +7,6 @@ from gettext import dgettext
 from os.path import getmtime, join as pathJoin
 from skin import setups
 
-from boxbranding import getMachineBrand, getMachineName
 from Components.config import ConfigBoolean, ConfigNothing, ConfigSelection, config
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
@@ -81,10 +80,16 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				skin = setup.get("skin", "")
 				if skin != "":
 					self.skinName.insert(0, skin)
-				if config.usage.show_menupath.value in ("large", "small") and "menuTitle" in setup:
-					title = setup.get("menuTitle", "").encode("UTF-8")
+				if six.PY3:
+					if config.usage.show_menupath.value in ("large", "small") and "menuTitle" in setup:
+						title = setup.get("menuTitle", "")
+					else:
+						title = setup.get("title", "")
 				else:
-					title = setup.get("title", "").encode("UTF-8")
+					if config.usage.show_menupath.value in ("large", "small") and "menuTitle" in setup:
+						title = setup.get("menuTitle", "").encode("UTF-8")
+					else:
+						title = setup.get("title", "").encode("UTF-8")
 				# If this break is executed then there can only be one setup tag with this key.
 				# This may not be appropriate if conditional setup blocks become available.
 				break
@@ -125,24 +130,20 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				conditional = element.get("conditional")
 				if conditional and not eval(conditional):  # The item conditions are not met.
 					continue
-				print("[Setup]SystemInfo Box: Type '%s'" % type(SystemInfo["MachineBrand"])
-				print("[Setup]Boxbranding Box: Type '%s'" % type(getMachineBrand())
 				if self.PluginLanguageDomain:
 					itemtext = dgettext(self.PluginLanguageDomain, element.get("text", "??"))
 					itemdescription = dgettext(self.PluginLanguageDomain, element.get("description", " "))
 				else:
 					itemtext = _(element.get("text", "??"))
 					itemdescription = _(element.get("description", " "))
-				print("[Setup]itemtext: Type '%s'" % type(itemtext)
-				print("[Setup]itemdescription: Type '%s'" % type(itemdescription)
 				itemtext = itemtext.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
 				itemdescription = itemdescription.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
-				print("[Setup]itemtext: Text '%s'" % (itemtext)
-				print("[Setup]itemdescription: Text '%s'" % (itemdescription)
-				itemText = itemtext.encode()
-				itemDescription = itemdescription.encode()
-				print("[Setup]itemText: Type '%s'" % type(itemText)
-				print("[Setup]itemDescription: Type '%s'" % type(itemDdescription)
+				if six.PY3:
+					itemText = itemtext
+					itemDescription = itemdescription
+				else:
+					itemText = itemtext.encode()
+					itemDescription = itemdescription.encode()
 				item = eval(element.text or "")
 				if item != "" and not isinstance(item, ConfigNothing):
 					itemDefault = "(Default: %s)" % item.toDisplayString(item.default)
@@ -268,17 +269,22 @@ def setupDom(setup=None, plugin=None):
 			key = setup.get("key", "")
 			if key in setupTitles:
 				print("[Setup] Warning: Setup key '%s' has been redefined!" % key)
-			title = setup.get("menuTitle", "").encode("UTF-8")
-			if title == "":
-				title = setup.get("title", "").encode("UTF-8")
+			if six.PY3:
+				title = setup.get("menuTitle", "")
 				if title == "":
-					print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-					setupTitles[key] = _("** Setup error: '%s' title is missing or blank!") % key
-				else:
-					setupTitles[key] = _(title)
+					title = setup.get("title", "")
+			else:
+				title = setup.get("menuTitle", "").encode("UTF-8")
+				if title == "":
+					title = setup.get("title", "").encode("UTF-8")
+			if title == "":
+				print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+				setupTitles[key] = _("** Setup error: '%s' title is missing or blank!") % key
 			else:
 				setupTitles[key] = _(title)
-			# print("[Setup] DEBUG XML Setup menu load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8"), setup.get("menuTitle", "").encode("UTF-8"), setupTitles[key]))
+		else:
+			setupTitles[key] = _(title)
+		print("[Setup] DEBUG XML Setup menu load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", ""), setup.get("menuTitle", ""), setupTitles[key]))
 	else:
 		setupfiledom = xml.etree.cElementTree.fromstring("<setupxml></setupxml>")
 	return setupfiledom
