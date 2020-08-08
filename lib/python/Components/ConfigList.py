@@ -2,7 +2,7 @@ from enigma import eListbox, eListboxPythonConfigContent, ePoint, eRCInput, eTim
 from skin import parameters
 
 from Components.ActionMap import HelpableActionMap, HelpableNumberActionMap
-from Components.config import ConfigBoolean, ConfigElement, ConfigInteger, ConfigMacText, ConfigSelection, ConfigSequence, ConfigText, KEYA_0, KEYA_ASCII, KEYA_BACKSPACE, KEYA_DELETE, KEYA_END, KEYA_HOME, KEYA_LEFT, KEYA_NUMBERS, KEYA_RIGHT, KEYA_SELECT, KEYA_TIMEOUT, KEYA_TOGGLEOW, config, configfile
+from Components.config import ConfigBoolean, ConfigElement, ConfigInteger, ConfigMacText, ConfigSelection, ConfigSequence, ConfigText, KEYA_0, KEYA_ASCII, KEYA_BACKSPACE, KEYA_DELETE, KEYA_END, KEYA_ERASE, KEYA_HOME, KEYA_LEFT, KEYA_NUMBERS, KEYA_RIGHT, KEYA_SELECT, KEYA_TIMEOUT, KEYA_TOGGLEOW, config, configfile
 from Components.GUIComponent import GUIComponent
 from Components.Pixmap import Pixmap
 from Components.Sources.Boolean import Boolean
@@ -122,17 +122,9 @@ class ConfigList(GUIComponent, object):
 		if self.instance is not None:
 			self.instance.moveSelection(self.instance.moveTop)
 
-	def moveBottom(self):
-		if self.instance is not None:
-			self.instance.moveSelection(self.instance.moveEnd)
-
 	def pageUp(self):
 		if self.instance is not None:
 			self.instance.moveSelection(self.instance.pageUp)
-
-	def pageDown(self):
-		if self.instance is not None:
-			self.instance.moveSelection(self.instance.pageDown)
 
 	def moveUp(self):
 		if self.instance is not None:
@@ -141,6 +133,14 @@ class ConfigList(GUIComponent, object):
 	def moveDown(self):
 		if self.instance is not None:
 			self.instance.moveSelection(self.instance.moveDown)
+
+	def pageDown(self):
+		if self.instance is not None:
+			self.instance.moveSelection(self.instance.pageDown)
+
+	def moveBottom(self):
+		if self.instance is not None:
+			self.instance.moveSelection(self.instance.moveEnd)
 
 
 class ConfigListScreen:
@@ -201,7 +201,7 @@ class ConfigListScreen:
 		self["VirtualKB"].setEnabled(False)
 		self["config"] = ConfigList(list, session=session)
 		self.setCancelMessage(None)
-		self.setRestartMessage(None)
+		# self.setRestartMessage(None)
 		self.onChangedEntry = []
 		if self.handleInputHelpers not in self["config"].onSelectionChanged:
 			self["config"].onSelectionChanged.append(self.handleInputHelpers)
@@ -217,8 +217,8 @@ class ConfigListScreen:
 	def setCancelMessage(self, msg):
 		self.cancelMsg = _("Really close without saving settings?") if msg is None else msg
 
-	def setRestartMessage(self, msg):
-		self.restartMsg = _("Restart GUI now?") if msg is None else msg
+	# def setRestartMessage(self, msg):
+	# 	self.restartMsg = _("Restart GUI now?") if msg is None else msg
 
 	def getCurrentItem(self):
 		return self["config"].getCurrent() and self["config"].getCurrent()[1] or None
@@ -269,7 +269,7 @@ class ConfigListScreen:
 		self.displayHelp(False)
 
 	def displayHelp(self, state):
-		if "config" in self and "HelpWindow" in self and self["config"].getCurrent() is not None:
+		if "config" in self and "HelpWindow" in self and self["config"].getCurrent() is not None and len(self["config"].getCurrent()) > 1:
 			currConf = self["config"].getCurrent()[1]
 			if isinstance(currConf, ConfigText) and currConf.help_window is not None and currConf.help_window.instance is not None:
 				if state:
@@ -383,11 +383,13 @@ class ConfigListScreen:
 			x[1].save()
 		configfile.save()
 		if restart:
+			# self.session.openWithCallback(self.restartConfirm, MessageBox, self.restartMsg, default=True, type=MessageBox.TYPE_YESNO)
 			self.session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
 
-	def restartConfirm(self, result):
-		if result:
-			self.session.instantiateDialog(TryQuitMainloop, retvalue=QUIT_RESTART)
+	# def restartConfirm(self, result):
+	# 	if result:
+	# 		self.session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
+	# 		self.close(True)
 
 	def keyCancel(self):
 		self.closeConfigList(False)
