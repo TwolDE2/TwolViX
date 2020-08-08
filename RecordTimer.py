@@ -358,7 +358,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 			description = self.description
 			if self.repeated:
 				epgcache = eEPGCache.getInstance()
-				queryTime=self.begin+(self.end-self.begin)/2
+				queryTime=self.begin+(self.end-self.begin)//2
 				evt = epgcache.lookupEventTime(rec_ref, queryTime)
 				if evt:
 					if self.rename_repeat:
@@ -389,7 +389,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 				else:
 					self.log(2, "'prepare' failed: error %d" % prep_res)
 
-				# we must calc nur start time before stopRecordService call because in Screens/Standby.py TryQuitMainloop tries to get
+				# we must calc new start time before stopRecordService call because in Screens/Standby.py TryQuitMainloop tries to get
 				# the next start time in evEnd event handler...
 				self.do_backoff()
 				self.start_prepare = time() + self.backoff
