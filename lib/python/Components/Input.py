@@ -156,7 +156,7 @@ class Input(VariableText, GUIComponent, NumericalTextInput):
 		self.update()
 
 	def insertChar(self, ch, pos=False, owr=False, ins=False):
-		if isinstance(ch, str):
+		if isinstance(ch, bytes):
 			ch = six.ensure_text(ch, errors='ignore')
 		if not pos:
 			pos = self.currPos
