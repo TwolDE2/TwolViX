@@ -1,9 +1,10 @@
 from __future__ import print_function
 import six
 
-from os import path as os_path, remove, unlink, rename, chmod, access, X_OK
+from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
 from random import Random
 from subprocess import call
+
 from shutil import move
 import subprocess
 import string
@@ -938,6 +939,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 			return False
 		else:
 			try:
+				system("ifconfig "+self.iface+" up")
 				wlanresponse = list(Cell.all(iface))
 			except IOError as xxx_todo_changeme:
 				(error_no, error_str) = xxx_todo_changeme.args
