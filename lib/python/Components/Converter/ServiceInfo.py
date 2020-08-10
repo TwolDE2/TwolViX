@@ -312,7 +312,7 @@ class ServiceInfo(Converter, object):
 			if fieldrate > 0:
 				if progressive == 'i':
 					fieldrate *= 2
-				fieldrate = "%dHz" % ((fieldrate + 500) / 1000,)
+				fieldrate = "%dHz" % ((fieldrate + 500) // 1000,)
 			else:
 				fieldrate = ""
 			return "%sx%s%s %s" % (self._getVideoWidthStr(info), self._getVideoHeightStr(info), progressive, fieldrate)
