@@ -1,6 +1,6 @@
 from __future__ import print_function
 from builtins import range
-
+import six
 import sys
 
 from enigma import eDVBResourceManager, eDVBFrontendParametersSatellite, eDVBFrontendParametersTerrestrial
@@ -25,7 +25,7 @@ try: # for reading the current transport stream (SatfinderExtra)
 	from Components.Label import Label
 	import time
 	import datetime
-	if sys.version_info >= (3, 0):
+	if six.PY3:
 		import _thread as thread
 	else:
 		import thread
