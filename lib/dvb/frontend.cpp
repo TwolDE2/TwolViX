@@ -598,6 +598,7 @@ int eDVBFrontend::openFrontend()
 	if (!m_simulate)
 	{
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
+		eDebug("[eDVBFrontend] Twol mFD? %s failed: %m", m_filename.c_str());
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
@@ -713,6 +714,7 @@ int eDVBFrontend::openFrontend()
 		fe_info.frequency_max = 2200000;
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
+		eDebug("[eDVBFrontend] Twol mFD? %s failed: %m", m_filename.c_str());
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		if (tmp_fd < 0)
 		{
@@ -1497,6 +1499,7 @@ int eDVBFrontend::readFrontendData(int type)
 			{
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
 					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %m");
+					eDebug("[eDVBFrontend] Twol mFD? %s failed: %m", m_filename.c_str());
 				return (int)status;
 			}
 			return (FE_HAS_SYNC | FE_HAS_LOCK);
@@ -2098,6 +2101,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 		int type = -1;
 		oparm.getSystem(type);
 		eDebug("[eDVBFrontend%d] setting frontend", m_dvbid);
+		eDebug("[eDVBFrontend] Twol mFD?? %s failed: %m", m_filename.c_str());
 		if (recvEvents)
 			m_sn->start();
 		feEvent(-1); // flush events
