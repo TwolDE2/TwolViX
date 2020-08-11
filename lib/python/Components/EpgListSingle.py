@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 from builtins import range
 
 from time import localtime, time, strftime
@@ -41,9 +41,9 @@ class EPGListSingle(EPGListBase):
 	def setItemsPerPage(self):
 		if self.numberOfRows:
 			self.epgConfig.itemsperpage.default = self.numberOfRows
-		itemHeight = max(self.listHeight / self.epgConfig.itemsperpage.value, 20) if self.listHeight > 0 else 32
+		itemHeight = max(self.listHeight // self.epgConfig.itemsperpage.value, 20) if self.listHeight > 0 else 32
 		self.l.setItemHeight(itemHeight)
-		self.instance.resize(eSize(self.listWidth, self.listHeight / itemHeight * itemHeight))
+		self.instance.resize(eSize(self.listWidth, self.listHeight // itemHeight * itemHeight))
 		self.listHeight = self.instance.size().height()
 		self.listWidth = self.instance.size().width()
 		self.itemHeight = itemHeight
@@ -97,10 +97,10 @@ class EPGListSingle(EPGListBase):
 		if timerIcon:
 			clockSize = 26 if self.isFullHd else 21
 			eventW -= clockSize
-			res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, r3.left()+r3.width()-clockSize, (r3.height()-clockSize)/2, clockSize, clockSize, timerIcon))
+			res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, r3.left()+r3.width()-clockSize, (r3.height()-clockSize)//2, clockSize, clockSize, timerIcon))
 			if autoTimerIcon:
 				eventW -= clockSize
-				res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, r3.left()+r3.width()-clockSize*2, (r3.height()-clockSize)/2, clockSize, clockSize, autoTimerIcon))
+				res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, r3.left()+r3.width()-clockSize*2, (r3.height()-clockSize)//2, clockSize, clockSize, autoTimerIcon))
 		res.append((eListboxPythonMultiContent.TYPE_TEXT, r3.left(), r3.top(), eventW, r3.height(), 0, RT_HALIGN_LEFT | RT_VALIGN_CENTER, eventName))
 		return res
 
