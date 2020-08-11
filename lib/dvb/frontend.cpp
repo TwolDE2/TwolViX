@@ -598,18 +598,18 @@ int eDVBFrontend::openFrontend()
 	if (!m_simulate)
 	{
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
-		eDebug("[eDVBFrontend] Twol mFD? %s failed: %m", m_filename.c_str());
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			eDebug("[eDVBFrontend] Twol1 opening frontend %s : %m", m_filename.c_str());
 			if (m_fd < 0)
 			{
-				eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
+				eDebug("[eDVBFrontend]2 opening %s failed: %m", m_filename.c_str());
 				return -1;
 			}
 		}
 		else
-			eWarning("[eDVBFrontend%d] frontend already opened", m_dvbid);
+			eWarning("[eDVBFrontend%d]3 frontend already opened", m_dvbid);
 		if (m_dvbversion == 0)
 		{
 			m_dvbversion = DVB_VERSION(3, 0);
@@ -714,8 +714,8 @@ int eDVBFrontend::openFrontend()
 		fe_info.frequency_max = 2200000;
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
-		eDebug("[eDVBFrontend] Twol mFD? %s failed: %m", m_filename.c_str());
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+		eDebug("[eDVBFrontend] Twol2 Opened frontend: %m", m_filename.c_str());
 		if (tmp_fd < 0)
 		{
 			eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
@@ -1499,7 +1499,7 @@ int eDVBFrontend::readFrontendData(int type)
 			{
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
 					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %m");
-					eDebug("[eDVBFrontend] Twol mFD? %s failed: %m", m_filename.c_str());
+					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS failed %s: %m", m_filename.c_str());
 				return (int)status;
 			}
 			return (FE_HAS_SYNC | FE_HAS_LOCK);
@@ -2101,7 +2101,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 		int type = -1;
 		oparm.getSystem(type);
 		eDebug("[eDVBFrontend%d] setting frontend", m_dvbid);
-		eDebug("[eDVBFrontend] Twol mFD?? %s failed: %m", m_filename.c_str());
+		eDebug("[eDVBFrontend] Twol0 setting Frontend %s: %m", m_filename.c_str());
 		if (recvEvents)
 			m_sn->start();
 		feEvent(-1); // flush events
