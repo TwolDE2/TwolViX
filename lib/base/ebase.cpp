@@ -153,9 +153,8 @@ void eMainloop::addSocketNotifier(eSocketNotifier *sn)
 		*/
 		m_inActivate->stop();
 	}
-/*	ASSERT(notifiers.find(fd) == notifiers.end());
+	ASSERT(notifiers.find(fd) == notifiers.end());
 	notifiers[fd]=sn;
-*/
 }
 
 void eMainloop::removeSocketNotifier(eSocketNotifier *sn)
