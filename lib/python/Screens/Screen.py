@@ -276,10 +276,10 @@ class Screen(dict):
 			applyAllAttributes(w.instance, desktop, w.skinAttributes, self.scale)
 		for f in self.onLayoutFinish:
 			if not isinstance(f, type(self.close)):
-#				if six.PY3:
-				exec(f , globals(), locals())  # Python 3
-#				else:
-#					exec f in globals(), locals()  # Python 2
+				if six.PY3:
+					exec(f, globals(), locals())  # Python 3
+				if six.PY2:
+					exec(f in globals(), locals())  # Python 2
 			else:
 				f()
 
