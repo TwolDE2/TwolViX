@@ -936,6 +936,9 @@ def createTimer(xml):
 	descramble = int(xml.get("descramble") or "1")
 	record_ecm = int(xml.get("record_ecm") or "0")
 	isAutoTimer = int(xml.get("isAutoTimer") or "0")
+	autoTimerId = xml.get("autoTimerId")
+	if autoTimerId != None:
+		autoTimerId = int(autoTimerId)
 	name = six.ensure_str(xml.get("name"))
 	#filename = xml.get("filename").encode("utf-8")
 	entry = RecordTimerEntry(serviceref, begin, end, name, description, eit, disabled, justplay, afterevent, dirname = location, tags = tags, descramble = descramble, record_ecm = record_ecm, isAutoTimer = isAutoTimer, always_zap = always_zap, rename_repeat = rename_repeat, conflict_detection = conflict_detection, pipzap = pipzap, autoTimerId = autoTimerId)
@@ -1068,34 +1071,34 @@ class RecordTimer(timer.Timer):
 			if timer.dontSave:
 				continue
 			xlist.append('<timer')
-			xlist.append(' begin="' + str(int(timer.begin)) + '"')
-			xlist.append(' end="' + str(int(timer.end)) + '"')
-			xlist.append(' serviceref="' + stringToXML(str(timer.service_ref)) + '"')
-			xlist.append(' repeated="' + str(int(timer.repeated)) + '"')
-			xlist.append(' rename_repeat="' + str(int(timer.rename_repeat)) + '"')
-			xlist.append(' name="' + str(stringToXML(timer.name)) + '"')
-			xlist.append(' description="' + str(stringToXML(timer.description)) + '"')
-			xlist.append(' afterevent="' + str(stringToXML({
+			xlist.append(' begin="' + six.ensure_str(int(timer.begin)) + '"')
+			xlist.append(' end="' + six.ensure_str(int(timer.end)) + '"')
+			xlist.append(' serviceref="' + stringToXML(six.ensure_str(timer.service_ref)) + '"')
+			xlist.append(' repeated="' + six.ensure_str(int(timer.repeated)) + '"')
+			xlist.append(' rename_repeat="' + six.ensure_str(int(timer.rename_repeat)) + '"')
+			xlist.append(' name="' + six.ensure_str(stringToXML(timer.name)) + '"')
+			xlist.append(' description="' + six.ensure_str(stringToXML(timer.description)) + '"')
+			xlist.append(' afterevent="' + six.ensure_str(stringToXML({
 				AFTEREVENT.NONE: "nothing",
 				AFTEREVENT.STANDBY: "standby",
 				AFTEREVENT.DEEPSTANDBY: "deepstandby",
 				AFTEREVENT.AUTO: "auto"
 				}[timer.afterEvent])) + '"')
 			if timer.eit is not None:
-				xlist.append(' eit="' + str(timer.eit) + '"')
+				xlist.append(' eit="' + six.ensure_str(timer.eit) + '"')
 			if timer.dirname:
-				xlist.append(' location="' + str(stringToXML(timer.dirname)) + '"')
+				xlist.append(' location="' + six.ensure_str(stringToXML(timer.dirname)) + '"')
 			if timer.tags:
-				xlist.append(' tags="' + str(stringToXML(' '.join(timer.tags))) + '"')
+				xlist.append(' tags="' + six.ensure_str(stringToXML(' '.join(timer.tags))) + '"')
 			if timer.disabled:
-				xlist.append(' disabled="' + str(int(timer.disabled)) + '"')
-			xlist.append(' justplay="' + str(int(timer.justplay)) + '"')
-			xlist.append(' always_zap="' + str(int(timer.always_zap)) + '"')
-			xlist.append(' pipzap="' + str(int(timer.pipzap)) + '"')
-			xlist.append(' conflict_detection="' + str(int(timer.conflict_detection)) + '"')
-			xlist.append(' descramble="' + str(int(timer.descramble)) + '"')
-			xlist.append(' record_ecm="' + str(int(timer.record_ecm)) + '"')
-			xlist.append(' isAutoTimer="' + str(int(timer.isAutoTimer)) + '"')
+				xlist.append(' disabled="' + six.ensure_str(int(timer.disabled)) + '"')
+			xlist.append(' justplay="' + six.ensure_str(int(timer.justplay)) + '"')
+			xlist.append(' always_zap="' + six.ensure_str(int(timer.always_zap)) + '"')
+			xlist.append(' pipzap="' + six.ensure_str(int(timer.pipzap)) + '"')
+			xlist.append(' conflict_detection="' + six.ensure_str(int(timer.conflict_detection)) + '"')
+			xlist.append(' descramble="' + six.ensure_str(int(timer.descramble)) + '"')
+			xlist.append(' record_ecm="' + six.ensure_str(int(timer.record_ecm)) + '"')
+			xlist.append(' isAutoTimer="' + six.ensure_str(int(timer.isAutoTimer)) + '"')
 			if timer.flags:
 				xlist.append(' flags="' + ' '.join([stringToXML(x) for x in timer.flags]) + '"')
 			xlist.append('>\n')
@@ -1112,13 +1115,13 @@ class RecordTimer(timer.Timer):
 				if log_time < ignore_before:
 					continue
 				xlist.append('<log')
-				xlist.append(' code="' + str(code) + '"')
-				xlist.append(' time="' + str(log_time) + '"')
+				xlist.append(' code="' + six.ensure_str(code) + '"')
+				xlist.append(' time="' + six.ensure_str(log_time) + '"')
 				xlist.append('>')
 				if isinstance(msg, int):
-					xlist.append(str(msg))
+					xlist.append(six.ensure_str(msg))
 				else:
-					xlist.append(str(stringToXML(msg)))
+					xlist.append(six.ensure_str(stringToXML(msg)))
 				xlist.append('</log>\n')
 
 			xlist.append('</timer>\n')
@@ -1235,7 +1238,7 @@ class RecordTimer(timer.Timer):
 					entry.begin += 1
 		entry.conflict_detection = real_cd
 		entry.timeChanged()
-		print("[Timer] Record " + str(entry))
+		print("[Timer] Record " + six.ensure_str(entry))
 		entry.Timer = self
 		self.addTimerEntry(entry)
 		if dosave:
@@ -1362,7 +1365,7 @@ class RecordTimer(timer.Timer):
 		return returnValue or (None, None)
 
 	def removeEntry(self, entry):
-		print("[RecordTimer] Remove " + str(entry))
+		print("[RecordTimer] Remove " + six.ensure_str(entry))
 
 		# avoid re-enqueuing
 		entry.repeated = False

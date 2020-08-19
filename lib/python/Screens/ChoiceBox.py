@@ -46,7 +46,6 @@ class ChoiceBox(Screen):
 							labeltext += '\n'
 						labeltext = labeltext + temptext[count-1]
 						count += 1
-						print('[Choicebox] count', count)
 					self["text"].setText(labeltext)
 				else:
 					self["text"].setText(title)

@@ -157,26 +157,29 @@ class ConfigListScreen:
 			self["HelpWindow"].hide()
 		if "VKeyIcon" not in self:
 			self["VKeyIcon"] = Boolean(False)
-		self["actions"] = HelpableActionMap(self, ["ConfigListActions"], {
+		self["configActions"] = HelpableActionMap(self, ["ConfigListActions"], {
 			"cancel": (self.keyCancel, _("Cancel any changed settings and exit")),
 			"close": (self.closeRecursive, _("Cancel any changed settings and exit all menus")),
 			"save": (self.keySave, _("Save all changed settings and exit")),
+			"ok": (self.keySelect, _("Select, toggle, process or edit the current entry")),
 			"select": (self.keySelect, _("Select, toggle, process or edit the current entry"))
 		}, prio=1, description=_("Common Setup Functions"))
 		self["menuConfigActions"] = HelpableActionMap(self, "ConfigListActions", {
 			"menu": (self.keyMenu, _("Display selection list as a selection menu")),
 		}, prio=1, description=_("Common Setup Functions"))
 		self["menuConfigActions"].setEnabled(False)
+		self["directionActions"] = HelpableActionMap(self, ["NavigationActions"], {
+			"pageDown": (self.keyPageDown, _("Move down a screen")),
+			"first": (self.keyFirst, _("Jump to first item in list or the start of text")),
+			"last": (self.keyLast, _("Jump to last item in list or the end of text")),
+			"pageUp": (self.keyPageUp, _("Move up a screen"))
+		}, prio=1, description=_("Common Setup Functions"))
 		self["navigationActions"] = HelpableActionMap(self, ["NavigationActions"], {
 			"top": (self.keyTop, _("Move to first line")),
-			"pageUp": (self.keyPageUp, _("Move up a screen")),
 			"up": (self.keyUp, _("Move up a line")),
-			"first": (self.keyFirst, _("Jump to first item in list or the start of text")),
 			"left": (self.keyLeft, _("Select the previous item in list or move cursor left")),
 			"right": (self.keyRight, _("Select the next item in list or move cursor right")),
-			"last": (self.keyLast, _("Jump to last item in list or the end of text")),
 			"down": (self.keyDown, _("Move down a line")),
-			"pageDown": (self.keyPageDown, _("Move down a screen")),
 			"bottom": (self.keyBottom, _("Move to last line"))
 		}, prio=-1, description=_("Common Setup Functions"))  # The priority is set to -1 to override the internal list box navigation controls.
 		self["editConfigActions"] = HelpableNumberActionMap(self, ["NumberActions", "TextEditActions"], {
@@ -210,10 +213,6 @@ class ConfigListScreen:
 			self.onExecBegin.append(self.showHelpWindow)
 		if self.hideHelpWindow not in self.onExecEnd:
 			self.onExecEnd.append(self.hideHelpWindow)
-
-	def createSummary(self):  # This should not be required if ConfigList is invoked via Setup (as it should).
-		from Screens.Setup import SetupSummary
-		return SetupSummary
 
 	def setCancelMessage(self, msg):
 		self.cancelMsg = _("Really close without saving settings?") if msg is None else msg
@@ -388,24 +387,28 @@ class ConfigListScreen:
 			self.session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
 
 	def keyCancel(self):
-		self.closeConfigList(False)
+		self.closeConfigList(())
 
 	def closeRecursive(self):
-		self.closeConfigList(True)
+		self.closeConfigList((True,))
 
-	def closeConfigList(self, recursiveClose=False):
+	def closeConfigList(self, recursiveClose=()):
 		if self["config"].isChanged():
 			self.recursiveClose = recursiveClose
 			self.session.openWithCallback(self.cancelConfirm, MessageBox, self.cancelMsg, default=False, type=MessageBox.TYPE_YESNO)
 		else:
-			self.close(recursiveClose)
+			self.close(*recursiveClose)
 
 	def cancelConfirm(self, result):
 		if not result:
 			return
 		for x in self["config"].list:
 			x[1].cancel()
-		self.close(self.recursiveClose)
+		self.close(*self.recursiveClose)
+
+	def createSummary(self):  # This should not be required if ConfigList is invoked via Setup (as it should).
+		from Screens.Setup import SetupSummary
+		return SetupSummary
 
 	def run(self):  # Allow ConfigList based screens to be processed from the Wizard.
 		self.keySave()
