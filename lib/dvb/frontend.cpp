@@ -602,7 +602,7 @@ int eDVBFrontend::openFrontend()
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebug("[eDVBFrontend] Twol1 opening frontend: %m", m_filename.c_str());
-			eDebug("[eDVBFrontend] Twol1a opening frontend: %m", m_fd);
+			// eDebug("[eDVBFrontend] Twol1a opening frontend: %m", m_fd);
 			if (m_fd < 0)
 			{
 				eDebug("[eDVBFrontend]Twol1b opening frontend - errorno: %m", errno);
@@ -723,7 +723,7 @@ int eDVBFrontend::openFrontend()
 		else
 		{
 			eDebug("[eDVBFrontend] Twol2 Opened frontend: %m", m_filename.c_str());
-			eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %s", tmp_fd);				
+			// eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %s", tmp_fd);				
 			if (::ioctl(tmp_fd, FE_GET_INFO, &fe_info) < 0)
 			{
 				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend %s failed: %m", m_filename.c_str());
@@ -1502,7 +1502,7 @@ int eDVBFrontend::readFrontendData(int type)
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
 					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %m", errno);
 					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS: %m", m_filename.c_str());
-					eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS: %m", m_fd);
+					// eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS: %m", m_fd);
 				return (int)status;
 			}
 			return (FE_HAS_SYNC | FE_HAS_LOCK);
