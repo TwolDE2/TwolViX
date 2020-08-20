@@ -600,8 +600,8 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		if (m_fd < 0)
 		{
-			int m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-			eDebug("[eDVBFrontend] Twol1 opening frontend %s : %m", m_filename.c_str());
+			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			eDebug("[eDVBFrontend] Twol1 opening frontend %s %s: %m", m_filename.c_str(), m_fd);
 			if (m_fd < 0)
 			{
 				eDebug("[eDVBFrontend]2 opening %s: %m %s", m_filename.c_str(), errno);
