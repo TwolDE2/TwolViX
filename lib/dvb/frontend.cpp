@@ -716,14 +716,14 @@ int eDVBFrontend::openFrontend()
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+		eDebug("[eDVBFrontend] Twol2 Opened frontend: %m", m_filename.c_str());
+		eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %s", tmp_fd);
 		if (tmp_fd < 0)
 		{
 			eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
 		}
 		else
 		{
-			eDebug("[eDVBFrontend] Twol2 Opened frontend: %m", m_filename.c_str());
-			// eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %s", tmp_fd);				
 			if (::ioctl(tmp_fd, FE_GET_INFO, &fe_info) < 0)
 			{
 				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend %s failed: %m", m_filename.c_str());
