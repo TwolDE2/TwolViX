@@ -9,10 +9,11 @@ import errno
 import xml.etree.cElementTree
 from enigma import eRCInput
 from keyids import KEYIDS
-from RcModel import rc_model
+from Components.RcModel import rc_model
 
 from boxbranding import getBrandOEM
 from Components.config import config, ConfigInteger, ConfigSlider, ConfigSubsection, ConfigText, ConfigYesNo
+from Components.RcModel import rc_model
 from Components.SystemInfo import SystemInfo
 
 
