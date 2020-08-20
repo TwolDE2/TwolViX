@@ -559,7 +559,7 @@ int eDVBFrontend::PreferredFrontendIndex = -1;
 
 eDVBFrontend::eDVBFrontend(const char *devicenodename, int fe, int &ok, bool simulate, eDVBFrontend *simulate_fe)
 	:m_simulate(simulate), m_enabled(false), m_fbc(false), m_simulate_fe(simulate_fe), m_type(-1), m_dvbid(fe), m_slotid(fe)
-	,int m_fd(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
+	,m_fd(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
 	,m_state(stateClosed), m_timeout(0), m_tuneTimer(0)
 {
 	m_filename = devicenodename;
@@ -604,7 +604,7 @@ int eDVBFrontend::openFrontend()
 			eDebug("[eDVBFrontend] Twol1 opening frontend %s : %m", m_filename.c_str());
 			if (m_fd < 0)
 			{
-				eDebug("[eDVBFrontend]2 opening %s failed: %m", m_filename.c_str());
+				eDebug("[eDVBFrontend]2 opening %s: %m %s", m_filename.c_str(), errno);
 				return -1;
 			}
 		}
