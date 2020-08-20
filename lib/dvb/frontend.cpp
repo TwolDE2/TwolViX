@@ -1500,9 +1500,9 @@ int eDVBFrontend::readFrontendData(int type)
 			if (!m_simulate)
 			{
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
-					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %m", errno);
-					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS: %m", m_filename.c_str());
-					// eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS: %m", m_fd);
+					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %s", errno);
+					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS: %s", m_filename.c_str());
+					eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS: %s", m_fd);
 				return (int)status;
 			}
 			return (FE_HAS_SYNC | FE_HAS_LOCK);
