@@ -601,15 +601,16 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-			eDebug("[eDVBFrontend] Twol1 opening frontend %s %s: %m", m_filename.c_str(), m_fd);
+			eDebug("[eDVBFrontend] Twol1 opening frontend: %m", m_filename.c_str());
+			eDebug("[eDVBFrontend] Twol1a opening frontend: %m", m_fd);
 			if (m_fd < 0)
 			{
-				eDebug("[eDVBFrontend]2 opening %s: %m %s", m_filename.c_str(), errno);
+				eDebug("[eDVBFrontend]Twol1b opening frontend - errorno: %m", errno);
 				return -1;
 			}
 		}
 		else
-			eWarning("[eDVBFrontend%d]3 frontend already opened", m_dvbid);
+			eWarning("[eDVBFrontend%d]Twol1c frontend already opened", m_dvbid);
 		if (m_dvbversion == 0)
 		{
 			m_dvbversion = DVB_VERSION(3, 0);
@@ -630,7 +631,7 @@ int eDVBFrontend::openFrontend()
 		{
 			if (::ioctl(m_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eWarning("[eDVBFrontend] ioctl FE_GET_INFO failed", errno );
+				eWarning("[eDVBFrontend] ioctl FE_GET_INFO failed %m ", errno );
 				::close(m_fd);
 				m_fd = -1;
 				return -1;
@@ -715,13 +716,14 @@ int eDVBFrontend::openFrontend()
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-		eDebug("[eDVBFrontend] Twol2 Opened frontend: %m", m_filename.c_str());
 		if (tmp_fd < 0)
 		{
 			eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
 		}
 		else
 		{
+			eDebug("[eDVBFrontend] Twol2 Opened frontend: %m", m_filename.c_str());
+			eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %s", tmp_fd);				
 			if (::ioctl(tmp_fd, FE_GET_INFO, &fe_info) < 0)
 			{
 				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend %s failed: %m", m_filename.c_str());
@@ -1499,7 +1501,8 @@ int eDVBFrontend::readFrontendData(int type)
 			{
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
 					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %m", errno);
-					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS failed %s: %m", m_filename.c_str());
+					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS: %m", m_filename.c_str());
+					eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS: %m", m_fd);
 				return (int)status;
 			}
 			return (FE_HAS_SYNC | FE_HAS_LOCK);
