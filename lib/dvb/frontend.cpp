@@ -601,11 +601,11 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-			eDebug("[eDVBFrontend] Twol1 opening frontend: %m", m_filename.c_str());
-			// eDebug("[eDVBFrontend] Twol1a opening frontend: %m", m_fd);
+			eDebugNoSimulate("[eDVBFrontend] Twol1 opening frontend: %d", m_filename.c_str());
+			eDebugNoSimulate("[eDVBFrontend] Twol1a opening frontend: %d", m_fd);
 			if (m_fd < 0)
 			{
-				eDebug("[eDVBFrontend]Twol1b opening frontend - errorno: %m", errno);
+				eDebugNoSimulate("[eDVBFrontend]Twol1b opening frontend - errorno: %d", errno);
 				return -1;
 			}
 		}
@@ -716,8 +716,8 @@ int eDVBFrontend::openFrontend()
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-		eDebug("[eDVBFrontend] Twol2 Opened frontend: %m", m_filename.c_str());
-		eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %m", tmp_fd);
+		eDebugNoSimulate("[eDVBFrontend] Twol2 Opened frontend: %d", m_filename.c_str());
+		eDebugNoSimulate("[eDVBFrontend] Twol2a Opened tmp_fd: %d", tmp_fd);
 		if (tmp_fd < 0)
 		{
 			eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
@@ -1500,9 +1500,9 @@ int eDVBFrontend::readFrontendData(int type)
 			if (!m_simulate)
 			{
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
-					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %s", errno);
-					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS: %s", m_filename.c_str());
-					eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS: %s", m_fd);
+					eDebugNoSimulate("[eDVBFrontend] FE_READ_STATUS failed: %d", errno);
+					eDebugNoSimulate("[eDVBFrontend] Twol3 FE_READ_STATUS: %d", m_filename.c_str());
+					eDebugNoSimulate("[eDVBFrontend] Twol3a FE_READ_STATUS: %d", m_fd);
 				return (int)status;
 			}
 			return (FE_HAS_SYNC | FE_HAS_LOCK);
@@ -2104,7 +2104,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 		int type = -1;
 		oparm.getSystem(type);
 		eDebug("[eDVBFrontend%d] setting frontend", m_dvbid);
-		eDebug("[eDVBFrontend] Twol0 setting Frontend %s: %m", m_filename.c_str());
+		eDebugNoSimulate("[eDVBFrontend] Twol0 setting Frontend %d", m_filename.c_str());
 		if (recvEvents)
 			m_sn->start();
 		feEvent(-1); // flush events
