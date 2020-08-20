@@ -559,7 +559,7 @@ int eDVBFrontend::PreferredFrontendIndex = -1;
 
 eDVBFrontend::eDVBFrontend(const char *devicenodename, int fe, int &ok, bool simulate, eDVBFrontend *simulate_fe)
 	:m_simulate(simulate), m_enabled(false), m_fbc(false), m_simulate_fe(simulate_fe), m_type(-1), m_dvbid(fe), m_slotid(fe)
-	,m_fd(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
+	,int m_fd(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
 	,m_state(stateClosed), m_timeout(0), m_tuneTimer(0)
 {
 	m_filename = devicenodename;
@@ -600,7 +600,7 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		if (m_fd < 0)
 		{
-			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			int m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebug("[eDVBFrontend] Twol1 opening frontend %s : %m", m_filename.c_str());
 			if (m_fd < 0)
 			{
@@ -630,7 +630,7 @@ int eDVBFrontend::openFrontend()
 		{
 			if (::ioctl(m_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eWarning("[eDVBFrontend] ioctl FE_GET_INFO failed");
+				eWarning("[eDVBFrontend] ioctl FE_GET_INFO failed", errno );
 				::close(m_fd);
 				m_fd = -1;
 				return -1;
@@ -1498,7 +1498,7 @@ int eDVBFrontend::readFrontendData(int type)
 			if (!m_simulate)
 			{
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
-					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %m");
+					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %m", errno);
 					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS failed %s: %m", m_filename.c_str());
 				return (int)status;
 			}
