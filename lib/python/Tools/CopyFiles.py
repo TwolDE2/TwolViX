@@ -1,8 +1,11 @@
-from Components.Task import PythonTask, Task, Job, job_manager as JobManager, Condition
-from Tools.Directories import fileExists
-from enigma import eTimer
+from __future__ import print_function
+
 from os import path
 from shutil import rmtree, copy2, move
+from enigma import eTimer
+
+from Components.Task import PythonTask, Task, Job, job_manager as JobManager, Condition
+from Tools.Directories import fileExists
 
 class DeleteFolderTask(PythonTask):
 	def openFiles(self, fileList):
@@ -21,13 +24,13 @@ class DeleteFolderTask(PythonTask):
 class CopyFileJob(Job):
 	def __init__(self, srcfile, destfile, name):
 		Job.__init__(self, _("Copying files"))
-		cmdline = 'cp -Rf "%s" "%s"' % (srcfile,destfile)
+		cmdline = 'cp -Rf "%s" "%s"' % (srcfile, destfile)
 		AddFileProcessTask(self, cmdline, srcfile, destfile, name)
 
 class MoveFileJob(Job):
 	def __init__(self, srcfile, destfile, name):
 		Job.__init__(self, _("Moving files"))
-		cmdline = 'mv -f "%s" "%s"' % (srcfile,destfile)
+		cmdline = 'mv -f "%s" "%s"' % (srcfile, destfile)
 		AddFileProcessTask(self, cmdline, srcfile, destfile, name)
 
 class AddFileProcessTask(Task):

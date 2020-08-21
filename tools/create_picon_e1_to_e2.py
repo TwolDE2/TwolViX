@@ -1,3 +1,4 @@
+from __future__ import print_function
 #
 # create links for picon
 #   usage: create_picon_providers lamedb
@@ -43,8 +44,8 @@ while len(f) > 2:
 	filename = name + ".png"
 	linkname = refstr + ".png"
 
-	filename = filename.replace('/', '_').replace('\\', '_').replace('&', '_').replace('\'', '').replace('"', '').replace('`', '').replace('*', '_').replace('?', '_').replace(' ', '_').replace('(', '_').replace(')', '_')
-	provider = provider.replace('/', '_').replace('\\', '_').replace('&', '_').replace('\'', '').replace('"', '').replace('`', '').replace('*', '_').replace('?', '_').replace(' ', '_').replace('(', '_').replace(')', '_')
+	filename = filename.replace('/', '_').replace('\\', '_').replace('&', '_').replace('\', '').replace('"', '').replace('`', '').replace('*', '_').replace('?', '_').replace(' ', '_').replace('(', '_').replace(')', '_')
+	provider = provider.replace('/', '_').replace('\\', '_').replace('&', '_').replace('\', '').replace('"', '').replace('`', '').replace('*', '_').replace('?', '_').replace(' ', '_').replace('(', '_').replace(')', '_')
 	filename = filename.replace('\n', '')
 	provider = provider.replace('\n', '')
 
@@ -66,7 +67,7 @@ while len(f) > 2:
 	except:
 		pass
 
-	print sat[0:2] + '.' + sat[-1:] + 'E' + '_' + "%X" % ref[0] + '.png'
+	print(sat[0:2] + '.' + sat[-1:] + 'E' + '_' + "%X" % ref[0] + '.png')
 	try:
 		os.rename(sat[0:-1] + 'E' + '_' + "%X" % ref[0] + '.png', sat + '/' + servicetype + '/' + filename)
 	except:

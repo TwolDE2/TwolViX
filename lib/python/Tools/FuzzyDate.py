@@ -1,9 +1,11 @@
+from __future__ import print_function
 from builtins import range
+
 from time import localtime, time, strftime
 
 from Components.config import config
 
-def FuzzyTime(t, inPast=False):
+def FuzzyTime(t, inPast = False):
 	d = localtime(t)
 	nt = time()
 	n = localtime(nt)

@@ -1,11 +1,17 @@
-import Components.Task
-from Components.config import config
-from Components import Harddisk
-from Components.GUIComponent import GUIComponent
-from Components.VariableText import VariableText
-import time
+from __future__ import print_function
+
 import os
 import enigma
+import time
+
+
+from Components.config import config
+from Components.GUIComponent import GUIComponent
+from Components import Harddisk
+import Components.Task
+from Components.VariableText import VariableText
+
+
 
 def getTrashFolder(path=None):
 	# Returns trash folder without symlinks

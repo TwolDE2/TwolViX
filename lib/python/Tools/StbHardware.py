@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from fcntl import ioctl
 from struct import pack, unpack
 from os import path
@@ -64,8 +66,8 @@ def setRTCtime(wutime):
 def getFPWakeuptime():
 	ret = 0
 	try:
-		f = int(open("/proc/stb/fp/wakeup_time", "r"))
-		ret = f.read()
+		f = open("/proc/stb/fp/wakeup_time", "r")
+		ret = int(f.read())
 		f.close()
 	except IOError:
 		try:

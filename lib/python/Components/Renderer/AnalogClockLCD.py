@@ -55,9 +55,9 @@ class AnalogClockLCD(Renderer):
 		z = (math.pi / 180)
 		x = int(round((r * math.sin((a * z)))))
 		y = int(round((r * math.cos((a * z)))))
-		return ((m + x),(m1 - y))
+		return ((m + x), (m1 - y))
 
-	def hand(self,opt):
+	def hand(self, opt):
 		width = self.positionwidth
 		height = self.positionheight
 		r = (width / 2)

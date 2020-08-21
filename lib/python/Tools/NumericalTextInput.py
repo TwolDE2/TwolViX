@@ -453,4 +453,3 @@ class NumericalTextInput:
 
 	def setUseableChars(self, useable):
 		self.useableChars = six.text_type(useable)
-

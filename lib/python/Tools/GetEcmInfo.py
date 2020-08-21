@@ -6,7 +6,7 @@ import time
 from Components.config import config
 
 ECM_INFO = '/tmp/ecm.info'
-EMPTY_ECM_INFO = ' ','0','0','0'
+EMPTY_ECM_INFO = ' ', '0' , '0', '0'
 
 old_ecm_time = time.time()
 info = {}
@@ -30,8 +30,8 @@ class GetEcmInfo:
 			info = {}
 			ecm = ''
 		if ecm_time != old_ecm_time:
-			oecmi1 = info.get('ecminterval1','')
-			oecmi0 = info.get('ecminterval0','')
+			oecmi1 = info.get('ecminterval1', '')
+			oecmi0 = info.get('ecminterval0', '')
 			info = {'ecminterval2': oecmi1, 'ecminterval1': oecmi0}
 			old_ecm_time = ecm_time
 			try:

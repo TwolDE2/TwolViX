@@ -7,9 +7,6 @@ from enigma import eTimer
 from Components.Element import cached
 from Components.Sources.Source import Source
 
-
-
-
 class Clock(Source):
 	def __init__(self):
 		Source.__init__(self)

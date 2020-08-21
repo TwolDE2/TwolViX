@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import print, absolute_import
 # the implementation here is a bit crappy.
 
 import time
