@@ -380,11 +380,12 @@ class ConfigListScreen:
 			x[1].save()
 		configfile.save()
 		if restart:
-			self.session.openWithCallback(self.restartConfirm, MessageBox, _("Restart GUI now?"), default=True, type=MessageBox.TYPE_YESNO)
-
-	def restartConfirm(self, result):
-		if result:
 			self.session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
+#			self.session.openWithCallback(self.restartConfirm, MessageBox, _("Restart GUI now?"), default=True, type=MessageBox.TYPE_YESNO)
+#
+#	def restartConfirm(self, result):
+#		if result:
+#			self.session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
 
 	def keyCancel(self):
 		self.closeConfigList(())
