@@ -601,10 +601,12 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			eDebug("[eDVBFrontend] Twol0 (%s) %m", m_filename.c_str());
 			eDebug("[eDVBFrontend] Twol1 opening frontend m_filename: %d", m_filename.c_str());
 			eDebug("[eDVBFrontend] Twol1a opening frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
 			{
+				eDebug("[eDVBFrontend] failed! (%s) %m", m_filename.c_str());
 				eDebug("[eDVBFrontend]Twol1b opening frontend - errorno: %d", errno);
 				return -1;
 			}
@@ -631,7 +633,7 @@ int eDVBFrontend::openFrontend()
 		{
 			if (::ioctl(m_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eWarning("[eDVBFrontend] ioctl FE_GET_INFO close m_fd - failed errno %m ", errno );
+				eDebug("[eDVBFrontend] ioctl FE_GET_INFO close m_fd - failed errno %m ", errno );
 				::close(m_fd);
 				m_fd = -1;
 				return -1;
@@ -716,6 +718,7 @@ int eDVBFrontend::openFrontend()
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+		eDebug("[eDVBFrontend] Twol20 (%s) %m", m_filename.c_str());
 		eDebug("[eDVBFrontend] Twol2 Opened m_filename: %d", m_filename.c_str());
 		eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %d", tmp_fd);
 		if (tmp_fd < 0)
@@ -1500,6 +1503,7 @@ int eDVBFrontend::readFrontendData(int type)
 			if (!m_simulate)
 			{
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
+					eDebug("[eDVBFrontend] Twol30 (%s) %m", m_filename.c_str());
 					eDebug("[eDVBFrontend] FE_READ_STATUS failed errno: %d", errno);
 					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS M_filename: %d", m_filename.c_str());
 					eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS m_fd: %d", m_fd);
