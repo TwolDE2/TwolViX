@@ -604,11 +604,11 @@ int eDVBFrontend::openFrontend()
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebug("[eDVBFrontend] Twol0 (%s)", m_filename.c_str());
-			eDebug("[eDVBFrontend] Twol1 opening frontend m_filename: %d", m_filename.c_str());
+			eDebug("[eDVBFrontend] Twol1 opening frontend m_filename: %s", m_filename.c_str());
 			eDebug("[eDVBFrontend] Twol1a opening frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
 			{
-				eDebug("[eDVBFrontend] failed! (%s) %m", m_filename.c_str());
+				eDebug("[eDVBFrontend] failed! (%s) %s", m_filename.c_str());
 				eDebug("[eDVBFrontend]Twol1b opening frontend - errorno: %d", errno);
 				return -1;
 			}
@@ -720,8 +720,8 @@ int eDVBFrontend::openFrontend()
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-		eDebug("[eDVBFrontend] Twol20 (%s) %m", m_filename.c_str());
-		eDebug("[eDVBFrontend] Twol2 Opened m_filename: %d", m_filename.c_str());
+		eDebug("[eDVBFrontend] Twol20 (%s)", m_filename.c_str());
+		eDebug("[eDVBFrontend] Twol2 Opened m_filename: %s", m_filename.c_str());
 		eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %d", tmp_fd);
 		if (tmp_fd < 0)
 		{
@@ -1505,9 +1505,9 @@ int eDVBFrontend::readFrontendData(int type)
 			if (!m_simulate)
 			{
 				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
-					eDebug("[eDVBFrontend] Twol30 (%s) %m", m_filename.c_str());
+					eDebug("[eDVBFrontend] Twol30 (%s) %s", m_filename.c_str());
 					eDebug("[eDVBFrontend] FE_READ_STATUS failed errno: %d", errno);
-					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS M_filename: %d", m_filename.c_str());
+					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS M_filename: %s", m_filename.c_str());
 					eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS m_fd: %d", m_fd);
 				return (int)status;
 			}
@@ -2110,7 +2110,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 		int type = -1;
 		oparm.getSystem(type);
 		eDebug("[eDVBFrontend%d] setting frontend", m_dvbid);
-		eDebug("[eDVBFrontend] Twol0 setting m_filename %d", m_filename.c_str());
+		eDebug("[eDVBFrontend] Twol0 setting m_filename %s", m_filename.c_str());
 		if (recvEvents)
 			m_sn->start();
 		feEvent(-1); // flush events
