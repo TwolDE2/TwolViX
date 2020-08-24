@@ -601,8 +601,8 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-			eDebugNoSimulate("[eDVBFrontend] Twol1 opening frontend: %d", m_filename.c_str());
-			eDebugNoSimulate("[eDVBFrontend] Twol1a opening frontend: %d", m_fd);
+			eDebugNoSimulate("[eDVBFrontend] Twol1 opening frontend m_filename: %d", m_filename.c_str());
+			eDebugNoSimulate("[eDVBFrontend] Twol1a opening frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
 			{
 				eDebugNoSimulate("[eDVBFrontend]Twol1b opening frontend - errorno: %d", errno);
@@ -631,7 +631,7 @@ int eDVBFrontend::openFrontend()
 		{
 			if (::ioctl(m_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eWarning("[eDVBFrontend] ioctl FE_GET_INFO failed %m ", errno );
+				eWarning("[eDVBFrontend] ioctl FE_GET_INFO close m_fd - failed errno %m ", errno );
 				::close(m_fd);
 				m_fd = -1;
 				return -1;
@@ -726,7 +726,7 @@ int eDVBFrontend::openFrontend()
 		{
 			if (::ioctl(tmp_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend %s failed: %m", m_filename.c_str());
+				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend close tmp_fd m_filename: %s failed: %m", m_filename.c_str());
 			}
 			::close(tmp_fd);
 		}
@@ -797,6 +797,7 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 		if (m_sec && !m_simulate)
 			m_sec->setRotorMoving(m_slotid, false);
 		if (!::close(m_fd))
+			eDebugNoSimulate("[eDVBFrontend%d] close frontend", m_fd);
 			m_fd=-1;
 		else
 			eWarning("[eDVBFrontend %d] couldnt close frontend", m_dvbid);
