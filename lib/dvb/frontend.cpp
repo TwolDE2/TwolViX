@@ -563,7 +563,6 @@ eDVBFrontend::eDVBFrontend(const char *devicenodename, int fe, int &ok, bool sim
 	,m_state(stateClosed), m_timeout(0), m_tuneTimer(0)
 {
 	m_filename = devicenodename;
-	eDebug("[eDVBFrontend] Twol SETUP devicenodename (%s)", devicenodename;
 
 	m_timeout = eTimer::create(eApp);
 	CONNECT(m_timeout->timeout, eDVBFrontend::timeout);
@@ -602,6 +601,7 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			eDebug("[eDVBFrontend] Twol SETUP devicenodename (%s)", devicenodename;
 			eDebug("[eDVBFrontend] Twol1 opening frontend m_filename: %s", m_filename.c_str());
 			eDebug("[eDVBFrontend] Twol1a opening frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
