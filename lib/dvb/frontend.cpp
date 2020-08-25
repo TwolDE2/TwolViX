@@ -601,6 +601,7 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			eDebug("[eDVBFrontend] Twol1 opening frontend m_filename: %s", m_filename);
 			eDebug("[eDVBFrontend] Twol1 opening frontend m_filename: %s", m_filename.c_str());
 			eDebug("[eDVBFrontend] Twol1a opening frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
