@@ -602,12 +602,12 @@ int eDVBFrontend::openFrontend()
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebug("[eDVBFrontend] Twol1 opening frontend m_filename: %s", m_filename);
-			eDebug("[eDVBFrontend] Twol1 opening frontend m_filename: %s", m_filename.c_str());
-			eDebug("[eDVBFrontend] Twol1a opening frontend m_fd: %d", m_fd);
+			eDebug("[eDVBFrontend] Twol1a opening frontend m_filename: %s", m_filename.c_str());
+			eDebug("[eDVBFrontend] Twol1b opening frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
 			{
 				eDebug("[eDVBFrontend] failed! (%s)", m_filename.c_str());
-				eDebug("[eDVBFrontend]Twol1b opening frontend - errorno: %d", errno);
+				eDebug("[eDVBFrontend]Twol1c opening frontend - errorno: %d", errno);
 				return -1;
 			}
 		}
