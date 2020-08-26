@@ -400,7 +400,7 @@ int eStaticServiceDVBPVRInformation::getLength(const eServiceReference &ref)
 
 			/* check if cached data is still valid */
 	if (m_parser.m_data_ok && (s.st_size == m_parser.m_filesize) && (m_parser.m_length))
-		return m_parser.m_length / 90000;
+		return (int)(m_parser.m_length / 90000);
 
 			/* open again, this time with stream info */
 	if (tstools.openFile(ref.path.c_str()))
@@ -420,7 +420,7 @@ int eStaticServiceDVBPVRInformation::getLength(const eServiceReference &ref)
  	m_parser.m_length = len;
 	m_parser.m_filesize = s.st_size;
 	m_parser.updateMeta(ref.path);
-	return m_parser.m_length / 90000;
+	return (int)(m_parser.m_length / 90000);
 }
 
 int eStaticServiceDVBPVRInformation::getInfo(const eServiceReference &ref, int w)
@@ -1737,7 +1737,7 @@ RESULT eDVBServicePlay::subServices(ePtr<iSubserviceList> &ptr)
 RESULT eDVBServicePlay::timeshift(ePtr<iTimeshiftService> &ptr)
 {
 	ptr = nullptr;
-	/* eDebug("[eDVBServicePlay] timeshift"); */
+	eDebug("[eDVBServicePlay] timeshift twol");
 	if (m_timeshift_enabled || !m_is_pvr)
 	{
 		if (!m_timeshift_enabled)
@@ -2225,11 +2225,7 @@ int eDVBServicePlay::selectAudioStream(int i)
 		int different_pid = program.videoStreams.empty() && program.audioStreams.size() == 1 && program.audioStreams[stream].rdsPid != -1;
 		if (different_pid)
 			rdsPid = program.audioStreams[stream].rdsPid;
-#if HAVE_HISILICON
-		if (different_pid && (!m_rds_decoder || m_rds_decoder->getPid() != rdsPid))
-#else 
 		if (!m_rds_decoder || m_rds_decoder->getPid() != rdsPid)
-#endif
 		{
 			m_rds_decoder = 0;
 			ePtr<iDVBDemux> data_demux;
