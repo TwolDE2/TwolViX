@@ -1504,7 +1504,7 @@ int eDVBFrontend::readFrontendData(int type)
 				int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 				if (tmp_fd < 0)
 				{
-					eWarning("[eDVBFrontend] opening %s failed: %s", m_filename.c_str());
+					eWarning("[eDVBFrontend] opening tmp_fd failed: %s", m_filename.c_str());
 				}
 				else
 				{
@@ -1519,7 +1519,7 @@ int eDVBFrontend::readFrontendData(int type)
 				}
 				::close(tmp_fd);
 				return (FE_HAS_SYNC | FE_HAS_LOCK);
-
+			}
 		}
 		case iFrontendInformation_ENUMS::frequency:
 		{
