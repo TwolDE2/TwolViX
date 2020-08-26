@@ -1500,13 +1500,26 @@ int eDVBFrontend::readFrontendData(int type)
 			fe_status_t status;
 			if (!m_simulate)
 			{
-				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
-					eDebug("[eDVBFrontend] FE_READ_STATUS failed errno: %d", errno);
-					eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS M_filename: %s", m_filename.c_str());
-					eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS m_fd: %d", m_fd);
-				return (int)status;
-			}
-			return (FE_HAS_SYNC | FE_HAS_LOCK);
+				eDebug("[eDVBFrontend%d] ioctl FE_GET_INFO", m_dvbid);
+				int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+				if (tmp_fd < 0)
+				{
+					eWarning("[eDVBFrontend] opening %s failed: %s", m_filename.c_str());
+				}
+				else
+				{
+					if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
+					{
+						eDebug("[eDVBFrontend] FE_READ_STATUS failed errno: %d", errno);
+						eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS M_filename: %s", m_filename.c_str());
+						eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS m_fd: %d", m_fd);;
+					}
+					::close(tmp_fd);
+					return (int)status;
+				}
+				::close(tmp_fd);
+				return (FE_HAS_SYNC | FE_HAS_LOCK);
+
 		}
 		case iFrontendInformation_ENUMS::frequency:
 		{
