@@ -293,9 +293,9 @@ def setupDom(setup=None, plugin=None):
 #
 def setupdom(plugin=None):
 	if plugin:
-		setupfile = file(resolveFilename(SCOPE_PLUGINS, pathJoin(plugin, "setup.xml")), "r")
+		setupfile = open(resolveFilename(SCOPE_PLUGINS, pathJoin(plugin, "setup.xml")), "r")
 	else:
-		setupfile = file(resolveFilename(SCOPE_SKIN, "setup.xml"), "r")
+		setupfile = open(resolveFilename(SCOPE_SKIN, "setup.xml"), "r")
 	setupfiledom = xml.etree.cElementTree.parse(setupfile)
 	setupfile.close()
 	return setupfiledom
