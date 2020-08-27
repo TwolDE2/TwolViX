@@ -104,11 +104,12 @@ class Navigation:
 
 	def playService(self, ref, checkParentalControl=True, forceRestart=False, adjust=True):
 		oldref = self.currentlyPlayingServiceOrGroup
-		print("[Navigation] playing oldref:%s, ref:%s" % (oldref, ref))
+		print("[Navigation]00 playing oldref", oldref and oldref.toString())
+		print("[Navigation]00 playing ref", ref and ref.toString())
 		if ref and oldref and ref == oldref and not forceRestart:
 			print("[Navigation] ignore request to play already running service(1)")
 			return 1
-		print("[Navigation] playing ref and ref:toString", ref and ref.toString())
+		print("[Navigation]01 playing ref", ref and ref.toString())
 		if path.exists("/proc/stb/lcd/symbol_signal") and config.lcd.mode.value == '1':
 			try:
 				if '0:0:0:0:0:0:0:0:0' not in ref.toString():
@@ -136,7 +137,7 @@ class Navigation:
 			if ref.flags & eServiceReference.isGroup:
 				oldref = self.currentlyPlayingServiceReference or eServiceReference()
 				playref = getBestPlayableServiceReference(ref, oldref)
-				print("[Navigation] oldref:%s playref:%s" % (oldref, playref))
+				print("[Navigation]1 oldref:%s playref:%s" % (oldref.toString(), playref.toString()))
 				if playref and oldref and playref == oldref and not forceRestart:
 					print("[Navigation] ignore request to play already running service(2)")
 					return 1
@@ -152,11 +153,12 @@ class Navigation:
 					return 1
 			else:
 				playref = ref
-				print("[Navigation] playref = ref %s" % ref)
+				print("[Navigation]1 playref = ref %s" % ref.toString())
 			if self.pnav:
 				self.pnav.stopService()
 				self.currentlyPlayingServiceReference = playref
 				self.currentlyPlayingServiceOrGroup = ref
+				print("[Navigation]2 playref= %s ref = %s" % (playref.toString(), ref.toString()))
 				if InfoBarInstance and InfoBarInstance.servicelist.servicelist.setCurrent(ref, adjust):
 					self.currentlyPlayingServiceOrGroup = InfoBarInstance.servicelist.servicelist.getCurrent()
 				setPriorityFrontend = False
