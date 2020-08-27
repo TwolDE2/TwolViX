@@ -297,7 +297,7 @@ class SecConfigure:
 			rotor_sat_list = self.NimManager.getRotorSatListForNim(root_id)
 			if rotor_sat_list:
 				for x in rotor_sat_list:
-					print "[SecConfigure] add", x[0], "to", lnb
+					print("[SecConfigure] add", x[0], "to", lnb)
 					lnbSat[lnb].append(x[0])
 			else:
 				config.Nims[slotid].advanced.sat[3607].lnb.value = "0"
@@ -1051,10 +1051,9 @@ class NimManager:
 		result = []
 		if self.nim_slots[slotid].isCompatible("DVB-S"):
 			nim = config.Nims[slotid]
-			#print "slotid:", slotid
-
-			#print "self.satellites:", self.satList[config.Nims[slotid].diseqcA.index]
-			#print "diseqcA:", config.Nims[slotid].diseqcA.value
+			#print("slotid:", slotid)
+			#print("self.satellites:", self.satList[config.Nims[slotid].diseqcA.index])
+			#print("diseqcA:", config.Nims[slotid].diseqcA.value)
 			configMode = nim.configMode.value
 
 			if configMode == "equal":
