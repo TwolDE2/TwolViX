@@ -1,4 +1,4 @@
-from __future__ import (print_function, absolute_import)
+from __future__ import print_function, absolute_import
 
 from os import path
 from time import time
@@ -104,10 +104,11 @@ class Navigation:
 
 	def playService(self, ref, checkParentalControl=True, forceRestart=False, adjust=True):
 		oldref = self.currentlyPlayingServiceOrGroup
+		print("[Navigation] playing oldref:%s, ref:%s" % (oldref, ref))
 		if ref and oldref and ref == oldref and not forceRestart:
 			print("[Navigation] ignore request to play already running service(1)")
 			return 1
-		print("[Navigation] playing", ref and ref.toString())
+		print("[Navigation] playing ref and ref:toString", ref and ref.toString())
 		if path.exists("/proc/stb/lcd/symbol_signal") and config.lcd.mode.value == '1':
 			try:
 				if '0:0:0:0:0:0:0:0:0' not in ref.toString():
@@ -135,7 +136,7 @@ class Navigation:
 			if ref.flags & eServiceReference.isGroup:
 				oldref = self.currentlyPlayingServiceReference or eServiceReference()
 				playref = getBestPlayableServiceReference(ref, oldref)
-				print("[Navigation] playref", playref)
+				print("[Navigation] oldref:%s playref:%s" % (oldref, playref))
 				if playref and oldref and playref == oldref and not forceRestart:
 					print("[Navigation] ignore request to play already running service(2)")
 					return 1
@@ -151,6 +152,7 @@ class Navigation:
 					return 1
 			else:
 				playref = ref
+				print("[Navigation] playref = ref %s" % ref)
 			if self.pnav:
 				self.pnav.stopService()
 				self.currentlyPlayingServiceReference = playref
