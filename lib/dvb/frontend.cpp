@@ -2126,7 +2126,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 	{
 		int type = -1;
 		oparm.getSystem(type);
-		eDebug("[eDVBFrontend%d] setting frontend", m_dvbid);
+		eDebug("[eDVBFrontend%d] setting frontend SystemType %d", m_dvbid), type;
 		eDebug("[eDVBFrontend] Twol0 setting m_filename %s", m_filename.c_str());
 		if (recvEvents)
 			m_sn->start();
