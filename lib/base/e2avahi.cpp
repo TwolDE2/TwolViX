@@ -143,9 +143,9 @@ static void avahi_service_try_register(AvahiServiceEntry *entry)
 	if ((!service_name) || (!*service_name))
 		service_name = avahi_client_get_host_name(avahi_client);
 
-	eDebug("[Avahi] Will Register %s (%s) on %s:%u",
-		service_name, entry->service_type,
-		avahi_client_get_host_name(avahi_client), entry->port_num);
+	/* eDebug("[Avahi] Will Register %s (%s) on %s:%u", 	*/
+	/*	service_name, entry->service_type,		*/
+	/*	avahi_client_get_host_name(avahi_client), entry->port_num);	*/
 
 	if (!avahi_entry_group_add_service(entry->group,
 			AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC,
@@ -154,9 +154,9 @@ static void avahi_service_try_register(AvahiServiceEntry *entry)
 			NULL, NULL, entry->port_num, NULL))
 	{
 		avahi_entry_group_commit(entry->group);
-		eDebug("[Avahi] Registered %s (%s) on %s:%u",
-			service_name, entry->service_type,
-			avahi_client_get_host_name(avahi_client), entry->port_num);
+	/*	eDebug("[Avahi] Registered %s (%s) on %s:%u",	*/
+	/*		service_name, entry->service_type,	*/
+	/*		avahi_client_get_host_name(avahi_client), entry->port_num);	*/
 	}
 	/* NOTE: group is freed by avahi_client_free */
 }
@@ -232,7 +232,7 @@ static void avahi_browser_try_register(AvahiBrowserEntry *entry)
 
 	if ((!avahi_client) || (avahi_client_get_state(avahi_client) != AVAHI_CLIENT_S_RUNNING))
 	{
-		eDebug("[Avahi] Not running yet, cannot browse for type %s.", entry->service_type);
+		/* eDebug("[Avahi] Not running yet, cannot browse for type %s.", entry->service_type);	*/
 		return;
 	}
 
@@ -284,7 +284,7 @@ static void avahi_client_reset_all()
 
 static void avahi_client_callback(AvahiClient *client, AvahiClientState state, void *d)
 {
-	eDebug("[Avahi] client state: %d", state);
+	/* eDebug("[Avahi] client state: %d", state);	*/
 	switch(state)
 	{
 		case AVAHI_CLIENT_S_RUNNING:
