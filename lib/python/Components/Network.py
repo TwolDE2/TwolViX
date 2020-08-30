@@ -370,7 +370,7 @@ class Network:
 	def checkNetworkState(self, statecallback):
 		self.NetworkState = 0
 		self.pingConsole = Console()
-		for server in ("www.openpli.org", "www.google.nl", "www.google.com"):
+		for server in ("www.microsoft.com", "www.google.com"):
 			self.pingConsole.ePopen(("/bin/ping", "/bin/ping", "-c", "1", server), self.checkNetworkStateFinished,statecallback)
 
 	def checkNetworkStateFinished(self, result, retval,extra_args):
@@ -451,7 +451,7 @@ class Network:
 	def checkDNSLookup(self, statecallback):
 		self.DnsState = 0
 		self.dnsConsole = Console()
-		for server in ("www.openpli.org", "www.google.nl", "www.google.com"):
+		for server in ("www.microsoft.com", "www.google.com"):
 			self.dnsConsole.ePopen(("/usr/bin/nslookup", "/usr/bin/nslookup", server), self.checkDNSLookupFinished, statecallback)
 
 	def checkDNSLookupFinished(self, result, retval,extra_args):

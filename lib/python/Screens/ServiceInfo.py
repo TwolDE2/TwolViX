@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 import six
 
 from enigma import ePoint, eTimer, iPlayableService
@@ -39,11 +39,11 @@ def ServiceInfoListEntry(a, b="", valueType=TYPE_TEXT, param=4):
 		if valueType == TYPE_VALUE_HEX:
 			b = ("%0" + str(param) + "X") % to_unsigned(b)
 		elif valueType == TYPE_VALUE_FREQ:
-			b = "%s MHz" % (b / 1000)
+			b = "%s MHz" % (b // 1000)
 		elif valueType == TYPE_VALUE_FREQ_FLOAT:
-			b = "%.3f MHz" % (b / 1000.0)
+			b = "%.3f MHz" % (b // 1000.0)
 		elif valueType == TYPE_VALUE_BITRATE:
-			b = "%s KSymbols/s" % (b / 1000)
+			b = "%s KSymbols/s" % (b // 1000)
 		elif valueType == TYPE_VALUE_HEX_DEC:
 			b = ("%0" + str(param) + "X (%d)") % (to_unsigned(b), b)
 		elif valueType == TYPE_VALUE_ORBIT_DEC:
@@ -189,7 +189,7 @@ class ServiceInfo(Screen):
 				if width > 0 and height > 0:
 					resolution = videocodec + " - "
 					resolution += "%dx%d - " % (width, height)
-					resolution += str((self.info.getInfo(iServiceInformation.sFrameRate) + 500) / 1000)
+					resolution += str((self.info.getInfo(iServiceInformation.sFrameRate) + 500) // 1000)
 					resolution += ("i", "p", "")[self.info.getInfo(iServiceInformation.sProgressive)]
 					aspect = self.getServiceInfoValue(iServiceInformation.sAspect)
 					aspect = aspect in ( 1, 2, 5, 6, 9, 0xA, 0xD, 0xE ) and "4:3" or "16:9"

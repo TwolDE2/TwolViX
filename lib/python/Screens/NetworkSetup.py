@@ -2855,7 +2855,7 @@ class NetworkuShareSetup(Screen, ConfigListScreen):
 		self.close()
 
 	def selectfolders(self):
-		self.session.openWithCallback(self.updateList,uShareSelection)
+		self.session.openWithCallback(self.updateList, uShareSelection)
 
 class uShareSelection(Screen):
 	def __init__(self, session):
@@ -3150,7 +3150,7 @@ class NetworkMiniDLNASetup(Screen, ConfigListScreen):
 
 	def updateList(self, ret=None):
 		self.list = []
-		self.minidlna_name = NoSave(ConfigText(default=getBoxType(),fixed_size=False))
+		self.minidlna_name = NoSave(ConfigText(default=getBoxType(), fixed_size=False))
 		self.minidlna_iface = NoSave(ConfigText(fixed_size=False))
 		self.minidlna_port = NoSave(ConfigNumber())
 		self.minidlna_serialno = NoSave(ConfigNumber())
@@ -3275,7 +3275,7 @@ class MiniDLNASelection(Screen):
 					self.mediafolders = line
 		self.selectedFiles = [str(n) for n in self.mediafolders.split(', ')]
 		defaultDir = '/media/'
-		self.filelist = MultiFileSelectList(self.selectedFiles, defaultDir,showFiles = False )
+		self.filelist = MultiFileSelectList(self.selectedFiles, defaultDir, showFiles = False )
 		self["checkList"] = self.filelist
 
 		self["actions"] = ActionMap(["DirectionActions", "OkCancelActions", "ShortcutActions"],
