@@ -81,12 +81,12 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				if skin != "":
 					self.skinName.insert(0, skin)
 				if six.PY3:
-					if config.usage.show_menupath.value in ("large", "small") and "menuTitle" in setup:
+					if config.usage.showScreenPath.value in ("large", "small") and "menuTitle" in setup:
 						title = setup.get("menuTitle", "")
 					else:
 						title = setup.get("title", "")
 				else:
-					if config.usage.show_menupath.value in ("large", "small") and "menuTitle" in setup:
+					if config.usage.showScreenPath.value in ("large", "small") and "menuTitle" in setup:
 						title = setup.get("menuTitle", "").encode("UTF-8")
 					else:
 						title = setup.get("title", "").encode("UTF-8")
