@@ -219,32 +219,39 @@ class SetupSummary(Screen):
 		self["SetupValue"].text = self.parent.getCurrentValue()
 
 
-# Read the setup menu XML file.
+# Read the setup XML file.
 #
 def setupDom(setup=None, plugin=None):
-	if plugin:
-		setupFile = resolveFilename(SCOPE_PLUGINS, pathJoin(plugin, "setup.xml"))
-		msg = " from plugin '%s'" % plugin
-	else:
-		setupFile = resolveFilename(SCOPE_SKIN, "setup.xml")
-		msg = ""
+	setupFileDom = xml.etree.cElementTree.fromstring("<setupxml></setupxml>")
+	setupFile = resolveFilename(SCOPE_PLUGINS, pathJoin(plugin, "setup.xml")) if plugin else resolveFilename(SCOPE_SKIN, "setup.xml")
 	try:
 		modTime = getmtime(setupFile)
 	except (IOError, OSError) as err:
 		print("[Setup] Error: Unable to get '%s' modified time - Error (%d): %s!" % (setupFile, err.errno, err.strerror))
-		return xml.etree.cElementTree.fromstring("<setupxml></setupxml>")
+		return setupFileDom
 	cached = setupFile in domSetups and setupFile in setupModTimes and setupModTimes[setupFile] == modTime
-	print("[Setup] XML%s source file '%s'." % (" cached" if cached else "", setupFile))
-	if setup is not None:
-		print("[Setup] XML Setup menu '%s'%s." % (setup, msg))
+	print("[Setup] XML%s setup file '%s', using element '%s'%s." % (" cached" if cached else "", setupFile, setup, " from plugin '%s'" % plugin if plugin else ""))
 	if cached:
 		return domSetups[setupFile]
-	gotFile = False
 	try:
 		with open(setupFile, "r") as fd:  # This open gets around a possible file handle leak in Python's XML parser.
 			try:
-				setupfiledom = xml.etree.cElementTree.parse(fd).getroot()
-				gotFile = True
+				fileDom = xml.etree.cElementTree.parse(fd).getroot()
+				setupFileDom = fileDom
+				domSetups[setupFile] = setupFileDom
+				setupModTimes[setupFile] = modTime
+				for setup in setupFileDom.findall("setup"):
+					key = setup.get("key", "")
+					if key in setupTitles:
+						print("[Setup] Warning: Setup key '%s' has been redefined!" % key)
+					title = setup.get("menuTitle", "").encode("UTF-8")
+					if title == "":
+						title = setup.get("title", "").encode("UTF-8")
+						if title == "":
+							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+							title = "** Setup error: '%s' title is missing or blank!" % key
+					setupTitles[key] = _(title)
+					# print("[Setup] DEBUG: XML setup load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8"), setup.get("menuTitle", "").encode("UTF-8"), setupTitles[key]))
 			except xml.etree.cElementTree.ParseError as err:
 				fd.seek(0)
 				content = fd.readlines()
@@ -262,37 +269,11 @@ def setupDom(setup=None, plugin=None):
 			print("[Skin] Error %d: Opening setup file '%s'! (%s)" % (err.errno, setupFile, err.strerror))
 	except Exception as err:
 		print("[Setup] Error %d: Unexpected error opening setup file '%s'! (%s)" % (err.errno, setupFile, err.strerror))
-	if gotFile:
-		domSetups[setupFile] = setupfiledom
-		setupModTimes[setupFile] = modTime
-		xmldata = setupfiledom
-		for setup in xmldata.findall("setup"):
-			key = setup.get("key", "")
-			if key in setupTitles:
-				print("[Setup] Warning: Setup key '%s' has been redefined!" % key)
-			if six.PY3:
-				title = setup.get("menuTitle", "")
-				if title == "":
-					title = setup.get("title", "")
-			else:
-				title = setup.get("menuTitle", "").encode("UTF-8")
-				if title == "":
-					title = setup.get("title", "").encode("UTF-8")
-			if title == "":
-				print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-				setupTitles[key] = _("** Setup error: '%s' title is missing or blank!") % key
-			else:
-				setupTitles[key] = _(title)
-		else:
-			setupTitles[key] = _(title)
-		print("[Setup] DEBUG XML Setup menu load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", ""), setup.get("menuTitle", ""), setupTitles[key]))
-	else:
-		setupfiledom = xml.etree.cElementTree.fromstring("<setupxml></setupxml>")
-	return setupfiledom
+	return setupFileDom
 
 # Temporary legacy interface.
 #
-def setupdom(plugin=None):
+def setupdom(plugin = None):
 	if plugin:
 		setupfile = open(resolveFilename(SCOPE_PLUGINS, pathJoin(plugin, "setup.xml")), "r")
 	else:
@@ -313,8 +294,9 @@ def getConfigMenuItem(configElement):
 #
 def getSetupTitle(key):
 	setupDom()  # Load or check for an updated setup.xml file.
-	key = str(key)
-	title = setupTitles.get(key, None)
+	if not isinstance(key, str):
+		key = six.ensure_str(key)
+	title = six.ensure_str(setupTitles.get(key, None))
 	if title is None:
 		print("[Setup] Error: Setup key '%s' not found in setup file!" % key)
 		title = _("** Setup error: '%s' section not found! **") % key
