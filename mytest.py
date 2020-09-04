@@ -39,20 +39,19 @@ Components.ClientMode.InitClientMode()
 
 profile("SimpleSummary")
 print("[Enigma2] Initialising SimpleSummary.")
+
+profile("InfoBar")
+print("[Enigma2] Initialising InfoBar.")
 from Screens import InfoBar
-from Screens.SimpleSummary import SimpleSummary
 
 profile("Bouquets")
 print("[Enigma2] Initialising Bouquets.")
 from Components.config import config, configfile, ConfigText, ConfigYesNo, ConfigInteger, NoSave
 config.misc.load_unlinked_userbouquets = ConfigYesNo(default=False)
-
 def setLoadUnlinkedUserbouquets(configElement):
 	enigma.eDVBDB.getInstance().setLoadUnlinkedUserbouquets(configElement.value)
-
-
 config.misc.load_unlinked_userbouquets.addNotifier(setLoadUnlinkedUserbouquets)
-if config.clientmode.enabled.value is False:
+if config.clientmode.enabled.value == False:
 	enigma.eDVBDB.getInstance().reloadBouquets()
 
 profile("ParentalControl")
@@ -70,8 +69,8 @@ from skin import readSkin
 
 profile("LOAD:Tools")
 print("[Enigma2] Initialising FallbackFiles.")
-from Components.config import ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, NoSave, config, configfile
-from Tools.Directories import InitFallbackFiles, SCOPE_CONFIG, SCOPE_CURRENT_SKIN, SCOPE_PLUGINS, resolveFilename
+from Components.config import config, configfile, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, NoSave
+from Tools.Directories import InitFallbackFiles, resolveFilename, SCOPE_PLUGINS, SCOPE_ACTIVE_SKIN, SCOPE_CURRENT_SKIN, SCOPE_CONFIG
 InitFallbackFiles()
 
 profile("config.misc")
@@ -100,11 +99,11 @@ config.misc.DeepStandby = NoSave(ConfigYesNo(default=False))  # detect deepstand
 
 def useSyncUsingChanged(configElement):
 	if configElement.value == "0":
-		print("[Time By]: Transponder")
+		print("[[Enigma2]Time By]: Transponder")
 		enigma.eDVBLocalTimeHandler.getInstance().setUseDVBTime(True)
 		enigma.eEPGCache.getInstance().timeUpdated()
 	else:
-		print("[Time By]: NTP")
+		print("[Enigma2][Time By]: NTP")
 		enigma.eDVBLocalTimeHandler.getInstance().setUseDVBTime(False)
 		enigma.eEPGCache.getInstance().timeUpdated()
 
@@ -121,7 +120,7 @@ def NTPserverChanged(configElement):
 	Console.ePopen("/usr/bin/ntpdate-sync")
 
 
-config.misc.NTPserver.addNotifier(NTPserverChanged, immediate_feedback=False)
+config.misc.NTPserver.addNotifier(NTPserverChanged, immediate_feedback = False)
 config.misc.NTPserver.callNotifiersOnSaveAndCancel = True
 
 profile("Twisted")
@@ -138,7 +137,7 @@ try:
 	def runReactor():
 		reactor.run(installSignalHandlers=False)
 except ImportError:
-	print("twisted not available")
+	print("[Enigma2] twisted not available")
 
 	def runReactor():
 		enigma.runMainloop()
@@ -172,7 +171,7 @@ FlashInstallTime()
 profile("misc")
 had = dict()
 
-def dump(dir, p=""):
+def dump(dir, p = ""):
 	if isinstance(dir, dict):
 		for (entry, val) in list(dir.items()):
 			dump(val, "%s(dict)/%s" % (p, entry))
@@ -191,7 +190,7 @@ profile("LOAD:ScreenGlobals")
 print("[Enigma2] Initialising ScreenGlobals.")
 from Screens.Globals import Globals
 from Screens.SessionGlobals import SessionGlobals
-from Screens.Screen import Screen
+from Screens.Screen import Screen, ScreenSummary
 
 profile("Screen")
 Screen.globalScreen = Globals()
@@ -223,7 +222,7 @@ Screen.globalScreen = Globals()
 # * destroy screen
 
 class Session:
-	def __init__(self, desktop=None, summary_desktop=None, navigation=None):
+	def __init__(self, desktop = None, summary_desktop = None, navigation = None):
 		self.desktop = desktop
 		self.summary_desktop = summary_desktop
 		self.nav = navigation
@@ -255,7 +254,7 @@ class Session:
 		if callback is not None:
 			callback(*retval)
 
-	def execBegin(self, first=True, do_show=True):
+	def execBegin(self, first=True, do_show = True):
 		assert not self.in_exec
 		self.in_exec = True
 		c = self.current_dialog
@@ -295,7 +294,7 @@ class Session:
 	def instantiateSummaryDialog(self, screen, **kwargs):
 		if self.summary_desktop is not None:
 			self.pushSummary()
-			summary = screen.createSummary() or SimpleSummary
+			summary = screen.createSummary() or ScreenSummary
 			arguments = (screen,)
 			self.summary = self.doInstantiateDialog(summary, arguments, kwargs, self.summary_desktop)
 			self.summary.show()
@@ -329,7 +328,7 @@ class Session:
 		self.pushCurrent()
 		self.current_dialog = dialog
 		self.current_dialog.isTmp = False
-		self.current_dialog.callback = None  # would cause re-entrancy problems.
+		self.current_dialog.callback = None # would cause re-entrancy problems.
 		self.execBegin()
 
 	def openWithCallback(self, callback, screen, *arguments, **kwargs):
@@ -341,6 +340,7 @@ class Session:
 		if self.dialog_stack and not self.in_exec:
 			raise RuntimeError("modal open are allowed only from a screen which is modal!")
 			# ...unless it's the very first screen.
+
 		self.pushCurrent()
 		dlg = self.current_dialog = self.instantiateDialog(screen, *arguments, **kwargs)
 		dlg.isTmp = True
@@ -352,6 +352,7 @@ class Session:
 		if not self.in_exec:
 			print("close after exec!")
 			return
+
 		# be sure that the close is for the right dialog!
 		# if it's not, you probably closed after another dialog
 		# was opened. this can happen if you open a dialog
@@ -360,6 +361,7 @@ class Session:
 		# gain focus again (for a short time), thus triggering
 		# the onExec, which opens the dialog again, closing the loop.
 		assert screen == self.current_dialog
+
 		self.current_dialog.returnValue = retval
 		self.delay_timer.start(0, 1)
 		self.execEnd()
@@ -379,7 +381,6 @@ class Session:
 			self.summary = self.summary_stack.pop()
 		if self.summary is not None:
 			self.summary.show()
-
 
 profile("Standby,PowerKey")
 import Screens.Standby
@@ -425,7 +426,7 @@ class PowerKey:
 	def powerlong(self):
 		if Screens.Standby.inTryQuitMainloop or (self.session.current_dialog and not self.session.current_dialog.ALLOW_SUSPEND):
 			return
-		self.doAction(action=config.usage.on_long_powerpress.value)
+		self.doAction(action = config.usage.on_long_powerpress.value)
 
 	def doAction(self, action):
 		self.standbyblocked = 1
@@ -451,7 +452,7 @@ class PowerKey:
 
 	def powerup(self):
 		if self.standbyblocked == 0:
-			self.doAction(action=config.usage.on_short_powerpress.value)
+			self.doAction(action = config.usage.on_short_powerpress.value)
 
 	def standby(self):
 		if not Screens.Standby.inStandby and self.session.current_dialog and self.session.current_dialog.ALLOW_SUSPEND and self.session.in_exec:
@@ -498,25 +499,30 @@ from Tools.StbHardware import setFPWakeuptime, setRTCtime
 def runScreenTest():
 	config.misc.startCounter.value += 1
 	config.misc.startCounter.save()
+
 	profile("readPluginList")
 	enigma.pauseInit()
 	plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
 	enigma.resumeInit()
+
 	profile("Init:Session")
 	nav = Navigation(config.misc.isNextRecordTimerAfterEventActionAuto.value, config.misc.isNextPowerTimerAfterEventActionAuto.value)
-	session = Session(desktop=enigma.getDesktop(0), summary_desktop=enigma.getDesktop(1), navigation=nav)
+	session = Session(desktop = enigma.getDesktop(0), summary_desktop = enigma.getDesktop(1), navigation = nav)
+
 	CiHandler.setSession(session)
 	screensToRun = [p.__call__ for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
 	profile("wizards")
 	screensToRun += wizardManager.getWizards()
 	screensToRun.append((100, InfoBar.InfoBar))
 	screensToRun.sort()
+
 	enigma.ePythonConfigQuery.setQueryFunc(configfile.getResolvedKey)
 
 	def runNextScreen(session, screensToRun, *result):
 		if result:
 			enigma.quitMainloop(*result)
 			return
+
 		screen = screensToRun[0][1]
 		args = screensToRun[0][2:]
 		if screensToRun:
@@ -525,21 +531,27 @@ def runScreenTest():
 			session.open(screen, *args)
 
 	runNextScreen(session, screensToRun)
+
 	profile("Init:VolumeControl")
 	vol = VolumeControl(session)
 	profile("Init:PowerKey")
 	power = PowerKey(session)
+
 	# we need session.scart to access it from within menu.xml
 	session.scart = AutoScartControl(session)
+
 	profile("Init:Trashcan")
 	import Tools.Trashcan
 	Tools.Trashcan.init(session)
+
 	profile("Init:AutoVideoMode")
 	import Screens.VideoMode
 	Screens.VideoMode.autostart(session)
+
 	profile("RunReactor")
 	profile_final()
 	runReactor()
+
 	profile("wakeup")
 	# get currentTime
 	nowTime = time()
