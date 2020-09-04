@@ -32,7 +32,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 		HelpableScreen.__init__(self)
 		self.setup = setup
 		self.plugin = plugin
-		self.PluginLanguageDomain = PluginLanguageDomain
+		self.pluginLanguageDomain = PluginLanguageDomain
 		self.onChangedEntry = []
 		if hasattr(self, "skinName"):
 			if not isinstance(self.skinName, list):
@@ -47,18 +47,18 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 		self["footnote"] = Label()
 		self["footnote"].hide()
 		self["description"] = Label()
-		defaultmenuimage = setups.get("default", "")
-		menuimage = setups.get(setup, defaultmenuimage)
-		if menuimage:
-			print("[Setup] %s image '%s'." % ("Default" if menuimage is defaultmenuimage else "Menu", menuimage))
-			menuimage = resolveFilename(SCOPE_CURRENT_SKIN, menuimage)
-			self.menuimage = LoadPixmap(menuimage)
-			if self.menuimage:
+		defaultSetupImage = setups.get("default", "")
+		setupImage = setups.get(setup, defaultSetupImage)
+		if setupImage:
+			print("[Setup] %s image '%s'." % ("Default" if setupImage is defaultSetupImage else "Setup", setupImage))
+			setupImage = resolveFilename(SCOPE_CURRENT_SKIN, setupImage)
+			self.setupImage = LoadPixmap(setupImage)
+			if self.setupImage:
 				self["menuimage"] = Pixmap()
 			else:
-				print("[Setup] Error: Unable to load menu image '%s'!" % menuimage)
+				print("[Setup] Error: Unable to load menu image '%s'!" % setupImage)
 		else:
-			self.menuimage = None
+			self.setupImage = None
 		self.createSetup()
 		if self.layoutFinished not in self.onLayoutFinish:
 			self.onLayoutFinish.append(self.layoutFinished)
@@ -74,8 +74,8 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 		self.switch = False
 		self.list = []
 		title = ""
-		xmldata = setupDom(self.setup, self.plugin)
-		for setup in xmldata.findall("setup"):
+		xmlData = setupDom(self.setup, self.plugin)
+		for setup in xmlData.findall("setup"):
 			if setup.get("key") == self.setup:
 				self.addItems(setup)
 				skin = setup.get("skin", "")
@@ -131,17 +131,9 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				conditional = element.get("conditional")
 				if conditional and not eval(conditional):  # The item conditions are not met.
 					continue
-				if self.PluginLanguageDomain:
-					itemtext = dgettext(self.PluginLanguageDomain, element.get("text", "??"))
-					itemdescription = dgettext(self.PluginLanguageDomain, element.get("description", " "))
-				else:
-					itemtext = _(element.get("text", "??"))
-					itemdescription = _(element.get("description", " "))
-				itemtext = itemtext.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
-				itemdescription = itemdescription.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
-				if six.PY3:
-					itemText = itemtext
-					itemDescription = itemdescription
+				if self.pluginLanguageDomain:
+					itemText = dgettext(self.pluginLanguageDomain, element.get("text", "??").encode("UTF-8"))
+					itemDescription = dgettext(self.pluginLanguageDomain, element.get("description", " ").encode("UTF-8"))
 				else:
 					itemText = itemtext.encode()
 					itemDescription = itemdescription.encode()
@@ -154,17 +146,17 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 					self.switch = True
 
 	def layoutFinished(self):
-		if self.menuimage:
-			self["menuimage"].instance.setPixmap(self.menuimage)
+		if self.setupImage:
+			self["menuimage"].instance.setPixmap(self.setupImage)
 		if not self["config"]:
-			print("[Setup] No menu items available!")
+			print("[Setup] No setup items available!")
 
 	def selectionChanged(self):
 		if self["config"]:
 			self.setFootnote(None)
 			self["description"].text = self.getCurrentDescription()
 		else:
-			self["description"].text = _("There are no items currently available for this menu.")
+			self["description"].text = _("There are no items currently available for this screen.")
 
 	def setFootnote(self, footnote):
 		if footnote is None:
