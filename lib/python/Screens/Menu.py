@@ -7,13 +7,14 @@ import xml.etree.cElementTree
 from enigma import eTimer
 
 from Components.Sources.List import List
-from Components.ActionMap import NumberActionMap
+from Components.ActionMap import HelpableNumberActionMap
 from Components.Sources.StaticText import StaticText
 from Components.config import configfile
 from Components.PluginComponent import plugins
 from Components.config import config
 from Components.NimManager import nimmanager
 from Components.SystemInfo import SystemInfo
+from Screens.HelpMenu import HelpableScreen
 from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.Screen import Screen, ScreenSummary
 from Screens.Setup import Setup, getSetupTitle
@@ -69,7 +70,7 @@ class MenuSummary(ScreenSummary):
 		self["entry"].text = self.parent["menu"].getCurrent()[0]  # DEBUG: Proposed for new summary screens.
 
 
-class Menu(Screen, ProtectedScreen):
+class Menu(Screen, HelpableScreen, ProtectedScreen):
 	ALLOW_SUSPEND = True
 
 	def okbuttonClick(self):
@@ -221,6 +222,7 @@ class Menu(Screen, ProtectedScreen):
 
 	def __init__(self, session, parent):
 		Screen.__init__(self, session)
+		HelpableScreen.__init__(self)
 		list = []
 
 		menuID = None
@@ -280,22 +282,23 @@ class Menu(Screen, ProtectedScreen):
 
 		self["menu"] = List(list)
 
-		self["actions"] = NumberActionMap(["OkCancelActions", "MenuActions", "NumberActions"],
-			{
-				"ok": self.okbuttonClick,
-				"cancel": self.closeNonRecursive,
-				"menu": self.closeRecursive,
-				"0": self.keyNumberGlobal,
-				"1": self.keyNumberGlobal,
-				"2": self.keyNumberGlobal,
-				"3": self.keyNumberGlobal,
-				"4": self.keyNumberGlobal,
-				"5": self.keyNumberGlobal,
-				"6": self.keyNumberGlobal,
-				"7": self.keyNumberGlobal,
-				"8": self.keyNumberGlobal,
-				"9": self.keyNumberGlobal
-			})
+		# self["menuActions"] = HelpableNumberActionMap(self, ["OkCancelActions", "MenuActions", "NumberActions"], {
+		self["menuActions"] = HelpableNumberActionMap(self, ["OkCancelActions", "NumberActions"], {
+			"ok": (self.okbuttonClick, _("Select the current menu item")),
+			"cancel": (self.closeNonRecursive, _("Exit menu")),
+			"close": (self.closeRecursive, _("Exit all menus")),
+			# "menu": (self.closeRecursive, _("Exit all menus")),
+			"1": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"2": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"3": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"4": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"5": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"6": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"7": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"8": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"9": (self.keyNumberGlobal, _("Direct menu item selection")),
+			"0": (self.keyNumberGlobal, _("Direct menu item selection"))
+		}, prio=0, description=_("Common Menu Actions"))
 		if six.PY3:
 			a = parent.get("title", "") or None
 			a = a and _(a) or _(parent.get("text", ""))
