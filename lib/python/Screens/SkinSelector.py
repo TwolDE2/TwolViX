@@ -11,7 +11,7 @@ import re
 
 from enigma import ePicLoad, getDesktop
 
-from Components.ActionMap import HelpableNumberActionMap
+from Components.ActionMap import HelpableActionMap
 from Components.config import config
 from Components.Pixmap import Pixmap
 from Components.Sources.List import List
@@ -26,9 +26,9 @@ from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN, SCOPE_LCDSKIN
 
 class SkinSelector(Screen, HelpableScreen):
 	skin = ["""
-	<screen name="SkinSelector" position="center,center" size="%d,%d">
+	<screen name="SkinSelector" position= "center, center" size = "%d, %d">
 		<widget name="preview" position="center,%d" size="%d,%d" alphatest="blend" />
-		<widget source="skins" render="Listbox" position="center,%d" size="%d,%d" enableWrapAround="1" scrollbarMode="showOnDemand">
+		<widget source = "skins" render = "Listbox" position = "center, %d" size = "%d, %d" enableWrapAround = "1" scrollbarMode = "showOnDemand">
 			<convert type="TemplatedMultiContent">
 				{
 				"template": [
@@ -40,9 +40,9 @@ class SkinSelector(Screen, HelpableScreen):
 				}
 			</convert>
 		</widget>
-		<widget source="description" render="Label" position="center,e-%d" size="%d,%d" font="Regular;%d" valign="center" />
-		<widget source="key_red" render="Label" position="%d,e-%d" size="%d,%d" backgroundColor="key_red" font="Regular;%d" foregroundColor="key_text" halign="center" valign="center" />
-		<widget source="key_green" render="Label" position="%d,e-%d" size="%d,%d" backgroundColor="key_green" font="Regular;%d" foregroundColor="key_text" halign="center" valign="center" />
+		<widget source = "description" render = "Label" position = "center, e-%d" size = "%d, %d" font = "Regular;%d" valign = "center" />
+		<widget source = "key_red" render = "Label" position = "%d, e-%d" size = "%d, %d" backgroundColor = "key_red" font = "Regular;%d" foregroundColor = "key_text" halign = "center" valign = "center" />
+		<widget source = "key_green" render = "Label" position = "%d, e-%d" size = "%d, %d" backgroundColor = "key_green" font = "Regular;%d" foregroundColor = "key_text" halign = "center" valign = "center" />
 	</screen>""",
 		670, 570,
 		10, 356, 200,
@@ -56,7 +56,7 @@ class SkinSelector(Screen, HelpableScreen):
 		160, 50, 140, 40, 20
 	]
 
-	def __init__(self, session, screenTitle=_("GUI Skin")):
+	def __init__(self, session, screenTitle = _("GUI Skin")):
 		Screen.__init__(self, session, mandatoryWidgets=["skins", "preview", "description"])
 		HelpableScreen.__init__(self)
 		self.setTitle(screenTitle)
@@ -70,22 +70,27 @@ class SkinSelector(Screen, HelpableScreen):
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
 		self["description"] = StaticText(_("Please wait... Loading list..."))
-		self["actions"] = HelpableNumberActionMap(self, ["SetupActions", "DirectionActions", "ColorActions"], {
-			"ok": (self.save, _("Save and activate the currently selected skin")),
-			"cancel": (self.cancel, _("Cancel any changes to the currently active skin")),
-			"close": (self.cancelRecursive, _("Cancel any changes to the currently active skin and exit all menus")),
-			"red": (self.cancel, _("Cancel any changes to the currently active skin")),
-			"green": (self.save, _("Save and activate the currently selected skin")),
-			"up": (self.up, _("Move to the previous skin")),
-			"down": (self.down, _("Move to the next skin")),
-			"left": (self.left, _("Move to the previous page")),
-			"right": (self.right, _("Move to the next page"))
-		}, -1, description=_("Skin Selection Actions"))
+		self["skinActions"] = HelpableActionMap(self, ["CancelSaveActions", "OkActions", "NavigationActions"], {
+			"cancel": (self.keyCancel, _("Cancel any changes to the currently active skin")),
+			"close": (self.closeRecursive, _("Cancel any changes to the currently active skin and exit all menus")),
+			"save": (self.keySave, _("Save and activate the currently selected skin")),
+			"ok": (self.keySave, _("Save and activate the currently selected skin")),
+			"top": (self.keyPageUp, _("Move up a screen")),
+			"pageUp": (self.keyPageUp, _("Move up a screen")),
+			"up": (self.keyUp, _("Move up a line")),
+			"first": (self.keyPageUp, _("Move up a screen")),
+			"left": (self.keyPageUp, _("Move up a screen")),
+			"right": (self.keyPageDown, _("Move down a screen")),
+			"last": (self.keyPageDown, _("Move down a screen")),
+			"down": (self.keyDown, _("Move down a line")),
+			"pageDown": (self.keyPageDown, _("Move down a screen")),
+			"bottom": (self.keyPageDown, _("Move down a screen"))
+		}, prio=-1, description=_("Skin Selection Actions"))
 		self.picload = ePicLoad()
 		self.picload.PictureData.get().append(self.showPic)
 		self.onLayoutFinish.append(self.layoutFinished)
 
-	def showPic(self, picInfo=""):
+	def showPic(self, picInfo = ""):
 		ptr = self.picload.getData()
 		if ptr is not None:
 			self["preview"].instance.setPixmap(ptr.__deref__())
@@ -174,13 +179,13 @@ class SkinSelector(Screen, HelpableScreen):
 		else:
 			self["description"].setText(_("Press OK to activate the selected%s skin.") % msg)
 
-	def cancel(self):
+	def keyCancel(self):
 		self.close(False)
 
-	def cancelRecursive(self):
+	def closeRecursive(self):
 		self.close(True)
 
-	def save(self):
+	def keySave(self):
 		label = self.currentEntry[1]
 		skin = self.currentEntry[4]
 		if skin == self.config.value:
@@ -208,23 +213,30 @@ class SkinSelector(Screen, HelpableScreen):
 			self.session.open(TryQuitMainloop, QUIT_RESTART)
 		self.refreshList()
 
-	def up(self):
-		self["skins"].up()
+	def keyTop(self):
+		self["skins"].moveTop()
 		self.loadPreview()
 
-	def down(self):
-		self["skins"].down()
-		self.loadPreview()
-
-	def left(self):
+	def keyPageUp(self):
 		self["skins"].pageUp()
 		self.loadPreview()
 
-	def right(self):
+	def keyUp(self):
+		self["skins"].up()
+		self.loadPreview()
+
+	def keyDown(self):
+		self["skins"].down()
+		self.loadPreview()
+
+	def keyPageDown(self):
 		self["skins"].pageDown()
 		self.loadPreview()
 
-	# For summary screen.
+	def keyBottom(self):
+		self["skins"].moveEnd()
+		self.loadPreview()
+
 	def changedEntry(self):
 		for x in self.onChangedEntry:
 			x()
@@ -234,8 +246,8 @@ class SkinSelector(Screen, HelpableScreen):
 
 
 class LcdSkinSelector(SkinSelector):
-	def __init__(self, session, screenTitle=_("Display Skin")):
-		SkinSelector.__init__(self, session, screenTitle=screenTitle)
+	def __init__(self, session, screenTitle = _("Display Skin")):
+		SkinSelector.__init__(self, session, screenTitle = screenTitle)
 		self.skinName = ["LcdSkinSelector", "SkinSelector"]
 		self.rootDir = resolveFilename(SCOPE_LCDSKIN)
 		self.config = config.skin.display_skin
