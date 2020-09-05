@@ -5,6 +5,7 @@ import six
 import xml.etree.cElementTree
 
 from enigma import eTimer
+
 from Components.Sources.List import List
 from Components.ActionMap import NumberActionMap
 from Components.Sources.StaticText import StaticText
@@ -13,8 +14,8 @@ from Components.PluginComponent import plugins
 from Components.config import config
 from Components.NimManager import nimmanager
 from Components.SystemInfo import SystemInfo
-from Screens.Screen import Screen
 from Screens.ParentalControlSetup import ProtectedScreen
+from Screens.Screen import Screen, ScreenSummary
 from Screens.Setup import Setup, getSetupTitle
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_SKIN
@@ -46,23 +47,26 @@ class MenuUpdater:
 menuupdater = MenuUpdater()
 
 
-class MenuSummary(Screen):
+class MenuSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		Screen.__init__(self, session, parent=parent)
-		self["MenuTitle"] = StaticText(parent.getTitle())
-		self["MenuEntry"] = StaticText("")
-		self.onShow.append(self.addWatcher)
-		self.onHide.append(self.removeWatcher)
+		ScreenSummary.__init__(self, session, parent = parent)
+		self["entry"] = StaticText("")  # DEBUG: Proposed for new summary screens.
+		if self.addWatcher not in self.onShow:
+			self.onShow.append(self.addWatcher)
+		if self.removeWatcher not in self.onHide:
+			self.onHide.append(self.removeWatcher)
 
 	def addWatcher(self):
-		self.parent["menu"].onSelectionChanged.append(self.selectionChanged)
+		if self.selectionChanged not in self.parent["menu"].onSelectionChanged:
+			self.parent["menu"].onSelectionChanged.append(self.selectionChanged)
 		self.selectionChanged()
 
 	def removeWatcher(self):
-		self.parent["menu"].onSelectionChanged.remove(self.selectionChanged)
+		if self.selectionChanged in self.parent["menu"].onSelectionChanged:
+			self.parent["menu"].onSelectionChanged.remove(self.selectionChanged)
 
 	def selectionChanged(self):
-		self["MenuEntry"].text = self.parent["menu"].getCurrent()[0]
+		self["entry"].text = self.parent["menu"].getCurrent()[0]  # DEBUG: Proposed for new summary screens.
 
 
 class Menu(Screen, ProtectedScreen):
@@ -106,7 +110,13 @@ class Menu(Screen, ProtectedScreen):
 					return
 			elif not SystemInfo.get(requires, False):
 				return
-		MenuTitle = _(six.ensure_str(node.get("text", "??")))
+		if six.PY3:
+			MenuTitle = _(node.get("text", "??"))
+			# print("[MenuTiTle PY3] =%s" % (MenuTitle))
+		else:
+			MenuTitle = _(node.get("text", "??").encode("UTF-8"))
+			# print("[MenuTiTle PY2] =%s" % (MenuTitle))
+		MenuTitle = six.ensure_str(MenuTitle)
 		entryID = node.get("entryID", "undefined")
 		weight = node.get("weight", 50)
 		x = node.get("flushConfigOnClose")
@@ -136,7 +146,13 @@ class Menu(Screen, ProtectedScreen):
 		conditional = node.get("conditional")
 		if conditional and not eval(conditional):
 			return
-		item_text = six.ensure_str(node.get("text", ""))
+		if six.PY3:
+			item_text = node.get("text", "")
+			# print("[Menu item_text PY3] =%s" % (item_text))
+		else:
+			item_text = node.get("text", "").encode("UTF-8")
+			# print("[Menu item_text PY2] =%s" % (item_text))
+		item_text = six.ensure_str(item_text)
 		entryID = node.get("entryID", "undefined")
 		weight = node.get("weight", 50)
 		for x in node:
@@ -280,9 +296,12 @@ class Menu(Screen, ProtectedScreen):
 				"8": self.keyNumberGlobal,
 				"9": self.keyNumberGlobal
 			})
-
-		a = six.ensure_str(parent.get("title", "")) or None
-		a = a and _(a) or _(six.ensure_str(parent.get("text", "")))
+		if six.PY3:
+			a = parent.get("title", "") or None
+			a = a and _(a) or _(parent.get("text", ""))
+		else:
+			a = parent.get("title", "").encode("UTF-8") or None
+			a = a and _(a) or _(parent.get("text", "").encode("UTF-8"))
 		self.setTitle(a)
 
 		self.number = 0
