@@ -28,7 +28,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 	ALLOW_SUSPEND = True
 
 	def __init__(self, session, setup, plugin = None, PluginLanguageDomain = None):
-		Screen.__init__(self, session, mandatoryWidgets=["config", "footnote", "description"])
+		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
 		self.setup = setup
 		self.plugin = plugin
@@ -189,7 +189,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 
 class SetupSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		ScreenSummary.__init__(self, session, parent=parent)
+		ScreenSummary.__init__(self, session, parent = parent)
 		self["entry"] = StaticText("")  # DEBUG: Proposed for new summary screens.
 		self["value"] = StaticText("")  # DEBUG: Proposed for new summary screens.
 		self["SetupTitle"] = StaticText(parent.getTitle())
