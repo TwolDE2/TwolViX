@@ -114,10 +114,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 			if not element.tag:
 				continue
 			if element.tag in ("elif", "else") and including:
-				# End of succesful if/elif branch -
-				# short-circuit rest of children
-				break
-
+				break  # End of succesful if/elif branch - short-circuit rest of children.
 			include = self.includeElement(element)
 			if element.tag == "item":
 				if including and include:
@@ -138,7 +135,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 	TEXT_ALLOWED = ("item", )  # Tags that may have non-whitespace text (or tail)
 
 	@staticmethod
-	def checkItems(parentNode, setupName, fileName, allowed=ROOT_ALLOWED):
+	def checkItems(parentNode, setupName, fileName, allowed=ROOT_ALLOWED):  # Used by setupDom.
 		for element in parentNode:
 			if element.tag not in allowed:
 				print("[Setup] Tag %s not permitted in %s in %s. Permitted: %s." % (element.tag, setupName, fileName, ", ".join(allowed)))
@@ -170,6 +167,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				pass
 			else:
 				print("[Setup] Internal error: Tag %s in permitted set in %s in %s, but not checked. Permitted: %s." % (element.tag, setupName, fileName, ", ".join(allowed)))
+
 
 	def addItem(self, element):
 		if six.PY3:
