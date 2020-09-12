@@ -334,6 +334,7 @@ def setupDom(setup=None, plugin=None):
 						title = six.ensure_str(title)
 						setupTitles[key] = _(title)
 						# print("[Setup] DEBUG: XML setup load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8", errors="ignore"), setup.get("menuTitle", "").encode("UTF-8", errors="ignore"), setupTitles[key]))
+					Setup.checkItems(setup, key, setupFile)
 			except xml.etree.cElementTree.ParseError as err:
 				fd.seek(0)
 				content = fd.readlines()
