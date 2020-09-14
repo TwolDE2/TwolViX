@@ -558,7 +558,6 @@ class ConfigBoolean(ConfigElement):
 		if self.last_value != self.value:
 			self.changedFinal()
 			self.last_value = self.value
-
 	# For HTML Interface - Is this still used?
 
 	def getHTML(self, id):  # DEBUG: Is this still used?
@@ -579,8 +578,8 @@ class ConfigOnOff(ConfigBoolean):
 
 
 class ConfigYesNo(ConfigBoolean):
-	def __init__(self, default=False, graphic=True):
-		ConfigBoolean.__init__(self, default = default, descriptions={False: _("No"), True: _("Yes")}, graphic=graphic)
+	def __init__(self, default = False, graphic=True):
+		ConfigBoolean.__init__(self, default=default, descriptions={False: _("No"), True: _("Yes")}, graphic=graphic)
 
 
 class ConfigDateTime(ConfigElement):
@@ -952,7 +951,7 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 			self.text = six.ensure_text(val)
 		except UnicodeDecodeError:
 			self.text = six.ensure_text(val, errors='ignore')
-			print("Broken UTF8!")
+			print("[Config] Broken UTF8!")
 
 
 	value = property(getValue, setValue)
