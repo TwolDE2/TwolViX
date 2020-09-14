@@ -146,7 +146,7 @@ def InitUsageConfig():
 
 	if not os.path.exists(resolveFilename(SCOPE_HDD)):
 		try:
-			os.mkdir(resolveFilename(SCOPE_HDD), 0755)
+			os.mkdir(resolveFilename(SCOPE_HDD), 0o755)
 		except (IOError, OSError):
 			pass
 	defaultValue = resolveFilename(SCOPE_HDD)
@@ -164,20 +164,17 @@ def InitUsageConfig():
 			os.mkdir(resolveFilename(SCOPE_TIMESHIFT), 0o755)
 		except:
 			pass
-	config.usage.timeshift_path = ConfigText(default=resolveFilename(SCOPE_TIMESHIFT))
-	if not config.usage.default_path.value.endswith("/"):
-		tmpvalue = config.usage.timeshift_path.value
-		config.usage.timeshift_path.setValue(tmpvalue + "/")
-		config.usage.timeshift_path.save()
+	defaultValue = resolveFilename(SCOPE_TIMESHIFT)
+	config.usage.timeshift_path = ConfigSelection(default=defaultValue, choices=[(defaultValue, defaultValue)])
+	config.usage.timeshift_path.load()
+	if config.usage.timeshift_path.saved_value:
+		savedValue = os.path.join(config.usage.timeshift_path.saved_value, "")
+		if savedValue and savedValue != defaultValue:
+			config.usage.timeshift_path.setChoices([(defaultValue, defaultValue), (savedValue, savedValue)], default=defaultValue)
+			config.usage.timeshift_path.value = savedValue
+	config.usage.timeshift_path.save()
+	config.usage.allowed_timeshift_paths = ConfigLocations(default = [resolveFilename(SCOPE_TIMESHIFT)])
 
-	def timeshiftpathChanged(configElement):
-		if not config.usage.timeshift_path.value.endswith("/"):
-			tmpvalue = config.usage.timeshift_path.value
-			config.usage.timeshift_path.setValue(tmpvalue + "/")
-			config.usage.timeshift_path.save()
-
-	config.usage.timeshift_path.addNotifier(timeshiftpathChanged, immediate_feedback=False)
-	config.usage.allowed_timeshift_paths = ConfigLocations(default=[resolveFilename(SCOPE_TIMESHIFT)])
 	config.usage.trashsort_deltime = ConfigSelection(default = "no", choices = [
 		("no", _("no")),
 		("show record time", _("Yes, show record time")),
