@@ -67,6 +67,7 @@ from Tools import Notifications
 from Tools.Directories import pathExists, fileExists
 from Tools.KeyBindings import getKeyDescription
 
+
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
 from Screens.Setup import Setup
@@ -1549,15 +1550,15 @@ class InfoBarEPG:
 
 	def showEventInfoPlugins(self):
 		if isStandardInfoBar(self):
-			if getBrandOEM() not in ('xtrend', 'odin', 'ini', 'dags' ,'gigablue', 'xp'):
+			if SystemInfo["HasInfoButton"]:
+				self.openEventView()
+			else:
 				pluginlist = self.getEPGPluginList()
 				if pluginlist:
 					pluginlist.append((_("Select default action of EPG button"), self.selectDefaultEpgPlugin))
 					self.session.openWithCallback(self.EventInfoPluginChosen, ChoiceBox, title=_("Please choose an extension..."), list=pluginlist, skin_name="EPGExtensionsList", reorderConfig="eventinfo_order")
 				else:
 					self.openSingleServiceEPG()
-			else:
-				self.openEventView()
 		elif isMoviePlayerInfoBar(self):
 			self.openEventView()
 
