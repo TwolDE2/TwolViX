@@ -15,7 +15,7 @@ else:
 	import cPickle			# py2
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
-from boxbranding import getBrandOEM, getMachineBuild
+from boxbranding import getBrandOEM
 from keyids import KEYFLAGS, KEYIDS, invertKeyIds
 
 from Components.ActionMap import ActionMap, HelpableActionMap, NumberActionMap
@@ -2851,7 +2851,7 @@ class InfoBarPiP:
 			info = service and service.info()
 			if info:
 				xres = str(info.getInfo(iServiceInformation.sVideoWidth))
-			if info and int(xres) <= 720 or getMachineBuild() != 'blackbox7405':
+			if info and int(xres) <= 720:
 				self.session.pip = self.session.instantiateDialog(PictureInPicture)
 				self.session.pip.setAnimationMode(0)
 				self.session.pip.show()
