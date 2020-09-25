@@ -23,6 +23,10 @@ if VUDUO4K
 SUBDIRS += CableScan
 endif
 
+if VUDUO4KSE
+SUBDIRS += CableScan
+endif
+
 if VUULTIMO4K
 SUBDIRS += CableScan
 endif
