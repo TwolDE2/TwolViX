@@ -559,9 +559,10 @@ int eDVBFrontend::PreferredFrontendIndex = -1;
 
 eDVBFrontend::eDVBFrontend(const char *devicenodename, int fe, int &ok, bool simulate, eDVBFrontend *simulate_fe)
 	:m_simulate(simulate), m_enabled(false), m_fbc(false), m_simulate_fe(simulate_fe), m_type(-1), m_dvbid(fe), m_slotid(fe)
-	,m_fd(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
+	,m_fd(-1), m_fd0(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
 	,m_state(stateClosed), m_timeout(0), m_tuneTimer(0)
 {
+	eDebug("[eDVBFrontend%d] Initial call opening", m_dvbid);
 	m_filename = devicenodename;
 
 	m_timeout = eTimer::create(eApp);
@@ -578,7 +579,7 @@ eDVBFrontend::eDVBFrontend(const char *devicenodename, int fe, int &ok, bool sim
 
 	ok = !openFrontend();
 	closeFrontend();
-}
+};
 
 void eDVBFrontend::reopenFrontend()
 {
@@ -601,12 +602,16 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-			eDebug("[eDVBFrontend] Twol1a opening frontend m_filename: %s", m_filename.c_str());
-			eDebug("[eDVBFrontend] Twol1b opening frontend m_fd: %d", m_fd);
+			eDebugNoSimulate("[eDVBFrontend] Twol1 opened frontend m_filename: %d", m_filename.c_str());
+			eDebugNoSimulate("[eDVBFrontend] Twol1a opened frontend m_fd: %d", m_fd);
+			if (m_fd > 0)
+			{
+				eDebug("[eDVBFrontend] set bypass for FrontendClose (%s)", m_filename.c_str());
+				m_fd0 = 1;
+			}
 			if (m_fd < 0)
 			{
-				eDebug("[eDVBFrontend] failed! (%s)", m_filename.c_str());
-				eDebug("[eDVBFrontend]Twol1c opening frontend - errorno: %d", errno);
+				eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
 				return -1;
 			}
 		}
@@ -632,7 +637,7 @@ int eDVBFrontend::openFrontend()
 		{
 			if (::ioctl(m_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eDebug("[eDVBFrontend] ioctl FE_GET_INFO close m_fd - failed errno %m ", errno );
+				eDebug("[eDVBFrontend] ioctl FE_GET_INFO failed closing m_fd");
 				::close(m_fd);
 				m_fd = -1;
 				return -1;
@@ -707,6 +712,7 @@ int eDVBFrontend::openFrontend()
 		{
 			m_simulate_fe->m_delsys = m_delsys;
 		}
+		eDebug("[eDVBFrontend] m_sn start and activate m_fd: %d", m_fd);
 		m_sn = eSocketNotifier::create(eApp, m_fd, eSocketNotifier::Read, false);
 		CONNECT(m_sn->activated, eDVBFrontend::feEvent);
 	}
@@ -721,14 +727,15 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %d", tmp_fd);
 		if (tmp_fd < 0)
 		{
-			eWarning("[eDVBFrontend] opening %s failed: %s", m_filename.c_str());
+			eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
 		}
 		else
 		{
 			if (::ioctl(tmp_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend close tmp_fd m_filename: %s failed: %m", m_filename.c_str());
+				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend %s failed: %m", m_filename.c_str());
 			}
+			eDebug("[eDVBFrontend] Twol2a Closing immediately with close cmd tmp_fd: %d", tmp_fd);
 			::close(tmp_fd);
 		}
 	}
@@ -746,6 +753,13 @@ int eDVBFrontend::openFrontend()
 
 int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 {
+	eDebug("[eDVBFrontend %d] close frontend m_fd: %d", m_dvbid, m_fd);
+	if (m_fd > 0 && m_fd0 > 0)
+	{
+		m_fd0 = 0;
+		eDebug("[eDVBFrontend %d] bypass close frontend m_fd: %d", m_dvbid, m_fd);
+		return 0;
+	}
 	if (!force && m_data[CUR_VOLTAGE] != -1 && m_data[CUR_VOLTAGE] != iDVBFrontend::voltageOff)
 	{
 		long tmp = m_data[LINKED_NEXT_PTR];
@@ -809,14 +823,14 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 		if (!::close(m_fd))
 			m_fd=-1;
 		else
-			eDebug("[eDVBFrontend %d] couldnt close frontend m_fd: %d", m_dvbid, m_fd);
+			eWarning("[eDVBFrontend %d] couldnt close frontend", m_dvbid);
 	}
 	else if (m_simulate)
 	{
 		setTone(iDVBFrontend::toneOff);
 		setVoltage(iDVBFrontend::voltageOff);
 	}
-
+	eDebug("[eDVBFrontend %d] frontendclose m_sn=0 m_state stateClosed fd: %d", m_dvbid, m_fd);
 	m_sn=0;
 	m_state = stateClosed;
 
@@ -951,18 +965,18 @@ int eDVBFrontend::calculateSignalPercentage(int signalqualitydb)
 
 void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &signalqualitydb)
 {
+	int sat_max = 1600; // for stv0288 / bsbe2
 	int ret = 0x12345678;
-	int sat_max = 1600; // we assume a max of 16db here
-	int ter_max = 2900; // we assume a max of 29db here
-	int cab_max = 4200; // we assume a max of 42db here
-	int atsc_max = 4200; // we assume a max of 42db here
+	int ter_max = 2900;
+	int cab_max = 4200;
+	int atsc_max = 4200;
 
 	if (!strcmp(m_description, "AVL2108")) // ET9000
 	{
 		ret = (int)(snr / 40.5);
 		sat_max = 1618;
 	}
-	else if (!strcmp(m_description, "AVL6211")) // ET10000
+	if (!strcmp(m_description, "AVL6211")) // ET10000
 	{
 		ret = (int)(snr / 37.5);
 		sat_max = 1700;
@@ -1156,10 +1170,6 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 		!strcmp(m_description, "GIGA DVB-S2 NIM (TS2M08)") )
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1710) - 1.0000) * 100);
-	}
-	else if (!strcmp(m_description, "GIGA DVB-S2 NIM (TS3L10)")) //GB IP 4K
-	{
-		ret = snr;
 	}
 	else if (!strcmp(m_description, "Vuplus DVB-S NIM(7376 FBC)")) // VU+ Solo4k
 	{
@@ -1509,26 +1519,11 @@ int eDVBFrontend::readFrontendData(int type)
 			fe_status_t status;
 			if (!m_simulate)
 			{
-				eDebug("[eDVBFrontend%d] ioctl FE_GET_INFO", m_dvbid);
-				int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-				if (tmp_fd < 0)
-				{
-					eWarning("[eDVBFrontend] opening tmp_fd failed: %s", m_filename.c_str());
-				}
-				else
-				{
-					if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
-					{
-						eDebug("[eDVBFrontend] FE_READ_STATUS failed errno: %d", errno);
-						eDebug("[eDVBFrontend] Twol3 FE_READ_STATUS M_filename: %s", m_filename.c_str());
-						eDebug("[eDVBFrontend] Twol3a FE_READ_STATUS m_fd: %d", m_fd);;
-					}
-					::close(tmp_fd);
-					return (int)status;
-				}
-				::close(tmp_fd);
-				return (FE_HAS_SYNC | FE_HAS_LOCK);
+				if ( ioctl(m_fd, FE_READ_STATUS, &status) < 0 && errno != ERANGE )
+					eDebug("[eDVBFrontend] FE_READ_STATUS failed: %m");
+				return (int)status;
 			}
+			return (FE_HAS_SYNC | FE_HAS_LOCK);
 		}
 		case iFrontendInformation_ENUMS::frequency:
 		{
@@ -1712,6 +1707,7 @@ void eDVBFrontend::tuneLoop()
 
 int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 {
+	eDebug("[eDVBFrontend] tuneLoopInt");
 	int delay=-1;
 	eDVBFrontend *sec_fe = this;
 	eDVBRegisteredFrontend *regFE = 0;
@@ -1726,12 +1722,14 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 			// workaround to put the kernel frontend thread into idle state!
 			if (state != eDVBFrontend::stateIdle && state != stateClosed)
 			{
-				sec_fe->closeFrontend(true);
-				state = sec_fe->m_state;
+				eDebug("[eDVBFrontend] tuneLoopint tuner %d is closed m_sn stop", m_dvbid);
+				sec_fe->m_sn->stop();
+				state = sec_fe->m_state = stateIdle;
 			}
 			// sec_fe is closed... we must reopen it here..
 			if (state == stateClosed)
 			{
+				eDebug("[eDVBFrontend] tuner %d is closed, reopen ", m_dvbid);
 				regFE = prev;
 				prev->inc_use();
 			}
@@ -1905,6 +1903,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 						m_state = stateLock;
 						m_stateChanged(this);
 						feEvent(-1); // flush events
+						eDebugNoSimulate("[eDVBFrontend%d] tuneLoopint m_sn start", m_dvbid);
 						m_sn->start();
 						break;
 					}
@@ -2126,11 +2125,12 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 	{
 		int type = -1;
 		oparm.getSystem(type);
-		eDebug("[eDVBFrontend%d] setting frontend ", m_dvbid);
-		eDebug("[eDVBFrontend] SystemType %d", type);
-		eDebug("[eDVBFrontend] Twol0 setting m_filename %s", m_filename.c_str());
+		eDebug("[eDVBFrontend%d] setting frontend", m_dvbid);
 		if (recvEvents)
+			{
+			eDebug("recvEvents-> socket start %d m_sn start", m_dvbid);
 			m_sn->start();
+			}
 		feEvent(-1); // flush events
 		struct dtv_property p[18];
 		struct dtv_properties cmdseq;
@@ -2476,6 +2476,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 
 RESULT eDVBFrontend::prepare_sat(const eDVBFrontendParametersSatellite &feparm, unsigned int tunetimeout)
 {
+	eDebugNoSimulate("[eDVBFrontend%d] prepare_sat");
 	int res;
 	satfrequency = feparm.frequency;
 	if (!m_sec)
@@ -2570,8 +2571,10 @@ RESULT eDVBFrontend::tune(const iDVBFrontendParameters &where, bool blindscan)
 		setDeliverySystem("DVB-S");
 
 	if (!m_simulate)
+		{
+		eDebug("[eDVBFrontend] tune:finished? m_sn->stop()");
 		m_sn->stop();
-
+		}
 	m_sec_sequence.clear();
 
 	m_blindscan = blindscan;
