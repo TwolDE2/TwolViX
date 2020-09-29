@@ -1,3 +1,4 @@
+import six
 import sys
 from enigma import ePythonOutput
 
@@ -7,7 +8,7 @@ class EnigmaLog:
 		self.line = ""
 
 	def write(self, data):
-		if sys.version_info[0] >= 3:
+		if six.PY3:
 			if isinstance(data, bytes):
 				data = data.encode(encoding="UTF-8", errors="ignore")
 		else:

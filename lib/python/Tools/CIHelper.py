@@ -1,3 +1,4 @@
+from __future__ import print_function
 import six
 
 import os
@@ -82,7 +83,7 @@ class CIHelper:
 				provider_services_refs = self.getProivderServices(providers)
 			self.CI_ASSIGNMENT_SERVICES_LIST = [service_refs, provider_services_refs]
 
-	def load_ci_assignment(self, force=False):
+	def load_ci_assignment(self, force = False):
 		if self.CI_ASSIGNMENT_LIST is None or force:
 			self.parse_ci_assignment()
 
@@ -91,7 +92,7 @@ class CIHelper:
 		if len(providers):
 			serviceHandler = eServiceCenter.getInstance()
 			for x in providers:
-				refstr = '1:7:0:0:0:0:0:0:0:0:(provider == "%s") && (type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 31) || (type == 134) || (type == 195) ORDER BY name:%s' % (x,x)
+				refstr = '1:7:0:0:0:0:0:0:0:0:(provider == "%s") && (type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 31) || (type == 134) || (type == 195) ORDER BY name:%s' % (x, x)
 				myref = eServiceReference(refstr)
 				servicelist = serviceHandler.list(myref)
 				if not servicelist is None:
@@ -116,7 +117,7 @@ class CIHelper:
 			no_ci = SystemInfo["CommonInterface"]
 			if no_ci > 0:
 				self.CI_MULTIDESCRAMBLE = False
-				for ci in range(no_ci):
+				for ci in list(range(no_ci)):
 					appname = eDVBCI_UI.getInstance().getAppName(ci)
 					if appname in self.CI_MULTIDESCRAMBLE_MODULES:
 						self.CI_MULTIDESCRAMBLE = True

@@ -73,5 +73,7 @@ class SelectionList(MenuList):
 		# 2 - index
 		# 3 - selected
 		self.list.sort(key=lambda x: x[0][sortType], reverse = flag)
-		self.setList(self.list) 
+		self.setList(self.list)
+
+	def len(self):
 		return len(self.list)

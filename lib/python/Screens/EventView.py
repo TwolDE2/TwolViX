@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import, division
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
+import six
+
 from time import localtime, mktime, time, strftime
 
 from enigma import eEPGCache, eTimer, eServiceReference, ePoint
+
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config
@@ -22,7 +27,7 @@ from Screens.Screen import Screen
 from Screens.TimerEdit import TimerSanityConflict
 from Screens.TimerEntry import TimerEntry
 from Tools.BoundFunction import boundFunction
-import six
+
 
 class EventViewContextMenu(Screen):
 	def __init__(self, session, menu):

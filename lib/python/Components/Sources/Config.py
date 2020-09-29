@@ -1,4 +1,6 @@
-from __future__ print_function, import absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
+
 from Components.Sources.Source import Source
 
 class Config(Source):

@@ -1,4 +1,6 @@
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
+
 from time import time
 
 from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl

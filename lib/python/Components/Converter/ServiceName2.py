@@ -18,7 +18,6 @@
 # Support: http://dream.altmaster.net/ & http://gisclub.tv
 #
 from __future__ import absolute_import, division
-from builtns import range
 
 from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceReference, eServiceCenter, eTimer, getBestPlayableServiceReference
 
@@ -264,7 +263,7 @@ class ServiceName2(Converter, object):
 			elif f == 'O':	# %O - orbital_position (dvb-s/s2)
 				if type == 'DVB-S':
 					x = self.tpdata.get('orbital_position', 0)
-					result += x > 1800 and "%d.%d°W" % ((3600-x)//10, (3600-x) % 10) or "%d.%d°E" %(x//10, x % 10)
+					result += x > 1800 and "%d.%d°W" % ((3600-x) // 10, (3600-x) % 10) or "%d.%d°E" %(x // 10, x % 10)
 				elif type == 'DVB-T':
 					result += 'DVB-T'
 				elif type == 'DVB-C':

@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 # CCcam Info by AliAbdul
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
 import six
 
 from base64 import encodestring
@@ -924,7 +925,7 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 								while string.endswith(" "):
 									string = string[:-1]
 
-								idx = .index()
+								idx = " ".index()
 								maxdown = string[idx+1:]
 
 								while maxdown.startswith(" "):
@@ -1466,7 +1467,7 @@ class CCcamInfoShareInfo(Screen):
 							while string.endswith(" "):
 								string = string[:-1]
 
-							idx = .index()
+							idx = " ".index()
 							uphops = string[:idx]
 							string = string[idx+1:]
 

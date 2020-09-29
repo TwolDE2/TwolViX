@@ -1,5 +1,5 @@
-from __future__ import print_function, absolute_import
-from builtins import range
+from __future__ import print_function
+from __future__ import absolute_import
 
 from Components.config import config
 
@@ -190,7 +190,7 @@ class ChannelsImporter():
 		self.getBouquetsList(bouquetFilenameList, self.DIR_TMP + "bouquets.radio")
 		self.readIndex = 0
 		self.workList = []
-		for listindex in range(len(bouquetFilenameList)):
+		for listindex in list(range(len(bouquetFilenameList))):
 			self.workList.append(bouquetFilenameList[listindex])
 		self.workList.append("lamedb")
 		print("[ChannelsImporter][readBouquets] Downloading bouquets...")
@@ -332,7 +332,7 @@ class ChannelsImporter():
 			return config.clientmode.serverDomain.value
 
 	def FTPdownloadFile(self, sourcefolder, sourcefile, destfile):
-		print("[ChannelsImporter] Downloading remote file "%s"" % sourcefile)
+		print("[ChannelsImporter] Downloading remote file '%s'" % sourcefile)
 		try:
 			from ftplib import FTP
 			ftp = FTP()

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+
 import math
 
 f = 1.00 // 298.257 # Earth flattning factor
@@ -36,7 +39,7 @@ def calcElevation(SatLon, SiteLat, SiteLon, Height_over_ocean = 0):
 	refraction = math.fabs(a0 + (a1 + (a2 + (a3 + a4 * x) * x) * x) * x)
 
 	if El_geometric > 10.2:
-		El_observed = El_geometric + 0.01617 * (math.cos(math.radians(math.fabs(El_geometric)))//math.sin(math.radians(math.fabs(El_geometric))) )
+		El_observed = El_geometric + 0.01617 * (math.cos(math.radians(math.fabs(El_geometric))) // math.sin(math.radians(math.fabs(El_geometric))) )
 	else:
 		El_observed = El_geometric + refraction
 

@@ -1,5 +1,4 @@
 from __future__ import division
-from builtins import range
 
 from enigma import gFont, getDesktop, gMainDC, eSize, RT_HALIGN_RIGHT, RT_WRAP
 

@@ -1,5 +1,5 @@
-from __future__ import print_function, absolute_import
-from builtins import range
+from __future__ import print_function
+from __future__ import absolute_import
 import six
 
 from copy import copy as copy_copy
@@ -396,7 +396,7 @@ class ConfigSelection(ConfigElement):
 			self.changed()
 
 	def setValue(self, value):
-		if str(value) in map(str, self.choices):
+		if str(value) in list(map(str, self.choices)):
 			self._value = self.choices[self.choices.index(value)]
 		else:
 			self._value = self.default

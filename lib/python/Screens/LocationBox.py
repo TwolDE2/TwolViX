@@ -16,7 +16,6 @@ from Tools.BoundFunction import boundFunction
 from Tools.Directories import pathExists, createDir, removeDir
 from Components.config import config
 import os
-import sys
 
 # Quickselect
 from Tools.NumericalTextInput import NumericalTextInput
@@ -31,7 +30,6 @@ from Components.MenuList import MenuList
 
 # Timer
 from enigma import eTimer
-import six
 
 defaultInhibitDirs = ["/bin", "/boot", "/dev", "/etc", "/lib", "/proc", "/sbin", "/sys", "/var"]
 
@@ -46,10 +44,7 @@ class LocationBox(Screen, NumericalTextInput, HelpableScreen):
 		HelpableScreen.__init__(self)
 
 		# Set useable chars
-		if sys.version_info >= (3, 0):
-			self.setUseableChars('1234567890abcdefghijklmnopqrstuvwxyz')
-		else:
-			self.setUseableChars(u'1234567890abcdefghijklmnopqrstuvwxyz')
+		self.setUseableChars(u'1234567890abcdefghijklmnopqrstuvwxyz')
 
 		# Quickselect Timer
 		self.qs_timer = eTimer()

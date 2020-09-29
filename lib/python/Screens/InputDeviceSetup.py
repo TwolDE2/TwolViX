@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
 
 from Components.InputDevice import iInputDevices, iRcTypeControl
 from Components.Sources.StaticText import StaticText
@@ -355,7 +356,7 @@ class RemoteControlType(Screen, ConfigListScreen):
 	def getDefaultRcType(self):
 		boxtype = getMachineBuild()
 		procBoxtype = iRcTypeControl.getBoxType()
-		print(("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype)))
+		print("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype))
 		for x in self.defaultRcList:
 			if x[0] in boxtype or x[0] in procBoxtype:
 				self.defaultRcType = x[1]

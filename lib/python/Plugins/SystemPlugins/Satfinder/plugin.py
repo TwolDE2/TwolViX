@@ -1,7 +1,6 @@
-from __future__ import print_function, division
-from builtins import range
+from __future__ import print_function
+from __future__ import division
 import six
-import sys
 
 from enigma import eDVBResourceManager, eDVBFrontendParametersSatellite, eDVBFrontendParametersTerrestrial
 from Components.ActionMap import ActionMap
@@ -263,7 +262,7 @@ class Satfinder(ScanSetup, ServiceScan):
 					self.list.append(getConfigListEntry(_("Channel"), self.scan_ter.channel))
 				else:
 					prev_val = self.scan_ter.frequency.value
-					self.scan_ter.frequency.value = channel2frequency(self.scan_ter.channel.value, self.ter_tnumber)//1000
+					self.scan_ter.frequency.value = channel2frequency(self.scan_ter.channel.value, self.ter_tnumber) // 1000
 					if self.scan_ter.frequency.value == 474000:
 						self.scan_ter.frequency.value = prev_val
 					self.list.append(getConfigListEntry(_("Frequency (kHz)"), self.scan_ter.frequency))
@@ -806,7 +805,7 @@ class SatfinderExtra(Satfinder):
 			op = (3600 - op) * -1
 		if w_e_flag == 0:
 			op *= -1
-		return "%0.1f%s" % (abs(op)//10., "W" if op < 0 else "E")
+		return "%0.1f%s" % (abs(op) // 10., "W" if op < 0 else "E")
 
 	def tunerLock(self):
 		frontendStatus = {}

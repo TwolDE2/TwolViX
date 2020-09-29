@@ -19,8 +19,9 @@ class ActionMap:
 				if queryKeyBinding(context, action):
 					unknown.remove(action)
 					break
-		if unknown:
-			print("[ActionMap] Keymap(s) '%s' -> Undefined action(s) '%s'." % (", ".join(contexts), ", ".join(unknown)))
+		# if unknown:
+		#	print("")
+		#	print("[ActionMap] Keymap(s) '%s' -> Undefined action(s) '%s'." % (", ".join(contexts), ", ".join(unknown)))
 
 	def setEnabled(self, enabled):
 		self.enabled = enabled
@@ -60,7 +61,7 @@ class ActionMap:
 				return res
 			return 1
 		else:
-			print("[ActionMap] Keymap '%s' -> Unknown action '%s'! (Typo in keymap?)" % (context, action))
+			# print("[ActionMap] Keymap '%s' -> Unknown action '%s'! (Typo in keymap?)" % (context, action))
 			return 0
 
 	def destroy(self):
@@ -89,6 +90,7 @@ class HelpableActionMap(ActionMap):
 	# ActionMapconstructor,	the collected helpstrings (with correct
 	# context, action) is added to the screen's "helpList", which will
 	# be picked up by the "HelpableScreen".
+	######### do not change this code that has been modified for python 3 use!#########
 	def __init__(self, parent, contexts, actions=None, prio=0, description=None):
 		def exists(record):
 			for context in parent.helpList:

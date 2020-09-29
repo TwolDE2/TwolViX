@@ -1,7 +1,5 @@
-from __future__ import print_function, absolute_import
-import six
-from builtins import range
-import sys
+from __future__ import print_function
+from __future__ import absolute_import
 
 from enigma import eRCInput, eTimer, eWindow  # , getDesktop
 
@@ -122,7 +120,7 @@ class Screen(dict):
 			self.session.close(self, *retval)
 
 	def show(self):
-		print("[Screen] Showing screen '%s'." % self.skinName)  # To ease identification of screens.
+		# print("[Screen] Showing screen '%s'." % self.skinName)  # To ease identification of screens.
 		# DEBUG: if (self.shown and self.alreadyShown) or not self.instance:
 		if (self.shown and self.already_shown) or not self.instance:
 			return

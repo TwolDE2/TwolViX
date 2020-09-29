@@ -56,7 +56,7 @@ class downloadWithProgress:
 		port = parsed.port or (443 if scheme == 'https' else 80)
 
 		self.factory = HTTPProgressDownloader(url, outputfile, *args, **kwargs)
-		if scheme == 'https':
+		if scheme == "https":
 			from twisted.internet import ssl
 			if contextFactory is None:
 				contextFactory = ssl.ClientContextFactory()

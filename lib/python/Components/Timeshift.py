@@ -27,6 +27,7 @@
 # note that a timeshift can be enabled ("recording") and
 # activated (currently time-shifting).
 from __future__ import print_function
+
 import os
 from time import time, localtime, strftime
 from random import randint
@@ -68,7 +69,7 @@ class InfoBarTimeshift:
 				"seekdef:4": (boundFunction(self.seekdef, 4), _("Seek")),
 				"seekdef:6": (boundFunction(self.seekdef, 6), _("Seek")),
 				"seekdef:7": (boundFunction(self.seekdef, 7), _("Seek")),
-				"seekdef:9": (boundFunction(self.seekdef,  9), _("Seek"))
+				"seekdef:9": (boundFunction(self.seekdef, 9), _("Seek"))
 			}, prio=1)
 
 		self["TimeshiftActivateActions"] = ActionMap(["InfobarTimeshiftActivateActions"],

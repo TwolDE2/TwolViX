@@ -1,6 +1,7 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
-from __future__ import print_function, division
+from __future__ import print_function
+from __future__ import division
+
 import six
 
 from enigma import eDVBFrontendParametersSatellite, eDVBFrontendParametersCable, eDVBFrontendParametersTerrestrial, eDVBFrontendParametersATSC
@@ -10,7 +11,7 @@ from Components.NimManager import nimmanager
 SIGN = '°' if six.PY3 else str('\xc2\xb0')
 
 def orbpos(pos):
-	return pos > 3600 and "N/A" or "%d.%d%s%s" % (pos > 1800 and ((3600 - pos) / 10, (3600 - pos) % 10, SIGN, "W") or (pos / 10, pos % 10, SIGN, "E"))
+	return pos > 3600 and "N/A" or "%d.%d%s%s" % (pos > 1800 and ((3600 - pos) // 10, (3600 - pos) % 10, SIGN, "W") or (pos // 10, pos % 10, SIGN, "E"))
 
 def getTunerDescription(nim):
 	try:
@@ -36,7 +37,7 @@ def getChannelNumber(frequency, nim):
 		if "Europe" in descr:
 			if 174 < f < 230: 	# III
 				d = (f + 1) % 7
-				return str(int(f - 174) //7 + 5) + (d < 3 and "-" or d > 4 and "+" or "")
+				return str(int(f - 174) // 7 + 5) + (d < 3 and "-" or d > 4 and "+" or "")
 			elif 470 <= f < 863: 	# IV,V
 				d = (f + 2) % 8
 				return str(int(f - 470) // 8 + 21) + (d < 3.5 and "-" or d > 4.5 and "+" or "")

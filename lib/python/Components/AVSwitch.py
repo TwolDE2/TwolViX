@@ -1,5 +1,5 @@
-from __future__ import print_function, absolute_import
-from builtins import range
+from __future__ import print_function
+from __future__ import absolute_import
 
 import os
 
@@ -16,10 +16,10 @@ config.av = ConfigSubsection()
 
 
 class AVSwitch:
-	has_dvi = getHaveDVI() == "True"
-	has_jack = getHaveAVJACK() == "True"
-	has_rca = getHaveRCA() == "True"
-	has_scart = getHaveSCART() == "True"
+	hasDVI = getHaveDVI() == "True"
+	hasJack = getHaveAVJACK() == "True"
+	hasRCA = getHaveRCA() == "True"
+	hasScart = getHaveSCART() == "True"
 
 	print("SystemInfo", "BoxType", getBoxType())
 	print("SystemInfo", "MachineBuild", getMachineBuild())
@@ -32,10 +32,10 @@ class AVSwitch:
 	print("SystemInfo", "HaveSCART", getHaveSCART())
 	print("SystemInfo", "HaveSCARTYUV", getHaveSCARTYUV())
 	print("SystemInfo", "HaveYUV", getHaveYUV())
-	print("VideoWizard", "has_dvi", has_dvi)
-	print("VideoWizard", "has_rca", has_rca)
-	print("VideoWizard", "has_jack", has_jack)
-	print("VideoWizard", "has_scart", has_scart)
+	print("VideoWizard", "hasDVI", hasDVI)
+	print("VideoWizard", "hasRCA", hasRCA)
+	print("VideoWizard", "hasJack", hasJack)
+	print("VideoWizard", "hasScart", hasScart)
 	print("AVSwitch", "Scart-YPbPr", SystemInfo["Scart-YPbPr"])
 	print("AVSwitch", "no_YPbPr", SystemInfo["no_YPbPr"])
 	print("AVSwitch", "yellow_RCA_no_scart", SystemInfo["yellow_RCA_no_scart"])
@@ -79,7 +79,7 @@ class AVSwitch:
 	if SystemInfo["Scart-YPbPr"]:
 		modes["Scart-YPbPr"] = modes["HDMI"]
 	# if "DVI-PC" in modes and not getModeList("DVI-PC"):
-	# 	print "[VideoHardware] remove DVI-PC because of not existing modes"
+	# 	print("[VideoHardware] remove DVI-PC because of not existing modes"
 	# 	del modes["DVI-PC"]
 	if "YPbPr" in modes and SystemInfo["no_YPbPr"]:
 		del modes["YPbPr"]
@@ -361,8 +361,8 @@ def InitAVSwitch():
 	choicelist = []
 	for i in list(range(5, 16)):
 		choicelist.append(("%d" % i, ngettext("%d second", "%d seconds", i) % i))
-	config.av.autores_label_timeout = ConfigSelection(default="5", choices=[("0", _("Not Shown"))] + choicelist)
-	config.av.autores_delay = ConfigSelectionNumber(min=0, max=15000, stepwidth=500, default=500, wraparound=True)
+	config.av.autores_label_timeout = ConfigSelection(default = "5", choices = [("0", _("Not Shown"))] + choicelist)
+	config.av.autores_delay = ConfigSelectionNumber(min = 0, max = 15000, stepwidth = 500, default = 500, wraparound = True)
 	config.av.autores_deinterlace = ConfigYesNo(default=False)
 	config.av.autores_sd = ConfigSelection(choices={
 		"720p": _("720p"),
@@ -759,7 +759,8 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/3d_surround_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.surround_3d = ConfigSelection(choices=choices, default="none")
+
+		config.av.surround_3d = ConfigSelection(choices = choices, default = "none")
 		config.av.surround_3d.addNotifier(set3DSurround)
 	else:
 		config.av.surround_3d = ConfigNothing()
@@ -790,7 +791,7 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/avl_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.autovolume = ConfigSelection(choices=choices, default=default)
+		config.av.autovolume = ConfigSelection(choices = choices, default = default)
 		config.av.autovolume.addNotifier(setAutoVolume)
 	else:
 		config.av.autovolume = ConfigNothing()
@@ -798,7 +799,7 @@ def InitAVSwitch():
 		def setPCMMultichannel(configElement):
 			open("/proc/stb/audio/multichannel_pcm", "w").write(configElement.value and "enable" or "disable")
 
-		config.av.pcm_multichannel = ConfigYesNo(default=False)
+		config.av.pcm_multichannel = ConfigYesNo(default = False)
 		config.av.pcm_multichannel.addNotifier(setPCMMultichannel)
 
 	if SystemInfo["CanDownmixAC3"]:
@@ -810,7 +811,7 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/ac3_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.downmix_ac3 = ConfigSelection(choices=choices, default=default)
+		config.av.downmix_ac3 = ConfigSelection(choices = choices, default = default)
 		config.av.downmix_ac3.addNotifier(setAC3Downmix)
 
 	if SystemInfo["CanAC3Transcode"]:
@@ -822,7 +823,7 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/ac3plus_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.transcodeac3plus = ConfigSelection(choices=choices, default=default)
+		config.av.transcodeac3plus = ConfigSelection(choices = choices, default = default)
 		config.av.transcodeac3plus.addNotifier(setAC3plusTranscode)
 
 	if SystemInfo["CanDownmixDTS"]:
@@ -834,7 +835,7 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/dts_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.downmix_dts = ConfigSelection(choices=choices, default=default)
+		config.av.downmix_dts = ConfigSelection(choices = choices, default = default)
 		config.av.downmix_dts.addNotifier(setDTSDownmix)
 	if SystemInfo["CanDTSHD"]:
 		choices = [
@@ -848,7 +849,8 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/dtshd_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.dtshd = ConfigSelection(choices=choices, default=default)
+
+		config.av.dtshd = ConfigSelection(choices = choices, default = default)
 		config.av.dtshd.addNotifier(setDTSHD)
 
 	if SystemInfo["CanDownmixAAC"]:
@@ -860,7 +862,8 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/aac_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.downmix_aac = ConfigSelection(choices=choices, default=default)
+
+		config.av.downmix_aac = ConfigSelection(choices = choices, default = default)
 		config.av.downmix_aac.addNotifier(setAACDownmix)
 
 	if SystemInfo["CanDownmixAACPlus"]:
@@ -878,7 +881,8 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/aacplus_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.downmix_aacplus = ConfigSelection(choices=choices, default=default)
+
+		config.av.downmix_aacplus = ConfigSelection(choices = choices, default = default)
 		config.av.downmix_aacplus.addNotifier(setAACDownmixPlus)
 
 	if SystemInfo["CanAACTranscode"]:
@@ -891,7 +895,8 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/aac_transcode_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.transcodeaac = ConfigSelection(choices=choices, default=default)
+
+		config.av.transcodeaac = ConfigSelection( choices = choices, default = default)
 		config.av.transcodeaac.addNotifier(setAACTranscode)
 	else:
 		config.av.transcodeaac = ConfigNothing()
@@ -907,7 +912,8 @@ def InitAVSwitch():
 		if SystemInfo["CanProc"]:
 			f = "/proc/stb/audio/wmapro_choices"
 			(choices, default) = read_choices(f, default)
-		config.av.wmapro = ConfigSelection(choices=choices, default=default)
+
+		config.av.wmapro = ConfigSelection(choices = choices, default = default)
 		config.av.wmapro.addNotifier(setWMAPRO)
 
 	if SystemInfo["haveboxmode"]:
@@ -927,5 +933,5 @@ def InitAVSwitch():
 		config.av.scaler_sharpness.addNotifier(setScaler_sharpness)
 	else:
 		config.av.scaler_sharpness = NoSave(ConfigNothing())
-	config.av.edid_override = ConfigYesNo(default=False)
+	config.av.edid_override = ConfigYesNo(default = False)
 	iAVSwitch.setConfiguredMode()

@@ -1,5 +1,5 @@
-from __future__ import absolute_import, division
-from builtins import range
+from __future__ import absolute_import
+from __future__ import division
 
 from time import localtime, time, strftime
 

@@ -1,5 +1,5 @@
 from __future__ import print_function
-from builtins import range
+
 from boxbranding import getMachineBrand
 
 from enigma import ePicLoad, eTimer, getDesktop, gMainDC, eSize

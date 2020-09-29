@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
 import six
 
 import os
@@ -271,7 +272,7 @@ class PluginDownloadBrowser(Screen):
 	PLUGIN_PREFIX2 = []
 	lastDownloadDate = None
 
-	def __init__(self, session, type=0, needupdate=True, skin_name=None):
+	def __init__(self, session, type=0, needupdate = True, skin_name = None):
 		Screen.__init__(self, session)
 		self.type = type
 		self.needupdate = needupdate

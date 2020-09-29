@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-from builtins import range
+from __future__ import print_function
 import six
 
 import errno
 import inspect
 import os
-import sys
 
 from enigma import eEnv, getDesktop
 from re import compile
 from stat import S_IMODE
-
 
 pathExists = os.path.exists
 isMount = os.path.ismount  # Only used in OpenATV /lib/python/Plugins/SystemPlugins/NFIFlash/downloader.py.

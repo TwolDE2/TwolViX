@@ -1,4 +1,6 @@
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
+
 from os import path
 
 from enigma import iPlayableService, iServiceInformation, eTimer, eServiceCenter, eServiceReference, eDVBDB
@@ -38,7 +40,7 @@ class VideoSetup(Screen, ConfigListScreen):
 		# self.onShow.append(self.startHotplug)
 		# self.onHide.append(self.stopHotplug)
 		self.list = []
-		ConfigListScreen.__init__(self, self.list, session=session, on_change=self.changedEntry)
+		ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry)
 		self["actions"] = ActionMap(["SetupActions", "MenuActions"], {
 			"cancel": self.keyCancel,
 			"save": self.apply,

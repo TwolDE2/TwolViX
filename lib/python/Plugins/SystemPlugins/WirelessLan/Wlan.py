@@ -1,6 +1,5 @@
 from __future__ import print_function
 import six
-from six.moves import range
 import sys, re
 from os import system, path as os_path
 

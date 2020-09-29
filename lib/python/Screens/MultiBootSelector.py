@@ -1,4 +1,6 @@
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 
 
 from os import mkdir, path, rmdir
@@ -46,7 +48,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		HelpableScreen.__init__(self)
 		if MultiBootSelector.skin is None:
 			# The skin template is designed for a HD screen so the scaling factor is 720.
-			MultiBootSelector.skin = MultiBootSelector.skinTemplate % tuple([x * getDesktop(0).size().height() / 720 for x in MultiBootSelector.scaleData])
+			MultiBootSelector.skin = MultiBootSelector.skinTemplate % tuple([x * getDesktop(0).size().height() // 720 for x in MultiBootSelector.scaleData])
 		Screen.setTitle(self, _("MultiBoot Image Selector"))
 		self.tmp_dir = None
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent("", ((_("Retrieving image slots - Please wait...")), "Queued"))])

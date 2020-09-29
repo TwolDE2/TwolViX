@@ -25,7 +25,7 @@ class CronTimers(Screen):
 		if path.exists('/usr/scripts') and not path.exists('/usr/script'):
 			rename('/usr/scripts', '/usr/script')
 		if not path.exists('/usr/script'):
-			mkdir('/usr/script', 0755)
+			mkdir('/usr/script', 0o755)
 		self.setTitle(_("Cron Manager"))
 		self.onChangedEntry = [ ]
 		self['lab1'] = Label(_("Autostart:"))

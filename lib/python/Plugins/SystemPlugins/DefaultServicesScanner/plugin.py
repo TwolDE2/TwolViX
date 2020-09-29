@@ -1,5 +1,5 @@
 from __future__ import print_function
-from builtins import range
+
 #from Components.ActionMap import ActionMap, NumberActionMap
 #from Components.Input import Input
 #from Components.Ipkg import IpkgComponent

@@ -1,5 +1,5 @@
-from __future__ import print_function, absolute_import
-from builtins import range
+from __future__ import print_function
+from __future__ import absolute_import
 
 from time import localtime, mktime, gmtime, time
 from timer import TimerEntry

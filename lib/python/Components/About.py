@@ -1,4 +1,6 @@
 from __future__ import print_function
+from __future__ import division
+
 from sys import modules, version_info
 import socket, fcntl, struct
 
@@ -83,13 +85,13 @@ def getCPUSpeedMHzInt():
 				import binascii
 				with open("/sys/firmware/devicetree/base/cpus/cpu@0/clock-frequency", "rb") as f:
 					clockfrequency = f.read()
-					cpu_speed = round(int(binascii.hexlify(clockfrequency), 16)/1000000, 1)
+					cpu_speed = round(int(binascii.hexlify(clockfrequency), 16) // 1000000, 1)
 			except IOError:
 				cpu_speed = 1700
 		else:
 			try: # Solo4K sf8008
 				with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r") as file:
-					cpu_speed = float(file.read()) / 1000
+					cpu_speed = float(file.read()) // 1000
 			except IOError:
 				print("[About] getCPUSpeedMHzInt, /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq not available")
 	return int(cpu_speed)
@@ -98,7 +100,7 @@ def getCPUSpeedString():
 	cpu_speed = float(getCPUSpeedMHzInt())
 	if cpu_speed > 0:
 		if cpu_speed >= 1000:
-			cpu_speed = "%s GHz" % str(round(cpu_speed/1000,1))
+			cpu_speed = "%s GHz" % str(round(cpu_speed // 1000,1))
 		else:
 			cpu_speed = "%s MHz" % str(int(cpu_speed))
 		return cpu_speed

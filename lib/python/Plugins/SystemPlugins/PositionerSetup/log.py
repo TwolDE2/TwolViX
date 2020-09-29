@@ -1,3 +1,6 @@
+from __future__ import print_function
+import six
+
 # logging for XMLTV importer
 #
 # One can simply use
@@ -7,7 +10,7 @@
 
 import sys
 
-if sys.version_info >= (3, 0):
+if six.PY3:
 	from io import StringIO
 else:
 	from  StringIO import StringIO

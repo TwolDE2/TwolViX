@@ -1,5 +1,6 @@
-from __future__ import print_function, absolute_import
-from builtins import range
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 import six
 
 from os import listdir, path, popen
@@ -440,10 +441,10 @@ class Devices(Screen):
 					hddp = hddp.replace('ATA', '')
 					hddp = hddp.replace('Internal', 'ATA Bus ')
 				free = hdd.Totalfree()
-				if ((float(free) / 1024) / 1024) >= 1:
-					freeline = _("Free: ") + str(round(((float(free) / 1024) / 1024), 2)) + _("TB")
+				if ((float(free) // 1024) // 1024) >= 1:
+					freeline = _("Free: ") + str(round(((float(free) // 1024) // 1024), 2)) + _("TB")
 				elif (free / 1024) >= 1:
-					freeline = _("Free: ") + str(round((float(free) / 1024), 2)) + _("GB")
+					freeline = _("Free: ") + str(round((float(free) // 1024), 2)) + _("GB")
 				elif free >= 1:
 					freeline = _("Free: ") + str(free) + _("MB")
 				elif "Generic(STORAGE" in hddp:				# This is the SDA boot volume for SF8008 if "full" #

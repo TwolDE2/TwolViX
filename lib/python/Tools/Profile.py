@@ -1,4 +1,6 @@
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 # the implementation here is a bit crappy.
 
 import time
@@ -62,7 +64,7 @@ def profile(id):
 		if id in profile_data:
 			t = profile_data[id]
 			if total_time:
-				perc = t * (PERCENTAGE_END - PERCENTAGE_START) / total_time + PERCENTAGE_START
+				perc = t * (PERCENTAGE_END - PERCENTAGE_START) // total_time + PERCENTAGE_START
 			else:
 				perc = PERCENTAGE_START
 			try:

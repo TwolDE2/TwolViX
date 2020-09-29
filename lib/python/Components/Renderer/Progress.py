@@ -1,4 +1,4 @@
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import
 
 from Components.Renderer.Renderer import Renderer
 from Components.VariableValue import VariableValue

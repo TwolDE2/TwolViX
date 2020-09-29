@@ -1,5 +1,6 @@
-from __future__ import print_function, absolute_import
-from builtins import range
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 
 from enigma import eDVBDB, eServiceCenter, eServiceReference, eSize, eTimer, iPlayableService, iServiceInformation
 
@@ -454,7 +455,7 @@ class AudioSelection(Screen, ConfigListScreen):
 		elif self.focus == FOCUS_STREAMS:
 			self["streams"].setIndex(0)
 
-	def keyRight(self, config=False):
+	def keyRight(self, config = False):
 		if config or self.focus == FOCUS_CONFIG:
 			if self.settings.menupage.value == PAGE_AUDIO and self["config"].getCurrent()[2]:
 				self["config"].getCurrent()[2]()
@@ -462,7 +463,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.session.open(QuickSubtitlesConfigMenu, self.infobar)
 			else:
 				ConfigListScreen.keyRight(self)
-		if self.focus == FOCUS_STREAMS and self["streams"].count() and config is False:
+		if self.focus == FOCUS_STREAMS and self["streams"].count() and config == False:
 			self["streams"].setIndex(self["streams"].count() - 1)
 
 	def keyRed(self):
@@ -591,7 +592,7 @@ class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 			self.service_string = info and info.getInfoString(self.service, iServiceInformation.sServiceref)
 		else:
 			self.service_string = self.service.toString()
-		self.center_dvb_subs = ConfigYesNo(default=(eDVBDB.getInstance().getFlag(eServiceReference(self.service_string)) & self.FLAG_CENTER_DVB_SUBS) and True)
+		self.center_dvb_subs = ConfigYesNo(default = (eDVBDB.getInstance().getFlag(eServiceReference(self.service_string)) & self.FLAG_CENTER_DVB_SUBS) and True)
 		self.center_dvb_subs.addNotifier(self.setCenterDvbSubs)
 		self["videofps"] = Label("")
 		sub = self.infobar.selected_subtitle
@@ -633,7 +634,7 @@ class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 				getConfigMenuItem("config.subtitles.pango_subtitles_fps"),
 			]
 			self["videofps"].setText(_("Video: %s fps") % (self.getFps().rstrip(".000")))
-		ConfigListScreen.__init__(self, menu, self.session, on_change=self.changedEntry)
+		ConfigListScreen.__init__(self, menu, self.session, on_change = self.changedEntry)
 		self["actions"] = NumberActionMap(["SetupActions"], {
 			"cancel": self.cancel,
 			"ok": self.ok,

@@ -21,7 +21,7 @@ def getMBbootdevice():
 		if path.exists(device):
 			Console().ePopen("mount %s %s" % (device, tmp.dir))
 			if path.isfile(path.join(tmp.dir, "STARTUP")):
-				print("[Multiboot] [getMBbootdevices] Bootdevice found: %s" % device)
+				# print("[Multiboot] [getMBbootdevices] Bootdevice found: %s" % device)
 				return device
 			Console().ePopen("umount %s" % tmp.dir)
 	if not path.ismount(tmp.dir):
@@ -36,7 +36,7 @@ def getMultibootslots():
 		for file in glob.glob(path.join(tmp.dir, "STARTUP_*")):
 			if "STARTUP_RECOVERY" in file:
 				SystemInfo["RecoveryMode"] = True
-				print("[multiboot] [getMultibootslots] RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
+				# print("[multiboot] [getMultibootslots] RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
 			slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 			if slotnumber.isdigit() and slotnumber not in bootslots:
 				slot = {}
@@ -50,7 +50,7 @@ def getMultibootslots():
 							slot["startupfile"] = path.basename(file)
 							if "rootsubdir" in line:
 								SystemInfo["HasRootSubdir"] = True
-								print("[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"])
+								# print("[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"])
 								slot["rootsubdir"] = getparam(line, "rootsubdir")
 								slot["kernel"] = getparam(line, "kernel")
 							elif "sda" in line:
@@ -61,11 +61,11 @@ def getMultibootslots():
 						break
 				if slot:
 					bootslots[int(slotnumber)] = slot
-		print("[multiboot] [getMultibootslots] Finished bootslots = %s" %bootslots)
+		# print("[multiboot] [getMultibootslots] Finished bootslots = %s" %bootslots)
 		Console().ePopen("umount %s" % tmp.dir)
 		if not path.ismount(tmp.dir):
 			rmdir(tmp.dir)
-	print("[Multiboot] Bootslots found:", bootslots)
+	# print("[Multiboot] Bootslots found:", bootslots)
 	return bootslots
 
 def GetCurrentImage():
@@ -107,22 +107,20 @@ def GetImagelist():
 			Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
 			#	print("[multiboot] [GetImagelist] Creator = %s imagedir = %s" % (Creator, imagedir))
 			if Creator.startswith("Openvix"):
-				Creator = Creator.replace("-release", " rel")
 				reader = boxbranding_reader(imagedir)
+				# print("[multiboot] [GetImagelist]1 slot = %s imagedir = %s" % (slot, imagedir))
+				if path.isfile(path.join(imagedir, "usr/lib/enigma2/python/ImageIdentifier.py")):
+					print("[multiboot] [GetImagelist]2 slot = %s imagedir = %s" % (slot, imagedir))				
+					reader = readImageIdentifier(imagedir)
 				BuildType = reader.getImageType()
 				Build = reader.getImageBuild()
-				#	print("[multiboot] [GetImagelist] Creator = %s BuildType = %s Build = %s" % (Creator, BuildType, Build))
+				Creator = Creator.replace("-release", " rel")
+				# print("[multiboot] [GetImagelist] Slot = %s Creator = %s BuildType = %s Build = %s" % (slot, Creator, BuildType, Build))
 				Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ""
-				BuildVersion = "%s %s %s %s" % (Creator, BuildType[0:3], Build, Dev)
+				date = VerDate(imagedir)
+				BuildVersion = "%s %s %s %s %s" % (Creator, BuildType[0:3], Build, Dev, date)
 			else:
-				try:
-					from datetime import datetime
-					date = datetime.fromtimestamp(stat(path.join(imagedir, "var/lib/opkg/status")).st_mtime).strftime("%Y-%m-%d")
-					if date.startswith("1970"):
-						date = datetime.fromtimestamp(stat(path.join(imagedir, "usr/share/bootlogo.mvi")).st_mtime).strftime("%Y-%m-%d")
-					date = max(date, datetime.fromtimestamp(stat(path.join(imagedir, "usr/bin/enigma2")).st_mtime).strftime("%Y-%m-%d"))
-				except Exception:
-					date = _("Unknown")
+				date = VerDate(imagedir)
 				Creator = Creator.replace("-release", " ")
 				BuildVersion = "%s Image Date: %s" % (Creator, date)
 			Imagelist[slot] = {"imagename": "%s" % BuildVersion}
@@ -133,6 +131,17 @@ def GetImagelist():
 		rmdir(tmp.dir)
 	return Imagelist
 
+def VerDate(imagedir):
+	try:
+		from datetime import datetime
+		date = datetime.fromtimestamp(stat(path.join(imagedir, "var/lib/opkg/status")).st_mtime).strftime("%Y-%m-%d")
+		if date.startswith("1970"):
+			date = datetime.fromtimestamp(stat(path.join(imagedir, "usr/share/bootlogo.mvi")).st_mtime).strftime("%Y-%m-%d")
+		date = max(date, datetime.fromtimestamp(stat(path.join(imagedir, "usr/bin/enigma2")).st_mtime).strftime("%Y-%m-%d"))
+		print("[multiboot] date = %s" % date)
+	except Exception:
+		date = _("Unknown")
+	return date
 
 def emptySlot(slot):
 	tmp.dir = tempfile.mkdtemp(prefix="Multiboot")
@@ -247,3 +256,91 @@ class boxbranding_reader:  # Many thanks to Huevos for creating this reader - we
 		out.append("print(output)")
 		out.append("")
 		return "\n".join(out)
+
+class readImageIdentifier():
+
+	#
+	# typical use...
+	#
+	# from readImageIdentifier import readImageIdentifier
+	# reader = readImageIdentifier()
+	# boxtype = reader.getBoxType()
+	#
+
+	def __init__(self, OsPath = None):
+		if OsPath is None:
+			OsPath = ""
+
+		if path.exists("%s/usr/lib64" % OsPath):
+			self.filepath = "%s/usr/lib64/enigma2/python/" % OsPath
+		else:
+			self.filepath = "%s/usr/lib/enigma2/python/" % OsPath
+		self.filename = "ImageIdentifier.py"
+		
+		self.methods = {
+			"getBoxType": "",
+			"getImageDistro": "",
+			"getImageVersion": "",
+			"getImageBuild": "",
+			"getImageDevBuild": "",
+			"getImageType": "",
+			"getMachineBrand": "",
+			"getImageBuildDate": "",
+		}
+		
+		self.__getfile()
+		self.__readfile()
+
+	def __getfile(self):
+		self.file_content = ""
+		try:
+			self.file_content = open("%s%s" % (self.filepath, self.filename)).read()
+			print("[readImageIdentifier][self.file_content] %s" % (self.file_content))
+		except:
+			print("[readImageIdentifier][getfile] Could not read %s%s" % (self.filepath, self.filename))
+
+	def __readfile(self):
+		try:
+			exec(self.file_content)
+		except Exception as e:
+			print("[readImageIdentifier][readfile] failed to exec")
+			print(e)
+
+		for key in list(self.methods.keys()):
+			try:
+				exec("global m;m = %s()" % (key,))
+				self.methods[key] = m
+			except Exception as e:
+				print("[readImageIdentifier][readfile] failed to exec %s" % (key,))
+
+	def getBoxType(self):
+		return self.methods["getBoxType"]
+
+	def getImageDistro(self):
+		return self.methods["getImageDistro"]
+
+	def getImageVersion(self):
+		return self.methods["getImageVersion"]
+
+	def getImageBuild(self):
+		return self.methods["getImageBuild"]
+
+	def getImageDevBuild(self):
+		return self.methods["getImageDevBuild"]
+
+	def getImageType(self):
+		return self.methods["getImageType"]
+
+	def getMachineBrand(self):
+		return self.methods["getMachineBrand"]
+
+	def getImageBuildDate(self):
+		return self.methods["getImageBuildDate"]
+
+	
+
+# just for testing
+#if __name__ == "__main__":
+#	filepath = "" # path to image folder
+#	reader = readImageIdentifier(filepath)
+#	print("reader.getBoxType() %s" % (reader.getBoxType(),))#

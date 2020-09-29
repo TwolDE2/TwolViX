@@ -1,8 +1,8 @@
-from __future__ import print_function, absolute_import
+from __future__ import print_function
+from __future__ import absolute_import
 import six
 
 import os, re, unicodedata
-import sys
 
 from enigma import ePixmap, ePicLoad
 
@@ -94,7 +94,7 @@ class PiconLocator:
 				name = ServiceReference(serviceName).getServiceName()
 			except:
 				return ""
-			if sys.version_info[0] >= 3:
+			if six.PY3:
 				name = six.ensure_str(unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore'))
 			else:
 				name = unicodedata.normalize('NFKD', unicode(name, 'utf_8', errors='ignore')).encode('ASCII', 'ignore')
