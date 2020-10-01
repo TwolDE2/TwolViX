@@ -27,7 +27,7 @@ setupTitles = {}
 class Setup(ConfigListScreen, Screen, HelpableScreen):
 	ALLOW_SUSPEND = True
 
-	def __init__(self, session, setup, plugin=None, PluginLanguageDomain=None):
+	def __init__(self, session, setup, plugin = None, PluginLanguageDomain = None):
 		Screen.__init__(self, session, mandatoryWidgets=["config", "footnote", "description"])
 		HelpableScreen.__init__(self)
 		self.setup = setup
@@ -82,10 +82,19 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				skin = setup.get("skin", None)
 				if skin and skin != "":
 					self.skinName.insert(0, skin)
-				if config.usage.showScreenPath.value in ("large", "small") and "menuTitle" in setup:
-					title = setup.get("menuTitle", None).encode("UTF-8")
+				if six.PY3:
+					if config.usage.showScreenPath.value in ("large", "small") and "menuTitle" in setup:
+						title = setup.get("menuTitle", None)
+					else:
+						title = setup.get("title", None)
+					# print("[Setup] Py3 title = %s" % title)
 				else:
-					title = setup.get("title", None).encode("UTF-8")
+					if config.usage.showScreenPath.value in ("large", "small") and "menuTitle" in setup:
+						title = setup.get("menuTitle", None).encode("UTF-8")
+					else:
+						title = setup.get("title", None).encode("UTF-8")
+					# print("[Setup] Py2 title = %s" % title)
+				title = six.ensure_str(title)
 				# If this break is executed then there can only be one setup tag with this key.
 				# This may not be appropriate if conditional setup blocks become available.
 				break
