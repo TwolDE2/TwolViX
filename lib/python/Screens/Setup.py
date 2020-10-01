@@ -313,27 +313,27 @@ def setupDom(setup=None, plugin=None):
 				domSetups[setupFile] = setupFileDom
 				setupModTimes[setupFile] = modTime
 				for setup in setupFileDom.findall("setup"):
-					key = setup.get("key", "")
-					if key in setupTitles:
-						print("[Setup] Warning: Setup key '%s' has been redefined!" % key)
-					if six.PY3:
-						title = setup.get("menuTitle", "")
-						if title == "":
-							title = setup.get("title", "")
+					key = setup.get("key")
+					if key:  # If there is no key then this element is useless and can be skipped!
+						if key in setupTitles:
+							print("[Setup] Warning: Setup key '%s' has been redefined!" % key)
+						if six.PY3:
+							title = setup.get("menuTitle", "")
 							if title == "":
-								print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-								title = "** Setup error: '%s' title is missing or blank!" % key
-					else:
-						title = setup.get("menuTitle", "").encode("UTF-8", errors="ignore")
-						if title == "":
-							title = setup.get("title", "").encode("UTF-8", errors="ignore")
+								title = setup.get("title", "")
+								if title == "":
+									print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+									title = "** Setup error: '%s' title is missing or blank!" % key
+						else:
+							title = setup.get("menuTitle", "").encode("UTF-8", errors="ignore")
 							if title == "":
-								print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-								title = "** Setup error: '%s' title is missing or blank!" % key
-					title = six.ensure_str(title)
-					setupTitles[key] = _(title)
-					# print("[Setup] DEBUG: XML setup load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8"), setup.get("menuTitle", "").encode("UTF-8"), setupTitles[key]))
-					Setup.checkItems(setup, key, setupFile)
+								title = setup.get("title", "").encode("UTF-8", errors="ignore")
+								if title == "":
+									print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+									title = "** Setup error: '%s' title is missing or blank!" % key
+						title = six.ensure_str(title)
+						setupTitles[key] = _(title)
+						# print("[Setup] DEBUG: XML setup load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8", errors="ignore"), setup.get("menuTitle", "").encode("UTF-8", errors="ignore"), setupTitles[key]))
 			except xml.etree.cElementTree.ParseError as err:
 				fd.seek(0)
 				content = fd.readlines()
