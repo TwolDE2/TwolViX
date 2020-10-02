@@ -852,6 +852,7 @@ def InitUsageConfig():
 	config.seek.selfdefined_13 = ConfigSelectionNumber(min = 1, max = 120, stepwidth = 1, default = 15, wraparound = True)
 	config.seek.selfdefined_46 = ConfigSelectionNumber(min = 1, max = 240, stepwidth = 1, default = 60, wraparound = True)
 	config.seek.selfdefined_79 = ConfigSelectionNumber(min = 1, max = 480, stepwidth = 1, default = 300, wraparound = True)
+
 	config.seek.speeds_forward = ConfigSet(default=[2, 4, 8, 16, 32, 64, 128], choices=[2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128])
 	config.seek.speeds_backward = ConfigSet(default=[2, 4, 8, 16, 32, 64, 128], choices=[1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128])
 	config.seek.speeds_slowmotion = ConfigSet(default=[2, 4, 8], choices=[2, 4, 6, 8, 12, 16, 25])
@@ -958,11 +959,7 @@ def InitUsageConfig():
 			subtitle_delay_choicelist.append((str(i), _("%2.1f sec") % (i // 90000.)))
 	config.subtitles.subtitle_noPTSrecordingdelay = ConfigSelection(default = "315000", choices = subtitle_delay_choicelist)
 	config.subtitles.dvb_subtitles_yellow = ConfigYesNo(default = False)
-	config.subtitles.dvb_subtitles_original_position = ConfigSelection(default = "0", choices = [
-		("0", _("Original")),
-		("1", _("Fixed")),
-		("2", _("Relative"))
-	])
+	config.subtitles.dvb_subtitles_original_position = ConfigSelection(default = "0", choices = [("0", _("Original")), ("1", _("Fixed")), ("2", _("Relative"))])
 	config.subtitles.dvb_subtitles_centered = ConfigYesNo(default = False)
 	config.subtitles.subtitle_bad_timing_delay = ConfigSelection(default = "0", choices = subtitle_delay_choicelist)
 	config.subtitles.dvb_subtitles_backtrans = ConfigSelection(default = "0", choices = [
@@ -1085,7 +1082,7 @@ def InitUsageConfig():
 					("3", _("with left/right buttons"))])
 
 	if not os.path.exists('/usr/softcams/'):
-		os.mkdir('/usr/softcams/',0o755)
+		os.mkdir('/usr/softcams/', 0o755)
 	softcams = os.listdir('/usr/softcams/')
 	config.oscaminfo = ConfigSubsection()
 	config.oscaminfo.showInExtensions = ConfigYesNo(default=False)

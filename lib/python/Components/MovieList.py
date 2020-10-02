@@ -382,13 +382,13 @@ class MovieList(GUIComponent):
 					p = os.path.split(p[0])
 				txt = p[1]
 			if txt == ".Trash":
-				res.append(MultiContentEntryPixmapAlphaBlend(pos=((col0iconSize-self.iconTrash.size().width())//2, (self.itemHeight-self.iconFolder.size().height())//2), size=(iconSize,self.iconTrash.size().height()), png=self.iconTrash))
+				res.append(MultiContentEntryPixmapAlphaBlend(pos = ((col0iconSize-self.iconTrash.size().width()) // 2, (self.itemHeight-self.iconFolder.size().height()) //2), size = (iconSize, self.iconTrash.size().height()), png = self.iconTrash))
 				res.append(MultiContentEntryText(pos=(col0iconSize + space, 0), size=(width-145, self.itemHeight), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = _("Deleted items")))
 				res.append(MultiContentEntryText(pos=(width-145-r, 0), size=(145, self.itemHeight), font=1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=_("Trash can")))
 				return res
-			res.append(MultiContentEntryPixmapAlphaBlend(pos=((col0iconSize-self.iconFolder.size().width())//2,(self.itemHeight-self.iconFolder.size().height())/2), size=(iconSize,iconSize), png=self.iconFolder))
-			res.append(MultiContentEntryText(pos=(col0iconSize + space, 0), size=(width-145, self.itemHeight), font=0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = txt))
-			res.append(MultiContentEntryText(pos=(width-145-r, 0), size=(145, self.itemHeight), font=1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=_("Directory")))
+			res.append(MultiContentEntryPixmapAlphaBlend(pos = ((col0iconSize-self.iconFolder.size().width()) // 2, (self.itemHeight-self.iconFolder.size().height()) //2), size = (iconSize, iconSize), png = self.iconFolder))
+			res.append(MultiContentEntryText(pos = (col0iconSize + space, 0), size = (width-145, self.itemHeight), font = 0, flags = RT_HALIGN_LEFT|RT_VALIGN_CENTER, text = txt))
+			res.append(MultiContentEntryText(pos = (width-145-r, 0), size=(145, self.itemHeight), font = 1, flags=RT_HALIGN_RIGHT|RT_VALIGN_CENTER, text=_("Directory")))
 			return res
 		if data == -1 or data is None:
 			data = MovieListData()

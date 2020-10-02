@@ -53,7 +53,7 @@ def languageChanged():
 
 class PluginBrowserSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		ScreenSummary.__init__(self, session, parent=parent)
+		ScreenSummary.__init__(self, session, parent = parent)
 		self["entry"] = StaticText("")
 		self["desc"] = StaticText("")
 		self.onShow.append(self.addWatcher)

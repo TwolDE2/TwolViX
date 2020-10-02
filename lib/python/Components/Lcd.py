@@ -124,7 +124,7 @@ class LCD:
 	def isOled(self):
 		return eDBoxLCD.getInstance().isOled()
 
-	def setMode(self, value): 
+	def setMode(self, value):
 		f = open("/proc/stb/lcd/show_symbols", "w")
 		f.write(value)
 		f.close()

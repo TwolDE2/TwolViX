@@ -15,7 +15,7 @@ else:
 	import cPickle			# py2
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
-from boxbranding import getBrandOEM
+from boxbranding import getBrandOEM, getMachineBuild
 from keyids import KEYFLAGS, KEYIDS, invertKeyIds
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap

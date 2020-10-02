@@ -216,13 +216,13 @@ class Harddisk:
 
 	def bus(self):
 		if self.internal:
-			busName = ("Internal")
+			busName = _("Internal")
 			if self.rotational == 0:
 				busName = "%s%s" % (busName, " (SSD)")
 			else:
 				busName = "%s%s" % (busName, " (HDD)")
 		else:
-			busName = ("External")
+			busName = _("External")
 			busName = "%s (%s)" % (busName, self.busType)
 		return busName
 

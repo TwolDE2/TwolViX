@@ -272,7 +272,7 @@ class ChannelsImporter():
 				self.remoteEPGpath = line.strip().split("=")[1]
 			if "config.misc.epgcachefilename" in line:
 				self.remoteEPGfile = "%s" % line.strip().split("=")[1]
-		self.remoteEPGfile = "%s.dat" % self.remoteEPGfile.replace(".dat","")
+		self.remoteEPGfile = "%s.dat" % self.remoteEPGfile.replace(".dat", "")
 		print("[ChannelsImporter] Remote EPG filename. '%s%s'" % (self.remoteEPGpath, self.remoteEPGfile))
 		self.removeFiles(self.DIR_TMP, "settings")
 		result = self.FTPdownloadFile(self.remoteEPGpath, self.remoteEPGfile, "epg.dat")

@@ -8,15 +8,16 @@ from Components.Pixmap import Pixmap
 from Screens.Rc import Rc
 from Screens.Wizard import WizardSummary
 from Screens.WizardLanguage import WizardLanguage
-from Tools.Directories import SCOPE_CURRENT_SKIN, SCOPE_SKIN, resolveFilename
+from Tools.Directories import resolveFilename, SCOPE_SKIN, SCOPE_ACTIVE_SKIN
 from Tools.HardwareInfo import HardwareInfo
 
-config.misc.showtestcard = ConfigBoolean(default=False)
+config.misc.showtestcard = ConfigBoolean(default = False)
 
-hasDVI = getHaveDVI() in ('True',)
-hasJack = getHaveAVJACK() in ('True',)
-hasRCA = getHaveRCA() in ('True',)
-hasScart = getHaveSCART() in ('True',)
+hasRCA = getHaveRCA() in ("True",)
+hasDVI = getHaveDVI() in ("True",)
+hasJack = getHaveAVJACK() in ("True",)
+hasScart = getHaveSCART() in ("True",)
+
 
 class VideoWizardSummary(WizardSummary):
 	def __init__(self, session, parent):

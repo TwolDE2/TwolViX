@@ -16,30 +16,58 @@ config.av = ConfigSubsection()
 
 
 class AVSwitch:
-	hasDVI = getHaveDVI() == "True"
-	hasJack = getHaveAVJACK() == "True"
-	hasRCA = getHaveRCA() == "True"
-	hasScart = getHaveSCART() == "True"
+	hasDVI = getHaveDVI() in ('True',)
+	hasJack = getHaveAVJACK() in ('True',)
+	hasRCA = getHaveRCA() in ('True',)
+	hasScart = getHaveRCA() in ('True',)
 
-	print("SystemInfo", "BoxType", getBoxType())
-	print("SystemInfo", "MachineBuild", getMachineBuild())
-	print("SystemInfo", "BrandOEM", getBrandOEM())
-	print("SystemInfo", "DisplayType", getDisplayType())
-	print("SystemInfo", "HaveAVJACK", getHaveAVJACK())
-	print("SystemInfo", "getHaveDVI", getHaveDVI())
-	print("SystemInfo", "HaveHDMI", getHaveHDMI())
-	print("SystemInfo", "HaveRCA", getHaveRCA())
-	print("SystemInfo", "HaveSCART", getHaveSCART())
-	print("SystemInfo", "HaveSCARTYUV", getHaveSCARTYUV())
-	print("SystemInfo", "HaveYUV", getHaveYUV())
 	print("VideoWizard", "hasDVI", hasDVI)
 	print("VideoWizard", "hasRCA", hasRCA)
 	print("VideoWizard", "hasJack", hasJack)
 	print("VideoWizard", "hasScart", hasScart)
+
 	print("AVSwitch", "Scart-YPbPr", SystemInfo["Scart-YPbPr"])
 	print("AVSwitch", "no_YPbPr", SystemInfo["no_YPbPr"])
 	print("AVSwitch", "yellow_RCA_no_scart", SystemInfo["yellow_RCA_no_scart"])
 	print("AVSwitch", "no_yellow_RCA__no_scart", SystemInfo["no_yellow_RCA__no_scart"])
+
+	print("SystemInfo", "MachineBuild", getMachineBuild())
+	print("SystemInfo", "BoxType", getBoxType())
+	print("SystemInfo", "BrandOEM", getBrandOEM())
+	print("SystemInfo", "DisplayType", getDisplayType())
+	print("SystemInfo", "HaveRCA", getHaveRCA())
+	print("SystemInfo", "getHaveDVI", getHaveDVI())
+	print("SystemInfo", "HaveYUV", getHaveYUV())
+	print("SystemInfo", "HaveSCART", getHaveSCART())
+	print("SystemInfo", "HaveAVJACK", getHaveAVJACK())
+	print("SystemInfo", "HaveSCARTYUV", getHaveSCARTYUV())
+	print("SystemInfo", "HaveHDMI", getHaveHDMI())
+
+	print("AVSwitch", "CanProc", SystemInfo["CanProc"])
+	print("AVSwitch", "HasScaler_sharpness", SystemInfo["HasScaler_sharpness"])
+	print("AVSwitch", "Has24hz", SystemInfo["Has24hz"])
+	print("AVSwitch", "havecolorspace", SystemInfo["havecolorspace"])
+	print("AVSwitch", "havecolorspacechoices", SystemInfo["havecolorspacechoices"])
+	print("AVSwitch", "havecolorimetry", SystemInfo["havecolorimetry"])
+	print("AVSwitch", "havecolorimetrychoices", SystemInfo["havecolorimetrychoices"])
+	print("AVSwitch", "havehdmicolordepth", SystemInfo["havehdmicolordepth"])
+	print("AVSwitch", "havehdmicolordepthchoices", SystemInfo["havehdmicolordepthchoices"])
+	print("AVSwitch", "havehdmihdrtype", SystemInfo["havehdmihdrtype"])
+	print("AVSwitch", "HDRSupport", SystemInfo["HDRSupport"])
+#
+	print("AVSwitch", "Can3DSurround", SystemInfo["Can3DSurround"])
+	print("AVSwitch", "Can3DSpeaker", SystemInfo["Can3DSpeaker"])
+	print("AVSwitch", "CanAACTranscode", SystemInfo["CanAACTranscode"])
+	print("AVSwitch", "CanAC3Transcode", SystemInfo["CanAC3Transcode"])
+	print("AVSwitch", "Canaudiosource", SystemInfo["Canaudiosource"])
+	print("AVSwitch", "CanAutoVolume", SystemInfo["CanAutoVolume"])
+	print("AVSwitch", "CanDownmixAAC", SystemInfo["CanDownmixAAC"])
+	print("AVSwitch", "CanDownmixAACPlus", SystemInfo["CanDownmixAACPlus"])
+	print("AVSwitch", "CanDownmixAC3", SystemInfo["CanDownmixAC3"])
+	print("AVSwitch", "CanDownmixDTS", SystemInfo["CanDownmixDTS"])
+	print("AVSwitch", "CanDTSHD", SystemInfo["CanDTSHD"])
+	print("AVSwitch", "CanWMAPRO", SystemInfo["CanWMAPRO"])
+	print("AVSwitch", "supportPcmMultichannel", SystemInfo["supportPcmMultichannel"])
 
 	rates = {}  # high-level, use selectable modes.
 	modes = {}  # a list of (high-level) modes for a certain port.
@@ -132,7 +160,7 @@ class AVSwitch:
 	def isWidescreenMode(self, port, mode):
 		return mode in self.widescreen_modes
 
-	def setMode(self, port, mode, rate, force=None):
+	def setMode(self, port, mode, rate, force = None):
 		print("[VideoHardware] setMode - port: %s, mode: %s, rate: %s" % (port, mode, rate))
 		# config.av.videoport.setValue(port)
 		# we can ignore "port"
@@ -348,7 +376,7 @@ class AVSwitch:
 iAVSwitch = AVSwitch()
 
 def InitAVSwitch():
-	config.av.yuvenabled = ConfigBoolean(default=True)
+	config.av.yuvenabled = ConfigBoolean(default = True)
 	colorformat_choices = {
 		"cvbs": _("CVBS"),
 		"rgb": _("RGB"),
@@ -411,13 +439,13 @@ def InitAVSwitch():
 		"16_10_letterbox": _("16:10 Letterbox"),
 		"16_10_panscan": _("16:10 PanScan"),
 		"16_9_letterbox": _("16:9 Letterbox")
-	}, default="16_9")
+	}, default = "16_9")
 	config.av.aspect = ConfigSelection(choices={
 		"4:3": _("4:3"),
 		"16:9": _("16:9"),
 		"16:10": _("16:10"),
 		"auto": _("Automatic")
-	}, default="16:9")
+	}, default = "16:9")
 	policy2_choices = {
 		# TRANSLATORS: (aspect ratio policy: black bars on top/bottom) in doubt, keep english term.
 		"letterbox": _("Letterbox"),
@@ -432,7 +460,7 @@ def InitAVSwitch():
 			# TRANSLATORS: (aspect ratio policy: always try to display as fullscreen, when there is no content (black bars) on left/right, even if this breaks the aspect.
 			policy2_choices.update({"auto": _("Auto")})
 		f.close()
-	config.av.policy_169 = ConfigSelection(choices=policy2_choices, default="letterbox")
+	config.av.policy_169 = ConfigSelection(choices=policy2_choices, default = "letterbox")
 	policy_choices = {
 		# TRANSLATORS: (aspect ratio policy: black bars on left/right) in doubt, keep english term.
 		"panscan": _("Pillarbox"),
@@ -449,16 +477,16 @@ def InitAVSwitch():
 			# TRANSLATORS: (aspect ratio policy: always try to display as fullscreen, when there is no content (black bars) on left/right, even if this breaks the aspect.
 			policy_choices.update({"auto": _("Auto")})
 		f.close()
-	config.av.policy_43 = ConfigSelection(choices=policy_choices, default="panscan")
-	config.av.tvsystem = ConfigSelection(choices={
+	config.av.policy_43 = ConfigSelection(choices=policy_choices, default = "panscan")
+	config.av.tvsystem = ConfigSelection(choices = {
 		"pal": _("PAL"),
 		"ntsc": _("NTSC"),
 		"multinorm": _("multinorm")
 	}, default="pal")
-	config.av.wss = ConfigEnableDisable(default=True)
-	config.av.generalAC3delay = ConfigSelectionNumber(-1000, 1000, 5, default=0)
-	config.av.generalPCMdelay = ConfigSelectionNumber(-1000, 1000, 5, default=0)
-	config.av.vcrswitch = ConfigEnableDisable(default=False)
+	config.av.wss = ConfigEnableDisable(default = True)
+	config.av.generalAC3delay = ConfigSelectionNumber(-1000, 1000, 5, default = 0)
+	config.av.generalPCMdelay = ConfigSelectionNumber(-1000, 1000, 5, default = 0)
+	config.av.vcrswitch = ConfigEnableDisable(default = False)
 	config.av.aspect.setValue("16:9")
 	config.av.aspect.addNotifier(iAVSwitch.setAspect)
 	config.av.wss.addNotifier(iAVSwitch.setWss)
@@ -837,6 +865,7 @@ def InitAVSwitch():
 			(choices, default) = read_choices(f, default)
 		config.av.downmix_dts = ConfigSelection(choices = choices, default = default)
 		config.av.downmix_dts.addNotifier(setDTSDownmix)
+
 	if SystemInfo["CanDTSHD"]:
 		choices = [
 			("downmix", _("Downmix")),
@@ -920,7 +949,7 @@ def InitAVSwitch():
 		config.av.boxmode = ConfigSelection(choices={
 			"12": _("PIP enabled, no HDR"),
 			"1": _("HDR, 12bit 4:2:0/4:2:2, no PIP")
-		}, default="12")
+		}, default = "12")
 		config.av.boxmode.addNotifier(setBoxmode)
 	else:
 		config.av.boxmode = ConfigNothing()

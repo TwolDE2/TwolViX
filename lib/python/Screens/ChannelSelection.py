@@ -3063,16 +3063,16 @@ class HistoryZapSelector(Screen, HelpableScreen):
 		else:
 			refstr = str(ref)
 		refstr = refstr and GetWithAlternative(refstr)
-		print('refstr:',refstr)
+		print("[ChannelSelection][getOrbitalPos]refstr:",refstr)
 		if '%3a//' in refstr:
 			return "%s" % _("Stream")
-		op = int(refstr.split(':', 10)[6][:-4] or "0",16)
-		if op == 0xeeee:
+		orbpos = int(refstr.split(':', 10)[6][:-4] or "0",16)
+		if orbpos == 0xeeee:
 			return "%s" % _("DVB-T")
-		if op == 0xffff:
+		if orbpos == 0xffff:
 			return "%s" % _("DVB-C")
 		direction = 'E'
-		if op > 1800:
-			op = 3600 - op
+		if orbpos > 1800:
+			orbpos = 3600 - orbpos
 			direction = 'W'
-		return ("%d.%d\xc2\xb0%s") % (op // 10, op % 10, direction)
+		return ("%d.%d%s %s") % (orbpos // 10, orbpos % 10, SIGN, direction)

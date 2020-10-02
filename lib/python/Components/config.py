@@ -521,7 +521,7 @@ class ConfigSelection(ConfigElement):
 # Several customized versions exist for different descriptions.
 #
 class ConfigBoolean(ConfigElement):
-	def __init__(self, default = False, descriptions={False: _("false"), True: _("true")}, graphic=True):
+	def __init__(self, default=False, descriptions={False: _("false"), True: _("true")}, graphic=True):
 		ConfigElement.__init__(self)
 		self.value = self.last_value = self.default = default
 		self.descriptions = descriptions
@@ -560,6 +560,7 @@ class ConfigBoolean(ConfigElement):
 		if self.last_value != self.value:
 			self.changedFinal()
 			self.last_value = self.value
+
 	# For HTML Interface - Is this still used?
 
 	def getHTML(self, id):  # DEBUG: Is this still used?
@@ -571,17 +572,17 @@ class ConfigBoolean(ConfigElement):
 
 class ConfigEnableDisable(ConfigBoolean):
 	def __init__(self, default=False, graphic=True):
-		ConfigBoolean.__init__(self, default = default, descriptions={False: _("disable"), True: _("enable")}, graphic=graphic)
+		ConfigBoolean.__init__(self, default=default, descriptions={False: _("disable"), True: _("enable")}, graphic=graphic)
 
 
 class ConfigOnOff(ConfigBoolean):
 	def __init__(self, default=False, graphic=True):
-		ConfigBoolean.__init__(self, default = default, descriptions={False: _("off"), True: _("on")}, graphic=graphic)
+		ConfigBoolean.__init__(self, default=default, descriptions={False: _("off"), True: _("on")}, graphic=graphic)
 
 
 class ConfigYesNo(ConfigBoolean):
 	def __init__(self, default=False, graphic=True):
-		ConfigBoolean.__init__(self, default = default, descriptions={False: _("no"), True: _("yes")}, graphic=graphic)
+		ConfigBoolean.__init__(self, default=default, descriptions={False: _("no"), True: _("yes")}, graphic=graphic)
 
 
 class ConfigDateTime(ConfigElement):
@@ -1664,7 +1665,7 @@ class ConfigSet(ConfigElement):
 					start = pos
 					end = start + length
 				pos += length
-			return "mtext", "".join(text), range(start, end)
+			return "mtext", "".join(text), list(range(start, end))
 		else:
 			return "text", " ".join([self.description[x] for x in self.value])
 

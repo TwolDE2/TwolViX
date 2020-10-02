@@ -44,7 +44,7 @@ def getIsBroadcom():
 			for x in lines:
 				splitted = x.split(": ")
 				if len(splitted) > 1:
-					splitted[1] = splitted[1].replace("\n","")
+					splitted[1] = splitted[1].replace("\n", "")
 					if splitted[0].startswith("Hardware"):
 						system = splitted[1].split(" ")[0]
 					elif splitted[0].startswith("system type"):
