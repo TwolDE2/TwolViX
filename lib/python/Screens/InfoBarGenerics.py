@@ -2023,17 +2023,12 @@ class InfoBarSeek:
 				HelpableActionMap.__init__(self, screen, *args, **kwargs)
 				self.screen = screen
 				# Actions determined in self.action()
-				self.screen.helpList.append((self, args[0], self.generateSkipHelp(actionmap)))
+#				self.screen.helpList.append((self, args[0], self.generateSkipHelp(actionmap)))
 
 			def action(self, contexts, action):
-				# print("action:%s" % action)
-				if action[:5] == "seek:":
-					time = int(action[5:])
-#=======
-#				# print "action:", action
-#				time = self.seekTime(action)
-#				if time is not None:
-#>>>>>>> e6d3cdfea0... [InfoBar,MovieSelection,ChannelSelection] Improve help text
+				# print "action:", action
+				time = self.seekTime(action)
+				if time is not None:
 					self.screen.doSeekRelative(time * 90000)
 					return 1
 				else:
@@ -2070,9 +2065,9 @@ class InfoBarSeek:
 #			@staticmethod
 #			def generateSkipHelp(context):
 #				skipHelp = []
-#				for action in [act for ctx, act in getKeyBindingKeys(filterfn=lambda(key): key[0] == context and (key[1].startswith("seek:") or key[1].startswith("seekdef:")))]:
+#				for action in [act for ctx, act in (getKeyBindingKeys(filterfn=lambda(key): key[0] == context and (key[1].startswith("seek:") or key[1].startswith("seekdef:")))]:
 #					if action.startswith("seekdef:"):
-#						skipTime = boundFunction(InfoBarSeekActionMap.seekTime, action)
+#				skipTime = boundFunction(InfoBarSeekActionMap.seekTime, action)
 #					else:
 #						skipTime = InfoBarSeekActionMap.seekTime(action)
 #					if skipTime is not None:
