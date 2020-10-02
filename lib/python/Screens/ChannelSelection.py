@@ -2788,13 +2788,8 @@ class ChannelSelectionRadio(ChannelSelectionEdit, ChannelSelectionBase, ChannelS
 		self["RdsDecoder"] = self.info["RdsDecoder"]
 		self["RdsActions"] = HelpableActionMap(self, "InfobarRdsActions",
 		{
-<<<<<<< HEAD
-			"startRassInteractive": (self.startRassInteractive, _("View Rass interactive..."))
-		}, -1)
-=======
 			"startRassInteractive": (self.startRassInteractive, _("Open RDS/RASS screen...")),
 		}, prio=-1, description=_("RDS/RASS display"))
->>>>>>> e6d3cdfea0... [InfoBar,MovieSelection,ChannelSelection] Improve help text
 		self["RdsActions"].setEnabled(False)
 		infobar.rds_display.onRassInteractivePossibilityChanged.append(self.RassInteractivePossibilityChanged)
 		self.onClose.append(self.__onClose)

@@ -2026,15 +2026,14 @@ class InfoBarSeek:
 				self.screen.helpList.append((self, args[0], self.generateSkipHelp(actionmap)))
 
 			def action(self, contexts, action):
-<<<<<<< HEAD
 				# print("action:%s" % action)
 				if action[:5] == "seek:":
 					time = int(action[5:])
-=======
-				# print "action:", action
-				time = self.seekTime(action)
-				if time is not None:
->>>>>>> e6d3cdfea0... [InfoBar,MovieSelection,ChannelSelection] Improve help text
+#=======
+#				# print "action:", action
+#				time = self.seekTime(action)
+#				if time is not None:
+#>>>>>>> e6d3cdfea0... [InfoBar,MovieSelection,ChannelSelection] Improve help text
 					self.screen.doSeekRelative(time * 90000)
 					return 1
 				else:
