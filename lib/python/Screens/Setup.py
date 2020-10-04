@@ -83,8 +83,8 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 					title = setup.get("title", None)
 					# print("[Setup] Py3 title = %s" % title)
 				else:
-				title = setup.get("title", None).encode("UTF-8", errors="ignore")
-					# print("[Setup] Py2 title = %s" % title)
+					title = setup.get("title", None).encode("UTF-8", errors="ignore")
+						# print("[Setup] Py2 title = %s" % title)
 				title = six.ensure_str(title)
 				# If this break is executed then there can only be one setup tag with this key.
 				# This may not be appropriate if conditional setup blocks become available.
@@ -321,16 +321,16 @@ def setupDom(setup=None, plugin=None):
 				for setup in setupFileDom.findall("setup"):
 					key = setup.get("key")
 					if key:  # If there is no key then this element is useless and can be skipped!
-					if six.PY3:
-						title = setup.get("title", "")
-						if title == "":
-							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-							title = "** Setup error: '%s' title is missing or blank!" % key
-					else:
-						title = setup.get("title", "").encode("UTF-8", errors="ignore")
-						if title == "":
-							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-							title = "** Setup error: '%s' title is missing or blank!" % key
+						if six.PY3:
+							title = setup.get("title", "")
+							if title == "":
+								print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+								title = "** Setup error: '%s' title is missing or blank!" % key
+						else:
+							title = setup.get("title", "").encode("UTF-8", errors="ignore")
+							if title == "":
+								print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+								title = "** Setup error: '%s' title is missing or blank!" % key
 					title = six.ensure_str(title)
 					# print("[Setup] DEBUG: XML setup load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8", errors="ignore"), setup.get("menuTitle", "").encode("UTF-8", errors="ignore"), setupTitles[key]))
 			except xml.etree.cElementTree.ParseError as err:
