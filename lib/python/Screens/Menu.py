@@ -17,7 +17,7 @@ from Components.SystemInfo import SystemInfo
 from Screens.HelpMenu import HelpableScreen
 from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.Screen import Screen, ScreenSummary
-from Screens.Setup import Setup, getSetupTitle
+from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_SKIN
 
@@ -148,12 +148,14 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		if conditional and not eval(conditional):
 			return
 		if six.PY3:
-			item_text = node.get("text", "")
+			item_text = node.get("text", "* Undefined *")
 			# print("[Menu item_text PY3] =%s" % (item_text))
 		else:
-			item_text = node.get("text", "").encode("UTF-8")
+			item_text = node.get("text", "* Undefined *").encode("UTF-8")
 			# print("[Menu item_text PY2] =%s" % (item_text))
 		item_text = six.ensure_str(item_text)
+		if item_text:
+			item_text = _(item_text)
 		entryID = node.get("entryID", "undefined")
 		weight = node.get("weight", 50)
 		for x in node:
@@ -175,7 +177,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 				args = x.text or ""
 				screen += ", " + args
 
-				destList.append((_(item_text or "??"), boundFunction(self.runScreen, (module, screen)), entryID, weight))
+				destList.append((item_text, boundFunction(self.runScreen, (module, screen)), entryID, weight))
 				return
 			elif x.tag == 'plugin':
 				extensions = x.get("extensions")
@@ -202,19 +204,13 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 				args = x.text or ""
 				screen += ", " + args
 
-				destList.append((_(item_text or "??"), boundFunction(self.runScreen, (module, screen)), entryID, weight))
+				destList.append((item_text, boundFunction(self.runScreen, (module, screen)), entryID, weight))
 				return
 			elif x.tag == 'code':
-				destList.append((_(item_text or "??"), boundFunction(self.execText, x.text), entryID, weight))
+				destList.append((item_text, boundFunction(self.execText, x.text), entryID, weight))
 				return
 			elif x.tag == 'setup':
 				id = x.get("id")
-				print("[Menu.py1] id=%s, item_text=%s" % (id, item_text))
-				if item_text == "":
-					item_text = _(getSetupTitle(id))
-				else:
-					item_text = _(item_text)
-				print("[Menu.py2] id=%s, item_text=%s" % (id, item_text))
 				destList.append((item_text, boundFunction(self.openSetup, id), entryID, weight))
 				return
 		destList.append((item_text, self.nothing, entryID, weight))

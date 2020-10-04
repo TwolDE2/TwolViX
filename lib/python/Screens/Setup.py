@@ -21,7 +21,6 @@ from Tools.LoadPixmap import LoadPixmap
 
 domSetups = {}
 setupModTimes = {}
-setupTitles = {}
 
 
 class Setup(ConfigListScreen, Screen, HelpableScreen):
@@ -81,16 +80,10 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				if skin and skin != "":
 					self.skinName.insert(0, skin)
 				if six.PY3:
-					if config.usage.showScreenPath.value in ("large", "small") and "menuTitle" in setup:
-						title = setup.get("menuTitle", None)
-					else:
-						title = setup.get("title", None)
+					title = setup.get("title", None)
 					# print("[Setup] Py3 title = %s" % title)
 				else:
-					if config.usage.showScreenPath.value in ("large", "small") and "menuTitle" in setup:
-						title = setup.get("menuTitle", None).encode("UTF-8")
-					else:
-						title = setup.get("title", None).encode("UTF-8")
+				title = setup.get("title", None).encode("UTF-8", errors="ignore")
 					# print("[Setup] Py2 title = %s" % title)
 				title = six.ensure_str(title)
 				# If this break is executed then there can only be one setup tag with this key.
@@ -299,7 +292,7 @@ def setupDom(setup=None, plugin=None):
 
 	setupFileDom = xml.etree.cElementTree.fromstring("<setupxml></setupxml>")
 	setupFile = resolveFilename(SCOPE_PLUGINS, pathJoin(plugin, "setup.xml")) if plugin else resolveFilename(SCOPE_SKIN, "setup.xml")
-	global setupTitles
+	global domSetups, setupModTimes
 	try:
 		modTime = getmtime(setupFile)
 	except (IOError, OSError) as err:
@@ -308,7 +301,6 @@ def setupDom(setup=None, plugin=None):
 			del domSetups[setupFile]
 		if setupFile in setupModTimes:
 			del setupModTimes[setupFile]
-		setupTitles = {}
 		return setupFileDom
 	cached = setupFile in domSetups and setupFile in setupModTimes and setupModTimes[setupFile] == modTime
 	print("[Setup] XML%s setup file '%s', using element '%s'%s." % (" cached" if cached else "", setupFile, setup, " from plugin '%s'" % plugin if plugin else ""))
@@ -319,7 +311,6 @@ def setupDom(setup=None, plugin=None):
 			del domSetups[setupFile]
 		if setupFile in setupModTimes:
 			del setupModTimes[setupFile]
-		setupTitles = {}
 		with open(setupFile, "r") as fd:  # This open gets around a possible file handle leak in Python's XML parser.
 			try:
 				fileDom = xml.etree.cElementTree.parse(fd).getroot()
@@ -330,25 +321,18 @@ def setupDom(setup=None, plugin=None):
 				for setup in setupFileDom.findall("setup"):
 					key = setup.get("key")
 					if key:  # If there is no key then this element is useless and can be skipped!
-						if key in setupTitles:
-							print("[Setup] Warning: Setup key '%s' has been redefined!" % key)
-						if six.PY3:
-							title = setup.get("menuTitle", "")
-							if title == "":
-								title = setup.get("title", "")
-								if title == "":
-									print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-									title = "** Setup error: '%s' title is missing or blank!" % key
-						else:
-							title = setup.get("menuTitle", "").encode("UTF-8", errors="ignore")
-							if title == "":
-								title = setup.get("title", "").encode("UTF-8", errors="ignore")
-								if title == "":
-									print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-									title = "** Setup error: '%s' title is missing or blank!" % key
-						title = six.ensure_str(title)
-						setupTitles[key] = _(title)
-						# print("[Setup] DEBUG: XML setup load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8", errors="ignore"), setup.get("menuTitle", "").encode("UTF-8", errors="ignore"), setupTitles[key]))
+					if six.PY3:
+						title = setup.get("title", "")
+						if title == "":
+							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+							title = "** Setup error: '%s' title is missing or blank!" % key
+					else:
+						title = setup.get("title", "").encode("UTF-8", errors="ignore")
+						if title == "":
+							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+							title = "** Setup error: '%s' title is missing or blank!" % key
+					title = six.ensure_str(title)
+					# print("[Setup] DEBUG: XML setup load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8", errors="ignore"), setup.get("menuTitle", "").encode("UTF-8", errors="ignore"), setupTitles[key]))
 			except xml.etree.cElementTree.ParseError as err:
 				fd.seek(0)
 				content = fd.readlines()
@@ -369,6 +353,7 @@ def setupDom(setup=None, plugin=None):
 	return setupFileDom
 
 # Temporary legacy interface.
+# Not used any OpenViX enigma2 module. Known to be used by the Heinz plugin.
 #
 def setupdom(plugin = None):
 	if plugin:
@@ -386,15 +371,3 @@ def getConfigMenuItem(configElement):
 		if item.text == configElement:
 			return _(item.attrib["text"]), eval(configElement)
 	return "", None
-
-# Only used in Menu screen...
-#
-def getSetupTitle(key):
-	setupDom()  # Load or check for an updated setup.xml file.
-	if not isinstance(key, str):
-		key = six.ensure_str(key)
-	title = six.ensure_str(setupTitles.get(key, None))
-	if title is None:
-		print("[Setup] Error: Setup key '%s' not found in setup file!" % key)
-		title = _("** Setup error: '%s' section not found! **") % key
-	return title

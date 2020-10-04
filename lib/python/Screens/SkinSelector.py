@@ -8,7 +8,6 @@ from os.path import dirname, exists, isdir, join as pathjoin
 import mmap
 import re
 
-
 from enigma import ePicLoad, getDesktop
 
 from Components.ActionMap import HelpableActionMap
@@ -25,8 +24,9 @@ from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN, SCOPE_LCDSKIN
 
 
 class SkinSelector(Screen, HelpableScreen):
-	skin = ["""
-	<screen name="SkinSelector" position= "center, center" size = "%d, %d">
+	skin = [
+		"""
+	<screen name = "SkinSelector" position = "center,center" size = "%d,%d">
 		<widget name="preview" position="center,%d" size="%d,%d" alphatest="blend" />
 		<widget source = "skins" render = "Listbox" position = "center, %d" size = "%d, %d" enableWrapAround = "1" scrollbarMode = "showOnDemand">
 			<convert type="TemplatedMultiContent">
@@ -278,7 +278,5 @@ class SkinSelectorSummary(ScreenSummary):
 	def selectionChanged(self):
 		currentEntry = self.parent["skins"].getCurrent()  # Label
 		self["entry"].setText(currentEntry[1])
-		self["value"].setText("%s   %s" % (
-			currentEntry[5], currentEntry[2] if currentEntry[5] and currentEntry[2] else currentEntry[5] or currentEntry[2]
-		))  # Resolution and/or Flag.
+		self["value"].setText("%s   %s" % (currentEntry[5], currentEntry[2]) if currentEntry[5] and currentEntry[2] else currentEntry[5] or currentEntry[2])  # Resolution and/or Flag.
 		self["Name"].setText(self["entry"].getText())

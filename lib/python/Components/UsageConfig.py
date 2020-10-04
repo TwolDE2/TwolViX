@@ -58,6 +58,7 @@ def InitUsageConfig():
 	config.usage.crypto_icon_mode.addNotifier(refreshServiceList)
 	config.usage.record_indicator_mode = ConfigSelection(default = "3", choices = [("0", _("None")), ("1", _("Left from servicename")), ("2", _("Right from servicename")), ("3", _("Red colored"))])
 	config.usage.record_indicator_mode.addNotifier(refreshServiceList)
+
 	choicelist = [("-1", _("Disable"))]
 	for i in list(range(0, 1300, 25)):
 		choicelist.append((str(i), ngettext("%d pixel wide", "%d pixels wide", i) % i))
@@ -274,7 +275,6 @@ def InitUsageConfig():
 			atsc_nims.append((str(x.slot), x.getSlotName()))
 		nims.append((str(x.slot), x.getSlotName()))
 		rec_nims.append((str(x.slot), x.getSlotName()))
-
 	config.usage.frontend_priority = ConfigSelection(default = "-1", choices = nims)
 	config.usage.recording_frontend_priority = ConfigSelection(default = "-2", choices = rec_nims)
 	config.misc.disable_background_scan = ConfigYesNo(default = False)
@@ -396,17 +396,14 @@ def InitUsageConfig():
 	config.usage.elapsed_time_positive_vfd = ConfigYesNo(default = False)
 	def SpinnerOnOffChanged(configElement):
 		setSpinnerOnOff(int(configElement.value))
-
 	config.usage.show_spinner.addNotifier(SpinnerOnOffChanged)
 
 	def EnableTtCachingChanged(configElement):
 		setEnableTtCachingOnOff(int(configElement.value))
-
 	config.usage.enable_tt_caching.addNotifier(EnableTtCachingChanged)
 
 	def TunerTypePriorityOrderChanged(configElement):
 		setTunerTypePriorityOrder(int(configElement.value))
-
 	config.usage.alternatives_priority.addNotifier(TunerTypePriorityOrderChanged, immediate_feedback=False)
 
 	def PreferredTunerChanged(configElement):
@@ -830,6 +827,7 @@ def InitUsageConfig():
 	config.usage.keytrans = ConfigText(default = eEnv.resolve("${datadir}/enigma2/keytranslation.xml"))
 
 	config.network = ConfigSubsection()
+
 	config.network.AFP_autostart = ConfigYesNo(default = True)
 	config.network.NFS_autostart = ConfigYesNo(default = True)
 	config.network.OpenVPN_autostart = ConfigYesNo(default = True)

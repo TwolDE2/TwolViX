@@ -37,9 +37,6 @@ print("[Enigma2] Initialising ClientMode.")
 import Components.ClientMode
 Components.ClientMode.InitClientMode()
 
-profile("SimpleSummary")
-print("[Enigma2] Initialising SimpleSummary.")
-
 profile("InfoBar")
 print("[Enigma2] Initialising InfoBar.")
 from Screens import InfoBar

@@ -14,6 +14,7 @@ from Components.Pixmap import Pixmap
 from Screens.Screen import Screen
 from Screens.Setup import Setup
 
+
 class TimerEntryBase(Setup):
 	def __init__(self, session, timer, setup):
 		# Need to create some variables before Setup reads setup.xml

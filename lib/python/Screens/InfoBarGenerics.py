@@ -456,7 +456,7 @@ class SecondInfoBar(Screen, HelpableScreen):
 			self.session.openWithCallback(self.finishedAdd, TimerEntry, newEntry)
 
 	def finishedAdd(self, answer):
-		# print("finished add")
+		# print("[InfoBarGenerics] finished add")
 		if answer[0]:
 			entry = answer[1]
 			simulTimerList = self.session.nav.RecordTimer.record(entry)
@@ -485,7 +485,7 @@ class SecondInfoBar(Screen, HelpableScreen):
 		else:
 			self["key_green"].setText(_("Add timer"))
 			self.key_green_choice = self.ADD_TIMER
-			# print("Timeredit aborted")
+			# print("[InfoBarGenerics] Timeredit aborted")
 
 	def finishSanityCorrection(self, answer):
 		self.finishedAdd(answer)
@@ -1444,7 +1444,7 @@ class InfoBarMenu:
 		self.session.infobar = None
 
 	def mainMenu(self):
-		# print("loading mainmenu XML...")
+		# print("[InfoBarGenerics] loading mainmenu XML...")
 		menu = mdom.getroot()
 		assert menu.tag == "menu", "root element in menu must be 'menu'!"
 
@@ -1790,7 +1790,7 @@ class InfoBarEPG:
 			if action:
 				action()
 			else:
-				print("[UserDefinedButtons] Missing action method %s" % actionName)
+				print("[InfoBarGenerics][UserDefinedButtons] Missing action method %s" % actionName)
 		if len(args) == 6 and args[0] == "open":
 			# open another EPG screen
 			self.session.openWithCallback(self.epgClosed, args[1], self.zapToService, 
@@ -1803,6 +1803,7 @@ class InfoBarEPG:
 			elif args[0] == 'closemovieplayer' and isMoviePlayerInfoBar(self):
 				self.lastservice = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 				self.close()
+
 	def openSimilarList(self, eventId, refstr):
 		self.session.open(EPGSelectionSimilar, refstr, eventId=eventId)
 
@@ -2190,11 +2191,11 @@ class InfoBarSeek:
 		if isStandardInfoBar(self) and self.timeshiftEnabled():
 			pass
 		elif not self.isSeekable():
-#			print("not seekable, return to play")
+#			print("[InfoBarGenerics] not seekable, return to play")
 			self["SeekActions"].setEnabled(False)
 			self.setSeekState(self.SEEK_STATE_PLAY)
 		else:
-#			print("seekable")
+#			print("[InfoBarGenerics] seekable")
 			self["SeekActions"].setEnabled(True)
 			self.activityTimer.start(200, False)
 			for c in self.onPlayStateChanged:
@@ -2461,7 +2462,7 @@ class InfoBarSeek:
 			self.session.openWithCallback(self.rwdSeekTo, MinuteInput)
 
 	def rwdSeekTo(self, minutes):
-#		print("rwdSeekTo")
+#		print("[InfoBarGenerics] rwdSeekTo")
 			self.doSeekRelative(-minutes * 60 * 90000)
 
 	def checkSkipShowHideLock(self):
@@ -3000,7 +3001,7 @@ class InfoBarPiP:
 				self.lastPiPServiceTimeout.startLongTimer(60)
 				del self.session.pip
 				if SystemInfo["LCDMiniTVPiP"] and int(config.lcd.minitvpipmode.value) >= 1:
-						print("[LCDMiniTV] disable PIP")
+						print("[InfoBarGenerics] [LCDMiniTV] disable PIP")
 						f = open("/proc/stb/lcd/mode", "w")
 						f.write(config.lcd.minitvmode.value)
 						f.close()
@@ -3011,8 +3012,6 @@ class InfoBarPiP:
 			service = self.session.nav.getCurrentService()
 			info = service and service.info()
 			if info:
-				xres = str(info.getInfo(iServiceInformation.sVideoWidth))
-			if info and int(xres) <= 720:
 				self.session.pip = self.session.instantiateDialog(PictureInPicture)
 				self.session.pip.setAnimationMode(0)
 				self.session.pip.show()
@@ -3021,7 +3020,7 @@ class InfoBarPiP:
 					self.session.pipshown = True
 					self.session.pip.servicePath = self.servicelist.getCurrentServicePath()
 					if SystemInfo["LCDMiniTVPiP"] and int(config.lcd.minitvpipmode.value) >= 1:
-						print("[LCDMiniTV] enable PIP")
+						print("[InfoBarGenerics][LCDMiniTV] enable PIP")
 						f = open("/proc/stb/lcd/mode", "w")
 						f.write(config.lcd.minitvpipmode.value)
 						f.close()
@@ -3040,7 +3039,7 @@ class InfoBarPiP:
 						self.session.pipshown = True
 						self.session.pip.servicePath = self.servicelist.getCurrentServicePath()
 						if SystemInfo["LCDMiniTVPiP"] and int(config.lcd.minitvpipmode.value) >= 1:
-							print("[LCDMiniTV] enable PIP")
+							print("[InfoBarGenerics][LCDMiniTV] enable PIP")
 							f = open("/proc/stb/lcd/mode", "w")
 							f.write(config.lcd.minitvpipmode.value)
 							f.close()
@@ -3057,8 +3056,6 @@ class InfoBarPiP:
 						self.lastPiPService = None
 						self.session.pipshown = False
 						del self.session.pip
-			elif info:
-				self.session.open(MessageBox, _("Your %s %s does not support PiP HD") % (getMachineBrand(), getMachineName()), type = MessageBox.TYPE_INFO,timeout = 5 )
 			else:
 				self.session.open(MessageBox, _("No active channel found."), type = MessageBox.TYPE_INFO,timeout = 5 )
 		if self.session.pipshown and hasattr(self, "screenSaverTimer"):
@@ -3238,7 +3235,7 @@ class InfoBarInstantRecord:
 			if len(simulTimerList) > 1: # with other recording
 				name = simulTimerList[1].name
 				name_date = ' '.join((name, strftime('%F %T', localtime(simulTimerList[1].begin))))
-				# print("[TIMER] conflicts with %s" % name_date)
+				# print("[InfoBarGenerics][TIMER] conflicts with %s" % name_date)
 				recording.autoincrease = True	# start with max available length, then increment
 				if recording.setAutoincreaseEnd():
 					self.session.nav.RecordTimer.record(recording)
@@ -3251,7 +3248,7 @@ class InfoBarInstantRecord:
 			recording.autoincrease = False
 
 	def isInstantRecordRunning(self):
-#		print("self.recording:%s" % self.recording)
+#		print("[InfoBarGenerics]self.recording:%s" % self.recording)
 		if self.recording:
 			for x in self.recording:
 				if x.isRunning():
@@ -3259,12 +3256,12 @@ class InfoBarInstantRecord:
 		return False
 
 	def recordQuestionCallback(self, answer):
-		# print("recordQuestionCallback")
+		# print("[InfoBarGenerics]recordQuestionCallback")
 #		print("pre:\n %s" % self.recording)
 
-		# print("test1")
+		# print("[InfoBarGenerics]test1")
 		if answer is None or answer[1] == "no":
-			# print("test2")
+			# print([InfoBarGenerics]"test2")
 			return
 		list = []
 		recording = self.recording[:]
@@ -3316,23 +3313,23 @@ class InfoBarInstantRecord:
 			elif answer[1] == "manualendtime":
 				self.setEndtime(len(self.recording)-1)
 		elif answer[1] == "savetimeshift":
-			# print("test1")
+			# print("[InfoBarGenerics]test1")
 			if self.isSeekable() and self.pts_eventcount != self.pts_currplaying:
-				# print("test2")
+				# print("[InfoBarGenerics]test2")
 				# noinspection PyCallByClass
 				InfoBarTimeshift.SaveTimeshift(self, timeshiftfile="pts_livebuffer_%s" % self.pts_currplaying)
 			else:
-				# print("test3"9
+				# print("[InfoBarGenerics]test3"9
 				Notifications.AddNotification(MessageBox,_("Timeshift will get saved at the end of an event!"), MessageBox.TYPE_INFO, timeout=5)
 				self.save_current_timeshift = True
 				config.timeshift.isRecording.value = True
 		elif answer[1] == "savetimeshiftEvent":
-			# print("test4")
+			# print("[InfoBarGenerics]test4")
 			# noinspection PyCallByClass
 			InfoBarTimeshift.saveTimeshiftEventPopup(self)
 
 		elif answer[1].startswith("pts_livebuffer") is True:
-			# print("test2")
+			# print("[InfoBarGenerics]test2")
 			# noinspection PyCallByClass
 			InfoBarTimeshift.SaveTimeshift(self, timeshiftfile=answer[1])
 
@@ -3761,7 +3758,7 @@ class InfoBarServiceNotifications:
 			})
 
 	def serviceHasEnded(self):
-#		print("service end!")
+#		print("[InfoBarGenerics]service end!")
 		try:
 			self.setSeekState(self.SEEK_STATE_PLAY)
 		except:
@@ -3995,7 +3992,7 @@ class InfoBarCueSheetSupport:
 	def toggleMark(self, onlyremove=False, onlyadd=False, tolerance=5*90000, onlyreturn=False):
 		current_pos = self.cueGetCurrentPosition()
 		if current_pos is None:
-#			print("not seekable")
+#			print("[InfoBarGenerics]not seekable")
 			return
 
 		nearest_cutpoint = self.getNearestCutPoint(current_pos)
@@ -4046,7 +4043,7 @@ class InfoBarCueSheetSupport:
 		cue = self.__getCuesheet()
 
 		if cue is None:
-#			print("upload failed, no cuesheet interface")
+#			print("[InfoBarGenerics]upload failed, no cuesheet interface")
 			return
 		self.__blockDownloadCuesheet = True
 		cue.setCutList(self.cut_list)
@@ -4063,7 +4060,7 @@ class InfoBarCueSheetSupport:
 		cue = self.__getCuesheet()
 
 		if cue is None:
-#			print("download failed, no cuesheet interface")
+#			print("[InfoBarGenerics]download failed, no cuesheet interface")
 			self.cut_list = [ ]
 		else:
 			self.cut_list = cue.getCutList()
@@ -4341,8 +4338,8 @@ class InfoBarZoom:
 			zoomval=abs(self.zoomrate)+10
 		else:
 			zoomval=self.zoomrate
-		# print("zoomRate:%s" % self.zoomrate)
-		# print("zoomval:%s" % zoomval)
+		# print("[InfoBarGenerics]zoomRate:%s" % self.zoomrate)
+		# print("[InfoBarGenerics]zoomval:%s" % zoomval)
 		file = open("/proc/stb/vmpeg/0/zoomrate", "w")
 		file.write('%d' % int(zoomval))
 		file.close()

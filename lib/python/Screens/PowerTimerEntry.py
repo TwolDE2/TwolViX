@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from __future__ import print_function
 from __future__ import absolute_import
 
@@ -9,16 +10,27 @@ from Components.Button import Button
 from Components.config import config
 from Components.config import ConfigSelection, ConfigYesNo, ConfigInteger
 from Components.ConfigList import ConfigListScreen
+=======
+from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
+from Components.config import ConfigSelection, ConfigYesNo, ConfigInteger
+from Components.ActionMap import HelpableActionMap, NumberActionMap
+>>>>>>> upstream/Dev
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.Pixmap import Pixmap
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 #from Components.Sources.Boolean import Boolean
+<<<<<<< HEAD
 from PowerTimer import AFTEREVENT, TIMERTYPE
 from Screens.Screen import Screen
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 
+=======
+from Components.Sources.StaticText import StaticText
+from PowerTimer import AFTEREVENT, TIMERTYPE
+from time import localtime, time, strftime
+>>>>>>> upstream/Dev
 
 class TimerEntry(TimerEntryBase):
 	def __init__(self, session, timer):
@@ -61,7 +73,11 @@ class TimerEntry(TimerEntryBase):
 
 		self.timerentry_showendtime = ConfigYesNo(default = (((self.timer.end - self.timer.begin) /60 ) > 1))
 
+<<<<<<< HEAD
 	def keySelect(self, result = None):
+=======
+	def keySelect(self, result=None):
+>>>>>>> upstream/Dev
 		self.keySave()
 
 	def keySave(self):

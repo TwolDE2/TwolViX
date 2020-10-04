@@ -5,7 +5,6 @@ import six
 
 from os import statvfs
 from time import localtime, time, strftime
-from datetime import datetime
 
 from enigma import eEPGCache
 
@@ -53,7 +52,6 @@ class TimerEntry(TimerEntryBase):
 		elif self.timer.descramble:
 			recordingtype = "normal"
 
-
 		self.timerentry_justplay = ConfigSelection(choices = [
 			("zap", _("zap")), ("record", _("record")), ("zap+record", _("zap and record"))],
 			default = {0: "record", 1: "zap", 2: "zap+record"}[justplay + 2*always_zap])
@@ -63,8 +61,6 @@ class TimerEntry(TimerEntryBase):
 			shutdownString = _("shut down")
 		self.timerentry_afterevent = ConfigSelection(choices = [("nothing", _("do nothing")), ("standby", _("go to standby")), ("deepstandby", shutdownString), ("auto", _("auto"))], default = afterevent)
 		self.timerentry_recordingtype = ConfigSelection(choices = [("normal", _("normal")), ("descrambled+ecm", _("descramble and record ecm")), ("scrambled+ecm", _("don't descramble, record ecm"))], default = recordingtype)
-		self.timerentry_type = ConfigSelection(choices = [("once", _("once")), ("repeated", _("repeated"))], default = type)
-		# FIME Do we need these 2 lines?
 		if six.PY3:
 			self.timerentry_name = ConfigText(default = self.timer.name.replace('\x86', '').replace('\x87', ''), visible_width = 50, fixed_size = False)
 		else:
