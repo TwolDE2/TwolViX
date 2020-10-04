@@ -149,14 +149,14 @@ inline FT_Error fontRenderClass::getGlyphImage(FTC_Image_Desc *font, GlyphIndex 
 
 std::string fontRenderClass::AddFont(const std::string &filename, const std::string &name, int scale, int renderflags)
 {
-	eDebugNoNewLineStart("[Font] Adding font '%s'", filename.c_str());
+//	eDebugNoNewLineStart("[Font] Adding font '%s'", filename.c_str());
 	int error;
 	FT_Face face;
 
 	singleLock s(ftlock);
 	if ((error=FT_New_Face(library, filename.c_str(), 0, &face)))
 	{
-		eWarning("[Font] Failed: %m");
+//		eWarning("[Font] Failed: %m");
 		return std::string();
 	}
 	FT_Done_Face(face);
@@ -169,7 +169,7 @@ std::string fontRenderClass::AddFont(const std::string &filename, const std::str
 	n->next=font;
 	font=n;
 
-	eDebugNoNewLine(" -> '%s'.\n", n->face.c_str());
+//	eDebugNoNewLine(" -> '%s'.\n", n->face.c_str());
 
 	return n->face;
 }
