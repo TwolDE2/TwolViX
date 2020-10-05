@@ -108,9 +108,9 @@ eDVBResourceManager::eDVBResourceManager()
 		adapter->scanDevices();
 		addAdapter(adapter, true);
 	}
-	consoleFd = -1; 
-	consoleFd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-	eDebug("[eDVB][eDVBResourceManager] opening console open return: %s", consoleFd);
+//	consoleFd = -1; 
+//	consoleFd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+//	eDebug("[eDVB][eDVBResourceManager] opening console open return: %s", consoleFd);
 	eDebug("[eDVB][eDVBResourceManager] found %zd adapter, %zd frontends(%zd sim) and %zd demux",
 		m_adapter.size(), m_frontend.size(), m_simulate_frontend.size(), m_demux.size());
 

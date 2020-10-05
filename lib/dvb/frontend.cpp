@@ -559,7 +559,7 @@ int eDVBFrontend::PreferredFrontendIndex = -1;
 
 eDVBFrontend::eDVBFrontend(const char *devicenodename, int fe, int &ok, bool simulate, eDVBFrontend *simulate_fe)
 	:m_simulate(simulate), m_enabled(false), m_fbc(false), m_simulate_fe(simulate_fe), m_type(-1), m_dvbid(fe), m_slotid(fe)
-	,m_fd(-1), m_fd0(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
+	,m_fd(-1), m_fd0(-1), console_fd(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
 	,m_state(stateClosed), m_timeout(0), m_tuneTimer(0)
 {
 	eDebug("[eDVBFrontend%d] Initial call opening", m_dvbid);
@@ -601,15 +601,15 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		if (m_fd < 0)
 		{
-			int tmp_fd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-			if (tmp_fd < 0)
+			if (console_fd < 0)
 			{
-				eWarning("[eDVBFrontend] opening console %s failed: %s", m_fd);
+				console_fd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+				eDebugNoSimulate("[eDVBFrontend] opening console fd: %s", console_fd);
 			}
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebugNoSimulate("[eDVBFrontend] Twol1 opened frontend m_filename: %s", m_filename.c_str());
 			eDebugNoSimulate("[eDVBFrontend] Twol1a opened frontend m_fd: %d", m_fd);
-			::close(tmp_fd);
+//			::close(tmp_fd);
 			if (m_fd < 0)
 			{
 				eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
@@ -721,7 +721,6 @@ int eDVBFrontend::openFrontend()
 	{
 		fe_info.frequency_min = 900000;
 		fe_info.frequency_max = 2200000;
-
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		eDebug("[eDVBFrontend] Twol2 Opened m_filename: %s", m_filename.c_str());
