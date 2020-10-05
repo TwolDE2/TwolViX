@@ -601,14 +601,11 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		if (m_fd < 0)
 		{
+			int tmp_fd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebugNoSimulate("[eDVBFrontend] Twol1 opened frontend m_filename: %s", m_filename.c_str());
 			eDebugNoSimulate("[eDVBFrontend] Twol1a opened frontend m_fd: %d", m_fd);
-			if (m_fd > 0)
-			{
-				eDebug("[eDVBFrontend] set bypass for FrontendClose (%s)", m_filename.c_str());
-				m_fd0 = 1;
-			}
+			::close(tmp_fd);
 			if (m_fd < 0)
 			{
 				eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
@@ -754,12 +751,6 @@ int eDVBFrontend::openFrontend()
 int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 {
 	eDebug("[eDVBFrontend %d] close frontend m_fd: %d", m_dvbid, m_fd);
-	if (m_fd > 0 && m_fd0 > 0)
-	{
-		m_fd0 = 0;
-		eDebug("[eDVBFrontend %d] bypass close frontend m_fd: %d", m_dvbid, m_fd);
-		return 0;
-	}
 	if (!force && m_data[CUR_VOLTAGE] != -1 && m_data[CUR_VOLTAGE] != iDVBFrontend::voltageOff)
 	{
 		long tmp = m_data[LINKED_NEXT_PTR];
@@ -1135,10 +1126,6 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 		strstr(m_description, "BCM3158"))
 	{
 		ret = (snr * 100) >> 8;
-	}
-	else if (!strcmp(m_description, "DVB-S2 NIM")) // Amiko Viper Twin / u42
-	{
-		ret = (int)(snr / 8);
 	}
 	else if (!strcmp(m_description, "ATBM781x"))
 	{
