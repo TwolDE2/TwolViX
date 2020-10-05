@@ -66,7 +66,9 @@ to generate HTML."""
 	@cached
 	def getIndex(self):
 		return self.master.index if self.master is not None else None
+
 	setCurrentIndex = setIndex
+
 	index = property(getIndex, setIndex)
 
 	def selectNext(self):
@@ -98,8 +100,8 @@ to generate HTML."""
 
 	def updateList(self, list):
 		"""Changes the list without changing the selection or emitting changed Events"""
-		max_index = len(list) - 1
-		old_index = min(max_index, self.index)
+		assert len(list) == len(self.__list)
+		old_index = self.index
 		self.disable_callbacks = True
 		self.list = list
 		self.index = old_index
