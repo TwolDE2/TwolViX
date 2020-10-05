@@ -2120,7 +2120,7 @@ class ConfigFile:
 				ret = self.__resolveValue(names[1:], config.content.items)
 				if ret and len(ret):
 					return ret
-		print("[Config] getResolvedKey", key, "empty variable.")
+		#	print("[Config] getResolvedKey", key, "empty variable.")
 		return ""
 
 def NoSave(element):
