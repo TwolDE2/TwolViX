@@ -110,7 +110,7 @@ eDVBResourceManager::eDVBResourceManager()
 	}
 	consoleFd = -1; 
 	consoleFd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-	if (tmp_fd < 0)
+	if (consoleFd < 0)
 	{
 		eWarning("[eDVB] opening console %s failed: %s", m_fd);
 	}
