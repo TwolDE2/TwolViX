@@ -813,7 +813,7 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 		if (m_sec && !m_simulate)
 			m_sec->setRotorMoving(m_slotid, false);
 		if (console_fd >= 0)
-			::close(console_fd);
+			::close(console_fd));
 		if (!::close(m_fd))
 			m_fd=-1;
 		else
