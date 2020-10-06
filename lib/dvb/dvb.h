@@ -137,7 +137,6 @@ class eDVBUsbAdapter: public eDVBAdapterLinux
 private:
 	int vtunerFd;
 	int demuxFd;
-	int consoleFd;
 	int pipeFd[2];
 	std::string usbFrontendName;
 	std::string virtualFrontendName;
