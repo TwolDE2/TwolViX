@@ -260,7 +260,7 @@ class Screen(dict):
 						print("[Screen] WARNING: OBSOLETE COMPONENT '%s' USED IN SKIN. USE '%s' INSTEAD!" % (key, depr[0]))
 						print("[Screen] OBSOLETE COMPONENT WILL BE REMOVED %s, PLEASE UPDATE!" % depr[1])
 				elif not depr:
-					print("[Screen] Warning: Skin is missing element '%s' in %s." % (key, str(self)))
+					# print("[Screen] Warning: Skin is missing element '%s' in %s." % (key, str(self)))
 		for w in self.additionalWidgets:
 			if not updateonly:
 				w.instance = w.widget(parent)
