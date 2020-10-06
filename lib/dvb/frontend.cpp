@@ -602,10 +602,7 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			int tmp_fd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-			if (tmp_fd < 0)
-			{
-				eWarning("[eDVBFrontend] opening console %s failed: %s", m_fd);
-			}
+			eDebugNoSimulate("[eDVBFrontend] opening console fd returned: %s", m_fd);
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebugNoSimulate("[eDVBFrontend] Twol1 opened frontend m_filename: %s", m_filename.c_str());
 			eDebugNoSimulate("[eDVBFrontend] Twol1a opened frontend m_fd: %d", m_fd);
