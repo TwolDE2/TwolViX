@@ -90,7 +90,7 @@ private:
 	int m_slotid;
 	int m_fd;
 	int m_fd0;
-	int console_fd;
+	int console_fd
 #define DVB_VERSION(major, minor) ((major << 8) | minor)
 	int m_dvbversion;
 	bool m_rotor_mode;
