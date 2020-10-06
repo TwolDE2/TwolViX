@@ -137,6 +137,7 @@ class eDVBUsbAdapter: public eDVBAdapterLinux
 private:
 	int vtunerFd;
 	int demuxFd;
+	int consoleFd;
 	int pipeFd[2];
 	std::string usbFrontendName;
 	std::string virtualFrontendName;
@@ -158,7 +159,7 @@ class eDVBResourceManager: public iObject, public sigc::trackable
 {
 	DECLARE_REF(eDVBResourceManager);
 	int avail, busy;
-	int consoleFd;
+
 	eSmartPtrList<iDVBAdapter> m_adapter;
 	eSmartPtrList<eDVBRegisteredDemux> m_demux;
 	eSmartPtrList<eDVBRegisteredFrontend> m_frontend, m_simulate_frontend;
