@@ -601,7 +601,7 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		if (m_fd < 0)
 		{
-			if myFdKluge < 0)
+			if (myFdKluge < 0)
 			{
 				myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 				eDebugNoSimulate("[eDVBFrontend] opening console fd returned: %d", myFdKluge);
