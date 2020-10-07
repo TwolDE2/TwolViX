@@ -601,8 +601,11 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		if (m_fd < 0)
 		{
-			m_fd0 = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-			eDebugNoSimulate("[eDVBFrontend] opening console fd returned: %d", m_fd0);
+			if myFdKluge < 0)
+			{
+				myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+				eDebugNoSimulate("[eDVBFrontend] opening console fd returned: %d", myFdKluge);
+			}
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebugNoSimulate("[eDVBFrontend] Twol1 opened frontend m_filename: %s", m_filename.c_str());
 			eDebugNoSimulate("[eDVBFrontend] Twol1a opened frontend m_fd: %d", m_fd);
@@ -812,8 +815,8 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 
 		if (m_sec && !m_simulate)
 			m_sec->setRotorMoving(m_slotid, false);
-		if (m_fd0 >= 0)
-			::close(m_fd0);
+		/* if (m_fd0 >= 0) */
+		/*	::close(m_fd0); */
 		if (!::close(m_fd))
 			m_fd=-1;
 		else
