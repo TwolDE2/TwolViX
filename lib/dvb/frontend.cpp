@@ -607,18 +607,23 @@ int eDVBFrontend::openFrontend()
 				eDebug("[eDVBFrontend] Twol00 Opened tmp_fd: %d", tmp_fd);
 				if (tmp_fd == 0)
 				{
+					::close(tmp_fd);
+					m_fd0 = 0;	
 					myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 					eDebugNoSimulate("[eDVBFrontend] opening console fd returned: %d", myFdKluge);
 				}
-				::close(tmp_fd);
-				m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-				eDebugNoSimulate("[eDVBFrontend] Twol1 opened frontend m_filename: %s", m_filename.c_str());
-				eDebugNoSimulate("[eDVBFrontend] Twol1a opened frontend m_fd: %d", m_fd);
-				if (m_fd < 0)
+				if (m_fd0 < 0)
 				{
-					eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
-					return -1;
+					::close(tmp_fd);
 				}
+			}
+			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			eDebugNoSimulate("[eDVBFrontend] Twol1 opened frontend m_filename: %s", m_filename.c_str());
+			eDebugNoSimulate("[eDVBFrontend] Twol1a opened frontend m_fd: %d", m_fd);
+			if (m_fd < 0)
+			{
+				eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
+				return -1;
 			}
 		}
 		else
