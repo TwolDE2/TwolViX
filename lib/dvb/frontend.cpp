@@ -599,8 +599,8 @@ int eDVBFrontend::openFrontend()
 	if (!m_simulate)
 	{
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
-		eDebug("[eDVBFrontend%d] myFdKluge @frontend", myFdKluge);
-		eDebug("[eDVBFrontend%d] m_fd @frontend", myFdKluge);
+		eDebug("[eDVBFrontend] myFdKluge @frontend %d", myFdKluge);
+		eDebug("[eDVBFrontend] m_fd @frontend %d", m_fd);
 		if (m_fd < 0)
 		{
 			/* if (myFdKluge < 0) */
@@ -611,7 +611,7 @@ int eDVBFrontend::openFrontend()
 			{
 				::close(tmp_fd);
 				m_fd0 = 0;	
-				myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+				myFdKluge = ::open("/dev/null", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 				eDebugNoSimulate("[eDVBFrontend] opening console fd returned: %d", myFdKluge);
 			}
 			if (m_fd0 < 0)
