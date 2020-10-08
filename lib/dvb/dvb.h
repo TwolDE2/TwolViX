@@ -15,7 +15,9 @@
 #include <connection.h>
 
 #include <dvbsi++/service_description_section.h>
-	extern int myFdKluge;
+
+extern int myFdKluge;
+
 class eDVBChannel;
 
 	/* we do NOT handle resource conflicts here. instead, the allocateChannel
