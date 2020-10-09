@@ -37,7 +37,7 @@ eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
 	{
 		::close(tmp_fd);
 		tmp_fd2 = 0;	
-		myFdKluge = ::open("/dev/null", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
 		eDebug("[decoder][eDVBAudio] opening console fd returned: %d", myFdKluge);
 	}
 	if (tmp_fd2 < 0)
@@ -269,7 +269,7 @@ eDVBVideo::eDVBVideo(eDVBDemux *demux, int dev)
 	{
 		::close(tmp_fd);
 		tmp_fd2 = 0;	
-		myFdKluge = ::open("/dev/null", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
 		eDebug("[decoder][eDVBVideo] opening console fd returned: %d", myFdKluge);
 	}
 	if (tmp_fd2 < 0)
@@ -711,7 +711,7 @@ eDVBPCR::eDVBPCR(eDVBDemux *demux, int dev): m_demux(demux), m_dev(dev)
 	{
 		::close(tmp_fd);
 		tmp_fd2 = 0;	
-		myFdKluge = ::open("/dev/null", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
 		eDebug("[decoder][eDVBPCR] opening console fd returned: %d", myFdKluge);
 	}
 	if (tmp_fd2 < 0)
@@ -795,7 +795,7 @@ eDVBTText::eDVBTText(eDVBDemux *demux, int dev)
 	{
 		::close(tmp_fd);
 		tmp_fd2 = 0;	
-		myFdKluge = ::open("/dev/null", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
 		eDebug("[decoder][eDVBText] opening console fd returned: %d", myFdKluge);
 	}
 	if (tmp_fd2 < 0)
