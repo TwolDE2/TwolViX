@@ -611,7 +611,7 @@ int eDVBFrontend::openFrontend()
 			{
 				::close(tmp_fd);
 				m_fd0 = 0;	
-				myFdKluge = ::open("/dev/null", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+				myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
 				eDebugNoSimulate("[eDVBFrontend] opening console fd returned: %d", myFdKluge);
 			}
 			if (m_fd0 < 0)
