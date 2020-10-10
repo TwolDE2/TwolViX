@@ -603,7 +603,7 @@ int eDVBFrontend::openFrontend()
 		eDebug("[eDVBFrontend] 0 m_fd @frontend %d", m_fd);
 		if (m_fd < 0)
 		{
-			int tmp= -1;
+			int tmp_fd = -1;
 			tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 			eDebug("[eDVBFrontend] 0 Opened tmp_fd: %d", tmp_fd);
 			if (tmp_fd == 0)
