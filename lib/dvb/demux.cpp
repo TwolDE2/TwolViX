@@ -90,7 +90,7 @@ int eDVBDemux::openDemux(void)
 		::close(tmp_fd);
 		tmp_fd = -1;	
 		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-		eDebug("[eDVBDemux] opening console fd returned: %d", myFdKluge);
+		/* eDebug("[eDVBDemux] opening console fd returned: %d", myFdKluge); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -114,8 +114,8 @@ int eDVBDemux::openDVR(int flags)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/console", O_RDONLY);
-		eDebug("[eDVBDemux] opening console fd returned: %d", myFdKluge);
+		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
+		/* eDebug("[eDVBDemux] opening console fd returned: %d", myFdKluge); */
 	}
 	if (tmp_fd != -1)
 	{
