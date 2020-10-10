@@ -426,6 +426,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		self["epgactions"].setEnabled(False)
 		if "numberactions" in self:
 			self["numberactions"].setEnabled(False)
+		self["helpActions"].setEnabled(False)
 		self.popupDialog.show()
 
 	def closePopupDialog(self):
@@ -440,6 +441,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		self["epgactions"].setEnabled(True)
 		if "numberactions" in self:
 			self["numberactions"].setEnabled(True)
+		self["helpActions"].setEnabled(True)
 
 	def doInstantTimer(self, zap=0):
 		event, service = self["list"].getCurrent()[:2]
