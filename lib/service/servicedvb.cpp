@@ -1737,7 +1737,7 @@ RESULT eDVBServicePlay::subServices(ePtr<iSubserviceList> &ptr)
 RESULT eDVBServicePlay::timeshift(ePtr<iTimeshiftService> &ptr)
 {
 	ptr = nullptr;
-	eDebug("[eDVBServicePlay] timeshift twol");
+	/* eDebug("[eDVBServicePlay] timeshift"); */
 	if (m_timeshift_enabled || !m_is_pvr)
 	{
 		if (!m_timeshift_enabled)
