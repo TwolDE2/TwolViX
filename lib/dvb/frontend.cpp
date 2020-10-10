@@ -559,7 +559,7 @@ int eDVBFrontend::PreferredFrontendIndex = -1;
 
 eDVBFrontend::eDVBFrontend(const char *devicenodename, int fe, int &ok, bool simulate, eDVBFrontend *simulate_fe)
 	:m_simulate(simulate), m_enabled(false), m_fbc(false), m_simulate_fe(simulate_fe), m_type(-1), m_dvbid(fe), m_slotid(fe)
-	,m_fd(-1), m_fd0(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
+	,m_fd(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
 	,m_state(stateClosed), m_timeout(0), m_tuneTimer(0)
 {
 	eDebug("[eDVBFrontend%d] Initial call opening", m_dvbid);
@@ -599,29 +599,27 @@ int eDVBFrontend::openFrontend()
 	if (!m_simulate)
 	{
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
-		eDebug("[eDVBFrontend] myFdKluge @frontend %d", myFdKluge);
-		eDebug("[eDVBFrontend] m_fd @frontend %d", m_fd);
+		eDebug("[eDVBFrontend] 0 myFdKluge @frontend %d", myFdKluge);
+		eDebug("[eDVBFrontend] 0 m_fd @frontend %d", m_fd);
 		if (m_fd < 0)
 		{
-			/* if (myFdKluge < 0) */
-			/* { */
-			int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-			eDebug("[eDVBFrontend] Twol00 Opened tmp_fd: %d", tmp_fd);
+			int tmp= -1;
+			tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+			eDebug("[eDVBFrontend] 0 Opened tmp_fd: %d", tmp_fd);
 			if (tmp_fd == 0)
 			{
 				::close(tmp_fd);
-				m_fd0 = 0;	
+				tmp_fd = -1;	
 				myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-				eDebugNoSimulate("[eDVBFrontend] opening console fd returned: %d", myFdKluge);
+				eDebugNoSimulate("[eDVBFrontend] 0 opening console fd returned: %d", myFdKluge);
 			}
-			if (m_fd0 < 0)
+			if (tmp_fd != -1)
 			{
 				::close(tmp_fd);
 			}
-			/* } */
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-			eDebugNoSimulate("[eDVBFrontend] Twol1 opened frontend m_filename: %s", m_filename.c_str());
-			eDebugNoSimulate("[eDVBFrontend] Twol1a opened frontend m_fd: %d", m_fd);
+			eDebugNoSimulate("[eDVBFrontend] 1 opened frontend m_filename: %s", m_filename.c_str());
+			eDebugNoSimulate("[eDVBFrontend] 1 opened frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
 			{
 				eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
@@ -629,7 +627,7 @@ int eDVBFrontend::openFrontend()
 			}
 		}
 		else
-			eDebug("[eDVBFrontend%d]Twol1c frontend already opened", m_dvbid);
+			eWarning("[eDVBFrontend%d] frontend already opened", m_dvbid);
 		if (m_dvbversion == 0)
 		{
 			m_dvbversion = DVB_VERSION(3, 0);
@@ -736,8 +734,8 @@ int eDVBFrontend::openFrontend()
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-		eDebug("[eDVBFrontend] Twol2 Opened m_filename: %s", m_filename.c_str());
-		eDebug("[eDVBFrontend] Twol2a Opened tmp_fd: %d", tmp_fd);
+		eDebug("[eDVBFrontend] 2 Opened m_filename: %s", m_filename.c_str());
+		eDebug("[eDVBFrontend] 2 Opened tmp_fd: %d", tmp_fd);
 		if (tmp_fd < 0)
 		{
 			eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
@@ -748,7 +746,7 @@ int eDVBFrontend::openFrontend()
 			{
 				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend %s failed: %m", m_filename.c_str());
 			}
-			eDebug("[eDVBFrontend] Twol2a Closing immediately with close cmd tmp_fd: %d", tmp_fd);
+			eDebug("[eDVBFrontend] 2 Closing immediately with close cmd tmp_fd: %d", tmp_fd);
 			::close(tmp_fd);
 		}
 	}
@@ -827,8 +825,6 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 
 		if (m_sec && !m_simulate)
 			m_sec->setRotorMoving(m_slotid, false);
-		/* if (m_fd0 >= 0) */
-		/*	::close(m_fd0); */
 		if (!::close(m_fd))
 			m_fd=-1;
 		else
@@ -1144,6 +1140,10 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 		strstr(m_description, "BCM3158"))
 	{
 		ret = (snr * 100) >> 8;
+	}
+	else if (!strcmp(m_description, "DVB-S2 NIM")) // Amiko Viper Twin / u42
+	{
+		ret = (int)(snr / 8);
 	}
 	else if (!strcmp(m_description, "ATBM781x"))
 	{

@@ -82,17 +82,17 @@ int eDVBDemux::openDemux(void)
 	char filename[32];
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/demux%d", adapter, demux);
 	eDebug("[eDVBDemux] open demux %s", filename);
-	int tmp_fd2 = -1;
-	int tmp_fd = ::open(filename, O_RDONLY | O_CLOEXEC);
+	int tmp_fd = -1;
+	tmp_fd = ::open(filename, O_RDONLY | O_CLOEXEC);
 	eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd);
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
-		tmp_fd2 = 0;	
+		tmp_fd = -1;	
 		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
 		eDebug("[eDVBDemux] opening console fd returned: %d", myFdKluge);
 	}
-	if (tmp_fd2 < 0)
+	if (tmp_fd != -1)
 	{
 		::close(tmp_fd);
 	}
@@ -107,17 +107,17 @@ int eDVBDemux::openDVR(int flags)
 	char filename[32];
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/dvr%d", adapter, demux);
 	eDebug("[eDVBDemux] open dvr %s", filename);
-	int tmp_fd2 = -1;
-	int tmp_fd = ::open(filename, O_RDONLY | O_CLOEXEC);
+	int tmp_fd = -1;
+	tmp_fd = ::open(filename, O_RDONLY | O_CLOEXEC);
 	eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd);
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
-		tmp_fd2 = 0;	
+		tmp_fd = -1;	
 		myFdKluge = ::open("/dev/console", O_RDONLY);
 		eDebug("[eDVBDemux] opening console fd returned: %d", myFdKluge);
 	}
-	if (tmp_fd2 < 0)
+	if (tmp_fd != -1)
 	{
 		::close(tmp_fd);
 	}
