@@ -450,7 +450,8 @@ class NetworkMacSetup(Screen, ConfigListScreen, HelpableScreen):
 
 	def getmac(self, iface):
 		eth = about.getIfConfig(iface)
-		return eth['hwaddr']
+		print("[NetworkSetup] eth: ", eth)
+		return eth["hwaddr"]
 
 	def createSetup(self):
 		self.list = []
@@ -921,24 +922,44 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		self.onLayoutFinish.append(self.updateStatusbar)
 
 	def queryWirelessDevice(self, iface):
-		try:
-			from wifi.scan import Cell
-			import errno
-		except ImportError:
-			return False
+		if six.PY3:
+			try:
+				from wifi.scan import Cell
+				import errno
+			except ImportError:
+				return False
+			else:
+				try:
+					system("ifconfig "+self.iface+" up")
+					wlanresponse = list(Cell.all(iface))
+				except IOError as err:
+					error_no, error_str = err.args
+					if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+						return False
+					else:
+						print("[AdapterSetupConfiguration] error: ", error_no, error_str)
+						return True
+				else:
+					return True
+
 		else:
 			try:
-				system("ifconfig "+self.iface+" up")
-				wlanresponse = list(Cell.all(iface))
-			except IOError as xxx_todo_changeme:
-				(error_no, error_str) = xxx_todo_changeme.args
-				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-					return False
-				else:
-					print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-					return True
+				from pythonwifi.iwlibs import Wireless
+				import errno
+			except ImportError:
+				return False
 			else:
-				return True
+				try:
+					ifobj = Wireless(iface) # a Wireless NIC Object
+					wlanresponse = ifobj.getAPaddr()
+				except IOError:
+					if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+						return False
+					else:
+						print("[AdapterSetupConfiguration] error: ", error_no, error_str)
+						return True
+				else:
+					return True
 
 	def ok(self):
 		self.cleanup()
@@ -1086,7 +1107,6 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 
 		if os_path.exists(resolveFilename(SCOPE_PLUGINS, "SystemPlugins/NetworkWizard/networkwizard.xml")):
 			menu.append((_("Network wizard"), "openwizard"))
-
 #		kernel_ver = about.getKernelVersionString()
 #		if kernel_ver <= "3.5.0":
 		menu.append((_("Network MAC settings"), "mac"))
@@ -1828,7 +1848,6 @@ class NetworkFtp(NSCommon, Screen):
 		self.onLayoutFinish.append(self.updateService)
 		self.reboot_at_end = False
 
-
 	def FtpStartStop(self):
 		commands = []
 		if not self.my_ftp_run:
@@ -2085,7 +2104,6 @@ class NetworkSamba(NSCommon, Screen):
 		self.service_name = 'packagegroup-base-smbfs-server'
 		self.onLayoutFinish.append(self.InstallCheck)
 		self.reboot_at_end = True
-
 
 	def Sambashowlog(self):
 		self.session.open(NetworkSambaLog)
@@ -2584,7 +2602,6 @@ class NetworkuShare(NSCommon, Screen):
 		self.onLayoutFinish.append(self.InstallCheck)
 		self.reboot_at_end = False
 
-
 	def uShareStartStop(self):
 		if not self.my_ushare_run:
 			self.Console.ePopen('/etc/init.d/ushare start >> /tmp/uShare.log', self.StartStopCallback)
@@ -2733,10 +2750,10 @@ class NetworkuShareSetup(Screen, ConfigListScreen):
 		for cb in self.onChangedEntry:
 			cb(name, desc)
 
-	def updateList(self, ret=None):
+	def updateList(self, ret = None):
 		self.list = []
-		self.ushare_user = NoSave(ConfigText(default=getBoxType(), fixed_size=False))
-		self.ushare_iface = NoSave(ConfigText(fixed_size=False))
+		self.ushare_user = NoSave(ConfigText(default = getBoxType(), fixed_size = False))
+		self.ushare_iface = NoSave(ConfigText(fixed_size = False))
 		self.ushare_port = NoSave(ConfigNumber())
 		self.ushare_telnetport = NoSave(ConfigNumber())
 		self.ushare_web = NoSave(ConfigYesNo(default='True'))

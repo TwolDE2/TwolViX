@@ -588,7 +588,7 @@ class Network:
 		cidr_range = list(range(0, 32))
 		cidr = int(nmask)
 		if cidr not in cidr_range:
-			print('[Network] cidr invalid: %d' % cidr)
+			print("[Network] cidr invalid: %d" % cidr)
 			return None
 		else:
 			nm = ((1<<cidr)-1)<<(32-cidr)
