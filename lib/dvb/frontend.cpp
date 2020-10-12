@@ -599,27 +599,27 @@ int eDVBFrontend::openFrontend()
 	if (!m_simulate)
 	{
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
-		eDebug("[eDVBFrontend] 0 myFdKluge @frontend %d", myFdKluge);
-		eDebug("[eDVBFrontend] 0 m_fd @frontend %d", m_fd);
+		/* eDebug("[eDVBFrontend] 0 myFdKluge @frontend %d", myFdKluge); */
+		/* eDebug("[eDVBFrontend] 0 m_fd @frontend %d", m_fd); */
 		if (m_fd < 0)
 		{
 			int tmp_fd = -1;
 			tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-			eDebug("[eDVBFrontend] 0 Opened tmp_fd: %d", tmp_fd);
+			/* eDebug("[eDVBFrontend] 0 Opened tmp_fd: %d", tmp_fd); */
 			if (tmp_fd == 0)
 			{
 				::close(tmp_fd);
 				tmp_fd = -1;	
 				myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-				eDebugNoSimulate("[eDVBFrontend] 0 opening console fd returned: %d", myFdKluge);
+				/* eDebugNoSimulate("[eDVBFrontend] 0 opening console fd returned: %d", myFdKluge); */
 			}
 			if (tmp_fd != -1)
 			{
 				::close(tmp_fd);
 			}
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-			eDebugNoSimulate("[eDVBFrontend] 1 opened frontend m_filename: %s", m_filename.c_str());
-			eDebugNoSimulate("[eDVBFrontend] 1 opened frontend m_fd: %d", m_fd);
+			eDebugNoSimulate("[eDVBFrontend] opened frontend m_filename: %s", m_filename.c_str());
+			eDebugNoSimulate("[eDVBFrontend] opened frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
 			{
 				eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());

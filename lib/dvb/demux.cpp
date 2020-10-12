@@ -84,7 +84,7 @@ int eDVBDemux::openDemux(void)
 	eDebug("[eDVBDemux] open demux %s", filename);
 	int tmp_fd = -1;
 	tmp_fd = ::open(filename, O_RDONLY | O_CLOEXEC);
-	eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd);
+	/* eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
@@ -109,7 +109,7 @@ int eDVBDemux::openDVR(int flags)
 	eDebug("[eDVBDemux] open dvr %s", filename);
 	int tmp_fd = -1;
 	tmp_fd = ::open(filename, O_RDONLY | O_CLOEXEC);
-	eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd);
+	/* eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
