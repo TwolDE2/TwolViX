@@ -19,7 +19,7 @@ class AVSwitch:
 	hasDVI = getHaveDVI() in ('True',)
 	hasJack = getHaveAVJACK() in ('True',)
 	hasRCA = getHaveRCA() in ('True',)
-	hasScart = getHaveRCA() in ('True',)
+	hasScart = getHaveSCART() in ('True',)
 
 	print("VideoWizard", "hasDVI", hasDVI)
 	print("VideoWizard", "hasRCA", hasRCA)
@@ -31,43 +31,17 @@ class AVSwitch:
 	print("AVSwitch", "yellow_RCA_no_scart", SystemInfo["yellow_RCA_no_scart"])
 	print("AVSwitch", "no_yellow_RCA__no_scart", SystemInfo["no_yellow_RCA__no_scart"])
 
-	print("SystemInfo", "MachineBuild", getMachineBuild())
-	print("SystemInfo", "BoxType", getBoxType())
-	print("SystemInfo", "BrandOEM", getBrandOEM())
-	print("SystemInfo", "DisplayType", getDisplayType())
-	print("SystemInfo", "HaveRCA", getHaveRCA())
-	print("SystemInfo", "getHaveDVI", getHaveDVI())
-	print("SystemInfo", "HaveYUV", getHaveYUV())
-	print("SystemInfo", "HaveSCART", getHaveSCART())
-	print("SystemInfo", "HaveAVJACK", getHaveAVJACK())
-	print("SystemInfo", "HaveSCARTYUV", getHaveSCARTYUV())
-	print("SystemInfo", "HaveHDMI", getHaveHDMI())
-
-#	print("AVSwitch", "CanProc", SystemInfo["CanProc"])
-#	print("AVSwitch", "HasScaler_sharpness", SystemInfo["HasScaler_sharpness"])
-#	print("AVSwitch", "Has24hz", SystemInfo["Has24hz"])
-#	print("AVSwitch", "havecolorspace", SystemInfo["havecolorspace"])
-#	print("AVSwitch", "havecolorspacechoices", SystemInfo["havecolorspacechoices"])
-#	print("AVSwitch", "havecolorimetry", SystemInfo["havecolorimetry"])
-#	print("AVSwitch", "havecolorimetrychoices", SystemInfo["havecolorimetrychoices"])
-#	print("AVSwitch", "havehdmicolordepth", SystemInfo["havehdmicolordepth"])
-#	print("AVSwitch", "havehdmicolordepthchoices", SystemInfo["havehdmicolordepthchoices"])
-#	print("AVSwitch", "havehdmihdrtype", SystemInfo["havehdmihdrtype"])
-#	print("AVSwitch", "HDRSupport", SystemInfo["HDRSupport"])
-#
-#	print("AVSwitch", "Can3DSurround", SystemInfo["Can3DSurround"])
-#	print("AVSwitch", "Can3DSpeaker", SystemInfo["Can3DSpeaker"])
-#	print("AVSwitch", "CanAACTranscode", SystemInfo["CanAACTranscode"])
-#	print("AVSwitch", "CanAC3Transcode", SystemInfo["CanAC3Transcode"])
-#	print("AVSwitch", "Canaudiosource", SystemInfo["Canaudiosource"])
-#	print("AVSwitch", "CanAutoVolume", SystemInfo["CanAutoVolume"])
-#	print("AVSwitch", "CanDownmixAAC", SystemInfo["CanDownmixAAC"])
-#	print("AVSwitch", "CanDownmixAACPlus", SystemInfo["CanDownmixAACPlus"])
-#	print("AVSwitch", "CanDownmixAC3", SystemInfo["CanDownmixAC3"])
-#	print("AVSwitch", "CanDownmixDTS", SystemInfo["CanDownmixDTS"])
-#	print("AVSwitch", "CanDTSHD", SystemInfo["CanDTSHD"])
-#	print("AVSwitch", "CanWMAPRO", SystemInfo["CanWMAPRO"])
-#	print("AVSwitch", "supportPcmMultichannel", SystemInfo["supportPcmMultichannel"])
+	print("BoxBranding", "MachineBuild", getMachineBuild())
+	print("BoxBranding", "BoxType", getBoxType())
+	print("BoxBranding", "BrandOEM", getBrandOEM())
+	print("BoxBranding", "DisplayType", getDisplayType())
+	print("BoxBranding", "HaveRCA", getHaveRCA())
+	print("BoxBranding", "getHaveDVI", getHaveDVI())
+	print("BoxBranding", "HaveYUV", getHaveYUV())
+	print("BoxBranding", "HaveSCART", getHaveSCART())
+	print("BoxBranding", "HaveAVJACK", getHaveAVJACK())
+	print("BoxBranding", "HaveSCARTYUV", getHaveSCARTYUV())
+	print("BoxBranding", "HaveHDMI", getHaveHDMI())
 
 	rates = {}  # high-level, use selectable modes.
 	modes = {}  # a list of (high-level) modes for a certain port.
@@ -98,23 +72,29 @@ class AVSwitch:
 		"1280x768": {60: "1280x768"},
 		"640x480": {60: "640x480"}
 	}
+
 	modes["Scart"] = ["PAL", "NTSC", "Multi"]
 	# modes["DVI-PC"] = ["PC"]
+
 	modes["HDMI"] = SystemInfo["VideoModes"][0]
 	widescreen_modes = SystemInfo["VideoModes"][1]
+
 	modes["YPbPr"] = modes["HDMI"]
 
 	if SystemInfo["Scart-YPbPr"]:
 		modes["Scart-YPbPr"] = modes["HDMI"]
+
 	# if "DVI-PC" in modes and not getModeList("DVI-PC"):
 	# 	print("[VideoHardware] remove DVI-PC because of not existing modes"
 	# 	del modes["DVI-PC"]
+
 	if "YPbPr" in modes and SystemInfo["no_YPbPr"]:
 		del modes["YPbPr"]
+
 	if "Scart" in modes and SystemInfo["yellow_RCA_no_scart"]:
 		modes["RCA"] = modes["Scart"]
 		del modes["Scart"]
-	if "Scart" in modes and SystemInfo["no_yellow_RCA__no_scart"]:
+	if "Scart" in modes and not hasScart and not hasRCA and not hasJack:
 		del modes["Scart"]
 
 	def __init__(self):

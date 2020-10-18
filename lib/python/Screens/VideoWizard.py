@@ -85,12 +85,14 @@ class VideoWizard(WizardLanguage, Rc):
 				descr = port
 				if descr == "HDMI" and hasDVI:
 					descr = "DVI"
-				if descr == "RCA" and hasRCA:
+				elif descr == "RCA" and hasRCA:
 					descr = "RCA"
-				if descr == "RCA" and hasJack and not hasScart:
+				elif descr == "Scart" and hasJack and not hasScart:
 					descr = "JACK"
-				if descr == "Scart" and hasRCA and not hasScart:
+				elif descr == "Scart" and hasRCA and not hasScart:
 					descr = "RCA"
+				elif descr == "Scart" and not hasScart:
+					continue
 				if port != "DVI-PC":
 					list.append((descr, port))
 		list.sort(key = lambda x: x[0])
@@ -113,7 +115,7 @@ class VideoWizard(WizardLanguage, Rc):
 				picname = "DVI"
 			if picname == "RCA" and hasRCA:
 				picname = "RCA"
-			if picname == "RCA" and hasJack:
+			if picname == "Scart" and hasJack:
 				picname = "JACK"
 			if picname == "Scart" and hasRCA:
 				picname = "RCA"
