@@ -5,12 +5,13 @@ import pickle
 
 from enigma import eServiceReference, eTimer
 
-from Components.ActionMap import Actionmap, HelpableActionMap
+from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Button import Button
 from Components.config import config, getConfigListEntry, ConfigNumber, ConfigSelection, ConfigSubsection
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.Pixmap import Pixmap, MovingPixmap
+import Components.ServiceEventTracker
 from Components.Slider import Slider
 from Components.SystemInfo import SystemInfo
 from Components.Sources.List import List
