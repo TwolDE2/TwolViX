@@ -3,21 +3,17 @@ from __future__ import print_function
 import os
 import pickle
 
-from enigma import eListboxPythonMultiContent, eServiceReference, eTimer
+from enigma import eServiceReference, eTimer
 
 from Components.ActionMap import Actionmap, HelpableActionMap
 from Components.Button import Button
 from Components.config import config, getConfigListEntry, ConfigNumber, ConfigSelection, ConfigSubsection
-from Components.ConfigList import ConfigListScreen
-from Components.FileList import FileList
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.Pixmap import Pixmap, MovingPixmap
 from Components.Slider import Slider
 from Components.SystemInfo import SystemInfo
 from Components.Sources.List import List
-from Components.Sources.StaticText import StaticText
-from Plugins.Plugin import PluginDescriptor
 from ServiceReference import ServiceReference
 from Screens.ChannelSelection import ChannelSelectionBase
 from Screens.ChoiceBox import ChoiceBox
@@ -27,9 +23,6 @@ from Screens.MessageBox import MessageBox
 from Screens.QuadPiP import QuadPiP
 from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-from Tools.Directories import fileExists
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS
-
 
 config.plugins.quadpip = ConfigSubsection()
 config.plugins.quadpip.lastchannel = ConfigNumber(default = 1)
