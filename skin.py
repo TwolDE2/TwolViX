@@ -1,4 +1,5 @@
-from __future__ import division, print_function
+from __future__ import print_function
+from __future__ import division
 import six
 
 import errno
@@ -726,7 +727,7 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 		if filename:
 			filename = resolveFilename(scope, filename, path_prefix=pathSkin)
 			if isfile(filename):
-				loadSkin(filename, scope=scope, desktop=desktop, screenID=screenID)
+				loadSkin(filename, scope = scope, desktop = desktop, screenID = screenID)
 			else:
 				raise SkinError("Included file '%s' not found" % filename)
 	for tag in domSkin.findall("switchpixmap"):
