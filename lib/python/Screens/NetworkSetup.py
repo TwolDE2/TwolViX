@@ -1,7 +1,7 @@
 from __future__ import print_function
 import six
 
-from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
+from os import path as os_path, remove, unlink, rename, chmod, access, X_OK
 from random import Random
 from subprocess import call
 
@@ -35,6 +35,7 @@ from Plugins.Plugin import PluginDescriptor
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
+from Screens.Setup import Setup
 from Screens.Standby import TryQuitMainloop
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS, SCOPE_ACTIVE_SKIN
@@ -3275,7 +3276,7 @@ class NetworkMiniDLNASetup(Screen, ConfigListScreen):
 		self.close()
 
 	def selectfolders(self):
-		self.session.openWithCallback(self.updateList,MiniDLNASelection)
+		self.session.openWithCallback(self.updateList, MiniDLNASelection)
 
 class MiniDLNASelection(Screen):
 	def __init__(self, session):
@@ -3407,7 +3408,7 @@ class NetworkPassword(ConfigListScreen, Screen):
 		self.skinName = "Setup"
 		self.onChangedEntry = []
 		self.list = []
-		ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.selectionChanged)
+		ConfigListScreen.__init__(self, self.list, session = self.session, on_change = self.selectionChanged)
 
 		self["key_red"] = StaticText(_("Exit"))
 		self["key_green"] = StaticText(_("Save"))
@@ -3443,7 +3444,7 @@ class NetworkPassword(ConfigListScreen, Screen):
 	def updateList(self):
 		self.password = NoSave(ConfigPassword(default=""))
 		instructions = _("Setting a password is strongly advised if your STB is open to the internet.\nThis is the case if you have in your router a port forwarded to the STB.")
-		self.list.append(getConfigListEntry(_('New password'), self.password, instructions))
+		self.list.append(getConfigListEntry(_("New password"), self.password, instructions))
 		self['config'].list = self.list
 		self['config'].l.setList(self.list)
 
@@ -3461,7 +3462,7 @@ class NetworkPassword(ConfigListScreen, Screen):
 		self.container = eConsoleAppContainer()
 		self.container.appClosed.append(self.runFinished)
 		self.container.dataAvail.append(self.dataAvail)
-		retval = self.container.execute("echo -e '%s\n%s' | (passwd %s)"  % (password, password, self.user))
+		retval = self.container.execute("echo -e '%s\n%s' | (passwd %s)" % (password, password, self.user))
 		if retval:
 			message=_("Unable to change password")
 			self.session.open(MessageBox, message, MessageBox.TYPE_ERROR)
@@ -3481,7 +3482,7 @@ class NetworkPassword(ConfigListScreen, Screen):
 			self.output_line = self.output_line[i+1:]
 
 	def processOutputLine(self, line):
-		if line.find('password: '):
+		if line.find("password: "):
 			self.container.write("%s\n" % self.password.value)
 
 	def runFinished(self, retval):
