@@ -3,7 +3,6 @@ from __future__ import print_function
 from fcntl import ioctl
 from struct import pack, unpack
 from os import path
-from Components.config import config
 
 def getFPVersion():
 	ret = None
@@ -32,6 +31,7 @@ def setFPWakeuptime(wutime):
 			print("[StbHardware] Error: setFPWakeupTime failed!")
 
 def setRTCoffset():
+	from Components.config import config
 	import time
 	if time.localtime().tm_isdst == 0:
 		forsleep = 7200+time.timezone

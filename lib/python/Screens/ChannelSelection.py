@@ -1831,7 +1831,7 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 
 	def toggleTwoLines(self):
 		if config.usage.setup_level.index > 1 and not self.pathChangeDisabled and self.servicelist.mode == self.servicelist.MODE_FAVOURITES:
-			config.usage.servicelist_twolines.value = not config.usage.servicelist_twolines.value
+			config.usage.servicelist_twolines.selectNext()
 			config.usage.servicelist_twolines.save()
 		else:
 			return 0
@@ -2079,8 +2079,8 @@ class ChannelSelection(ChannelSelectionEdit, ChannelSelectionBase, ChannelSelect
 			{
 				"cancel": self.cancel,
 				"ok": self.channelSelected,
-				"keyRadio": self.setModeRadio,
-				"keyTV": self.setModeTv,
+				"keyRadio": self.keyRadio,
+				"keyTV": self.keyTV,
 			})
 
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap=
@@ -2113,6 +2113,7 @@ class ChannelSelection(ChannelSelectionEdit, ChannelSelectionBase, ChannelSelect
 		self.onExecBegin.append(self.asciiOn)
 		self.mainScreenMode = None
 		self.mainScreenRoot = None
+		self.radioTV = 0
 
 		self.lastChannelRootTimer = eTimer()
 		self.lastChannelRootTimer.callback.append(self.__onCreate)
@@ -2143,6 +2144,25 @@ class ChannelSelection(ChannelSelectionEdit, ChannelSelectionBase, ChannelSelect
 
 	def __evServiceEnd(self):
 		self.servicelist.setPlayableIgnoreService(eServiceReference())
+
+	def keyTV(self):
+		if SystemInfo["toggleTvRadioButtonEvents"]:
+			self.toogleTvRadio()
+		else:
+			self.setModeTv()
+
+	def keyRadio(self):
+		if SystemInfo["toggleTvRadioButtonEvents"]:
+			self.toogleTvRadio()
+		else:
+			self.setModeRadio()
+
+	def toogleTvRadio(self):
+		if self.radioTV:
+			self.setModeTv() 
+		else:
+			self.setModeRadio()
+		self.radioTV ^= 1
 
 	def setMode(self):
 		self.rootChanged = True
@@ -2923,6 +2943,7 @@ class SimpleChannelSelection(ChannelSelectionBase):
 		self.bouquet_mark_edit = OFF
 		self.title = title
 		self.currentBouquet = currentBouquet
+		self.radioTV = 0
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
@@ -2947,6 +2968,25 @@ class SimpleChannelSelection(ChannelSelectionBase):
 		elif not (ref.flags & eServiceReference.isMarker):
 			ref = self.getCurrentSelection()
 			self.close(ref)
+
+	def keyTV(self):
+		if SystemInfo["toggleTvRadioButtonEvents"]:
+			self.toogleTvRadio()
+		else:
+			self.setModeTv()
+
+	def keyRadio(self):
+		if SystemInfo["toggleTvRadioButtonEvents"]:
+			self.toogleTvRadio()
+		else:
+			self.setModeRadio()
+
+	def toogleTvRadio(self):
+		if self.radioTV:
+			self.setModeTv() 
+		else:
+			self.setModeRadio()
+		self.radioTV ^= 1
 
 	def setModeTv(self):
 		self.setTvMode()
