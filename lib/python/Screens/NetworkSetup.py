@@ -420,7 +420,7 @@ class NetworkMacSetup(Screen, ConfigListScreen, HelpableScreen):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
 		self.setTitle(_("MAC Address Settings"))
-		self.curMac = self.getmac('eth0')
+		self.curMac = self.getmac("eth0")
 		if self.curMac:
 			self.getConfigMac = NoSave(ConfigMacText(default=self.curMac))
 		self["key_red"] = StaticText(_("Cancel"))
