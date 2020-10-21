@@ -562,7 +562,7 @@ eDVBFrontend::eDVBFrontend(const char *devicenodename, int fe, int &ok, bool sim
 	,m_fd(-1), m_dvbversion(0), m_rotor_mode(false), m_need_rotor_workaround(false), m_multitype(false)
 	,m_state(stateClosed), m_timeout(0), m_tuneTimer(0)
 {
-	eDebug("[eDVBFrontend%d] Initial call opening", m_dvbid);
+	/* eDebug("[eDVBFrontend%d] Initial call opening", m_dvbid); */
 	m_filename = devicenodename;
 
 	m_timeout = eTimer::create(eApp);
@@ -648,7 +648,7 @@ int eDVBFrontend::openFrontend()
 		{
 			if (::ioctl(m_fd, FE_GET_INFO, &fe_info) < 0)
 			{
-				eDebug("[eDVBFrontend] ioctl FE_GET_INFO failed closing m_fd");
+				eWarning("[eDVBFrontend] ioctl FE_GET_INFO failed closing m_fd");
 				::close(m_fd);
 				m_fd = -1;
 				return -1;
@@ -723,7 +723,7 @@ int eDVBFrontend::openFrontend()
 		{
 			m_simulate_fe->m_delsys = m_delsys;
 		}
-		eDebug("[eDVBFrontend] m_sn start and activate m_fd: %d", m_fd);
+		/* eDebug("[eDVBFrontend] m_sn start and activate m_fd: %d", m_fd); */
 		m_sn = eSocketNotifier::create(eApp, m_fd, eSocketNotifier::Read, false);
 		CONNECT(m_sn->activated, eDVBFrontend::feEvent);
 	}
@@ -734,8 +734,8 @@ int eDVBFrontend::openFrontend()
 
 		eDebug("[eDVBFrontend%d] opening frontend", m_dvbid);
 		int tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-		eDebug("[eDVBFrontend] 2 Opened m_filename: %s", m_filename.c_str());
-		eDebug("[eDVBFrontend] 2 Opened tmp_fd: %d", tmp_fd);
+		/* eDebug("[eDVBFrontend] 2 Opened m_filename: %s", m_filename.c_str()); */
+		/* eDebug("[eDVBFrontend] 2 Opened tmp_fd: %d", tmp_fd); */
 		if (tmp_fd < 0)
 		{
 			eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
@@ -746,7 +746,7 @@ int eDVBFrontend::openFrontend()
 			{
 				eWarning("[eDVBFrontend] ioctl FE_GET_INFO on frontend %s failed: %m", m_filename.c_str());
 			}
-			eDebug("[eDVBFrontend] 2 Closing immediately with close cmd tmp_fd: %d", tmp_fd);
+			/* eDebug("[eDVBFrontend] 2 Closing immediately with close cmd tmp_fd: %d", tmp_fd); */
 			::close(tmp_fd);
 		}
 	}
@@ -764,7 +764,7 @@ int eDVBFrontend::openFrontend()
 
 int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 {
-	eDebug("[eDVBFrontend %d] close frontend m_fd: %d", m_dvbid, m_fd);
+	/* eDebug("[eDVBFrontend %d] close frontend m_fd: %d", m_dvbid, m_fd); */
 	if (!force && m_data[CUR_VOLTAGE] != -1 && m_data[CUR_VOLTAGE] != iDVBFrontend::voltageOff)
 	{
 		long tmp = m_data[LINKED_NEXT_PTR];
@@ -835,7 +835,7 @@ int eDVBFrontend::closeFrontend(bool force, bool no_delayed)
 		setTone(iDVBFrontend::toneOff);
 		setVoltage(iDVBFrontend::voltageOff);
 	}
-	eDebug("[eDVBFrontend %d] frontendclose m_sn=0 m_state stateClosed fd: %d", m_dvbid, m_fd);
+	/* eDebug("[eDVBFrontend %d] frontendclose m_sn=0 m_state stateClosed fd: %d", m_dvbid, m_fd); */
 	m_sn=0;
 	m_state = stateClosed;
 
@@ -1716,7 +1716,7 @@ void eDVBFrontend::tuneLoop()
 
 int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 {
-	eDebug("[eDVBFrontend] tuneLoopInt");
+	/* eDebug("[eDVBFrontend] tuneLoopInt"); */
 	int delay=-1;
 	eDVBFrontend *sec_fe = this;
 	eDVBRegisteredFrontend *regFE = 0;
@@ -1731,7 +1731,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 			// workaround to put the kernel frontend thread into idle state!
 			if (state != eDVBFrontend::stateIdle && state != stateClosed)
 			{
-				eDebug("[eDVBFrontend] tuneLoopint tuner %d is closed m_sn stop", m_dvbid);
+				/* eDebug("[eDVBFrontend] tuneLoopint tuner %d is closed m_sn stop", m_dvbid); */
 				sec_fe->m_sn->stop();
 				state = sec_fe->m_state = stateIdle;
 			}
@@ -1912,7 +1912,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 						m_state = stateLock;
 						m_stateChanged(this);
 						feEvent(-1); // flush events
-						eDebugNoSimulate("[eDVBFrontend%d] tuneLoopint m_sn start", m_dvbid);
+						/* eDebugNoSimulate("[eDVBFrontend%d] tuneLoopint m_sn start", m_dvbid); */
 						m_sn->start();
 						break;
 					}
@@ -2137,7 +2137,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 		eDebug("[eDVBFrontend%d] setting frontend", m_dvbid);
 		if (recvEvents)
 			{
-			eDebug("recvEvents-> socket start %d m_sn start", m_dvbid);
+			/* eDebug("recvEvents-> socket start %d m_sn start", m_dvbid); */
 			m_sn->start();
 			}
 		feEvent(-1); // flush events
@@ -2485,7 +2485,7 @@ void eDVBFrontend::setFrontend(bool recvEvents)
 
 RESULT eDVBFrontend::prepare_sat(const eDVBFrontendParametersSatellite &feparm, unsigned int tunetimeout)
 {
-	eDebugNoSimulate("[eDVBFrontend%d] prepare_sat");
+	/* eDebugNoSimulate("[eDVBFrontend%d] prepare_sat"); */
 	int res;
 	satfrequency = feparm.frequency;
 	if (!m_sec)
@@ -2581,7 +2581,7 @@ RESULT eDVBFrontend::tune(const iDVBFrontendParameters &where, bool blindscan)
 
 	if (!m_simulate)
 		{
-		eDebug("[eDVBFrontend] tune:finished? m_sn->stop()");
+		/* eDebug("[eDVBFrontend] tune:finished? m_sn->stop()"); */
 		m_sn->stop();
 		}
 	m_sec_sequence.clear();
