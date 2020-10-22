@@ -115,7 +115,7 @@ class VideoWizard(WizardLanguage, Rc):
 				picname = "DVI"
 			if picname == "RCA" and hasRCA:
 				picname = "RCA"
-			if picname == "Scart"  and hasJack and not hasScart:
+			if picname == "Scart" and hasJack and not hasScart:
 				picname = "JACK"
 			if picname == "Scart" and hasRCA and not hasScart:
 				picname = "RCA"
