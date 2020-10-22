@@ -73,6 +73,9 @@ class EPGSelection(EPGSelectionChannel):
 	def infoKeyPressed(self):
 		self.openEventView()
 
+	def eventSelected(self): # used by EPG Search plugin
+		self.openEventView()
+
 	def epgButtonPressed(self):
 		self.openEventView()
 
