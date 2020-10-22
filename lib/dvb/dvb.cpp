@@ -88,7 +88,6 @@ eDVBResourceManager::eDVBResourceManager()
 {
 	avail = 1;
 	busy = 0;
-	/* int myFdKluge = 0; */
 	m_sec = new eDVBSatelliteEquipmentControl(m_frontend, m_simulate_frontend);
 
 	if (!instance)
@@ -111,7 +110,6 @@ eDVBResourceManager::eDVBResourceManager()
 		adapter->scanDevices();
 		addAdapter(adapter, true);
 	}
-	/* myFdKluge -= 1; */
 	eDebug("[eDVB][eDVBResourceManager] found %zd adapter, %zd frontends(%zd sim) and %zd demux",
 		m_adapter.size(), m_frontend.size(), m_simulate_frontend.size(), m_demux.size());
 
