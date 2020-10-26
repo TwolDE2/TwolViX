@@ -58,6 +58,7 @@ int eMPEGStreamInformation::load(const char *filename)
 	//eDebug("[eMPEGStreamInformation] {%d} load(%s)", gettid(), filename);
 	close();
 	std::string s_filename(filename);
+	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
 	/* eDebug("[pvrparse][MPEGStream]  Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
@@ -648,6 +649,7 @@ eMPEGStreamInformationWriter::~eMPEGStreamInformationWriter()
 int eMPEGStreamInformationWriter::startSave(const std::string& filename)
 {
 	m_filename = filename;
+	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
 	/* eDebug("[pvrparse][MPEGStream]  Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
