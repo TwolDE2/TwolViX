@@ -604,7 +604,7 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			int tmp_fd = -1;
-			tmp_fd = ::open(m_filename.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+			tmp_fd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 			/* eDebug("[eDVBFrontend] 0 Opened tmp_fd: %d", tmp_fd); */
 			if (tmp_fd == 0)
 			{
