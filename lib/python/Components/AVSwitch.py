@@ -79,7 +79,8 @@ class AVSwitch:
 	modes["HDMI"] = SystemInfo["VideoModes"][0]
 	widescreen_modes = SystemInfo["VideoModes"][1]
 
-	modes["YPbPr"] = modes["HDMI"]
+	if getHaveYUV():
+		modes["YPbPr"] = modes["HDMI"]
 
 	if SystemInfo["Scart-YPbPr"]:
 		modes["Scart-YPbPr"] = modes["HDMI"]
@@ -88,14 +89,17 @@ class AVSwitch:
 	# 	print("[VideoHardware] remove DVI-PC because of not existing modes"
 	# 	del modes["DVI-PC"]
 
-	if "YPbPr" in modes and SystemInfo["no_YPbPr"]:
-		del modes["YPbPr"]
 
-	if "Scart" in modes and SystemInfo["yellow_RCA_no_scart"]:
+	if hasRCA:
 		modes["RCA"] = modes["Scart"]
+
+	if hasJack:
+		modes["Jack"] = modes["Scart"]
+
+	if not hasScart:
 		del modes["Scart"]
-	if "Scart" in modes and not hasScart and not hasRCA and not hasJack:
-		del modes["Scart"]
+
+	print("[AVSwitch] Modes-B are %s" % modes)
 
 	def __init__(self):
 		self.last_modes_preferred = []
@@ -234,6 +238,7 @@ class AVSwitch:
 		config.av.videorate = ConfigSubDict()
 		# create list of output ports
 		portlist = self.getPortList()
+		print("[AVSwitch] portlist is %s" % portlist)
 		for port in portlist:
 			descr = port
 			if "HDMI" in port:
@@ -944,3 +949,44 @@ def InitAVSwitch():
 		config.av.scaler_sharpness = NoSave(ConfigNothing())
 	config.av.edid_override = ConfigYesNo(default = False)
 	iAVSwitch.setConfiguredMode()
+
+class VideomodeHotplug:
+	def __init__(self):
+		pass
+
+	def start(self):
+		iAVSwitch.on_hotplug.append(self.hotplug)
+
+	def stop(self):
+		iAVSwitch.on_hotplug.remove(self.hotplug)
+
+	def hotplug(self, what):
+		print("[VideoHardware] hotplug detected on port '%s'" % what)
+		port = config.av.videoport.value
+		mode = config.av.videomode[port].value
+		rate = config.av.videorate[mode].value
+
+		if not iAVSwitch.isModeAvailable(port, mode, rate):
+			print("[VideoHardware] mode %s/%s/%s went away!" % (port, mode, rate))
+			modelist = iAVSwitch.getModeList(port)
+			if not len(modelist):
+				print("[VideoHardware] sorry, no other mode is available (unplug?). Doing nothing.")
+				return
+			mode = modelist[0][0]
+			rate = modelist[0][1]
+			print("[VideoHardware] setting %s/%s/%s" % (port, mode, rate))
+			iAVSwitch.setMode(port, mode, rate)
+
+hotplug = None
+
+def startHotplug():
+	global hotplug
+	hotplug = VideomodeHotplug()
+	hotplug.start()
+
+def stopHotplug():
+	global hotplug
+	hotplug.stop()
+
+def InitiVideomodeHotplug(**kwargs):
+	startHotplug()

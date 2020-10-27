@@ -98,8 +98,8 @@ SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/HdmiCEC/plugin.pyo")
 SystemInfo["HasHDMIin"] = getHaveHDMIinHD() in ("True",) or getHaveHDMIinFHD() in ("True",)
 #	Audio/Video Configuration setup values
-# Machines that do have SCART component video (red, green and blue RCA sockets).
-SystemInfo["Scart-YPbPr"] = getHaveYUV() in ("True",)
+# Machines that out component video via scart socket.
+SystemInfo["Scart-YPbPr"] = getHaveSCARTYUV() in ("True",)
 # Machines that do not have component video (red, green and blue RCA sockets).
 SystemInfo["no_YPbPr"] = not getHaveYUV()
 # Machines that have composite video (yellow RCA socket) but do not have Scart.
