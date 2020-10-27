@@ -628,6 +628,7 @@ profile("AVSwitch")
 print("[Enigma2] Initialising AVSwitch.")
 import Components.AVSwitch
 Components.AVSwitch.InitAVSwitch()
+Components.AVSwitch.InitiVideomodeHotplug()
 
 profile("EpgConfig")
 import Components.EpgConfig

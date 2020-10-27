@@ -87,10 +87,8 @@ class VideoWizard(WizardLanguage, Rc):
 					descr = "DVI"
 				elif descr == "RCA" and hasRCA:
 					descr = "RCA"
-				elif descr == "Scart" and hasJack and not hasScart:
-					descr = "JACK"
-				elif descr == "Scart" and hasRCA and not hasScart:
-					descr = "RCA"
+				elif descr == "Jack" and hasJack:
+					descr = "Jack"
 				elif descr == "Scart" and not hasScart:
 					continue
 				if port != "DVI-PC":
@@ -115,10 +113,10 @@ class VideoWizard(WizardLanguage, Rc):
 				picname = "DVI"
 			if picname == "RCA" and hasRCA:
 				picname = "RCA"
-			if picname == "Scart" and hasJack and not hasScart:
+			if picname == "Jack" and hasJack:
 				picname = "JACK"
-			if picname == "Scart" and hasRCA and not hasScart:
-				picname = "RCA"
+			if picname == "Scart" and hasScart:
+				picname = "Scart"
 			self["portpic"].instance.setPixmapFromFile(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/%s.png" % picname))
 
 	def inputSelect(self, port):
