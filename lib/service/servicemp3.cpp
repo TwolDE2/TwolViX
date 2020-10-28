@@ -605,14 +605,14 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	else if ( m_sourceinfo.containertype == ctVCD )
 	{
 		int tmp_fd = -1;
-		tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+		tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
 		/* eDebug("[servicemp3] Twol00 Opened tmp_fd: %d", tmp_fd); */
 		if (tmp_fd == 0)
 		{
 			::close(tmp_fd);
 			tmp_fd = -1;	
-			myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-			/* eDebug("[servicemp3] opening console fd returned: %d", myFdKluge); */
+			myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+			/* eDebug("[servicemp3] opening null fd returned: %d", myFdKluge); */
 		}
 		if (tmp_fd != -1)
 		{

@@ -83,14 +83,14 @@ int eDVBDemux::openDemux(void)
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/demux%d", adapter, demux);
 	eDebug("[eDVBDemux] open demux %s", filename);
 	int tmp_fd = -1;
-	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
 	/* eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-		/* eDebug("[eDVBDemux] opening console fd returned: %d", myFdKluge); */
+		myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		/* eDebug("[eDVBDemux] opening null fd returned: %d", myFdKluge); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -108,14 +108,14 @@ int eDVBDemux::openDVR(int flags)
 	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/dvr%d", adapter, demux);
 	eDebug("[eDVBDemux] open dvr %s", filename);
 	int tmp_fd = -1;
-	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
 	/* eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-		/* eDebug("[eDVBDemux] opening console fd returned: %d", myFdKluge); */
+		myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		/* eDebug("[eDVBDemux] opening null fd returned: %d", myFdKluge); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -829,14 +829,14 @@ RESULT eDVBTSRecorder::start()
 	char filename[128];
 	snprintf(filename, 128, "/dev/dvb/adapter%d/demux%d", m_demux->adapter, m_demux->demux);
 	int tmp_fd = -1;
-	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
 	/* eDebug("[eDVBTSRecorder] Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-		/* eDebug("[eDVBTSRecorder] opening console fd returned: %d", myFdKluge); */
+		myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		/* eDebug("[eDVBTSRecorder] opening null fd returned: %d", myFdKluge); */
 	}
 	if (tmp_fd != -1)
 	{

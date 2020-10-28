@@ -65,8 +65,8 @@ int eMPEGStreamInformation::load(const char *filename)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-		/* eDebug("[pvrparse][MPEGStream] opening console fd returned: %d", myFdKluge); */
+		myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		/* eDebug("[pvrparse][MPEGStream] opening null fd returned: %d", myFdKluge); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -656,8 +656,8 @@ int eMPEGStreamInformationWriter::startSave(const std::string& filename)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-		/* eDebug("[pvrparse][MPEGStream] opening console fd returned: %d", myFdKluge); */
+		myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		/* eDebug("[pvrparse][MPEGStream] opening null fd returned: %d", myFdKluge); */
 	}
 	if (tmp_fd != -1)
 	{

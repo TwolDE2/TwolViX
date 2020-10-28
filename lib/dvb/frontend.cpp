@@ -604,14 +604,14 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			int tmp_fd = -1;
-			tmp_fd = ::open("/dev/console", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+			tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
 			/* eDebug("[eDVBFrontend] 0 Opened tmp_fd: %d", tmp_fd); */
 			if (tmp_fd == 0)
 			{
 				::close(tmp_fd);
 				tmp_fd = -1;	
-				myFdKluge = ::open("/dev/console", O_RDONLY | O_NONBLOCK);
-				/* eDebugNoSimulate("[eDVBFrontend] 0 opening console fd returned: %d", myFdKluge); */
+				myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+				/* eDebugNoSimulate("[eDVBFrontend] 0 opening null fd returned: %d", myFdKluge); */
 			}
 			if (tmp_fd != -1)
 			{
