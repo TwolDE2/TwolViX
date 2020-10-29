@@ -1,7 +1,7 @@
 from __future__ import print_function
 import six
 
-from os import path as os_path, remove, unlink, rename, chmod, access, X_OK
+from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
 from random import Random
 from subprocess import call
 
