@@ -3073,29 +3073,30 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 
 		if (!m_noaudio)
 			m_decoder->setAudioChannel(achannel);
-
-		if (mustPlay && m_decode_demux && m_decoder_index == 0)
+		if (!m_is_stream)
 		{
-			eDebug("[servicedvb][eDVBServicePlay] m_teletext_parser active");
-			m_teletext_parser = new eDVBTeletextParser(m_decode_demux);
-			m_teletext_parser->connectNewStream(sigc::mem_fun(*this, &eDVBServicePlay::newSubtitleStream), m_new_subtitle_stream_connection);
-			m_teletext_parser->connectNewPage(sigc::mem_fun(*this, &eDVBServicePlay::newSubtitlePage), m_new_subtitle_page_connection);
-			m_subtitle_parser = new eDVBSubtitleParser(m_decode_demux);
-			m_subtitle_parser->connectNewPage(sigc::mem_fun(*this, &eDVBServicePlay::newDVBSubtitlePage), m_new_dvb_subtitle_page_connection);
-			if (m_timeshift_changed)
+			if (mustPlay && m_decode_demux && m_decoder_index == 0)
 			{
-				struct SubtitleTrack track;
-				if (getCachedSubtitle(track) >= 0)
+				eDebug("[servicedvb][eDVBServicePlay] m_teletext_parser active");
+				m_teletext_parser = new eDVBTeletextParser(m_decode_demux);
+				m_teletext_parser->connectNewStream(sigc::mem_fun(*this, &eDVBServicePlay::newSubtitleStream), m_new_subtitle_stream_connection);
+				m_teletext_parser->connectNewPage(sigc::mem_fun(*this, &eDVBServicePlay::newSubtitlePage), m_new_subtitle_page_connection);
+				m_subtitle_parser = new eDVBSubtitleParser(m_decode_demux);
+				m_subtitle_parser->connectNewPage(sigc::mem_fun(*this, &eDVBServicePlay::newDVBSubtitlePage), m_new_dvb_subtitle_page_connection);
+				if (m_timeshift_changed)
 				{
-					if (track.type == 0) // dvb
-						m_subtitle_parser->start(track.pid, track.page_number, track.magazine_number);
-					else if (track.type == 1) // ttx
-						m_teletext_parser->setPageAndMagazine(track.page_number, track.magazine_number, track.language_code.c_str());
+					struct SubtitleTrack track;
+					if (getCachedSubtitle(track) >= 0)
+					{
+						if (track.type == 0) // dvb
+							m_subtitle_parser->start(track.pid, track.page_number, track.magazine_number);
+						else if (track.type == 1) // ttx
+							m_teletext_parser->setPageAndMagazine(track.page_number, track.magazine_number, track.language_code.c_str());
+					}
 				}
+				m_teletext_parser->start(program.textPid);
 			}
-			m_teletext_parser->start(program.textPid);
 		}
-
 		/* don't worry about non-existing services, nor pvr services */
 		if (m_dvb_service)
 		{
