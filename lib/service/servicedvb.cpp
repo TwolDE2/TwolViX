@@ -3357,11 +3357,15 @@ RESULT eDVBServicePlay::getCachedSubtitle(struct SubtitleTrack &track)
 					unsigned int data = (unsigned int)tmp;
 					int pid = (data&0xFFFF0000)>>16;
 					if (program.textPid == pid) // teletext
+					{
 						track.type = 1; // type teletext
 						eDebug("[servicedvb][eDVBServicePlay] program.textPid teletext active");
+					}
 					else
+					{
 						track.type = 0; // type dvb
 						eDebug("[servicedvb][eDVBServicePlay] program.textPid dvb active");
+					}
 					track.pid = pid; // pid
 					track.page_number = (data >> 8) & 0xff; // composition_page / page
 					int k = (data >> 3) & 0x1f;
