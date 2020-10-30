@@ -3076,6 +3076,7 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 
 		if (mustPlay && m_decode_demux && m_decoder_index == 0)
 		{
+			eDebug("[servicedvb][eDVBServicePlay] m_teletext_parser active");
 			m_teletext_parser = new eDVBTeletextParser(m_decode_demux);
 			m_teletext_parser->connectNewStream(sigc::mem_fun(*this, &eDVBServicePlay::newSubtitleStream), m_new_subtitle_stream_connection);
 			m_teletext_parser->connectNewPage(sigc::mem_fun(*this, &eDVBServicePlay::newSubtitlePage), m_new_subtitle_page_connection);
@@ -3357,8 +3358,10 @@ RESULT eDVBServicePlay::getCachedSubtitle(struct SubtitleTrack &track)
 					int pid = (data&0xFFFF0000)>>16;
 					if (program.textPid == pid) // teletext
 						track.type = 1; // type teletext
+						eDebug("[servicedvb][eDVBServicePlay] program.textPid teletext active");
 					else
 						track.type = 0; // type dvb
+						eDebug("[servicedvb][eDVBServicePlay] program.textPid dvb active");
 					track.pid = pid; // pid
 					track.page_number = (data >> 8) & 0xff; // composition_page / page
 					int k = (data >> 3) & 0x1f;
@@ -3371,6 +3374,7 @@ RESULT eDVBServicePlay::getCachedSubtitle(struct SubtitleTrack &track)
 			{
 				if (program.subtitleStreams[stream].subtitling_type == 1)
 				{
+					eDebug("[servicedvb][eDVBServicePlay] stream program.textPid teletext active");
 					track.type = 1; // type teletext
 					track.pid = program.subtitleStreams[stream].pid;
 					track.page_number = program.subtitleStreams[stream].teletext_page_number & 0xff;
@@ -3380,6 +3384,7 @@ RESULT eDVBServicePlay::getCachedSubtitle(struct SubtitleTrack &track)
 				}
 				else
 				{
+					eDebug("[servicedvb][eDVBServicePlay] stream program.textPid dvb active");
 					track.type = 0; // type dvb
 					track.pid = program.subtitleStreams[stream].pid;
 					track.page_number = program.subtitleStreams[stream].composition_page_id;
