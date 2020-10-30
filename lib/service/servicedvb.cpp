@@ -3073,6 +3073,7 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 
 		if (!m_noaudio)
 			m_decoder->setAudioChannel(achannel);
+
 		if (!m_is_stream)
 		{
 			if (mustPlay && m_decode_demux && m_decoder_index == 0)
