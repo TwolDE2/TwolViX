@@ -22,7 +22,7 @@ from Tools.LoadPixmap import LoadPixmap
 #
 from Tools.Trashcan import getTrashFolder
 import NavigationInstance
-import skin
+from skin import parseColor, parseFont, parseScale
 
 AUDIO_EXTENSIONS = frozenset((".dts", ".mp3", ".wav", ".wave", ".wv", ".oga", ".ogg", ".flac", ".m4a", ".mp2", ".m2a", ".wma", ".ac3", ".mka", ".aac", ".ape", ".alac", ".amr", ".au", ".mid"))
 DVD_EXTENSIONS = frozenset((".iso", ".img", ".nrg"))
@@ -284,7 +284,7 @@ class MovieList(GUIComponent):
 		def warningWrongSkinParameter(string):
 			print("[MovieList] wrong '%s' skin parameters" % string)
 		def font(value):
-			font = skin.parseFont(value, ((1,1),(1,1)))
+			font = parseFont(value, ((1,1),(1,1)))
 			self.fontName = font.family
 			self.fontSize = font.pointSize
 		def pbarShift(value):
@@ -294,23 +294,23 @@ class MovieList(GUIComponent):
 		def pbarLargeWidth(value):
 			self.pbarLargeWidth = int(value)
 		def pbarColour(value):
-			self.pbarColour = skin.parseColor(value).argb()
+			self.pbarColour = parseColor(value).argb()
 		def pbarColourSeen(value):
-			self.pbarColourSeen = skin.parseColor(value).argb()
+			self.pbarColourSeen = parseColor(value).argb()
 		def pbarColourRec(value):
-			self.pbarColourRec = skin.parseColor(value).argb()
+			self.pbarColourRec = parseColor(value).argb()
 		def partIconeShift(value):
 			self.partIconeShift = int(value)
 		def spaceIconeText(value):
 			self.spaceIconeText = int(value)
 		def iconsWidth(value):
-			self.iconsWidth = int(value)
+			self.iconsWidth = parseScale(value)
 		def spaceRight(value):
 			self.spaceRight = int(value)
 		def durationWidth(value):
-			self.durationWidth = int(value)
+			self.durationWidth = parseScale(value)
 		def dateWidth(value):
-			self.dateWidth = int(value)
+			self.dateWidth = parseScale(value)
 			if config.usage.time.wide.value:
 				self.dateWidth = int(self.dateWidth * 1.15)
 		for (attrib, value) in self.skinAttributes[:]:
