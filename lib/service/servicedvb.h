@@ -231,7 +231,7 @@ protected:
 	void serviceEventTimeshift(int event);
 	sigc::signal2<void,iPlayableService*,int> m_event;
 
-	bool m_is_stream;
+	extern bool m_is_stream;
 
 		/* pvr */
 	bool m_is_pvr;
