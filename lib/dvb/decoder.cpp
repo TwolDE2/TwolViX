@@ -3,7 +3,6 @@
 #include <lib/base/eerror.h>
 #include <lib/base/wrappers.h>
 #include <lib/dvb/decoder.h>
-#include <lib/service/servicedvb.h>
 #include <lib/components/tuxtxtapp.h>
 #include <linux/dvb/audio.h>
 #include <linux/dvb/video.h>
@@ -912,7 +911,7 @@ int eTSMPEGDecoder::setState()
 		if (m_text)
 		{
 			m_text->stop();
-			if (m_demux && m_decoder == 0 && !m_is_stream)	// Tuxtxt caching actions only on primary decoder
+			if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
 				eTuxtxtApp::getInstance()->stopCaching();
 		}
 		m_text = 0;
@@ -956,14 +955,14 @@ int eTSMPEGDecoder::setState()
 			if (m_text->startPid(m_textpid))
 				res = -1;
 
-			if (m_demux && m_decoder == 0 && !m_is_stream)	// Tuxtxt caching actions only on primary decoder
+			if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
 			{
 				uint8_t demux = 0;
 				m_demux->getCADemuxID(demux);
 				eTuxtxtApp::getInstance()->startCaching(m_textpid, demux);
 			}
 		}
-		else if (m_demux && m_decoder == 0 && !m_is_stream)	// Tuxtxt caching actions only on primary decoder
+		else if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
 			eTuxtxtApp::getInstance()->resetPid();
 
 		m_changed &= ~changeText;
@@ -1063,7 +1062,7 @@ eTSMPEGDecoder::eTSMPEGDecoder(eDVBDemux *demux, int decoder)
 	sprintf(filename, "/dev/dvb/adapter%d/audio%d", m_demux ? m_demux->adapter : 0, m_decoder);
 	m_has_audio = !access(filename, W_OK);
 
-	if (m_demux && m_decoder == 0 && !m_is_stream)	// Tuxtxt caching actions only on primary decoder
+	if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
 		eTuxtxtApp::getInstance()->initCache();
 }
 
@@ -1074,7 +1073,7 @@ eTSMPEGDecoder::~eTSMPEGDecoder()
 	m_changed = -1;
 	setState();
 
-	if (m_demux && m_decoder == 0 && !m_is_stream)	// Tuxtxt caching actions only on primary decoder
+	if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
 		eTuxtxtApp::getInstance()->freeCache();
 }
 
