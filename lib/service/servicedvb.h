@@ -10,6 +10,7 @@
 #include <lib/dvb/teletext.h>
 #include <lib/dvb/radiotext.h>
 
+extern	bool m_is_stream;
 class eStaticServiceDVBInformation;
 class eStaticServiceDVBBouquetInformation;
 
@@ -228,8 +229,6 @@ protected:
 	void serviceEvent(int event);
 	void serviceEventTimeshift(int event);
 	sigc::signal2<void,iPlayableService*,int> m_event;
-
-	bool m_is_stream;
 
 		/* pvr */
 	bool m_is_pvr;
