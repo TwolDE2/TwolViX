@@ -23,6 +23,8 @@
 #define AUDIO_SOURCE_HDMI 2
 #endif
 
+bool m_is_streamx;
+
 DEFINE_REF(eDVBAudio);
 
 eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
