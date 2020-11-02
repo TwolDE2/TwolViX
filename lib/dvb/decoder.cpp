@@ -883,7 +883,7 @@ int eTSMPEGDecoder::setState()
 		m_changed |= changeText | changeState;
 
 	const char *decoder_states[] = {"stop", "pause", "play", "decoderfastforward", "trickmode", "slowmotion"};
-	eDebug("[eTSMPEGDecoder] decoder state: %s, vpid=%04x, apid=%04x", decoder_states[m_state], m_vpid, m_apid);
+	eDebug("[decoder][eTSMPEGDecoder] decoder state: %s, vpid=%04x, apid=%04x", decoder_states[m_state], m_vpid, m_apid);
 
 	int changed = m_changed;
 	if (m_changed & changePCR)
@@ -912,7 +912,8 @@ int eTSMPEGDecoder::setState()
 		if (m_text)
 		{
 			m_text->stop();
-			if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
+			if (m_demux && m_decoder == 0 && m_is_streamx == 0)	// Tuxtxt caching actions only on primary decoder and not stream
+				eDebug("[decoder][eDVBText] stopCaching");
 				eTuxtxtApp::getInstance()->stopCaching();
 		}
 		m_text = 0;
@@ -952,20 +953,26 @@ int eTSMPEGDecoder::setState()
 	{
 		if ((m_textpid >= 0) && (m_textpid < 0x1FFF) && !nott)
 		{
+			eDebug("[decoder][eDVBText] startPID entry  M_is_stream %d", m_is_streamx);	// m_is_streamx set in servicedvb 0 = false 1 = stream
 			m_text = new eDVBTText(m_demux, m_decoder);
 			if (m_text->startPid(m_textpid))
-				res = -1;
-
-			if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
 			{
+				eDebug("[decoder][eDVBText] startPID");
+				res = -1;
+			}
+			if (m_demux && m_decoder == 0 && m_is_streamx == 0)	// Tuxtxt caching actions only on primary decoder and not stream = false(0)
+			{
+				eDebug("[decoder][eDVBText] startCaching  M_is_stream %d", m_is_streamx);
 				uint8_t demux = 0;
 				m_demux->getCADemuxID(demux);
 				eTuxtxtApp::getInstance()->startCaching(m_textpid, demux);
 			}
 		}
-		else if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
+		else if (m_demux && m_decoder == 0)	// Tuxtxt caching actions only on primary decoder
+		{
+			eDebug("[decoder][eDVBText] resetPID");
 			eTuxtxtApp::getInstance()->resetPid();
-
+		}
 		m_changed &= ~changeText;
 	}
 
@@ -1063,8 +1070,11 @@ eTSMPEGDecoder::eTSMPEGDecoder(eDVBDemux *demux, int decoder)
 	sprintf(filename, "/dev/dvb/adapter%d/audio%d", m_demux ? m_demux->adapter : 0, m_decoder);
 	m_has_audio = !access(filename, W_OK);
 
-	if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
+	if (m_demux && m_decoder == 0)	// Tuxtxt caching actions only on primary decoder
+	{
+		eDebug("[decoder][eDVBText] initCache");
 		eTuxtxtApp::getInstance()->initCache();
+	}
 }
 
 eTSMPEGDecoder::~eTSMPEGDecoder()
@@ -1074,8 +1084,11 @@ eTSMPEGDecoder::~eTSMPEGDecoder()
 	m_changed = -1;
 	setState();
 
-	if (m_demux && m_decoder == 0 && !m_is_streamx)	// Tuxtxt caching actions only on primary decoder
+	if (m_demux && m_decoder == 0)	// Tuxtxt caching actions only on primary decoder
+	{
+		eDebug("[decoder][eDVBText] freeCache");
 		eTuxtxtApp::getInstance()->freeCache();
+	}
 }
 
 RESULT eTSMPEGDecoder::setVideoPID(int vpid, int type)
@@ -1117,7 +1130,7 @@ RESULT eTSMPEGDecoder::setAudioChannel(int channel)
 			m_audio_channel=channel;
 		}
 		else
-			eDebug("[eTSMPEGDecoder] setAudioChannel but no audio decoder exist");
+			eDebug("[decoder][eTSMPEGDecoder] setAudioChannel but no audio decoder exist");
 	}
 	return 0;
 }
@@ -1284,7 +1297,7 @@ RESULT eTSMPEGDecoder::showSinglePic(const char *filename)
 {
 	if (m_decoder == 0)
 	{
-		eDebug("[eTSMPEGDecoder] showSinglePic %s", filename);
+		eDebug("[decoder][eTSMPEGDecoder] showSinglePic %s", filename);
 		int f = open(filename, O_RDONLY);
 		if (f >= 0)
 		{
@@ -1313,19 +1326,19 @@ RESULT eTSMPEGDecoder::showSinglePic(const char *filename)
 					streamtype = VIDEO_STREAMTYPE_MPEG2;
 #if HAVE_HISILICON
 				if (ioctl(m_video_clip_fd, VIDEO_SELECT_SOURCE, 0xff) < 0)
-					eDebug("[eTSMPEGDecoder] VIDEO_SELECT_SOURCE MEMORY failed: %m");
+					eDebug("[decoder][eTSMPEGDecoder] VIDEO_SELECT_SOURCE MEMORY failed: %m");
 #else
 				if (ioctl(m_video_clip_fd, VIDEO_SELECT_SOURCE, VIDEO_SOURCE_MEMORY) < 0)
-					eDebug("[eTSMPEGDecoder] VIDEO_SELECT_SOURCE MEMORY failed: %m");
+					eDebug("[decoder][eTSMPEGDecoder] VIDEO_SELECT_SOURCE MEMORY failed: %m");
 #endif
 				if (ioctl(m_video_clip_fd, VIDEO_SET_STREAMTYPE, streamtype) < 0)
-					eDebug("[eTSMPEGDecoder] VIDEO_SET_STREAMTYPE failed: %m");
+					eDebug("[decoder][eTSMPEGDecoder] VIDEO_SET_STREAMTYPE failed: %m");
 				if (ioctl(m_video_clip_fd, VIDEO_PLAY) < 0)
-					eDebug("[eTSMPEGDecoder] VIDEO_PLAY failed: %m");
+					eDebug("[decoder][eTSMPEGDecoder] VIDEO_PLAY failed: %m");
 				if (ioctl(m_video_clip_fd, VIDEO_CONTINUE) < 0)
-					eDebug("[eTSMPEGDecoder] VIDEO_CONTINUE: %m");
+					eDebug("[decoder][eTSMPEGDecoder] VIDEO_CONTINUE: %m");
 				if (ioctl(m_video_clip_fd, VIDEO_CLEAR_BUFFER) < 0)
-					eDebug("[eTSMPEGDecoder] VIDEO_CLEAR_BUFFER: %m");
+					eDebug("[decoder][eTSMPEGDecoder] VIDEO_CLEAR_BUFFER: %m");
 				while(pos <= (s.st_size-4) && !(seq_end_avail = (!iframe[pos] && !iframe[pos+1] && iframe[pos+2] == 1 && iframe[pos+3] == 0xB7)))
 					++pos;
 				if ((iframe[3] >> 4) != 0xE) // no pes header
@@ -1346,13 +1359,13 @@ RESULT eTSMPEGDecoder::showSinglePic(const char *filename)
 		}
 		else
 		{
-			eDebug("[eTSMPEGDecoder] couldnt open %s: %m", filename);
+			eDebug("[decoder][eTSMPEGDecoder] couldnt open %s: %m", filename);
 			return -1;
 		}
 	}
 	else
 	{
-		eDebug("[eTSMPEGDecoder] only show single pics on first decoder");
+		eDebug("[decoder][eTSMPEGDecoder] only show single pics on first decoder");
 		return -1;
 	}
 	return 0;
@@ -1363,9 +1376,9 @@ void eTSMPEGDecoder::finishShowSinglePic()
 	if (m_video_clip_fd >= 0)
 	{
 		if (ioctl(m_video_clip_fd, VIDEO_STOP, 0) < 0)
-			eDebug("[eTSMPEGDecoder] VIDEO_STOP failed: %m");
+			eDebug("[decoder][eTSMPEGDecoder] VIDEO_STOP failed: %m");
 		if (ioctl(m_video_clip_fd, VIDEO_SELECT_SOURCE, VIDEO_SOURCE_DEMUX) < 0)
-				eDebug("[eTSMPEGDecoder] VIDEO_SELECT_SOURCE DEMUX failed: %m");
+				eDebug("[decoder][eTSMPEGDecoder] VIDEO_SELECT_SOURCE DEMUX failed: %m");
 		close(m_video_clip_fd);
 		m_video_clip_fd = -1;
 	}
