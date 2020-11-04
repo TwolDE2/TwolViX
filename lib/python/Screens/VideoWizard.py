@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-from boxbranding import getHaveAVJACK, getHaveDVI, getHaveRCA, getHaveSCART
+from boxbranding import getHaveAVJACK,getHaveRCA, getHaveSCART
 from Components.AVSwitch import iAVSwitch as iAV
 from Components.config import config, ConfigBoolean, configfile
 from Components.Pixmap import Pixmap
@@ -13,10 +13,9 @@ from Tools.HardwareInfo import HardwareInfo
 
 config.misc.showtestcard = ConfigBoolean(default = False)
 
-hasRCA = getHaveRCA() in ("True",)
-hasDVI = getHaveDVI() in ("True",)
-hasJack = getHaveAVJACK() in ("True",)
-hasScart = getHaveSCART() in ("True",)
+hasJack = getHaveAVJACK() in ('True',)
+hasRCA = getHaveRCA() in ('True',)
+hasScart = getHaveSCART() in ('True',)
 
 
 class VideoWizardSummary(WizardSummary):
@@ -83,9 +82,7 @@ class VideoWizard(WizardLanguage, Rc):
 		for port in iAV.getPortList():
 			if iAV.isPortUsed(port):
 				descr = port
-				if descr == "HDMI" and hasDVI:
-					descr = "DVI"
-				elif descr == "Scart" and not hasScart:
+				if descr == "Scart" and not hasScart:
 					continue
 				if port != "DVI-PC":
 					list.append((descr, port))
@@ -105,8 +102,6 @@ class VideoWizard(WizardLanguage, Rc):
 		self.inputSelect(self.selection)
 		if self["portpic"].instance is not None:
 			picname = self.selection
-#			if picname == "HDMI" and hasDVI:	# DVI not supported
-#				picname = "DVI"
 			if picname == "Jack":
 				picname = "JACK"
 			if picname == "Scart-YPbPr":

@@ -98,14 +98,6 @@ SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/HdmiCEC/plugin.pyo")
 SystemInfo["HasHDMIin"] = getHaveHDMIinHD() in ("True",) or getHaveHDMIinFHD() in ("True",)
 #	Audio/Video Configuration setup values
-# Machines that out component video via scart socket.
-SystemInfo["Scart-YPbPr"] = getHaveSCARTYUV() in ("True",)
-# Machines that do not have component video (red, green and blue RCA sockets).
-SystemInfo["no_YPbPr"] = not getHaveYUV()
-# Machines that have composite video (yellow RCA socket) but do not have Scart.
-SystemInfo["yellow_RCA_no_scart"] = not getHaveSCART() and (getHaveRCA() in ("True",) or getHaveAVJACK() in ("True",))
-# Machines that have neither yellow RCA nor Scart sockets.
-SystemInfo["no_yellow_RCA__no_scart"] = not getHaveRCA() and (not getHaveSCART() and not getHaveAVJACK())
 # Videomodes
 SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
 		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "hi3798cv200", "3798cv200", "hi3716mv430", "3798mv200", "hi3798mv200"

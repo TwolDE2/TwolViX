@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import os
 
 from enigma import eAVSwitch, getDesktop
-from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveDVI, getHaveHDMI, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getMachineBuild
+from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getMachineBuild
 
 from Components.About import about
 from Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
@@ -16,32 +16,21 @@ config.av = ConfigSubsection()
 
 
 class AVSwitch:
-	hasDVI = getHaveDVI() in ('True',)
 	hasJack = getHaveAVJACK() in ('True',)
 	hasRCA = getHaveRCA() in ('True',)
 	hasScart = getHaveSCART() in ('True',)
-
-	print("VideoWizard", "hasDVI", hasDVI)
-	print("VideoWizard", "hasRCA", hasRCA)
-	print("VideoWizard", "hasJack", hasJack)
-	print("VideoWizard", "hasScart", hasScart)
-
-	print("AVSwitch", "Scart-YPbPr", SystemInfo["Scart-YPbPr"])
-	print("AVSwitch", "no_YPbPr", SystemInfo["no_YPbPr"])
-	print("AVSwitch", "yellow_RCA_no_scart", SystemInfo["yellow_RCA_no_scart"])
-	print("AVSwitch", "no_yellow_RCA__no_scart", SystemInfo["no_yellow_RCA__no_scart"])
+	hasScartYUV = getHaveSCARTYUV() in ('True',)
+	hasYUV = getHaveYUV() in ('True',)
 
 	print("BoxBranding", "MachineBuild", getMachineBuild())
 	print("BoxBranding", "BoxType", getBoxType())
 	print("BoxBranding", "BrandOEM", getBrandOEM())
 	print("BoxBranding", "DisplayType", getDisplayType())
-	print("BoxBranding", "HaveRCA", getHaveRCA())
-	print("BoxBranding", "getHaveDVI", getHaveDVI())
-	print("BoxBranding", "HaveYUV", getHaveYUV())
-	print("BoxBranding", "HaveSCART", getHaveSCART())
-	print("BoxBranding", "HaveAVJACK", getHaveAVJACK())
-	print("BoxBranding", "HaveSCARTYUV", getHaveSCARTYUV())
-	print("BoxBranding", "HaveHDMI", getHaveHDMI())
+	print("AVSwitch", "hasRCA", hasRCA
+	print("AVSwitch", "hasSCART", hasScart
+	print("AVSwitch", "hasJACK", getHaveAVJACK())
+	print("AVSwitch", "hasYUV", hasYUV())
+	print("AVSwitch", "HasSCARTYUV", hasScartYUV())
 
 	rates = {}  # high-level, use selectable modes.
 	modes = {}  # a list of (high-level) modes for a certain port.
@@ -79,10 +68,10 @@ class AVSwitch:
 	modes["HDMI"] = SystemInfo["VideoModes"][0]
 	widescreen_modes = SystemInfo["VideoModes"][1]
 
-	if getHaveYUV():
+	if hasYUV():
 		modes["YPbPr"] = modes["HDMI"]
 
-	if SystemInfo["Scart-YPbPr"]:
+	if hasScartYUV:
 		modes["Scart-YPbPr"] = modes["HDMI"]
 
 	# if "DVI-PC" in modes and not getModeList("DVI-PC"):
