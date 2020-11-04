@@ -16,11 +16,11 @@ config.av = ConfigSubsection()
 
 
 class AVSwitch:
-	hasJack = getHaveAVJACK() in ('True',)
-	hasRCA = getHaveRCA() in ('True',)
-	hasScart = getHaveSCART() in ('True',)
-	hasScartYUV = getHaveSCARTYUV() in ('True',)
-	hasYUV = getHaveYUV() in ('True',)
+	hasJack = getHaveAVJACK() in ('True',)		# also used in VideoWizard
+	hasRCA = getHaveRCA() in ('True',)		# also used in VideoWizard
+	hasScart = getHaveSCART() in ('True',)		# also used in VideoWizard
+	hasScartYUV = getHaveSCARTYUV() in ('True',)	# also used in VideoWizard
+	hasYUV = getHaveYUV() in ('True',)		# also used in VideoWizard
 
 	print("BoxBranding", "MachineBuild", getMachineBuild())
 	print("BoxBranding", "BoxType", getBoxType())

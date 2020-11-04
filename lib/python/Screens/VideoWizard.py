@@ -13,9 +13,11 @@ from Tools.HardwareInfo import HardwareInfo
 
 config.misc.showtestcard = ConfigBoolean(default = False)
 
-hasJack = getHaveAVJACK() in ('True',)
-hasRCA = getHaveRCA() in ('True',)
-hasScart = getHaveSCART() in ('True',)
+	hasJack = getHaveAVJACK() in ('True',)		# also used in AVSwitch
+	hasRCA = getHaveRCA() in ('True',)		# also used in AVSwitch
+	hasScart = getHaveSCART() in ('True',)		# also used in AVSwitch
+	hasScartYUV = getHaveSCARTYUV() in ('True',)	# also used in AVSwitch
+	hasYUV = getHaveYUV() in ('True',)		# also used in AVSwitch
 
 
 class VideoWizardSummary(WizardSummary):
