@@ -26,11 +26,11 @@ class AVSwitch:
 	print("BoxBranding", "BoxType", getBoxType())
 	print("BoxBranding", "BrandOEM", getBrandOEM())
 	print("BoxBranding", "DisplayType", getDisplayType())
-	print("AVSwitch", "hasRCA", hasRCA
-	print("AVSwitch", "hasSCART", hasScart
-	print("AVSwitch", "hasJACK", getHaveAVJACK())
-	print("AVSwitch", "hasYUV", hasYUV())
-	print("AVSwitch", "HasSCARTYUV", hasScartYUV())
+	print("AVSwitch", "hasRCA", hasRCA)
+	print("AVSwitch", "hasSCART", hasScart)
+	print("AVSwitch", "hasJACK", hasJack)
+	print("AVSwitch", "hasYUV", hasYUV)
+	print("AVSwitch", "HasScartYUV", hasScartYUV)
 
 	rates = {}  # high-level, use selectable modes.
 	modes = {}  # a list of (high-level) modes for a certain port.
@@ -62,31 +62,23 @@ class AVSwitch:
 		"640x480": {60: "640x480"}
 	}
 
-	modes["Scart"] = ["PAL", "NTSC", "Multi"]
-	# modes["DVI-PC"] = ["PC"]
-
 	modes["HDMI"] = SystemInfo["VideoModes"][0]
 	widescreen_modes = SystemInfo["VideoModes"][1]
 
-	if hasYUV():
+	if hasYUV:
 		modes["YPbPr"] = modes["HDMI"]
 
 	if hasScartYUV:
 		modes["Scart-YPbPr"] = modes["HDMI"]
 
-	# if "DVI-PC" in modes and not getModeList("DVI-PC"):
-	# 	print("[VideoHardware] remove DVI-PC because of not existing modes"
-	# 	del modes["DVI-PC"]
-
-
 	if hasRCA:
-		modes["RCA"] = modes["Scart"]
+		modes["RCA"] = ["PAL", "NTSC", "Multi"]
 
 	if hasJack:
-		modes["Jack"] = modes["Scart"]
+		modes["Jack"] = ["PAL", "NTSC", "Multi"]
 
-	if not hasScart:
-		del modes["Scart"]
+	if hasScart:
+		modes["Scart"] = ["PAL", "NTSC", "Multi"]
 
 	print("[AVSwitch] Modes-B are %s" % modes)
 
