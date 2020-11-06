@@ -2377,8 +2377,10 @@ bool eDVBServiceBase::tryFallbackTuner(eServiceReferenceDVB &service, bool &is_s
 	size_t index;
 
 	if (is_stream || is_pvr || simulate)
+	{
+		m_is_streamx = false;	// used by decoder.cpp to stop tuxtxt logging on text pid for Fallback Tuner streams
 		return false;
-
+	}
 	if (!eConfigManager::getConfigBoolValue("config.usage.remote_fallback_enabled", false))
 		return false;
 
