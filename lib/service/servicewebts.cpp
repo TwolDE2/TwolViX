@@ -166,7 +166,7 @@ void TSAudioInfoWeb::addAudio(int pid, std::string lang, std::string desc, int t
 
 eServiceWebTS::eServiceWebTS(const eServiceReference &url): m_reference(url), m_pump(eApp, 1)
 {
-	eDebug("ServiceWebTS construct!");
+	eDebug("[servicewebts]ServiceWebTS construct!");
 	m_filename = url.path.c_str();
 	m_vpid = url.getData(0) == 0 ? 0x44 : url.getData(0);
 	m_apid = url.getData(1) == 0 ? 0x45 : url.getData(1);
@@ -176,7 +176,7 @@ eServiceWebTS::eServiceWebTS(const eServiceReference &url): m_reference(url), m_
 
 eServiceWebTS::~eServiceWebTS()
 {
-	eDebug("ServiceWebTS destruct!");
+	eDebug("[servicewebts]ServiceWebTS destruct!");
 	stop();
 }
 
@@ -241,7 +241,7 @@ int eServiceWebTS::openHttpConnection(std::string url)
 	addr.sin_addr.s_addr = *((in_addr_t*)h->h_addr_list[0]);
 	addr.sin_port = htons(port);
 
-	eDebug("connecting to %s", url.c_str());
+	eDebug("[servicewebts]connecting to %s", url.c_str());
 
 	if (connect(fd, (sockaddr*)&addr, sizeof(addr)) == -1) {
 		std::string msg = "connect failed for: " + url;
@@ -266,7 +266,7 @@ int eServiceWebTS::openHttpConnection(std::string url)
 	char* linebuf = (char*)malloc(1000);
 
 	rc = getline(&linebuf, &buflen, fd);
-	//eDebug("RECV(%d): %s", rc, linebuf);
+	//eDebug("[servicewebts]RECV(%d): %s", rc, linebuf);
 	if (rc <= 0)
 	{
 		close(fd);
@@ -279,16 +279,16 @@ int eServiceWebTS::openHttpConnection(std::string url)
 	char statusmsg[100];
 	rc = sscanf(linebuf, "%99s %d %99s", proto, &statuscode, statusmsg);
 	if (rc != 3 || statuscode != 200) {
-		eDebug("wrong response: \"200 OK\" expected.\n %d --- %d",rc,statuscode);
+		eDebug("[servicewebts]wrong response: \"200 OK\" expected.\n %d --- %d",rc,statuscode);
 		free(linebuf);
 		close(fd);
 		return -1;
 	}
-	eDebug("proto=%s, code=%d, msg=%s", proto, statuscode, statusmsg);
+	eDebug("[servicewebts]proto=%s, code=%d, msg=%s", proto, statuscode, statusmsg);
 	while (rc > 0)
 	{
 		rc = getline(&linebuf, &buflen, fd);
-		//eDebug("RECV(%d): %s", rc, linebuf);
+		//eDebug("[servicewebts]RECV(%d): %s", rc, linebuf);
 	}
 	free(linebuf);
 
@@ -307,11 +307,11 @@ RESULT eServiceWebTS::start()
 	eDVBResourceManager::getInstance(rmgr);
 	eDVBChannel dvbChannel(rmgr, 0);
 	if (dvbChannel.getDemux(m_decodedemux, iDVBChannel::capDecode) != 0) {
-		eDebug("Cannot allocate decode-demux");
+		eDebug("[servicewebts]Cannot allocate decode-demux");
 		return -1;
 	}
 	if (m_decodedemux->getMPEGDecoder(m_decoder) != 0) {
-		eDebug("Cannot allocate MPEGDecoder");
+		eDebug("[servicewebts]Cannot allocate MPEGDecoder");
 		return -1;
 	}
 	if (m_destfd == -1)
@@ -319,7 +319,7 @@ RESULT eServiceWebTS::start()
 		m_destfd = m_decodedemux->openDVR(O_WRONLY);
 		if (m_destfd < 0)
 		{
-			eDebug("openDVR failed!");
+			eDebug("[servicewebts]openDVR failed!");
 			return -1;
 		}
 	}
@@ -425,7 +425,7 @@ RESULT eServiceWebTS::unpause()
 		else
 			srcfd = ::open(m_filename.c_str(), O_RDONLY);
 		if (srcfd < 0) {
-			eDebug("Cannot open source stream: %s", m_filename.c_str());
+			eDebug("[servicewebts]Cannot open source stream: %s", m_filename.c_str());
 			return 1;
 		}
 		//m_decodedemux->flush();
@@ -433,7 +433,7 @@ RESULT eServiceWebTS::unpause()
 		//m_decoder->unfreeze();
 	}
 	else
-		eDebug("unpause but thread already running!");
+		eDebug("[servicewebts]unpause but thread already running!");
 	return 0;
 }
 
@@ -747,7 +747,7 @@ void eStreamThreadWeb::thread() {
 
 	r = w = 0;
 	hasStarted();
-	eDebug("eStreamThreadWeb started");
+	eDebug("[servicewebts]eStreamThreadWeb started");
 	while (!m_stop) {
 		pthread_testcancel();
 		FD_ZERO(&rfds);
@@ -765,17 +765,17 @@ void eStreamThreadWeb::thread() {
 		}
 		rc = select(maxfd+1, &rfds, &wfds, NULL, &timeout);
 		if (rc == 0) {
-			eDebug("eStreamThreadWeb::thread: timeout!");
+			eDebug("[servicewebts]eStreamThreadWeb::thread: timeout!");
 			continue;
 		}
 		if (rc < 0) {
-			eDebug("eStreamThreadWeb::thread: error in select (%d)", errno);
+			eDebug("[servicewebts]eStreamThreadWeb::thread: error in select (%d)", errno);
 			break;
 		}
 		if (FD_ISSET(m_srcfd, &rfds)) {
 			rc = ::read(m_srcfd, buf+r, bufsize - r);
 			if (rc < 0) {
-				eDebug("eStreamThreadWeb::thread: error in read (%d)", errno);
+				eDebug("[servicewebts]eStreamThreadWeb::thread: error in read (%d)", errno);
 				m_messagepump.send(evtReadError);
 				break;
 			} else if (rc == 0) {
@@ -786,18 +786,18 @@ void eStreamThreadWeb::thread() {
 					m_messagepump.send(evtSOS);
 				}
 				r += rc;
-				if (r == bufsize) eDebug("eStreamThreadWeb::thread: buffer full");
+				if (r == bufsize) eDebug("[servicewebts]eStreamThreadWeb::thread: buffer full");
 			}
 		}
 		if (FD_ISSET(m_destfd, &wfds) && (w < r) && ((r > bufsize/4) || eof)) {
 			rc = ::write(m_destfd, buf+w, r-w);
 			if (rc < 0) {
-				eDebug("eStreamThreadWeb::thread: error in write (%d)", errno);
+				eDebug("[servicewebts]eStreamThreadWeb::thread: error in write (%d)", errno);
 				m_messagepump.send(evtWriteError);
 				break;
 			}
 			w += rc;
-			//eDebug("eStreamThreadWeb::thread: buffer r=%d w=%d",r,w);
+			//eDebug("[servicewebts]eStreamThreadWeb::thread: buffer r=%d w=%d",r,w);
 			if (w == r) {
 				if (time(0) >= next_scantime) {
 					if (scanAudioInfo(buf, r)) {
@@ -813,13 +813,13 @@ void eStreamThreadWeb::thread() {
 			break;
 		}
 	}
-	eDebug("eStreamThreadWeb end");
+	eDebug("[servicewebts]eStreamThreadWeb end");
 }
 
 void eStreamThreadWeb::thread_finished() {
 	if (m_srcfd >= 0)
 		::close(m_srcfd);
-	eDebug("eStreamThreadWeb closed");
+	eDebug("[servicewebts]eStreamThreadWeb closed");
 	m_running = false;
 }
 
