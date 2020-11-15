@@ -6,7 +6,8 @@ from enigma import eListboxServiceContent, eListbox, eServiceCenter, eServiceRef
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components.Renderer.Picon import getPiconName
-from skin import parseColor, parseFont
+from GUIComponent import GUIComponent
+from skin import parseColor, parseFont, parseScale
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
 from Tools.TextBoundary import getTextBoundarySize
@@ -145,19 +146,19 @@ class ServiceList(GUIComponent):
 			self.ServiceNumberFontName = font.family
 			self.ServiceNumberFontSize = font.pointSize
 		def progressbarHeight(value):
-			self.l.setProgressbarHeight(int(value))
+			self.l.setProgressbarHeight(parseScale(value))
 		def progressbarBorderWidth(value):
-			self.l.setProgressbarBorderWidth(int(value))
+			self.l.setProgressbarBorderWidth(parseScale(value))
 		def progressBarWidth(value):
-			self.progressBarWidth = int(value)
+			self.progressBarWidth = parseScale(value)
 		def progressPercentWidth(value):
 			self.progressPercentWidth = int(value)
 		def fieldMargins(value):
-			self.fieldMargins = int(value)
+			self.fieldMargins = parseScale(value)
 		def nonplayableMargins(value):
-			self.l.setNonplayableMargins(int(value))
+			self.l.setNonplayableMargins(parseScale(value))
 		def itemsDistances(value):
-			self.l.setItemsDistances(int(value))
+			self.l.setItemsDistances(parseScale(value))
 		for (attrib, value) in list(self.skinAttributes):
 			try:
 				locals().get(attrib)(value)
