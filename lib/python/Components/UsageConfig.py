@@ -887,7 +887,7 @@ def InitUsageConfig():
 	config.crash.sizeloglimit = ConfigSelectionNumber(min = 1, max = 20, stepwidth = 1, default = 10, wraparound = True)
 	config.crash.lastfulljobtrashtime = ConfigInteger(default = 1)
 	# config.crash.logtimeformat sets ENIGMA_DEBUG_TIME environmental variable on enigma2 start from enigma2.sh
-	config.crash.logtimeformat = ConfigSelection(default = "1", choices = [
+	config.crash.logtimeformat = ConfigSelection(default = "0", choices = [
 		("0", _("none")),
 		("1", _("boot time")),
 		("2", _("local time")),
