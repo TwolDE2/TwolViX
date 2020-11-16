@@ -1,4 +1,9 @@
-from __future__ import print_function
+		try:
+			from pythonwifi.iwlibs import Wireless
+			import errno
+		except ImportError:
+			return False
+		else:from __future__ import print_function
 import six
 
 from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
@@ -929,16 +934,17 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 				import errno
 			except ImportError:
 				return False
-			try:
-				system("ifconfig %s up" % iface)
-				wlanresponse = list(Cell.all(iface))
-			except IOError as err:
-				error_no, error_str = err.args
-				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-					return False
-				else:
-					print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-					return True
+			else:
+				try:
+					system("ifconfig %s up" % iface)
+					wlanresponse = list(Cell.all(iface))
+				except IOError as err:
+					error_no, error_str = err.args
+					if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+						return False
+					else:
+						print("[AdapterSetupConfiguration] error: ", error_no, error_str)
+						return True
 			else:
 				return True
 
@@ -948,15 +954,16 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 				import errno
 			except ImportError:
 				return False
-			try:
-				ifobj = Wireless(iface) # a Wireless NIC Object
-				wlanresponse = ifobj.getAPaddr()
-			except IOError as error_no:
-				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-					return False
-				else:
-					print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-					return True
+			else:
+				try:
+					ifobj = Wireless(iface) # a Wireless NIC Object
+					wlanresponse = ifobj.getAPaddr()
+				except IOError as error_no:
+					if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+						return False
+					else:
+						print("[AdapterSetupConfiguration] error: ", error_no, error_str)
+						return True
 			else:
 				return True
 
