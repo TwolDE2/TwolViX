@@ -3,16 +3,13 @@ import six
 
 from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
 from random import Random
-from subprocess import call
-
 from shutil import move
-import subprocess
 import string
 import sys
 import time
 
 from enigma import eTimer, eConsoleAppContainer
-from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType
+from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType, getImageVersion
 
 from Components.About import about
 from Components.ActionMap import ActionMap, NumberActionMap, HelpableActionMap
@@ -932,19 +929,18 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 				import errno
 			except ImportError:
 				return False
-			else:
-				try:
-					system("ifconfig "+self.iface+" up")
-					wlanresponse = list(Cell.all(iface))
-				except IOError as err:
-					error_no, error_str = err.args
-					if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-						return False
-					else:
-						print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-						return True
+			try:
+				system("ifconfig %s up" % iface)
+				wlanresponse = list(Cell.all(iface))
+			except IOError as err:
+				error_no, error_str = err.args
+				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+					return False
 				else:
+					print("[AdapterSetupConfiguration] error: ", error_no, error_str)
 					return True
+			else:
+				return True
 
 		if six.PY2:
 			try:
@@ -952,18 +948,17 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 				import errno
 			except ImportError:
 				return False
-			else:
-				try:
-					ifobj = Wireless(iface) # a Wireless NIC Object
-					wlanresponse = ifobj.getAPaddr()
-				except IOError as error_no:
-					if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-						return False
-					else:
-						print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-						return True
+			try:
+				ifobj = Wireless(iface) # a Wireless NIC Object
+				wlanresponse = ifobj.getAPaddr()
+			except IOError as error_no:
+				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+					return False
 				else:
+					print("[AdapterSetupConfiguration] error: ", error_no, error_str)
 					return True
+			else:
+				return True
 
 	def ok(self):
 		self.cleanup()
@@ -3443,13 +3438,13 @@ class NetworkPassword(ConfigListScreen, Screen):
 
 	def updateList(self):
 		self.password = NoSave(ConfigPassword(default=""))
-		instructions = _("Setting a password is strongly advised if your STB is open to the internet.\nThis is the case if you have in your router a port forwarded to the STB.")
-		self.list.append(getConfigListEntry(_("New password"), self.password, instructions))
+		instructions = _("Setting a network password is mandatory in OpenViX %s if you wish to use network services. \nTo set a password using the virtual keyboard press the 'text' button on your remote control.") % getImageVersion()
+		self.list.append(getConfigListEntry(_('New password'), self.password, instructions))
 		self['config'].list = self.list
 		self['config'].l.setList(self.list)
 
 	def GeneratePassword(self):
-		passwdChars = string.letters + string.digits
+		passwdChars = string.ascii_letters + string.digits
 		passwdLength = 10
 		return ''.join(Random().sample(passwdChars, passwdLength))
 
