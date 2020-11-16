@@ -6,7 +6,6 @@ from enigma import eListboxServiceContent, eListbox, eServiceCenter, eServiceRef
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components.Renderer.Picon import getPiconName
-from GUIComponent import GUIComponent
 from skin import parseColor, parseFont, parseScale
 from Tools.Directories import resolveFilename, SCOPE_ACTIVE_SKIN
 from Tools.LoadPixmap import LoadPixmap
