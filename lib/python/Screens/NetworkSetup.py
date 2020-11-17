@@ -4,6 +4,7 @@ from __future__ import division
 import six
 
 from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
+import netifaces as ni
 from random import Random
 from shutil import move
 import string
@@ -13,7 +14,6 @@ import time
 from enigma import eTimer, eConsoleAppContainer
 from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType, getImageVersion
 
-from Components.About import about
 from Components.ActionMap import ActionMap, NumberActionMap, HelpableActionMap
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigIP, ConfigText, ConfigPassword, ConfigSelection, getConfigListEntry, ConfigNumber, ConfigLocations, NoSave, ConfigMacText
 from Components.ConfigList import ConfigListScreen, ConfigList
@@ -449,12 +449,8 @@ class NetworkMacSetup(Screen, ConfigListScreen, HelpableScreen):
 		self.createSetup()
 
 	def getmac(self, iface):
-		eth = about.getIfConfig(iface)
-		print("[NetworkSetup] eth: ", eth)
-		if "hwaddr" in eth:
-			return eth["hwaddr"]
-		else:
-			return "Unable to determine Mac address"
+		nit = ni.ifaddresses(iface)
+		return nit[ni.AF_LINK][0]['addr'] 
 
 	def createSetup(self):
 		self.list = []
