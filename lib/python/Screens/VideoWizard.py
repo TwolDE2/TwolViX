@@ -13,11 +13,6 @@ from Tools.HardwareInfo import HardwareInfo
 
 config.misc.showtestcard = ConfigBoolean(default = False)
 
-hasJack = getHaveAVJACK() in ('True',)		# also used in AVSwitch
-hasRCA = getHaveRCA() in ('True',)		# also used in AVSwitch
-hasScart = getHaveSCART() in ('True',)		# also used in AVSwitch
-
-
 class VideoWizardSummary(WizardSummary):
 	def __init__(self, session, parent):
 		WizardSummary.__init__(self, session, parent)
@@ -27,7 +22,6 @@ class VideoWizardSummary(WizardSummary):
 
 	def setLCDPic(self, file):
 		self["pic"].instance.setPixmapFromFile(file)
-
 
 class VideoWizard(WizardLanguage, Rc):
 	skin = """
@@ -82,7 +76,7 @@ class VideoWizard(WizardLanguage, Rc):
 		for port in iAV.getPortList():
 			if iAV.isPortUsed(port):
 				descr = port
-				if descr == "Scart" and not hasScart:
+				if descr == "Scart" and not SystemInfo["hasScart"]:
 					continue
 				if port != "DVI-PC":
 					list.append((descr, port))
@@ -171,7 +165,7 @@ class VideoWizard(WizardLanguage, Rc):
 		self.rateSelect(self.selection)
 
 	def rateSelect(self, rate):
-		iAV.setMode(port=self.port, mode=self.mode, rate=rate)
+		iAV.setMode(port = self.port, mode = self.mode, rate = rate)
 
 	def showTestCard(self, selection = None):
 		if selection is None:

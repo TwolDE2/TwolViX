@@ -16,21 +16,15 @@ config.av = ConfigSubsection()
 
 
 class AVSwitch:
-	hasJack = getHaveAVJACK() in ('True',)		# also used in VideoWizard
-	hasRCA = getHaveRCA() in ('True',)		# also used in VideoWizard
-	hasScart = getHaveSCART() in ('True',)		# also used in VideoWizard
-	hasScartYUV = getHaveSCARTYUV() in ('True',)	# also used in VideoWizard
-	hasYUV = getHaveYUV() in ('True',)		# also used in VideoWizard
-
 	print("BoxBranding", "MachineBuild", getMachineBuild())
 	print("BoxBranding", "BoxType", getBoxType())
 	print("BoxBranding", "BrandOEM", getBrandOEM())
 	print("BoxBranding", "DisplayType", getDisplayType())
-	print("AVSwitch", "hasRCA", hasRCA)
-	print("AVSwitch", "hasSCART", hasScart)
-	print("AVSwitch", "hasJACK", hasJack)
-	print("AVSwitch", "hasYUV", hasYUV)
-	print("AVSwitch", "HasScartYUV", hasScartYUV)
+	print("AVSwitch", "hasRCA", SystemInfo["hasRCA"])
+	print("AVSwitch", "hasSCART", SystemInfo["hasScart"])
+	print("AVSwitch", "hasJACK", SystemInfo["hasJack"])
+	print("AVSwitch", "hasYUV", SystemInfo["hasYUV"])
+	print("AVSwitch", "HasScartYUV", SystemInfo["hasScartYUV"])
 
 	rates = {}  # high-level, use selectable modes.
 	modes = {}  # a list of (high-level) modes for a certain port.
@@ -65,19 +59,19 @@ class AVSwitch:
 	modes["HDMI"] = SystemInfo["VideoModes"][0]
 	widescreen_modes = SystemInfo["VideoModes"][1]
 
-	if hasYUV:
+	if SystemInfo["hasYUV"]:
 		modes["YPbPr"] = modes["HDMI"]
 
-	if hasScartYUV:
+	if SystemInfo["hasScartYUV"]):
 		modes["Scart-YPbPr"] = modes["HDMI"]
 
-	if hasRCA:
+	if SystemInfo["hasRCA"]
 		modes["RCA"] = ["PAL", "NTSC", "Multi"]
 
-	if hasJack:
+	if SystemInfo["hasJack"]
 		modes["Jack"] = ["PAL", "NTSC", "Multi"]
 
-	if hasScart:
+	if SystemInfo["hasScart"]:
 		modes["Scart"] = ["PAL", "NTSC", "Multi"]
 
 	print("[AVSwitch] Modes-B are %s" % modes)

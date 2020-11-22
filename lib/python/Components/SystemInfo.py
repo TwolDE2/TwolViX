@@ -98,6 +98,11 @@ SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and fileExists("/usr/lib/enigma2/python/Plugins/SystemPlugins/HdmiCEC/plugin.pyo")
 SystemInfo["HasHDMIin"] = getHaveHDMIinHD() in ("True",) or getHaveHDMIinFHD() in ("True",)
 #	Audio/Video Configuration setup values
+SystemInfo["hasJack"] = getHaveAVJACK() in ('True',)
+SystemInfo["hasRCA"] = getHaveRCA() in ('True',)
+SystemInfo["hasScart"] = getHaveSCART() in ('True',)
+SystemInfo["hasScartYUV"] = getHaveSCARTYUV() in ('True',)
+SystemInfo["hasYUV"] = getHaveYUV() in ('True',)
 # Videomodes
 SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
 		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "hi3798cv200", "3798cv200", "hi3716mv430", "3798mv200", "hi3798mv200"
