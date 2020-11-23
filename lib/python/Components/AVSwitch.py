@@ -14,7 +14,6 @@ from Tools.HardwareInfo import HardwareInfo
 
 config.av = ConfigSubsection()
 
-
 class AVSwitch:
 	print("BoxBranding", "MachineBuild", getMachineBuild())
 	print("BoxBranding", "BoxType", getBoxType())
@@ -62,13 +61,13 @@ class AVSwitch:
 	if SystemInfo["hasYUV"]:
 		modes["YPbPr"] = modes["HDMI"]
 
-	if SystemInfo["hasScartYUV"]):
+	if SystemInfo["hasScartYUV"]:
 		modes["Scart-YPbPr"] = modes["HDMI"]
 
-	if SystemInfo["hasRCA"]
+	if SystemInfo["hasRCA"]:
 		modes["RCA"] = ["PAL", "NTSC", "Multi"]
 
-	if SystemInfo["hasJack"]
+	if SystemInfo["hasJack"]:
 		modes["Jack"] = ["PAL", "NTSC", "Multi"]
 
 	if SystemInfo["hasScart"]:
