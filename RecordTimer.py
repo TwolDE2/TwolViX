@@ -99,7 +99,7 @@ def findSafeRecordPath(dirname):
 		try:
 			os.makedirs(dirname)
 		except Exception as ex:
-			print("[RecordTimer] Failed to create dir "%s":" % dirname, ex)
+			print("[RecordTimer] Failed to create dir '%s':" % dirname, ex)
 			return None
 	return dirname
 
@@ -294,7 +294,7 @@ class RecordTimerEntry(timer.TimerEntry, object):
 		self.MountPath = dirname
 		mountwriteable = os.access(dirname, os.W_OK)
 		if not mountwriteable:
-			self.log(0, ("Mount "%s" is not writeable." % dirname))
+			self.log(0, ("Mount '%s' is not writeable." % dirname))
 			return False
 
 		s = os.statvfs(dirname)
@@ -428,9 +428,9 @@ class RecordTimerEntry(timer.TimerEntry, object):
 		self.service_types = service_types_tv
 		if ChannelSelectionInstance:
 			if config.usage.multibouquet.value:
-				bqrootstr = "1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "bouquets.tv" ORDER BY bouquet"
+				bqrootstr = '1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "bouquets.tv" ORDER BY bouquet'
 			else:
-				bqrootstr = "%s FROM BOUQUET "userbouquet.favourites.tv" ORDER BY bouquet" % self.service_types
+				bqrootstr = '%s FROM BOUQUET "userbouquet.favourites.tv" ORDER BY bouquet' % self.service_types
 			rootstr = ""
 			serviceHandler = eServiceCenter.getInstance()
 			rootbouquet = eServiceReference(bqrootstr)
@@ -1088,7 +1088,7 @@ class RecordTimer(timer.Timer):
 			xlist.append(" serviceref='" + stringToXML(str(timer.service_ref)) + "'")
 			xlist.append(" repeated='" + str(int(timer.repeated)) + "'")
 			xlist.append(" rename_repeat='" + str(int(timer.rename_repeat)) + "'")
-			xlist.append(" name='"' + str(stringToXML(timer.name)) + "'")
+			xlist.append(" name='" + str(stringToXML(timer.name)) + "'")
 			xlist.append(" description='" + str(stringToXML(timer.description)) + "'")
 			xlist.append(" afterevent='" + str(stringToXML({
 				AFTEREVENT.NONE: "nothing",

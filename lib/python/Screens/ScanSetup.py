@@ -245,9 +245,9 @@ class CableTransponderSearchSupport:
 				if nim_name == "TT3L10":
 					try:
 						device_id = "--device=%s" % GetDeviceId(nim_name, nim_idx)
-					except Exception, err:
+					except Exception as err:
 						device_id = "--device=0"
-						print "[startCableTransponderSearch] GetCommand ->", err
+						print("[startCableTransponderSearch] GetCommand ->", err)
 				return "%s %s" % (cable_autoscan_nimtype[nim_name], device_id)
 			except Exception as err:
 				print("[startCableTransponderSearch] GetCommand ->", err)
@@ -431,7 +431,7 @@ class TerrestrialTransponderSearchSupport:
 	def setTerrestrialTransponderData(self):
 		data = self.terrestrial_search_data.split()
 		if len(data):
-#			print "[setTerrestrialTransponderData] data : ", data
+#			print("[setTerrestrialTransponderData] data : ", data)
 			if data[0] == 'OK':
 				# DVB-T : OK frequency bandwidth delivery system -1
 				# DVB-T2 : OK frequency bandwidth delivery system number_of_plp plp_id0:plp_type0
@@ -522,7 +522,7 @@ class TerrestrialTransponderSearchSupport:
 			if tunerName in dual_tuner_list:
 				try:
 					device_id = "--device %s" % GetDeviceId(tunerName, nim_idx)
-				except Exception, err:
+				except Exception as err:
 					device_id = "--device 0"
 					print("terrestrialTransponderGetCmd set device 0 ->", err)
 			return "%s %s" % (terrestrial_autoscan_nimtype[tunerName], device_id)

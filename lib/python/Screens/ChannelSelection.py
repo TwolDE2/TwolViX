@@ -182,8 +182,8 @@ class ChannelContextMenu(Screen):
 		current_root = csel.getRoot()
 		current_sel_path = current.getPath()
 		current_sel_flags = current.flags
-		inBouquetRootList = current_root and "FROM BOUQUET "bouquets." in current_root.getPath() #FIXME HACK
-		inAlternativeList = current_root and "FROM BOUQUET "alternatives" in current_root.getPath()
+		inBouquetRootList = current_root and 'FROM BOUQUET "bouquets.' in current_root.getPath() #FIXME HACK
+		inAlternativeList = current_root and 'FROM BOUQUET "alternatives' in current_root.getPath()
 		self.inBouquet = csel.getMutableList() is not None
 		haveBouquets = config.usage.multibouquet.value
 		from Components.ParentalControl import parentalControl
@@ -1010,14 +1010,14 @@ class ChannelSelectionEdit:
 		if mutableBouquet:
 			servicename = cur_service.getServiceName()
 			if six.PY3:
-				name = unicodedata.normalize("NFKD", str(servicename, "utf_8", errors = "ignore")).encode("ASCII", "ignore").translate(None, "<>:"/\\|?*() ")
+				name = unicodedata.normalize("NFKD", str(servicename, "utf_8", errors = "ignore")).encode("ASCII", "ignore").translate(None, '<>:"/\\|?*() ')
 			else:
-				name = unicodedata.normalize("NFKD", unicode(servicename, "utf_8", errors = "ignore")).encode("ASCII", "ignore").translate(None, "<>:"/\\|?*() ")
+				name = unicodedata.normalize("NFKD", unicode(servicename, "utf_8", errors = "ignore")).encode("ASCII", "ignore").translate(None, '<>:"/\\|?*() ')
 			print("[ChannelSelection] [unicodedata1] name =%s" % name)
 			while os.path.isfile((self.mode == MODE_TV and "/etc/enigma2/alternatives.%s.tv" or "/etc/enigma2/alternatives.%s.radio") % name):
 				name = name.rsplit("_", 1)
 				name = ("_").join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or "1"))
-			new_ref = ServiceReference((self.mode == MODE_TV and "1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.tv" ORDER BY bouquet" or "1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.radio" ORDER BY bouquet") % name)
+			new_ref = ServiceReference((self.mode == MODE_TV and '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.tv" ORDER BY bouquet' or '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.radio" ORDER BY bouquet') % name)
 			if not mutableBouquet.addService(new_ref.ref, cur_service.ref):
 				mutableBouquet.removeService(cur_service.ref)
 				mutableBouquet.flushChanges()
@@ -1049,14 +1049,14 @@ class ChannelSelectionEdit:
 		if mutableBouquetList:
 			bName += " " + (_("(TV)") if self.mode == MODE_TV else _("(Radio)"))
 			if six.PY3:
-				name = unicodedata.normalize("NFKD", str(servicename, "utf_8", errors = "ignore")).encode("ASCII", "ignore").translate(None, "<>:"/\\|?*() ")
+				name = unicodedata.normalize("NFKD", str(servicename, "utf_8", errors = "ignore")).encode("ASCII", "ignore").translate(None, '<>:"/\\|?*() ')
 			else:
-				name = unicodedata.normalize("NFKD", unicode(servicename, "utf_8", errors = "ignore")).encode("ASCII", "ignore").translate(None, "<>:"/\\|?*() ")
+				name = unicodedata.normalize("NFKD", unicode(servicename, "utf_8", errors = "ignore")).encode("ASCII", "ignore").translate(None, '<>:"/\\|?*() ')
 			print("[ChannelSelection] [unicodedata2] name =%s" % name)
 			while os.path.isfile((self.mode == MODE_TV and "/etc/enigma2/userbouquet.%s.tv" or "/etc/enigma2/userbouquet.%s.radio") % name):
 				name = name.rsplit("_", 1)
 				name = ("_").join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or "1"))
-			new_bouquet_ref = eServiceReference((self.mode == MODE_TV and "1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "userbouquet.%s.tv" ORDER BY bouquet" or "1:7:2:0:0:0:0:0:0:0:FROM BOUQUET "userbouquet.%s.radio" ORDER BY bouquet") % name)
+			new_bouquet_ref = eServiceReference((self.mode == MODE_TV and '1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "userbouquet.%s.tv" ORDER BY bouquet' or '1:7:2:0:0:0:0:0:0:0:FROM BOUQUET "userbouquet.%s.radio" ORDER BY bouquet') % name)
 			if not mutableBouquetList.addService(new_bouquet_ref):
 				mutableBouquetList.flushChanges()
 				eDVBDB.getInstance().reloadBouquets()
@@ -1458,15 +1458,15 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 		if self.mode == MODE_TV:
 			self.service_types = service_types_tv
 			if config.usage.multibouquet.value:
-				self.bouquet_rootstr = "1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "bouquets.tv" ORDER BY bouquet"
+				self.bouquet_rootstr = '1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "bouquets.tv" ORDER BY bouquet'
 			else:
-				self.bouquet_rootstr = "%s FROM BOUQUET "userbouquet.favourites.tv" ORDER BY bouquet" % self.service_types
+				self.bouquet_rootstr = '%s FROM BOUQUET "userbouquet.favourites.tv" ORDER BY bouquet' % self.service_types
 		else:
 			self.service_types = service_types_radio
 			if config.usage.multibouquet.value:
-				self.bouquet_rootstr = "1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "bouquets.radio" ORDER BY bouquet"
+				self.bouquet_rootstr = '1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "bouquets.radio" ORDER BY bouquet'
 			else:
-				self.bouquet_rootstr = "%s FROM BOUQUET "userbouquet.favourites.radio" ORDER BY bouquet" % self.service_types
+				self.bouquet_rootstr = '%s FROM BOUQUET "userbouquet.favourites.radio" ORDER BY bouquet' % self.service_types
 		self.bouquet_root = eServiceReference(self.bouquet_rootstr)
 
 	def setTvMode(self):
@@ -2347,7 +2347,7 @@ class ChannelSelection(ChannelSelectionEdit, ChannelSelectionBase, ChannelSelect
 		self.session.pip.inactive()
 
 	#called from infoBar and channelSelected
-	def zap(self, enable_pipzap = False, preview_zap = False, checkParentalControl =T rue, ref = None):
+	def zap(self, enable_pipzap = False, preview_zap = False, checkParentalControl = True, ref = None):
 		self.curRoot = self.startRoot
 		nref = ref or self.getCurrentSelection()
 		ref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
@@ -2355,7 +2355,7 @@ class ChannelSelection(ChannelSelectionEdit, ChannelSelectionBase, ChannelSelect
 			ref = self.session.pip.getCurrentService()
 			if ref is None or ref != nref:
 				nref = self.session.pip.resolveAlternatePipService(nref)
-				if nref and (not checkParentalControl or Components.ParentalControl.parentalControl.isServicePlayable(nref, boundFunction(self.zap, enable_pipzap=True, checkParentalControl=False))):
+				if nref and (not checkParentalControl or Components.ParentalControl.parentalControl.isServicePlayable(nref, boundFunction(self.zap, enable_pipzap = True, checkParentalControl = False))):
 					self.session.pip.playService(nref)
 					self.__evServiceStart()
 					self.showPipzapMessage()
