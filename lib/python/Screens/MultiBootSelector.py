@@ -64,7 +64,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.deletedImagesExists = False
 		currentimageslot = GetCurrentImage()
 		mode = GetCurrentImageMode() or 0
-		print("[MultiBootSelector] reboot1 slot:", currentimageslot)
+		print("[MultiBootSelector] reboot0 slot:", currentimageslot)
 		current = "  %s" % _("(Current)")
 		slotSingle = _("Slot %s: %s%s")
 		slotMulti = _("Slot %s: %s - %s mode%s")
