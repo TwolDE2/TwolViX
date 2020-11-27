@@ -33,7 +33,7 @@ import Components.Task
 from Components.VariableText import VariableText
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from skin import getSkinFactor
+from skin import applySkinFactor
 from Tools.TextBoundary import getTextBoundarySize
 
 _session = None
@@ -487,10 +487,9 @@ class LogManagerViewLog(Screen):
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
-		sf = getSkinFactor()
-		font = gFont("Console", int(16*sf))
+		font = gFont("Console", applySkinFactor(16))
 		if not int(fontRenderClass.getInstance().getLineHeight(font)):
-			font = gFont("Regular", int(16*sf))
+			font = gFont("Regular", applySkinFactor(16))
 		self["loglist"].instance.setFont(font)
 		fontwidth = getTextBoundarySize(self.instance, font, self["loglist"].instance.size(), _(" ")).width()
 		listwidth = int(self["loglist"].instance.size().width() // fontwidth) - 2
