@@ -220,18 +220,18 @@ class LogManager(Screen):
 		self.defaultDir = config.crash.debug_path.value
 		self.matchingPattern = "Enigma2_crash_"
 		self.filelist = MultiFileSelectList(self.selectedFiles, self.defaultDir, showDirectories = False, matchingPattern = self.matchingPattern )
-		self["filelist"] = self.filelist
+		self["list"] = self.filelist
 		self["LogsSize"] = self.logsinfo = LogInfo(config.crash.debug_path.value, LogInfo.USED, update=False)
 		self.onLayoutFinish.append(self.layoutFinished)
-		if not self.selectionChanged in self["filelist"].onSelectionChanged:
-			self["filelist"].onSelectionChanged.append(self.selectionChanged)
+		if not self.selectionChanged in self["list"].onSelectionChanged:
+			self["list"].onSelectionChanged.append(self.selectionChanged)
 
 	def createSummary(self):
 		from Screens.PluginBrowser import PluginBrowserSummary
 		return PluginBrowserSummary
 
 	def selectionChanged(self):
-		item = self["filelist"].getCurrent()
+		item = self["list"].getCurrent()
 		desc = ""
 		if item:
 			name = str(item[0][0])
@@ -243,27 +243,27 @@ class LogManager(Screen):
 	def layoutFinished(self):
 		self["LogsSize"].update(config.crash.debug_path.value)
 		idx = 0
-		self["filelist"].moveToIndex(idx)
+		self["list"].moveToIndex(idx)
 		self.setWindowTitle()
 
 	def setWindowTitle(self):
 		self.setTitle(self.defaultDir)
 
 	def up(self):
-		self["filelist"].up()
+		self["list"].up()
 
 	def down(self):
-		self["filelist"].down()
+		self["list"].down()
 
 	def left(self):
-		self["filelist"].pageUp()
+		self["list"].pageUp()
 
 	def right(self):
-		self["filelist"].pageDown()
+		self["list"].pageDown()
 
 	def saveSelection(self):
-		self.selectedFiles = self["filelist"].getSelectedList()
-		self.previouslySent = self["filelist"].getSelectedList()
+		self.selectedFiles = self["list"].getSelectedList()
+		self.previouslySent = self["list"].getSelectedList()
 		config.logmanager.sentfiles.setValue(self.selectedFiles)
 		config.logmanager.sentfiles.save()
 		configfile.save()
@@ -273,12 +273,12 @@ class LogManager(Screen):
 
 	def changeSelectionState(self):
 		try:
-			self.sel = self["filelist"].getCurrent()[0]
+			self.sel = self["list"].getCurrent()[0]
 		except:
 			self.sel = None
 		if self.sel:
-			self["filelist"].changeSelectionState()
-			self.selectedFiles = self["filelist"].getSelectedList()
+			self["list"].changeSelectionState()
+			self.selectedFiles = self["list"].getSelectedList()
 
 	def changelogtype(self):
 		self["LogsSize"].update(config.crash.debug_path.value)
@@ -291,12 +291,12 @@ class LogManager(Screen):
 			self["key_red"].setText(_("Debug Logs"))
 			self.logtype = "crashlogs"
 			self.matchingPattern = "Enigma2_crash_"
-		self["filelist"].matchingPattern = re.compile(self.matchingPattern)
-		self["filelist"].changeDir(self.defaultDir)
+		self["list"].matchingPattern = re.compile(self.matchingPattern)
+		self["list"].changeDir(self.defaultDir)
 
 	def showLog(self):
 		try:
-			self.sel = self["filelist"].getCurrent()[0]
+			self.sel = self["list"].getCurrent()[0]
 		except:
 			self.sel = None
 		if self.sel:
@@ -304,35 +304,35 @@ class LogManager(Screen):
 
 	def deletelog(self):
 		try:
-			self.sel = self["filelist"].getCurrent()[0]
+			self.sel = self["list"].getCurrent()[0]
 		except:
 			self.sel = None
-		self.selectedFiles = self["filelist"].getSelectedList()
+		self.selectedFiles = self["list"].getSelectedList()
 		if self.selectedFiles:
-			self["filelist"].instance.moveSelectionTo(0)
+			self["list"].instance.moveSelectionTo(0)
 			for f in self.selectedFiles:
 				remove(f)
 			config.logmanager.sentfiles.setValue("")
 			config.logmanager.sentfiles.save()
 			configfile.save()
-			self["filelist"].changeDir(self.defaultDir)
+			self["list"].changeDir(self.defaultDir)
 		elif self.sel:
-			self["filelist"].instance.moveSelectionTo(0)
+			self["list"].instance.moveSelectionTo(0)
 			if path.exists(self.defaultDir + self.sel[0]):
 				remove(self.defaultDir + self.sel[0])
-			self["filelist"].changeDir(self.defaultDir)
+			self["list"].changeDir(self.defaultDir)
 			self["LogsSize"].update(config.crash.debug_path.value)
 		else:
 			self.session.open(MessageBox, _("You have not selected any logs to delete."), MessageBox.TYPE_INFO, timeout = 10)
 
 	def sendlog(self, addtionalinfo = None):
 		try:
-			self.sel = self["filelist"].getCurrent()[0]
+			self.sel = self["list"].getCurrent()[0]
 		except:
 			self.sel = None
 		if self.sel:
 			self.sel = str(self.sel[0])
-			self.selectedFiles = self["filelist"].getSelectedList()
+			self.selectedFiles = self["list"].getSelectedList()
 			self.resend = False
 			for send in self.previouslySent:
 				if send in self.selectedFiles:
@@ -407,12 +407,12 @@ class LogManager(Screen):
 			else:
 				msg.attach(MIMEText(config.logmanager.additionalinfo.value, "plain"))
 			if self.sendallfiles:
-				self.selectedFiles = self["filelist"].getSelectedList()
+				self.selectedFiles = self["list"].getSelectedList()
 				for send in self.previouslySent:
 					if send in self.selectedFiles:
 						self.selectedFiles.remove(send)
 				self.sel = ",".join(self.selectedFiles).replace(",", " ")
-				self["filelist"].instance.moveSelectionTo(0)
+				self["list"].instance.moveSelectionTo(0)
 				for f in self.selectedFiles:
 					self.previouslySent.append(f)
 					fp = open(f, "rb")
@@ -422,7 +422,7 @@ class LogManager(Screen):
 					self.saveSelection()
 					sentfiles = self.sel
 			else:
-				self.sel = self["filelist"].getCurrent()[0]
+				self.sel = self["list"].getCurrent()[0]
 				self.sel = str(self.sel[0])
 				sentfiles = self.sel
 				fp = open((self.defaultDir + self.sel), "rb")
@@ -466,19 +466,19 @@ class LogManagerViewLog(Screen):
 
 		self.logfile = config.crash.debug_path.value + selected
 		self.log=[]
-		self["loglist"] = MenuList(self.log)
+		self["list"] = MenuList(self.log)
 		self["setupActions"] = ActionMap(["ColorActions", "OkCancelActions", "DirectionActions"],
 		{
 			"ok": self.gotoFirstPage,
 			"cancel": self.cancel,
 			"red": self.gotoFirstPage,
-			"green": self["loglist"].pageDown,
-			"yellow": self["loglist"].pageUp,
+			"green": self["list"].pageDown,
+			"yellow": self["list"].pageUp,
 			"blue": self.gotoLastPage,
-			"up": self["loglist"].up,
-			"down": self["loglist"].down,
-			"right": self["loglist"].pageDown,
-			"left": self["loglist"].pageUp
+			"up": self["list"].up,
+			"down": self["list"].down,
+			"right": self["list"].pageDown,
+			"left": self["list"].pageUp
 		}, -2)
 		self["key_red"] = Button(_("FirstPage"))
 		self["key_green"] = Button(_("PageFwd"))
@@ -490,9 +490,9 @@ class LogManagerViewLog(Screen):
 		font = gFont("Console", applySkinFactor(16))
 		if not int(fontRenderClass.getInstance().getLineHeight(font)):
 			font = gFont("Regular", applySkinFactor(16))
-		self["loglist"].instance.setFont(font)
-		fontwidth = getTextBoundarySize(self.instance, font, self["loglist"].instance.size(), _(" ")).width()
-		listwidth = int(self["loglist"].instance.size().width() // fontwidth) - 2
+		self["list"].instance.setFont(font)
+		fontwidth = getTextBoundarySize(self.instance, font, self["list"].instance.size(), _(" ")).width()
+		listwidth = int(self["list"].instance.size().width() // fontwidth) - 2
 		if path.exists(self.logfile):
 			for line in open(self.logfile ).readlines():
 				line = line.replace("\t", " "*9)
@@ -512,13 +512,13 @@ class LogManagerViewLog(Screen):
 					self.log.append(line)
 		else:
 			self.log = [_("file can not displayed - file not found")]
-		self["loglist"].setList(self.log)
+		self["list"].setList(self.log)
 
 	def gotoFirstPage(self):
-		self["loglist"].moveToIndex(0)
+		self["list"].moveToIndex(0)
 
 	def gotoLastPage(self):
-		self["loglist"].moveToIndex(len(self.log)-1)
+		self["list"].moveToIndex(len(self.log)-1)
 
 	def cancel(self):
 		self.close()
@@ -534,7 +534,7 @@ class LogManagerFb(Screen):
 		self.session = session
 		Screen.__init__(self, session)
 
-		self["filelist"] = FileList(logpath, matchingPattern = "^.*")
+		self["list"] = FileList(logpath, matchingPattern = "^.*")
 		self["red"] = Label(_("delete"))
 		self["green"] = Label(_("move"))
 		self["yellow"] = Label(_("copy"))
@@ -555,8 +555,8 @@ class LogManagerFb(Screen):
 
 	def exit(self):
 		config.logmanager.additionalinfo.setValue("")
-		if self["filelist"].getCurrentDirectory():
-			config.logmanager.path.setValue(self["filelist"].getCurrentDirectory())
+		if self["list"].getCurrentDirectory():
+			config.logmanager.path.setValue(self["list"].getCurrentDirectory())
 			config.logmanager.path.save()
 		self.close()
 
@@ -584,14 +584,14 @@ class LogManagerFb(Screen):
 		self.SOURCELIST.refresh()
 
 	def mainlist(self):
-		self["filelist"].selectionEnabled(1)
-		self.SOURCELIST = self["filelist"]
+		self["list"].selectionEnabled(1)
+		self.SOURCELIST = self["list"]
 		self.setTitle(self.SOURCELIST.getCurrentDirectory())
 
 	def onFileAction(self):
 		config.logmanager.additionalinfo.setValue(file(self.SOURCELIST.getCurrentDirectory()+self.SOURCELIST.getFilename()).read())
-		if self["filelist"].getCurrentDirectory():
-			config.logmanager.path.setValue(self["filelist"].getCurrentDirectory())
+		if self["list"].getCurrentDirectory():
+			config.logmanager.path.setValue(self["list"].getCurrentDirectory())
 			config.logmanager.path.save()
 		self.close()
 
