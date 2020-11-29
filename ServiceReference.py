@@ -47,7 +47,7 @@ def __fromDirectory(path):
 
 eServiceReference.fromDirectory = __fromDirectory
 
-
+eServiceReference.isPlayback = lambda serviceref: "0:0:0:0:0:0:0:0:0" in serviceref.toCompareString()
 
 def getPlayingref(ref):
 	playingref = None

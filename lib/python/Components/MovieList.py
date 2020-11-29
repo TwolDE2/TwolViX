@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+import six
 from six.moves import reload_module
 
 import os
@@ -601,8 +602,11 @@ class MovieList(GUIComponent):
 				# enigma wants an extra '/' appended
 				if not parent.endswith('/'):
 					parent += '/'
-				ref = eServiceReference("2:0:1:0:0:0:0:0:0:0:" + parent)
-				ref.flags = eServiceReference.flagDirectory
+				if six.PY3:
+					ref = eServiceReference("2:0:1:0:0:0:0:0:0:0:" + parent)
+					ref.flags = eServiceReference.flagDirectory
+				else:
+					ref = eServiceReference.fromDirectory(parent)
 				self.list.append((ref, None, 0, -1))
 				numberOfDirs += 1
 

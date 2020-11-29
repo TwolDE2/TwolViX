@@ -1,8 +1,10 @@
 from __future__ import print_function
 from __future__ import absolute_import
+import six
 
 import os
 import re
+
 
 from enigma import RT_HALIGN_LEFT, eListboxPythonMultiContent, \
 	eServiceReference, eServiceCenter, gFont
@@ -185,7 +187,10 @@ class FileList(MenuList):
 			directories = [ ]
 		elif self.useServiceRef:
 			# we should not use the 'eServiceReference(string)' constructor, because it doesn't allow ':' in the directoryname
-			root = eServiceReference(2, 0, directory)
+			if six.PY3:
+				root = eServiceReference(2, 0, directory)
+			else:
+				root = eServiceReference.fromDirectory(directory)
 			if self.additional_extensions:
 				root.setName(self.additional_extensions)
 			serviceHandler = eServiceCenter.getInstance()
@@ -408,7 +413,10 @@ class MultiFileSelectList(FileList):
 			files = [ ]
 			directories = [ ]
 		elif self.useServiceRef:
-			root = eServiceReference("2:0:1:0:0:0:0:0:0:0:" + directory)
+			if six.PY3:
+				root = eServiceReference("2:0:1:0:0:0:0:0:0:0:" + directory)
+			else:
+				root = eServiceReference.fromDirectory(directory)
 			if self.additional_extensions:
 				root.setName(self.additional_extensions)
 			serviceHandler = eServiceCenter.getInstance()
