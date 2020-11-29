@@ -37,18 +37,6 @@ class ServiceReference(eServiceReference):
 		ref = self.ref
 		return ref.flags & eServiceReference.isGroup or (ref.type == eServiceReference.idDVB or ref.type == eServiceReference.idDVB + 0x100 or ref.type == 0x2000 or ref.type == 0x1001)
 
-@staticmethod
-def __fromDirectory(path):
-	ref = eServiceReference(eServiceReference.idFile,
-			eServiceReference.flagDirectory |
-			eServiceReference.shouldSort | eServiceReference.sort1, path)
-	ref.setData(0, 1)
-	return ref
-
-eServiceReference.fromDirectory = __fromDirectory
-
-eServiceReference.isPlayback = lambda serviceref: "0:0:0:0:0:0:0:0:0" in serviceref.toCompareString()
-
 def getPlayingref(ref):
 	playingref = None
 	if NavigationInstance.instance:
@@ -69,3 +57,14 @@ def resolveAlternate(ref):
 			nref = getBestPlayableServiceReference(ref,
 			 eServiceReference(), True)
 	return nref
+
+@staticmethod
+def __fromDirectory(path):
+	ref = eServiceReference(eServiceReference.idFile,
+			eServiceReference.flagDirectory |
+			eServiceReference.shouldSort | eServiceReference.sort1, path)
+	ref.setData(0, 1)
+	return ref
+
+eServiceReference.fromDirectory = __fromDirectory
+
