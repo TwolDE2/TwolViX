@@ -1828,8 +1828,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		try:
 			path = os.path.join(config.movielist.last_videodir.value, name)
 			os.mkdir(path)
-			if not path.endswith('/'):
-				path += '/'
+			if not path.endswith("/"):
+				path += "/"
 			self.reloadList(sel = eServiceReference.fromDirectory(path))
 		except OSError as e:
 			print("[MovieSelection] Error %s:" % e.errno, e)
@@ -1918,8 +1918,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 					self.reloadList(sel = eServiceReference("2:0:1:0:0:0:0:0:0:0:" + newpath))
 				else:	
 					self.reloadList(sel = eServiceReference.fromDirectory(newpath))
-			except OSError, e:
-				print "[MovieSelection] Error %s:" % e.errno, e
+			except OSError as e:
+				print("[MovieSelection] Error %s:" % e.errno, e)
 				if e.errno == 17:
 					msg = _("The path %s already exists.") % name
 				else:
