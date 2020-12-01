@@ -303,7 +303,7 @@ def parsePosition(s, scale, object=None, desktop=None, size=None):
 	return ePoint(*parseValuePair(s, scale, object, desktop, size))
 
 def parseSize(s, scale, object=None, desktop=None):
-	return eSize(*parseValuePair(s, scale, object, desktop))
+	return eSize(*[max(0,x) for x in parseValuePair(s, scale, object, desktop)])
 
 def parseFont(s, scale=((1, 1), (1, 1))):
 	if ";" in s:
@@ -355,11 +355,12 @@ def parseParameter(s):
 		return colors[s].argb()
 	elif s.find(";") != -1:  # Font.
 		font, size = [x.strip() for x in s.split(";", 1)]
-		return [font, parseScale(size)]
+		return [font, int(size)]
 	else:  # Integer.
-		return parseScale(s)
+		return int(s)
 
 def parseScale(s):
+	# Replaces "f" with skin factor in non-coordinte fields and evaluates the formula
 	orig = s
 	try:
 		val = int(s)
@@ -795,9 +796,9 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 		for alias in tag.findall("alias"):
 			name = alias.attrib.get("name")
 			font = alias.attrib.get("font")
-			size = parseScale(alias.attrib.get("size"))
-			height = parseScale(alias.attrib.get("height", size))  # To be calculated some day.
-			width = parseScale(alias.attrib.get("width", size))  # To be calculated some day.
+			size = int(alias.attrib.get("size"))
+			height = int(alias.attrib.get("height", size))  # To be calculated some day.
+			width = int(alias.attrib.get("width", size))  # To be calculated some day.
 			if name and font and size:
 				fonts[name] = (font, size, height, width)
 				# print("[Skin] Add font alias: name='%s', font='%s', size=%d, height=%s, width=%d." % (name, font, size, height, width))
