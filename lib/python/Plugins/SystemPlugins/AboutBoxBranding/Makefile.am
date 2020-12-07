@@ -1,3 +1,5 @@
-installdir = $(libdir)/enigma2/python/Plugins/SystemPlugins/AboutBoxBranding
-install_PYTHON =  \
- *.py
+installdir = $(pkglibdir)/python/Plugins/SystemPlugins/AboutBoxBranding
+
+install_PYTHON =	\
+	__init__.py \
+	plugin.py
