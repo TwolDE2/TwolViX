@@ -59,7 +59,7 @@ def start(menuid):
 def Plugins(**kwargs):
 	try:
 		print("[AboutBoxBranding]...\n%s" % getBoxbranding())
-	except:
+	except Exception as err:
 		print("[AboutBoxBranding] Error: %s: '%s'!" % (type(err).__name__, err))
 		return []
 	from Plugins.Plugin import PluginDescriptor
