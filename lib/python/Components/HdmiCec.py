@@ -6,7 +6,6 @@ from sys import maxsize
 
 from enigma import eActionMap, eHdmiCEC, eTimer
 import NavigationInstance
-import HdmiCECInstance
 
 from Components.config import config, ConfigSelection, ConfigYesNo, ConfigSubsection, ConfigText, ConfigCECAddress, ConfigLocations, ConfigDirectory
 from Tools.StbHardware import getFPWasTimerWakeup
@@ -100,9 +99,8 @@ config.hdmicec.sourceactive_zaptimers = ConfigYesNo(default=False)
 class HdmiCec:
 
 	def __init__(self):
-		if HdmiCECInstance.instance is not None:
-			raise HdmiCECInstance.instance("only one HdmiCec instance is allowed!")
-		HdmiCECInstance.instance = self
+		assert not HdmiCec.instance, "only one HdmiCec instance is allowed!"
+		HdmiCec.instance = self
 
 		self.wait = eTimer()
 		self.wait.timeout.get().append(self.sendCmd)
