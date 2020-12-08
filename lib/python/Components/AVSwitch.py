@@ -15,10 +15,6 @@ from Tools.HardwareInfo import HardwareInfo
 config.av = ConfigSubsection()
 
 class AVSwitch:
-	print("BoxBranding", "MachineBuild", getMachineBuild())
-	print("BoxBranding", "BoxType", getBoxType())
-	print("BoxBranding", "BrandOEM", getBrandOEM())
-	print("BoxBranding", "DisplayType", getDisplayType())
 	print("AVSwitch", "hasRCA", SystemInfo["hasRCA"])
 	print("AVSwitch", "hasSCART", SystemInfo["hasScart"])
 	print("AVSwitch", "hasJACK", SystemInfo["hasJack"])
