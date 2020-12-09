@@ -232,8 +232,8 @@ class PowerTimerEditList(Screen):
 			self.updateState()
 
 	def removeTimerQuestion(self):
-		cur = self["timerlist"].getCurrent()cmp
-		if not cur:cmp
+		cur = self["timerlist"].getCurrent()
+		if not cur:
 			return
 
 		self.session.openWithCallback(self.removeTimer, MessageBox, _("Do you really want to delete this timer ?"), default = False)
