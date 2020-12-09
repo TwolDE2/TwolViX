@@ -1,3 +1,4 @@
+# for localized messages
 from __future__ import print_function
 
 from . import _
@@ -18,15 +19,14 @@ class AboutBoxBranding(Screen):
 		self["key_red"] = StaticText(_("Close"))
 		self["AboutScrollLabel"] = ScrollLabel(getBoxbranding()[0])
 
-		self["actions"] = ActionMap(["SetupActions","NavigationActions"],
+		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
 		{
-			"cancel": self.close,
+			"back": self.close,
+			"red": self.close,
 			"up": self.pageUp,
 			"down":	self.pageDown,
 			"left":	self.pageUp,
 			"right": self.pageDown,
-			"pageUp": self.pageUp,
-			"pageDown": self.pageDown,
 		}, -2)
 
 	def pageUp(self):
@@ -71,3 +71,4 @@ def Plugins(**kwargs):
 		return []
 	from Plugins.Plugin import PluginDescriptor
 	return [PluginDescriptor(where = PluginDescriptor.WHERE_MENU, fnc=start)]
+			
