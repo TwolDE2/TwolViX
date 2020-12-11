@@ -533,14 +533,9 @@ class EPGServiceZap:
 		if currentService and currentService.toString() != self.__originalPlayingService.toString():
 			# service has changed from the original
 			if self.epgConfig.preview_mode.value:
-<<<<<<< HEAD
-				if "0:0:0:0:0:0:0:0:0" in self.originalPlayingServiceOrGroup.toString():
-  					# Restart movie playback, MoviePlayer screen is still active.
-=======
 				# In preview mode, the original service or movie playback is restored
 				if self.__originalPlayingService.isPlayback():
 					# Restart movie playback at the resume point stored earlier
->>>>>>> upstream/Dev
 					from Screens.InfoBar import MoviePlayer
 					if MoviePlayer.instance:
 						MoviePlayer.instance.forceNextResume()

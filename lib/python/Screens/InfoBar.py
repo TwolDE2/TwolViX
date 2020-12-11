@@ -15,16 +15,11 @@ from Components.Pixmap import MultiPixmap
 from Components.SystemInfo import SystemInfo
 from Screens.MessageBox import MessageBox
 
-<<<<<<< HEAD
 
 # workaround for required config entry dependencies.
 import Screens.MovieSelection
 
 from Screens.Screen import Screen
-=======
-profile("LOAD:enigma")
-import enigma
->>>>>>> upstream/Dev
 
 profile("LOAD:InfoBarGenerics")
 from Screens.InfoBarGenerics import InfoBarShowHide, \
