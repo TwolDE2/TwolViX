@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from __future__ import absolute_import
 
 from time import localtime, mktime, strftime, time
@@ -9,9 +10,13 @@ from Components.About import about
 from Components.ActionMap import HelpableActionMap, HelpableNumberActionMap
 from Components.Button import Button
 from Components.config import config, configfile, ConfigSelection, ConfigSubsection
+=======
+from time import time
+from Components.ActionMap import HelpableActionMap
+from Components.config import config, configfile
+>>>>>>> upstream/Dev
 from Components.EpgListSingle import EPGListSingle
-from Screens.EpgSelectionBase import EPGSelectionBase, EPGServiceNumberSelection, EPGServiceBrowse, EPGServiceZap, epgActions, infoActions, okActions
-from Screens.HelpMenu import HelpableScreen
+from Screens.EpgSelectionBase import EPGSelectionBase, EPGServiceNumberSelection, EPGServiceBrowse, EPGServiceZap, epgActions, okActions
 from Screens.Setup import Setup
 from Screens.UserDefinedButtons import UserDefinedButtons
 

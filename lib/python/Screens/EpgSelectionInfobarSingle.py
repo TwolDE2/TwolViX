@@ -1,14 +1,18 @@
+<<<<<<< HEAD
 from __future__ import absolute_import
 
 from time import time
 
 from enigma import eServiceReference
 
+=======
+from time import time
+
+>>>>>>> upstream/Dev
 from Components.ActionMap import HelpableActionMap
 from Components.config import config, configfile
 from Components.EpgListSingle import EPGListSingle
-from Components.Sources.Event import Event
-from Screens.EpgSelectionBase import EPGSelectionBase, EPGServiceZap, EPGServiceBrowse, EPGStandardButtons, epgActions, okActions
+from Screens.EpgSelectionBase import EPGSelectionBase, EPGServiceZap, EPGServiceBrowse, epgActions, okActions
 from Screens.Setup import Setup
 from Screens.UserDefinedButtons import UserDefinedButtons
 from ServiceReference import ServiceReference

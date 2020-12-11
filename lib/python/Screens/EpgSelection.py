@@ -1,8 +1,9 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
+from enigma import eServiceReference
+
 from Components.ActionMap import HelpableActionMap
-from Components.EpgList import EPG_TYPE_SINGLE
 from Screens.EpgSelectionChannel import EPGSelectionChannel
 
 
@@ -13,7 +14,7 @@ class EPGSelection(EPGSelectionChannel):
 		if EPGtype not in ("similar", "single"):
 			print("[EPGSelection] Warning: EPGSelection does not support type '%s'" % EPGtype)
 			print("               Attempting to continue in single EPG mode")
-		EPGSelectionChannel.__init__(self, session, service)
+		EPGSelectionChannel.__init__(self, session, eServiceReference(service))
 
 		# Rewrite the EPG actions to invoke the compatibility functions.
 		helpDescription = _("EPG Commands")

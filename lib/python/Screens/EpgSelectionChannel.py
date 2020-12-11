@@ -5,9 +5,8 @@ from time import time
 from Components.ActionMap import HelpableActionMap
 from Components.config import config, configfile
 from Components.EpgListSingle import EPGListSingle
-from Screens.EpgSelectionBase import EPGSelectionBase, EPGStandardButtons, ignoreLongKeyPress
+from Screens.EpgSelectionBase import EPGSelectionBase, EPGStandardButtons
 from Screens.Setup import Setup
-from ServiceReference import ServiceReference
 
 class EPGSelectionChannel(EPGSelectionBase, EPGStandardButtons):
 	def __init__(self, session, service, timeFocus=None):
@@ -18,7 +17,7 @@ class EPGSelectionChannel(EPGSelectionBase, EPGStandardButtons):
 		helpDescription = _("EPG Commands")
 		self["okactions"] = HelpableActionMap(self, "OkCancelActions", {
 			"cancel": (self.closeScreen, _("Exit EPG")),
-			"OK": (ignoreLongKeyPress(self.OK), _("Close")),
+			"OK": (self.OK, _("Close")),
 			"OKLong": (self.OKLong, _("Close"))
 		}, prio=-1, description=helpDescription)
 		self["epgactions"] = HelpableActionMap(self, "EPGSelectActions", {
@@ -48,7 +47,7 @@ class EPGSelectionChannel(EPGSelectionBase, EPGStandardButtons):
 
 	def onCreate(self):
 		self["list"].recalcEntrySize()
-		service = ServiceReference(self.startRef)
+		service = self.startRef
 		self["Service"].newService(service.ref)
 		title = service.getServiceName()
 		self.setTitle(title)
@@ -59,7 +58,7 @@ class EPGSelectionChannel(EPGSelectionBase, EPGStandardButtons):
 	def refreshList(self):
 		self.refreshTimer.stop()
 		index = self["list"].getCurrentIndex()
-		self["list"].fillEPG(ServiceReference(self.startRef))
+		self["list"].fillEPG(self.startRef)
 		self["list"].setCurrentIndex(index)
 
 	def eventViewCallback(self, setEvent, setService, val):
