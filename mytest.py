@@ -668,7 +668,6 @@ profile("keymapparser")
 print("[Enigma2] Initialising KeymapParser.")
 import keymapparser
 keymapparser.readKeymap(config.usage.keymap.value)
-keymapparser.readKeymap(config.usage.keytrans.value)
 
 profile("Network")
 print("[Enigma2] Initialising Network.")
