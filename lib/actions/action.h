@@ -6,8 +6,7 @@
 
 #include <lib/python/python.h>
 #include <string>
-#include <map>    
-#include <vector>
+#include <map>
 
 SWIG_IGNORE(eActionMap);
 class eActionMap: public iObject
