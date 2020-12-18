@@ -66,8 +66,9 @@ class MultiBootSelector(Screen, HelpableScreen):
 		mode = GetCurrentImageMode() or 0
 		print("[MultiBootSelector] reboot0 slot:", currentimageslot)
 		current = "  %s" % _("(Current)")
-		slotSingle = _("Slot %s: %s%s")
-		slotMulti = _("Slot %s: %s - %s mode%s")
+		slotSingle = _("Slot%s %s: %s%s")
+		slotMulti = _("Slot%s %s: %s - %s mode%s")
+
 		if self.imagedict:
 			indextot = 0
 			for index, x in enumerate(sorted(self.imagedict.keys())):
@@ -75,17 +76,17 @@ class MultiBootSelector(Screen, HelpableScreen):
 					self.deletedImagesExists = True
 				if self.imagedict[x]["imagename"] != _("Empty slot"):
 					if SystemInfo["canMode12"]:
-						list.insert(index, ChoiceEntryComponent("", (slotMulti % (x, self.imagedict[x]["imagename"], "Kodi", current if x == currentimageslot and mode != 12 else ""), (x, 1))))
-						list.append(ChoiceEntryComponent("", (slotMulti % (x, self.imagedict[x]["imagename"], "PiP", current if x == currentimageslot and mode == 12 else ""), (x, 12))))
+						list.insert(index, ChoiceEntryComponent("", (slotMulti % (x, SystemInfo["canMultiBoot"][x]["slotname"], self.imagedict[x]["imagename"], "Kodi", current if x == currentimageslot and mode != 12 else ""), (x, 1))))
+						list.append(ChoiceEntryComponent("", (slotMulti % (x, SystemInfo["canMultiBoot"][x]["slotname"], self.imagedict[x]["imagename"], "PiP", current if x == currentimageslot and mode == 12 else ""), (x, 12))))
 						indextot = index + 1
 					else:
-						list.append(ChoiceEntryComponent("", (slotSingle % (x, self.imagedict[x]["imagename"], current if x == currentimageslot else ""), (x, 1))))
+						list.append(ChoiceEntryComponent("", (slotSingle % (x, SystemInfo["canMultiBoot"][x]["slotname"], self.imagedict[x]["imagename"], current if x == currentimageslot else ""), (x, 1))))
 			if SystemInfo["canMode12"]:
 				list.insert(indextot, " ")
 		else:
 			list.append(ChoiceEntryComponent("", ((_("No images found")), "Waiter")))
 		self["config"].setList(list)
-		print("[MultiBootSelector] list 0 = %s" % list) 
+		print("[MultiBootSelector] list X = %s" % list) 
 
 	def reboot(self):
 		self.currentSelected = self["config"].l.getCurrentSelection()

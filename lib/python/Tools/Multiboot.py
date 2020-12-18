@@ -32,22 +32,28 @@ def getparam(line, param):
 
 def getMultibootslots():
 	bootslots = {}
+	slotname = ""	
 	if SystemInfo["MBbootdevice"]:
 		for file in glob.glob(path.join(tmp.dir, "STARTUP_*")):
 			if "STARTUP_RECOVERY" in file:
 				SystemInfo["RecoveryMode"] = True
 				# print("[multiboot] [getMultibootslots] RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
-			slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
+			slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1][0]
+			slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
+			if len(slotname) != "1" and "BOXMODE" not in file:
+				slotname = slotname[1:] 
+			print("[multiboot] [getMultibootslots] slot = %s file = %s" % (slotnumber, slotname))
 			if slotnumber.isdigit() and slotnumber not in bootslots:
 				slot = {}
 				for line in open(file).readlines():
-					# print "Multiboot getMultibootslots readlines = %s " %line
+					# print("Multiboot getMultibootslots readlines = %s " % line)
 					if "root=" in line:
 						line = line.rstrip("\n")
 						root = getparam(line, "root")
 						if path.exists(root):
 							slot["root"] = root
 							slot["startupfile"] = path.basename(file)
+							slot["slotname"] = slotname
 							if "rootsubdir" in line:
 								SystemInfo["HasRootSubdir"] = True
 								# print("[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"])
@@ -61,7 +67,7 @@ def getMultibootslots():
 						break
 				if slot:
 					bootslots[int(slotnumber)] = slot
-		# print("[multiboot] [getMultibootslots] Finished bootslots = %s" %bootslots)
+		#(print("[multiboot] [getMultibootslots] Finished bootslots = %s" % bootslots))
 		Console().ePopen("umount %s" % tmp.dir)
 		if not path.ismount(tmp.dir):
 			rmdir(tmp.dir)
@@ -217,7 +223,7 @@ class boxbranding_reader:  # Many thanks to Huevos for creating this reader - we
 		if output:
 			for att in list(self.output.keys()):
 				self.output[att] = output[att]
-			print("[readBrandingFile1] self.output = %s" % self.output)
+			# print("[readBrandingFile1] self.output = %s" % self.output)
 	def addBrandingMethods(self):  # This creates reader.getBoxType(), reader.getImageDevBuild(), etc
 		loc = {}
 		for att in list(self.output.keys()):
@@ -295,16 +301,16 @@ class readImageIdentifier():
 		self.file_content = ""
 		try:
 			self.file_content = open("%s%s" % (self.filepath, self.filename)).read()
-			print("[readImageIdentifier][self.file_content] %s" % (self.file_content))
+			# print("[readImageIdentifier][self.file_content] %s" % (self.file_content))
 		except:
-			print("[readImageIdentifier][getfile] Could not read %s%s" % (self.filepath, self.filename))
+			# print("[readImageIdentifier][getfile] Could not read %s%s" % (self.filepath, self.filename))
 
 	def __readfile(self):
 		try:
 			exec(self.file_content)
 		except Exception as e:
-			print("[readImageIdentifier][readfile] failed to exec")
-			print(e)
+			# print("[readImageIdentifier][readfile] failed to exec")
+			# print(e)
 
 		for key in list(self.methods.keys()):
 			try:
