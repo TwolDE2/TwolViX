@@ -303,14 +303,14 @@ class readImageIdentifier():
 			self.file_content = open("%s%s" % (self.filepath, self.filename)).read()
 			# print("[readImageIdentifier][self.file_content] %s" % (self.file_content))
 		except:
-			# print("[readImageIdentifier][getfile] Could not read %s%s" % (self.filepath, self.filename))
+			print("[readImageIdentifier][getfile] Could not read %s%s" % (self.filepath, self.filename))
 
 	def __readfile(self):
 		try:
 			exec(self.file_content)
 		except Exception as e:
-			# print("[readImageIdentifier][readfile] failed to exec")
-			# print(e)
+			print("[readImageIdentifier][readfile] failed to exec")
+			print(e)
 
 		for key in list(self.methods.keys()):
 			try:
@@ -342,11 +342,3 @@ class readImageIdentifier():
 
 	def getImageBuildDate(self):
 		return self.methods["getImageBuildDate"]
-
-	
-
-# just for testing
-#if __name__ == "__main__":
-#	filepath = "" # path to image folder
-#	reader = readImageIdentifier(filepath)
-#	print("reader.getBoxType() %s" % (reader.getBoxType(),))#
