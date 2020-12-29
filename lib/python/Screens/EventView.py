@@ -21,18 +21,18 @@ from Components.Sources.Event import Event
 from Components.Sources.StaticText import StaticText
 from Components.UsageConfig import preferredTimerPath
 from Plugins.Plugin import PluginDescriptor
-from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT
+from RecordTimer import AFTEREVENT
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Screen import Screen
 from Screens.TimerEdit import TimerSanityConflict
-from Screens.TimerEntry import TimerEntry
+from Screens.TimerEntry import TimerEntry, addTimerFromEvent
 from Tools.BoundFunction import boundFunction
 
 
 class EventViewContextMenu(Screen):
 	def __init__(self, session, menu):
 		Screen.__init__(self, session)
-		self.setTitle(_('Event view menu'))
+		self.setTitle(_("Event view menu"))
 
 		self["actions"] = ActionMap(["OkCancelActions"],
 			{
@@ -81,11 +81,11 @@ class EventViewBase:
 				"nextEvent": self.nextEvent,
 				"contextMenu": self.doContext,
 			})
-		self['dialogactions'] = ActionMap(['WizardActions'],
+		self["dialogactions"] = ActionMap(["WizardActions"],
 			{
-				'back': self.closeChoiceBoxDialog,
+				"back": self.closeChoiceBoxDialog,
 			}, -1)
-		self['dialogactions'].csel = self
+		self["dialogactions"].csel = self
 		self["dialogactions"].setEnabled(False)
 		self.onLayoutFinish.append(self.onCreate)
 
@@ -137,55 +137,25 @@ class EventViewBase:
 		if timer is not None:
 			cb_func1 = lambda ret: self.removeTimer(timer)
 			cb_func2 = lambda ret: self.editTimer(timer)
-			menu = [(_("Delete Timer"), 'CALLFUNC', callback, cb_func1), (_("Edit Timer"), 'CALLFUNC', callback, cb_func2)]
-			self.ChoiceBoxDialog = self.session.instantiateDialog(ChoiceBox, title=_("Select action for timer %s:") % event.getEventName(), list=menu, keys=['green', 'blue'], skin_name="RecordTimerQuestion")
+			menu = [(_("Delete Timer"), "CALLFUNC", callback, cb_func1), (_("Edit Timer"), "CALLFUNC", callback, cb_func2)]
+			self.ChoiceBoxDialog = self.session.instantiateDialog(ChoiceBox, title=_("Select action for timer %s:") % event.getEventName(), list=menu, keys=["green", "blue"], skin_name="RecordTimerQuestion")
 			self.ChoiceBoxDialog.instance.move(ePoint(self.instance.position().x()+self["key_green"].getPosition()[0], self.instance.position().y()+self["key_green"].getPosition()[1]-self["key_green"].instance.size().height()))
 			self.showChoiceBoxDialog()
 		else:
-			newEntry = RecordTimerEntry(self.currentService, checkOldTimers = True, dirname = preferredTimerPath(), *parseEvent(self.event, service=self.currentService))
-			self.session.openWithCallback(self.finishedAdd, TimerEntry, newEntry)
+			addTimerFromEvent(self.session, lambda _: self.updateButtons(), event, self.currentService)
 
 	def showChoiceBoxDialog(self):
-		self['actions'].setEnabled(False)
+		self["actions"].setEnabled(False)
 		self["dialogactions"].setEnabled(True)
-		self.ChoiceBoxDialog['actions'].execBegin()
+		self.ChoiceBoxDialog["actions"].execBegin()
 		self.ChoiceBoxDialog.show()
 
 	def closeChoiceBoxDialog(self):
 		self["dialogactions"].setEnabled(False)
 		if self.ChoiceBoxDialog:
-			self.ChoiceBoxDialog['actions'].execEnd()
+			self.ChoiceBoxDialog["actions"].execEnd()
 			self.session.deleteDialog(self.ChoiceBoxDialog)
-		self['actions'].setEnabled(True)
-
-	def finishedAdd(self, answer):
-		if answer[0]:
-			entry = answer[1]
-			simulTimerList = self.session.nav.RecordTimer.record(entry)
-			if simulTimerList is not None:
-				for x in simulTimerList:
-					if x.setAutoincreaseEnd(entry):
-						self.session.nav.RecordTimer.timeChanged(x)
-				simulTimerList = self.session.nav.RecordTimer.record(entry)
-				if simulTimerList is not None:
-					if not entry.repeated and not config.recording.margin_before.value and not config.recording.margin_after.value and len(simulTimerList) > 1:
-						change_time = False
-						conflict_begin = simulTimerList[1].begin
-						conflict_end = simulTimerList[1].end
-						if conflict_begin == entry.end:
-							entry.end -= 30
-							change_time = True
-						elif entry.begin == conflict_end:
-							entry.begin += 30
-							change_time = True
-						if change_time:
-							simulTimerList = self.session.nav.RecordTimer.record(entry)
-					if simulTimerList is not None:
-						self.session.openWithCallback(self.finishSanityCorrection, TimerSanityConflict, simulTimerList)
-		self.updateButtons()
-
-	def finishSanityCorrection(self, answer):
-		self.finishedAdd(answer)
+		self["actions"].setEnabled(True)
 
 	def setService(self, service):
 		self.currentService = service
@@ -200,7 +170,7 @@ class EventViewBase:
 				self["channel"].setText(_("unknown service"))
 
 	def setEvent(self, event):
-		if event is None or not hasattr(event, 'getEventName'):
+		if event is None or not hasattr(event, "getEventName"):
 			return
 
 		self["Event"].newEvent(event)
@@ -216,7 +186,7 @@ class EventViewBase:
 			short = ""
 
 		if short and extended:
-			extended = short + '\n' + extended
+			extended = short + "\n" + extended
 		elif short:
 			extended = short
 
@@ -254,9 +224,9 @@ class EventViewBase:
 		refstr = str(self.currentService)
 		id = self.event.getEventId()
 		epgcache = eEPGCache.getInstance()
-		ret = epgcache.search(('NB', 100, eEPGCache.SIMILAR_BROADCASTINGS_SEARCH, refstr, id))
+		ret = epgcache.search(("NB", 100, eEPGCache.SIMILAR_BROADCASTINGS_SEARCH, refstr, id))
 		if ret is not None:
-			text = '\n\n' + _('Similar broadcasts:')
+			text = "\n\n" + _("Similar broadcasts:")
 			for x in sorted(ret, key=lambda x: x[1]):
 				text += "\n%s  -  %s" % (strftime(config.usage.date.long.value + ", " + config.usage.time.short.value, localtime(x[1])), x[0])
 			descr = self["epg_description"]
@@ -277,7 +247,7 @@ class EventViewBase:
 			menu = []
 			for p in plugins.getPlugins(PluginDescriptor.WHERE_EVENTINFO):
 				#only list service or event specific eventinfo plugins here, no servelist plugins
-				if 'servicelist' not in p.__call__.__code__.co_varnames:
+				if "servicelist" not in p.__call__.__code__.co_varnames:
 					menu.append((p.name, boundFunction(self.runPlugin, p)))
 			if menu:
 				self.session.open(EventViewContextMenu, menu)
@@ -287,9 +257,9 @@ class EventViewBase:
 
 
 class EventViewSimple(Screen, EventViewBase):
-	def __init__(self, session, event, ref, callback=None, singleEPGCB=None, multiEPGCB=None, similarEPGCB=None, skin='EventViewSimple'):
+	def __init__(self, session, event, ref, callback=None, singleEPGCB=None, multiEPGCB=None, similarEPGCB=None, skin="EventViewSimple"):
 		Screen.__init__(self, session)
-		self.setTitle(_('Event view'))
+		self.setTitle(_("Event view"))
 		self.skinName = [skin,"EventView"]
 		EventViewBase.__init__(self, event, ref, callback, similarEPGCB)
 
