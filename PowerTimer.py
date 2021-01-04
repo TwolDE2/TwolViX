@@ -5,7 +5,7 @@ import six
 import os
 from bisect import insort
 from time import ctime, time
-import timer
+from timer import Timer, TimerEntry
 import xml.etree.cElementTree
 
 from boxbranding import getMachineBrand, getMachineName
@@ -18,6 +18,7 @@ from Screens.MessageBox import MessageBox
 import Screens.Standby
 from Tools import Directories, Notifications
 from Tools.XMLTools import stringToXML
+
 import NavigationInstance
 
 
@@ -52,9 +53,9 @@ class TIMERTYPE:
 	RESTART = 8
 
 # please do not translate log messages
-class PowerTimerEntry(timer.TimerEntry, object):
+class PowerTimerEntry(TimerEntry, object):
 	def __init__(self, begin, end, disabled = False, afterEvent = AFTEREVENT.NONE, timerType = TIMERTYPE.WAKEUP, checkOldTimers = False):
-		timer.TimerEntry.__init__(self, int(begin), int(end))
+		TimerEntry.__init__(self, int(begin), int(end))
 		if checkOldTimers:
 			if self.begin < time() - 1209600:
 				self.begin = int(time())
@@ -413,9 +414,9 @@ def createTimer(xml):
 		entry.log_entries.append((ltime, lcode, msg))
 	return entry
 
-class PowerTimer(timer.Timer):
+class PowerTimer(Timer):
 	def __init__(self):
-		timer.Timer.__init__(self)
+		Timer.__init__(self)
 
 		self.Filename = Directories.resolveFilename(Directories.SCOPE_CONFIG, "pm_timers.xml")
 
@@ -643,7 +644,7 @@ class PowerTimer(timer.Timer):
 		self.saveTimer()
 
 	def cleanupDaily(self, days, finishedLogDays=None):
-		timer.TimerEntry.cleanupDaily(self, days, finishedLogDays)
+		Timer.cleanupDaily(self, days, finishedLogDays)
 		if days > 0:
 			now = time()
 			keepThreshold = now - days * 86400

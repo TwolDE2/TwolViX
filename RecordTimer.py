@@ -2,7 +2,7 @@ from __future__ import print_function, division
 import six
 
 import os
-import timer
+from timer import Timer, TimerEntry
 import xml.etree.cElementTree
 from bisect import insort
 from sys import maxsize
@@ -22,7 +22,6 @@ import Screens.Standby
 from ServiceReference import ServiceReference
 from Tools import Directories, Notifications, ASCIItranslit, Trashcan
 from Tools.XMLTools import stringToXML
-
 
 import NavigationInstance
 
@@ -179,9 +178,10 @@ service_types_tv = "1:7:1:0:0:0:0:0:0:0:(type == 1) || (type == 17) || (type == 
 wasRecTimerWakeup = False
 
 # please do not translate log messages
-class RecordTimerEntry(timer.TimerEntry, object):
-	def __init__(self, serviceref, begin, end, name, description, eit, disabled = False, justplay = False, afterEvent = AFTEREVENT.AUTO, checkOldTimers = False, dirname = None, tags = None, descramble = "notset", record_ecm = "notset", isAutoTimer = False, always_zap = False, rename_repeat = True, conflict_detection = True, pipzap = False, autoTimerId = None):
-		timer.TimerEntry.__init__(self, int(begin), int(end))
+class RecordTimerEntry(TimerEntry, object):
+	def __init__(self, serviceref, begin, end, name, description, eit, disabled=False, justplay=False, afterEvent=AFTEREVENT.AUTO, checkOldTimers=False, dirname=None, tags=None, descramble="notset", record_ecm="notset", isAutoTimer=False, always_zap=False, rename_repeat=True, conflict_detection=True, pipzap=False, autoTimerId=None):
+		TimerEntry.__init__(self, int(begin), int(end))
+
 		if checkOldTimers:
 			if self.begin < time() - 1209600:
 				self.begin = int(time())
@@ -958,9 +958,9 @@ def createTimer(xml):
 
 	return entry
 
-class RecordTimer(timer.Timer):
+class RecordTimer(Timer):
 	def __init__(self):
-		timer.Timer.__init__(self)
+		Timer.__init__(self)
 
 		self.Filename = Directories.resolveFilename(Directories.SCOPE_CONFIG, "timers.xml")
 
@@ -1401,5 +1401,5 @@ class RecordTimer(timer.Timer):
 		self.saveTimer()
 
 	def cleanup(self):
-		timer.Timer.cleanup(self)
+		Timer.cleanup(self)
 		self.saveTimer()
