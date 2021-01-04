@@ -596,6 +596,10 @@ class Harddisk:
 			if "/%s" % bus in self.phys_path:
 				match = bus
 				break
+
+		if getMachineBuild() == 'sf8008' and match = bus and "usb1/1-1/1-1.1/1-1.1:1.0" in self.phys_path:
+			match = None
+
 		if match:
 			# print "[Harddisk] DEBUG: Device is removable.  (device='%s', match='%s')" % (device, match)
 			return (False, match)
