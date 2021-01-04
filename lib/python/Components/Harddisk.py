@@ -597,7 +597,7 @@ class Harddisk:
 				match = bus
 				break
 
-		if getMachineBuild() == 'sf8008' and match = bus and "usb1/1-1/1-1.1/1-1.1:1.0" in self.phys_path:
+		if getMachineBuild() == 'sf8008' and match == bus and "usb1/1-1/1-1.1/1-1.1:1.0" in self.phys_path:
 			match = None
 
 		if match:
