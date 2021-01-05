@@ -1330,21 +1330,6 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 				break;
 		}
 	}
-	else if (!strcmp(m_description, "Si21682") || !strcmp(m_description, "Si2168")) // SF4008 T/T2/C and Zgemma TC Models
-	{
-		int type = -1;
-		oparm.getSystem(type);
-		switch (type)
-		{
-			case feCable:
-				ret = (int)(snr / 17);
-				cab_max = 3800;
-				break;
-			case feTerrestrial:
-				ret = (int)(snr / 22.3);
-				break;
-		}
-	}
 	else if (!strncmp(m_description, "Si2166D", 7)) // SF8008 S2
 	{
 		ret = snr;
