@@ -518,7 +518,6 @@ RESULT eDVBFrontendParameters::calcLockTimeout(unsigned int &timeout) const
 		{
 				/* high symbol rate transponders tune faster, due to
 					requiring less zigzag and giving more symbols faster.
-
 					5s are definitely not enough on really low SR when
 					zigzag has to find the exact frequency first.
 				*/
@@ -1327,6 +1326,21 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 			case feSatellite:
 				ret = (snr + 2300) / 11.5;
 				sat_max = 1550;
+				break;
+		}
+	}
+	else if (!strcmp(m_description, "Si21682") || !strcmp(m_description, "Si2168")) // SF4008 T/T2/C and Zgemma TC Models
+	{
+		int type = -1;
+		oparm.getSystem(type);
+		switch (type)
+		{
+			case feCable:
+				ret = (int)(snr / 17);
+				cab_max = 3800;
+				break;
+			case feTerrestrial:
+				ret = (int)(snr / 22.3);
 				break;
 		}
 	}
