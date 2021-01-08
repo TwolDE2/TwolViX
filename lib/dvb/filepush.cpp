@@ -336,6 +336,7 @@ eFilePushThreadRecorder::eFilePushThreadRecorder(unsigned char* buffer, size_t b
 
 void eFilePushThreadRecorder::thread()
 {
+<<<<<<< HEAD
 	ignore_but_report_signals();
 	hasStarted(); /* "start()" blocks until we get here */
 	setIoPrio(IOPRIO_CLASS_RT, 7);
@@ -343,6 +344,27 @@ void eFilePushThreadRecorder::thread()
 
 	/* m_stop must be evaluated after each syscall */
 	/* if it isn't, there's a chance of the thread becoming deadlocked when recordings are finishing */
+=======
+	ssize_t bytes;
+	int rv;
+	struct pollfd pfd;
+	sigset_t sigmask;
+
+	eDebug("[eFilePushThreadRecorder] THREAD START");
+
+	setIoPrio(IOPRIO_CLASS_RT, 7);
+
+	/* Only allow SIGUSR1 to be delivered to our thread, don't let any
+	 * other signals (like SIGHCHLD) interrupt our system calls.
+	 * NOTE: signal block masks are per thread, so set it in the thread itself. */
+	sigfillset(&sigmask);
+	sigdelset(&sigmask, SIGUSR1);
+	pthread_sigmask(SIG_SETMASK, &sigmask, nullptr);
+
+	hasStarted();
+
+	/* m_stop must be evaluated after each syscall. */
+>>>>>>> 717316921d... filepush: work around bug in OE Zeus glibc. Fix recordings that hang enigma.
 	while (!m_stop)
 	{
 		/* this works around the buggy Broadcom encoder that always returns even if there is no data */
@@ -465,6 +487,23 @@ void eFilePushThreadRecorder::start(int fd)
 {
 	m_fd_source = fd;
 	m_stop = 0;
+<<<<<<< HEAD
+=======
+	m_stopped = false;
+
+	/* Use a signal to interrupt blocking systems calls (like read()).
+	 * We don't want to get enigma killed by the signal (default action),
+	 * so install a handler. Don't use SIG_IGN (ignore signal) because
+	 * then the system calls won't be interrupted by the signal.
+	 * NOTE: signal options and handlers (except for a block mask) are
+	 * global for the process, so install the handler here and not
+	 * in the thread. */
+	struct sigaction act;
+	act.sa_handler = signal_handler;
+	act.sa_flags = 0;
+	sigaction(SIGUSR1, &act, nullptr);
+
+>>>>>>> 717316921d... filepush: work around bug in OE Zeus glibc. Fix recordings that hang enigma.
 	run();
 }
 
