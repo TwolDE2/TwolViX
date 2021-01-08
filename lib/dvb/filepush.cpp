@@ -228,6 +228,9 @@ void eFilePushThread::thread()
 				m_run_state = 1;
 		}
 	} while (m_stop == 0);
+
+	m_stopped = true;
+
 	eDebug("[eFilePushThread] STOP");
 }
 
@@ -238,6 +241,7 @@ void eFilePushThread::start(ePtr<iTsSource> &source, int fd_dest)
 	m_current_position = 0;
 	m_run_state = 1;
 	m_stop = 0;
+	m_stopped = false;
 
 	/* Use a signal to interrupt blocking systems calls (like read()).
 	 * We don't want to get enigma killed by the signal (default action),
@@ -256,14 +260,33 @@ void eFilePushThread::start(ePtr<iTsSource> &source, int fd_dest)
 
 void eFilePushThread::stop()
 {
-	/* if we aren't running, don't bother stopping. */
+	static const struct timespec timespec_1 = { .tv_sec =  0, .tv_nsec = 1000000000 / 10 };
+	int safeguard;
+
 	if (m_stop == 1)
+	{
+		eDebug("[eFilePushThread]: stopping thread that is already stopped");
 		return;
+	}
+
 	m_stop = 1;
-	eDebug("[eFilePushThread] stopping thread");
 	m_run_cond.signal(); /* Break out of pause if needed */
-	sendSignal(SIGUSR1);
-	kill(); /* Kill means join actually */
+
+	for(safeguard = 100; safeguard > 0; safeguard--)
+	{
+		eDebug("[eFilePushThread] stopping thread: %d", safeguard);
+		sendSignal(SIGUSR1);
+
+		nanosleep(&timespec_1, nullptr);
+
+		if(m_stopped)
+			break;
+	}
+
+	if(safeguard > 0)
+		kill();
+	else
+		eWarning("[eFilePushThread] thread could not be stopped!");
 }
 
 void eFilePushThread::pause()
@@ -505,7 +528,9 @@ void eFilePushThreadRecorder::start(int fd)
 
 void eFilePushThreadRecorder::stop()
 {
-	/* if we aren't running, don't bother stopping. */
+	static const struct timespec timespec_1 = { .tv_sec =  0, .tv_nsec = 1000000000 / 10 };
+	int safeguard;
+
 	if (m_stop == 1)
 	{
 		eDebug("[eFilePushThreadRecorder] requesting to stop thread but thread is already stopped");
