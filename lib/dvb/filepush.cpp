@@ -33,6 +33,7 @@ eFilePushThread::~eFilePushThread()
 
 static void signal_handler(int x)
 {
+	eDebug("[eFilePush] SIGUSR1 received");
 }
 
 static void ignore_but_report_signals()
@@ -369,6 +370,63 @@ void eFilePushThreadRecorder::thread()
 #endif
 				continue;
 			}
+				pfd.fd = m_fd_source;
+				pfd.events = POLLIN;
+				pfd.revents = 0;
+
+				errno = 0;
+				rv = poll(&pfd, 1, 500);
+
+				if(rv < 0)
+				{
+					if(errno == EINTR)
+					{
+						eDebug("[eFilePushThreadRecorder] poll got interrupted by signal, stop: %d", m_stop);
+						continue;
+					}
+
+					eWarning("[eFilePushThreadRecorder] POLL ERROR, aborting thread: %m");
+					sendEvent(evtWriteError);
+
+					break;
+				}
+
+				if(rv == 0)
+					continue;
+
+				if(rv != 1)
+				{
+					eWarning("[eFilePushThreadRecorder] POLL WEIRDNESS, fds != 1: %d, aborting thread", rv);
+					sendEvent(evtWriteError);
+
+					break;
+				}
+
+				if(pfd.revents & (POLLRDHUP | POLLERR | POLLHUP | POLLNVAL))
+				{
+					eWarning("[eFilePushThreadRecorder] POLL STATUS ERROR, aborting thread: %x\n", pfd.revents);
+					sendEvent(evtWriteError);
+
+					break;
+				}
+
+				if(!(pfd.revents & POLLIN))
+				{
+					eWarning("[eFilePushThreadRecorder] POLL WEIRDNESS, fd not ready, aborting thread: %x\n", pfd.revents);
+					sendEvent(evtWriteError);
+
+					break;
+				}
+
+				continue;
+			}
+
+			if (errno == EINTR || errno == EBUSY)
+			{
+				eDebug("[eFilePushThreadRecorder] read got interrupted by signal, stop: %d", m_stop);
+				continue;
+			}
+
 			if (errno == EOVERFLOW)
 			{
 				eWarning("[eFilePushThreadRecorder] OVERFLOW while recording");
@@ -414,7 +472,14 @@ void eFilePushThreadRecorder::stop()
 {
 	/* if we aren't running, don't bother stopping. */
 	if (m_stop == 1)
+	{
+		eDebug("[eFilePushThreadRecorder] requesting to stop thread but thread is already stopped");
 		return;
+<<<<<<< HEAD
+=======
+	}
+
+>>>>>>> 84c159f928... filepush: add some debugging statements.
 	m_stop = 1;
 	eDebug("[eFilePushThreadRecorder] stopping thread."); /* just do it ONCE. it won't help to do this more than once. */
 	sendSignal(SIGUSR1);
