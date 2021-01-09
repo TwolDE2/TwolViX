@@ -22,7 +22,7 @@ try: # for reading the current transport stream (SatfinderExtra)
 	from Plugins.SystemPlugins.AutoBouquetsMaker.scanner import dvbreader
 	dvbreader_available = True
 except ImportError:
-	print "[Satfinder] import dvbreader not available"
+	print("[Satfinder] import dvbreader not available")
 	dvbreader_available = False
 
 if dvbreader_available:
@@ -35,10 +35,6 @@ if dvbreader_available:
 		import _thread as thread
 	else:
 		import thread
-	dvbreader_available = True
-except ImportError:
-	print("[Satfinder] import dvbreader not available")
-	dvbreader_available = False
 
 class Satfinder(ScanSetup, ServiceScan):
 	"""Inherits StaticText [key_red] and [key_green] properties from ScanSetup"""
