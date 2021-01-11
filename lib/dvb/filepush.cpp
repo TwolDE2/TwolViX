@@ -436,7 +436,10 @@ void eFilePushThreadRecorder::thread()
 				}
 
 				if(rv == 0)
+				{
+					eDebug("[eFilePushThreadRecorder] no fds ready %d", pfd.fd);
 					continue;
+				}
 
 				if(rv != 1)
 				{
@@ -448,7 +451,7 @@ void eFilePushThreadRecorder::thread()
 
 				if(pfd.revents & (POLLRDHUP | POLLERR | POLLHUP | POLLNVAL))
 				{
-					eWarning("[eFilePushThreadRecorder] POLL STATUS ERROR, aborting thread: %x\n", pfd.revents);
+					eWarning("[eFilePushThreadRecorder] POLL STATUS ERROR, aborting thread: %x, fd: %d\n", pfd.revents, pfd.fd);
 					sendEvent(evtWriteError);
 
 					break;
