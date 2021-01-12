@@ -238,6 +238,12 @@ class InfoBarUnhandledKey:
 			KEYIDS["KEY_CHANNELUP"], KEYIDS["KEY_CHANNELDOWN"],
 			KEYIDS["KEY_NEXT"], KEYIDS["KEY_PREVIOUS"]
 		)
+		self.onClose.append(self.__onClose)
+
+	def __onClose(self):
+		eActionMap.getInstance().unbindAction('', self.actionA)
+		eActionMap.getInstance().unbindAction('', self.actionB)
+		self.unhandledKeyDialog.close()
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
 #		print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS[flag], self.invKeyIds.get(key, ""), getKeyDescription(key))
@@ -3464,7 +3470,6 @@ class InfoBarSubserviceSelection:
 			{
 				iPlayableService.evUpdatedEventInfo: self.checkSubservicesAvail
 			})
-		self.onClose.append(self.__removeNotifications)
 
 		self.bouquets = self.bsel = self.selectedSubservice = None
 
@@ -3479,9 +3484,6 @@ class InfoBarSubserviceSelection:
 			self.openTimerList()
 		else:
 			self.subserviceSelection()
-
-	def __removeNotifications(self):
-		self.session.nav.event.remove(self.checkSubservicesAvail)
 
 	def checkSubservicesAvail(self):
 		serviceRef = self.session.nav.getCurrentlyPlayingServiceReference()
