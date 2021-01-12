@@ -5,6 +5,7 @@ from boxbranding import getHaveAVJACK,getHaveRCA, getHaveSCART
 from Components.AVSwitch import iAVSwitch as iAV
 from Components.config import config, ConfigBoolean, configfile
 from Components.Pixmap import Pixmap
+from Components.SystemInfo import SystemInfo
 from Screens.Rc import Rc
 from Screens.Wizard import WizardSummary
 from Screens.WizardLanguage import WizardLanguage
