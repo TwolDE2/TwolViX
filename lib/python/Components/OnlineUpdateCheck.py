@@ -43,8 +43,8 @@ class FeedsStatusCheck:
 			return False
 
 	def adapterAvailable(self): # Box has an adapter configured and active
-		for adapter in ('eth0', 'eth1', 'wlan0', 'wlan1', 'wlan2', 'wlan3', 'ra0'):
-			if 'addr' in about.getIfConfig(adapter):
+		for adapter in ("eth0", "eth1", "wlan0", "wlan1", "wlan2", "wlan3", "ra0"):
+			if "addr" in about.getIfConfig(adapter):
 				print("[OnlineUpdateCheck][adapterAvailable] PASSED")
 				return True
 		print("[OnlineUpdateCheck][adapterAvailable] FAILED")
@@ -77,42 +77,42 @@ class FeedsStatusCheck:
 		return result
 
 	def getFeedStatus(self):
-		status = '1'
-		trafficLight = 'stable'
-		if getImageType() != 'rubbish':
-			status = '0'
+		status = "1"
+		trafficLight = "stable"
+		if getImageType() != "rubbish":
+			status = "0"
 			config.softwareupdate.updateisunstable.setValue(status)
-			return 'stable'
-		trafficLight = 'unknown'
+			return "stable"
+		trafficLight = "unknown"
 		if self.adapterAvailable():
 			if self.NetworkUp():
-				if getImageType() == 'release': # we know the network is good now so only do this check on release images where the release domain applies
+				if getImageType() == "release": # we know the network is good now so only do this check on release images where the release domain applies
 					try:
-						print('[OnlineUpdateCheck][getFeedStatus] Checking feeds state')
-						req = Request('http://openvix.co.uk/TrafficLightState.php')
+						print("[OnlineUpdateCheck][getFeedStatus] Checking feeds state")
+						req = Request("http://openvix.co.uk/TrafficLightState.php")
 						d = urlopen(req)
 						trafficLight = d.read()
 					except HTTPError as err:
-						print(('[OnlineUpdateCheck][getFeedStatus] ERROR:',err))
+						print(("[OnlineUpdateCheck][getFeedStatus] ERROR:",err))
 						trafficLight = err.code
 					except URLError as err:
-						print(('[OnlineUpdateCheck][getFeedStatus] ERROR:',err.reason[0]))
+						print(("[OnlineUpdateCheck][getFeedStatus] ERROR:",err.reason[0]))
 						trafficLight = err.reason[0]
 					except:
-						print(('[OnlineUpdateCheck][getFeedStatus] ERROR:', sys.exc_info()[0]))
+						print(("[OnlineUpdateCheck][getFeedStatus] ERROR:", sys.exc_info()[0]))
 						trafficLight = -2
 				else:
-					trafficLight = 'unknown'
-				if trafficLight == 'stable':
-					status = '0'
+					trafficLight = "unknown"
+				if trafficLight == "stable":
+					status = "0"
 				config.softwareupdate.updateisunstable.setValue(status)
-				print('[OnlineUpdateCheck][getFeedStatus] PASSED:',trafficLight)
+				print("[OnlineUpdateCheck][getFeedStatus] PASSED:",trafficLight)
 				return trafficLight
 			else:
-				print('[OnlineUpdateCheck][getFeedStatus] ERROR: -2')
+				print("[OnlineUpdateCheck][getFeedStatus] ERROR: -2")
 				return -2
 		else:
-			print('[OnlineUpdateCheck][getFeedStatus] ERROR: -3')
+			print("[OnlineUpdateCheck][getFeedStatus] ERROR: -3")
 			return -3
 
 	# We need a textual mapping for all possible return states for use by
@@ -120,43 +120,43 @@ class FeedsStatusCheck:
 	# Declared here for consistency and co-location with choices.
 
 	feed_status_msgs = {
-		'stable':     _('Feeds status: Stable'),
-		'unstable':   _('Feeds status: Unstable'),
-		'updating':   _('Feeds status: Updating'),
-		'-2':	      _('ERROR: No internet found'),
-		'-3':	      _('ERROR: No network found'),
-		'403':	      _('ERROR: Response 403 Forbidden'),
-		'404':	      _('ERROR: Response 404 Not Found'),
-		'inprogress': _('ERROR: Check is already running in background, please wait a few minutes and try again'),
-		'unknown':    _('Feeds status: Unknown'),
+		"stable":     _("Feeds status: Stable"),
+		"unstable":   _("Feeds status: Unstable"),
+		"updating":   _("Feeds status: Updating"),
+		"-2":	      _("ERROR: No internet found"),
+		"-3":	      _("ERROR: No network found"),
+		"403":	      _("ERROR: Response 403 Forbidden"),
+		"404":	      _("ERROR: Response 404 Not Found"),
+		"inprogress": _("ERROR: Check is already running in background, please wait a few minutes and try again"),
+		"unknown":    _("Feeds status: Unknown"),
 	}
 
 	def getFeedsBool(self):
 		global error
 		self.feedstatus = feedsstatuscheck.getFeedStatus()
 		if self.feedstatus in (-2, -3, 403, 404):
-			print('[OnlineUpdateCheck][getFeedsBool] Error %s' % self.feedstatus)
+			print("[OnlineUpdateCheck][getFeedsBool] Error %s" % self.feedstatus)
 			return str(self.feedstatus)
 		elif error:
-			print('[OnlineUpdateCheck][getFeedsBool] Check already in progress')
-			return 'inprogress'
-		elif self.feedstatus == 'updating':
-			print('[OnlineUpdateCheck][getFeedsBool] Feeds Updating')
-			return 'updating'
-		elif self.feedstatus in ('stable', 'unstable', 'unknown'):
-			print('[OnlineUpdateCheck][getFeedsBool]', self.feedstatus)
+			print("[OnlineUpdateCheck][getFeedsBool] Check already in progress")
+			return "inprogress"
+		elif self.feedstatus == "updating":
+			print("[OnlineUpdateCheck][getFeedsBool] Feeds Updating")
+			return "updating"
+		elif self.feedstatus in ("stable", "unstable", "unknown"):
+			print("[OnlineUpdateCheck][getFeedsBool]", self.feedstatus)
 			return str(self.feedstatus)
 
 	def getFeedsErrorMessage(self):
 		global error
-		#feedstatus = feedsstatuscheck.getFeedsBool() # This is forcing an additional HTTP request so don't do it. Also the output was incorrect so the messages didn't show, just an empty MessageBox.
+		#feedstatus = feedsstatuscheck.getFeedsBool() # This is forcing an additional HTTP request so don"t do it. Also the output was incorrect so the messages didn"t show, just an empty MessageBox.
 		if self.feedstatus == -2:
 			return _("Your %s %s has no internet access, please check your network settings and make sure you have network cable connected and try again.") % (getMachineBrand(), getMachineName())
 		elif self.feedstatus == -3:
 			return _("Your %s %s has no network access, please check your network settings and make sure you have network cable connected and try again.") % (getMachineBrand(), getMachineName())
 		elif self.feedstatus == 404:
 			return _("Your %s %s is not able to connect to the feeds, please try again later. If this persists please report on the OpenViX forum at world-of-satellite.com.") % (getMachineBrand(), getMachineName())
-		elif self.feedstatus in ('updating', 403):
+		elif self.feedstatus in ("updating", 403):
 			return _("Sorry feeds are down for maintenance, please try again later. If this issue persists please check openvix.co.uk or world-of-satellite.com.")
 		elif error:
 			return _("There has been an error, please try again later. If this issue persists, please check openvix.co.uk or world-of-satellite.com")
@@ -178,8 +178,8 @@ class FeedsStatusCheck:
 				self.ipkg.startCmd(IpkgComponent.CMD_UPGRADE_LIST)
 			elif self.ipkg.currentCommand == IpkgComponent.CMD_UPGRADE_LIST:
 				self.total_packages = len(self.ipkg.getFetchedList())
-				if self.total_packages and (getImageType() != 'release' or (config.softwareupdate.updateisunstable.value == '1' and config.softwareupdate.updatebeta.value) or config.softwareupdate.updateisunstable.value == '0'):
-					print(('[OnlineUpdateCheck][ipkgCallback] %s Updates available' % self.total_packages))
+				if self.total_packages and (getImageType() != "release" or (config.softwareupdate.updateisunstable.value == "1" and config.softwareupdate.updatebeta.value) or config.softwareupdate.updateisunstable.value == "0"):
+					print(("[OnlineUpdateCheck][ipkgCallback] %s Updates available" % self.total_packages))
 					config.softwareupdate.updatefound.setValue(True)
 		pass
 
@@ -215,7 +215,7 @@ class OnlineUpdateCheckPoller:
 		delay = last_run + gap - int(time())
 
 		# Set-up the minimum delay, which is greater on the first boot-time pass.
-		# Also check that we aren't setting a delay that is more than the
+		# Also check that we aren"t setting a delay that is more than the
 		# configured frequency of checks, which caters for mis-/un-set system
 		# clocks.
 		if delay < minimum_delay:
@@ -248,11 +248,11 @@ class OnlineUpdateCheckPoller:
 
 	def JobStart(self):
 		config.softwareupdate.updatefound.setValue(False)
-		if (getImageType() != 'release' and feedsstatuscheck.getFeedsBool() == 'unknown') or (getImageType() == 'release' and feedsstatuscheck.getFeedsBool() in ('stable', 'unstable')):
-			print('[OnlineUpdateCheckPoller] Starting background check.')
+		if (getImageType() != "release" and feedsstatuscheck.getFeedsBool() == "unknown") or (getImageType() == "release" and feedsstatuscheck.getFeedsBool() in ("stable", "unstable")):
+			print("[OnlineUpdateCheckPoller] Starting background check.")
 			feedsstatuscheck.startCheck()
 		else:
-			print('[OnlineUpdateCheckPoller] No feeds found, skipping check.')
+			print("[OnlineUpdateCheckPoller] No feeds found, skipping check.")
 
 # Create a callable instance...
 onlineupdatecheckpoller = OnlineUpdateCheckPoller()
@@ -263,22 +263,22 @@ class VersionCheck:
 
 	def getStableUpdateAvailable(self):
 		if config.softwareupdate.updatefound.value and config.softwareupdate.check.value:
-			if getImageType() != 'release' or config.softwareupdate.updateisunstable.value == '0':
-				print('[OnlineVersionCheck] New Release updates found')
+			if getImageType() != "release" or config.softwareupdate.updateisunstable.value == "0":
+				print("[OnlineVersionCheck] New Release updates found")
 				return True
 			else:
-				print('[OnlineVersionCheck] skipping as unstable is not wanted')
+				print("[OnlineVersionCheck] skipping as unstable is not wanted")
 				return False
 		else:
 			return False
 
 	def getUnstableUpdateAvailable(self):
 		if config.softwareupdate.updatefound.value and config.softwareupdate.check.value:
-			if getImageType() != 'release' or (config.softwareupdate.updateisunstable.value == '1' and config.softwareupdate.updatebeta.value):
-				print('[OnlineVersionCheck] New Experimental updates found')
+			if getImageType() != "release" or (config.softwareupdate.updateisunstable.value == "1" and config.softwareupdate.updatebeta.value):
+				print("[OnlineVersionCheck] New Experimental updates found")
 				return True
 			else:
-				print('[OnlineVersionCheck] skipping as beta is not wanted')
+				print("[OnlineVersionCheck] skipping as beta is not wanted")
 				return False
 		else:
 			return False
@@ -292,7 +292,7 @@ def kernelMismatch():
 
 	kernelversion = about.getKernelVersionString().strip()
 	if kernelversion == "unknown":
-		print('[OnlineUpdateCheck][kernelMismatch] unable to retrieve kernel version from STB')
+		print("[OnlineUpdateCheck][kernelMismatch] unable to retrieve kernel version from STB")
 		return False
 
 	uri = "%s/%s/Packages.gz" % (getFeedsUrl(), getMachineBuild())
@@ -301,24 +301,27 @@ def kernelMismatch():
 		d = urlopen(req)
 		gz_data = d.read()
 	except:
-		print('[OnlineUpdateCheck][kernelMismatch] error fetching %s' % uri)
+		print("[OnlineUpdateCheck][kernelMismatch] error fetching %s" % uri)
 		return False
 
 	try:
 		packages = zlib.decompress(gz_data, 16+zlib.MAX_WBITS)
 	except:
-		print('[OnlineUpdateCheck][kernelMismatch] failed to decompress gz_data')
+		print("[OnlineUpdateCheck][kernelMismatch] failed to decompress gz_data")
 		return False
 
 	pattern = "kernel-([0-9]+[.][0-9]+[.][0-9]+)"
+	# print("[OnlineUpdateCheck][kernelMismatch] packages=%s" % (packages))
+	if sys.version_info[0] >= 3:
+		packages = packages.decode()
 	matches = re.findall(pattern, packages)
 	if matches:
-		match = sorted(matches,key=lambda s: list(map(int, s.split('.'))))[-1]
+		match = sorted(matches,key=lambda s: list(map(int, s.split("."))))[-1]
 		if match != kernelversion:
-			print('[OnlineUpdateCheck][kernelMismatch] kernel mismatch found. STB kernel=%s, feeds kernel=%s' % (kernelversion, match))
+			print("[OnlineUpdateCheck][kernelMismatch] kernel mismatch found. STB kernel=%s, feeds kernel=%s" % (kernelversion, match))
 			return True
 
-	print('[OnlineUpdateCheck][kernelMismatch] no kernel mismatch found')
+	print("[OnlineUpdateCheck][kernelMismatch] no kernel mismatch found")
 	return False
 
 def statusMessage():
@@ -330,7 +333,7 @@ def statusMessage():
 		d = urlopen(req)
 		message = d.read()
 	except:
-		print('[OnlineUpdateCheck][statusMessage] %s could not be fetched' % uri)
+		print("[OnlineUpdateCheck][statusMessage] %s could not be fetched" % uri)
 		return False
 
 	if message:
