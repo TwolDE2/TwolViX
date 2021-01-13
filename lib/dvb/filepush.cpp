@@ -190,7 +190,12 @@ void eFilePushThread::thread()
 							break;
 						}
 						if (w < 0 && (errno == EINTR || errno == EAGAIN || errno == EBUSY))
+						{
+#if HAVE_HISILICON
+							usleep(100000);
+#endif
 							continue;
+						}
 						eDebug("[eFilePushThread] write: %m");
 						sendEvent(evtWriteError);
 						break;
@@ -439,12 +444,17 @@ void eFilePushThreadRecorder::thread()
 
 					break;
 				}
-
+#if HAVE_HISILICON
+				usleep(100000);
+#endif
 				continue;
 			}
 
 			if (errno == EINTR || errno == EBUSY)
 			{
+#if HAVE_HISILICON
+				usleep(100000);
+#endif
 				eDebug("[eFilePushThreadRecorder] read got interrupted by signal, stop: %d", m_stop);
 				continue;
 			}
