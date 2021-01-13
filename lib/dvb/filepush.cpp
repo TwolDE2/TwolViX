@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <poll.h>
+#include <time.h>
 
 //#define SHOW_WRITE_TIME
 
@@ -194,16 +195,6 @@ void eFilePushThread::thread()
 						sendEvent(evtWriteError);
 						break;
 					}
-					if (w < 0 && (errno == EINTR || errno == EAGAIN || errno == EBUSY))
-					{
-#if HAVE_HISILICON
-						usleep(100000);
-#endif
-						continue;
-					}
-						eDebug("[eFilePushThread] write: %m");
-						sendEvent(evtWriteError);
-						break;
 					buf_start += w;
 				}
 
@@ -389,31 +380,15 @@ void eFilePushThreadRecorder::thread()
 	/* m_stop must be evaluated after each syscall. */
 	while (!m_stop)
 	{
-		/* this works around the buggy Broadcom encoder that always returns even if there is no data */
-		/* (works like O_NONBLOCK even when not opened as such), prevent idle waiting for the data */
-		/* this won't ever hurt, because it will return immediately when there is data or an error condition */
-
-		struct pollfd pfd = { m_fd_source, POLLIN, 0 };
-		poll(&pfd, 1, 100);
-		/* Reminder: m_stop *must* be evaluated after each syscall. */
-		if (m_stop)
-			break;
-
-		ssize_t bytes = ::read(m_fd_source, m_buffer, m_buffersize);
-		/* And again: Check m_stop regardless of read success. */
-		if (m_stop)
-			break;
+		bytes = ::read(m_fd_source, m_buffer, m_buffersize);
 
 		if (bytes < 0)
 		{
 			bytes = 0;
-			if (errno == EINTR || errno == EBUSY || errno == EAGAIN)
+
+			/* EAGAIN can happen on the Broadcom encoder, even though the fd is not opened nonblocking */
+			if(errno == EAGAIN)
 			{
-#if HAVE_HISILICON
-				usleep(100000);
-#endif
-				continue;
-			}
 				pfd.fd = m_fd_source;
 				pfd.events = POLLIN;
 				pfd.revents = 0;
@@ -506,6 +481,7 @@ void eFilePushThreadRecorder::thread()
 	flush();
 	sendEvent(evtStopped);
 	eDebug("[eFilePushThreadRecorder] THREAD STOP");
+	m_stopped = true;
 }
 
 void eFilePushThreadRecorder::start(int fd)
@@ -541,9 +517,22 @@ void eFilePushThreadRecorder::stop()
 	}
 
 	m_stop = 1;
-	eDebug("[eFilePushThreadRecorder] stopping thread."); /* just do it ONCE. it won't help to do this more than once. */
-	sendSignal(SIGUSR1);
-	kill();
+
+	for(safeguard = 100; safeguard > 0; safeguard--)
+	{
+		eDebug("[eFilePushThreadRecorder] stopping thread: %d", safeguard);
+		sendSignal(SIGUSR1);
+
+		nanosleep(&timespec_1, nullptr);
+
+		if(m_stopped)
+			break;
+	}
+
+	if(safeguard > 0)
+		kill();
+	else
+		eWarning("[eFilePushThreadRecorder] thread could not be stopped!");
 }
 
 void eFilePushThreadRecorder::sendEvent(int evt)
