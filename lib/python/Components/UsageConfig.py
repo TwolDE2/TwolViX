@@ -9,7 +9,7 @@ from time import time
 
 from enigma import eDVBDB, eEPGCache, setTunerTypePriorityOrder, setPreferredTuner, setSpinnerOnOff, setEnableTtCachingOnOff, eEnv, Misc_Options, eBackgroundFileEraser, eServiceEvent, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_HALIGN_CENTER, RT_VALIGN_CENTER, RT_WRAP
 
-from boxbranding import getBrandOEM, getBoxType, getDisplayType
+from boxbranding import getBrandOEM, getDisplayType
 from Components.Harddisk import harddiskmanager
 from Components.NimManager import nimmanager
 from Components.ServiceList import refreshServiceList
