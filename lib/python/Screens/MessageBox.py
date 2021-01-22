@@ -80,7 +80,7 @@ class MessageBox(Screen, HelpableScreen):
 			self["icon"].show()
 		self.skinName = ["MessageBox"]
 		if simple:
-			self.skinName = ["MessageBoxSimple"]
+			self.skinName = ["MessageBoxSimple"] + self.skinName
 		if wizard:
 			self["rc"] = MultiPixmap()
 			self["rc"].setPixmapNum(config.misc.rcused.value)
