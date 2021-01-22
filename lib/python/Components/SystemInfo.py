@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
-from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveHDMIinFHD, getHaveHDMIinHD, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getMachineBrand, getMachineBuild, getMachineMtdRoot, getMachineName
+from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveHDMIinFHD, getHaveHDMIinHD, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getImageType, getMachineBrand, getMachineBuild, getMachineMtdRoot, getMachineName
 from Components.About import getChipSetString
 from Components.RcModel import rc_model
 from Tools.Directories import fileCheck, fileExists, fileHas, pathExists
@@ -27,6 +27,10 @@ def countFrontpanelLEDs():
 	while fileExists("/proc/stb/fp/led%d_pattern" % numLeds):
 		numLeds += 1
 	return numLeds
+
+SystemInfo["MachineBrand"] = getMachineBrand()
+SystemInfo["MachineName"] = getMachineName()
+SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
 SystemInfo["rc_model"] = rc_model.getRcFolder()
 SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4") # due to button limitations of the remote control
 SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "sf8008", "sf8008m", "uniboxhde") # due to button limitations of the remote control
