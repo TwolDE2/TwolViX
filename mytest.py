@@ -118,7 +118,6 @@ def NTPserverChanged(configElement):
 
 
 config.misc.NTPserver.addNotifier(NTPserverChanged, immediate_feedback = False)
-config.misc.NTPserver.callNotifiersOnSaveAndCancel = True
 
 profile("Twisted")
 print("[Enigma2] Initialising Twisted.")

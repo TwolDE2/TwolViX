@@ -97,7 +97,7 @@ def InitUsageConfig():
 			SystemInfo["InfoBarEpg"] = True
 		else:
 			SystemInfo["InfoBarEpg"] = False
-	config.usage.show_second_infobar.addNotifier(showsecondinfobarChanged, immediate_feedback = True)
+	config.usage.show_second_infobar.addNotifier(showsecondinfobarChanged)
 	config.usage.infobar_frontend_source = ConfigSelection(default = "tuner", choices = [("settings", _("Settings")), ("tuner", _("Tuner"))])
 
 	config.usage.show_picon_bkgrn = ConfigSelection(default = "transparent", choices = [("none", _("Disabled")), ("transparent", _("Transparent")), ("blue", _("Blue")), ("red", _("Red")), ("black", _("Black")), ("white", _("White")), ("lightgrey", _("Light Grey")), ("grey", _("Grey"))])
@@ -915,14 +915,14 @@ def InitUsageConfig():
 			configElement.value = [2]
 		updateChoices(config.seek.enter_forward, configElement.value)
 
-	config.seek.speeds_forward.addNotifier(updateEnterForward, immediate_feedback = False)
+	config.seek.speeds_forward.addNotifier(updateEnterForward, immediate_feedback=False)
 
 	def updateEnterBackward(configElement):
 		if not configElement.value:
 			configElement.value = [2]
 		updateChoices(config.seek.enter_backward, configElement.value)
 
-	config.seek.speeds_backward.addNotifier(updateEnterBackward, immediate_feedback = False)
+	config.seek.speeds_backward.addNotifier(updateEnterBackward, immediate_feedback=False)
 
 	def updateEraseSpeed(el):
 		eBackgroundFileEraser.getInstance().setEraseSpeed(int(el.value))
@@ -933,12 +933,12 @@ def InitUsageConfig():
 		("20", _("20 MB/s")),
 		("50", _("50 MB/s")),
 		("100", _("100 MB/s"))])
-	config.misc.erase_speed.addNotifier(updateEraseSpeed, immediate_feedback = False)
+	config.misc.erase_speed.addNotifier(updateEraseSpeed, immediate_feedback=False)
 	config.misc.erase_flags = ConfigSelection(default="1", choices = [
 		("0", _("Disable")),
 		("1", _("Internal hdd only")),
 		("3", _("Everywhere"))])
-	config.misc.erase_flags.addNotifier(updateEraseFlags, immediate_feedback = False)
+	config.misc.erase_flags.addNotifier(updateEraseFlags, immediate_feedback=False)
 
 	config.misc.zapkey_delay = ConfigSelectionNumber(default = 5, stepwidth = 1, min = 0, max = 20, wraparound = True)
 	config.misc.numzap_picon = ConfigYesNo(default = False)
@@ -949,7 +949,7 @@ def InitUsageConfig():
 			file.close()
 		config.misc.zapmode = ConfigSelection(default = "mute", choices = [
 			("mute", _("Black screen")), ("hold", _("Hold screen")), ("mutetilllock", _("Black screen till locked")), ("holdtilllock", _("Hold till locked"))])
-		config.misc.zapmode.addNotifier(setZapmode, immediate_feedback = False)
+		config.misc.zapmode.addNotifier(setZapmode, immediate_feedback=False)
 	config.usage.historymode = ConfigSelection(default = "1", choices = [("0", _("Just zap")), ("1", _("Show menu"))])
 
 	config.subtitles = ConfigSubsection()
