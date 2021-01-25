@@ -120,7 +120,7 @@ int eConsoleAppContainer::execute(const char *cmdline, const char * const argv[]
 		return -3;
 	}
 
-	eDebug("[eConsoleAppContainer] pipe in = %d, out = %d, err = %d", fd[0], fd[1], fd[2]);
+//	eDebug("[eConsoleAppContainer] pipe in = %d, out = %d, err = %d", fd[0], fd[1], fd[2]);
 
 	::fcntl(fd[0], F_SETFL, O_NONBLOCK);
 	::fcntl(fd[1], F_SETFL, O_NONBLOCK);
@@ -199,7 +199,6 @@ void eConsoleAppContainer::sendEOF()
 
 void eConsoleAppContainer::closePipes()
 {
-	eDebug("[eConsoleAppContainer] closePipes in = %d, out = %d, err = %d", fd[0], fd[1], fd[2]);
 	if (in)
 		in->stop();
 	if (out)
