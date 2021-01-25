@@ -455,7 +455,7 @@ void eFilePushThreadRecorder::thread()
 #if HAVE_HISILICON
 				usleep(100000);
 #endif
-				eDebug("[eFilePushThreadRecorder] read got interrupted by signal, stop: %d", m_stop);
+				/* eDebug("[eFilePushThreadRecorder] read got interrupted by signal, stop: %d", m_stop); */
 				continue;
 			}
 
