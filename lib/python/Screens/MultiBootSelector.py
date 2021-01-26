@@ -94,12 +94,12 @@ class MultiBootSelector(Screen, HelpableScreen):
 		if self.imagedict[self.slotx]["imagename"] == _("Deleted image"):
 			self.session.open(MessageBox, _("Cannot reboot to deleted image"), MessageBox.TYPE_ERROR, timeout=3)
 			self.getImagelist()
-		if self.currentSelected[0][1] != "Queued":
+		elif self.currentSelected[0][1] != "Queued":
 			slot = self.currentSelected[0][1][0]
 			boxmode = self.currentSelected[0][1][1]
-			print("[MultiBootSelector] reboot1 reboot slot = %s, " % slot)
-			print("[MultiBootSelector] reboot2 reboot boxmode = %s, " % boxmode)
-			print("[MultiBootSelector] reboot3 slotinfo = %s" % SystemInfo["canMultiBoot"])
+			# print("[MultiBootSelector] reboot1 reboot slot = %s, " % slot)
+			# print("[MultiBootSelector] reboot2 reboot boxmode = %s, " % boxmode)
+			# print("[MultiBootSelector] reboot3 slotinfo = %s" % SystemInfo["canMultiBoot"])
 			if SystemInfo["canMode12"]:
 				if "BOXMODE" in SystemInfo["canMultiBoot"][slot]['startupfile']:
 					startupfile = path.join(self.tmp_dir, "%s_%s" % (SystemInfo["canMultiBoot"][slot]['startupfile'].rsplit('_', 1)[0], boxmode))
