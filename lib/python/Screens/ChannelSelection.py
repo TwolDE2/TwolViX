@@ -28,6 +28,7 @@ from Components.Sources.Event import Event
 from Components.Sources.List import List
 from Components.Sources.RdsDecoder import RdsDecoder
 from Components.Sources.ServiceEvent import ServiceEvent
+from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
 from RecordTimer import AFTEREVENT
@@ -1342,6 +1343,9 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 		self["key_green"] = Button(_("Satellites"))
 		self["key_yellow"] = Button(_("Providers"))
 		self["key_blue"] = Button(_("Favourites"))
+		
+		self["key_menu"] = StaticText(_("MENU"))
+		self["key_info"] = StaticText(_("INFO"))
 
 		self["list"] = ServiceList(self)
 		self.servicelist = self["list"]

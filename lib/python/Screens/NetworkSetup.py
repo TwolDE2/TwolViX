@@ -2288,6 +2288,7 @@ class NetworkInadyn(NSCommon, Screen):
 		self["key_green"] = Label(_("Start"))
 		self["key_yellow"] = Label(_("Autostart"))
 		self["key_blue"] = Label(_("Show Log"))
+		self["key_menu"] = StaticText(_("MENU"))		
 		self["actions"] = ActionMap(["WizardActions", "ColorActions", "SetupActions"],
 		{
 			"ok": self.setupinadyn,
@@ -2586,6 +2587,7 @@ class NetworkuShare(NSCommon, Screen):
 		self["key_green"] = Label(_("Start"))
 		self["key_yellow"] = Label(_("Autostart"))
 		self["key_blue"] = Label(_("Show Log"))
+		self["key_menu"] = StaticText(_("MENU"))
 		self["actions"] = ActionMap(["WizardActions", "ColorActions", "SetupActions"],
 		{
 			"ok": self.setupushare,
@@ -3012,6 +3014,7 @@ class NetworkMiniDLNA(NSCommon, Screen):
 		self["key_green"] = Label(_("Start"))
 		self["key_yellow"] = Label(_("Autostart"))
 		self["key_blue"] = Label(_("Show Log"))
+		self["key_menu"] = StaticText(_("MENU"))
 		self["actions"] = ActionMap(["WizardActions", "ColorActions", "SetupActions"],
 		{
 			"ok": self.setupminidlna,
