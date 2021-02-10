@@ -72,7 +72,7 @@ SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach") or fileCheck("/pro
 SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and getBoxType() != "gb800ueplus"
 SystemInfo["DisplayLED"] = getBoxType() in ("gb800se", "gb800solo", "gbx1", "gbx2", "gbx3", "gbx3h")
-SystemInfo["LEDButtons"] = getBoxType() == "vuultimo"
+SystemInfo["LEDButtons"] = False # getBoxType() == "vuultimo", For some reason this causes a cpp crash on vuultimo (which we no longer build). The cause needs investigating or the dead code in surrounding modules that this change causes should be removed.
 SystemInfo["PowerLED"] = fileExists("/proc/stb/power/powerled")
 SystemInfo["PowerLED2"] = fileExists("/proc/stb/power/powerled2")
 SystemInfo["StandbyLED"] = fileExists("/proc/stb/power/standbyled")

@@ -4,7 +4,8 @@ import six
 
 import os, re, unicodedata
 
-from enigma import ePixmap, ePicLoad
+from enigma import ePixmap, eServiceReference
+from Renderer import Renderer
 
 from Components.Harddisk import harddiskmanager
 from Components.Renderer.Renderer import Renderer
@@ -95,8 +96,10 @@ class PiconLocator:
 			except:
 				return ""
 			if six.PY3:
-				name = six.ensure_str(unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore'))
+				name = eServiceReference(serviceName).getServiceName()
+				name = six.ensure_str(unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore'))			
 			else:
+				name = eServiceReference(serviceName).getServiceName()
 				name = unicodedata.normalize('NFKD', unicode(name, 'utf_8', errors='ignore')).encode('ASCII', 'ignore')
 			name = re.sub('[^a-z0-9]', '', name.replace('&', 'and').replace('+', 'plus').replace('*', 'star').lower())
 			if len(name) > 0:
