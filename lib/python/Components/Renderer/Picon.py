@@ -5,7 +5,6 @@ import six
 import os, re, unicodedata
 
 from enigma import ePixmap, eServiceReference
-from Renderer import Renderer
 
 from Components.Harddisk import harddiskmanager
 from Components.Renderer.Renderer import Renderer

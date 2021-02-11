@@ -1967,7 +1967,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		msg = None
 		for item in self.getMarkedOrCurrentSelection():
 			itemRef = item[0]
-		 	if not canRename(item):
+			if not canRename(item):
 				continue
 			if isFolder(item):
 				if itemCount > 0:
