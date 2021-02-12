@@ -598,6 +598,8 @@ class EPGServiceNumberSelection:
 
 	def keyNumberGlobal(self, number):
 		def closed(number):
+			if self.popupDialog:
+				self.popupDialog.doClose()
 			self.closePopupDialog()
 			if number is not None:
 				service, bouquet = self.getServiceByNumber(number)
