@@ -204,6 +204,12 @@ class InfoBarDish:
 	def __init__(self):
 		self.dishDialog = self.session.instantiateDialog(Dish)
 		self.dishDialog.setAnimationMode(0)
+		self.onClose.append(self.__onClose)
+
+	def __onClose(self):
+		if self.dishDialog:
+			self.dishDialog.doClose()
+			self.dishDialog = None
 
 
 class InfoBarLongKeyDetection:
@@ -243,7 +249,9 @@ class InfoBarUnhandledKey:
 	def __onClose(self):
 		eActionMap.getInstance().unbindAction('', self.actionA)
 		eActionMap.getInstance().unbindAction('', self.actionB)
-		self.unhandledKeyDialog.close()
+		if self.unhandledKeyDialog:
+			self.unhandledKeyDialog.doClose()
+			self.unhandledKeyDialog = None
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
 #		print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS[flag], self.invKeyIds.get(key, ""), getKeyDescription(key))
@@ -280,7 +288,13 @@ class InfoBarScreenSaver:
 		self.screenSaverTimer = eTimer()
 		self.screenSaverTimer.callback.append(self.screensaverTimeout)
 		self.screensaver = self.session.instantiateDialog(ScreenSaver.Screensaver)
+		self.onClose.append(self.__onClose)
 		self.onLayoutFinish.append(self.__layoutFinished)
+
+	def __onClose(self):
+		if self.screensaver:
+			self.screensaver.doClose()
+			self.screensaver = None
 
 	def __layoutFinished(self):
 		self.screensaver.hide()
@@ -578,8 +592,14 @@ class InfoBarShowHide(InfoBarScreenSaver):
 		self.hideVBILineScreen = self.session.instantiateDialog(HideVBILine)
 		self.hideVBILineScreen.show()
 
+		self.onClose.append(self.__onClose)
 		self.onLayoutFinish.append(self.__layoutFinished)
 		self.onExecBegin.append(self.__onExecBegin)
+
+	def __onClose(self):
+		if self.hideVBILineScreen:
+			self.hideVBILineScreen.doClose()
+			self.hideVBILineScreen = None
 
 	def __onExecBegin(self):
 		self.showHideVBI()
@@ -891,6 +911,12 @@ class InfoBarBuffer():
 	def __init__(self):
 		self.bufferScreen = self.session.instantiateDialog(BufferIndicator)
 		self.bufferScreen.hide()
+		self.onClose.append(self.__onClose)
+
+	def __onClose(self):
+		if self.bufferScreen:
+			self.bufferScreen.doClose()
+			self.bufferScreen= None
 
 class NumberZap(Screen):
 	def quit(self):
@@ -1162,6 +1188,15 @@ class InfoBarChannelSelection:
 				"ChannelPlusPressedLong": (self.zapDownPip, _("Switch the PiP to the next channel")),
 				"ChannelMinusPressedLong": (self.zapUpPip, _("Switch the PiP to the previous channel")),
 			}, description=_("Channel selection"))
+		self.onClose.append(self.__onClose)
+
+	def __onClose(self):
+		if self.servicelist:
+			self.servicelist.doClose()
+			self.servicelist = None
+		if self.servicelist2:
+			self.servicelist2.doClose()
+			self.servicelist2 = None
 
 	def _helpLeftRightPressed(self, zapHelp):
 		return config.vixsettings.InfoBarEpg_mode.value == "3" and config.usage.show_second_infobar.value != "INFOBAREPG" and _("Open infobar EPG") or zapHelp
@@ -1801,6 +1836,12 @@ class InfoBarRdsDecoder:
 
 		self.onLayoutFinish.append(self.rds_display.show)
 		self.rds_display.onRassInteractivePossibilityChanged.append(self.RassInteractivePossibilityChanged)
+		self.onClose.append(self.__onClose)
+
+	def __onClose(self):
+		if self.rds_display:
+			self.rds_display.doClose()
+			self.rds_display = None
 
 	def RassInteractivePossibilityChanged(self, state):
 		self["RdsActions"].setEnabled(state)
@@ -1852,7 +1893,13 @@ class Seekbar(Screen):
 		self["PositionGauge"] = Label()
 		self["time"] = Label()
 
-		self["actions"] = ActionMap(["WizardActions", "DirectionActions"], {"back": self.exit, "ok": self.keyOK, "left": self.keyLeft, "right": self.keyRight}, prio=-1)
+		self["actions"] = ActionMap(["WizardActions", "DirectionActions"],
+		{
+			"back": self.exit, 
+			"ok": self.keyOK, 
+			"left": self.keyLeft, 
+			"right": self.keyRight
+		}, prio=-1)
 
 		self.cursorTimer = eTimer()
 		self.cursorTimer.callback.append(self.updateCursor)
@@ -1898,13 +1945,6 @@ class Seekbar(Screen):
 		self.percent += float(config.seek.sensibility.value) / 10.0
 		if self.percent > 100.0:
 			self.percent = 100.0
-
-	def keyNumberGlobal(self, number):
-		sel = self["config"].getCurrent()[1]
-		if sel == self.positionEntry:
-			self.percent = float(number) * 10.0
-		else:
-			ConfigListScreen.keyNumberGlobal(self, number)
 
 class InfoBarSeek:
 	"""handles actions like seeking, pause"""
@@ -2424,6 +2464,12 @@ class InfoBarPVRState:
 		self.onShow.append(self._mayShow)
 		self.onHide.append(self.pvrStateDialog.hide)
 		self.force_show = force_show
+		self.onClose.append(self.__onClose)
+
+	def __onClose(self):
+		if self.pvrStateDialog:
+			self.pvrStateDialog.doClose()
+			self.pvrStateDialog = None
 
 	def createSummary(self):
 		return InfoBarMoviePlayerSummary
@@ -4078,6 +4124,12 @@ class InfoBarSubtitleSupport(object):
 				iPlayableService.evEnd: self.__serviceChanged,
 				iPlayableService.evUpdatedInfo: self.__updatedInfo
 			})
+		self.onClose.append(self.__onClose)
+
+	def __onClose(self):
+		if isStandardInfoBar(self):
+			self.subtitle_window.doClose()
+			self.subtitle_window = None
 
 	def getCurrentServiceSubtitle(self):
 		service = self.session.nav.getCurrentService()

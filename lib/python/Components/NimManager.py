@@ -997,10 +997,10 @@ class NimManager:
 				nimList.remove(nim)
 		return nimList
 
-	def canDependOn(self, slotid, advanced_satposdepends = False):
-		sattype = self.getNimType(slotid)
-		sattype = sattype[:5] # DVB-S2X --> DVB-S, DVB-S2 --> DVB-S, DVB-T2 --> DVB-T, DVB-C2 --> DVB-C
-		nimList = self.getNimListOfType(sattype, slotid)
+	def canDependOn(self, slotid, advanced_satposdepends=""):
+		type = self.getNimType(slotid)
+		type = type[:5] # DVB-S2X --> DVB-S, DVB-S2 --> DVB-S, DVB-T2 --> DVB-T, DVB-C2 --> DVB-C
+		nimList = self.getNimListOfType(type, slotid)
 		positionerList = []
 		for nim in nimList[:]:
 			mode = self.getNimConfig(nim)
@@ -1020,7 +1020,8 @@ class NimManager:
 							break
 			if nimHaveRotor:
 				if advanced_satposdepends:
-					positionerList.append(nim)
+					if advanced_satposdepends == "all" or self.nim_slots[nim].isFBCRoot():
+						positionerList.append(nim)
 				else:
 					alreadyConnected = False
 					for testnim in nimList:
@@ -1307,7 +1308,7 @@ def InitNimManager(nimmgr, update_slots = []):
 					productparameters = [p for p in [m.getchildren() for m in unicable_xml.find(lnb_or_matrix) if m.get("name") == manufacturer][0] if p.get("name") == configEntry.value][0]
 					section.bootuptime = ConfigInteger(default = int(productparameters.get("bootuptime", 1000)), limits = (0, 9999))
 					section.bootuptime.save_forced = True
-					section.powerinserter = ConfigYesNo(default = SystemInfo["LnbPowerAlwaysOn"])
+					section.powerinserter = ConfigYesNo(default=SystemInfo["FbcTunerPowerAlwaysOn"])
 					section.powerinserter.save_forced = True
 					section.powerinserter.addNotifier(setPowerInserter)
 					srcfrequencylist = productparameters.get("scrs").split(",")
@@ -1340,7 +1341,7 @@ def InitNimManager(nimmgr, update_slots = []):
 					section.scrList.addNotifier(boundFunction(userScrListChanged, srcfrequencyList))
 					section.bootuptime = ConfigInteger(default = 1000, limits = (0, 9999))
 					section.bootuptime.save_forced = True
-					section.powerinserter = ConfigYesNo(default = SystemInfo["LnbPowerAlwaysOn"])
+					section.powerinserter = ConfigYesNo(default=SystemInfo["FbcTunerPowerAlwaysOn"])
 					section.powerinserter.save_forced = True
 					section.powerinserter.addNotifier(setPowerInserter)
 				def unicableChanged(configEntry):

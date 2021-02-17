@@ -608,14 +608,12 @@ def InitAVSwitch():
 			]
 			default = "Edid(Auto)"
 		else:
-
-			choices = [
-				("auto", _("auto")),
-				("rgb", _("rgb")),
-				("420", _("420")),
-				("422", _("422")),
-				("444", _("444"))
-			]
+				
+			choices = [("auto", _("Auto")),
+						("rgb", _("RGB")),
+						("420", _("420")),
+						("422", _("422")),
+						("444", _("444"))]
 			default = "auto"
 		if SystemInfo["havecolorspacechoices"] and SystemInfo["CanProc"]:
 			f = "/proc/stb/video/hdmi_colorspace_choices"
@@ -642,12 +640,10 @@ def InitAVSwitch():
 		config.av.hdmicolorimetry = ConfigNothing()
 
 	if SystemInfo["havehdmicolordepth"]:
-		choices = [
-			("auto", _("auto")),
-			("8bit", _("8bit")),
-			("10bit", _("10bit")),
-			("12bit", _("12bit"))
-		]
+		choices = [("auto", _("Auto")),
+					("8bit", _("8bit")),
+					("10bit", _("10bit")),
+					("12bit", _("12bit"))]	
 		default = "auto"
 		if SystemInfo["havehdmicolordepthchoices"] and SystemInfo["CanProc"]:
 			f = "/proc/stb/video/hdmi_colordepth_choices"
