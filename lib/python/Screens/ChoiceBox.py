@@ -71,7 +71,7 @@ class ChoiceBox(Screen):
 		self.keymap = {}
 		pos = 0
 		if self.reorderConfig:
-			self.config_type = eval("config.misc.pluginlist." + self.reorderConfig)
+			self.config_type = getattr(config.misc.pluginlist, self.reorderConfig)
 			if self.config_type.value:
 				prev_list = list(zip(list, self.__keys))
 				new_list = []
@@ -101,7 +101,6 @@ class ChoiceBox(Screen):
 				pos += 1
 
 		self["list"] = ChoiceList(list = self.list, selection = selection)
-		self["key_menu"] = StaticText(_("MENU"))
 		self["summary_list"] = StaticText()
 		self["summary_selection"] = StaticText()
 		self.updateSummary(selection)
