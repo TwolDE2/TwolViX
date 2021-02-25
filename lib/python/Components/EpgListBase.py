@@ -67,7 +67,7 @@ class EPGListBase(GUIComponent):
 		numberOfRows = self.epgConfig.itemsperpage.value or self.numberOfRows
 		itemHeight = (self.skinListHeight // numberOfRows if numberOfRows > 0 else self.skinItemHeight) or defaultItemHeight
 		self.l.setItemHeight(itemHeight)
-		self.instance.resize(eSize(self.listWidth, self.skinListHeight / itemHeight * itemHeight))
+		self.instance.resize(eSize(self.listWidth, self.skinListHeight // itemHeight * itemHeight))
 		self.listHeight = self.instance.size().height()
 		self.listWidth = self.instance.size().width()
 		self.itemHeight = itemHeight
