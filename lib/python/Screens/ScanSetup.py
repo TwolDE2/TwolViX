@@ -538,13 +538,13 @@ class TerrestrialTransponderSearchSupport:
 			if nim_name in dual_tuner_list:
 				try:
 					device_id = "--device %s" % GetDeviceId(nim_name, nim_idx)
-				except Exception, err:
+				except Exception as err:
 					device_id = "--device 0"
 					print("terrestrialTransponderGetCmd set device 0 ->", err)
 			elif nim_name in vtuner_need_idx_list:
 				device_id = getVtunerId(nim_name, nim_idx)
 			return "%s %s" % (terrestrial_autoscan_nimtype[nim_name], device_id)
-		except Exception, err:
+		except Exception as err:
 			print("[ScanSetup] terrestrialTransponderGetCmd ->", err)
 		return ""
 
