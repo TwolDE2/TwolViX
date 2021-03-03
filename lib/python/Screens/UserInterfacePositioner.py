@@ -10,11 +10,11 @@ from Components.config import config, configfile, ConfigSubsection, getConfigLis
 from Components.ConfigList import ConfigListScreen
 from Components.Console import Console
 from Components.Language import language
-from Screens.MessageBox import MessageBox
 from Components.Pixmap import Pixmap
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from Screens.Screen import Screen
+from Screens.MessageBox import MessageBox
 from Tools.Directories import fileCheck, fileExists
 
 def getFilePath(setting):
@@ -32,12 +32,6 @@ def setPositionParameter(parameter, configElement):
 def InitOsd():
 	SystemInfo["CanChange3DOsd"] = (access('/proc/stb/fb/3dmode', R_OK) or access('/proc/stb/fb/primary/3d', R_OK)) and True or False
 
-	def languageNotifier(configElement):
-		language.activateLanguage(configElement.value)
-
-	config.osd = ConfigSubsection()
-	config.osd.language = ConfigText(default = "en_GB")
-	config.osd.language.addNotifier(languageNotifier)
 	config.osd.dst_left = ConfigSelectionNumber(default = 0, stepwidth = 1, min = 0, max = 720, wraparound = False)
 	config.osd.dst_width = ConfigSelectionNumber(default = 720, stepwidth = 1, min = 0, max = 720, wraparound = False)
 	config.osd.dst_top = ConfigSelectionNumber(default = 0, stepwidth = 1, min = 0, max = 576, wraparound = False)

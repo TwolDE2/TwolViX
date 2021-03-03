@@ -16,6 +16,14 @@ enigma.eTimer = eBaseImpl.eTimer
 enigma.eSocketNotifier = eBaseImpl.eSocketNotifier
 enigma.eConsoleAppContainer = eConsoleImpl.eConsoleAppContainer
 
+# This includes initializing the translation engine.
+# Moving this further down will break translation.
+# Moving further up will break imports in config.py
+profile("SetupDevices")
+print("[Enigma2] Initialising SetupDevices.")
+import Components.SetupDevices
+Components.SetupDevices.InitSetupDevices()
+
 if getImageArch() in ("aarch64"):
 	import usb.core
 	import usb.backend.libusb1
@@ -633,11 +641,6 @@ print("[Enigma2] Initialising InputDevice.")
 import Components.InputDevice
 Components.InputDevice.InitInputDevices()
 import Components.InputHotplug
-
-profile("SetupDevices")
-print("[Enigma2] Initialising SetupDevices.")
-import Components.SetupDevices
-Components.SetupDevices.InitSetupDevices()
 
 profile("UserInterface")
 print("[Enigma2] Initialising UserInterface.")
