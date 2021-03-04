@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import os
 
 from enigma import eAVSwitch, getDesktop
-from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getMachineBuild
+from boxbranding import getBoxType, getBrandOEM, getHaveAVJACK, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV
 
 from Components.About import about
 from Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
@@ -15,11 +15,6 @@ from Tools.HardwareInfo import HardwareInfo
 config.av = ConfigSubsection()
 
 class AVSwitch:
-	print("AVSwitch", "hasRCA", SystemInfo["hasRCA"])
-	print("AVSwitch", "hasSCART", SystemInfo["hasScart"])
-	print("AVSwitch", "hasJACK", SystemInfo["hasJack"])
-	print("AVSwitch", "hasYUV", SystemInfo["hasYUV"])
-	print("AVSwitch", "HasScartYUV", SystemInfo["hasScartYUV"])
 
 	rates = {}  # high-level, use selectable modes.
 	modes = {}  # a list of (high-level) modes for a certain port.
