@@ -63,6 +63,9 @@ class VideoSetup(ConfigListScreen, Screen):
 	def startHotplug(self):
 		iAV.on_hotplug.append(self.createSetup)
 
+	def stopHotplug(self):
+		iAV.on_hotplug.remove(self.createSetup)
+
 	def createSetup(self):
 		level = config.usage.setup_level.index
 		self.list = [
