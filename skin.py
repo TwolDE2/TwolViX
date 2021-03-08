@@ -139,7 +139,7 @@ def loadSkinData(desktop):
 def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screenID=GUI_SKIN_ID):
 	global windowStyles
 	filename = resolveFilename(scope, filename)
-	print("[Skin] Loading skin file '%s'." % filename)
+	#	print("[Skin] Loading skin file '%s'." % filename)
 	try:
 		with open(filename, "r") as fd:  # This open gets around a possible file handle leak in Python's XML parser.
 			try:
@@ -166,7 +166,7 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 							windowStyles[scrnID] = (desktop, screenID, domStyle.getroot(), filename, scope)
 					# Element is not a screen or windowstyle element so no need for it any longer.
 				reloadWindowStyles()  # Reload the window style to ensure all skin changes are taken into account.
-				print("[Skin] Loading skin file '%s' complete." % filename)
+				# print("[Skin] Loading skin file '%s' complete." % filename)
 				return True
 			except xml.etree.cElementTree.ParseError as err:
 				fd.seek(0)
@@ -1261,7 +1261,7 @@ def readSkin(screen, skin, names, desktop):
 		posY = "?" if context.y is None else str(context.y)
 		sizeW = "?" if context.w is None else str(context.w)
 		sizeH = "?" if context.h is None else str(context.h)
-		print("[Skin] Processing screen '%s'%s, position=(%s, %s), size=(%s x %s) for module '%s'." % (name, msg, posX, posY, sizeW, sizeH, screen.__class__.__name__))
+		# print("[Skin] Processing screen '%s'%s, position=(%s, %s), size=(%s x %s) for module '%s'." % (name, msg, posX, posY, sizeW, sizeH, screen.__class__.__name__))
 		context.x = 0  # Reset offsets, all components are relative to screen coordinates.
 		context.y = 0
 		processScreen(myScreen, context)
