@@ -65,8 +65,10 @@ class EventViewBase:
 		self["datetime"] = Label()
 		self["channel"] = Label()
 		self["duration"] = Label()
-		if [p for p in plugins.getPlugins(PluginDescriptor.WHERE_EVENTINFO) if 'servicelist' not in p.__call__.func_code.co_varnames]:
-			self["key_menu"] = StaticText(_("MENU"))
+		for p in plugins.getPlugins(PluginDescriptor.WHERE_EVENTINFO):
+			#only list service or event specific eventinfo plugins here, no servicelist plugins
+			if "servicelist" not in p.__call__.__code__.co_varnames:
+				self["key_menu"] = StaticText(_("MENU"))
 		if similarEPGCB is not None:
 			self["key_red"] = Button("")
 			self.SimilarBroadcastTimer = eTimer()
@@ -109,7 +111,7 @@ class EventViewBase:
 		self.updateButtons()
 
 	def updateButtons(self):
-		if "key_green" in self:
+		if hasattr(self, "key_green"):
 			if self.isRecording or self.event is None:
 				self["key_green"].setText("")
 				return
