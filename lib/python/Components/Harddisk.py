@@ -227,20 +227,21 @@ class Harddisk:
 		return busName
 
 	def diskSize(self):
-		data = readFile(self.sysfsPath("size"))
-		if data is None:
-			dev = self.findMount()
-			if dev:
-				try:
-					stat = os.statvfs(dev)
-					cap = int(stat.f_blocks * stat.f_bsize) / 1000 / 1000
-				except (IOError, OSError) as err:
-					print("[Harddisk] Error: Failed to get disk size for '%s':" % dev, err)
-					cap = 0
-			else:
+		dev = self.findMount()
+		if dev:
+			try:
+				stat = os.statvfs(dev)
+				print("[Harddisk] [diskSize]: stat.f_blocks: %s stat.f_bsize: %s" % (stat.f_blocks, stat.f_bsize))					
+				cap = int((stat.f_blocks * stat.f_bsize) / 1000 / 1000)
+			except (IOError, OSError) as err:
+				print("[Harddisk] Error: Failed to get disk size for '%s':" % dev, err)
 				cap = 0
 		else:
-			cap = int(data) / 1000 * 512 / 1000
+			data = readFile(self.sysfsPath("size"))
+			if data is not None:
+				cap = int(data) / 1000 * 512 / 1024
+			else:
+				cap = 0
 		return cap
 
 	def capacity(self):
