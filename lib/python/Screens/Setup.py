@@ -5,7 +5,7 @@ import six
 import xml.etree.cElementTree
 
 from gettext import dgettext
-from os.path import getmtime, join as pathJoin
+from os.path import getmtime, join as pathjoin
 from skin import setups
 
 from Components.config import ConfigBoolean, ConfigNothing, ConfigSelection, config
@@ -39,7 +39,6 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 			self.skinName.append("Setup%s" % setup)  # DEBUG: Proposed for new setup screens.
 			self.skinName.append("setup_%s" % setup)
 		self.skinName.append("Setup")
-		self.onChangedEntry = []
 		self.list = []
 		ConfigListScreen.__init__(self, self.list, session=session, on_change=self.changedEntry, fullUI=True)
 		self["footnote"] = Label()
@@ -69,7 +68,8 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 
 	def createSetup(self):
 		oldList = self.list
-		self.switch = False
+		self.showDefaultChanged = False
+		self.graphicSwitchChanged = False
 		self.list = []
 		title = None
 		xmlData = setupDom(self.setup, self.plugin)
@@ -79,18 +79,13 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				skin = setup.get("skin", None)
 				if skin and skin != "":
 					self.skinName.insert(0, skin)
-				if six.PY3:
-					title = setup.get("title", None)
-					# print("[Setup] Py3 title = %s" % title)
-				else:
-					title = setup.get("title", None).encode("UTF-8", errors="ignore")
-						# print("[Setup] Py2 title = %s" % title)
+				title = setup.get("title", None).encode("UTF-8", errors="ignore") if six.PY2 else setup.get("title", None)
 				title = six.ensure_str(title)
 				# If this break is executed then there can only be one setup tag with this key.
 				# This may not be appropriate if conditional setup blocks become available.
 				break
 		self.setTitle(_(title) if title and title != "" else _("Setup"))
-		if self.list != oldList or self.switch:
+		if self.list != oldList or self.showDefaultChanged or self.graphicSwitchChanged:
 			print("[Setup] DEBUG: Config list has changed!")
 			currentItem = self["config"].getCurrent()
 			self["config"].setList(self.list)
@@ -119,33 +114,26 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				including = True
 
 	def addItem(self, element):
-		if six.PY3:
-			if self.pluginLanguageDomain:
-				itemText = dgettext(self.pluginLanguageDomain, element.get("text", "??"))
-				itemDescription = dgettext(self.pluginLanguageDomain, element.get("description", " "))
-			else:
-				itemText = _(element.get("text", "??"))
-				itemDescription = _(element.get("description", " "))
-			# print("[Setup] addItem Py3 itemText= %s, itemDescription=%s" % (itemText, itemDescription))
-		else:
-			if self.pluginLanguageDomain:
-				itemText = dgettext(self.pluginLanguageDomain, element.get("text", "??").encode("UTF-8", errors="ignore"))
-				itemDescription = dgettext(self.pluginLanguageDomain, element.get("description", " ").encode("UTF-8", errors="ignore"))
-			else:
-				itemText = _(element.get("text", "??").encode("UTF-8", errors="ignore"))
-				itemDescription = _(element.get("description", " ").encode("UTF-8", errors="ignore"))
-			# print("[Setup] addItem Py2 itemText= %s, itemDescription=%s" % (itemText, itemDescription))
-		itemText = six.ensure_str(itemText)
-		itemDescription = six.ensure_str(itemDescription)
-		itemText = itemText.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
-		itemDescription = itemDescription.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
+		itemText = _(element.get("text", "??").encode("UTF-8", errors="ignore")) if six.PY2 else _(element.get("text", "??")
+		itemDescription = _(element.get("description", " ").encode("UTF-8", errors="ignore")) if six.PY2 else _(element.get("description", " ")
 		item = eval(element.text or "")
 		if item != "" and not isinstance(item, ConfigNothing):
-			itemDefault = item.toDisplayString(item.default)
-			itemDescription = _("%s  (Default: %s)") % (itemDescription, itemDefault) if itemDescription and itemDescription != " " else _("Default: '%s'.") % itemDefault
-			self.list.append((itemText, item, itemDescription))  # Add the item to the config list.
+			self.list.append((self.formatItemText(itemText), item, self.formatItemDescription(item, itemDescription)))  # Add the item to the config list.
+		if item is config.usage.setupShowDefault:
+			self.showDefaultChanged = True
 		if item is config.usage.boolean_graphic:
-			self.switch = True
+			self.graphicSwitchChanged = True
+
+	def formatItemText(self, itemText):
+		return itemText.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
+
+	def formatItemDescription(self, item, itemDescription):
+		itemDescription = itemDescription.replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
+		if config.usage.setupShowDefault.value:
+			spacer = "\n" if config.usage.setupShowDefault.value == "newline" else "  "
+			itemDefault = item.toDisplayString(item.default)
+			itemDescription = _("%s%s(Default: %s)") % (itemDescription, spacer, itemDefault) if itemDescription and itemDescription != " " else _("Default: '%s'.") % itemDefault
+		return itemDescription
 
 	def includeElement(self, element):
 		itemLevel = int(element.get("level", 0))
@@ -153,16 +141,17 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 			return False
 		requires = element.get("requires")
 		if requires:
-			negate = requires.startswith("!")
-			if negate:
-				requires = requires[1:]
-			if requires.startswith("config."):
-				item = eval(requires)
-				result = bool(item.value and item.value not in ("0", "False", "false"))
-			else:
-				result = bool(SystemInfo.get(requires, False))
-			if requires and negate == result:  # The item requirements are not met.
-				return False
+			for require in requires.split(";"):
+				negate = require.startswith("!")
+				if negate:
+					require = require[1:]
+				if require.startswith("config."):
+					item = eval(require)
+					result = bool(item.value and item.value not in ("0", "Disable", "disable", "False", "false", "No", "no", "Off", "off"))
+				else:
+					result = bool(SystemInfo.get(require, False))
+				if require and negate == result:  # The item requirements are not met.
+					return False
 		conditional = element.get("conditional")
 		return not conditional or eval(conditional)
 
@@ -199,7 +188,14 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 			self["config"].setCurrentIndex(self.getIndexFromItem(item))
 
 	def getIndexFromItem(self, item):
-		return self["config"].list.index(item) if item in self["config"].list else 0
+		if item is None:  # If there is no item position at the top of the config list.
+			return 0
+		if item in self["config"].list:  # If the item is in the config list position to that item.
+			return self["config"].list.index(item)
+		for pos, data in enumerate(self["config"].list):
+			if data[0] == item[0] and data[1] == item[1]:  # If the label and config class match then position to that item.
+				return pos
+		return 0  # We can't match the item to the config list then position to the top of the list.
 
 	def createSummary(self):
 		return SetupSummary
@@ -291,7 +287,7 @@ def setupDom(setup=None, plugin=None):
 				pass
 
 	setupFileDom = xml.etree.cElementTree.fromstring("<setupxml></setupxml>")
-	setupFile = resolveFilename(SCOPE_PLUGINS, pathJoin(plugin, "setup.xml")) if plugin else resolveFilename(SCOPE_SKIN, "setup.xml")
+	setupFile = resolveFilename(SCOPE_PLUGINS, pathjoin(plugin, "setup.xml")) if plugin else resolveFilename(SCOPE_SKIN, "setup.xml")
 	global domSetups, setupModTimes
 	try:
 		modTime = getmtime(setupFile)
@@ -321,16 +317,10 @@ def setupDom(setup=None, plugin=None):
 				for setup in setupFileDom.findall("setup"):
 					key = setup.get("key")
 					if key:  # If there is no key then this element is useless and can be skipped!
-						if six.PY3:
-							title = setup.get("title", "")
-							if title == "":
-								print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-								title = "** Setup error: '%s' title is missing or blank!" % key
-						else:
-							title = setup.get("title", "").encode("UTF-8", errors="ignore")
-							if title == "":
-								print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-								title = "** Setup error: '%s' title is missing or blank!" % key
+						title = setup.get("title", "").encode("UTF-8", errors="ignore") if six.PY2 else setup.get("title", "")
+						if title == "":
+							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+							title = "** Setup error: '%s' title is missing or blank!" % key
 					title = six.ensure_str(title)
 					# print("[Setup] DEBUG: XML setup load: key='%s', title='%s', menuTitle='%s', translated title='%s'" % (key, setup.get("title", "").encode("UTF-8", errors="ignore"), setup.get("menuTitle", "").encode("UTF-8", errors="ignore"), setupTitles[key]))
 			except xml.etree.cElementTree.ParseError as err:
@@ -355,14 +345,9 @@ def setupDom(setup=None, plugin=None):
 # Temporary legacy interface.
 # Not used any OpenViX enigma2 module. Known to be used by the Heinz plugin.
 #
-def setupdom(plugin = None):
-	if plugin:
-		setupfile = open(resolveFilename(SCOPE_PLUGINS, pathJoin(plugin, "setup.xml")), "r")
-	else:
-		setupfile = open(resolveFilename(SCOPE_SKIN, "setup.xml"), "r")
-	setupfiledom = xml.etree.cElementTree.parse(setupfile)
-	setupfile.close()
-	return setupfiledom
+def setupdom(setup=None, plugin=None):
+	return setupDom(setup, plugin)
+
 
 # Only used in AudioSelection screen...
 #
