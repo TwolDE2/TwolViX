@@ -114,8 +114,8 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				including = True
 
 	def addItem(self, element):
-		itemText = _(element.get("text", "??").encode("UTF-8", errors="ignore")) if six.PY2 else _(element.get("text", "??")
-		itemDescription = _(element.get("description", " ").encode("UTF-8", errors="ignore")) if six.PY2 else _(element.get("description", " ")
+		itemText = _(element.get("text", "??").encode("UTF-8", errors="ignore")) if six.PY2 else _(element.get("text", "??"))
+		itemDescription = _(element.get("description", " ").encode("UTF-8", errors="ignore")) if six.PY2 else _(element.get("description", " "))
 		item = eval(element.text or "")
 		if item != "" and not isinstance(item, ConfigNothing):
 			self.list.append((self.formatItemText(itemText), item, self.formatItemDescription(item, itemDescription)))  # Add the item to the config list.
