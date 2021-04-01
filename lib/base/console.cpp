@@ -8,7 +8,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 
 int bidirpipe(int pfd[], const char *cmd , const char * const argv[], const char *cwd )
 {
