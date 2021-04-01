@@ -7,7 +7,6 @@
 #include <lib/base/eerror.h>
 #include <lib/base/elock.h>
 #include <lib/gdi/grc.h>
-#define NDEBUG
 
 DEFINE_REF(eSocketNotifier);
 
