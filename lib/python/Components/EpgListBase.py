@@ -41,10 +41,10 @@ class EPGListBase(GUIComponent):
 		self.autotimericon = loadPNG(resolveFilename(SCOPE_CURRENT_SKIN, "icons/epgclock_autotimer.png"))
 
 		self.isFullHd = getDesktop(0).size().width() == 1920
-		self.listHeight = None
-		self.listWidth = None
-		self.skinItemHeight = None
-		self.numberOfRows = None
+		self.listHeight = 0
+		self.listWidth = 0
+		self.skinItemHeight = 0
+		self.numberOfRows = 0
 
 	def applySkin(self, desktop, screen):
 		if self.skinAttributes is not None:
