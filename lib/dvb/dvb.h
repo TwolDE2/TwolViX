@@ -16,7 +16,7 @@
 
 #include <dvbsi++/service_description_section.h>
 
-extern int myFdKluge;
+extern int fd0lock;
 extern bool m_is_streamx;
 
 class eDVBChannel;

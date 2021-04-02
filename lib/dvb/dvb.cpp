@@ -28,7 +28,7 @@ DEFINE_REF(eDVBRegisteredDemux);
 
 DEFINE_REF(eDVBAllocatedFrontend);
 
-int myFdKluge = -1;
+int fd0lock = -1;
 
 void eDVBRegisteredFrontend::closeFrontend()
 {

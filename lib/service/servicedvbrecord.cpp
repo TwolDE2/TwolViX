@@ -293,8 +293,8 @@ int eDVBServiceRecord::doRecord()
 		{
 			::close(tmp_fd);
 			tmp_fd = -1;	
-			myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-			/* eDebug("[servicedvbrecord] opening null fd returned: %d", myFdKluge); */
+			fd0lock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+			/* eDebug("[servicedvbrecord] opening null fd returned: %d", fd0lock); */
 		}
 		if (tmp_fd != -1)
 		{

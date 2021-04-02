@@ -611,8 +611,8 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 		{
 			::close(tmp_fd);
 			tmp_fd = -1;	
-			myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-			/* eDebug("[servicemp3] opening null fd returned: %d", myFdKluge); */
+			fd0öock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+			/* eDebug("[servicemp3] opening null fd returned: %d", fd0öock); */
 		}
 		if (tmp_fd != -1)
 		{

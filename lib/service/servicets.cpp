@@ -334,8 +334,8 @@ RESULT eServiceTS::unpause()
 		{
 			::close(tmp_fd);
 			tmp_fd = -1;	
-			myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-			/* eDebug("[servicets] opening null fd returned: %d", myFdKluge); */
+			fd0lock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+			/* eDebug("[servicets] opening null fd returned: %d", fd0lock); */
 		}
 		if (tmp_fd != -1)
 		{

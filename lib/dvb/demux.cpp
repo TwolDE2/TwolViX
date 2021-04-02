@@ -89,8 +89,8 @@ int eDVBDemux::openDemux(void)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-		/* eDebug("[eDVBDemux] opening null fd returned: %d", myFdKluge); */
+		fd0lock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		/* eDebug("[eDVBDemux] opening null fd returned: %d", fd0lock); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -114,8 +114,8 @@ int eDVBDemux::openDVR(int flags)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-		/* eDebug("[eDVBDemux] opening null fd returned: %d", myFdKluge); */
+		fd0lock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		/* eDebug("[eDVBDemux] opening null fd returned: %d", fd0lock); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -838,8 +838,8 @@ RESULT eDVBTSRecorder::start()
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
-		myFdKluge = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-		/* eDebug("[eDVBTSRecorder] opening null fd returned: %d", myFdKluge); */
+		fd0lock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		/* eDebug("[eDVBTSRecorder] opening null fd returned: %d", fd0lock); */
 	}
 	if (tmp_fd != -1)
 	{
