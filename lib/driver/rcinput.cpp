@@ -90,7 +90,6 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 	}
 
-
 	if (!remaps.empty())
 	{
 		std::unordered_map<unsigned int, unsigned int>::iterator i = remaps.find(ev->code);
