@@ -8,7 +8,6 @@ from enigma import ePixmap, eServiceReference
 
 from Components.Harddisk import harddiskmanager
 from Components.Renderer.Renderer import Renderer
-from ServiceReference import ServiceReference
 from Tools.Alternatives import GetWithAlternative
 from Tools.Directories import pathExists, SCOPE_ACTIVE_SKIN, resolveFilename
 
@@ -92,16 +91,8 @@ class PiconLocator:
 			fields[2] = "1"
 			pngname = self.findPicon("_".join(fields))
 		if not pngname: # picon by channel name
-			try:
-				name = ServiceReference(serviceName).getServiceName()
-			except:
-				return ""
-			if six.PY3:
-				name = eServiceReference(serviceName).getServiceName()
-				name = six.ensure_str(unicodedata.normalize("NFKD", name).encode("ASCII", "ignore"))			
-			else:
-				name = eServiceReference(serviceName).getServiceName()
-				name = unicodedata.normalize("NFKD", unicode(name, "utf_8", errors="ignore")).encode("ASCII", "ignore")
+			name = eServiceReference(serviceName).getServiceName()
+			name = six.ensure_str(unicodedata.normalize("NFKD", name).encode("ASCII", "ignore")) if six.PY3 else unicodedata.normalize("NFKD", unicode(name, "utf_8", errors="ignore")).encode("ASCII", "ignore")
 			name = re.sub("[^a-z0-9]", "", name.replace("&", "and").replace("+", "plus").replace("*", "star").lower())
 			if len(name) > 0:
 				pngname = self.findPicon(name)
