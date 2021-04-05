@@ -6,7 +6,7 @@ import six
 from copy import copy as copy_copy
 from os import path as os_path
 import sys
-from time import localtime, strftime
+from time import localtime, strftime, mktime
 
 # DO NOT CHANGE THE ORDER OF THESE IMPORTS OR Harddisk will crash!!
 from enigma import getPrevAsciiCode
@@ -14,7 +14,6 @@ from Tools.NumericalTextInput import NumericalTextInput
 from Tools.Directories import resolveFilename, SCOPE_CONFIG, fileExists
 from Components.Harddisk import harddiskmanager
 from Tools.LoadPixmap import LoadPixmap
-
 
 KEYA_LEFT = 0
 KEYA_RIGHT = 1
@@ -1015,6 +1014,17 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 class ConfigPosition(ConfigSequence):
 	def __init__(self, default, args):
 		ConfigSequence.__init__(self, seperator=",", limits=[(0, args[0]), (0, args[1]), (0, args[2]), (0, args[3])], default=default)
+
+
+def ConfigClockDefault(hours, minutes):
+	# Creates a default argument for ConfigClock
+	# based on the hours and minutes arguments.
+	# This should always be correct irrespective
+	# of timezone or dst.
+	l = list(localtime())
+	l[3] = hours
+	l[4] = minutes
+	return int(mktime(tuple(l)))
 
 
 clock_limits = [(0, 23), (0, 59)]
