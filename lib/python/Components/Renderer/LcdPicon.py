@@ -6,11 +6,8 @@ from enigma import ePixmap, ePicLoad
 from boxbranding import getDisplayType
 
 from Components.config import config
-from Components.Harddisk import harddiskmanager
 from Components.Renderer.Renderer import Renderer
 from Components.Renderer.Picon import PiconLocator
-from ServiceReference import ServiceReference
-from Tools.Alternatives import GetWithAlternative
 from Tools.Directories import pathExists, SCOPE_ACTIVE_SKIN, resolveFilename
 
 def useLcdPicons():

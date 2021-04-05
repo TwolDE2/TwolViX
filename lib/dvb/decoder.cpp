@@ -29,7 +29,6 @@
 #define VIDEO_GET_FRAME_RATE _IOR('o', 56, unsigned int)
 #endif
 
-
 DEFINE_REF(eDVBAudio);
 
 eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
