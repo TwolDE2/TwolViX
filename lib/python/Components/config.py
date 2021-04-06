@@ -1016,20 +1016,16 @@ class ConfigPosition(ConfigSequence):
 		ConfigSequence.__init__(self, seperator=",", limits=[(0, args[0]), (0, args[1]), (0, args[2]), (0, args[3])], default=default)
 
 
-def ConfigClockDefault(hours, minutes):
-	# Creates a default argument for ConfigClock
-	# based on the hours and minutes arguments.
-	# This should always be correct irrespective
-	# of timezone or dst.
-	l = list(localtime())
-	l[3] = hours
-	l[4] = minutes
-	return int(mktime(tuple(l)))
-
-
 clock_limits = [(0, 23), (0, 59)]
 class ConfigClock(ConfigSequence):
 	def __init__(self, default):
+		# dafault can either be a timestamp
+		# or an (hours, minutes) tuple.
+		if isinstance(default, tuple):
+			l = list(localtime())
+			l[3] = default[0] # hours
+			l[4] = default[1] # minutes
+			default = int(mktime(tuple(l)))
 		self.t = localtime(default)
 		ConfigSequence.__init__(self, seperator=":", limits=clock_limits, default=[self.t.tm_hour, self.t.tm_min])
 
@@ -1184,7 +1180,7 @@ class ConfigFloat(ConfigSequence):
 		ConfigSequence.__init__(self, seperator=".", limits=limits, default=default)
 
 	def getFloat(self):
-		return float(self.value[1] // float(self.limits[1][1] + 1) + self.value[0])
+		return float(self.value[1] / float(self.limits[1][1] + 1) + self.value[0])
 
 	float = property(getFloat)
 
@@ -1192,7 +1188,7 @@ class ConfigFloat(ConfigSequence):
 		return int(self.value[0] * float(self.limits[1][1] + 1) + self.value[1])
 
 	def setFloatInt(self, val):
-		self.value[0] = val // float(self.limits[1][1] + 1)
+		self.value[0] = val / float(self.limits[1][1] + 1)
 		self.value[1] = val % float(self.limits[1][1] + 1)
 
 	floatint = property(getFloatInt, setFloatInt)

@@ -150,7 +150,7 @@ class FeedsStatusCheck:
 
 	def getFeedsErrorMessage(self):
 		global error
-		#feedstatus = feedsstatuscheck.getFeedsBool() # This is forcing an additional HTTP request so don"t do it. Also the output was incorrect so the messages didn"t show, just an empty MessageBox.
+		#feedstatus = feedsstatuscheck.getFeedsBool() # This is forcing an additional HTTP request so don't do it. Also the output was incorrect so the messages didn"t show, just an empty MessageBox.
 		if self.feedstatus == -2:
 			return _("Your %s %s has no internet access, please check your network settings and make sure you have network cable connected and try again.") % (getMachineBrand(), getMachineName())
 		elif self.feedstatus == -3:
@@ -216,7 +216,7 @@ class OnlineUpdateCheckPoller:
 		delay = last_run + gap - int(time())
 
 		# Set-up the minimum delay, which is greater on the first boot-time pass.
-		# Also check that we aren"t setting a delay that is more than the
+		# Also check that we aren't setting a delay that is more than the
 		# configured frequency of checks, which caters for mis-/un-set system
 		# clocks.
 		if delay < minimum_delay:

@@ -413,10 +413,7 @@ class MultiFileSelectList(FileList):
 			files = [ ]
 			directories = [ ]
 		elif self.useServiceRef:
-			if six.PY3:
-				root = eServiceReference("2:0:1:0:0:0:0:0:0:0:" + directory)
-			else:
-				root = eServiceReference.fromDirectory(directory)
+			root = eServiceReference.fromDirectory(directory)
 			if self.additional_extensions:
 				root.setName(self.additional_extensions)
 			serviceHandler = eServiceCenter.getInstance()

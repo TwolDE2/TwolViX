@@ -14,8 +14,6 @@ from Tools.Directories import resolveFilename, SCOPE_CONFIG
 import Tools.Notifications
 from Tools.Notifications import AddPopup
 
-
-
 TYPE_SERVICE = "SERVICE"
 TYPE_BOUQUETSERVICE = "BOUQUETSERVICE"
 TYPE_BOUQUET = "BOUQUET"

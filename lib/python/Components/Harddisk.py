@@ -22,7 +22,6 @@ import Components.Task
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
 
-
 # DEBUG: REMINDER: This comment needs to be expanded for the benefit of readers.
 # Removable if 1 --> With motor
 # Internal if 1 --> SATA disk

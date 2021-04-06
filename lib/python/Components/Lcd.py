@@ -152,7 +152,6 @@ class LCD:
 		eDBoxLCD.getInstance().setLED(value, 2)
 
 	def setLCDMiniTVMode(self, value):
-
 		print("[LCD] setLCDMiniTVMode", value)
 		f = open('/proc/stb/lcd/mode', "w")
 		f.write(value)
@@ -217,7 +216,6 @@ def InitLcd():
 	if SystemInfo["PowerLED2"]:
 		def setPowerLEDstate2(configElement):
 			print("[LCD] PowerLED2 = %s" % SystemInfo["PowerLED2"])
-
 			f = open("/proc/stb/power/powerled2", "w")
 			f.write(configElement.value)
 			f.close()

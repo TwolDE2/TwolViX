@@ -11,7 +11,6 @@ from Components.Console import Console
 from Components.PluginComponent import plugins
 from Plugins.Plugin import PluginDescriptor
 
-
 class Network:
 	def __init__(self):
 		self.ifaces = {}

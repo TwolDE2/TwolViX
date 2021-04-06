@@ -98,7 +98,7 @@ class EPGListSingle(EPGListBase):
 		return res
 
 	def fillSimilarList(self, refstr, eventId):
-  		# Search similar broadcastings.
+		# Search similar broadcastings.
 		if eventId is None:
 			return
 		self.list = self.epgcache.search(('RIBDN', 1024, eEPGCache.SIMILAR_BROADCASTINGS_SEARCH, refstr, eventId))

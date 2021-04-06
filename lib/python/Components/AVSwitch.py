@@ -7,7 +7,7 @@ from enigma import eAVSwitch, getDesktop
 from boxbranding import getBoxType, getBrandOEM, getHaveAVJACK, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV
 
 from Components.About import about
-from Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
+from Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, configfrom Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
 from Components.SystemInfo import SystemInfo
 from Tools.CList import CList
 from Tools.HardwareInfo import HardwareInfo
@@ -137,12 +137,14 @@ class AVSwitch:
 				fd.write(mode_60)
 		except (IOError, OSError):
 			print("[AVSwitch] cannot open /proc/stb/video/videomode_60hz")
+
 		if SystemInfo["Has24hz"]:
 			try:
 				with open("/proc/stb/video/videomode_24hz", "w") as fd:
 					fd.write(mode_24)
 			except (IOError, OSError):
 				print("[AVSwitch] cannot open /proc/stb/video/videomode_24hz")
+
 		if getBrandOEM() in ("gigablue",):
 			try:
 				# use 50Hz mode (if available) for booting
@@ -214,8 +216,8 @@ class AVSwitch:
 			if len(modes):
 				config.av.videomode[port] = ConfigSelection(choices=[mode for (mode, rates) in modes])
 			for (mode, rates) in modes:
-				config.av.videorate[mode] = ConfigSelection(choices=rates)
-		config.av.videoport = ConfigSelection(choices=lst)
+				config.av.videorate[mode] = ConfigSelection(choices = rates)
+		config.av.videoport = ConfigSelection(choices = lst)
 
 	def setInput(self, input):
 		INPUT = {
@@ -321,7 +323,6 @@ class AVSwitch:
 		elif valstr == "16_9_letterbox":
 			val = 6
 		return val
-
 
 iAVSwitch = AVSwitch()
 
@@ -545,7 +546,6 @@ def InitAVSwitch():
 				"yuv": 3
 			}
 			iAVSwitch.setColorFormat(map[configElement.value])
-
 	config.av.colorformat.addNotifier(setColorFormat)
 
 	def setAspectRatio(configElement):
@@ -583,7 +583,6 @@ def InitAVSwitch():
 					fd.write(configElement.value)
 			except (IOError, OSError):
 				pass
-
 		config.av.bypass_edid_checking = ConfigSelection(choices={
 			"00000000": _("off"),
 			"00000001": _("on")
@@ -655,7 +654,6 @@ def InitAVSwitch():
 					fd.write(configElement.value)
 			except (IOError, OSError):
 				pass
-
 		config.av.hdmihdrtype = ConfigSelection(choices={
 			"auto": _("Auto"),
 			"dolby": _("dolby"),
@@ -772,7 +770,6 @@ def InitAVSwitch():
 	if SystemInfo["supportPcmMultichannel"]:
 		def setPCMMultichannel(configElement):
 			open("/proc/stb/audio/multichannel_pcm", "w").write(configElement.value and "enable" or "disable")
-
 		config.av.pcm_multichannel = ConfigYesNo(default = False)
 		config.av.pcm_multichannel.addNotifier(setPCMMultichannel)
 
