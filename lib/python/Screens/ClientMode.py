@@ -1,11 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-from Components.ActionMap import ActionMap
 from Components.config import config, configfile, ConfigSubList, ConfigSubsection
-from Components.ConfigList import ConfigListScreen
-from Components.Label import Label
-from Components.Sources.StaticText import StaticText
 from Screens.MessageBox import MessageBox
 from Screens.Setup import Setup
 from Screens.Standby import TryQuitMainloop, QUIT_RESTART

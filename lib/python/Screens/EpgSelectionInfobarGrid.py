@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from Components.config import config
 from Screens.EpgSelectionBase import EPGServiceZap
 from Screens.EpgSelectionGrid import EPGSelectionGrid

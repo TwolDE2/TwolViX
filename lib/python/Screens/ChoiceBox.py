@@ -8,9 +8,7 @@ from Components.ActionMap import NumberActionMap
 from Components.ChoiceList import ChoiceEntryComponent, ChoiceList
 from Components.config import config, ConfigSubsection, ConfigText
 from Components.Label import Label
-from Components.Pixmap import Pixmap
 from Components.Sources.StaticText import StaticText
-
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction

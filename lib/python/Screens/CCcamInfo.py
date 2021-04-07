@@ -7,7 +7,6 @@ import six
 from base64 import encodestring
 from os import listdir, remove, rename, system, path
 
-
 from enigma import eListboxPythonMultiContent, eTimer, gFont, loadPNG, RT_HALIGN_RIGHT, getDesktop
 
 from Components.ActionMap import ActionMap, NumberActionMap

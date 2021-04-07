@@ -95,10 +95,12 @@ class AudioSelection(Screen, ConfigListScreen):
 			service = self.session.nav.getCurrentService()
 			self.audioTracks = audio = service and service.audioTracks()
 			n = audio and audio.getNumberOfTracks() or 0
+
 			if SystemInfo["CanPcmMultichannel"]:
 				self.settings.pcm_multichannel = ConfigOnOff(default=config.av.pcm_multichannel.value)
-				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call=False)
+				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call = False)
 				conflist.append(getConfigListEntry(_("PCM multichannel"), self.settings.pcm_multichannel, None))
+
 			if SystemInfo["CanDownmixAC3"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/ac3_choices")
@@ -110,6 +112,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.downmix_ac3 = ConfigSelection(choices=self.choices, default=config.av.downmix_ac3.value)
 				self.settings.downmix_ac3.addNotifier(self.changeAC3Downmix, initial_call=False)
 				conflist.append(getConfigListEntry(_("AC3 downmix"), self.settings.downmix_ac3, None))
+
 			if SystemInfo["CanDownmixDTS"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/dts_choices")
@@ -121,6 +124,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.downmix_dts = ConfigSelection(choices=self.choices, default=config.av.downmix_dts.value)
 				self.settings.downmix_dts.addNotifier(self.changeDTSDownmix, initial_call=False)
 				conflist.append(getConfigListEntry(_("DTS downmix"), self.settings.downmix_dts, None))
+
 			if SystemInfo["CanDownmixAACPlus"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/aacplus_choices")
@@ -138,6 +142,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.downmix_aacplus = ConfigSelection(choices=self.choices, default=config.av.downmix_aacplus.value)
 				self.settings.downmix_aacplus.addNotifier(self.changeAACDownmixPlus, initial_call=False)
 				conflist.append(getConfigListEntry(_("AAC+ downmix"), self.settings.downmix_aacplus, None))
+
 			elif SystemInfo["CanDownmixAAC"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/aac_choices")
@@ -149,6 +154,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.downmix_aac = ConfigSelection(choices=self.choices, default=config.av.downmix_aac.value)
 				self.settings.downmix_aac.addNotifier(self.changeAACDownmix, initial_call=False)
 				conflist.append(getConfigListEntry(_("AAC downmix"), self.settings.downmix_aac, None))
+
 			if SystemInfo["CanAC3Transcode"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/ac3plus_choices")
@@ -160,6 +166,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.transcodeac3plus = ConfigSelection(choices=self.choices, default=config.av.transcodeac3plus.value)
 				self.settings.transcodeac3plus.addNotifier(self.setAC3plusTranscode, initial_call=False)
 				conflist.append(getConfigListEntry(_("AC3 transcoding"), self.settings.transcodeac3plus, None))
+
 			if SystemInfo["CanAACTranscode"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/aac_transcode_choices")
@@ -172,6 +179,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.transcodeaac = ConfigSelection(choices=self.choices, default=config.av.transcodeaac.value)
 				self.settings.transcodeaac.addNotifier(self.setAACTranscode, initial_call=False)
 				conflist.append(getConfigListEntry(_("AAC transcoding"), self.settings.transcodeaac, None))
+
 			if SystemInfo["CanDTSHD"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/dtshd_choices")
@@ -186,6 +194,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.dtshd = ConfigSelection(choices=self.choices, default=config.av.dtshd.value)
 				self.settings.dtshd.addNotifier(self.changeDTSHD, initial_call=False)
 				conflist.append(getConfigListEntry(_("DTS-HD HR/DTS-HD MA/DTS"), self.settings.dtshd, None))
+
 			if SystemInfo["CanWMAPRO"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/wmapro_choices")
@@ -199,6 +208,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.wmapro = ConfigSelection(choices=self.choices, default=config.av.wmapro.value)
 				self.settings.wmapro.addNotifier(self.changeWMAPro, initial_call=False)
 				conflist.append(getConfigListEntry(_("WMA Pro downmix"), self.settings.wmapro, None))
+
 			if SystemInfo["Can3DSurround"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/3d_surround_choices")
@@ -212,6 +222,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.surround_3d = ConfigSelection(choices=self.choices, default=config.av.surround_3d.value)
 				self.settings.surround_3d.addNotifier(self.change3DSurround, initial_call=False)
 				conflist.append(getConfigListEntry(_("3D surround"), self.settings.surround_3d, None))
+
 			if SystemInfo["Can3DSpeaker"] and config.av.surround_3d.value != "none":
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/3d_surround_speaker_position_choices")
@@ -224,6 +235,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.surround_3d_speaker = ConfigSelection(choices=self.choices, default=config.av.surround_3d_speaker.value)
 				self.settings.surround_3d_speaker.addNotifier(self.change3DSurroundSpeaker)
 				conflist.append(getConfigListEntry(_("3D surround speaker position"), self.settings.surround_3d_speaker, None))
+
 			if SystemInfo["CanAutoVolume"]:
 				if SystemInfo["CanProc"]:
 					self.choices = self.read_choices("/proc/stb/audio/avl_choices")
@@ -237,6 +249,7 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.autovolume = ConfigSelection(choices=self.choices, default=config.av.autovolume.value)
 				self.settings.autovolume.addNotifier(self.changeAutoVolume)
 				conflist.append(getConfigListEntry(_("Auto volume level"), self.settings.autovolume, None))
+
 			if n > 0:
 				self.audioChannel = service.audioChannel()
 				if self.audioChannel:
@@ -249,10 +262,10 @@ class AudioSelection(Screen, ConfigListScreen):
 					self.settings.channelmode.addNotifier(self.changeMode, initial_call=False)
 					conflist.append(getConfigListEntry(_("Audio channel"), self.settings.channelmode, None))
 				selectedAudio = self.audioTracks.getCurrentTrack()
-				for x in list(range(n)):
+				for x in range(n):
 					number = str(x + 1)
 					i = audio.getTrackInfo(x)
-					languages = i.getLanguage().split("/")
+					languages = i.getLanguage().split('/')
 					description = i.getDescription() or ""
 					selected = ""
 					language = ""
@@ -273,19 +286,18 @@ class AudioSelection(Screen, ConfigListScreen):
 				conflist.append(("",))
 			if SystemInfo["Canedidchecking"]:
 				choice_list = [("00000000", _("off")), ("00000001", _("on"))]
-				self.settings.bypass_edid_checking = ConfigSelection(choices=choice_list, default=config.av.bypass_edid_checking.value)
-				self.settings.bypass_edid_checking.addNotifier(self.changeEDIDChecking, initial_call=False)
+				self.settings.bypass_edid_checking = ConfigSelection(choices = choice_list, default = config.av.bypass_edid_checking.value)
+				self.settings.bypass_edid_checking.addNotifier(self.changeEDIDChecking, initial_call = False)
 				conflist.append(getConfigListEntry(_("Bypass HDMI EDID Check"), self.settings.bypass_edid_checking, None))
 			if hasattr(self.infobar, "runPlugin"):
 				class PluginCaller:
 					def __init__(self, fnc, *args):
 						self.fnc = fnc
 						self.args = args
-
 					def __call__(self, *args, **kwargs):
 						self.fnc(*self.args)
 
-				Plugins = [(p.name, PluginCaller(self.infobar.runPlugin, p)) for p in plugins.getPlugins(where=PluginDescriptor.WHERE_AUDIOMENU)]
+				Plugins = [ (p.name, PluginCaller(self.infobar.runPlugin, p)) for p in plugins.getPlugins(where = PluginDescriptor.WHERE_AUDIOMENU)]
 				if len(Plugins):
 					for x in Plugins:
 						if x[0] != "AudioEffect":  # Always make AudioEffect Blue button.
@@ -619,7 +631,7 @@ class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 				getConfigMenuItem("config.subtitles.subtitle_bad_timing_delay"),
 				getConfigMenuItem("config.subtitles.subtitle_noPTSrecordingdelay"),
 			]
-		else:  # pango
+		else: 		# pango
 			menu = [
 				getConfigMenuItem("config.subtitles.pango_subtitles_delay"),
 				getConfigMenuItem("config.subtitles.pango_subtitle_colors"),

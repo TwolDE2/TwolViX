@@ -108,7 +108,6 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 		# clear the instance value so the skin reloader works correctly
 		InfoBar.instance = None
 
-
 	def showMenu(self):
 		self.onShown.remove(self.showMenu)
 		config.misc.initialchannelselection.value = False

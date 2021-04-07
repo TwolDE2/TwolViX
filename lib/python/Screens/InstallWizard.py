@@ -110,7 +110,6 @@ class InstallWizard(Screen, ConfigListScreen):
 		elif self.index == self.STATE_CHOISE_CHANNELLIST and self.enabled.value:
 			self.session.open(InstallWizardIpkgUpdater, self.index, _('Please wait (downloading channel list)'), IpkgComponent.CMD_REMOVE, {'package': 'enigma2-plugin-settings-henksat-' + self.channellist_type.value})
 		elif self.index == self.INSTALL_PLUGINS and self.enabled.value:
-
 			from Screens.PluginBrowser import PluginDownloadBrowser
 			self.session.open(PluginDownloadBrowser, 0, True, "PluginDownloadBrowserWizard")
 		elif self.index == self.INSTALL_SKINS and self.enabled.value:

@@ -7,8 +7,6 @@ from enigma import getPeerStreamingBoxes
 from Components.config import config, configfile, ConfigText, ConfigSelection, ConfigIP, ConfigYesNo, ConfigInteger
 from Screens.Setup import Setup
 
-
-
 class FallbackTunerSetup(Setup):
 	def __init__(self, session):
 		self.createConfig()
