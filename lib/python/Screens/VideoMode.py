@@ -12,7 +12,6 @@ from Components.config import config, configfile, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.Pixmap import Pixmap
-from Components.Sources.StaticText import StaticText
 from Components.ServiceEventTracker import ServiceEventTracker
 from Components.Sources.Boolean import Boolean
 from Components.SystemInfo import SystemInfo
@@ -239,7 +238,6 @@ def applySettings(mode=config.osd.threeDmode.value, znorm=int(config.osd.threeDz
 			previous = (mode, znorm)
 		except Exception:
 			return
-
 
 class AutoVideoMode(Screen):
 	def __init__(self, session):

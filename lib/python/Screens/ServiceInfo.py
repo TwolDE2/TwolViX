@@ -1,7 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
-import six
 
 from enigma import ePoint, eTimer, iPlayableService
 
@@ -16,9 +15,6 @@ from Screens.Screen import Screen
 from ServiceReference import ServiceReference
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 import skin
-
-
-SIGN = '°' if six.PY3 else str('\xc2\xb0')
 
 RT_HALIGN_LEFT = 0
 

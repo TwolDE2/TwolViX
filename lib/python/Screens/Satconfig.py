@@ -1,4 +1,3 @@
-from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
@@ -26,7 +25,6 @@ from Screens.Screen import Screen
 from Screens.ServiceStopScreen import ServiceStopScreen
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileExists
-
 
 
 class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):

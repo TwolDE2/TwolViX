@@ -1,18 +1,9 @@
-from __future__ import print_function
 from __future__ import absolute_import
 
 from time import localtime, time, strftime
-from datetime import datetime
 
 from Components.ActionMap import HelpableActionMap, NumberActionMap
-from Components.Button import Button
-from Components.config import config
 from Components.config import ConfigSelection, ConfigYesNo, ConfigInteger
-from Components.ConfigList import ConfigListScreen
-from Components.Label import Label
-from Components.MenuList import MenuList
-from Components.Pixmap import Pixmap
-from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from PowerTimer import AFTEREVENT, TIMERTYPE
 from Screens.Screen import Screen

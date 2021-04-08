@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 import six
 
-from os import statvfs
 from time import localtime, time, strftime
 
 from enigma import eEPGCache

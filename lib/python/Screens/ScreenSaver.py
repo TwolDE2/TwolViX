@@ -51,5 +51,3 @@ class Screensaver(Screen):
 		self.posy = random.randint(1, self.maxy) if self.maxy > 1 else 1
 		self["picture"].instance.move(ePoint(self.posx, self.posy))
 		self.moveLogoTimer.startLongTimer(9)
-
-

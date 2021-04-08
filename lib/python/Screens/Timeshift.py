@@ -1,6 +1,5 @@
 from __future__ import print_function
 from __future__ import absolute_import
-import six
 
 from os import link, remove, stat
 from os.path import isdir, join as pathJoin, splitext

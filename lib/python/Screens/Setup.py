@@ -348,7 +348,6 @@ def setupDom(setup=None, plugin=None):
 def setupdom(setup=None, plugin=None):
 	return setupDom(setup, plugin)
 
-
 # Only used in AudioSelection screen...
 #
 def getConfigMenuItem(configElement):

@@ -10,7 +10,6 @@ from Components.Sources.FrontendInfo import FrontendInfo
 from Components.Sources.Source import Source
 from Components.Sources.TunerInfo import TunerInfo
 from Components.Sources.RecordState import RecordState
-
 from Screens.Screen import Screen
 
 class SessionGlobals(Screen):
