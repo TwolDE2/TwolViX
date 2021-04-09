@@ -199,7 +199,6 @@ from Screens.Screen import Screen, ScreenSummary
 profile("Screen")
 Screen.globalScreen = Globals()
 
-
 # Session.open:
 # * push current active dialog ("current_dialog") onto stack
 # * call execEnd for this dialog
@@ -481,7 +480,6 @@ class PowerKey:
 		if not Screens.Standby.inStandby and self.session.current_dialog and self.session.current_dialog.ALLOW_SUSPEND and self.session.in_exec:
 			self.session.open(Screens.Standby.Standby)
 
-
 profile("Scart")
 print("[Enigma2] Initialising Scart.")
 from Screens.Scart import Scart
@@ -501,14 +499,13 @@ class AutoScartControl:
 		self.VCRSbChanged(self.current_vcr_sb)
 
 	def VCRSbChanged(self, value):
-		# print "vcr sb changed to", value
+		# print("vcr sb changed to", value)
 		self.current_vcr_sb = value
 		if config.av.vcrswitch.value or value > 2:
 			if value:
 				self.scartDialog.showMessageBox()
 			else:
 				self.scartDialog.switchToTV()
-
 
 profile("Load:CI")
 print("[Enigma2] Initialising CommonInterface.")

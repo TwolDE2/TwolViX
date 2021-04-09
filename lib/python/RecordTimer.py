@@ -559,7 +559,7 @@ class RecordTimerEntry(TimerEntry, object):
 			global wasRecTimerWakeup
 
 # Run this under a lock.
-# We"ve seen two threads arrive here "together".
+# We've seen two threads arrive here "together".
 # Both see the file as existing, but only one can delete it...
 #
 			with wasrec_lock:
@@ -1293,10 +1293,10 @@ class RecordTimer(Timer):
 				xend += 1440
 			if x.repeated & (1 << bday) and checking_time:
 				if begin2 < xbegin <= end2:
-					# recording within // last part of event
+					# recording within / last part of event
 					return 2 if xend < end2 else 0
 				elif xbegin <= begin2 <= xend:
-					# recording first part // whole event
+					# recording first part / whole event
 					return 1 if xend < end2 else 3
 				elif offset_day:
 					xbegin -= 1440

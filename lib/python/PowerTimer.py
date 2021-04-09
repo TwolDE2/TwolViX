@@ -18,7 +18,6 @@ from Screens.MessageBox import MessageBox
 import Screens.Standby
 from Tools import Directories, Notifications
 from Tools.XMLTools import stringToXML
-
 import NavigationInstance
 
 
