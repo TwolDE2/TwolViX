@@ -4,8 +4,8 @@ from __future__ import division
 from enigma import iServiceInformation, iPlayableService
 
 from Components.Converter.Converter import Converter
+from Components.Converter.Poll import Poll
 from Components.Element import cached
-from Poll import Poll
 from Screens.InfoBarGenerics import hasActiveSubservicesForCurrentChannel
 from Tools.Transponder import ConvertToHumanReadable
 
