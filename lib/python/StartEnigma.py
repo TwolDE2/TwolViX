@@ -128,7 +128,7 @@ def NTPserverChanged(configElement):
 config.misc.NTPserver.addNotifier(NTPserverChanged, immediate_feedback = False)
 
 profile("Twisted")
-print("[StartEnigma]  Initialising Twisted.")
+print("[StartEnigma] Initialising Twisted.")
 try:
 	import twisted.python.runtime
 	twisted.python.runtime.platform.supportsThreads = lambda: True
@@ -141,6 +141,7 @@ try:
 	def runReactor():
 		reactor.run(installSignalHandlers=False)
 except ImportError:
+	print("[StartEnigma] twisted not available")
 	def runReactor():
 		enigma.runMainloop()
 
@@ -607,7 +608,7 @@ def runScreenTest():
 		if not config.misc.SyncTimeUsing.value == "0":
 			print("StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
 			setRTCtime(nowTime)
-		print("set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime + 60)))
+		print("StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime+60)))
 		setFPWakeuptime(wptime)
 		PowerTimerWakeupAuto = startTime[1] == 3 and startTime[2]
 		print("StartEnigma] PowerTimerWakeupAuto", PowerTimerWakeupAuto)
