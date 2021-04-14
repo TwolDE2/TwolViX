@@ -1164,6 +1164,10 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1600) + 0.2100) * 100);
 	}
+	else if (!strcmp(m_description, "GIGA DVB-S2 NIM (TS3L10)") || !strcmp(m_description, "GIGA DVB-S2 NIM (TS2L08)")) //GB IP 4K
+	{
+		ret = snr;
+	}
 	else if (!strcmp(m_description, "Vuplus DVB-S NIM(AVL6222)") ||
 		!strcmp(m_description, "Vuplus DVB-S NIM(AVL6211)") ||
 		!strcmp(m_description, "BCM7335 DVB-S2 NIM (internal)")) // VU+ DVB-S2 Dual NIM and VU+DUO DVB-S2 NIM
