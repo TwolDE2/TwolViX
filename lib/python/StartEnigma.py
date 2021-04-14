@@ -590,12 +590,12 @@ def runScreenTest():
 		else:
 			wptime = startTime[0] - 240
 		if not config.misc.SyncTimeUsing.value == "0":
-			print("StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
+			print("[StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
 			setRTCtime(nowTime)
-		print("StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime)))
+		print("[StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime)))
 		setFPWakeuptime(wptime)
 		recordTimerWakeupAuto = startTime[1] == 0 and startTime[2]
-		print("recordTimerWakeupAuto", recordTimerWakeupAuto)
+		print("[StartEnigma] recordTimerWakeupAuto", recordTimerWakeupAuto)
 	config.misc.isNextRecordTimerAfterEventActionAuto.value = recordTimerWakeupAuto
 	config.misc.isNextRecordTimerAfterEventActionAuto.save()
 	PowerTimerWakeupAuto = False
@@ -606,12 +606,12 @@ def runScreenTest():
 		else:
 			wptime = startTime[0]
 		if not config.misc.SyncTimeUsing.value == "0":
-			print("StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
+			print("[StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
 			setRTCtime(nowTime)
-		print("StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime+60)))
+		print("[StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime+60)))
 		setFPWakeuptime(wptime)
 		PowerTimerWakeupAuto = startTime[1] == 3 and startTime[2]
-		print("StartEnigma] PowerTimerWakeupAuto", PowerTimerWakeupAuto)
+		print("[StartEnigma] PowerTimerWakeupAuto", PowerTimerWakeupAuto)
 	config.misc.isNextPowerTimerAfterEventActionAuto.value = PowerTimerWakeupAuto
 	config.misc.isNextPowerTimerAfterEventActionAuto.save()
 	profile("stopService")
@@ -626,10 +626,10 @@ def runScreenTest():
 
 
 profile("Init:skin")
-print("[StartEnigma]  Initialising Skin.")
+print("[StartEnigma] Initialising Skins.")
 import skin
 skin.InitSkins()
-print("[StartEnigma]  Initialisation of Skins complete.")
+print("[StartEnigma] Initialisation of Skins complete.")
 
 profile("InputDevice")
 print("[StartEnigma]  Initialising InputDevice.")
@@ -741,7 +741,6 @@ try:
 except Exception:
 	print("StartEnigma] EXCEPTION IN PYTHON STARTUP CODE:")
 	print("-" * 60)
-
 	print_exc(file=stdout)
 	enigma.quitMainloop(5)
 	print("-" * 60)
