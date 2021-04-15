@@ -71,7 +71,7 @@ class CIselectMainMenu(Screen):
 						appname = _("Slot %d") % (slot + 1) + " - " + eDVBCI_UI.getInstance().getAppName(slot)
 					self.list.append((appname, ConfigNothing(), 0, slot))
 		else:
-		self.list.append((_("no CI slots found"), ConfigNothing(), 1, -1))
+			self.list.append((_("no CI slots found"), ConfigNothing(), 1, -1))
 		menuList = ConfigList(self.list)
 		menuList.list = self.list
 		menuList.l.setList(self.list)
