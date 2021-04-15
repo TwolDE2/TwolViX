@@ -29,6 +29,7 @@ class ConsoleItem:
 			self.finishedCB(retval)
 		if callback is None:
 			pid = self.container.getPID()
+			try:
 				os.waitpid(pid, 0)
 			except OSError:
 				pass

@@ -814,7 +814,7 @@ def InitUsageConfig():
 
 	def EpgCacheChanged(configElement):
 		config.misc.epgcache_filename.setValue(os.path.join(config.misc.epgcachepath.value, config.misc.epgcachefilename.value.replace('.dat', '') + '.dat'))
->		config.misc.epgcache_filename.save()
+		config.misc.epgcache_filename.save()
 		eEPGCache.getInstance().setCacheFile(config.misc.epgcache_filename.value)
 		epgcache = eEPGCache.getInstance()
 		epgcache.save()

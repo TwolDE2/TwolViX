@@ -785,7 +785,7 @@ class HarddiskManager:
 					# print "[Harddisk] enumerateNetworkMountsNew DEBUG: mountDir = '%s', isMount = '%s'" % (mountDir, os.path.ismount(mountDir))
 					if os.path.ismount(mountDir) and mountDir not in [partition.mountpoint for partition in self.partitions]:
 						print("[Harddisk] Found network mount (%s) '%s' -> '%s'." % (entry, mount, mountDir))
-					self.partitions.append(Partition(mountpoint=mountDir, description=mount))
+						self.partitions.append(Partition(mountpoint=mountDir, description=mount))
 						# print "[Harddisk] DEBUG: Partition(mountpoint = %s, description = %s)" % (mountDir, mount)
 					elif "/media/net" in mountEntry and os.path.exists(mountDir) and mountDir not in [partition.mountpoint for partition in self.partitions]:
 						print("[Harddisk] Found network mount (%s) '%s' -> '%s'." % (entry, mount, mountDir))

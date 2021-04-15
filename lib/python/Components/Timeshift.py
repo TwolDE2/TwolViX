@@ -1013,7 +1013,7 @@ class InfoBarTimeshift:
 			try:
 				serviceref = ServiceReference(self.session.nav.getCurrentlyPlayingServiceOrGroup()).ref
 				eEPGCache.getInstance().saveEventToFile(filename + ".eit", serviceref, self.pts_curevent_eventid, -1, -1)
->			except Exception as errormsg:
+			except Exception as errormsg:
 				print("[Timeshift] %s" % errormsg)
 
 	def ptsCopyFilefinished(self, srcfile, destfile):
