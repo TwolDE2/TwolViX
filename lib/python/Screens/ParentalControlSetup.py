@@ -11,6 +11,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 
+
 class ProtectedScreen:
 	def __init__(self):
 		if self.isProtected() and config.ParentalControl.servicepin[0].value:
@@ -28,6 +29,7 @@ class ProtectedScreen:
 	def closeProtectedScreen(self, result=None):
 		self.close(None)
 
+
 class ParentalControlSetup(ConfigListScreen, Screen, ProtectedScreen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -35,11 +37,11 @@ class ParentalControlSetup(ConfigListScreen, Screen, ProtectedScreen):
 		self.setTitle(_("Parental Control"))
 
 		# for the skin: first try ParentalControlSetup, then Setup, this allows individual skinning
-		self.skinName = ["ParentalControlSetup", "Setup" ]
-		self.onChangedEntry = [ ]
+		self.skinName = ["ParentalControlSetup", "Setup"]
+		self.onChangedEntry = []
 
 		self.list = []
-		ConfigListScreen.__init__(self, self.list, session = self.session, on_change = self.changedEntry, fullUI = True)
+		ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.changedEntry, fullUI=True)
 		self.createSetup(initial=True)
 
 	def isProtected(self):

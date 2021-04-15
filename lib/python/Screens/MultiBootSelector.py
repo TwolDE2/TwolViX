@@ -2,7 +2,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-
 from os import mkdir, path, rmdir
 import tempfile
 
@@ -27,7 +26,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		Screen.__init__(self, session, mandatoryWidgets=["key_yellow", "key_blue"])
 		HelpableScreen.__init__(self)
 		Screen.setTitle(self, _("MultiBoot Image Selector"))
-		self.skinName = ["MultiBootSelector","Setup"]
+		self.skinName = ["MultiBootSelector", "Setup"]
 		self.tmp_dir = None
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent("", ((_("Retrieving image slots - Please wait...")), "Queued"))])
 		self["description"] = StaticText(_("Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."))
@@ -57,7 +56,6 @@ class MultiBootSelector(Screen, HelpableScreen):
 		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
 		self.callLater(self.getImagelist)
 
-
 	def getImagelist(self):
 		self.imagedict = GetImagelist()
 		list = []
@@ -86,7 +84,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		else:
 			list.append(ChoiceEntryComponent("", ((_("No images found")), "Waiter")))
 		self["config"].setList(list)
-		print("[MultiBootSelector] list X = %s" % list) 
+		print("[MultiBootSelector] list X = %s" % list)
 
 	def reboot(self):
 		self.currentSelected = self["config"].l.getCurrentSelection()

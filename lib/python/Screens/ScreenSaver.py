@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
-import os, random
+import os
+import random
 from enigma import ePoint, eTimer, iPlayableService
 
 from Components.MovieList import AUDIO_EXTENSIONS
@@ -17,8 +18,7 @@ class Screensaver(Screen):
 		self.onShow.append(self.__onShow)
 		self.onHide.append(self.__onHide)
 
-		self.__event_tracker = ServiceEventTracker(screen=self, eventmap=
-			{
+		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
 				iPlayableService.evStart: self.serviceStarted
 			})
 

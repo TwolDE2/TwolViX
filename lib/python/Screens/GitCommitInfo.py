@@ -16,11 +16,12 @@ from Components.config import config
 from Screens.Screen import Screen
 
 # required methods: Request, urlopen, HTTPError, URLError
-try: # python 3
+if version_info[0] >= 3:
 	from urllib.request import urlopen, Request # raises ImportError in Python 2
 	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
-except ImportError: # Python 2
+else:
 	from urllib2 import Request, urlopen, HTTPError, URLError
+
 # following noops normal ViX code as I use alphanumeric Imageversion which causes crash 
 if getImageType() == 'release':
 	ImageVer = getImageBuild()
@@ -28,9 +29,10 @@ else:
 #	ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
 #	ImageVer = float(ImageVer)
 	ImageVer = getImageBuild()
+
 E2Branches = {
-	'developer' : 'Dev',
-	'release' : 'master'
+	'developer': 'Dev',
+	'release': 'master'
 	}
 
 project = 0
@@ -44,6 +46,7 @@ projects = [
 	("https://api.github.com/repos/oe-alliance/branding-module/commits", "Branding Module"),
 ]
 cachedProjects = {}
+
 
 def readGithubCommitLogsSoftwareUpdate():
 	global ImageVer
@@ -101,6 +104,7 @@ def readGithubCommitLogsSoftwareUpdate():
 		print('[GitCommitLog] The commit log cannot be retrieved at the moment - please try again later.', err)
 		commitlog += _("The commit log cannot be retrieved at the moment - please try again later.")
 	return commitlog
+
 
 def readGithubCommitLogs():
 	global ImageVer
@@ -166,18 +170,23 @@ def readGithubCommitLogs():
 		commitlog += _("The commit log cannot be retrieved at the moment - please try again later.")
 	return commitlog
 
+
 def getScreenTitle():
 	return projects[project][1]
+
 
 def left():
 	global project
 	project = project == 0 and len(projects) - 1 or project - 1
 
+
 def right():
 	global project
 	project = project != len(projects) - 1 and project + 1 or 0
 
+
 gitcommitinfo = modules[__name__]
+
 
 class CommitInfo(Screen):
 	def __init__(self, session):

@@ -11,6 +11,7 @@ from Tools.Directories import SCOPE_LANGUAGE, resolveFilename
 LPATH = resolveFilename(SCOPE_LANGUAGE, "")
 Lpackagename = "enigma2-locale-"
 
+
 class Language:
 	def __init__(self):
 		gettext.install('enigma2', resolveFilename(SCOPE_LANGUAGE, ""), codeset="utf-8")
@@ -116,9 +117,9 @@ class Language:
 			os.mkdir('/home/root/.config')
 
 		localeconf = open('/home/root/.config/locale.conf', 'w')
-		for category in ["LC_TIME", "LC_DATE", "LC_MONETARY", "LC_MESSAGES", "LC_NUMERIC", "LC_NAME", "LC_TELEPHONE", "LC_ADDRESS", "LC_PAPER", "LC_IDENTIFICATION", "LC_MEASUREMENT", "LANG" ]:
+		for category in ["LC_TIME", "LC_DATE", "LC_MONETARY", "LC_MESSAGES", "LC_NUMERIC", "LC_NAME", "LC_TELEPHONE", "LC_ADDRESS", "LC_PAPER", "LC_IDENTIFICATION", "LC_MEASUREMENT", "LANG"]:
 			if category == "LANG" or (category == "LC_DATE" and os.path.exists('/usr/lib/locale/' + self.getLanguage() + '/LC_TIME')) or os.path.exists('/usr/lib/locale/' + self.getLanguage() + '/' + category):
-				localeconf.write('export %s="%s.%s"\n' % (category, self.getLanguage(), "UTF-8" ))
+				localeconf.write('export %s="%s.%s"\n' % (category, self.getLanguage(), "UTF-8"))
 			else:
 				if os.path.exists('/usr/lib/locale/C.UTF-8/' + category):
 					localeconf.write('export %s="C.UTF-8"\n' % category)
@@ -144,7 +145,7 @@ class Language:
 			self.activateLanguage(self.langlist[index])
 
 	def getLanguageList(self):
-		return [ (x, self.lang[x]) for x in self.langlist ]
+		return [(x, self.lang[x]) for x in self.langlist]
 
 	def getLanguageListSelection(self):
 		return self.langlistselection
@@ -178,7 +179,7 @@ class Language:
 	def addCallback(self, callback):
 		self.callbacks.append(callback)
 
-	def delLanguage(self, delLang = None):
+	def delLanguage(self, delLang=None):
 		from Components.config import config, configfile
 		from shutil import rmtree
 
@@ -238,5 +239,6 @@ class Language:
 		f.close
 		catalog = None
 		lang = None
+
 
 language = Language()

@@ -86,18 +86,18 @@ class About(Screen):
 			AboutText += _("%s") % part
 
 		if SystemInfo["canMultiBoot"]:
-			slot = image= GetCurrentImage()
-			part = "eMMC slot %s" %slot
+			slot = image = GetCurrentImage()
+			part = "eMMC slot %s" % slot
 			bootmode = ""
 			if SystemInfo["canMode12"]:
-				bootmode = "bootmode = %s" %GetCurrentImageMode()
-			print("[About] HasHiSi = %s, slot = %s" %(SystemInfo["HasHiSi"], slot))
+				bootmode = "bootmode = %s" % GetCurrentImageMode()
+			print("[About] HasHiSi = %s, slot = %s" % (SystemInfo["HasHiSi"], slot))
 			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]["root"]:
 				if slot > 4:
-					image -=4
+					image -= 4
 				else:
-					image -=1
-				part = "SDcard slot %s (%s) " %(image, SystemInfo["canMultiBoot"][slot]["root"])
+					image -= 1
+				part = "SDcard slot %s (%s) " % (image, SystemInfo["canMultiBoot"][slot]["root"])
 			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(slot) + "  " + part + " " + bootmode + "\n"
 
 		if getMachineName() in ("ET8500") and path.exists("/proc/mtd"):
@@ -116,7 +116,7 @@ class About(Screen):
 
 		AboutText += _("Drivers:\t%s\n") % driversdate
 		AboutText += _("Kernel:\t%s\n") % about.getKernelVersionString()
-		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ","")
+		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ", "")
 		AboutText += _("Python:\t%s\n") % about.getPythonVersionString()
 		AboutText += _("Installed:\t%s\n") % about.getFlashDateString()
 		AboutText += _("Last update:\t%s\n") % getEnigmaVersionString()
@@ -140,7 +140,7 @@ class About(Screen):
 			with open("/proc/stb/sensors/temp/value", "r") as f:
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			AboutText += _("System temp:\t%s") % tempinfo.replace("\n", "").replace(" ","") + SIGN + "C\n"
+			AboutText += _("System temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + SIGN + "C\n"
 
 		tempinfo = ""
 		if path.exists("/proc/stb/fp/temp_sensor_avs"):
@@ -159,7 +159,7 @@ class About(Screen):
 			except:
 				tempinfo = ""
 		if tempinfo and int(tempinfo) > 0:
-			AboutText += _("Processor temp:\t%s") % tempinfo.replace("\n", "").replace(" ","") + SIGN + "C\n"
+			AboutText += _("Processor temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + SIGN + "C\n"
 
 		fp_version = getFPVersion()
 		if fp_version is None:
@@ -196,6 +196,7 @@ class About(Screen):
 
 	def createSummary(self):
 		return AboutSummary
+
 
 class Devices(Screen):
 	def __init__(self, session):
@@ -244,7 +245,7 @@ class Devices(Screen):
 		self["nims"].setText(niminfo)
 
 		nims = nimmanager.nimList()
-		if len(nims) <= 4 :
+		if len(nims) <= 4:
 			for count in (0, 1, 2, 3):
 				if count < len(nims):
 					self["Tuner" + str(count)].setText(nims[count])
@@ -261,7 +262,7 @@ class Devices(Screen):
 				if desc_list and desc_list[cur_idx]["desc"] == desc:
 					desc_list[cur_idx]["end"] = idx
 				else:
-					desc_list.append({"desc" : desc, "start" : idx, "end" : idx})
+					desc_list.append({"desc": desc, "start": idx, "end": idx})
 					cur_idx += 1
 				count += 1
 
@@ -279,7 +280,7 @@ class Devices(Screen):
 		self.hddlist = harddiskmanager.HDDList()
 		self.list = []
 		if self.hddlist:
-			print("[About] hddlist = %s" %(self.hddlist))
+			print("[About] hddlist = %s" % (self.hddlist))
 			for count in list(range(len(self.hddlist))):
 				hdd = self.hddlist[count][1]
 				hddp = self.hddlist[count][0]
@@ -297,7 +298,7 @@ class Devices(Screen):
 					continue
 				else:
 					freeline = _("Free: ") + _("full")
-				line = "%s      %s" %(hddp, freeline)
+				line = "%s      %s" % (hddp, freeline)
 				self.list.append(line)
 		self.list = "\n".join(self.list)
 		self["hdd"].setText(self.list)
@@ -503,7 +504,7 @@ class SystemNetworkInfo(Screen):
 		self.AboutText += _("Bytes sent:") + "\t" + tx_bytes + "\n"
 		for line in popen("ethtool %s |grep Speed" % self.iface, "r"):
 			line = line.strip().split(":")
-			line =line[1].replace(" ", "")
+			line = line[1].replace(" ", "")
 			if "Speed:" in line:
 				self.AboutText += _("Speed:") + "\t" + line + _("Mb/s")
 		hostname = open("/proc/sys/kernel/hostname").read()

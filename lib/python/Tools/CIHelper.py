@@ -23,9 +23,10 @@ class CIHelper:
 		NUM_CI = SystemInfo["CommonInterface"]
 		if NUM_CI and NUM_CI > 0:
 			self.CI_ASSIGNMENT_LIST = []
+
 			def getValue(definitions, default):
 				Len = len(definitions)
-				return Len > 0 and definitions[Len-1].text or default
+				return Len > 0 and definitions[Len - 1].text or default
 
 			for ci in range(NUM_CI):
 				filename = eEnv.resolve("${sysconfdir}/enigma2/ci") + str(ci) + ".xml"
@@ -47,7 +48,7 @@ class CIHelper:
 
 						for service in slot.findall("service"):
 							read_service_ref = six.ensure_str(service.get("ref"))
-							read_services.append (read_service_ref)
+							read_services.append(read_service_ref)
 
 						for provider in slot.findall("provider"):
 							read_provider_name = six.ensure_str(provider.get("name"))
@@ -67,9 +68,9 @@ class CIHelper:
 			for item in self.CI_ASSIGNMENT_LIST:
 				print("[CI_Activate] activate CI%d with following settings:" % item[0])
 				try:
-					eDVBCIInterfaces.getInstance().setDescrambleRules(item[0],item[1])
+					eDVBCIInterfaces.getInstance().setDescrambleRules(item[0], item[1])
 				except:
-					print("[CI_Activate_Config_CI%d] error setting DescrambleRules..." %item[0])
+					print("[CI_Activate_Config_CI%d] error setting DescrambleRules..." % item[0])
 				for x in item[1][0]:
 					services.append(x)
 				for x in item[1][1]:
@@ -123,7 +124,7 @@ class CIHelper:
 						self.CI_MULTIDESCRAMBLE = True
 		elif self.CI_MULTIDESCRAMBLE == False:
 			return False
-			
+
 		if self.CI_ASSIGNMENT_LIST is not None and len(self.CI_ASSIGNMENT_LIST):
 			for x in self.CI_ASSIGNMENT_LIST:
 				if ref.toString() in x[1][0]:
@@ -160,7 +161,9 @@ class CIHelper:
 									return 0
 		return 1
 
+
 cihelper = CIHelper()
+
 
 def isPlayable(service):
 	ret = cihelper.isPlayable(service)

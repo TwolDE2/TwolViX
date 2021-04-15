@@ -10,6 +10,7 @@ from Components.VariableText import VariableText
 from skin import parseColor
 from Tools.Hex2strColor import Hex2strColor
 
+
 class NextEpgInfo(Renderer, VariableText):
 	def __init__(self):
 		Renderer.__init__(self)

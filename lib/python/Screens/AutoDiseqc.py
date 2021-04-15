@@ -236,7 +236,7 @@ class AutoDiseqc(Screen, ConfigListScreen):
 		self["tunerstatusbar"] = StaticText(" ")
 
 		self.list = []
-		ConfigListScreen.__init__(self, self.list, session = self.session)
+		ConfigListScreen.__init__(self, self.list, session=self.session)
 
 		self["config"].list = self.list
 		self["config"].l.setList(self.list)
@@ -260,7 +260,6 @@ class AutoDiseqc(Screen, ConfigListScreen):
 				self.sat_frequencies += self.circular_sat_frequencies
 		elif sat_found:
 			self.sat_frequencies.remove(x)
-
 
 		if not self.openFrontend():
 			self.oldref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
@@ -388,7 +387,7 @@ class AutoDiseqc(Screen, ConfigListScreen):
 				self.raw_channel.requestTsidOnid()
 			self.tuner.tune(self.sat_frequencies[self.index])
 
-			self["statusbar"].setText(_("Checking tuner %s\nDiSEqC port %s for %s") % (chr(self.feid+65), self.diseqc_ports[self.port_index], self.sat_frequencies[self.index][self.SAT_TABLE_NAME]))
+			self["statusbar"].setText(_("Checking tuner %s\nDiSEqC port %s for %s") % (chr(self.feid + 65), self.diseqc_ports[self.port_index], self.sat_frequencies[self.index][self.SAT_TABLE_NAME]))
 			self["tunerstatusbar"].setText(" ")
 
 			self.count = 0

@@ -8,7 +8,8 @@ from time import mktime, strftime, time, localtime
 from enigma import eTimer
 
 #for downloader
-import os, re
+import os
+import re
 from enigma import eServiceReference, eDVBDB
 # required methods: Request, urlopen, HTTPError, URLError
 try: # python 3
@@ -18,6 +19,8 @@ except ImportError: # Python 2
 	from urllib2 import Request, urlopen, HTTPError, URLError
 
 autoClientModeTimer = None
+
+
 def autostart():
 	global autoClientModeTimer
 	now = int(time())
@@ -25,8 +28,10 @@ def autostart():
 	if autoClientModeTimer is None:
 		autoClientModeTimer = AutoClientModeTimer()
 
+
 class AutoClientModeTimer:
 	instance = None
+
 	def __init__(self):
 		self.clientmodetimer = eTimer()
 		self.clientmodetimer.callback.append(self.ClientModeonTimer)
@@ -68,7 +73,7 @@ class AutoClientModeTimer:
 			return int(mktime((now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min + repeatIntervalMinutes, 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
 		return int(mktime((now.tm_year, now.tm_mon, now.tm_mday, backupclock[0], backupclock[1], 0, now.tm_wday, now.tm_yday, now.tm_isdst)))
 
-	def clientmodedate(self, atLeast = 0):
+	def clientmodedate(self, atLeast=0):
 		self.clientmodetimer.stop()
 		global ClientModeTime
 		ClientModeTime = self.getClientModeTime()
@@ -77,20 +82,20 @@ class AutoClientModeTimer:
 			if ClientModeTime < now + atLeast:
 				if config.clientmode.scheduleRepeatInterval.value.isdigit(): # contains wait time in minutes
 					ClientModeTime = now + (60 * int(config.clientmode.scheduleRepeatInterval.value))
-					while (int(ClientModeTime)-30) < now:
+					while (int(ClientModeTime) - 30) < now:
 						ClientModeTime += 60 * int(config.clientmode.scheduleRepeatInterval.value)
 				elif config.clientmode.scheduleRepeatInterval.value == "daily":
-					ClientModeTime += 24*3600
-					while (int(ClientModeTime)-30) < now:
-						ClientModeTime += 24*3600
+					ClientModeTime += 24 * 3600
+					while (int(ClientModeTime) - 30) < now:
+						ClientModeTime += 24 * 3600
 				elif config.clientmode.scheduleRepeatInterval.value == "weekly":
-					ClientModeTime += 7*24*3600
-					while (int(ClientModeTime)-30) < now:
-						ClientModeTime += 7*24*3600
+					ClientModeTime += 7 * 24 * 3600
+					while (int(ClientModeTime) - 30) < now:
+						ClientModeTime += 7 * 24 * 3600
 				elif config.clientmode.scheduleRepeatInterval.value == "monthly":
-					ClientModeTime += 30*24*3600
-					while (int(ClientModeTime)-30) < now:
-						ClientModeTime += 30*24*3600
+					ClientModeTime += 30 * 24 * 3600
+					while (int(ClientModeTime) - 30) < now:
+						ClientModeTime += 30 * 24 * 3600
 			next = ClientModeTime - now
 			self.clientmodetimer.startLongTimer(next)
 		else:
@@ -141,9 +146,11 @@ class AutoClientModeTimer:
 		else:
 			clientmodetext = ""
 
+
 class ChannelsImporter():
 	DIR_ENIGMA2 = "/etc/enigma2/"
 	DIR_TMP = "/tmp/"
+
 	def __init__(self):
 		self.fetchRemoteBouquets()
 
@@ -357,10 +364,10 @@ class ChannelsImporter():
 		try:
 			req = Request(url)
 			response = urlopen(req)
-			print("[ChannelsImporter][saveEPGonRemoteReceiver] Response: %d, %s" % (response.getcode(), response.read().strip().replace("\r","").replace("\n","")))
+			print("[ChannelsImporter][saveEPGonRemoteReceiver] Response: %d, %s" % (response.getcode(), response.read().strip().replace("\r", "").replace("\n", "")))
 		except HTTPError as err:
-			print("[ChannelsImporter][saveEPGonRemoteReceiver] ERROR:",err)
+			print("[ChannelsImporter][saveEPGonRemoteReceiver] ERROR:", err)
 		except URLError as err:
-			print("[ChannelsImporter][saveEPGonRemoteReceiver] ERROR:",err.reason[0])
+			print("[ChannelsImporter][saveEPGonRemoteReceiver] ERROR:", err.reason[0])
 		except:
 			print("[ChannelsImporter][saveEPGonRemoteReceiver] undefined error")

@@ -5,6 +5,7 @@ from Components.VariableValue import VariableValue
 
 from enigma import eSlider
 
+
 class Progress(VariableValue, Renderer):
 	def __init__(self):
 		Renderer.__init__(self)

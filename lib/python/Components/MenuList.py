@@ -4,13 +4,14 @@ from __future__ import absolute_import
 from enigma import eListboxPythonStringContent, eListbox
 from Components.GUIComponent import GUIComponent
 
+
 class MenuList(GUIComponent):
 	def __init__(self, list, enableWrapAround=True, content=eListboxPythonStringContent):
 		GUIComponent.__init__(self)
 		self.list = list
 		self.l = content()
 		self.l.setList(self.list)
-		self.onSelectionChanged = [ ]
+		self.onSelectionChanged = []
 		self.enableWrapAround = enableWrapAround
 
 	def getCurrent(self):
@@ -71,7 +72,7 @@ class MenuList(GUIComponent):
 
 	# Add new moveDown method for symmetry with ConfigList
 	def moveDown(self):
-		if self.instance  != None:
+		if self.instance != None:
 
 			self.instance.moveSelection(self.instance.moveDown)
 

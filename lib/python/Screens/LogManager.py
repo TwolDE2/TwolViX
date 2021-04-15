@@ -17,7 +17,8 @@ else:
 	from email.Utils import formatdate
 
 # Import smtplib for the actual sending function
-import smtplib, base64
+import smtplib
+import base64
 
 from enigma import eTimer, eBackgroundFileEraser, eLabel, getDesktop, gFont, fontRenderClass
 
@@ -48,13 +49,15 @@ def get_size(start_path = None):
 		return total_size
 	return 0
 
-def AutoLogManager(session = None, **kwargs):
+def AutoLogManager(session=None, **kwargs):
 	global debuglogcheckpoller
 	debuglogcheckpoller = LogManagerPoller()
 	debuglogcheckpoller.start()
 
+
 class LogManagerPoller:
 	"""Automatically Poll LogManager"""
+
 	def __init__(self):
 		# Init Timer
 		self.TrimTimer = eTimer()
@@ -117,7 +120,7 @@ class LogManagerPoller:
 
 	def JobTrash(self):
 		ctimeLimit = time() - (config.crash.daysloglimit.value * 3600 * 24)
-		allowedBytes = 1024*1024 * int(config.crash.sizeloglimit.value)
+		allowedBytes = 1024 * 1024 * int(config.crash.sizeloglimit.value)
 
 		mounts = []
 		matches = []
@@ -164,7 +167,7 @@ class LogManagerPoller:
 								candidates.append((st.st_mtime, fn, st.st_size))
 								size += st.st_size
 						except Exception as e:
-							print("[LogManager] Failed to stat %s:"% name, e)
+							print("[LogManager] Failed to stat %s:" % name, e)
 					# Remove empty directories if possible
 					for name in dirs:
 						try:
@@ -189,6 +192,7 @@ class LogManagerPoller:
 		else:
 			self.TrashTimer.startLongTimer(43200) #twice a day
 
+
 class LogManager(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -211,12 +215,12 @@ class LogManager(Screen):
 		self["key_green"] = Button(_("View"))
 		self["key_yellow"] = Button(_("Delete"))
 
-		self.onChangedEntry = [ ]
+		self.onChangedEntry = []
 		self.sentsingle = ""
 		self.selectedFiles = config.logmanager.sentfiles.value
 		self.defaultDir = config.crash.debug_path.value
-		self.matchingPattern = "Enigma2_crash_"
-		self.filelist = MultiFileSelectList(self.selectedFiles, self.defaultDir, showDirectories = False, matchingPattern = self.matchingPattern )
+		self.matchingPattern = 'Enigma2_crash_'
+		self.filelist = MultiFileSelectList(self.selectedFiles, self.defaultDir, showDirectories=False, matchingPattern=self.matchingPattern)
 		self["list"] = self.filelist
 		self["LogsSize"] = self.logsinfo = LogInfo(config.crash.debug_path.value, LogInfo.USED, update=False)
 		self.onLayoutFinish.append(self.layoutFinished)
@@ -386,6 +390,7 @@ class LogManagerViewLog(Screen):
 	def cancel(self):
 		self.close()
 
+
 class LogManagerFb(Screen):
 	def __init__(self, session, logpath = None):
 		if logpath is None:
@@ -397,13 +402,13 @@ class LogManagerFb(Screen):
 		self.session = session
 		Screen.__init__(self, session)
 
-		self["list"] = FileList(logpath, matchingPattern = "^.*")
+		self["list"] = FileList(logpath, matchingPattern="^.*")
 		self["red"] = Label(_("delete"))
 		self["green"] = Label(_("move"))
 		self["yellow"] = Label(_("copy"))
 		self["blue"] = Label(_("rename"))
 
-		self["actions"] = ActionMap(["ChannelSelectBaseActions","WizardActions", "DirectionActions", "MenuActions", "NumberActions", "ColorActions"],
+		self["actions"] = ActionMap(["ChannelSelectBaseActions", "WizardActions", "DirectionActions", "MenuActions", "NumberActions", "ColorActions"],
 			{
 			 "ok": self.ok,
 			 "back": self.exit,
@@ -455,12 +460,13 @@ class LogManagerFb(Screen):
 			config.logmanager.path.save()
 		self.close()
 
+
 class LogInfo(VariableText, GUIComponent):
 	FREE = 0
 	USED = 1
 	SIZE = 2
 
-	def __init__(self, path, type, update = True):
+	def __init__(self, path, type, update=True):
 		GUIComponent.__init__(self)
 		VariableText.__init__(self)
 		self.type = type

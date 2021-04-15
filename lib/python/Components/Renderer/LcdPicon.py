@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
-import os, re, unicodedata
+import os
+import re
+import unicodedata
 
 from enigma import ePixmap, ePicLoad
 from boxbranding import getDisplayType
@@ -13,19 +15,24 @@ from Tools.Directories import pathExists, SCOPE_ACTIVE_SKIN, resolveFilename
 def useLcdPicons():
 	return getDisplayType() in ('bwlcd255', 'bwlcd140', 'bwlcd128') or config.lcd.picon_pack.value
 
+
 lcdPiconLocator = None
 
-def initPiconPaths(_ = None):
+
+def initPiconPaths(_=None):
 	global lcdPiconLocator
 	lcdPiconLocator = PiconLocator(['lcd_picon', 'piconlcd']) if useLcdPicons() else PiconLocator()
+
+
 config.lcd.picon_pack.addNotifier(initPiconPaths)
+
 
 class LcdPicon(Renderer):
 	def __init__(self):
 		Renderer.__init__(self)
 		self.PicLoad = ePicLoad()
 		self.PicLoad.PictureData.get().append(self.updatePicon)
-		self.piconsize = (0,0)
+		self.piconsize = (0, 0)
 		config.lcd.picon_pack.addNotifier(self.configChanged)
 
 	def configChanged(self, _):
@@ -47,7 +54,7 @@ class LcdPicon(Renderer):
 		for (attrib, value) in self.skinAttributes:
 			if attrib == "path":
 				lcdPiconLocator.addSearchPath(value)
-				attribs.remove((attrib,value))
+				attribs.remove((attrib, value))
 			elif attrib == "size":
 				self.piconsize = value
 		self.skinAttributes = attribs

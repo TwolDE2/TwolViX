@@ -19,6 +19,8 @@ import Screens.Standby
 import ServiceReference
 
 # TODO: remove pNavgation, eNavigation and rewrite this stuff in python.
+
+
 class Navigation:
 	def __init__(self, nextRecordTimerAfterEventActionAuto=False, nextPowerManagerAfterEventActionAuto=False):
 		if NavigationInstance.instance is not None:
@@ -33,8 +35,8 @@ class Navigation:
 		self.pnav = pNavigation()
 		self.pnav.m_event.get().append(self.dispatchEvent)
 		self.pnav.m_record_event.get().append(self.dispatchRecordEvent)
-		self.event = [ ]
-		self.record_event = [ ]
+		self.event = []
+		self.record_event = []
 		self.currentlyPlayingServiceReference = None
 		self.currentlyPlayingServiceOrGroup = None
 		self.currentlyPlayingService = None
@@ -49,7 +51,7 @@ class Navigation:
 
 	def _processTimerWakeup(self):
 		now = time()
-		timeHandlerCallbacks =  eDVBLocalTimeHandler.getInstance().m_timeUpdated.get()
+		timeHandlerCallbacks = eDVBLocalTimeHandler.getInstance().m_timeUpdated.get()
 		if self.__nextRecordTimerAfterEventActionAuto and now < eDVBLocalTimeHandler.timeOK:  # 01.01.2004
 			print("[Navigation] RECTIMER: wakeup to standby but system time not set.")
 			if self._processTimerWakeup not in timeHandlerCallbacks:
@@ -145,7 +147,7 @@ class Navigation:
 					if alternativeref and self.pnav and self.pnav.playService(alternativeref):
 						print("[Navigation] Failed to start", alternativeref)
 					return 0
-				elif checkParentalControl and not parentalControl.isServicePlayable(playref, boundFunction(self.playService, checkParentalControl = False)):
+				elif checkParentalControl and not parentalControl.isServicePlayable(playref, boundFunction(self.playService, checkParentalControl=False)):
 					if self.currentlyPlayingServiceOrGroup and InfoBarInstance and InfoBarInstance.servicelist.servicelist.setCurrent(self.currentlyPlayingServiceOrGroup, adjust):
 						self.currentlyPlayingServiceOrGroup = InfoBarInstance.servicelist.servicelist.getCurrent()
 					return 1

@@ -8,7 +8,8 @@ from Components.Pixmap import MovingPixmap, MultiPixmap
 from Components.RcModel import rc_model
 from Tools.Directories import resolveFilename, SCOPE_SKIN
 
-config.misc.rcused = ConfigInteger(default = 1)
+config.misc.rcused = ConfigInteger(default=1)
+
 
 class Rc:
 	def __init__(self):
@@ -18,14 +19,14 @@ class Rc:
 		self["arrowup"] = MovingPixmap()
 		self["arrowup2"] = MovingPixmap()
 
-		config.misc.rcused = ConfigInteger(default = 1)
+		config.misc.rcused = ConfigInteger(default=1)
 		self.isDefaultRc = rc_model.rcIsDefault()
 		self.rcheight = 500
 		self.rcheighthalf = 250
 
 		self.selectpics = []
-		self.selectpics.append((self.rcheighthalf, ["arrowdown", "arrowdown2"], (-18,-70)))
-		self.selectpics.append((self.rcheight, ["arrowup", "arrowup2"], (-18,0)))
+		self.selectpics.append((self.rcheighthalf, ["arrowdown", "arrowdown2"], (-18, -70)))
+		self.selectpics.append((self.rcheight, ["arrowup", "arrowup2"], (-18, 0)))
 
 		self.readPositions()
 		self.clearSelectedKeys()
@@ -42,7 +43,7 @@ class Rc:
 			target = resolveFilename(SCOPE_SKIN, "rcpositions.xml")
 		else:
 			target = rc_model.getRcLocation() + 'rcpositions.xml'
-		tree = ElementTree(file = target)
+		tree = ElementTree(file=target)
 		rcs = tree.getroot()
 		self.rcs = {}
 		for rc in rcs:

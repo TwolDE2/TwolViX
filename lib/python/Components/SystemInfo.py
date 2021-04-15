@@ -16,11 +16,13 @@ SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("viper
 SystemInfo["MachineBrand"] = getMachineBrand()
 SystemInfo["MachineName"] = getMachineName()
 
+
 def getNumVideoDecoders():
 	numVideoDecoders = 0
 	while fileExists("/dev/dvb/adapter0/video%d" % numVideoDecoders, "f"):
 		numVideoDecoders += 1
 	return numVideoDecoders
+
 
 def countFrontpanelLEDs():
 	numLeds = fileExists("/proc/stb/fp/led_set_pattern") and 1 or 0

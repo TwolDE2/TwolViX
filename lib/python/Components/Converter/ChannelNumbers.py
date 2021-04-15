@@ -3,6 +3,7 @@ from __future__ import division
 
 from Components.NimManager import nimmanager
 
+
 class ChannelNumbers:
 
 	def __init__(self):
@@ -40,7 +41,7 @@ class ChannelNumbers:
 	def getMHz(self, frequency):
 		if str(frequency).endswith('MHz'):
 			return frequency.split()[0]
-		return (frequency+50000)/100000/10.
+		return (frequency + 50000) / 100000 / 10.
 
 	def getTunerDescription(self, nim):
 		description = ""
@@ -60,9 +61,10 @@ class ChannelNumbers:
 		descr = self.getTunerDescription(nim)
 		if "Europe" in descr and "DVB-T" in descr:
 			if 5 <= channel <= 12:
-				return (177500 + 7000*(channel- 5))*1000
+				return (177500 + 7000 * (channel - 5)) * 1000
 			elif 21 <= channel <= 69:
-				return (474000 + 8000*(channel-21))*1000
+				return (474000 + 8000 * (channel - 21)) * 1000
 		return 474000000
+
 
 channelnumbers = ChannelNumbers()

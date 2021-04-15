@@ -6,12 +6,13 @@ import time
 from Components.config import config
 
 ECM_INFO = '/tmp/ecm.info'
-EMPTY_ECM_INFO = ' ', '0' , '0', '0'
+EMPTY_ECM_INFO = ' ', '0', '0', '0'
 
 old_ecm_time = time.time()
 info = {}
 ecm = ''
 data = EMPTY_ECM_INFO
+
 
 class GetEcmInfo:
 	def __init__(self):
@@ -77,13 +78,13 @@ class GetEcmInfo:
 					info['prov'] = line.strip()[6:]
 					continue
 				if 'CaID 0x' in line and 'pid 0x' in line:
-					info['caid'] = line[line.find('CaID 0x')+7:line.find(',')]
-					info['pid'] = line[line.find('pid 0x')+6:line.find(' =')]
+					info['caid'] = line[line.find('CaID 0x') + 7:line.find(',')]
+					info['pid'] = line[line.find('pid 0x') + 6:line.find(' =')]
 					info['provid'] = info.get('prov', '0')[:4]
 			data = self.getText()
 			return True
 		else:
-			info['ecminterval0'] = int(time.time()-ecm_time+0.5)
+			info['ecminterval0'] = int(time.time() - ecm_time + 0.5)
 
 	def getEcm(self):
 		return (self.pollEcmData(), ecm)
@@ -92,7 +93,7 @@ class GetEcmInfo:
 		self.pollEcmData()
 		return data
 
-	def getInfo(self, member, ifempty = ''):
+	def getInfo(self, member, ifempty=''):
 		self.pollEcmData()
 		return str(info.get(member, ifempty))
 
@@ -176,7 +177,7 @@ class GetEcmInfo:
 				source = info.get('source', None)
 				if source:
 					# MGcam
-					self.textvalue = "%s %s %.3f @ %s" % (info['eEnc'],info['eCaid'],(float(info['eTime'])/1000),info['eSrc'])
+					self.textvalue = "%s %s %.3f @ %s" % (info['eEnc'], info['eCaid'], (float(info['eTime']) / 1000), info['eSrc'])
 				else:
 					reader = info.get('reader', '')
 					if reader:
@@ -191,11 +192,10 @@ class GetEcmInfo:
 						if response:
 							# wicardd
 							response = response.split(' ')
-							self.textvalue = "%s (%ss)" % (response[4], float(response[0])/1000)
+							self.textvalue = "%s (%ss)" % (response[4], float(response[0]) / 1000)
 						else:
 							self.textvalue = ""
 		decCI = info.get('caid', info.get('CAID', '0'))
 		provid = info.get('provid', info.get('prov', info.get('Provider', '0')))
 		ecmpid = info.get('pid', info.get('ECM PID', '0'))
 		return self.textvalue, decCI, provid, ecmpid
-

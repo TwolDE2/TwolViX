@@ -34,14 +34,14 @@ class RotorPosition(Converter, object):
 				if config.misc.showrotorposition.value == "tunername":
 					active_tuner = self.getActiveTuner()
 					if tuner != active_tuner:
-						return _("%s:%s") % ("\c0000?0?0" + chr(ord("A")+ tuner), "\c00?0?0?0" + orbpos(config.misc.lastrotorposition.value))
+						return _("%s:%s") % ("\c0000?0?0" + chr(ord("A") + tuner), "\c00?0?0?0" + orbpos(config.misc.lastrotorposition.value))
 					return ""
 				return orbpos(config.misc.lastrotorposition.value)
 		return ""
 
 	@cached
 	def getBool(self):
-		return bool(self.getText())	
+		return bool(self.getText())
 
 	text = property(getText)
 

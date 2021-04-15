@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+
 class ResourceManager:
 	def __init__(self):
 		self.resourceList = {}
@@ -21,5 +22,6 @@ class ResourceManager:
 	def removeResource(self, name):
 		if self.hasResource(name):
 			del self.resourceList[name]
+
 
 resourcemanager = ResourceManager()

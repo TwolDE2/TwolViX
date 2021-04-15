@@ -8,6 +8,7 @@ from Components.Converter.Converter import Converter
 from Components.Element import cached
 from ServiceReference import resolveAlternate
 
+
 class ServiceOrbitalPosition(Converter, object):
 	FULL = 0
 	SHORT = 1
@@ -48,9 +49,9 @@ class ServiceOrbitalPosition(Converter, object):
 					pos = 3600 - pos
 					direction = 'W'
 				if self.type == self.SHORT:
-					return "%d.%d%s" % (pos//10, pos%10, direction)
+					return "%d.%d%s" % (pos // 10, pos % 10, direction)
 				else:
-					return "%d.%d° %s" % (pos//10, pos%10, direction)
+					return "%d.%d° %s" % (pos // 10, pos % 10, direction)
 			return tunerType
 		if ref:
 			refString = ref.toString().lower()

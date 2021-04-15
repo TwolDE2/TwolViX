@@ -6,16 +6,17 @@ from Components.config import config, ConfigSubsection, ConfigSlider, ConfigSele
 
 # The "VideoEnhancement" is the interface to /proc/stb/vmpeg/0.
 
+
 class VideoEnhancement:
 	firstRun = True
 
 	def __init__(self):
-		self.last_modes_preferred =  [ ]
+		self.last_modes_preferred = []
 		self.createConfig()
 
 	def createConfig(self, *args):
 		config.pep = ConfigSubsection()
-		config.pep.configsteps = NoSave(ConfigSelection(choices=[1, 5, 10, 25], default = 1))
+		config.pep.configsteps = NoSave(ConfigSelection(choices=[1, 5, 10, 25], default=1))
 
 		if os_path.exists("/proc/stb/vmpeg/0/pep_contrast"):
 			def setContrast(config):
@@ -31,7 +32,7 @@ class VideoEnhancement:
 				if not VideoEnhancement.firstRun:
 					self.setConfiguredValues()
 
-			config.pep.contrast = ConfigSlider(default=128, limits=(0,256))
+			config.pep.contrast = ConfigSlider(default=128, limits=(0, 256))
 			config.pep.contrast.addNotifier(setContrast)
 		else:
 			config.pep.contrast = NoSave(ConfigNothing())
@@ -50,7 +51,7 @@ class VideoEnhancement:
 				if not VideoEnhancement.firstRun:
 					self.setConfiguredValues()
 
-			config.pep.saturation = ConfigSlider(default=128, limits=(0,256))
+			config.pep.saturation = ConfigSlider(default=128, limits=(0, 256))
 			config.pep.saturation.addNotifier(setSaturation)
 		else:
 			config.pep.saturation = NoSave(ConfigNothing())
@@ -126,7 +127,7 @@ class VideoEnhancement:
 				if not VideoEnhancement.firstRun:
 					self.setConfiguredValues()
 
-			config.pep.mosquito_noise_reduction = ConfigSlider(default=0, limits=(0,5))
+			config.pep.mosquito_noise_reduction = ConfigSlider(default=0, limits=(0, 5))
 			config.pep.mosquito_noise_reduction.addNotifier(setMosquito_noise_reduction)
 		else:
 			config.pep.mosquito_noise_reduction = NoSave(ConfigNothing())
@@ -167,7 +168,7 @@ class VideoEnhancement:
 					"off": _("Off"),
 					"left": _("Left"),
 					"right": _("Right")},
-					default = "off")
+					default="off")
 			config.pep.split.addNotifier(setSplitMode)
 		else:
 			config.pep.split = NoSave(ConfigNothing())
@@ -323,7 +324,7 @@ class VideoEnhancement:
 				if not VideoEnhancement.firstRun:
 					self.setConfiguredValues()
 
-			config.pep.scaler_vertical_dejagging = ConfigBoolean(default=False, descriptions = {False: _("Disabled"), True: _("Enabled")} )
+			config.pep.scaler_vertical_dejagging = ConfigBoolean(default=False, descriptions={False: _("Disabled"), True: _("Enabled")})
 			config.pep.scaler_vertical_dejagging.addNotifier(setScaler_vertical_dejagging)
 		else:
 			config.pep.scaler_vertical_dejagging = NoSave(ConfigNothing())
@@ -340,7 +341,7 @@ class VideoEnhancement:
 				if not VideoEnhancement.firstRun:
 					self.setConfiguredValues()
 
-			config.pep.smooth = ConfigBoolean(default=False, descriptions = {False: _("Disabled"), True: _("Enabled")} )
+			config.pep.smooth = ConfigBoolean(default=False, descriptions={False: _("Disabled"), True: _("Enabled")})
 			config.pep.smooth.addNotifier(setSmooth)
 		else:
 			config.pep.smooth = NoSave(ConfigNothing())
@@ -358,5 +359,6 @@ class VideoEnhancement:
 			f.close()
 		except IOError:
 			print("couldn't apply pep values.")
+
 
 VideoEnhancement()

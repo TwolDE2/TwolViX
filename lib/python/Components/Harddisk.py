@@ -73,6 +73,7 @@ opticalDisks = [
 	113  # IBM iSeries virtual CD-ROM
 ]
 
+
 def readFile(filename):
 	try:
 		with open(filename, "r") as fd:
@@ -83,6 +84,7 @@ def readFile(filename):
 		data = None
 	return data
 
+
 def runCommand(command):
 	print("[Harddisk] Command: '%s'." % command)
 	exitStatus = os.system(command)
@@ -90,6 +92,7 @@ def runCommand(command):
 	if exitStatus:
 		print("[Harddisk] Error: Command '%s' returned error code %d!" % (command, exitStatus))
 	return exitStatus
+
 
 def getProcMounts():
 	try:
@@ -103,6 +106,7 @@ def getProcMounts():
 		item[1] = item[1].replace("\\040", " ")  # Spaces are encoded as \040 in mounts.
 	return result
 
+
 def isFileSystemSupported(filesystem):
 	try:
 		with open("/proc/filesystems", "r") as fd:
@@ -113,6 +117,7 @@ def isFileSystemSupported(filesystem):
 		print("[Harddisk] Error: Failed to read '/proc/filesystems':", err)
 	return False
 
+
 def findMountPoint(path):
 	'Example: findMountPoint("/media/hdd/some/file") returns "/media/hdd"'
 	path = os.path.abspath(path)
@@ -120,12 +125,14 @@ def findMountPoint(path):
 		path = os.path.dirname(path)
 	return path
 
+
 def internalHDDNotSleeping():
 	if harddiskmanager.HDDCount():
 		for hdd in harddiskmanager.HDDList():
 			if ("sata" in hdd[1].phys_path or "pci" in hdd[1].phys_path or "ahci" in hdd[1].phys_path) and hdd[1].max_idle_time and not hdd[1].isSleeping():
 				return True
 	return False
+
 
 def addInstallTask(job, package):
 	task = Components.Task.LoggingTask(job, _("Update packages..."))
@@ -230,7 +237,7 @@ class Harddisk:
 		if dev:
 			try:
 				stat = os.statvfs(dev)
-				print("[Harddisk] [diskSize]: stat.f_blocks: %s stat.f_bsize: %s" % (stat.f_blocks, stat.f_bsize))					
+				print("[Harddisk] [diskSize]: stat.f_blocks: %s stat.f_bsize: %s" % (stat.f_blocks, stat.f_bsize))
 				cap = int((stat.f_blocks * stat.f_bsize) / 1000 / 1000)
 			except (IOError, OSError) as err:
 				print("[Harddisk] Error: Failed to get disk size for '%s':" % dev, err)
@@ -683,7 +690,7 @@ class HarddiskManager:
 
 	def enumerateBlockDevices(self):
 		print("[Harddisk] Enumerating block devices...")
-		self.partitions.append(Partition(mountpoint = "/", description = ("Internal flash")))  # Add the root device.
+		self.partitions.append(Partition(mountpoint="/", description=("Internal flash")))  # Add the root device.
 		# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s)" % ("/", _("Internal flash"))
 		try:
 			rootDev = os.stat("/").st_dev
@@ -759,7 +766,7 @@ class HarddiskManager:
 						for partition in partitions:
 							description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 							print("[Harddisk] Found partition '%s', description='%s', device='%s'." % (partition, description, physicalDevice))
-							part = Partition(mountpoint = self.getMountpoint(partition), description = description, force_mounted = True, device = partition)
+							part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)
 							self.partitions.append(part)
 							# print "[Harddisk] DEBUG: Partition(mountpoint = %s, description = %s, force_mounted = True, device = %s)" % (self.getMountpoint(partition), description, partition)
 							self.on_partition_list_change("add", part)
@@ -778,14 +785,14 @@ class HarddiskManager:
 					# print "[Harddisk] enumerateNetworkMountsNew DEBUG: mountDir = '%s', isMount = '%s'" % (mountDir, os.path.ismount(mountDir))
 					if os.path.ismount(mountDir) and mountDir not in [partition.mountpoint for partition in self.partitions]:
 						print("[Harddisk] Found network mount (%s) '%s' -> '%s'." % (entry, mount, mountDir))
-						self.partitions.append(Partition(mountpoint = mountDir, description = mount))
+					self.partitions.append(Partition(mountpoint=mountDir, description=mount))
 						# print "[Harddisk] DEBUG: Partition(mountpoint = %s, description = %s)" % (mountDir, mount)
 					elif "/media/net" in mountEntry and os.path.exists(mountDir) and mountDir not in [partition.mountpoint for partition in self.partitions]:
 						print("[Harddisk] Found network mount (%s) '%s' -> '%s'." % (entry, mount, mountDir))
-						self.partitions.append(Partition(mountpoint = mountDir, description = mount))
+						self.partitions.append(Partition(mountpoint=mountDir, description=mount))
 		if os.path.ismount("/media/hdd") and "/media/hdd/" not in [partition.mountpoint for partition in self.partitions]:
 			print("[Harddisk] new Network Mount being used as HDD replacement -> /media/hdd/")
-			self.partitions.append(Partition(mountpoint = "/media/hdd/", description = "/media/hdd"))
+			self.partitions.append(Partition(mountpoint="/media/hdd/", description="/media/hdd"))
 		print("[Harddisk] Enumerating network mounts complete.")
 
 	def getUserfriendlyDeviceName(self, device, physicalDevice):
@@ -835,7 +842,7 @@ class HarddiskManager:
 	# devicePath in def is e.g. /sys/block/mmcblk1.
 	# hddDev is the hdd device name e.g. mmcblk1.
 	#
-	def addHotplugPartition(self, device, physDevice = None):
+	def addHotplugPartition(self, device, physDevice=None):
 		print("[Harddisk] Evaluating hotplug connected device...")
 		print("[Harddisk] DEBUG: device = '%s', physDevice = '%s'" % (device, physDevice))
 		HDDin = error = removable = isCdrom = blacklisted = False
@@ -879,7 +886,7 @@ class HarddiskManager:
 				for partition in partitions:
 					description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 					print("[Harddisk] Found partition '%s', description = '%s', device = '%s'." % (partition, description, physicalDevice))
-					part = Partition(mountpoint = self.getMountpoint(partition), description = description, force_mounted = True, device = partition)  # add in partition
+					part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)  # add in partition
 					# print "[Harddisk] DEBUG add partition: Part(mountpoint = %s, description = %s, force_mounted =  True, device = %s)" % (self.getMountpoint(partition), description, partition)
 					self.partitions.append(part)
 					if part.mountpoint:  # Plugins won't expect unmounted devices.
@@ -962,6 +969,7 @@ class HarddiskManager:
 		except (IOError, OSError) as err:
 			print("[Harddisk] Error: Failed to set '%s' speed to '%s':" % (device, speed), err)
 
+
 class UnmountTask(Components.Task.LoggingTask):
 	def __init__(self, job, hdd):
 		Components.Task.LoggingTask.__init__(self, job, _("Unmount."))
@@ -994,6 +1002,7 @@ class UnmountTask(Components.Task.LoggingTask):
 				os.rmdir(path)
 			except (IOError, OSError) as err:
 				print("[Harddisk] UnmountTask - Error: Failed to remove path '%s':" % path, err)
+
 
 class MountTask(Components.Task.LoggingTask):
 	def __init__(self, job, hdd):

@@ -31,25 +31,27 @@ from Tools.LoadPixmap import LoadPixmap
 
 
 config.misc.pluginbrowser = ConfigSubsection()
-config.misc.pluginbrowser.bootlogos = ConfigYesNo(default = True)
-config.misc.pluginbrowser.display = ConfigYesNo(default = True)
-config.misc.pluginbrowser.drivers = ConfigYesNo(default = True)
-config.misc.pluginbrowser.extensions = ConfigYesNo(default = True)
-config.misc.pluginbrowser.kernel = ConfigYesNo(default = False)
-config.misc.pluginbrowser.m2k = ConfigYesNo(default = True)
-config.misc.pluginbrowser.picons = ConfigYesNo(default = True)
-config.misc.pluginbrowser.po = ConfigYesNo(default = True)
-config.misc.pluginbrowser.security = ConfigYesNo(default = True)
-config.misc.pluginbrowser.settings = ConfigYesNo(default = True)
-config.misc.pluginbrowser.skin = ConfigYesNo(default = True)
-config.misc.pluginbrowser.softcams = ConfigYesNo(default = True)
-config.misc.pluginbrowser.systemplugins = ConfigYesNo(default = True)
-config.misc.pluginbrowser.weblinks = ConfigYesNo(default = True)
+config.misc.pluginbrowser.bootlogos = ConfigYesNo(default=True)
+config.misc.pluginbrowser.display = ConfigYesNo(default=True)
+config.misc.pluginbrowser.drivers = ConfigYesNo(default=True)
+config.misc.pluginbrowser.extensions = ConfigYesNo(default=True)
+config.misc.pluginbrowser.kernel = ConfigYesNo(default=False)
+config.misc.pluginbrowser.m2k = ConfigYesNo(default=True)
+config.misc.pluginbrowser.picons = ConfigYesNo(default=True)
+config.misc.pluginbrowser.po = ConfigYesNo(default=True)
+config.misc.pluginbrowser.security = ConfigYesNo(default=True)
+config.misc.pluginbrowser.settings = ConfigYesNo(default=True)
+config.misc.pluginbrowser.skin = ConfigYesNo(default=True)
+config.misc.pluginbrowser.softcams = ConfigYesNo(default=True)
+config.misc.pluginbrowser.systemplugins = ConfigYesNo(default=True)
+config.misc.pluginbrowser.weblinks = ConfigYesNo(default=True)
 config.misc.pluginbrowser.plugin_order = ConfigText(default="")
+
 
 def languageChanged():
 	plugins.clearPluginList()
 	plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
+
 
 class PluginBrowserSummary(ScreenSummary):
 	def __init__(self, session, parent):
@@ -161,7 +163,7 @@ class PluginBrowser(Screen, ProtectedScreen):
 			for (pluginname, error) in plugins.warnings:
 				text += _("%s (%s)\n") % (pluginname, error)
 			plugins.resetWarnings()
-			self.session.open(MessageBox, text = text, type = MessageBox.TYPE_WARNING)
+			self.session.open(MessageBox, text=text, type=MessageBox.TYPE_WARNING)
 
 	def save(self):
 		self.run()
@@ -244,7 +246,7 @@ class PluginBrowser(Screen, ProtectedScreen):
 	def download(self):
 		config.misc.pluginbrowser.po.value = True
 		if not (feedsstatuscheck.adapterAvailable() and feedsstatuscheck.NetworkUp()):
-			self.session.openWithCallback(self.close, MessageBox,  _("Your %s %s has no %s access, please check your network settings and make sure you have network cable connected and try again.") % (getMachineBrand(), getMachineName(), feedsstatuscheck.adapterAvailable() and 'internet' or 'network'), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
+			self.session.openWithCallback(self.close, MessageBox, _("Your %s %s has no %s access, please check your network settings and make sure you have network cable connected and try again.") % (getMachineBrand(), getMachineName(), feedsstatuscheck.adapterAvailable() and 'internet' or 'network'), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
 			return
 #		if kernelMismatch():
 #			self.session.openWithCallback(self.close, MessageBox, _("The Linux kernel has changed, plugins are not compatible. \nInstall latest image using USB stick or Image Manager."), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
@@ -261,9 +263,10 @@ class PluginBrowser(Screen, ProtectedScreen):
 			try:
 				from Plugins.SystemPlugins.SoftwareManager.plugin import PluginManager
 			except ImportError:
-				self.session.open(MessageBox, _("The software management extension is not installed!\nPlease install it."), type = MessageBox.TYPE_INFO,timeout = 10 )
+				self.session.open(MessageBox, _("The software management extension is not installed!\nPlease install it."), type=MessageBox.TYPE_INFO, timeout=10)
 			else:
 				self.session.openWithCallback(self.PluginDownloadBrowserClosed, PluginManager)
+
 
 class PluginDownloadBrowser(Screen):
 	DOWNLOAD = 0
@@ -279,7 +282,7 @@ class PluginDownloadBrowser(Screen):
 		self.needupdate = needupdate
 		self.skinName = ["PluginDownloadBrowser"]
 		if isinstance(skin_name, str):
-			self.skinName.insert(0,skin_name)
+			self.skinName.insert(0, skin_name)
 
 		if self.type == self.DOWNLOAD:
 			config.misc.pluginbrowser.po.value = True
@@ -323,11 +326,11 @@ class PluginDownloadBrowser(Screen):
 		if os.path.isfile('/usr/bin/opkg'):
 			self.ipkg = '/usr/bin/opkg'
 			self.ipkg_install = self.ipkg + ' install'
-			self.ipkg_remove =  self.ipkg + ' remove --autoremove'
+			self.ipkg_remove = self.ipkg + ' remove --autoremove'
 		else:
 			self.ipkg = 'ipkg'
 			self.ipkg_install = 'ipkg install -force-defaults'
-			self.ipkg_remove =  self.ipkg + ' remove'
+			self.ipkg_remove = self.ipkg + ' remove'
 
 	def createSummary(self):
 		return PluginBrowserSummary
@@ -395,10 +398,10 @@ class PluginDownloadBrowser(Screen):
 			self.updateList()
 		else:
 			if self.type == self.DOWNLOAD:
-				mbox=self.session.openWithCallback(self.runInstall, MessageBox, _("Do you really want to download the plugin \"%s\"?") % sel.name)
+				mbox = self.session.openWithCallback(self.runInstall, MessageBox, _("Do you really want to download the plugin \"%s\"?") % sel.name)
 				mbox.setTitle(_("Download plugins"))
 			elif self.type == self.REMOVE:
-				mbox=self.session.openWithCallback(self.runInstall, MessageBox, _("Do you really want to remove the plugin \"%s\"?") % sel.name, default = False)
+				mbox = self.session.openWithCallback(self.runInstall, MessageBox, _("Do you really want to remove the plugin \"%s\"?") % sel.name, default=False)
 				mbox.setTitle(_("Remove plugins"))
 
 	def requestClose(self):
@@ -425,7 +428,7 @@ class PluginDownloadBrowser(Screen):
 			if dest.startswith('/'):
 				# Custom install path, add it to the list too
 				dest = os.path.normpath(dest)
-				extra = '--add-dest %s:%s -d %s' % (dest,dest,dest)
+				extra = '--add-dest %s:%s -d %s' % (dest, dest, dest)
 				Ipkg.opkgAddDestination(dest)
 			else:
 				extra = '-d ' + dest
@@ -477,15 +480,15 @@ class PluginDownloadBrowser(Screen):
 
 	def doRemove(self, callback, pkgname):
 		if pkgname.startswith('kernel-module-') or pkgname.startswith('enigma2-locale-'):
-			self.session.openWithCallback(callback, Console, cmdlist = [self.ipkg_remove + Ipkg.opkgExtraDestinations() + " " + pkgname, "sync"], closeOnSuccess = True)
+			self.session.openWithCallback(callback, Console, cmdlist=[self.ipkg_remove + Ipkg.opkgExtraDestinations() + " " + pkgname, "sync"], closeOnSuccess=True)
 		else:
-			self.session.openWithCallback(callback, Console, cmdlist = [self.ipkg_remove + Ipkg.opkgExtraDestinations() + " " + self.PLUGIN_PREFIX + pkgname, "sync"], closeOnSuccess = True)
+			self.session.openWithCallback(callback, Console, cmdlist=[self.ipkg_remove + Ipkg.opkgExtraDestinations() + " " + self.PLUGIN_PREFIX + pkgname, "sync"], closeOnSuccess=True)
 
 	def doInstall(self, callback, pkgname):
 		if pkgname.startswith('kernel-module-') or pkgname.startswith('enigma2-locale-'):
-			self.session.openWithCallback(callback, Console, cmdlist = [self.ipkg_install + " " + pkgname, "sync"], closeOnSuccess = True)
+			self.session.openWithCallback(callback, Console, cmdlist=[self.ipkg_install + " " + pkgname, "sync"], closeOnSuccess=True)
 		else:
-			self.session.openWithCallback(callback, Console, cmdlist = [self.ipkg_install + " " + self.PLUGIN_PREFIX + pkgname, "sync"], closeOnSuccess = True)
+			self.session.openWithCallback(callback, Console, cmdlist=[self.ipkg_install + " " + self.PLUGIN_PREFIX + pkgname, "sync"], closeOnSuccess=True)
 
 	def runSettingsRemove(self, val):
 		if val:
@@ -498,7 +501,7 @@ class PluginDownloadBrowser(Screen):
 	def runSettingsInstall(self):
 		self.doInstall(self.installFinished, self.install_settings_name)
 
-	def startIpkgListInstalled(self, pkgname = PLUGIN_PREFIX + '*'):
+	def startIpkgListInstalled(self, pkgname=PLUGIN_PREFIX + '*'):
 		self.container.execute(self.ipkg + Ipkg.opkgExtraDestinations() + " list_installed")
 
 	def startIpkgListAvailable(self):
@@ -650,30 +653,30 @@ class PluginDownloadBrowser(Screen):
 				self.plugins[split[0]] = []
 
 			if split[0] == "kernel modules":
-				self.plugins[split[0]].append((PluginDescriptor(name = x[0], description = x[2], icon = verticallineIcon), x[0][14:], x[1]))
+				self.plugins[split[0]].append((PluginDescriptor(name=x[0], description=x[2], icon=verticallineIcon), x[0][14:], x[1]))
 			elif split[0] == "languages":
 				for t in self.LanguageList:
-					if len(x[2])>2:
+					if len(x[2]) > 2:
 						tmpT = t[0].lower()
-						tmpT = tmpT.replace('_','-')
+						tmpT = tmpT.replace('_', '-')
 						if tmpT == x[2]:
 							countryIcon = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "countries/" + t[0] + ".png"))
 							if countryIcon is None:
 								countryIcon = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "countries/missing.png"))
-							self.plugins[split[0]].append((PluginDescriptor(name = x[0], description = x[2], icon = countryIcon), t[1], x[1]))
+							self.plugins[split[0]].append((PluginDescriptor(name=x[0], description=x[2], icon=countryIcon), t[1], x[1]))
 							break
 					else:
 						if t[0][:2] == x[2] and t[0][3:] != 'GB':
 							countryIcon = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "countries/" + t[0] + ".png"))
 							if countryIcon is None:
 								countryIcon = LoadPixmap(resolveFilename(SCOPE_ACTIVE_SKIN, "countries/missing.png"))
-							self.plugins[split[0]].append((PluginDescriptor(name = x[0], description = x[2], icon = countryIcon), t[1], x[1]))
+							self.plugins[split[0]].append((PluginDescriptor(name=x[0], description=x[2], icon=countryIcon), t[1], x[1]))
 							break
 
 			else:
 				if len(split) < 2:
 					continue
-				self.plugins[split[0]].append((PluginDescriptor(name = x[3], description = x[2], icon = verticallineIcon), split[1], x[1]))
+				self.plugins[split[0]].append((PluginDescriptor(name=x[3], description=x[2], icon=verticallineIcon), split[1], x[1]))
 
 		temp = list(self.plugins.keys())
 		if config.usage.sort_pluginlist.value:
@@ -686,5 +689,6 @@ class PluginDownloadBrowser(Screen):
 				xlist.append(PluginCategoryComponent(x, expandableIcon, self.listWidth))
 		self.list = xlist
 		self["list"].l.setList(xlist)
+
 
 language.addCallback(languageChanged)

@@ -1,7 +1,9 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os, struct, time
+import os
+import struct
+import time
 from sys import maxsize
 
 from enigma import eActionMap, eHdmiCEC, eTimer
@@ -10,86 +12,86 @@ import NavigationInstance
 from Components.config import config, ConfigSelection, ConfigYesNo, ConfigSubsection, ConfigText, ConfigCECAddress, ConfigLocations, ConfigDirectory
 from Tools.StbHardware import getFPWasTimerWakeup
 
-LOGPATH="/hdd/"
-LOGFILE="hdmicec.log"
+LOGPATH = "/hdd/"
+LOGFILE = "hdmicec.log"
 
 # CEC Version's table
 CEC = ["1.1", "1.2", "1.2a", "1.3", "1.3a", "1.4", "2.0?", "unknown"]
 cmdList = {
-	0x00:"<Polling Message>",
-	0x04:"<Image View On>",
-	0x0d:"<Text View On>",
-	0x32:"<Set Menu Language>",
-	0x36:"<Standby>",
-	0x46:"<Give OSD Name>",
-	0x47:"<Set OSD Name>",
-	0x70:"<System Mode Audio Request>",
-	0x71:"<Give Audio Status>",
-	0x72:"<Set System Audio Mode>",
-	0x7a:"<Report Audio Status>",
-	0x7d:"<Give System Audio Mode Status>",
-	0x7e:"<System Audio Mode Status>",
-	0x80:"<Routing Change>",
-	0x81:"<Routing Information>",
-	0x82:"<Active Source>",
-	0x83:"<Give Physical Address>",
-	0x84:"<Report Physical Address>",
-	0x85:"<Request Active Source>",
-	0x86:"<Set Stream Path>",
-	0x87:"<Device Vendor ID>",
-	0x89:"<Vendor Command>",
-	0x8c:"<Give Device Vendor ID>",
-	0x8d:"<Menu Request>",
-	0x8e:"<Menu Status>",
-	0x8f:"<Give Device Power Status>",
-	0x90:"<Report Power Status>",
-	0x91:"<Get menu language>",
-	0x9e:"<CEC Version>",
-	0x9d:"<Inactive Source>",
-	0x9e:"<CEC Version>",
-	0x9f:"<Get CEC Version>",
+	0x00: "<Polling Message>",
+	0x04: "<Image View On>",
+	0x0d: "<Text View On>",
+	0x32: "<Set Menu Language>",
+	0x36: "<Standby>",
+	0x46: "<Give OSD Name>",
+	0x47: "<Set OSD Name>",
+	0x70: "<System Mode Audio Request>",
+	0x71: "<Give Audio Status>",
+	0x72: "<Set System Audio Mode>",
+	0x7a: "<Report Audio Status>",
+	0x7d: "<Give System Audio Mode Status>",
+	0x7e: "<System Audio Mode Status>",
+	0x80: "<Routing Change>",
+	0x81: "<Routing Information>",
+	0x82: "<Active Source>",
+	0x83: "<Give Physical Address>",
+	0x84: "<Report Physical Address>",
+	0x85: "<Request Active Source>",
+	0x86: "<Set Stream Path>",
+	0x87: "<Device Vendor ID>",
+	0x89: "<Vendor Command>",
+	0x8c: "<Give Device Vendor ID>",
+	0x8d: "<Menu Request>",
+	0x8e: "<Menu Status>",
+	0x8f: "<Give Device Power Status>",
+	0x90: "<Report Power Status>",
+	0x91: "<Get menu language>",
+	0x9e: "<CEC Version>",
+	0x9d: "<Inactive Source>",
+	0x9e: "<CEC Version>",
+	0x9f: "<Get CEC Version>",
 	}
 
 config.hdmicec = ConfigSubsection()
-config.hdmicec.enabled = ConfigYesNo(default = False)
-config.hdmicec.control_tv_standby = ConfigYesNo(default = True)
-config.hdmicec.control_tv_wakeup = ConfigYesNo(default = True)
-config.hdmicec.report_active_source = ConfigYesNo(default = True)
-config.hdmicec.report_active_menu = ConfigYesNo(default = True)
-config.hdmicec.handle_tv_standby = ConfigYesNo(default = True)
-config.hdmicec.handle_tv_wakeup = ConfigYesNo(default = True)
+config.hdmicec.enabled = ConfigYesNo(default=False)
+config.hdmicec.control_tv_standby = ConfigYesNo(default=True)
+config.hdmicec.control_tv_wakeup = ConfigYesNo(default=True)
+config.hdmicec.report_active_source = ConfigYesNo(default=True)
+config.hdmicec.report_active_menu = ConfigYesNo(default=True)
+config.hdmicec.handle_tv_standby = ConfigYesNo(default=True)
+config.hdmicec.handle_tv_wakeup = ConfigYesNo(default=True)
 config.hdmicec.tv_wakeup_detection = ConfigSelection(
-	choices = {
+	choices={
 	"wakeup": _("Wakeup"),
 	"requestphysicaladdress": _("Request for physical address report"),
 	"tvreportphysicaladdress": _("TV physical address report"),
 	"sourcerequest": _("Source request"),
 	"streamrequest": _("Stream request"),
-	"requestvendor":  _("Request for vendor report"),
+	"requestvendor": _("Request for vendor report"),
 	"osdnamerequest": _("OSD name request"),
 	"activity": _("Any activity"),
 	},
-	default = "streamrequest")
+	default="streamrequest")
 config.hdmicec.tv_wakeup_command = ConfigSelection(
-	choices = {
+	choices={
 	"imageview": _("Image View On"),
 	"textview": _("Text View On"),
 	},
-	default = "imageview")
-config.hdmicec.fixed_physical_address = ConfigText(default = "0.0.0.0")
-config.hdmicec.volume_forwarding = ConfigYesNo(default = False)
-config.hdmicec.control_receiver_wakeup = ConfigYesNo(default = False)
-config.hdmicec.control_receiver_standby = ConfigYesNo(default = False)
-config.hdmicec.handle_deepstandby_events = ConfigYesNo(default = False)
+	default="imageview")
+config.hdmicec.fixed_physical_address = ConfigText(default="0.0.0.0")
+config.hdmicec.volume_forwarding = ConfigYesNo(default=False)
+config.hdmicec.control_receiver_wakeup = ConfigYesNo(default=False)
+config.hdmicec.control_receiver_standby = ConfigYesNo(default=False)
+config.hdmicec.handle_deepstandby_events = ConfigYesNo(default=False)
 choicelist = []
 for i in (10, 50, 100, 150, 250, 500, 750, 1000):
 	choicelist.append(("%d" % i, _("%d ms") % i))
-config.hdmicec.minimum_send_interval = ConfigSelection(default = "0", choices = [("0", _("Disabled"))] + choicelist)
+config.hdmicec.minimum_send_interval = ConfigSelection(default="0", choices=[("0", _("Disabled"))] + choicelist)
 choicelist = []
 for i in [3] + list(range(5, 65, 5)):
 	choicelist.append(("%d" % i, _("%d sec") % i))
-config.hdmicec.repeat_wakeup_timer = ConfigSelection(default = "3", choices = [("0", _("Disabled"))] + choicelist)
-config.hdmicec.debug = ConfigSelection(default = "0", choices = [("0", _("Disabled")), ("1",_("Messages")), ("2",_("Key Events")), ("3",_("All"))])
+config.hdmicec.repeat_wakeup_timer = ConfigSelection(default="3", choices=[("0", _("Disabled"))] + choicelist)
+config.hdmicec.debug = ConfigSelection(default="0", choices=[("0", _("Disabled")), ("1", _("Messages")), ("2", _("Key Events")), ("3", _("All"))])
 config.hdmicec.bookmarks = ConfigLocations(default=[LOGPATH])
 config.hdmicec.log_path = ConfigDirectory(LOGPATH)
 config.hdmicec.next_boxes_detect = ConfigYesNo(default=False)
@@ -117,8 +119,8 @@ class HdmiCec:
 		self.handlingStandbyFromTV = False
 
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
-		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call = False)
-		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call = False)
+		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
+		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
 		self.setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
 
 		self.volumeForwardingEnabled = False
@@ -207,7 +209,7 @@ class HdmiCec:
 			address = 0x0f # use broadcast address
 			cmd = 0x85
 		elif message == "getpowerstatus":
-			self.useStandby = True;
+			self.useStandby = True
 			address = 0x0f # use broadcast address => boxes will send info
 			cmd = 0x8f
 
@@ -218,7 +220,7 @@ class HdmiCec:
 					self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
 				eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
-			if config.hdmicec.debug.value in["1","3"]:
+			if config.hdmicec.debug.value in["1", "3"]:
 				self.debugTx(address, cmd, data)
 
 	def sendCmd(self):
@@ -235,9 +237,8 @@ class HdmiCec:
 		physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
 		if devicetypeSend:
 			devicetype = eHdmiCEC.getInstance().getDeviceType()
-			return str(struct.pack("BBB", int(physicaladdress/256), int(physicaladdress%256), devicetype))
-		return str(struct.pack("BB", int(physicaladdress/256), int(physicaladdress%256)))
-
+			return str(struct.pack("BBB", int(physicaladdress / 256), int(physicaladdress % 256), devicetype))
+		return str(struct.pack("BB", int(physicaladdress / 256), int(physicaladdress % 256)))
 	def wakeupMessages(self):
 		if config.hdmicec.enabled.value:
 			messages = []
@@ -418,7 +419,8 @@ class HdmiCec:
 			self.volumeForwardingEnabled = False
 
 	def keyEvent(self, keyCode, keyEvent):
-		if not self.volumeForwardingEnabled: return
+		if not self.volumeForwardingEnabled:
+			return
 		cmd = 0
 		data = ""
 		if keyEvent == 0:
@@ -451,7 +453,7 @@ class HdmiCec:
 					self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
 				eHdmiCEC.getInstance().sendMessage(self.volumeForwardingDestination, cmd, data, len(data))
-			if config.hdmicec.debug.value in["2","3"]:
+			if config.hdmicec.debug.value in["2", "3"]:
 				self.debugTx(self.volumeForwardingDestination, cmd, data)
 			return 1
 		else:
@@ -482,14 +484,14 @@ class HdmiCec:
 			txt += self.opCode(cmd) + " - "
 		else:
 			if cmd == 0:
-				txt += "<Feature Abort>" + 13*" " + "<  " + "%02X" % (cmd) + " "
+				txt += "<Feature Abort>" + 13 * " " + "<  " + "%02X" % (cmd) + " "
 			else:
 				txt += self.opCode(cmd) + " " + "%02X" % (cmd) + " "
-			for i in range(length-1):
+			for i in range(length - 1):
 				if cmd in[0x32, 0x47]:
 					txt += "%s" % data[i]
 				elif cmd == 0x9e:
-					txt += "%02X" % ord(data[i]) + 3*" " + "[version: %s]" % CEC[ord(data[i])]
+					txt += "%02X" % ord(data[i]) + 3 * " " + "[version: %s]" % CEC[ord(data[i])]
 				else:
 					txt += "%02X" % ord(data[i]) + " "
 		txt += "\n"
@@ -512,14 +514,17 @@ class HdmiCec:
 		import datetime
 		now = datetime.datetime.now()
 		if fulldate:
-			return send + now.strftime("%d-%m-%Y %H:%M:%S") + 2*" "
-		return send + now.strftime("%H:%M:%S") + 2*" "
+			return send + now.strftime("%d-%m-%Y %H:%M:%S") + 2 * " "
+		return send + now.strftime("%H:%M:%S") + 2 * " "
 
 	def fdebug(self, output):
 		from Tools.Directories import pathExists
 		log_path = config.hdmicec.log_path.value
 		path = os.path.join(log_path, LOGFILE)
 		if pathExists(log_path):
-			fp=file(path, "a");fp.write(output);fp.close()
+			fp = file(path, "a")
+			fp.write(output)
+			fp.close()
+
 
 hdmi_cec = HdmiCec()

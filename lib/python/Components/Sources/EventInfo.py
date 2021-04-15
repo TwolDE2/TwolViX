@@ -6,6 +6,7 @@ from Components.Sources.Source import Source
 from Components.Element import cached
 from Components.PerServiceDisplay import PerServiceBase
 
+
 class EventInfo(PerServiceBase, Source, object):
 	NOW = 0
 	NEXT = 1
@@ -42,4 +43,3 @@ class EventInfo(PerServiceBase, Source, object):
 	def destroy(self):
 		PerServiceBase.destroy(self)
 		Source.destroy(self)
-

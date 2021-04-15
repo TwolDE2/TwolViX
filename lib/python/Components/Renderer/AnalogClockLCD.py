@@ -11,6 +11,7 @@ from Components.Renderer.Renderer import Renderer
 from Components.VariableText import VariableText
 from skin import parseColor
 
+
 class AnalogClockLCD(Renderer):
 	def __init__(self):
 		Renderer.__init__(self)
@@ -21,10 +22,10 @@ class AnalogClockLCD(Renderer):
 		self.bColor = gRGB(0, 0, 0, 255)
 		self.forend = -1
 		self.linewidth = 1
-                self.positionheight = 1
-                self.positionwidth = 1
-                self.linesize = 1
-                
+		self.positionheight = 1
+		self.positionwidth = 1
+		self.linesize = 1
+
 	GUI_WIDGET = eCanvas
 
 	def applySkin(self, desktop, parent):
@@ -61,12 +62,12 @@ class AnalogClockLCD(Renderer):
 		height = self.positionheight
 		r = (width / 2)
 		r1 = (height / 2)
-		l = self.linesize  
+		l = self.linesize
 		if opt == 'sec':
-			l = self.linesize  
+			l = self.linesize
 			self.fColor = self.fColors
 		elif opt == 'min':
-			l = self.linesize 
+			l = self.linesize
 			self.fColor = self.fColorm
 		else:
 			self.fColor = self.fColorh

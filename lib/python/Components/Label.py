@@ -32,20 +32,24 @@ class Label(VariableText, GUIComponent):
 		s = self.instance.calculateSize()
 		return s.width(), s.height()
 
+
 class LabelConditional(Label, ConditionalWidget):
-	def __init__(self, text = "", withTimer = True):
-		ConditionalWidget.__init__(self, withTimer = withTimer)
-		Label.__init__(self, text = text)
+	def __init__(self, text="", withTimer=True):
+		ConditionalWidget.__init__(self, withTimer=withTimer)
+		Label.__init__(self, text=text)
+
 
 class BlinkingLabel(Label, BlinkingWidget):
-	def __init__(self, text = ""):
-		Label.__init__(text = text)
+	def __init__(self, text=""):
+		Label.__init__(text=text)
 		BlinkingWidget.__init__()
 
+
 class BlinkingLabelConditional(BlinkingWidgetConditional, LabelConditional):
-	def __init__(self, text = ""):
-		LabelConditional.__init__(self, text = text)
+	def __init__(self, text=""):
+		LabelConditional.__init__(self, text=text)
 		BlinkingWidgetConditional.__init__(self)
+
 
 class MultiColorLabel(Label):
 	def __init__(self, text=""):
@@ -57,7 +61,7 @@ class MultiColorLabel(Label):
 		if self.skinAttributes is not None:
 			foregroundColor = None
 			backgroundColor = None
-			attribs = [ ]
+			attribs = []
 			for (attrib, value) in self.skinAttributes:
 				if attrib == "foregroundColors":
 					colors = value.split(',')
@@ -97,4 +101,3 @@ class MultiColorLabel(Label):
 				self.instance.setBackgroundColor(self.backColors[x])
 			else:
 				print("setBackgroundColorNum(%d) failed! defined colors:" % x, self.backColors)
-

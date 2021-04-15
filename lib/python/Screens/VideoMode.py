@@ -39,8 +39,8 @@ class VideoSetup(ConfigListScreen, Screen):
 		self.onShow.append(self.startHotplug)
 		self.onHide.append(self.stopHotplug)
 
-		self.list = [ ]
-		ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry, fullUI = True)
+		self.list = []
+		ConfigListScreen.__init__(self, self.list, session=session, on_change=self.changedEntry, fullUI=True)
 
 		from Components.ActionMap import ActionMap
 		self["actions"] = ActionMap(["SetupActions"],
@@ -211,6 +211,7 @@ class VideoSetup(ConfigListScreen, Screen):
 			self.session.openWithCallback(self.confirm, MessageBox, _("Is this video mode ok?"), MessageBox.TYPE_YESNO, timeout=20, default=False)
 		else:
 			self.keySave()
+
 
 class AutoVideoModeLabel(Screen):
 	def __init__(self, session):
@@ -468,6 +469,7 @@ class AutoVideoMode(Screen):
 		iAV.setPolicy169(config.av.policy_169)
 		self.delay = False
 		self.detecttimer.stop()
+
 
 def autostart(session):
 	global resolutionlabel

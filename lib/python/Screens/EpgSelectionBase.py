@@ -41,7 +41,7 @@ epgActions = [
 ]
 
 okActions = [
-	("zap",_("Zap")),
+	("zap", _("Zap")),
 	("zapExit", _("Zap + Exit")),
 	("openEventView", _("Event Info"), _("Show detailed event info"))
 ]
@@ -73,6 +73,7 @@ channelDownActions = [
 	("nextPage", _("Page down"))
 ]
 
+
 class EPGSelectionBase(Screen, HelpableScreen):
 	lastEnteredTime = None
 	lastEnteredDate = None
@@ -101,7 +102,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		self["key_green"] = Button(_("Add Timer"))
 		self["key_yellow"] = Button(_("EPG Search"))
 		self["key_blue"] = Button(_("Add AutoTimer"))
-		
+
 		self["key_menu"] = StaticText(_("MENU"))
 		self["key_info"] = StaticText(_("INFO"))
 
@@ -178,7 +179,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 
 	def showMovies(self):
 		from Screens.InfoBar import InfoBar
-		InfoBar.instance.showMovies() 
+		InfoBar.instance.showMovies()
 
 	def openSingleEPG(self):
 		from Screens.EpgSelectionChannel import EPGSelectionChannel
@@ -493,6 +494,7 @@ class EPGServiceZap:
 			self.zapFunc(selectedService, bouquet=self.getCurrentBouquet(), preview=prev)
 			self.currch = self.session.nav.getCurrentlyPlayingServiceReference() and self.session.nav.getCurrentlyPlayingServiceReference().toString()
 
+
 class EPGServiceNumberSelectionPopup(Screen):
 	def __init__(self, session, getServiceByNumber, callback, number):
 		Screen.__init__(self, session)
@@ -502,8 +504,8 @@ class EPGServiceNumberSelectionPopup(Screen):
 
 		helpDescription = _("EPG Commands")
 		helpMsg = _("Enter a number to jump to a service/channel")
-		self["actions"] = HelpableNumberActionMap(self, "NumberActions", 
-			dict([(str(i), (self.keyNumber, helpMsg)) for i in range(0,10)]),
+		self["actions"] = HelpableNumberActionMap(self, "NumberActions",
+			dict([(str(i), (self.keyNumber, helpMsg)) for i in range(0, 10)]),
 			prio=-1, description=helpDescription)
 		self["cancelaction"] = HelpableActionMap(self, "OkCancelActions", {
 			"cancel": (self.__cancel, _("Exit channel selection")),
@@ -531,7 +533,7 @@ class EPGServiceNumberSelectionPopup(Screen):
 
 	def keyNumber(self, number):
 		if config.misc.zapkey_delay.value > 0:
-			self.timer.start(1000*config.misc.zapkey_delay.value, True)
+			self.timer.start(1000 * config.misc.zapkey_delay.value, True)
 		self.number += str(number)
 		service, bouquet = self.getServiceByNumber(int(self.number))
 		self["number"].setText(self.number)
@@ -550,8 +552,8 @@ class EPGServiceNumberSelectionPopup(Screen):
 class EPGServiceNumberSelection:
 	def __init__(self):
 		helpMsg = _("Enter a number to jump to a service/channel")
-		self["numberactions"] = HelpableNumberActionMap(self, "NumberActions", 
-			dict([(str(i), (self.keyNumberGlobal, helpMsg)) for i in range(0,10)]),
+		self["numberactions"] = HelpableNumberActionMap(self, "NumberActions",
+			dict([(str(i), (self.keyNumberGlobal, helpMsg)) for i in range(0, 10)]),
 			prio=-1, description=_("Service/Channel number zap commands"))
 
 	def keyNumberGlobal(self, number):
@@ -717,6 +719,7 @@ class EPGBouquetSelection:
 						return service, bouquet[1]
 		return None, None
 
+
 class EPGServiceBrowse(EPGBouquetSelection):
 	def __init__(self):
 		EPGBouquetSelection.__init__(self, False)
@@ -777,7 +780,7 @@ class EPGStandardButtons:
 			"green": (self.addEditTimer, _("Add/Remove timer for current event")),
 			"greenlong": (self.openTimerList, _("Show timer list")),
 			"yellow": (self.openEPGSearch, _("Search for similar events")),
-			"yellowlong": (lambda _ : None, _("Search for similar events")),
+			"yellowlong": (lambda _: None, _("Search for similar events")),
 			"blue": (self.addEditAutoTimer, _("Add an autotimer for current event")),
 			"bluelong": (self.openAutoTimerList, _("Show autotimer list")),
 			"ok": (self.OK, _("Zap to channel/service")),

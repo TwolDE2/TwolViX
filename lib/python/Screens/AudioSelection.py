@@ -10,10 +10,10 @@ from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.PluginComponent import plugins
 from Components.ServiceEventTracker import ServiceEventTracker
-from Components.SystemInfo import SystemInfo
-from Components.VolumeControl import VolumeControl
 from Components.Sources.Boolean import Boolean
 from Components.Sources.List import List
+from Components.SystemInfo import SystemInfo
+from Components.VolumeControl import VolumeControl
 from Plugins.Plugin import PluginDescriptor
 from Screens.InputBox import PinInput
 from Screens.MessageBox import MessageBox
@@ -98,7 +98,7 @@ class AudioSelection(Screen, ConfigListScreen):
 
 			if SystemInfo["CanPcmMultichannel"]:
 				self.settings.pcm_multichannel = ConfigOnOff(default=config.av.pcm_multichannel.value)
-				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call = False)
+				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call=False)
 				conflist.append(getConfigListEntry(_("PCM multichannel"), self.settings.pcm_multichannel, None))
 
 			if SystemInfo["CanDownmixAC3"]:
@@ -286,18 +286,19 @@ class AudioSelection(Screen, ConfigListScreen):
 				conflist.append(("",))
 			if SystemInfo["Canedidchecking"]:
 				choice_list = [("00000000", _("off")), ("00000001", _("on"))]
-				self.settings.bypass_edid_checking = ConfigSelection(choices = choice_list, default = config.av.bypass_edid_checking.value)
-				self.settings.bypass_edid_checking.addNotifier(self.changeEDIDChecking, initial_call = False)
+				self.settings.bypass_edid_checking = ConfigSelection(choices=choice_list, default=config.av.bypass_edid_checking.value)
+				self.settings.bypass_edid_checking.addNotifier(self.changeEDIDChecking, initial_call=False)
 				conflist.append(getConfigListEntry(_("Bypass HDMI EDID Check"), self.settings.bypass_edid_checking, None))
 			if hasattr(self.infobar, "runPlugin"):
 				class PluginCaller:
 					def __init__(self, fnc, *args):
 						self.fnc = fnc
 						self.args = args
+
 					def __call__(self, *args, **kwargs):
 						self.fnc(*self.args)
 
-				Plugins = [ (p.name, PluginCaller(self.infobar.runPlugin, p)) for p in plugins.getPlugins(where = PluginDescriptor.WHERE_AUDIOMENU)]
+				Plugins = [(p.name, PluginCaller(self.infobar.runPlugin, p)) for p in plugins.getPlugins(where=PluginDescriptor.WHERE_AUDIOMENU)]
 				if len(Plugins):
 					for x in Plugins:
 						if x[0] != "AudioEffect":  # Always make AudioEffect Blue button.
@@ -467,7 +468,7 @@ class AudioSelection(Screen, ConfigListScreen):
 		elif self.focus == FOCUS_STREAMS:
 			self["streams"].setIndex(0)
 
-	def keyRight(self, config = False):
+	def keyRight(self, config=False):
 		if config or self.focus == FOCUS_CONFIG:
 			if self.settings.menupage.value == PAGE_AUDIO and self["config"].getCurrent()[2]:
 				self["config"].getCurrent()[2]()
@@ -584,10 +585,12 @@ class AudioSelection(Screen, ConfigListScreen):
 	def cancel(self):
 		self.close(0)
 
+
 class SubtitleSelection(AudioSelection):
 	def __init__(self, session, infobar=None):
 		AudioSelection.__init__(self, session, infobar, page=PAGE_SUBTITLES)
 		self.skinName = ["AudioSelection"]
+
 
 class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 	FLAG_CENTER_DVB_SUBS = 2048
@@ -604,7 +607,7 @@ class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 			self.service_string = info and info.getInfoString(self.service, iServiceInformation.sServiceref)
 		else:
 			self.service_string = self.service.toString()
-		self.center_dvb_subs = ConfigYesNo(default = (eDVBDB.getInstance().getFlag(eServiceReference(self.service_string)) & self.FLAG_CENTER_DVB_SUBS) and True)
+		self.center_dvb_subs = ConfigYesNo(default=(eDVBDB.getInstance().getFlag(eServiceReference(self.service_string)) & self.FLAG_CENTER_DVB_SUBS) and True)
 		self.center_dvb_subs.addNotifier(self.setCenterDvbSubs)
 		self["videofps"] = Label("")
 		sub = self.infobar.selected_subtitle
@@ -646,7 +649,7 @@ class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 				getConfigMenuItem("config.subtitles.pango_subtitles_fps"),
 			]
 			self["videofps"].setText(_("Video: %s fps") % (self.getFps().rstrip(".000")))
-		ConfigListScreen.__init__(self, menu, self.session, on_change = self.changedEntry)
+		ConfigListScreen.__init__(self, menu, self.session, on_change=self.changedEntry)
 		self["actions"] = NumberActionMap(["SetupActions"], {
 			"cancel": self.cancel,
 			"ok": self.ok,
