@@ -54,7 +54,7 @@ eHdmiCEC::eHdmiCEC()
 	physicalAddress[0] = 0x10;
 	physicalAddress[1] = 0x00;
 	logicalAddress = 1;
-	deviceType = 1; /* default: recorder */
+	deviceType = CEC_LOG_ADDR_TYPE_TUNER; /* default: tuner */
 
 	hdmiFd = ::open("/dev/cec0", O_RDWR | O_CLOEXEC);
 	if (hdmiFd >= 0)
