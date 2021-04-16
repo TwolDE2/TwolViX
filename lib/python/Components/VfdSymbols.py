@@ -72,7 +72,8 @@ class SymbolsCheckPoller:
 		elif SystemInfo["HasHiSi"] and fileExists("/proc/stb/fp/ledpowercolor"):
 			import Screens.Standby
 			recordings = len(NavigationInstance.instance.getRecordings(False, Components.RecordingConfig.recType(config.recording.show_rec_symbol_for_rec_types.getValue())))
-			self.blink = not self.bli 
+			self.blink = not self.bli
+			if recordings > 0: 
 				if self.blink:
 					open("/proc/stb/fp/ledpowercolor", "w").write("0")
 					self.led = "1"
