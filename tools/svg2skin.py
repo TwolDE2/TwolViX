@@ -82,7 +82,7 @@ class parseXML(ContentHandler):
 			font = ' font="Regular;%d"' % px(styles["font-size"])
 		else:
 			font = ""
-		print """\t\t<widget source="%s" render="Label" position="%d,%d" size="%d,%d" %s />""" % (id, x, y, width, height, font)
+		print("""\t\t<widget source="%s" render="Label" position="%d,%d" size="%d,%d" %s />""" % (id, x, y, width, height, font))
 
 
 parser = make_parser()

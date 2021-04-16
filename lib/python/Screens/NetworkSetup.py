@@ -1163,7 +1163,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 			self.restartLanRef.close(True)
 
 	def restartfinishedCB(self, data):
->		if data == True:
+		if data == True:
 			self.updateStatusbar()
 			self.session.open(MessageBox, _("Your network has finished restarting"), type=MessageBox.TYPE_INFO, timeout=10, default=False)
 

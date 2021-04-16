@@ -1087,13 +1087,13 @@ class oscReaderStats(Screen, OscamInfo):
 				xdata = ElementTree.XML(xmldata[1])
 				rdr = xdata.find("reader")
 #					emms = rdr.find("emmstats")
-					if "totalwritten" in emms.attrib:
+#					if "totalwritten" in emms.attrib:
 #						emm_wri = emms.attrib["totalwritten"]
-					if "totalskipped" in emms.attrib:
+#					if "totalskipped" in emms.attrib:
 #						emm_ski = emms.attrib["totalskipped"]
-					if "totalblocked" in emms.attrib:
+#					if "totalblocked" in emms.attrib:
 #						emm_blk = emms.attrib["totalblocked"]
-					if "totalerror" in emms.attrib:
+#					if "totalerror" in emms.attrib:
 #						emm_err = emms.attrib["totalerror"]
 
 				ecmstat = rdr.find("ecmstats")
