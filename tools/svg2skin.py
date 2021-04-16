@@ -92,6 +92,6 @@ contentHandler.find_bbox = True
 parser.parse(sys.argv[1])
 bboxi = tuple([int(x) for x in contentHandler.bbox])
 contentHandler.find_bbox = False
-print '\t<screen name="" position="%d,%d" size="%d,%d" title="">' % bboxi
+print('\t<screen name="" position="%d,%d" size="%d,%d" title="">' % bboxi)
 parser.parse(sys.argv[1])
 print '\t</screen>'
