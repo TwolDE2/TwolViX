@@ -3,6 +3,7 @@ from __future__ import print_function
 import tokenize
 import sys
 
+
 def filter(g):
 	while True:
 		t = next(g)

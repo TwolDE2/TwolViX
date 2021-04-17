@@ -209,6 +209,7 @@ class TitleList(Screen, HelpableScreen):
 
 			def doContext(self):
 				print("context menu forbidden inside DVDBurn to prevent calling multiple instances")
+
 			def updateButtons(self):
 				# the original will hide red/green, and crash...
 				pass

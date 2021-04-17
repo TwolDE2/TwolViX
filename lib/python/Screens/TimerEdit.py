@@ -271,6 +271,7 @@ class TimerEditList(Screen, ProtectedScreen):
 		#helper function to move finished timers to end of list
 		def _cmp(a, b):
 			return (a > b) - (a < b)
+
 		def eol_compare(x, y):
 			if x[0].state != y[0].state and x[0].state == RealTimerEntry.StateEnded or y[0].state == RealTimerEntry.StateEnded:
 				return _cmp(x[0].state, y[0].state)

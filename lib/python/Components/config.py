@@ -589,17 +589,17 @@ class ConfigBoolean(ConfigElement):
 
 class ConfigEnableDisable(ConfigBoolean):
 	def __init__(self, default=False, graphic=True):
-		ConfigBoolean.__init__(self, default = default, descriptions = {False: _("Disable"), True: _("Enable")}, graphic=graphic)
+		ConfigBoolean.__init__(self, default=default, descriptions={False: _("Disable"), True: _("Enable")}, graphic=graphic)
 
 
 class ConfigOnOff(ConfigBoolean):
 	def __init__(self, default=False, graphic=True):
-		ConfigBoolean.__init__(self, default = default, descriptions = {False: _("Off"), True: _("On")}, graphic=graphic)
+		ConfigBoolean.__init__(self, default=default, descriptions={False: _("Off"), True: _("On")}, graphic=graphic)
 
 
 class ConfigYesNo(ConfigBoolean):
 	def __init__(self, default=False, graphic=True):
-		ConfigBoolean.__init__(self, default = default, descriptions = {False: _("No"), True: _("Yes")}, graphic=graphic)
+		ConfigBoolean.__init__(self, default=default, descriptions={False: _("No"), True: _("Yes")}, graphic=graphic)
 
 
 class ConfigDateTime(ConfigElement):
@@ -980,7 +980,6 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 		except UnicodeDecodeError:
 			self.text = six.ensure_text(val, errors='ignore')
 			print("[Config] Broken UTF8!")
-
 
 	value = property(getValue, setValue)
 	_value = property(getValue, setValue)

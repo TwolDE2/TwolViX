@@ -293,6 +293,7 @@ class PythonTask(Task):
 
 	def work(self):
 		raise NotImplemented("work")
+
 	def abort(self):
 		self.aborted = True
 		if self.callback is None:
@@ -501,6 +502,7 @@ class DiskspacePrecondition(Condition):
 
 	def getErrorMessage(self, task):
 		return _("Not enough disk space. Please free up some disk space and try again. (%d MB required, %d MB available)") % (self.diskspace_required // 1024 // 1024, self.diskspace_available // 1024 // 1024)
+
 
 class ToolExistsPrecondition(Condition):
 	def __init__(self):

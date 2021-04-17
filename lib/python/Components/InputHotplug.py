@@ -6,6 +6,7 @@ import os
 
 import Components.Netlink
 
+
 class NetlinkReader():
 	def __init__(self):
 		from twisted.internet import reactor

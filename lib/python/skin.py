@@ -304,6 +304,7 @@ def parseValuePair(s, scale, object=None, desktop=None, size=None):
 	yval = parseCoordinate(y, parentsize.height(), size and size.height() or 0)
 	return (xval * scale[0][0] // scale[0][1], yval * scale[1][0] // scale[1][1])
 
+
 def parsePosition(s, scale, object=None, desktop=None, size=None):
 	return ePoint(*parseValuePair(s, scale, object, desktop, size))
 
@@ -829,9 +830,9 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 		for pixmap in tag.findall("pixmap"):
 			name = pixmap.attrib.get("name")
 			filename = pixmap.attrib.get("filename")
-			resolved = resolveFilename(scope, filename, path_prefix = pathSkin)
+			resolved = resolveFilename(scope, filename, path_prefix=pathSkin)
 			if name and isfile(resolved):
-				switchPixmap[name] = LoadPixmap(resolved, cached = True)
+				switchPixmap[name] = LoadPixmap(resolved, cached=True)
 			else:
 				raise SkinError("Tag 'pixmap' needs a name and existing filename, got name='%s' and filename='%s' (%s)" % (name, filename, resolved))
 	for tag in domSkin.findall("colors"):

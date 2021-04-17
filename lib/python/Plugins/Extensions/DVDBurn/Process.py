@@ -460,7 +460,6 @@ class PreviewTask(Task):
 			if Screens.Standby.inStandby:
 				self.previewCB(False)
 			else:
-
 				Tools.Notifications.AddNotificationWithCallback(self.previewCB, MessageBox, _("Do you want to preview this DVD before burning?"), timeout=60, default=False, domain="JobManager")
 
 	def abort(self):
@@ -476,7 +475,6 @@ class PreviewTask(Task):
 		if self.job.menupreview:
 			self.closedCB(True)
 		else:
-
 			Tools.Notifications.AddNotificationWithCallback(self.closedCB, MessageBox, _("Do you want to burn this collection to DVD medium?"), domain="JobManager")
 
 	def closedCB(self, answer):
@@ -601,7 +599,6 @@ class MenuImageTask(Task):
 			menu_end_title = nr_titles + 1
 		col = 1
 		row = 1
-
 		for title_no in list(range(menu_start_title, menu_end_title)):
 			title = self.job.project.titles[title_no - 1]
 			col_width = (s_width - s_left - s_right) / nr_cols

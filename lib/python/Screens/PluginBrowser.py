@@ -55,7 +55,7 @@ def languageChanged():
 
 class PluginBrowserSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		ScreenSummary.__init__(self, session, parent = parent)
+		ScreenSummary.__init__(self, session, parent=parent)
 		self["entry"] = StaticText("")
 		self["desc"] = StaticText("")
 		self.onShow.append(self.addWatcher)
@@ -276,7 +276,7 @@ class PluginDownloadBrowser(Screen):
 	PLUGIN_PREFIX2 = []
 	lastDownloadDate = None
 
-	def __init__(self, session, type=0, needupdate = True, skin_name = None):
+	def __init__(self, session, type=0, needupdate=True, skin_name=None):
 		Screen.__init__(self, session)
 		self.type = type
 		self.needupdate = needupdate

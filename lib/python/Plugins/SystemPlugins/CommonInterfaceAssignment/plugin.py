@@ -28,7 +28,6 @@ from Tools.CIHelper import cihelper
 from Tools.XMLTools import stringToXML
 
 
-
 class CIselectMainMenu(Screen):
 	skin = """
 		<screen name="CIselectMainMenu" position="center,center" size="500,250" title="CI assignment" >

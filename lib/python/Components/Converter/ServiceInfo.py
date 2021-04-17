@@ -174,7 +174,6 @@ class ServiceInfo(Poll, Converter):
 		info = service and service.info()
 		if not info:
 			return False
-
 		video_height = None
 		video_width = None
 		video_aspect = None

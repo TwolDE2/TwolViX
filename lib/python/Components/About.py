@@ -6,7 +6,6 @@ import socket
 import fcntl
 import struct
 
-
 from boxbranding import getImageVersion, getMachineBuild, getBoxType
 
 
@@ -212,7 +211,6 @@ def getIfTransferredData(ifname):
 
 def getPythonVersionString():
 	return "%s.%s.%s" % (version_info.major, version_info.minor, version_info.micro)
-
 
 
 def getEnigmaUptime():

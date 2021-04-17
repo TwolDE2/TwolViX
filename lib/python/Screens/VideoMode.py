@@ -228,6 +228,7 @@ class AutoVideoModeLabel(Screen):
 			idx += 4
 			self.hideTimer.start(idx * 1000, True)
 
+
 def applySettings(mode=config.osd.threeDmode.value, znorm=int(config.osd.threeDznorm.value)):
 	global previous, isDedicated3D
 	mode = isDedicated3D and mode == "auto" and "sidebyside" or mode
@@ -239,6 +240,7 @@ def applySettings(mode=config.osd.threeDmode.value, znorm=int(config.osd.threeDz
 			previous = (mode, znorm)
 		except Exception:
 			return
+
 
 class AutoVideoMode(Screen):
 	def __init__(self, session):

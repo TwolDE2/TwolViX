@@ -168,6 +168,13 @@ class About(Screen):
 			fp_version = _("FP version:\t%s") % fp_version
 			AboutText += fp_version + "\n"
 
+		bootloader = ""
+		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
+				f = open('/sys/firmware/devicetree/base/bolt/tag', 'r')
+				bootloader = f.readline().replace('\x00', '').replace('\n', '')
+				f.close()
+				AboutText += _("Bootloader:\t%s\n") % (bootloader)
+
 		self["AboutScrollLabel"] = ScrollLabel(AboutText)
 
 	def dualBoot(self):
@@ -657,7 +664,7 @@ class SystemNetworkInfo(Screen):
 
 class AboutSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		ScreenSummary.__init__(self, session, parent = parent)
+		ScreenSummary.__init__(self, session, parent=parent)
 		self.skinName = "AboutSummary"
 		aboutText = _("Model: %s %s\n") % (getMachineBrand(), getMachineName())
 		if path.exists("/proc/stb/info/chipset"):

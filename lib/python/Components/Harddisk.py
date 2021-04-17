@@ -395,7 +395,6 @@ class Harddisk:
 		except (IOError, OSError) as err:
 			print("[Harddisk] Error: Failed to wipe partition on '%s':" % partition, err)
 
-
 	def createInitializeJob(self):
 		print("[Harddisk] Initializing storage device...")
 		job = Components.Task.Job(_("Initializing storage device..."))
@@ -617,7 +616,7 @@ class Harddisk:
 
 class Partition:
 	# For backward compatibility, force_mounted actually means "hotplug".
-	def __init__(self, mountpoint, device = None, description = "", force_mounted = False):
+	def __init__(self, mountpoint, device=None, description="", force_mounted=False):
 		self.mountpoint = mountpoint
 		self.device = device
 		self.description = description
@@ -728,7 +727,7 @@ class HarddiskManager:
 			isCdrom = devMajor in opticalDisks or device.startswith("sr")
 			if isCdrom:
 				self.cd = devicePath
-				self.partitions.append(Partition(mountpoint = self.getMountpoint(device), description = description, force_mounted = True, device = device))
+				self.partitions.append(Partition(mountpoint=self.getMountpoint(device), description=description, force_mounted=True, device=device))
 				# print "[Harddisk] DEBUG: Partition(mountpoint=%s, description=%s, force_mounted=True, device=%s)" % (self.getMountpoint(device), description, device)
 				print("[Harddisk] Found optical disk '%s' (%s)." % (device, physicalDevice))
 			data = readFile(os.path.join(devicePath, "removable"))
@@ -863,7 +862,7 @@ class HarddiskManager:
 			if isCdrom:
 				print("[Harddisk] Found optical disk '%s' (%s)." % (device, physicalDevice))
 				self.cd = devicePath
-				self.partitions.append(Partition(mountpoint = self.getMountpoint(hddDev), description = description, force_mounted = True, device = hddDev))
+				self.partitions.append(Partition(mountpoint=self.getMountpoint(hddDev), description=description, force_mounted=True, device=hddDev))
 			else:  # Lets get to work on real HDD.
 				data = readFile(os.path.join(devicePath, "removable"))
 				removable = False if data is None else bool(int(data))
@@ -960,7 +959,7 @@ class HarddiskManager:
 				self.partitions.remove(partition)
 				self.on_partition_list_change("remove", partition)
 
-	def setDVDSpeed(self, device, speed = 0):
+	def setDVDSpeed(self, device, speed=0):
 		if not device.startswith(os.sep):
 			device = os.path.join("/dev", device)
 		try:

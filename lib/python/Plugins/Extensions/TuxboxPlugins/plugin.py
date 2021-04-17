@@ -10,7 +10,6 @@ from Tools.BoundFunction import boundFunction
 from Tools.Directories import pathExists, resolveFilename, SCOPE_LIBDIR
 
 
-
 TUXBOX_PLUGINS_PATH = resolveFilename(SCOPE_LIBDIR, "tuxbox/plugins/")
 
 

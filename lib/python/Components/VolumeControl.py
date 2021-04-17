@@ -8,7 +8,6 @@ from Screens.Mute import Mute
 from Tools.Profile import profile
 import skin
 
-
 profile("VolumeControl")
 #TODO .. move this to a own .py file
 

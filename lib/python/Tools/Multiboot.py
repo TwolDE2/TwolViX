@@ -238,6 +238,7 @@ class boxbranding_reader:  # Many thanks to Huevos for creating this reader - we
 			for att in list(self.output.keys()):
 				self.output[att] = output[att]
 			# print("[readBrandingFile1] self.output = %s" % self.output)
+
 	def addBrandingMethods(self):  # This creates reader.getBoxType(), reader.getImageDevBuild(), etc
 		loc = {}
 		for att in list(self.output.keys()):

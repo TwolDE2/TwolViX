@@ -24,7 +24,7 @@ setupModTimes = {}
 
 
 class Setup(ConfigListScreen, Screen, HelpableScreen):
-	def __init__(self, session, setup, plugin = None, PluginLanguageDomain = None):
+	def __init__(self, session, setup, plugin=None, PluginLanguageDomain=None):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
 		self.setup = setup
@@ -203,7 +203,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 
 class SetupSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		ScreenSummary.__init__(self, session, parent = parent)
+		ScreenSummary.__init__(self, session, parent=parent)
 		self["entry"] = StaticText("")  # DEBUG: Proposed for new summary screens.
 		self["value"] = StaticText("")  # DEBUG: Proposed for new summary screens.
 		self["SetupTitle"] = StaticText(parent.getTitle())

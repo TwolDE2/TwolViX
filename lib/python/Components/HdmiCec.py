@@ -239,6 +239,7 @@ class HdmiCec:
 			devicetype = eHdmiCEC.getInstance().getDeviceType()
 			return str(struct.pack("BBB", int(physicaladdress / 256), int(physicaladdress % 256), devicetype))
 		return str(struct.pack("BB", int(physicaladdress / 256), int(physicaladdress % 256)))
+
 	def wakeupMessages(self):
 		if config.hdmicec.enabled.value:
 			messages = []
@@ -497,7 +498,7 @@ class HdmiCec:
 		txt += "\n"
 		self.fdebug(txt)
 
-	def opCode(self, cmd, out = False):
+	def opCode(self, cmd, out=False):
 		send = "<"
 		if out:
 			send = ">"
@@ -507,7 +508,7 @@ class HdmiCec:
 		opCode += 30 * " "
 		return opCode[:28] + send + " "
 
-	def now(self, out = False, fulldate = False):
+	def now(self, out=False, fulldate=False):
 		send = "Rx: "
 		if out:
 			send = "Tx: "

@@ -568,7 +568,6 @@ class InfoBarTimeshift:
 			try:
 				os.makedirs(timeshiftdir)
 			except:
-
 				print("[TimeShift] Failed to create %s !!" % timeshiftdir)
 
 	def restartTimeshift(self):

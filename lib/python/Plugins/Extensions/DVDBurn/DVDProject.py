@@ -12,7 +12,6 @@ from . import DVDTitle
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_FONTS
 
 
-
 class ConfigColor(ConfigSequence):
 	def __init__(self, default=None):
 		if not default:

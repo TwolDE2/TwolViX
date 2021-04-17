@@ -36,6 +36,7 @@ if dvbreader_available:
 	else:
 		import thread
 
+
 class Satfinder(ScanSetup, ServiceScan):
 	"""Inherits StaticText [key_red] and [key_green] properties from ScanSetup"""
 

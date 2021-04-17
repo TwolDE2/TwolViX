@@ -23,6 +23,7 @@ class dummyScreen(Screen):
 		Screen.__init__(self, session)
 		self.close()
 
+
 class LCD:
 	def __init__(self):
 		eActionMap.getInstance().bindAction('', -maxsize - 1, self.DimUpEvent)
@@ -351,7 +352,7 @@ def InitLcd():
 
 		def setLCDmode(configElement):
 			ilcd.setMode(configElement.value)
-		
+
 		def setLCDpower(configElement):
 			ilcd.setPower(configElement.value)
 

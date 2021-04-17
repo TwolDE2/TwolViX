@@ -214,6 +214,7 @@ def moveServiceFiles(serviceref, dest, name=None, allowCopy=True):
 		# rethrow exception
 		raise Exception("Failed to move to the same directory")
 
+
 def copyServiceFiles(serviceref, dest, name=None):
 	# current should be "ref" type, dest a simple path string
 	moveList = createMoveList(serviceref, dest)

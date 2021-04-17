@@ -325,7 +325,7 @@ class ServiceName2(Converter, object):
 					x = self.tpdata.get('guard_interval', 4)
 					result += x in list(range(5)) and {0: '1/32', 1: '1/16', 2: '1/8', 3: '1/4', 4: 'Auto'}[x] or ''
 			elif f == 'b':	# %b - bandwidth (dvb-t)
-				if type == 'DVB-T': 
+				if type == 'DVB-T':
 					x = self.tpdata.get('bandwidth', 0)
 					if isinstance(x, int):
 						result += str("%.3f" % (float(x) / 1000000.0)).rstrip('0').rstrip('.') + " MHz" if x else "Auto"

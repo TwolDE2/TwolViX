@@ -52,7 +52,7 @@ class TimerEntry(TimerEntryBase):
 
 		self.timerentry_showendtime = ConfigYesNo(default=(((self.timer.end - self.timer.begin) / 60) > 1))
 
-	def keySelect(self, result = None):
+	def keySelect(self, result=None):
 		self.keySave()
 
 	def keySave(self):

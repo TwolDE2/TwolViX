@@ -311,7 +311,7 @@ class RecordTimerEntry(TimerEntry, object):
 			self.log(0, "Found enough free space to record")
 			return True
 
-	def calculateFilename(self, name = None):
+	def calculateFilename(self, name=None):
 # An external caller (e.g. the enigma2 plugin Series Plugin) may well
 # not have called freespace(). So we need to set MountPath here.
 # There is no point in calling freespace() as the caller won't be able
@@ -726,7 +726,7 @@ class RecordTimerEntry(TimerEntry, object):
 						Notifications.AddNotificationWithCallback(self.sendTryQuitMainloopNotification, MessageBox, _("A finished record timer wants to shut down\nyour %s %s. Shutdown now?") % (getMachineBrand(), getMachineName()), timeout=180)
 			return True
 
-	def keypress(self, key = None, flag = 1):
+	def keypress(self, key=None, flag=1):
 		if flag and self.wasInStandby:
 			self.wasInStandby = False
 			eActionMap.getInstance().unbindAction("", self.keypress)

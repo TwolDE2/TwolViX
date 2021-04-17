@@ -10,7 +10,6 @@ class ResourceManager:
 		self.resourceList[name] = resource
 		print("[ResourceManager] resources:", self.resourceList)
 
-
 	def getResource(self, name):
 		if not self.hasResource(name):
 			return None

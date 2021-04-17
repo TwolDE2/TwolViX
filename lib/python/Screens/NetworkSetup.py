@@ -138,6 +138,7 @@ class NSCommon:
 	def createSummary(self):
 		return NetworkServicesSummary
 
+
 class NetworkAdapterSelection(Screen, HelpableScreen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -1228,7 +1229,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 
 
 class NetworkAdapterTest(Screen):
-	def __init__(self, session, iface = None):
+	def __init__(self, session, iface=None):
 		Screen.__init__(self, session)
 		self.setTitle(_("Network Test"))
 		self.iface = iface
@@ -1827,6 +1828,7 @@ class NetworkAfp(NSCommon, Screen):
 		for cb in self.onChangedEntry:
 			cb(title, status_summary, autostartstatus_summary)
 
+
 class NetworkFtp(NSCommon, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -1905,6 +1907,7 @@ class NetworkFtp(NSCommon, Screen):
 
 		for cb in self.onChangedEntry:
 			cb(title, status_summary, autostartstatus_summary)
+
 
 class NetworkNfs(NSCommon, Screen):
 	def __init__(self, session):
@@ -2045,7 +2048,6 @@ class NetworkOpenvpn(NSCommon, Screen):
 			self["labstop"].hide()
 			self["labrun"].show()
 			self["key_green"].setText(_("Stop"))
-
 			status_summary = self["lab2"].text + " " + self["labrun"].text
 		else:
 			self["labstop"].show()
@@ -2770,7 +2772,7 @@ class NetworkuShareSetup(Screen, ConfigListScreen):
 		for cb in self.onChangedEntry:
 			cb(name, desc)
 
-	def updateList(self, ret = None):
+	def updateList(self, ret=None):
 		self.list = []
 		self.ushare_user = NoSave(ConfigText(default=getBoxType(), fixed_size=False))
 		self.ushare_iface = NoSave(ConfigText(fixed_size=False))
@@ -2893,6 +2895,7 @@ class NetworkuShareSetup(Screen, ConfigListScreen):
 
 	def selectfolders(self):
 		self.session.openWithCallback(self.updateList, uShareSelection)
+
 
 class uShareSelection(Screen):
 	def __init__(self, session):
@@ -3299,6 +3302,7 @@ class NetworkMiniDLNASetup(Screen, ConfigListScreen):
 	def selectfolders(self):
 		self.session.openWithCallback(self.updateList, MiniDLNASelection)
 
+
 class MiniDLNASelection(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -3402,6 +3406,7 @@ class NetworkMiniDLNALog(Screen):
 			remove("/tmp/tmp.log")
 		self["infotext"].setText(strview)
 
+
 class NetworkServicesSummary(Screen):
 	def __init__(self, session, parent):
 		Screen.__init__(self, session, parent=parent)
@@ -3431,7 +3436,7 @@ class NetworkPassword(ConfigListScreen, Screen):
 		self.skinName = "Setup"
 		self.onChangedEntry = []
 		self.list = []
-		ConfigListScreen.__init__(self, self.list, session = self.session, on_change = self.selectionChanged)
+		ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.selectionChanged)
 
 		self["key_red"] = StaticText(_("Exit"))
 		self["key_green"] = StaticText(_("Save"))

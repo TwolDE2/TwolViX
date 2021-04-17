@@ -19,6 +19,7 @@ from Tools.TextBoundary import getTextBoundarySize
 
 SIGN = '°' if six.PY3 else str('\xc2\xb0')
 
+
 class TimerList(GUIComponent, object):
 #
 #  | <Name of the Timer>     <Service>  <orb.pos>|

@@ -12,7 +12,6 @@ import Components.Task
 from Components.VariableText import VariableText
 
 
-
 def isTrashFolder(path):
 	path = os.path.realpath(path)
 	return getTrashFolder(path) == path
@@ -47,6 +46,7 @@ def createTrashFolder(path=None):
 		return trash
 	else:
 		return None
+
 
 def get_size(start_path="."):
 	total_size = 0

@@ -588,10 +588,10 @@ class NIM(object):
 			}
 		return connectable[self.getType()]
 
-	def getSlotID(self, slot = None):
+	def getSlotID(self, slot=None):
 		return chr(ord('A') + (slot if slot is not None else self.slot))
 
-	def getSlotName(self, slot = None):
+	def getSlotName(self, slot=None):
 		# get a friendly description for a slot name.
 		# we name them "Tuner A/B/C/...", because that's what's usually written on the back
 		# of the device.
@@ -932,7 +932,7 @@ class NimManager:
 	def getI2CDevice(self, slotid):
 		return self.nim_slots[slotid].getI2C()
 
-	def getNimListOfType(self, type, exception = -1):
+	def getNimListOfType(self, type, exception=-1):
 		# returns a list of indexes for NIMs compatible to the given type, except for 'exception'
 		return [x.slot for x in self.nim_slots if x.isCompatible(type) and x.slot != exception]
 
@@ -1165,6 +1165,7 @@ class NimManager:
 								result.append(user_sat)
 		return result
 
+
 def InitSecParams():
 	config.sec = ConfigSubsection()
 	config.sec.delay_after_continuous_tone_disable_before_diseqc = ConfigInteger(default=25, limits=(0, 9999))
@@ -1302,9 +1303,9 @@ def InitNimManager(nimmgr, update_slots=[]):
 					section.positionNumber = ConfigSelection(["%d" % (x + 1) for x in list(range(configEntry.value))], default="%d" % min(lnb, configEntry.value))
 
 				def scrListChanged(productparameters, srcfrequencylist, configEntry):
-					section.format = ConfigSelection([("unicable", _("SCR Unicable")), ("jess", _("SCR JESS"))], default = getformat(productparameters.get("format", "unicable"), configEntry.index))
-					section.scrfrequency = ConfigInteger(default = int(srcfrequencylist[configEntry.index]))
-					section.positions = ConfigInteger(default = int(productparameters.get("positions", 1)))
+					section.format = ConfigSelection([("unicable", _("SCR Unicable")), ("jess", _("SCR JESS"))], default=getformat(productparameters.get("format", "unicable"), configEntry.index))
+					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]))
+					section.positions = ConfigInteger(default=int(productparameters.get("positions", 1)))
 					section.positions.addNotifier(positionsChanged)
 					section.positionsOffset = ConfigInteger(default=int(productparameters.get("positionsoffset", 0)))
 					section.lofl = ConfigInteger(default=int(productparameters.get("lofl", 9750)), limits=(0, 99999))
@@ -1332,7 +1333,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 					if not config.unicable.content.items.get("unicableProduct", False) or config.unicable.unicableProduct.value not in productslist:
 						config.unicable.unicableProduct = ConfigSelection(productslist)
 					config.unicable.unicableProduct.save_forced = True
-					section.unicableProduct = ConfigSelection(productslist, default = config.unicable.unicableProduct.value)
+					section.unicableProduct = ConfigSelection(productslist, default=config.unicable.unicableProduct.value)
 					section.unicableProduct.save_forced = True
 					section.unicableProduct.addNotifier(boundFunction(unicableProductChanged, configEntry.value, lnb_or_matrix))
 
@@ -1343,7 +1344,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 					section.threshold = ConfigInteger(default=11700, limits=(0, 99999))
 
 				def formatChanged(configEntry):
-					section.positions = ConfigInteger(default = configEntry.value == "jess" and 64 or 2)
+					section.positions = ConfigInteger(default=configEntry.value == "jess" and 64 or 2)
 					section.positions.addNotifier(positionsChanged)
 					section.positionsOffset = ConfigInteger(default=0)
 					section.scrList = ConfigSelection([("%d" % (x + 1), "User Band %d" % (x + 1)) for x in list(range(configEntry.value == "jess" and 32 or 8))])
@@ -1364,7 +1365,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("matrix")]
 						if not config.unicable.content.items.get("unicableManufacturer", False) or config.unicable.unicableManufacturer.value not in manufacturerlist:
 							config.unicable.unicableManufacturer = ConfigSelection(manufacturerlist)
-						section.unicableManufacturer = ConfigSelection(manufacturerlist, default = config.unicable.unicableManufacturer.value)
+						section.unicableManufacturer = ConfigSelection(manufacturerlist, default=config.unicable.unicableManufacturer.value)
 						section.unicableManufacturer.save_forced = True
 						config.unicable.unicableManufacturer.save_forced = True
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "matrix"))
@@ -1372,7 +1373,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 						manufacturerlist = [m.get("name") for m in unicable_xml.find("lnb")]
 						if not config.unicable.content.items.get("unicableManufacturer", False) or config.unicable.unicableManufacturer.value not in manufacturerlist:
 							config.unicable.unicableManufacturer = ConfigSelection(manufacturerlist)
-						section.unicableManufacturer = ConfigSelection(manufacturerlist, default = config.unicable.unicableManufacturer.value)
+						section.unicableManufacturer = ConfigSelection(manufacturerlist, default=config.unicable.unicableManufacturer.value)
 						section.unicableManufacturer.save_forced = True
 						config.unicable.unicableManufacturer.save_forced = True
 						section.unicableManufacturer.addNotifier(boundFunction(unicableManufacturerChanged, "lnb"))
@@ -1384,10 +1385,10 @@ def InitNimManager(nimmgr, update_slots=[]):
 				unicableList = [("unicable_lnb", _("SCR (Unicable/JESS)") + " " + _("LNB")), ("unicable_matrix", _("SCR (Unicable/JESS)") + " " + _("Switch")), ("unicable_user", _("SCR (Unicable/JESS)") + " " + _("User defined"))]
 				if not config.unicable.content.items.get("unicable", False):
 					config.unicable.unicable = ConfigSelection(unicableList)
-				section.unicable = ConfigSelection(unicableList, default = config.unicable.unicable.value)
+				section.unicable = ConfigSelection(unicableList, default=config.unicable.unicable.value)
 				section.unicable.addNotifier(unicableChanged)
 
-				nim.advanced.unicableconnected = ConfigYesNo(default = False)
+				nim.advanced.unicableconnected = ConfigYesNo(default=False)
 				nim.advanced.unicableconnectedTo = ConfigSelection([(str(id), nimmgr.getNimDescription(id)) for id in nimmgr.getNimListOfType("DVB-S") if id != x])
 
 	def configDiSEqCModeChanged(configElement):
@@ -1494,7 +1495,6 @@ def InitNimManager(nimmgr, update_slots=[]):
 		nim.positionerMode = ConfigSelection(positioner_mode_choices, "usals")
 		nim.userSatellitesList = ConfigText('[]')
 		nim.pressOKtoList = ConfigNothing()
-
 		nim.longitude = ConfigFloat(default=[5, 100], limits=[(0, 359), (0, 999)])
 		nim.longitudeOrientation = ConfigSelection(longitude_orientation_choices, "east")
 		nim.latitude = ConfigFloat(default=[50, 767], limits=[(0, 359), (0, 999)])
@@ -1521,7 +1521,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 			tmp.voltage = ConfigSelection(advanced_voltage_choices, "polarization")
 			tmp.tonemode = ConfigSelection(advanced_tonemode_choices, "band")
 			tmp.usals = ConfigYesNo(True)
-			tmp.rotorposition = ConfigInteger(default = 1, limits=(1, 255))
+			tmp.rotorposition = ConfigInteger(default=1, limits=(1, 255))
 			lnb = ConfigSelection(advanced_lnb_choices, "0")
 			lnb.slot_id = slot_id
 			lnb.addNotifier(configLNBChanged)
@@ -1533,7 +1533,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 			tmp.tonemode = ConfigSelection(advanced_tonemode_choices, "band")
 			tmp.usals = ConfigYesNo(True)
 			tmp.userSatellitesList = ConfigText('[]')
-			tmp.rotorposition = ConfigInteger(default = 1, limits=(1, 255))
+			tmp.rotorposition = ConfigInteger(default=1, limits=(1, 255))
 			lnbnum = 65 + x - 3601
 			lnb = ConfigSelection([("0", _("not configured")), (str(lnbnum), "LNB %d" % (lnbnum))], "0")
 			lnb.slot_id = slot_id

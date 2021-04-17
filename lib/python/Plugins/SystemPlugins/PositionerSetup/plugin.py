@@ -36,7 +36,6 @@ from Screens.Screen import Screen
 from Tools.Transponder import ConvertToHumanReadable
 
 
-
 from . import log
 from . import rotor_calc
 

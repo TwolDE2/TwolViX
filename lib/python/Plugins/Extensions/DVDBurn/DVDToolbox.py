@@ -10,6 +10,7 @@ from Components.Console import Console
 from Plugins.SystemPlugins.Hotplug.plugin import hotplugNotifier
 import six
 
+
 class DVDToolbox(Screen):
 	skin = """
 		<screen name="DVDToolbox" position="center,center"  size="560,445" title="DVD media toolbox" >

@@ -51,7 +51,7 @@ menuupdater = MenuUpdater()
 
 class MenuSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		ScreenSummary.__init__(self, session, parent = parent)
+		ScreenSummary.__init__(self, session, parent=parent)
 		self["entry"] = StaticText("")  # DEBUG: Proposed for new summary screens.
 		if self.addWatcher not in self.onShow:
 			self.onShow.append(self.addWatcher)

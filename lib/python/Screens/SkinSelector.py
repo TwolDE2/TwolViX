@@ -64,7 +64,7 @@ class SkinSelector(Screen, HelpableScreen):
 		self.picload.PictureData.get().append(self.showPic)
 		self.onLayoutFinish.append(self.layoutFinished)
 
-	def showPic(self, picInfo = ""):
+	def showPic(self, picInfo=""):
 		ptr = self.picload.getData()
 		if ptr is not None:
 			self["preview"].instance.setPixmap(ptr.__deref__())
