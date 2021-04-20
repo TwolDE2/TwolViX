@@ -14,7 +14,7 @@ from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 from ServiceReference import ServiceReference
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
-import skin
+from skin import applySkinFactor, parameters
 
 RT_HALIGN_LEFT = 0
 
@@ -54,11 +54,9 @@ def ServiceInfoListEntry(a, b="", valueType=TYPE_TEXT, param=4):
 			b = ("%d.%d%s") % (b // 10, b % 10, direction)
 		else:
 			b = str(b)
-
-	x, y, w, h = skin.parameters.get("ServiceInfo", (0, 0, skin.applySkinFactor(300), skin.applySkinFactor(30)))
-	xa, ya, wa, ha = skin.parameters.get("ServiceInfoLeft", (0, 0, skin.applySkinFactor(300), skin.applySkinFactor(25)))
-	xb, yb, wb, hb = skin.parameters.get("ServiceInfoRight", (skin.applySkinFactor(300), 0, skin.applySkinFactor(600), skin.applySkinFactor(25)))
-
+	x, y, w, h = parameters.get("ServiceInfo", applySkinFactor(0, 0, 300, 30))
+	xa, ya, wa, ha = parameters.get("ServiceInfoLeft", applySkinFactor(0, 0, 300, 25))
+	xb, yb, wb, hb = parameters.get("ServiceInfoRight", applySkinFactor(300, 0, 600, 25))
 	if b:
 		return [
 			#PyObject *type, *px, *py, *pwidth, *pheight, *pfnt, *pstring, *pflags;
