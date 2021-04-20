@@ -11,7 +11,7 @@ from Components.MenuList import MenuList
 from Components.Harddisk import harddiskmanager
 from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename, fileExists, pathExists
 from Tools.LoadPixmap import LoadPixmap
-rom skin import applySkinFactor, fonts, parameters
+from skin import applySkinFactor, fonts, parameters
 
 EXTENSIONS = {
 		"dts": "music",
