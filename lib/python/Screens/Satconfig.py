@@ -18,6 +18,7 @@ from Components.SelectionList import SelectionList, SelectionEntryComponent
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
+from Components.UsageConfig import showrotorpositionChoicesUpdate
 from Screens.AutoDiseqc import AutoDiseqc
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
@@ -708,6 +709,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		for x in self["config"].list:
 			x[1].save()
 		configfile.save()
+		showrotorpositionChoicesUpdate(update=True)
 
 	def cancelConfirm(self, result):
 		if not result:
