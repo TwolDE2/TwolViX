@@ -1,12 +1,5 @@
 from enigma import loadPNG, loadJPG, loadSVG
 
-
-# Return a scaling factor (float) that can be used to rescale images
-# to suit the current resolution of the skin.
-# The scales are based on a default screen resolution of HD (720p).
-# That is the scale factor for a HD screen will be 1.
-SKIN_FACTOR = getDesktop(0).size().height() / 720.0
-
 # If cached is not supplied, LoadPixmap defaults to caching PNGs and not caching JPGs
 # Split alpha channel JPGs are never cached as the C++ layer's caching is based on
 # a single file per image in the cache
