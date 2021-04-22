@@ -14,7 +14,7 @@ from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 from ServiceReference import ServiceReference
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
-from skin import applySkinFactor, parameters
+from skin import applySkinFactor, parameters, parseScale
 
 RT_HALIGN_LEFT = 0
 
@@ -91,7 +91,7 @@ class ServiceInfoList(GUIComponent):
 					self.fontName = font.family
 					self.fontSize = font.pointSize
 				elif attrib == "itemHeight":
-					self.ItemHeight = skin.parseScale(value)
+					self.ItemHeight = parseScale(value)
 				else:
 					attribs.append((attrib, value))
 			self.skinAttributes = attribs
