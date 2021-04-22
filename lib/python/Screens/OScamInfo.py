@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import os
-import timr
+import time
 from operator import itemgetter
 from xml.etree import ElementTree
 # required methods: Request, urlopen, HTTPError, URLError
