@@ -11,7 +11,7 @@ from enigma import ePixmap, eServiceReference
 from Components.Harddisk import harddiskmanager
 from Components.Renderer.Renderer import Renderer
 from Tools.Alternatives import GetWithAlternative
-from Tools.Directories import pathExists, SCOPE_ACTIVE_SKIN, resolveFilename
+from Tools.Directories import pathExists, SCOPE_CURRENT_SKIN, resolveFilename
 
 
 class PiconLocator:
@@ -126,7 +126,7 @@ class Picon(Renderer):
 	def __init__(self):
 		Renderer.__init__(self)
 		self.pngname = None
-		self.defaultpngname = resolveFilename(SCOPE_ACTIVE_SKIN, "picon_default.png")
+		self.defaultpngname = resolveFilename(SCOPE_CURRENT_SKIN, "picon_default.png")
 
 	def applySkin(self, desktop, parent):
 		attribs = self.skinAttributes[:]

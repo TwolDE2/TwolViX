@@ -25,7 +25,7 @@ from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Screens.ChoiceBox import ChoiceBox
 from Tools.LoadPixmap import LoadPixmap
-from Tools.Directories import SCOPE_ACTIVE_SKIN, resolveFilename, fileExists
+from Tools.Directories import SCOPE_CURRENT_SKIN, resolveFilename, fileExists
 import skin
 
 ###global
@@ -517,7 +517,7 @@ class OscamInfoMenu(Screen):
 		for t in mlist:
 			res = [t]
 			if t.startswith("--"):
-				png = resolveFilename(SCOPE_ACTIVE_SKIN, "div-h.png")
+				png = resolveFilename(SCOPE_CURRENT_SKIN, "div-h.png")
 				if fileExists(png):
 					png = LoadPixmap(png)
 				if png is not None:
@@ -525,7 +525,7 @@ class OscamInfoMenu(Screen):
 					res.append((eListboxPythonMultiContent.TYPE_PIXMAP, x, y, w, h, png))
 					x, y, w, h = skin.parameters.get("ChoicelistName", (45 * f, 2 * f, 800 * f, 25 * f))
 					res.append((eListboxPythonMultiContent.TYPE_TEXT, x, y, w, h, 0, RT_HALIGN_LEFT, t[2:]))
-					png2 = resolveFilename(SCOPE_ACTIVE_SKIN, "buttons/key_" + keys[k] + ".png")
+					png2 = resolveFilename(SCOPE_CURRENT_SKIN, "buttons/key_" + keys[k] + ".png")
 					if fileExists(png2):
 						png2 = LoadPixmap(png2)
 					if png2 is not None:
@@ -534,7 +534,7 @@ class OscamInfoMenu(Screen):
 			else:
 				x, y, w, h = skin.parameters.get("ChoicelistName", (45 * f, 2 * f, 800 * f, 25 * f))
 				res.append((eListboxPythonMultiContent.TYPE_TEXT, x, y, w, h, 0, RT_HALIGN_LEFT, t))
-				png2 = resolveFilename(SCOPE_ACTIVE_SKIN, "buttons/key_" + keys[k] + ".png")
+				png2 = resolveFilename(SCOPE_CURRENT_SKIN, "buttons/key_" + keys[k] + ".png")
 				if fileExists(png2):
 					png2 = LoadPixmap(png2)
 				if png2 is not None:
@@ -757,7 +757,7 @@ class oscInfo(Screen, OscamInfo):
 			res.append((eListboxPythonMultiContent.TYPE_TEXT, xpos, ypos * f, xsize, self.itemheight * f, useFont, RT_HALIGN_LEFT, i, int(colour, 16)))
 			x += 1
 		if heading:
-			png = resolveFilename(SCOPE_ACTIVE_SKIN, "div-h.png")
+			png = resolveFilename(SCOPE_CURRENT_SKIN, "div-h.png")
 			if fileExists(png):
 				png = LoadPixmap(png)
 			if png is not None:

@@ -10,7 +10,7 @@ from boxbranding import getDisplayType
 from Components.config import config
 from Components.Renderer.Renderer import Renderer
 from Components.Renderer.Picon import PiconLocator
-from Tools.Directories import pathExists, SCOPE_ACTIVE_SKIN, resolveFilename
+from Tools.Directories import pathExists, SCOPE_CURRENT_SKIN, resolveFilename
 
 def useLcdPicons():
 	return getDisplayType() in ('bwlcd255', 'bwlcd140', 'bwlcd128') or config.lcd.picon_pack.value
@@ -40,7 +40,7 @@ class LcdPicon(Renderer):
 		serviceName = "lcd_picon_default" if useLcdPicons() else "picon_default"
 		pngname = lcdPiconLocator.findPicon(serviceName)
 		if not pngname:
-			pngname = resolveFilename(SCOPE_ACTIVE_SKIN, serviceName + ".png")
+			pngname = resolveFilename(SCOPE_CURRENT_SKIN, serviceName + ".png")
 		self.defaultpngname = pngname if os.path.getsize(pngname) else None
 		self.changed((self.CHANGED_DEFAULT,))
 

@@ -80,7 +80,7 @@ from skin import readSkin
 profile("LOAD:Tools")
 print("[StartEnigma]  Initialising FallbackFiles.")
 from Components.config import config, configfile, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, NoSave
-from Tools.Directories import InitFallbackFiles, resolveFilename, SCOPE_PLUGINS, SCOPE_ACTIVE_SKIN, SCOPE_CURRENT_SKIN, SCOPE_CONFIG
+from Tools.Directories import InitFallbackFiles, resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_SKIN, SCOPE_CONFIG
 InitFallbackFiles()
 
 profile("config.misc")

@@ -9,8 +9,7 @@ from Components.SystemInfo import SystemInfo
 from Screens.Rc import Rc
 from Screens.Wizard import WizardSummary
 from Screens.WizardLanguage import WizardLanguage
-from Tools.Directories import resolveFilename, SCOPE_SKIN, SCOPE_ACTIVE_SKIN
-from Tools.HardwareInfo import HardwareInfo
+from Tools.Directories import resolveFilename, SCOPE_SKIN, SCOPE_CURRENT_SKIN
 
 config.misc.showtestcard = ConfigBoolean(default=False)
 
@@ -103,7 +102,7 @@ class VideoWizard(WizardLanguage, Rc):
 				picname = "JACK"
 			if picname == "Scart-YPbPr":
 				picname = "Scart"
-			self["portpic"].instance.setPixmapFromFile(resolveFilename(SCOPE_ACTIVE_SKIN, "icons/%s.png" % picname))
+			self["portpic"].instance.setPixmapFromFile(resolveFilename(SCOPE_CURRENT_SKIN, "icons/%s.png" % picname))
 
 	def inputSelect(self, port):
 		print("[VideoWizard] inputSelect:", port)
