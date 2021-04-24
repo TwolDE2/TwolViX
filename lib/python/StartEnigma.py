@@ -140,26 +140,40 @@ try:
 
 	import e2reactor
 	e2reactor.install()
-
+	# from twisted.python.runtime.platform import supportsThreads
+	# supportsThreads = lambda: True
+	# from e2reactor import install
+	# install()
 	from twisted.internet import reactor
 
 	def runReactor():
 		reactor.run(installSignalHandlers=False)
+
 except ImportError:
-	print("[StartEnigma] twisted not available")
+	print("[StartEnigma] Error: Twisted not available!")
 
 	def runReactor():
 		enigma.runMainloop()
 
-from twisted.python import log
-config.misc.enabletwistedlog = ConfigYesNo(default = False)
-if config.misc.enabletwistedlog.value == True:
-	log.startLogging(open('/tmp/twisted.log', 'w'))
-	print("[StartEnigma]  Twisted log ->  /tmp/twisted.log.")
-else:
-	log.startLogging(sys.stdout)
-	print("[StartEnigma]  Twisted log ->  sys.stdout.")
+try:
+	from twisted.python import log, util
 
+	def quietEmit(self, eventDict):
+		text = log.textFromEventDict(eventDict)
+		if text is None:
+			return
+		formatDict = {
+			"text": text.replace("\n", "\n\t")
+		}
+		msg = log._safeFormat("%(text)s\n", formatDict)
+		util.untilConcludes(self.write, msg)
+		util.untilConcludes(self.flush)
+
+	logger = log.FileLogObserver(sys.stdout)
+	log.FileLogObserver.emit = quietEmit
+	log.startLoggingWithObserver(logger.emit)
+except ImportError:
+	print("[StartEnigma] Error: Twisted not available!")
 
 profile("LOAD:Plugin")
 print("[StartEnigma]  Initialising Plugins.")
