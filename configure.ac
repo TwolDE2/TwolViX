@@ -622,7 +622,6 @@ lib/python/Plugins/SystemPlugins/NetworkWizard/meta/Makefile
 lib/python/Plugins/SystemPlugins/OpentvZapper/Makefile
 lib/python/Plugins/SystemPlugins/PositionerSetup/Makefile
 lib/python/Plugins/SystemPlugins/PositionerSetup/meta/Makefile
-lib/python/Plugins/SystemPlugins/QuadPiP/Makefile
 lib/python/Plugins/SystemPlugins/SABnzbdSetup/Makefile
 lib/python/Plugins/SystemPlugins/SatelliteEquipmentControl/Makefile
 lib/python/Plugins/SystemPlugins/SatelliteEquipmentControl/meta/Makefile

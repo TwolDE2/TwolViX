@@ -1,7 +1,7 @@
 installdir = $(pkglibdir)/python/Plugins/SystemPlugins
 
 SUBDIRS = PositionerSetup Satfinder \
-	VideoTune Hotplug OpentvZapper QuadPiP \
+	VideoTune Hotplug OpentvZapper \
 	DefaultServicesScanner CommonInterfaceAssignment \
 	HdmiCEC VideoClippingSetup \
 	VideoEnhancement WirelessLan NetworkWizard \
