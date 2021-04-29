@@ -16,8 +16,6 @@ from Components.Sources.Boolean import Boolean
 from Components.Sources.FrontendStatus import FrontendStatus
 from Components.SystemInfo import SystemInfo
 from Screens.Screen import Screen
-from ServiceReference import ServiceReference
-
 
 INVALID_POSITION = 9999
 config.misc.lastrotorposition = ConfigInteger(INVALID_POSITION)
