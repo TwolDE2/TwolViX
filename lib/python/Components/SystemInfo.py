@@ -5,8 +5,7 @@ from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveHDMIinFHD, getHaveHDMIinHD, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getImageType, getMachineBrand, getMachineBuild, getMachineMtdRoot, getMachineName
 from Components.About import getChipSetString
 from Components.RcModel import rc_model
-from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, isSystemPluginInstalled
-
+from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, isPluginInstalled
 from Tools.HardwareInfo import HardwareInfo
 
 SystemInfo = {}
@@ -103,8 +102,8 @@ SystemInfo["HasTranscoding"] = pathExists("/proc/stb/encoder/0") or fileCheck("/
 SystemInfo["HasH265Encoder"] = fileHas("/proc/stb/encoder/0/vcodec_choices", "h265")
 SystemInfo["CanNotDoSimultaneousTranscodeAndPIP"] = getBoxType() in ("vusolo4k","gbquad4k")
 SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
-SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and isSystemPluginInstalled("HdmiCEC")
-SystemInfo["HasHDMI-CEC"] = isSystemPluginInstalled("HdmiCEC")
+SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and isPluginInstalled("HdmiCEC")
+SystemInfo["HasHDMI-CEC"] = isPluginInstalled("HdmiCEC")
 SystemInfo["HasHDMIin"] = getHaveHDMIinHD() in ("True",) or getHaveHDMIinFHD() in ("True",)
 #	Audio/Video Configuration setup values
 SystemInfo["hasJack"] = getHaveAVJACK() in ('True',)
