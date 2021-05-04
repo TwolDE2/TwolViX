@@ -57,8 +57,6 @@ SystemInfo["WakeOnLAN"] = getBoxType() not in ("et8000", "et10000") and fileChec
 SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
 #	Sat Config
 SystemInfo["Blindscan_t2_available"] = fileCheck("/proc/stb/info/vumodel") and getBoxType().startswith("vu")
-SystemInfo["Blindscan"] = isPluginInstalled("Blindscan")
-SystemInfo["Satfinder"] = isPluginInstalled("Satfinder")
 SystemInfo["FbcTunerPowerAlwaysOn"] = getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "gbquad4k", "gbue4k")
 SystemInfo["HasPhysicalLoopthrough"] = ["Vuplus DVB-S NIM(AVL2108)", "GIGA DVB-S2 NIM (Internal)"]
 # 	LED/LCD
