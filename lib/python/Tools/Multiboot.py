@@ -42,11 +42,15 @@ def getMultibootslots():
 			if "STARTUP_RECOVERY" in file:
 				SystemInfo["RecoveryMode"] = True
 				# print("[multiboot] [getMultibootslots] RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
+			print("[multiboot] [getMultibootslots0] file = %s" % (file))
+			split = file.rsplit("/", 1)[1]
+			print("[multiboot] [getMultibootslots1] split = %s" % (split))
 			slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1][0]
-			slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
-			if len(slotname) != "1" and "BOXMODE" not in file:
-				slotname = slotname[1:]
-			print("[multiboot] [getMultibootslots] slot = %s file = %s" % (slotnumber, slotname))
+			slotname = file.rsplit("/", 1 )[1]
+			print("[multiboot] [getMultibootslots2] slot = %s file = %s" % (slotnumber, slotname))
+			if "BOXMODE" in file:
+				slotname = slotname.rsplit("_", 1)[1]
+			print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 			if slotnumber.isdigit() and slotnumber not in bootslots:
 				slot = {}
 				for line in open(file).readlines():
