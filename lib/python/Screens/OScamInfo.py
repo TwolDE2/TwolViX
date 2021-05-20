@@ -5,28 +5,28 @@ import os
 import time
 from operator import itemgetter
 from xml.etree import ElementTree
-# required methods: Request, urlopen, HTTPError, URLError
+# required methods: Request, urlopen, HTTPError, URLError, HTTPHandler, HTTPPasswordMgrWithDefaultRealm, HTTPDigestAuthHandler, build_opener, install_opener
 try: # python 3
-	from urllib.request import urlopen, Request # raises ImportError in Python 2
+	from urllib.request import urlopen, Request, HTTPHandler, HTTPPasswordMgrWithDefaultRealm, HTTPDigestAuthHandler, build_opener, install_opener # raises ImportError in Python 2
 	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
-	from urllib.parse import urlparse, urlunparse # raises ImportError in Python 2
 except ImportError: # Python 2
-	from urllib2 import Request, urlopen, HTTPError, URLError
-	from urlparse import urlparse, urlunparse
+	from urllib2 import Request, urlopen, HTTPError, URLError, HTTPHandler, HTTPPasswordMgrWithDefaultRealm, HTTPDigestAuthHandler, build_opener, install_opener
 
 from enigma import eTimer, RT_HALIGN_LEFT, eListboxPythonMultiContent, gFont, getDesktop, eSize, ePoint
+
 from Components.ActionMap import ActionMap, NumberActionMap
-from Components.Sources.List import List
-from Components.Sources.StaticText import StaticText
 from Components.config import config, configfile, getConfigListEntry
 from Components.ConfigList import ConfigList, ConfigListScreen
 from Components.MenuList import MenuList
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
+from Components.Sources.List import List
+from Components.Sources.StaticText import StaticText
 from Screens.ChoiceBox import ChoiceBox
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
+import skin
 from Tools.LoadPixmap import LoadPixmap
 from Tools.Directories import SCOPE_CURRENT_SKIN, resolveFilename, fileExists
-import skin
+
 
 ###global
 NAMEBIN = " "
@@ -178,13 +178,13 @@ class OscamInfo:
 		if part is not None and reader is not None:
 			self.url = "%s://%s:%s/%sapi.html?part=%s&label=%s" % (self.proto, self.ip, self.port, NAMEBIN, part, reader)
 
-		opener = request.build_opener(urllib.request.HTTPHandler)
+		opener = build_opener(HTTPHandler)
 		if not self.username == "":
-			pwman = request.HTTPPasswordMgrWithDefaultRealm()
+			pwman = HTTPPasswordMgrWithDefaultRealm()
 			pwman.add_password(None, self.url, self.username, self.password)
-			handlers = request.HTTPDigestAuthHandler(pwman)
-			opener = request.build_opener(urllib.request.HTTPHandler, handlers)
-			request.install_opener(opener)
+			handlers = HTTPDigestAuthHandler(pwman)
+			opener = build_opener(HTTPHandler, handlers)
+			install_opener(opener)
 		request = Request(self.url)
 		err = False
 		try:
@@ -890,7 +890,6 @@ class oscEntitlements(Screen, OscamInfo):
 							MultiContentEntryText(pos = (480, 1), size = (70, 24), font=0, flags = RT_HALIGN_LEFT, text = 7), # index 7 is sum of cards for caid
 							MultiContentEntryText(pos = (550, 1), size = (80, 24), font=0, flags = RT_HALIGN_LEFT, text = 8), # index 8 is reshare
 							MultiContentEntryText(pos = (630, 1), size = (1024, 50), font=1, flags = RT_HALIGN_LEFT, text = 9), # index 9 is providers
-
 												]),
 					},
 					"fonts": [gFont("Regular", 18),gFont("Regular", 14),gFont("Regular", 24),gFont("Regular", 20)],
