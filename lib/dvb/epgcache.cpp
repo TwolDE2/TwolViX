@@ -158,7 +158,6 @@ eventData::eventData(const eit_event_struct* e, int size, int _type, int tsidoni
 
 					//convert our strings to UTF8
 					std::string eventNameUTF8 = convertDVBUTF8((const unsigned char*)&descr[6], eventNameLen, table, tsidonid);
-
 					std::string text = convertDVBUTF8((const unsigned char*)&descr[7 + eventNameLen], eventTextLen, table, tsidonid);
 					
 					//hack to fix split titles
