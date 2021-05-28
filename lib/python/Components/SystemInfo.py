@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from os import listdir
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
 from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveHDMIinFHD, getHaveHDMIinHD, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getImageType, getMachineBrand, getMachineBuild, getMachineMtdRoot, getMachineName
@@ -29,7 +30,18 @@ def countFrontpanelLEDs():
 	while fileExists("/proc/stb/fp/led%d_pattern" % numLeds):
 		numLeds += 1
 	return numLeds
+	
+def hasInitCam():
+	for cam in listdir("/etc/init.d"):
+		if cam.startswith('softcam.') and not cam.endswith('None'):
+			return True
+		elif cam.startswith('cardserver.') and not cam.endswith('None'):
+			return True
+		else:
+			pass
+	return False
 
+SystemInfo["HasInitCam"] = hasInitCam()
 SystemInfo["MachineBrand"] = getMachineBrand()
 SystemInfo["MachineName"] = getMachineName()
 SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
