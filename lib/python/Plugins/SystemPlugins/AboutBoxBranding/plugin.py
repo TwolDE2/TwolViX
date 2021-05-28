@@ -63,9 +63,9 @@ def Plugins(**kwargs):
 	try:
 		prlist = getBoxbranding()[1]
 		res = len(prlist) 
-		print("[AboutBoxBranding]... Number of entries = %s" % (res))
-		for x in range(0, res):
-			print("{: <24} {: <20}".format(prlist[x][0], prlist[x][1]))
+		# print("[AboutBoxBranding]... Number of entries = %s" % (res))
+		# for x in range(0, res):
+		#	print("{: <24} {: <20}".format(prlist[x][0], prlist[x][1]))
 	except Exception as err:
 		print("[AboutBoxBranding] Error: %s: '%s'!" % (type(err).__name__, err))
 		return []
