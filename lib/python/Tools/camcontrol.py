@@ -9,7 +9,9 @@ class CamControl:
 
 	def __init__(self, name):
 		self.name = name
+		print("[CamControl] self.name=%s" % self.name)
 		self.link = '/etc/init.d/' + name
+		print("[CamControl] self.link=%s" % self.link)
 		if not os.path.exists(self.link):
 			print("[CamControl] No softcam link?", self.link)
 
@@ -18,6 +20,7 @@ class CamControl:
 		prefix = self.name + '.'
 		for f in os.listdir("/etc/init.d"):
 			if f.startswith(prefix):
+				print("[CamControl][getList] softcam=%s" % f)
 				result.append(f[len(prefix):])
 		return result
 
@@ -25,6 +28,7 @@ class CamControl:
 		try:
 			l = os.readlink(self.link)
 			prefix = self.name + '.'
+			print("[CamControl][current] prefix=%s" % prefix)
 			return os.path.split(l)[1].split(prefix, 2)[1]
 		except:
 			pass
@@ -32,7 +36,7 @@ class CamControl:
 
 	def command(self, cmd):
 		if os.path.exists(self.link):
-			print("Executing", self.link + ' ' + cmd)
+			print("[CamControl][command]Executing", self.link + ' ' + cmd)
 			enigma.eConsoleAppContainer().execute(self.link + ' ' + cmd)
 
 	def select(self, which):
@@ -40,16 +44,19 @@ class CamControl:
 		if not which:
 			which = "None"
 		dst = self.name + '.' + which
+		print("[CamControl][select] dst:%s" % dst)
 		if not os.path.exists('/etc/init.d/' + dst):
-			print("[CamControl] init script does not exist:", dst)
+			print("[CamControl][select] init script does not exist:%s" % dst)
 			return
 		try:
+			print("[CamControl][select][unlink] self.link=%s " % self.link)
 			os.unlink(self.link)
 		except:
 			pass
 		try:
+			print("[CamControl][select][symlink] dst=%s self.link=%s", % (dst, self.link))
 			os.symlink(dst, self.link)
 		except:
-			print("Failed to create symlink for softcam:", dst)
+			print("[CamControl][select] Failed to create symlink for softcam:%s" % dst)
 			import sys
-			print(sys.exc_info()[:2])
+			print("[CamControl][select] sys info = %s" % sys.exc_info()[:2])
