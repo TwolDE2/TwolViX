@@ -54,7 +54,7 @@ class CamControl:
 		except:
 			pass
 		try:
-			print("[CamControl][select][symlink] dst=%s self.link=%s", % (dst, self.link))
+			print("[CamControl][select][symlink] dst=%s self.link=%s" % (dst, self.link))
 			os.symlink(dst, self.link)
 		except:
 			print("[CamControl][select] Failed to create symlink for softcam:%s" % dst)
