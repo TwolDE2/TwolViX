@@ -442,7 +442,8 @@ class Harddisk:
 				task.initial_input = "0,\n;\n;\n;\ny\n"  # Smaller disks (CF cards, sticks etc) don't need that.
 		task = Components.Task.ConditionTask(job, _("Waiting for partition."))
 		task.check = lambda: os.path.exists(self.partitionPath("1"))
-		task.weighting = 1
+		task.weighting = 1		
+		task = UnmountTask(job, self)
 		print("[Harddisk] Creating filesystem.")
 		task = MkfsTask(job, _("Creating filesystem."))
 		big_o_options = ["dir_index"]
