@@ -1,7 +1,6 @@
-## Build Status - branch 7.0  dev Py3D: ##
-[![Build Status](https://travis-ci.org/TwolDE/enigma2.svg?branch=Py3D)](https://travis-ci.org/TwolDE/enigma2)
+[![Gitter](https://badges.gitter.im/OpenViX/community.svg)](https://gitter.im/OpenViX/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-## TwolDE buildserver is currently running on: ##
+## OpenViX buildserver requirements: ##
 
 > Ubuntu 20.04.2 LTS (Kernel 5.4.0) 64 Bit Server OS
 
@@ -12,7 +11,7 @@
 > CPU:  Multi core\thread Model
 > HDD:  for Single Build 250GB Free, for Multibuild 500GB or more
 
-## openViX py3 is built using oe-alliance build-environment and several git repositories: ##
+## OpenViX python3 is built using oe-alliance build-environment and several git repositories: ##
 
 > [https://github.com/oe-alliance/oe-alliance-core/tree/5.0](https://github.com/oe-alliance/oe-alliance-core/tree/5.0 "OE-Alliance")
 > 
@@ -89,8 +88,17 @@
 
     make update
 
-----------
-13 - Finally you can start building a image
 
-    MACHINE=zgemmah9combo DISTRO=openvix DISTRO_TYPE=release make image
+----------
+13 - Update site.conf 
+
+    - BB_NUMBER_THREADS, PARALLEL_MAKE set to number of threads supported by the CPU
+    - add/modify DL_DIR = " location for build sources " to point to a location where you can save derived build sources, 
+    this will reduce build time in fetching these sources again.
+
+----------
+14 - Finally you can start building a image
+     For example:- 
+
+     MACHINE=vuultimo4k DISTRO=openvix DISTRO_TYPE=release make image
 
