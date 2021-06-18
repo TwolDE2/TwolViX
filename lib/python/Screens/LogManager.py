@@ -188,7 +188,7 @@ class LogManagerPoller:
 		if (seconds_since_0330am <= 0):
 			seconds_since_0330am += 86400
 		if (seconds_since_0330am > 43200):
-			self.TrashTimer.startLongTimer(int(86400-seconds_since_0330am)) #at 03:30 AM
+			self.TrashTimer.startLongTimer(int(86400 - seconds_since_0330am)) #at 03:30 AM
 		else:
 			self.TrashTimer.startLongTimer(43200) #twice a day
 
@@ -332,7 +332,7 @@ class LogManagerViewLog(Screen):
 		self.setTitle(selected)
 
 		self.logfile = config.crash.debug_path.value + selected
-		self.log=[]
+		self.log = []
 		self["list"] = MenuList(self.log)
 		self["setupActions"] = ActionMap(["ColorActions", "OkCancelActions", "DirectionActions"],
 		{
@@ -362,16 +362,16 @@ class LogManagerViewLog(Screen):
 		listwidth = int(self["list"].instance.size().width() // fontwidth) - 2
 		if path.exists(self.logfile):
 			for line in open(self.logfile).readlines():
-				line = line.replace("\t", " "*9)
+				line = line.replace("\t", " " * 9)
 				if len(line) > listwidth:
 					pos = 0
 					offset = 0
 					readyline = True
 					while readyline:
-						a = " " * offset + line[pos:pos+listwidth-offset]
+						a = " " * offset + line[pos:pos + listwidth - offset]
 						self.log.append(a)
-						if len(line[pos+listwidth-offset:]):
-							pos += listwidth-offset
+						if len(line[pos + listwidth - offset:]):
+							pos += listwidth - offset
 							offset = 19
 						else:
 							readyline = False
@@ -385,7 +385,7 @@ class LogManagerViewLog(Screen):
 		self["list"].moveToIndex(0)
 
 	def gotoLastPage(self):
-		self["list"].moveToIndex(len(self.log)-1)
+		self["list"].moveToIndex(len(self.log) - 1)
 
 	def cancel(self):
 		self.close()

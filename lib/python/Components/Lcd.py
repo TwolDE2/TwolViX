@@ -192,7 +192,7 @@ def InitLcd():
 		detected = True
 	else:
 		detected = eDBoxLCD.getInstance().detected()
-		print("[Lcd.py] %s Display is set to %s" %(getBoxType(), detected))
+		print("[Lcd.py] %s Display is set to %s" % (getBoxType(), detected))
 	if SystemInfo["7segment"]:
 		detected = True
 
