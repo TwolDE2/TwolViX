@@ -357,7 +357,7 @@ def InitLcd():
 			ilcd.setPower(configElement.value)
 
 		def setLCDshowoutputresolution(configElement):
-			ilcd.setShowoutputresolution(configElement.value);
+			ilcd.setShowoutputresolution(configElement.value)
 
 		def setLCDminitvmode(configElement):
 			ilcd.setLCDMiniTVMode(configElement.value)
@@ -500,7 +500,7 @@ def InitLcd():
 
 		if fileExists("/proc/stb/lcd/show_outputresolution"):
 			config.lcd.showoutputresolution = ConfigSelection([("0", _("No")), ("1", _("Yes"))], "1")
-			config.lcd.showoutputresolution.addNotifier(setLCDshowoutputresolution);
+			config.lcd.showoutputresolution.addNotifier(setLCDshowoutputresolution)
 		else:
 			config.lcd.showoutputresolution = ConfigNothing()
 	else:
