@@ -4,7 +4,8 @@ from __future__ import absolute_import
 from __future__ import division
 
 from bisect import insort
-import itertools, datetime
+import itertools
+import datetime
 import os
 from sys import maxsize, version_info
 from time import time, localtime, strftime
