@@ -39,7 +39,7 @@ from Tools.TextBoundary import getTextBoundarySize
 
 _session = None
 
-def get_size(start_path = None):
+def get_size(start_path=None):
 	total_size = 0
 	if start_path:
 		for dirpath, dirnames, filenames in walk(start_path):
@@ -323,7 +323,7 @@ class LogManager(Screen):
 			self["list"].changeDir(self.defaultDir)
 			self["LogsSize"].update(config.crash.debug_path.value)
 		else:
-			self.session.open(MessageBox, _("You have not selected any logs to delete."), MessageBox.TYPE_INFO, timeout = 10)
+			self.session.open(MessageBox, _("You have not selected any logs to delete."), MessageBox.TYPE_INFO, timeout=10)
 
 class LogManagerViewLog(Screen):
 	def __init__(self, session, selected):
@@ -392,7 +392,7 @@ class LogManagerViewLog(Screen):
 
 
 class LogManagerFb(Screen):
-	def __init__(self, session, logpath = None):
+	def __init__(self, session, logpath=None):
 		if logpath is None:
 			if path.isdir(config.logmanager.path.value):
 				logpath = config.logmanager.path.value

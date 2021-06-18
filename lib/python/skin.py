@@ -809,9 +809,9 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 	for tag in domSkin.findall("include"):
 		filename = tag.attrib.get("filename")
 		if filename:
-			resolved = resolveFilename(scope, filename, path_prefix = pathSkin)
+			resolved = resolveFilename(scope, filename, path_prefix=pathSkin)
 			if isfile(resolved):
-				loadSkin(resolved, scope = scope, desktop = desktop, screenID = screenID)
+				loadSkin(resolved, scope=scope, desktop=desktop, screenID=screenID)
 			else:
 				raise SkinError("Tag 'include' needs an existing filename, got filename '%s' (%s)" % (filename, resolved))
 

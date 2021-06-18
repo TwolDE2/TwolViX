@@ -97,7 +97,7 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 		cfgbouquets = [(("Disabled"), _("Disabled"))]
 		for bouq in InfoBar.instance.servicelist.getBouquetList():
 			cfgbouquets.append((bouq[0],bouq[0]))
-		config.epgselection.graph_primarybouquet = ConfigSelection(choices = cfgbouquets, default = "Disabled")
+		config.epgselection.graph_primarybouquet = ConfigSelection(choices=cfgbouquets, default="Disabled")
 
 		if config.misc.initialchannelselection.value:
 			self.onShown.append(self.showMenu)

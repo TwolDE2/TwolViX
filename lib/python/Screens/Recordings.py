@@ -112,4 +112,4 @@ class RecordingSettings(Setup):
 		if self.errorItem == -1:
 			Setup.keySave(self)
 		else:
-			self.session.open(MessageBox, "%s\n\n%s" % (self.getFootnote(), _("Please select an acceptable directory.")), type = MessageBox.TYPE_ERROR)
+			self.session.open(MessageBox, "%s\n\n%s" % (self.getFootnote(), _("Please select an acceptable directory.")), type=MessageBox.TYPE_ERROR)

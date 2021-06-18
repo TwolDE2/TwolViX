@@ -819,7 +819,7 @@ class ChannelSelectionEPG(InfoBarButtonSetup, HelpableScreen):
 	def editTimer(self, timer):
 		self.session.open(TimerEntry, timer)
 
-	def doInstantTimer(self, zap, eventIndex = 0):
+	def doInstantTimer(self, zap, eventIndex=0):
 		serviceref = ServiceReference(self.getCurrentSelection())
 		refstr = ":".join(serviceref.ref.toString().split(":")[:11])
 		epgCache = eEPGCache.getInstance()
