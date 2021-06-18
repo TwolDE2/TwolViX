@@ -744,7 +744,7 @@ class ChannelSelectionEPG(InfoBarButtonSetup, HelpableScreen):
 		self["dialogactions"].setEnabled(False)
 
 	def getKeyFunctions(self, key):
-		selection = eval("config.misc.ButtonSetup." + key + ".value.split(",")")
+		selection = eval("config.misc.ButtonSetup." + key + ".value.split(", ")")
 		selected = []
 		for x in selection:
 			function = list(function for function in getButtonSetupFunctions() if function[1] == x and function[2] == "EPG")

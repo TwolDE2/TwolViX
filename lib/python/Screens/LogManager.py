@@ -136,8 +136,8 @@ class LogManagerPoller:
 			config.crash.lastfulljobtrashtime.save()
 			configfile.save()
 			for mount in mounts:
-				if path.isdir(path.join(mount,"logs")):
-					matches.append(path.join(mount,"logs"))
+				if path.isdir(path.join(mount, "logs")):
+					matches.append(path.join(mount, "logs"))
 			matches.append("/home/root/logs")
 		else:
 			#small JobTrash (in selected log file dir only) twice a day

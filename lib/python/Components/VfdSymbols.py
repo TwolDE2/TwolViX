@@ -17,7 +17,7 @@ POLLTIME = 5 # seconds
 
 def SymbolsCheck(session, **kwargs):
 		global symbolspoller, POLLTIME
-		if getMachineBuild() in ('viper4k','sf8008','gbmv200'):
+		if getMachineBuild() in ('viper4k', 'sf8008', 'gbmv200'):
 			POLLTIME = 1
 		symbolspoller = SymbolsCheckPoller(session)
 		symbolspoller.start()
@@ -29,7 +29,7 @@ class SymbolsCheckPoller:
 		self.led = "0"
 		self.timer = eTimer()
 		self.onClose = []
-		self.__event_tracker = ServiceEventTracker(screen=self,eventmap={
+		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
 				iPlayableService.evUpdatedInfo: self.__evUpdatedInfo,
 			})
 
