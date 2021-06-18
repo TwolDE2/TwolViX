@@ -30,7 +30,7 @@ def countFrontpanelLEDs():
 	while fileExists("/proc/stb/fp/led%d_pattern" % numLeds):
 		numLeds += 1
 	return numLeds
-	
+
 
 def hasInitCam():
 	for cam in listdir("/etc/init.d"):

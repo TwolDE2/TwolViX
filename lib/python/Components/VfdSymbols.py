@@ -74,7 +74,7 @@ class SymbolsCheckPoller:
 			import Screens.Standby
 			recordings = len(NavigationInstance.instance.getRecordings(False, Components.RecordingConfig.recType(config.recording.show_rec_symbol_for_rec_types.getValue())))
 			self.blink = not self.bli
-			if recordings > 0: 
+			if recordings > 0:
 				if self.blink:
 					open("/proc/stb/fp/ledpowercolor", "w").write("0")
 					self.led = "1"
@@ -170,7 +170,7 @@ class SymbolsCheckPoller:
 		else:
 			file = open("/proc/stb/lcd/symbol_play", "w")
 			file.write('0')
-			file.close() 
+			file.close()
 
 	def PauseSymbol(self):
 		if not fileExists("/proc/stb/lcd/symbol_pause"):
@@ -277,7 +277,7 @@ class SymbolsCheckPoller:
 	def Audio(self):
 		if not fileExists("/proc/stb/lcd/symbol_dolby_audio"):
 			return
-		      
+
 		audio = self.service.audioTracks()
 		if audio:
 			n = audio.getNumberOfTracks()

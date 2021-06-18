@@ -5,7 +5,7 @@ from boxbranding import getBoxType
 from Components.config import config, ConfigBoolean, configfile
 #from Components.Language import Language
 from Components.Pixmap import Pixmap
-from Screens.LanguageSelection import LanguageWizard 
+from Screens.LanguageSelection import LanguageWizard
 from Screens.Rc import Rc
 from Screens.WizardLanguage import WizardLanguage
 from Screens.WizardUserInterfacePositioner import UserInterfacePositionerWizard

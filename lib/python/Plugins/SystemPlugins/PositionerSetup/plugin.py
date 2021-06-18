@@ -102,7 +102,7 @@ class PositionerSetup(Screen):
 			self.advancedsats = self.advancedconfig.sat
 		else:
 			self.advanced = False
-		if six.PY3:	# do not combine into single conditional, py3 gives  SyntaxError: cannot assign to conditional expression	
+		if six.PY3:	# do not combine into single conditional, py3 gives  SyntaxError: cannot assign to conditional expression
 			self.availablesats = [x[0] for x in nimmanager.getRotorSatListForNim(self.feid)]
 		else:
 			self.availablesats = map(lambda x: x[0], nimmanager.getRotorSatListForNim(self.feid))

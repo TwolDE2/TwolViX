@@ -22,7 +22,7 @@ if version_info[0] >= 3:
 else:
 	from urllib2 import Request, urlopen, HTTPError, URLError
 
-# following noops normal ViX code as I use alphanumeric Imageversion which causes crash 
+# following noops normal ViX code as I use alphanumeric Imageversion which causes crash
 if getImageType() == 'release':
 	ImageVer = getImageBuild()
 else:
