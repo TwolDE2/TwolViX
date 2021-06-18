@@ -59,6 +59,7 @@ class CronTimers(Screen):
 
 	def InstallCheck(self):
 		self.Console.ePopen('/usr/bin/opkg list_installed ' + self.service_name, self.checkNetworkState)
+
 	def checkNetworkState(self, str, retval, extra_args):
 		str = six.ensure_str(str)
 		if 'Collected errors' in str:

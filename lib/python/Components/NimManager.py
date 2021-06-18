@@ -16,6 +16,7 @@ from Tools.BoundFunction import boundFunction
 
 config.unicable = ConfigSubsection()
 
+
 def orbStr(pos):
 	return pos > 3600 and "N/A" or "%d.%d\xc2\xb0%s" % (pos > 1800 and ((3600 - pos) / 10, (3600 - pos) % 10, "W") or (pos / 10, pos % 10, "E"))
 
@@ -1194,7 +1195,6 @@ class NimManager:
 
 	def getNimListForSat(self, orb_pos):
 		return [nim.slot for nim in self.nim_slots if nim.isCompatible("DVB-S") and not nim.isFBCLink() and orb_pos in [sat[0] for sat in self.getSatListForNim(nim.slot)]]
-
 
 	def rotorLastPositionForNim(self, slotid, number=True):
 		available_slot = False

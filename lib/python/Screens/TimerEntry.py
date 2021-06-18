@@ -20,6 +20,7 @@ from Screens.Screen import Screen
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 
+
 class TimerEntry(TimerEntryBase):
 	def __init__(self, session, timer):
 		TimerEntryBase.__init__(self, session, timer, "timerentry")

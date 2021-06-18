@@ -15,6 +15,7 @@ MAX_H = MAX_Y * 3 // 4
 MIN_W = MAX_X // 8
 MIN_H = MAX_Y // 8
 
+
 def clip(val, min, max):
 	if min <= val <= max:
 		return val

@@ -10,7 +10,6 @@ from Screens.Screen import Screen
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 
 
-
 class TimerEntry(TimerEntryBase):
 	def __init__(self, session, timer):
 		TimerEntryBase.__init__(self, session, timer, "powertimerentry")

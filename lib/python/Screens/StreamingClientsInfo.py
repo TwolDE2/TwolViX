@@ -10,6 +10,7 @@ from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 import skin
 
+
 class StreamingClientsInfo(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)

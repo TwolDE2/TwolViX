@@ -16,6 +16,7 @@ from Plugins.Plugin import PluginDescriptor
 from Screens.Screen import Screen
 import Screens.InfoBar
 
+
 class ServiceScanSummary(Screen):
 	skin = """
 	<screen position="0,0" size="132,64">

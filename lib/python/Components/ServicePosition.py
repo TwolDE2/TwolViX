@@ -8,6 +8,7 @@ from enigma import eTimer, iPlayableService, ePositionGauge
 from Components.GUIComponent import GUIComponent
 from Components.PerServiceDisplay import PerServiceDisplay, PerServiceBase
 
+
 class ServicePosition(PerServiceDisplay, object):
 	TYPE_LENGTH = 0,
 	TYPE_POSITION = 1,

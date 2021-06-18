@@ -29,7 +29,6 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
 
 
-
 config.misc.pluginbrowser = ConfigSubsection()
 config.misc.pluginbrowser.bootlogos = ConfigYesNo(default=True)
 config.misc.pluginbrowser.display = ConfigYesNo(default=True)

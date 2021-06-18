@@ -28,7 +28,6 @@ from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileExists
 
 
-
 class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 	def createSimpleSetup(self, list, mode):
 		nim = self.nimConfig

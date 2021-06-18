@@ -19,6 +19,7 @@ from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 from Tools.FuzzyDate import FuzzyTime
 
+
 class PowerTimerEditList(Screen):
 	EMPTY = 0
 	ENABLE = 1

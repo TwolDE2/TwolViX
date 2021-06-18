@@ -9,7 +9,6 @@ from Screens.WizardLanguage import WizardLanguage
 from Tools.Directories import resolveFilename, SCOPE_SKIN
 
 
-
 class UserInterfacePositionerWizard(WizardLanguage, Rc):
 	def __init__(self, session, interface=None):
 		self.xmlfile = resolveFilename(SCOPE_SKIN, "userinterfacepositionerwizard.xml")

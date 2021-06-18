@@ -31,6 +31,7 @@ def countFrontpanelLEDs():
 		numLeds += 1
 	return numLeds
 	
+
 def hasInitCam():
 	for cam in listdir("/etc/init.d"):
 		if cam.startswith('softcam.') and not cam.endswith('None'):
@@ -40,6 +41,7 @@ def hasInitCam():
 		else:
 			pass
 	return False
+
 
 SystemInfo["HasInitCam"] = hasInitCam()
 SystemInfo["MachineBrand"] = getMachineBrand()

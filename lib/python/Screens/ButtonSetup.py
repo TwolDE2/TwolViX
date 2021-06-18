@@ -20,8 +20,6 @@ from ServiceReference import ServiceReference
 from Tools.BoundFunction import boundFunction
 
 
-
-
 ButtonSetupKeys = [	(_("Red"), "red", "Infobar/openSingleServiceEPG/1"),
 	(_("Red long"), "red_long", "Infobar/activateRedButton"),
 	(_("Green"), "green", ""),

@@ -6,6 +6,7 @@ from Components.config import config
 import Components.Task
 from Screens.MessageBox import MessageBox
 
+
 def EpgCacheLoadCheck(session=None, **kwargs):
 	global epgcacheloadcheckpoller
 	epgcacheloadcheckpoller = EpgCacheLoadCheckPoller()

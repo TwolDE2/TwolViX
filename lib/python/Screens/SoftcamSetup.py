@@ -11,15 +11,18 @@ import os
 from Tools.camcontrol import CamControl
 from enigma import eTimer
 
+
 class ConfigAction(ConfigElement):
 	def __init__(self, action, *args):
 		ConfigElement.__init__(self)
 		self.value = "(OK)"
 		self.action = action
 		self.actionargs = args
+
 	def handleKey(self, key):
 		if (key == KEY_OK):
 			self.action(*self.actionargs)
+
 	def getMulti(self, dummy):
 		pass
 
@@ -103,7 +106,6 @@ class SoftcamSetup(Screen, ConfigListScreen):
 		(newEcmFound, ecmInfo) = self.ecminfo.getEcm()
 		if newEcmFound:
 			self["info"].setText("".join(ecmInfo))
-
 
 	def restart(self, what):
 		self.what = what

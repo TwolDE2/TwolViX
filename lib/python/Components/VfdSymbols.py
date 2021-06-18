@@ -15,12 +15,14 @@ import NavigationInstance
 
 POLLTIME = 5 # seconds
 
+
 def SymbolsCheck(session, **kwargs):
 		global symbolspoller, POLLTIME
 		if getMachineBuild() in ('viper4k', 'sf8008', 'gbmv200'):
 			POLLTIME = 1
 		symbolspoller = SymbolsCheckPoller(session)
 		symbolspoller.start()
+
 
 class SymbolsCheckPoller:
 	def __init__(self, session):

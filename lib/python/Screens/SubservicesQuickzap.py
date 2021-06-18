@@ -11,6 +11,7 @@ from Screens.InfoBarGenerics import InfoBarShowHide, InfoBarMenu, InfoBarInstant
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 
+
 class SubservicesQuickzap(InfoBarBase, InfoBarShowHide, InfoBarMenu,
 						  InfoBarInstantRecord, InfoBarSeek, InfoBarTimeshift,
 						  InfoBarTimeshiftState, InfoBarExtensions, InfoBarSubtitleSupport,

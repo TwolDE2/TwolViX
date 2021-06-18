@@ -9,6 +9,7 @@ from Components.Pixmap import Pixmap
 from Components.ServiceEventTracker import ServiceEventTracker
 from Screens.Screen import Screen
 
+
 class Screensaver(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)

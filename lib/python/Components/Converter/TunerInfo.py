@@ -5,7 +5,6 @@ from Components.Element import cached
 from Components.Sources.TunerInfo import TunerInfo as TunerInfoSource
 
 
-
 class TunerInfo(Converter, object):
 	def __init__(self, type):
 		Converter.__init__(self, type)

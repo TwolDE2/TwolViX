@@ -11,8 +11,6 @@ from ServiceReference import resolveAlternate, ServiceReference
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 
 
-
-
 class TransponderInfo(Converter, object):
 	def __init__(self, type):
 		Converter.__init__(self, type)

@@ -39,6 +39,7 @@ from Tools.TextBoundary import getTextBoundarySize
 
 _session = None
 
+
 def get_size(start_path=None):
 	total_size = 0
 	if start_path:
@@ -48,6 +49,7 @@ def get_size(start_path=None):
 				total_size += path.getsize(fp)
 		return total_size
 	return 0
+
 
 def AutoLogManager(session=None, **kwargs):
 	global debuglogcheckpoller
@@ -324,6 +326,7 @@ class LogManager(Screen):
 			self["LogsSize"].update(config.crash.debug_path.value)
 		else:
 			self.session.open(MessageBox, _("You have not selected any logs to delete."), MessageBox.TYPE_INFO, timeout=10)
+
 
 class LogManagerViewLog(Screen):
 	def __init__(self, session, selected):

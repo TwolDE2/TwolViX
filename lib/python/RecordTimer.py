@@ -25,7 +25,6 @@ from Tools.XMLTools import stringToXML
 import NavigationInstance
 
 
-
 # ok, for descriptions etc we have:
 # service reference  (to get the service name)
 # name               (title)

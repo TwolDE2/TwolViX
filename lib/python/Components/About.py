@@ -260,6 +260,7 @@ def getEnigmaUptime():
 	except:
 		return ''
 
+
 def getBoxUptime():
 	try:
 		f = open("/proc/uptime", "rb")
@@ -269,6 +270,7 @@ def getBoxUptime():
 	except:
 		return ''
 		
+
 def formatUptime(seconds):
 	out = ''
 	if seconds > 86400:
@@ -283,6 +285,7 @@ def formatUptime(seconds):
 	else:
 		out += (_("1 second") if seconds == 1 else _("%d seconds") % seconds) + " "
 	return out
+
 
 # For modules that do "from About import about"
 about = modules[__name__]

@@ -12,6 +12,7 @@ from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.FuzzyDate import FuzzyTime
 from Tools.LoadPixmap import LoadPixmap
 
+
 class PowerTimerList(GUIComponent, object):
 #
 #  | <Service>     <Name of the Timer>  |

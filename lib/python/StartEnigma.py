@@ -107,6 +107,7 @@ config.misc.DeepStandby = NoSave(ConfigYesNo(default=False))  # detect deepstand
 # config.misc.standbyCounter.addNotifier(standbyCountChanged, initial_call = False)
 # ###################################################
 
+
 def useSyncUsingChanged(configElement):
 	if configElement.value == "0":
 		print("[[StartEnigma] Time By]: Transponder")
@@ -119,6 +120,7 @@ def useSyncUsingChanged(configElement):
 
 
 config.misc.SyncTimeUsing.addNotifier(useSyncUsingChanged)
+
 
 def NTPserverChanged(configElement):
 	f = open("/etc/default/ntpdate", "w")

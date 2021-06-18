@@ -9,6 +9,7 @@ from Components.config import *
 from Tools.Directories import fileExists, SCOPE_SKIN_IMAGE, SCOPE_CURRENT_SKIN, resolveFilename 
 from Tools.LoadPixmap import LoadPixmap 
 
+
 class YWeatherPicon(Renderer):
 	__module__ = __name__
 	searchPaths = ('/usr/lib/enigma2/python/Plugins/Extensions/iSkin/Weather/%s/', '/usr/lib/enigma2/python/Plugins/Extensions/YahooWeather/%s/', '/usr/share/enigma2/%s/', '/media/cf/%s/', '/media/sda1/%s/', '/media/usb/%s/', '/media/hdd/%s/')

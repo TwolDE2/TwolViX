@@ -12,6 +12,7 @@ from Components.Renderer.Renderer import Renderer
 from Components.Renderer.Picon import PiconLocator
 from Tools.Directories import pathExists, SCOPE_CURRENT_SKIN, resolveFilename
 
+
 def useLcdPicons():
 	return getDisplayType() in ('bwlcd255', 'bwlcd140', 'bwlcd128') or config.lcd.picon_pack.value
 
