@@ -1,4 +1,5 @@
-[![Gitter](https://badges.gitter.im/OpenViX/community.svg)](https://gitter.im/OpenViX/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+## Build Status - branch 7.0  Py3D: ##
+[![Py3D build](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml/badge.svg)](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml)
 
 ## OpenViX buildserver requirements: ##
 
