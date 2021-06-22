@@ -18,7 +18,7 @@ from Components.Console import Console
 from Components.Network import iNetwork
 
 
-liste = ["Unencrypted", "WEP", "WPA", "WPA/WPA2", "WPA2"]
+liste = ["WPA/WPA2", "WPA2", "WPA", "WEP", "Unencrypted"]
 
 weplist = ["ASCII", "HEX"]
 
@@ -184,6 +184,7 @@ class Wlan:
 						'pairwise_ciphers': scanresults[i].pairwise_ciphers,
 						'authentication_suites': scanresults[i].authentication_suites,
 					}
+		print("[Wlan.py] apsresults1 = %s" % aps)		
 		return aps
 
 	def stopGetNetworkList(self):
@@ -591,8 +592,7 @@ class Status:
 					data['encryption_type'] = aps[ssid]["encryption_type"]
 					#data['frequency'] = aps[ssid]["frequency"]
 					data['frequency_norm'] = aps[ssid]["frequency_norm"]
-
-
+		print("[Wlan.py] apsresults2 = %s" % data)
 		self.wlaniface[iface] = data
 		self.backupwlaniface = self.wlaniface
 
