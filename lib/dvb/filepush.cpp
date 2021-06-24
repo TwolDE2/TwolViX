@@ -161,7 +161,7 @@ void eFilePushThread::thread()
 			else
 				sendEvent(evtUser); // start of file event
 
-			if (m_stream_mode) && (++eofcount < 10)
+			if (m_stream_mode && ++eofcount < 10)
 			{
 				eDebug("[eFilePushThread] reached EOF, but we are in stream mode. delaying 1 second.");
 				sleep(1);
