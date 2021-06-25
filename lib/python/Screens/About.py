@@ -294,9 +294,10 @@ class Devices(Screen):
 					hddp = hddp.replace("ATA", "")
 					hddp = hddp.replace("Internal", "ATA Bus ")
 				free = hdd.Totalfree()
+				print("[About] [free] free=%s hdd=%s" % (free, hddp))
 				if (free / 1000 / 1000) >= 1:
-					freeline = _("Free: ") + str(round((free / 1000) / 1000), 2) + _("TB")
-				elif (free / 1024) >= 1:
+					freeline = _("Free: ") + str(round((free / 1000 / 1000), 2)) + _("TB")
+				elif (free / 1000) >= 1:
 					freeline = _("Free: ") + str(round((free / 1000), 2)) + _("GB")
 				elif free >= 1:
 					freeline = _("Free: ") + str(free) + _("MB")
