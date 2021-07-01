@@ -316,7 +316,7 @@ config.ParentalControl.setuppin.save()
 -->
 		<step id="plugins"  nextstep="timeoptions">
 			<condition>
-self.condition = config.misc.installwizard.hasnetwork.value and config.misc.installwizard.ipkgloaded.value
+self.condition = config.misc.networkenabled.value
 			</condition>
 			<text value="Plugin install" />
 			<config screen="InstallWizard" module="InstallWizard" args="2" type="ConfigList" />
