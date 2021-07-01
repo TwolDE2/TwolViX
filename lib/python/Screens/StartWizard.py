@@ -15,6 +15,7 @@ from Screens.Wizard import wizardManager
 config.misc.firstrun = ConfigBoolean(default=True)
 config.misc.languageselected = ConfigBoolean(default=True)
 config.misc.videowizardenabled = ConfigBoolean(default=True)
+config.misc.networkenabled = ConfigBoolean(default=False)
 
 
 class StartWizard(WizardLanguage, Rc):
