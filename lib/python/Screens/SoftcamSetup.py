@@ -61,7 +61,7 @@ class SoftcamSetup(Screen, ConfigListScreen):
 
 		self.softcam = CamControl('softcam')
 		self.cardserver = CamControl('cardserver')
-
+		self.softcams_text = ""
 		self.ecminfo = GetEcmInfo()
 		(newEcmFound, ecmInfo) = self.ecminfo.getEcm()
 		self["info"] = ScrollLabel("".join(ecmInfo))
@@ -71,21 +71,23 @@ class SoftcamSetup(Screen, ConfigListScreen):
 
 		softcams = self.softcam.getList()
 		cardservers = self.cardserver.getList()
-
-		self.softcams = ConfigSelection(choices=softcams)
-		self.softcams.value = self.softcam.current()
-
-		self.softcams_text = _("Select Softcam")
-		self.list.append(getConfigListEntry(self.softcams_text, self.softcams))
+		if softcams:
+			self.softcams = ConfigSelection(choices=softcams)
+			self.softcams.value = self.softcam.current()
+			self.softcams_text = _("Select Softcam")
+			self.list.append(getConfigListEntry(self.softcams_text, self.softcams))
+		
 		if cardservers:
 			self.cardservers = ConfigSelection(choices=cardservers)
 			self.cardservers.value = self.cardserver.current()
 			self.list.append(getConfigListEntry(_("Select Card Server"), self.cardservers))
 
-		self.list.append(getConfigListEntry(_("Restart softcam"), ConfigAction(self.restart, "s")))
-		if cardservers:
-			self.list.append(getConfigListEntry(_("Restart cardserver"), ConfigAction(self.restart, "c")))
+		if cardservers and softcams:			
 			self.list.append(getConfigListEntry(_("Restart both"), ConfigAction(self.restart, "sc")))
+		elif softcams:
+			self.list.append(getConfigListEntry(_("Restart softcam"), ConfigAction(self.restart, "s")))	
+		else:
+			self.list.append(getConfigListEntry(_("Restart cardserver"), ConfigAction(self.restart, "c")))					
 
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("OK"))

@@ -16,13 +16,17 @@ class CamControl:
 			print("[CamControl] No softcam link?", self.link)
 
 	def getList(self):
-		result = []
+		result = noresult = []
 		prefix = self.name + '.'
 		for f in os.listdir("/etc/init.d"):
 			if f.startswith(prefix):
 				print("[CamControl][getList] softcam=%s" % f)
 				result.append(f[len(prefix):])
-		return result
+		print("[CamControl][getList] returnlist=%s" % result)	
+		if len(result) > 1:
+			return result
+		else:
+			return False	
 
 	def current(self):
 		try:
