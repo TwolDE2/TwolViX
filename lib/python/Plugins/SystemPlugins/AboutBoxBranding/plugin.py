@@ -71,7 +71,8 @@ def Plugins(**kwargs):
 #		for x in range(0, res):
 #			print("{: <24} {: <20}".format(prlist[x][0], prlist[x][1]))
 #	except Exception as err:
-		print("[AboutBoxBranding] Error: %s: '%s'!" % (type(err).__name__, err))
-		return []
+#		print("[AboutBoxBranding] Error: %s: '%s'!" % (type(err).__name__, err))
+#		return []
 	from Plugins.Plugin import PluginDescriptor
 	return [PluginDescriptor(where=PluginDescriptor.WHERE_MENU, fnc=start)]
+	
