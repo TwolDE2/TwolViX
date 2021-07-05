@@ -2634,7 +2634,6 @@ class InfoBarShowMovies:
 			}, description=_("Open the movie list"))
 
 
-from Screens.PiPSetup import PiPSetup
 
 
 class InfoBarExtensions:
@@ -2913,6 +2912,7 @@ class InfoBarJobman:
 		job_manager.in_background = in_background
 
 # depends on InfoBarExtensions
+from Screens.PiPSetup import PiPSetup
 
 
 class InfoBarPiP:
