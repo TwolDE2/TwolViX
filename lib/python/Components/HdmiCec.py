@@ -169,10 +169,10 @@ class HdmiCec:
 			data = self.setData()
 		elif message == "menuactive":
 			cmd = 0x8e
-			data = six.ensure_str(struct.pack("B", 0x00))
+			data = struct.pack("B", 0x00)
 		elif message == "menuinactive":
 			cmd = 0x8e
-			data = six.ensure_str(struct.pack("B", 0x01))
+			data = struct.pack("B", 0x01)
 		elif message == "givesystemaudiostatus":
 			cmd = 0x7d
 			address = 0x05
@@ -186,10 +186,10 @@ class HdmiCec:
 			data = data[:14]
 		elif message == "poweractive":
 			cmd = 0x90
-			data = six.ensure_str(struct.pack("B", 0x00))
+			data = struct.pack("B", 0x00)
 		elif message == "powerinactive":
 			cmd = 0x90
-			data = six.ensure_str(struct.pack("B", 0x01))
+			data = struct.pack("B", 0x01)
 		elif message == "reportaddress":
 			address = 0x0f # use broadcast address
 			cmd = 0x84
@@ -199,13 +199,13 @@ class HdmiCec:
 			data = "\x00\x00\x00"
 		elif message == "keypoweron":
 			cmd = 0x44
-			data = six.ensure_str(struct.pack("B", 0x6d))
+			data = struct.pack("B", 0x6d)
 		elif message == "keypoweroff":
 			cmd = 0x44
-			data = six.ensure_str(struct.pack("B", 0x6c))
+			data = struct.pack("B", 0x6c)
 		elif message == "sendcecversion":
 			cmd = 0x9E
-			data = six.ensure_str(struct.pack("B", 0x04)) # v1.3a
+			data = struct.pack("B", 0x04) # v1.3a
 		elif message == "requestactivesource":
 			address = 0x0f # use broadcast address
 			cmd = 0x85
@@ -213,7 +213,9 @@ class HdmiCec:
 			self.useStandby = True
 			address = 0x0f # use broadcast address => boxes will send info
 			cmd = 0x8f
-
+		print("[eHdmiCec][sendMessage]: cmd=%s,data=%s" % (cmd, data))
+		if data:
+			data = six.ensure_str(data, encoding='utf-8', errors='ignore')	
 		if cmd:
 			if config.hdmicec.minimum_send_interval.value != "0":
 				self.queue.append((address, cmd, data))
@@ -240,8 +242,8 @@ class HdmiCec:
 		physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
 		if devicetypeSend:
 			devicetype = eHdmiCEC.getInstance().getDeviceType()
-			return six.ensure_str(struct.pack("BBB", int(physicaladdress / 256), int(physicaladdress % 256), devicetype))
-		return six.ensure_str(struct.pack("BB", int(physicaladdress / 256), int(physicaladdress % 256)))
+			return six.ensure_str(struct.pack("BBB", int(physicaladdress / 256), int(physicaladdress % 256), devicetype), encoding='utf-8', errors='ignore')
+		return six.ensure_str(struct.pack("BB", int(physicaladdress / 256), int(physicaladdress % 256)), encoding='utf-8', errors='ignore')
 
 	def wakeupMessages(self):
 		if config.hdmicec.enabled.value:
@@ -430,23 +432,25 @@ class HdmiCec:
 		if keyEvent == 0:
 			if keyCode == 115:
 				cmd = 0x44
-				data = six.ensure_str(struct.pack("B", 0x41))
+				data = struct.pack("B", 0x41)
 			if keyCode == 114:
 				cmd = 0x44
-				data = six.ensure_str(struct.pack("B", 0x42))
+				data = struct.pack("B", 0x42)
 			if keyCode == 113:
 				cmd = 0x44
-				data = six.ensure_str(struct.pack("B", 0x43))
+				data = struct.pack("B", 0x43)
 		if keyEvent == 2:
 			if keyCode == 115:
 				cmd = 0x44
-				data = six.ensure_str(struct.pack("B", 0x41))
+				data = struct.pack("B", 0x41)
 			if keyCode == 114:
 				cmd = 0x44
-				data = six.ensure_str(struct.pack("B", 0x42))
+				data = struct.pack("B", 0x42)
 			if keyCode == 113:
 				cmd = 0x44
-				data = six.ensure_str(struct.pack("B", 0x43))
+				data = struct.pack("B", 0x43)
+		print("[eHdmiCec][keyEvent]: cmd=%s,data=%s" % (cmd, data))
+		data = six.ensure_str(data, encoding='utf-8', errors='ignore')			
 		if keyEvent == 1:
 			if keyCode == 115 or keyCode == 114 or keyCode == 113:
 				cmd = 0x45
