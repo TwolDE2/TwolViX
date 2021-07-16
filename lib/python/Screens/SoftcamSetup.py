@@ -1,15 +1,15 @@
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
-from Components.ConfigList import ConfigListScreen
+import os
+from enigma import eTimer
+
 from Components.ActionMap import ActionMap
 from Components.config import ConfigElement, ConfigSelection, getConfigListEntry, KEY_OK
+from Components.ConfigList import ConfigListScreen
 from Components.ScrollLabel import ScrollLabel
-from Tools.GetEcmInfo import GetEcmInfo
 from Components.Sources.StaticText import StaticText
-
-import os
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 from Tools.camcontrol import CamControl
-from enigma import eTimer
+from Tools.GetEcmInfo import GetEcmInfo
 
 
 class ConfigAction(ConfigElement):
@@ -50,10 +50,10 @@ class SoftcamSetup(Screen, ConfigListScreen):
 
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "CiSelectionActions"],
 			{
-				"cancel": self.cancel,
-				"green": self.save,
 				"red": self.cancel,
+				"green": self.save,
 				"blue": self.cancel,
+				"cancel": self.cancel,
 			}, -1)
 
 		self.list = []
