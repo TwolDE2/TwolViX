@@ -1,5 +1,5 @@
 ## Build Status - branch 7.0  Py3D: ##
-[![Py3D build](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml/badge.svg)](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml)
+[![Py3D build](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml/badge.svg?branch=Py3D)](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml?branch=Py3D)
 
 ## OpenViX buildserver requirements: ##
 
