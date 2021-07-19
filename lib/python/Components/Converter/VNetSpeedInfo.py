@@ -193,7 +193,7 @@ class VNetSpeedInfo(Poll, Converter, object):
 				else:
 					self.lanreceive = 0
 				self.lanreceivetotal = newlanreceive
-				self.lanreceivetotalout = newlanreceive // 1024
+				self.lanreceivetotalout = newlanreceive / 1024
 				newlantransmit = int(sp[8]) / 1024
 				self.error_lantransmite = int(sp[10])
 				self.drop_lantransmite = int(sp[11])
@@ -203,7 +203,7 @@ class VNetSpeedInfo(Poll, Converter, object):
 				else:
 					self.lantransmit = 0
 				self.lantransmittotal = newlantransmit
-				self.lantransmittotalout = newlantransmit // 1024
+				self.lantransmittotalout = newlantransmit / 1024
 				if (self.lantransmittotal + self.lanreceivetotal) == 0:
 					flaglan = 0
 			if (bw.find("ra") != -1) or (bw.find("wlan") != -1) or (bw.find("wifi") != -1):
@@ -232,7 +232,7 @@ class VNetSpeedInfo(Poll, Converter, object):
 				else:
 					self.wlanreceive = 0
 				self.wlanreceivetotal = newwlanreceive
-				self.wlanreceivetotalout = newwlanreceive // 1024
+				self.wlanreceivetotalout = newwlanreceive / 1024
 				newwlantransmit = int(sp[8]) / 1024
 				self.error_wlantransmite = int(sp[10])
 				self.drop_wlantransmite = int(sp[11])
@@ -242,7 +242,7 @@ class VNetSpeedInfo(Poll, Converter, object):
 				else:
 					self.wlantransmit = 0
 				self.wlantransmittotal = newwlantransmit
-				self.wlantransmittotalout = newwlantransmit // 1024
+				self.wlantransmittotalout = newwlantransmit / 1024
 		bwm.close()
 
 #		if ((flaglan == 1) and (flagwlan == 0)) or ((flaglan == 1) and (flagwlan == 1)):
@@ -262,8 +262,8 @@ class VNetSpeedInfo(Poll, Converter, object):
 			self.transmittotal = self.wlantransmittotal
 			self.nettyp = "WLAN"
 		if (flaglan == 1) or (flagwlan == 1):
-			self.receivemb = self.receive // 8
-			self.transmitmb = self.transmit // 8
+			self.receivemb = self.receive / 8
+			self.transmitmb = self.transmit / 8
 		if self.type == self.RCL:
 			return "%3.1fMb/s" % self.lanreceive
 		elif self.type == self.TML:
