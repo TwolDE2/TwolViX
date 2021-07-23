@@ -6,18 +6,21 @@ from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveHDMIinFHD, getHaveHDMIinHD, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getImageType, getMachineBrand, getMachineBuild, getMachineMtdRoot, getMachineName
 from Components.About import getChipSetString
 from Components.RcModel import rc_model
+from Tools.BoxConfig import BoxConfig
 from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, isPluginInstalled
 from Tools.HardwareInfo import HardwareInfo
 
 SystemInfo = {}
+SystemInfo["BoxInfo"] = BoxConfig()
 SystemInfo["HasRootSubdir"] = False	# This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["RecoveryMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
-from Tools.Multiboot import getMBbootdevice, getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
+from Tools.Multiboot import getMBbootdevice, getMultibootslots, GetCurrentImage  # This import needs to be here to avoid a SystemInfo load loop!
+SystemInfo["MBbootdevice"] = getMBbootdevice()
+SystemInfo["canMultiBoot"] = getMultibootslots()
+SystemInfo["MultiBootSlot"] = GetCurrentImage() if SystemInfo["canMultiBoot"] else False
 SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("viper4kv20",)	# This needs to be for later checks
-SystemInfo["MachineBrand"] = getMachineBrand()
-SystemInfo["MachineName"] = getMachineName()
 
-
+		
 def getNumVideoDecoders():
 	numVideoDecoders = 0
 	while fileExists("/dev/dvb/adapter0/video%d" % numVideoDecoders, "f"):
@@ -34,9 +37,9 @@ def countFrontpanelLEDs():
 
 def hasInitCam():
 	for cam in listdir("/etc/init.d"):
-		if cam.startswith('softcam.') and not cam.endswith('None'):
+		if cam.startswith("softcam.") and not cam.endswith("None"):
 			return True
-		elif cam.startswith('cardserver.') and not cam.endswith('None'):
+		elif cam.startswith("cardserver.") and not cam.endswith("None"):
 			return True
 		else:
 			pass
@@ -165,8 +168,6 @@ SystemInfo["CanDTSHD"] = fileHas("/proc/stb/audio/dtshd_choices", "downmix")
 SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 #	Multiboot/bootmode options	The following entries need to be in this sequence to avoid a SystemInfo failure.
-SystemInfo["MBbootdevice"] = getMBbootdevice()
-SystemInfo["canMultiBoot"] = getMultibootslots()
 SystemInfo["canBackupEMC"] = getMachineBuild() in ("hd51", "h7") and ("disk.img", "%s" % SystemInfo["MBbootdevice"]) or getMachineBuild() in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "%s" % SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ("usb_update.bin", "none")
 SystemInfo["canMode12"] = getMachineBuild() in ("hd51", "h7") and ("brcm_cma=440M@328M brcm_cma=192M@768M", "brcm_cma=520M@248M brcm_cma=200M@768M")
 SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")

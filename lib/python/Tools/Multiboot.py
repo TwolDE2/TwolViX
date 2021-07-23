@@ -11,6 +11,7 @@ from os import mkdir, path, rmdir, rename, remove, sep, stat
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
 from Components.SystemInfo import SystemInfo
+from Tools.BoxConfig import BoxConfig
 
 
 class tmp:
@@ -37,15 +38,18 @@ def getparam(line, param):
 def getMultibootslots():
 	bootslots = {}
 	slotname = ""
+	boxInfo = {}
 	if SystemInfo["MBbootdevice"]:
 		for file in glob.glob(path.join(tmp.dir, "STARTUP_*")):
+			print("[multiboot*****] [getMultibootslots0] tmp.dir = %s" % (tmp.dir))
 			if "STARTUP_RECOVERY" in file:
 				SystemInfo["RecoveryMode"] = True
 				# print("[multiboot] [getMultibootslots] RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
 			print("[multiboot] [getMultibootslots0] file = %s" % (file))
 			slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1][0]
-			slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
-			slotname = slotname[1:] if len(slotname) > 1 else ""
+			slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[0]
+			slotname = file.rsplit("/", 1)[1]
+			slotname = slotname if len(slotname) > 1 else ""
 			print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 			if slotnumber.isdigit() and slotnumber not in bootslots:
 				slot = {}
@@ -75,7 +79,7 @@ def getMultibootslots():
 		Console().ePopen("umount %s" % tmp.dir)
 		if not path.ismount(tmp.dir):
 			rmdir(tmp.dir)
-	# print("[Multiboot] Bootslots found:", bootslots)
+	print("[Multiboot] Bootslots found:", bootslots)
 	return bootslots
 
 
@@ -107,9 +111,10 @@ def GetCurrentImageMode():
 
 def GetImagelist():
 	Imagelist = {}
-	tmp.dir = tempfile.mkdtemp(prefix="Multiboot")
+	tmp.dir = tempfile.TemporaryDirectory(prefix="Multiboot")
+	tmpname = tmp.dir.name 
+	# print("[multiboot] [GetImagelist] tmpname = %s" % (tmpname))	
 	for slot in sorted(list(SystemInfo["canMultiBoot"].keys())):
-		Console().ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
 		BuildVersion = "  "
 		Build = " "  # ViX Build No.
 		Dev = " "  # ViX Dev No.
@@ -117,34 +122,51 @@ def GetImagelist():
 		Date = " "
 		BuildType = " "  # release etc
 		Imagelist[slot] = {"imagename": _("Empty slot")}
-		imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
+		imagedir = "/"	
+		if SystemInfo["MultiBootSlot"] != slot:
+			Console().ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))		
+			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
+		print("[multiboot] [GetImagelist] isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))			
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
-			#	print("[multiboot] [GetImagelist] 2 slot = %s imagedir = %s" % (slot, imagedir))
-			Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
-			#	print("[multiboot] [GetImagelist] Creator = %s imagedir = %s" % (Creator, imagedir))
-			if Creator.startswith("Openvix"):
-				reader = boxbranding_reader(imagedir)
-				# print("[multiboot] [GetImagelist]1 slot = %s imagedir = %s" % (slot, imagedir))
-				if path.isfile(path.join(imagedir, "usr/lib/enigma2/python/ImageIdentifier.py")):
-					print("[multiboot] [GetImagelist]2 slot = %s imagedir = %s" % (slot, imagedir))
-					reader = readImageIdentifier(imagedir)
-				BuildType = reader.getImageType()
-				Build = reader.getImageBuild()
-				Creator = Creator.replace("-release", " rel")
-				# print("[multiboot] [GetImagelist] Slot = %s Creator = %s BuildType = %s Build = %s" % (slot, Creator, BuildType, Build))
-				Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ""
-				date = VerDate(imagedir)
-				BuildVersion = "%s %s %s %s %s" % (Creator, BuildType[0:3], Build, Dev, date)
-			else:
-				date = VerDate(imagedir)
-				Creator = Creator.replace("-release", " ")
-				BuildVersion = "%s Image Date: %s" % (Creator, date)
+			# print("[multiboot] [GetImagelist] Slot = %s imagedir = %s" % (slot, imagedir))		
+			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
+				BoxInfo = BoxConfig(root=imagedir) if SystemInfo["MultiBootSlot"] != slot else SystemInfo["BoxInfo"]
+				Creator = BoxInfo.getItem("distro").title()
+				BuildImgVersion = BoxInfo.getItem("imgversion")
+				BuildType = BoxInfo.getItem("imagetype")[0:3]
+				BuildVer = BoxInfo.getItem("imagebuild")												
+				BuildDate = BoxInfo.getItem("compiledate")
+				BuildDev = str(BoxInfo.getItem("imagedevbuild")).zfill(3) if BuildType != "rel" else ""
+				BuildVersion = "%s %s %s %s %s created %s" % (Creator, BuildImgVersion, BuildType, BuildVer, BuildDev, BuildDate)
+				print("[multiboot] [BoxInfo]  slot=%s, Creator=%s, BuildType=%s, BuildImgVersion=%s, BuildDate=%s, BuildDev=%s" % (slot, Creator, BuildType, BuildImgVersion, BuildDate, BuildDev))
+			else:				
+				#	print("[multiboot] [GetImagelist] 2 slot = %s imagedir = %s" % (slot, imagedir))
+				Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
+				#	print("[multiboot] [GetImagelist] Creator = %s imagedir = %s" % (Creator, imagedir))
+				if Creator.startswith("Openvix"):
+					reader = boxbranding_reader(imagedir)
+					# print("[multiboot] [GetImagelist]1 slot = %s imagedir = %s" % (slot, imagedir))
+					if path.isfile(path.join(imagedir, "usr/lib/enigma2/python/ImageIdentifier.py")):
+						print("[multiboot] [GetImagelist]2 slot = %s imagedir = %s" % (slot, imagedir))
+						reader = readImageIdentifier(imagedir)
+					BuildType = reader.getImageType()
+					Build = reader.getImageBuild()
+					Creator = Creator.replace("-release", " rel")
+					# print("[multiboot] [GetImagelist] Slot = %s Creator = %s BuildType = %s Build = %s" % (slot, Creator, BuildType, Build))
+					Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ""
+					date = VerDate(imagedir)
+					BuildVersion = "%s %s %s %s %s" % (Creator, BuildType[0:3], Build, Dev, date)
+					print("[BootInfo] slot = %s BuildVersion = %s" % (slot, BuildVersion))
+				else:
+					date = VerDate(imagedir)
+					Creator = Creator.replace("-release", " ")
+					BuildVersion = "%s Image Date: %s" % (Creator, date)
 			Imagelist[slot] = {"imagename": "%s" % BuildVersion}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):
 			Imagelist[slot] = {"imagename": _("Deleted image")}
-		Console().ePopen("umount %s" % tmp.dir)
-	if not path.ismount(tmp.dir):
-		rmdir(tmp.dir)
+		if SystemInfo["MultiBootSlot"] != slot:			
+			Console().ePopen("umount %s" % tmpname)
+	tmp.dir.cleanup()
 	return Imagelist
 
 
@@ -162,7 +184,7 @@ def VerDate(imagedir):
 
 
 def emptySlot(slot):
-	tmp.dir = tempfile.mkdtemp(prefix="Multiboot")
+	tmp.dir = tempfile.mkdtemp(prefix="emptySlot")
 	Console().ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
 	imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 	if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
@@ -179,7 +201,7 @@ def emptySlot(slot):
 
 def restoreSlots():
 	for slot in SystemInfo["canMultiBoot"]:
-		tmp.dir = tempfile.mkdtemp(prefix="Multiboot")
+		tmp.dir = tempfile.mkdtemp(prefix="emptySlot")
 		Console().ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
 		imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 		if path.isfile(path.join(imagedir, "usr/bin/enigmax")):
