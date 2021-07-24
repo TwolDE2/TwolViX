@@ -25,7 +25,7 @@ from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
 from Tools.Directories import fileExists, fileCheck, pathExists
-from Tools.Multiboot import GetCurrentImage, GetCurrentImageMode
+from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
 
 SIGN = "°" if six.PY3 else str("\xc2\xb0")
@@ -85,7 +85,7 @@ class About(Screen):
 			AboutText += _("%s") % part
 
 		if SystemInfo["canMultiBoot"]:
-			slot = image = GetCurrentImage()
+			slot = image = SystemInfo["MultiBootSlot"]
 			part = "eMMC slot %s" % slot
 			bootmode = ""
 			if SystemInfo["canMode12"]:
