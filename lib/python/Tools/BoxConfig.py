@@ -88,11 +88,7 @@ class BoxConfig:  # To maintain data integrity class variables should not be acc
 		return value
 
 	def setItem(self, item, value):
-		if item in self.procList:
-			print("[BoxInfo] Error: Item '%s' is immutable and can not be %s!" % (item, "changed" if item in self.boxInfo else "added"))
-			return False
 		self.boxInfo[item] = value
-		SystemInfo[item] = value
 		return True
 
 	def deleteItem(self, item):

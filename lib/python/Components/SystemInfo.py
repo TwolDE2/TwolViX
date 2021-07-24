@@ -14,9 +14,8 @@ SystemInfo = {}
 SystemInfo["BoxInfo"] = BoxConfig()
 SystemInfo["HasRootSubdir"] = False	# This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["RecoveryMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
-from Tools.Multiboot import getMBbootdevice, getMultibootslots, GetCurrentImage  # This import needs to be here to avoid a SystemInfo load loop!
-SystemInfo["MBbootdevice"] = getMBbootdevice()
-SystemInfo["canMultiBoot"] = getMultibootslots()
+from Tools.Multiboot import getMultibootslots, GetCurrentImage  # This import needs to be here to avoid a SystemInfo load loop!
+SystemInfo["canMultiBoot"] = getMultibootslots()	# SystemInfo["MBbootdevice"] set on call 
 SystemInfo["MultiBootSlot"] = GetCurrentImage() if SystemInfo["canMultiBoot"] else False
 SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("viper4kv20",)	# This needs to be for later checks
 
