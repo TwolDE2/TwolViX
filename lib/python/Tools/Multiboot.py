@@ -39,7 +39,7 @@ def getparam(line, param):
 def getMultibootslots():
 	bootslots = {}
 	slotname = ""
-	BoxInfo = SystemInfo["BoxInfo"]	
+	BoxInfo = SystemInfo["BoxInfo"]
 	tmp.dir = tempfile.TemporaryDirectory(prefix="Multiboot")
 	tmpname = tmp.dir.name 
 	for device in ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/block/by-name/bootoptions" ):
