@@ -63,7 +63,13 @@ class About(Screen):
 
 		AboutText += _("Model:\t%s %s\n") % (getMachineBrand(), getMachineName())
 
-		if about.getChipSetString() != _("unavailable"):
+		
+		if SystemInfo["BoxInfo"]:
+			BoxInfo = SystemInfo["BoxInfo"]
+			AboutText += _("Boot Device:\t%s\n") % BoxInfo.getItem("mtdbootfs")			
+			AboutText += _("Chipset:\t%s\n") % BoxInfo.getItem("socfamily")
+							
+		elif about.getChipSetString() != _("unavailable"):
 			if SystemInfo["HasHiSi"]:
 				AboutText += _("Chipset:\tHiSilicon %s\n") % about.getChipSetString().upper()
 			elif about.getIsBroadcom():
