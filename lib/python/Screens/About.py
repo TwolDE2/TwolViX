@@ -62,7 +62,6 @@ class About(Screen):
 		self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
 
 		AboutText += _("Model:\t%s %s\n") % (getMachineBrand(), getMachineName())
-
 		
 		if SystemInfo["BoxInfo"]:
 			BoxInfo = SystemInfo["BoxInfo"]
