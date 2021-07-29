@@ -569,7 +569,7 @@ def InitAVSwitch():
 			choices = myfile.read().strip()
 		if choices:
 			choiceslist = choices.split(" ")
-			choicesx = [(item, _("%s") % item) for item in choiceslist]
+			choicesx = [(item, _(item)) for item in choiceslist]
 			defaultx = choiceslist[0]
 			for item in choiceslist:
 				if "%s" % defchoice.upper in item.upper():
