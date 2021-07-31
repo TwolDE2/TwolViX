@@ -19,19 +19,6 @@ class tmp:
 	dir = None
 
 
-def getMBbootdevice():
-	tmp.dir = tempfile.mkdtemp(prefix="Multiboot")
-	for device in ("/dev/block/by-name/bootoptions", "/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4"):
-		if path.exists(device):
-			Console().ePopen("mount %s %s" % (device, tmp.dir))
-			if path.isfile(path.join(tmp.dir, "STARTUP")):
-				# print("[Multiboot] [getMBbootdevices] Bootdevice found: %s" % device)
-				return device
-			Console().ePopen("umount %s" % tmp.dir)
-	if not path.ismount(tmp.dir):
-		rmdir(tmp.dir)
-
-
 def getparam(line, param):
 	return line.replace("userdataroot", "rootuserdata").rsplit("%s=" % param, 1)[1].split(" ", 1)[0]
 
