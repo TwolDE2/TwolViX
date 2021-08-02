@@ -190,10 +190,16 @@ class HdmiCec:
 			cmd = message.getCommand()
 			data = 16 * "\x00"
 			length = message.getData(data, len(data))
+			msgaddress = message.getAddress()
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, data)
+			#// workaround for wrong address vom driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
+			if msgaddress > 15:
+				address = 0
+			#//
+
 			if cmd == 0x00:
-				if length == 0: # only polling message ( it's some as ping )
+				if length == 0: 		# only polling message ( it's same as ping )
 					print("eHdmiCec: received polling message")
 				else:
 					if data[0] == "\x44":	# feature abort
@@ -273,44 +279,49 @@ class HdmiCec:
 		cmd = 0
 		data = ""
 		if message == "sourceinactive":
-			cmd = 0x9d
+			cmd = 0x9d	# 157
 			data = self.setData()
 		elif message == "menuactive":
-			cmd = 0x8e
+			cmd = 0x8e	# 142
 			data = struct.pack("B", 0x00)
 		elif message == "menuinactive":
-			cmd = 0x8e
+			cmd = 0x8e	# 142
 			data = struct.pack("B", 0x01)
 		elif message == "poweractive":
-			cmd = 0x90
+			cmd = 0x90	# 144
 			data = struct.pack("B", 0x00)
 		elif message == "powerinactive":
-			cmd = 0x90
+			cmd = 0x90	# 144
 			data = struct.pack("B", 0x01)
 		elif message == "keypoweron":
-			cmd = 0x44
+			cmd = 0x44	# 68
 			data = struct.pack("B", 0x6d)
 		elif message == "keypoweroff":
-			cmd = 0x44
+			cmd = 0x44	# 68
 			data = struct.pack("B", 0x6c)
 		elif message == "sendcecversion":
-			cmd = 0x9E
+			cmd = 0x9E	# 158
 			data = struct.pack("B", 0x04) # v1.3a
 		elif message == "sourceactive":
 			address = 0x0f # use broadcast for active source command
-			cmd = 0x82
-			data = self.setData()			
+			cmd = 0x82	# 130
+			data = self.setData()
 		elif message == "reportaddress":
 			address = 0x0f # use broadcast address
-			cmd = 0x84
-			data = self.setData(True)			
+			cmd = 0x84	# 132
+			data = self.setData(True)
 		elif message == "setsystemaudiomode":
-			cmd = 0x70
+			cmd = 0x70	# 112
 			address = 0x05
 			data = self.setData()
 		if data:				# keep cmd+data calls above this line so binary data converted
-			encoder = chardet.detect(data)["encoding"]
-			data = six.ensure_str(data, encoding=encoder, errors='ignore')	
+#			encoder = chardet.detect(data)["encoding"]
+			encoder = "utf-8"
+			try:
+				data = six.ensure_str(data, encoding=encoder, errors="strict")
+			except:
+				encoder = "iso-8859-1"
+				data = six.ensure_str(data, encoding=encoder, errors="strict")
 			print("[eHdmiCec][sendMessage]: encoder=%s, cmd = %s, data=%s" % (encoder, cmd, data))
 		elif message == "wakeup":
 			if config.hdmicec.tv_wakeup_command.value == "textview":
@@ -352,7 +363,7 @@ class HdmiCec:
 	def sendCmd(self):
 		if len(self.queue):
 			(address, cmd, data) = self.queue.pop(0)
-			print("[eHdmiCec][sendmessage3]: address=%s, cmd=%s,data=%s" % (address, cmd, data))			
+			print("[eHdmiCec][sendmessage3]: address=%s, cmd=%s,data=%s" % (address, cmd, data))
 			eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
 			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
@@ -365,7 +376,8 @@ class HdmiCec:
 		if devicetypeSend:
 			devicetype = eHdmiCEC.getInstance().getDeviceType()
 			return struct.pack("BBB", int(physicaladdress / 256), int(physicaladdress % 256), devicetype)
-		return struct.pack("BB", int(physicaladdress / 256), int(physicaladdress % 256))
+		else:	
+			return struct.pack("BB", int(physicaladdress / 256), int(physicaladdress % 256))
 
 	def wakeupMessages(self):
 		if config.hdmicec.enabled.value:
@@ -470,9 +482,14 @@ class HdmiCec:
 		if cmd:
 			#	print("[eHdmiCec][keyEvent1]: cmd=%s,data=%s" % (cmd, data))
 			if data:
-				encoder = chardet.detect(data)["encoding"]
-				data = six.ensure_str(data, encoding=encoder, errors='ignore')	
-				print("[eHdmiCec][keyEvent: encoder=%s, cmd = %s, data=%s" % (encoder, cmd, data))			
+#				encoder = chardet.detect(data)["encoding"]
+				encode = "utf-8"
+				try:	
+					data = six.ensure_str(data, encoding=encoder, errors='strict')
+				except:
+					encode = "iso-8859-1"
+					data = six.ensure_str(data, encoding=encoder, errors='strict')
+				print("[eHdmiCec][keyEvent: encoder=%s, cmd = %s, data=%s" % (encoder, cmd, data))
 			if config.hdmicec.minimum_send_interval.value != "0":
 				self.queueKeyEvent.append((self.volumeForwardingDestination, cmd, data))
 				if not self.waitKeyEvent.isActive():
