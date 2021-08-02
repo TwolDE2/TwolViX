@@ -272,6 +272,8 @@ def InitUsageConfig():
 
 	config.usage.task_warning = ConfigYesNo(default=True)
 	config.usage.jobtaskextensions = ConfigYesNo(default=True)
+	config.misc.disable_background_scan = ConfigYesNo(default=False)
+	config.misc.use_ci_assignment = ConfigYesNo(default=False)
 	preferredTunerChoicesUpdate()
 
 	config.usage.servicenum_fontsize = ConfigSelectionNumber(default=0, stepwidth=1, min=-8, max=10, wraparound=True)
