@@ -271,7 +271,8 @@ def InitUsageConfig():
 	config.usage.remote_fallback = ConfigText(default="", fixed_size=False)
 
 	config.usage.task_warning = ConfigYesNo(default=True)
-
+	config.usage.jobtaskextensions = ConfigYesNo(default=True)
+	
 	preferredTunerChoicesUpdate()
 
 	config.usage.servicenum_fontsize = ConfigSelectionNumber(default=0, stepwidth=1, min=-8, max=10, wraparound=True)
