@@ -559,6 +559,9 @@ class HdmiCec:
 			cmd = 0x70	# 112
 			address = 0x05
 			data = self.setData()
+		elif message == "vendorid":
+			cmd = 0x87
+			data = "\x00\x00\x00"				
 		if data:
 			encoder = "utf-8"
 			try:
@@ -572,9 +575,6 @@ class HdmiCec:
 			cmd = 0x47
 			data = os.uname()[1]
 			data = data[:14]
-		elif message == "vendorid":
-			cmd = 0x87
-			data = "\x00\x00\x00"	
 		elif message == "wakeup":
 			if config.hdmicec.tv_wakeup_command.value == "textview":
 				cmd = 0x0d
