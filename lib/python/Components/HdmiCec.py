@@ -430,10 +430,12 @@ class HdmiCec:
 
 	def messageReceived(self, message):
 		if config.hdmicec.enabled.value:
-			cmd = message.getCommand()
 			data = 16 * "\x00"
+			cmd = message.getCommand()
+			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			length = message.getData(data, len(data))
 			msgaddress = message.getAddress()
+			print("[hdmiCEC][messageReceived]: msgaddress=%s  CECcmd=%s, cmd = %s, data=%s" % (msgaddress, CECcmd, cmd, data))
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, data)
 			#// workaround for wrong address vom driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
@@ -562,10 +564,10 @@ class HdmiCec:
 			try:
 				data = data.decode(encoder)
 			except:
-				encoder = "iso-8859-1"
+				encoder = "latin_1"
 				data = data.decode(encoder)
-#			data = six.ensure_str(data)
-			print("[eHdmiCec][sendMessage]: encoder=%s, cmd = %s, data=%s" % (encoder, cmd, data))
+			CECcmd = cmdList.get(cmd, "<Polling Message>")
+			print("[hdmiCEC][sendMessage]: encoder=%s, cmd = %s, data=%s \n" % (encoder, cmd, data))
 		elif message == "osdname":
 			cmd = 0x47
 			data = os.uname()[1]
@@ -590,15 +592,15 @@ class HdmiCec:
 			self.useStandby = True
 			address = 0x0f # use broadcast address => boxes will send info
 			cmd = 0x8f
-
-		print("[eHdmiCec][sendMessage3]: cmd=%s,data=%s" % (cmd, data))
 		if cmd:
+			CECcmd = cmdList.get(cmd, "<Polling Message>")
+			print("[hdmiCEC][sendMessage3]: CECcmd=%s cmd=%s, address=%s data=%s \n" % (CECcmd, cmd, address, data))
 			if config.hdmicec.minimum_send_interval.value != "0":
 				self.queue.append((address, cmd, data))
 				if not self.wait.isActive():
 					self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
-				print("[eHdmiCec][sendmessage4]: address=%s, cmd=%s,data=%s" % (address, cmd, data))			
+				# print("[hdmiCEC][sendmessage4]: address=%s, cmd=%s,data=%s" % (address, cmd, data))			
 				eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
 			if config.hdmicec.debug.value in ["1", "3"]:
 				self.debugTx(address, cmd, data)
@@ -606,7 +608,8 @@ class HdmiCec:
 	def sendCmd(self):
 		if len(self.queue):
 			(address, cmd, data) = self.queue.pop(0)
-			print("[eHdmiCec][sendmessage3]: address=%s, cmd=%s,data=%s" % (address, cmd, data))
+			CECcmd = cmdList.get(cmd, "<Polling Message>")
+			print("[hdmiCEC][sendmessage3]: address=%s, CECcmd=%s cmd=%s,data=%s" % (address, CECcmd, cmd, data))
 			eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
 			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
@@ -722,22 +725,21 @@ class HdmiCec:
 		elif keyEvent == 1 and keyCode in (113, 114, 115):
 			cmd = 0x45
 		if cmd:
-			print("[eHdmiCec][keyEvent1]: cmd=%s,data=%s" % (cmd, data))
+			print("[hdmiCEC][keyEvent1]: cmd=%s,data=%s" % (cmd, data))
 			if data:
 				encoder = "utf-8"
 				try:
 					data = data.decode(encoder)
 				except:
-					encoder = "iso-8859-1"
+					encoder = "latin-1"
 					data = data.decode(encoder)
-#				data = str(data)
-				print("[eHdmiCec][keyEvent]: encoder=%s, cmd = %s, data=%s" % (encoder, cmd, data))
+				print("[hdmiCEC][keyEvent]: encoder=%s, cmd = %s, data=%s" % (encoder, cmd, data))
 			if config.hdmicec.minimum_send_interval.value != "0":
 				self.queueKeyEvent.append((self.volumeForwardingDestination, cmd, data))
 				if not self.waitKeyEvent.isActive():
 					self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
-				#	print("[eHdmiCec][keyEvent3]: forwarding dest=%s, cmd=%s,data=%s" % (self.volumeForwardingDestination, cmd, data))			
+				#	print("[hdmiCEC][keyEvent3]: forwarding dest=%s, cmd=%s,data=%s" % (self.volumeForwardingDestination, cmd, data))			
 				eHdmiCEC.getInstance().sendMessage(self.volumeForwardingDestination, cmd, data, len(data))
 			if config.hdmicec.debug.value in ["2", "3"]:
 				self.debugTx(self.volumeForwardingDestination, cmd, data)
@@ -748,7 +750,7 @@ class HdmiCec:
 	def sendKeyEvent(self):
 		if len(self.queueKeyEvent):
 			(address, cmd, data) = self.queueKeyEvent.pop(0)
-			print("[eHdmiCec][sendmessage2]: address=%s, cmd=%s,data=%s" % (address, cmd, data))
+			print("[hdmiCEC][sendmessage2]: address=%s, cmd=%s,data=%s" % (address, cmd, data))
 			eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
 			self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 
