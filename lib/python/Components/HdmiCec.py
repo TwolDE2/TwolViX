@@ -109,7 +109,7 @@ cmdList = {
 	0x84: "<Report Physical Address>",
 	0x85: "<Request Active Source>",
 	0x86: "<Set Stream Path>",
-	0x87: "<Device Vendor ID>",
+	0x87: "<Report Device Vendor ID>",
 	0x89: "<Vendor Command><Vendor Specific Data>",
 	0x8A: "<Vendor Remote Button Down><Vendor Specific RC Code>",
 	0x8B: "<Vendor Remote Button Up>",
@@ -435,7 +435,7 @@ class HdmiCec:
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			length = message.getData(data, len(data))
 			msgaddress = message.getAddress()
-			print("[hdmiCEC][messageReceived]: msgaddress=%s  CECcmd=%s, cmd = %s, data=%s" % (msgaddress, CECcmd, cmd, data))
+			print("[hdmiCEC][messageReceived]: msgaddress=%s  CECcmd=%s, cmd = %s, data=%s \n" % (msgaddress, CECcmd, cmd, data))
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, data)
 			#// workaround for wrong address vom driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
@@ -559,11 +559,14 @@ class HdmiCec:
 			data = self.setData()
 		elif message == "vendorid":
 			cmd = 0x87
-			data = "\x00\x00\x00"
-		if data:					# keep cmd+data calls above this line so binary data converted
+			data = b"\x00\x00\x00"			
+		if data:
+			# CECcmd = cmdList.get(cmd, "<Polling Message>")		
+			# print("[HdmiCec][sendMessage]: CECcmd=%s  cmd = %s, data=%s \n" % (CECcmd, cmd, data))				# keep cmd+data calls above this line so binary data converted
 			encoder = chardet.detect(data)["encoding"]
 			data = six.ensure_str(data, encoding=encoder, errors='ignore')	
-			print("[HdmiCec][sendMessage]: encoder=%s, cmd = %s, data=%s" % (encoder, cmd, data))
+			# print("[HdmiCec][sendMessage]: encoder=%s, cmd = %s, data=%s \n" % (encoder, cmd, data))
+
 		elif message == "osdname":
 			cmd = 0x47
 			data = os.uname()[1]
@@ -593,7 +596,7 @@ class HdmiCec:
 				if not self.wait.isActive():
 					self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
-				# print("[hdmiCEC][sendmessage4]: address=%s, cmd=%s,data=%s" % (address, cmd, data))
+				# print("[hdmiCEC][sendmessage4]: address=%s, cmd=%s,data=%s \n" % (address, cmd, data))
 				eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
 			if config.hdmicec.debug.value in ["1", "3"]:
 				self.debugTx(address, cmd, data)
@@ -601,8 +604,8 @@ class HdmiCec:
 	def sendCmd(self):
 		if len(self.queue):
 			(address, cmd, data) = self.queue.pop(0)
-			CECcmd = cmdList.get(cmd, "<Polling Message>")
-			print("[hdmiCEC][sendmessage3]: address=%s, CECcmd=%s cmd=%s,data=%s" % (address, CECcmd, cmd, data))
+			# CECcmd = cmdList.get(cmd, "<Polling Message>")
+			# print("[hdmiCEC][sendmessage5]: address=%s, CECcmd=%s cmd=%s,data=%s \n" % (address, CECcmd, cmd, data))
 			eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
 			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
