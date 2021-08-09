@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-22 11:44+0200\n"
-"PO-Revision-Date: 2020-10-25 20:45+0200\n"
+"POT-Creation-Date: 2021-05-19 16:44+0200\n"
+"PO-Revision-Date: 2021-08-09 11:27+0200\n"
 "Last-Translator: Orlandox\n"
 "Language-Team: timoj/Kojo/Samzam/Orlandox\n"
 "Language: fi\n"
@@ -853,6 +853,9 @@ msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] "%d minuutti"
 msgstr[1] "%d minuuttia"
+
+msgid "%d minutes"
+msgstr "%d minuuttia"
 
 #, python-format
 msgid "%d minutes"
@@ -1885,7 +1888,7 @@ msgstr "Afganistan"
 
 #
 msgid "After event"
-msgstr "Ajastuksen jälkeen"
+msgstr "Toiminnon jälkeen"
 
 msgid "Aland Islands"
 msgstr "Ahvenanmaa"
