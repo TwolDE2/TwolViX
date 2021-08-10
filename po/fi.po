@@ -854,9 +854,6 @@ msgid_plural "%d minutes"
 msgstr[0] "%d minuutti"
 msgstr[1] "%d minuuttia"
 
-msgid "%d minutes"
-msgstr "%d minuuttia"
-
 #, python-format
 msgid "%d minutes"
 msgstr "%d minuuttia"
