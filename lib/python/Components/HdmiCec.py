@@ -448,17 +448,18 @@ class HdmiCec:
 					print("eHdmiCec: received polling message")
 				else:
 					if data[0] == "\x44":		# feature abort
-						print("eHdmiCec: volume forwarding not supported by device %02x" % (message.getAddress()))
+						print("[hdmiCEC][messageReceived]: volume forwarding not supported by device %02x" % (message.getAddress()))
 						self.volumeForwardingEnabled = False
 			elif cmd == 0x46: 				# request name
 				self.sendMessage(message.getAddress(), "osdname")
 			elif cmd == 0x7e or cmd == 0x72: 		# system audio mode status
-				if data[0] == "\x01":
-					self.volumeForwardingDestination = 5 # on: send volume keys to receiver
-				else:
-					self.volumeForwardingDestination = 0 # off: send volume keys to tv
+#				if data[0] == "\x01":
+#					self.volumeForwardingDestination = 5 # on: send volume keys to receiver
+#				else:
+#					self.volumeForwardingDestination = 0 # off: send volume keys to tv
+				self.volumeForwardingDestination = msgaddress
 				if config.hdmicec.volume_forwarding.value:
-					print("eHdmiCec: volume forwarding to device %02x enabled" % self.volumeForwardingDestination)
+					print("[hdmiCEC][messageReceived]: volume forwarding to device %02x enabled" % self.volumeForwardingDestination)
 					self.volumeForwardingEnabled = True
 			elif cmd == 0x8f: 				# request power status
 				if Screens.Standby.inStandby:
@@ -478,7 +479,7 @@ class HdmiCec:
 					if not Screens.Standby.inStandby:
 						if config.hdmicec.report_active_source.value:
 							self.sendMessage(message.getAddress(), "sourceactive")
-			elif cmd == 0x8c: 				# request vendor id
+			elif cmd == 0x87 or cmd == 0x8c: 				# request vendor id
 				self.sendMessage(message.getAddress(), "vendorid")
 			elif cmd == 0x8d: 				# menu request
 				requesttype = ord(data[0])
