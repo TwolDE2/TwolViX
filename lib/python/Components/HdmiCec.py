@@ -434,8 +434,9 @@ class HdmiCec:
 			cmd = message.getCommand()
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			length = message.getData(data, len(data))
+			bytesData = message.getBinData(data, len(data))
 			msgaddress = message.getAddress()
-			print("[hdmiCEC][messageReceived]: msgaddress=%s  CECcmd=%s, cmd = %s, data=%s \n" % (msgaddress, CECcmd, cmd, data))
+			print("[hdmiCEC][messageReceived]: msgaddress=%s  CECcmd=%s, cmd = %s, data=%s length=%s \n" % (msgaddress, CECcmd, cmd, data, length))
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, data)
 			#// workaround for wrong address vom driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
@@ -453,11 +454,16 @@ class HdmiCec:
 			elif cmd == 0x46: 				# request name
 				self.sendMessage(message.getAddress(), "osdname")
 			elif cmd == 0x7e or cmd == 0x72: 		# system audio mode status
-#				if data[0] == "\x01":
-#					self.volumeForwardingDestination = 5 # on: send volume keys to receiver
-#				else:
-#					self.volumeForwardingDestination = 0 # off: send volume keys to tv
+				requesttype = ord(data[0])
+				print("[hdmiCEC][messageReceived]: requesttype = %s" % requesttype)				
+				if data[0] == "\x01":
+					self.volumeFowardingDestination = 5 # on: send volume keys to receiver
+					print("[hdmiCEC][messageReceived]: volume forwarding 1 %s" % data[0])
+				else:
+					self.volumeForwardingDestination = 0 # off: send volume keys to tv
+					print("[hdmiCEC][messageReceived]: volume forwarding 2 %s" % data[0])
 				self.volumeForwardingDestination = msgaddress
+				print("[hdmiCEC][messageReceived]: volume forwarding=%s, msgaddress=%s" % (self.volumeForwardingDestination, msgaddress))					
 				if config.hdmicec.volume_forwarding.value:
 					print("[hdmiCEC][messageReceived]: volume forwarding to device %02x enabled" % self.volumeForwardingDestination)
 					self.volumeForwardingEnabled = True
@@ -562,11 +568,11 @@ class HdmiCec:
 			cmd = 0x87
 			data = b"\x00\x00\x00"			
 		if data:
-			# CECcmd = cmdList.get(cmd, "<Polling Message>")		
-			# print("[HdmiCec][sendMessage]: CECcmd=%s  cmd = %s, data=%s \n" % (CECcmd, cmd, data))				# keep cmd+data calls above this line so binary data converted
+			CECcmd = cmdList.get(cmd, "<Polling Message>")		
+			print("[HdmiCec][sendMessage]: CECcmd=%s  cmd = %s, data=%s \n" % (CECcmd, cmd, data))				# keep cmd+data calls above this line so binary data converted
 			encoder = chardet.detect(data)["encoding"]
 			data = six.ensure_str(data, encoding=encoder, errors='ignore')	
-			# print("[HdmiCec][sendMessage]: encoder=%s, cmd = %s, data=%s \n" % (encoder, cmd, data))
+			print("[HdmiCec][sendMessage]: encoder=%s, cmd = %s, data=%s \n" % (encoder, cmd, data))
 
 		elif message == "osdname":
 			cmd = 0x47
@@ -597,7 +603,7 @@ class HdmiCec:
 				if not self.wait.isActive():
 					self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
-				# print("[hdmiCEC][sendmessage4]: address=%s, cmd=%s,data=%s \n" % (address, cmd, data))
+				print("[hdmiCEC][sendmessage4]: address=%s, cmd=%s,data=%s \n" % (address, cmd, data))
 				eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
 			if config.hdmicec.debug.value in ["1", "3"]:
 				self.debugTx(address, cmd, data)
@@ -605,8 +611,8 @@ class HdmiCec:
 	def sendCmd(self):
 		if len(self.queue):
 			(address, cmd, data) = self.queue.pop(0)
-			# CECcmd = cmdList.get(cmd, "<Polling Message>")
-			# print("[hdmiCEC][sendmessage5]: address=%s, CECcmd=%s cmd=%s,data=%s \n" % (address, CECcmd, cmd, data))
+			CECcmd = cmdList.get(cmd, "<Polling Message>")
+			print("[hdmiCEC][sendmessage5]: address=%s, CECcmd=%s cmd=%s,data=%s \n" % (address, CECcmd, cmd, data))
 			eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
 			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
@@ -732,7 +738,7 @@ class HdmiCec:
 				if not self.waitKeyEvent.isActive():
 					self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
-				#	print("[hdmiCEC][keyEvent3]: forwarding dest=%s, cmd=%s,data=%s" % (self.volumeForwardingDestination, cmd, data))			
+				print("[hdmiCEC][keyEvent3]: forwarding dest=%s, cmd=%s,data=%s" % (self.volumeForwardingDestination, cmd, data))			
 				eHdmiCEC.getInstance().sendMessage(self.volumeForwardingDestination, cmd, data, len(data))
 			if config.hdmicec.debug.value in ["2", "3"]:
 				self.debugTx(self.volumeForwardingDestination, cmd, data)
