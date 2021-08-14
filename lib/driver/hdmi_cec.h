@@ -17,7 +17,6 @@ public:
 	virtual int getAddress() = 0;
 	virtual int getCommand() = 0;
 	virtual int getData(char *data, int length) = 0;
-	virtual int getBinData() = 0;	
 };
 SWIG_TEMPLATE_TYPEDEF(ePtr<iCECMessage>, iCECMessagePtr);
 
@@ -84,11 +83,11 @@ public:
 		unsigned char dataLength;
 		unsigned char messageData[255];
 	public:
-		eCECMessage(int address, int command, char *data, int length);
+		eCECMessage(int address, int command, int control, char *data, int length);
 		int getAddress();
 		int getCommand();
+		int getControl();		
 		int getData(char *data, int length);
-		int getBinData();		
 	};
 	void sendMessage(struct cec_message &message);
 #endif

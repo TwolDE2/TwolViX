@@ -18,10 +18,11 @@ eHdmiCEC *eHdmiCEC::instance = NULL;
 
 DEFINE_REF(eHdmiCEC::eCECMessage);
 
-eHdmiCEC::eCECMessage::eCECMessage(int addr, int cmd, char *data, int length)
+eHdmiCEC::eCECMessage::eCECMessage(int addr, int cmd, int ctrl, char *data, int length)
 {
 	address = addr;
 	command = cmd;
+	control = data[0]
 	if (length > (int)sizeof(messageData)) length = sizeof(messageData);
 	if (length && data) memcpy(messageData, data, length);
 	dataLength = length;
@@ -37,13 +38,11 @@ int eHdmiCEC::eCECMessage::getCommand()
 	return command;
 }
 
-int eHdmiCEC::eCECMessage::getBinData()
+int eHdmiCEC::eCECMessage::getControl()
 {
-	char charstate[16];
-	memset(charstate, 0, 16); 
-	memcpy(charstate, messageData, sizeof(messageData));
-	return PyBytes_FromStringAndSize(charstate, sizeof(messageData));
+	return control;
 }
+
 
 int eHdmiCEC::eCECMessage::getData(char *data, int length)
 {
