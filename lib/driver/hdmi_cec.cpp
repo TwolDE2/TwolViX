@@ -18,7 +18,7 @@ eHdmiCEC *eHdmiCEC::instance = NULL;
 
 DEFINE_REF(eHdmiCEC::eCECMessage);
 
-eHdmiCEC::eCECMessage::eCECMessage(int addr, int cmd, int ctrl, char *data, int length)
+eHdmiCEC::eCECMessage::eCECMessage(int addr, int cmd, int control, char *data, int length)
 {
 	address = addr;
 	command = cmd;
