@@ -39,8 +39,10 @@ int eHdmiCEC::eCECMessage::getCommand()
 
 int eHdmiCEC::eCECMessage::getBinData(char *data)
 {
-	memcpy(data, messageData, sizeof(messageData));
-	return PyBytes_FromStringAndSize(data, sizeof(messageData));
+	char charstate[16];
+	memset(charstate, 0, 16); 
+	memcpy(chardata, messageData, sizeof(messageData));
+	return PyBytes_FromStringAndSize(charstate, sizeof(messageData));
 }
 
 int eHdmiCEC::eCECMessage::getData(char *data, int length)

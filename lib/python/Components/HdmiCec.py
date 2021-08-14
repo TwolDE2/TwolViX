@@ -431,6 +431,7 @@ class HdmiCec:
 	def messageReceived(self, message):
 		if config.hdmicec.enabled.value:
 			data = 16 * b"\x00"
+			bytesData = 16 * b"\x00"
 			cmd = message.getCommand()
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			length = message.getData(data, len(data))
