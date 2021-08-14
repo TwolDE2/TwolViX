@@ -41,7 +41,7 @@ int eHdmiCEC::eCECMessage::getData(char *data, int length)
 {
 	if (length > (int)dataLength) length = dataLength;
 	memcpy(data, messageData, length);
-	return py::bytes(data);
+	return PyBytes_FromStringAndSize(data, length);
 }
 
 int eHdmiCEC::eCECMessage::getBinData(char *data, int length)
