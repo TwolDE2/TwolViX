@@ -37,7 +37,7 @@ int eHdmiCEC::eCECMessage::getCommand()
 	return command;
 }
 
-int eHdmiCEC::eCECMessage::getBinData(char *data)
+int eHdmiCEC::eCECMessage::getBinData()
 {
 	char charstate[16];
 	memset(charstate, 0, 16); 
