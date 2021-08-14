@@ -37,14 +37,13 @@ int eHdmiCEC::eCECMessage::getCommand()
 	return command;
 }
 
-int eHdmiCEC::eCECMessage::getData(char *data, int length)
+int eHdmiCEC::eCECMessage::getBinData(char *data)
 {
-	if (length > (int)dataLength) length = dataLength;
-	memcpy(data, messageData, length);
-	return PyBytes_FromStringAndSize(data, length);
+	memcpy(data, messageData, sizeof(messageData));
+	return PyBytes_FromStringAndSize(data, sizeof(messageData));
 }
 
-int eHdmiCEC::eCECMessage::getBinData(char *data, int length)
+int eHdmiCEC::eCECMessage::getData(char *data, int length)
 {
 	if (length > (int)dataLength) length = dataLength;
 	memcpy(data, messageData, length);

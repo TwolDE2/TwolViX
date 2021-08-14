@@ -434,7 +434,7 @@ class HdmiCec:
 			cmd = message.getCommand()
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			length = message.getData(data, len(data))
-			bytesData = message.getBinData(data, len(data))
+			bytesData = message.getBinData(data)
 			msgaddress = message.getAddress()
 			print("[hdmiCEC][messageReceived]: msgaddress=%s  CECcmd=%s, cmd = %s, data=%s length=%s \n" % (msgaddress, CECcmd, cmd, data, length))
 			if config.hdmicec.debug.value != "0":
