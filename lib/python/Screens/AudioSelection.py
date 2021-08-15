@@ -22,7 +22,7 @@ from Screens.Setup import Setup, getConfigMenuItem
 from Tools.BoundFunction import boundFunction
 from Tools.ISO639 import LanguageCodes
 
-FOCUS_CONFIG, FOCUS_STREAMS = list(range(2))
+FOCUS_CONFIG, FOCUS_STREAMS = range(2)
 [PAGE_AUDIO, PAGE_SUBTITLES] = ["audio", "subtitles"]
 
 

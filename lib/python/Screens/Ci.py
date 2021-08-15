@@ -35,7 +35,7 @@ def InitCiConfig():
 	config.ci = ConfigSubList()
 	config.cimisc = ConfigSubsection()
 	if SystemInfo["CommonInterface"]:
-		for slot in list(range(SystemInfo["CommonInterface"])):
+		for slot in range(SystemInfo["CommonInterface"]):
 			config.ci.append(ConfigSubsection())
 			config.ci[slot].canDescrambleMultipleServices = ConfigSelection(choices=[("auto", _("auto")), ("no", _("no")), ("yes", _("yes"))], default="auto")
 			config.ci[slot].use_static_pin = ConfigYesNo(default=True)
@@ -387,7 +387,7 @@ class CiSelection(Screen):
 		self.state = {}
 		self.list = []
 		self.slot = 0
-		for slot in list(range(SystemInfo["CommonInterface"])):
+		for slot in range(SystemInfo["CommonInterface"]):
 			state = eDVBCI_UI.getInstance().getState(slot)
 			if state != -1:
 				self.slot += 1
@@ -515,7 +515,7 @@ class CiSelection(Screen):
 		pass
 
 	def cancel(self):
-		for slot in list(range(SystemInfo["CommonInterface"])):
+		for slot in range(SystemInfo["CommonInterface"]):
 			state = eDVBCI_UI.getInstance().getState(slot)
 			if state != -1:
 				CiHandler.unregisterCIMessageHandler(slot)
