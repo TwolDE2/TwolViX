@@ -430,14 +430,14 @@ class HdmiCec:
 
 	def messageReceived(self, message):
 		if config.hdmicec.enabled.value:
-			data = 16 * b"\x00"
-			bytesData = 16 * b"\x00"
+			data = 16 * "\x00"
 			cmd = message.getCommand()
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			length = message.getData(data, len(data))
-			ctrl = message.getControl()
+			ctrl0 = message.getControl()
 			msgaddress = message.getAddress()
-			print("[hdmiCEC][messageReceived]: msgaddress=%s  CECcmd=%s, cmd = %s, data=%s, length=%s, ctrl=%s \n" % (msgaddress, CECcmd, cmd, data, length, ctrl))
+			print("[hdmiCEC][messageReceived]1: msgaddress=%s  CECcmd=%s, cmd = %s, data=%s, length=%s, ctrl0=%s" % (msgaddress, CECcmd, cmd, data, length, ctrl0))
+			print("[hdmiCEC][messageReceived]2: ctrl0=%s, length=%s" % (ctrl0, length))			
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, data)
 			#// workaround for wrong address vom driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
@@ -449,24 +449,20 @@ class HdmiCec:
 				if length == 0: 			# only polling message ( it's same as ping )
 					print("eHdmiCec: received polling message")
 				else:
-					if data[0] == "\x44":		# feature abort
+					if ctrl0 == 68:		# feature abort
 						print("[hdmiCEC][messageReceived]: volume forwarding not supported by device %02x" % (message.getAddress()))
 						self.volumeForwardingEnabled = False
 			elif cmd == 0x46: 				# request name
 				self.sendMessage(message.getAddress(), "osdname")
 			elif cmd == 0x7e or cmd == 0x72: 		# system audio mode status
-				requesttype = ord(data[0])
-				print("[hdmiCEC][messageReceived]: requesttype = %s" % requesttype)				
-				if data[0] == "\x01":
-					self.volumeFowardingDestination = 5 # on: send volume keys to receiver
-					print("[hdmiCEC][messageReceived]: volume forwarding 1 %s" % data[0])
+				print("[hdmiCEC][messageReceived]0: entered cmd=%s" % cmd)
+				if ctrl0 == 1:
+					self.volumeForwardingDestination = 5 		# on: send volume keys to receiver
 				else:
 					self.volumeForwardingDestination = 0 # off: send volume keys to tv
-					print("[hdmiCEC][messageReceived]: volume forwarding 2 %s" % data[0])
-				self.volumeForwardingDestination = msgaddress
-				print("[hdmiCEC][messageReceived]: volume forwarding=%s, msgaddress=%s" % (self.volumeForwardingDestination, msgaddress))					
+				print("[hdmiCEC][messageReceived]:4 volume forwarding=%s, msgaddress=%s" % (self.volumeForwardingDestination, msgaddress))					
 				if config.hdmicec.volume_forwarding.value:
-					print("[hdmiCEC][messageReceived]: volume forwarding to device %02x enabled" % self.volumeForwardingDestination)
+					print("[hdmiCEC][messageReceived]:5 volume forwarding to device %02x enabled" % self.volumeForwardingDestination)
 					self.volumeForwardingEnabled = True
 			elif cmd == 0x8f: 				# request power status
 				if Screens.Standby.inStandby:
@@ -489,14 +485,13 @@ class HdmiCec:
 			elif cmd == 0x87 or cmd == 0x8c: 				# request vendor id
 				self.sendMessage(message.getAddress(), "vendorid")
 			elif cmd == 0x8d: 				# menu request
-				requesttype = ord(data[0])
-				if requesttype == 2: 			# query
+				if ctrl0 == 1: 			# query
 					if Screens.Standby.inStandby:
 						self.sendMessage(message.getAddress(), "menuinactive")
 					else:
 						self.sendMessage(message.getAddress(), "menuactive")
 			elif cmd == 0x90: 				# receive powerstatus report
-				if ord(data[0]) == 0: # some box is powered
+				if ctrl0 == 0: # some box is powered
 					if config.hdmicec.next_boxes_detect.value:
 						self.useStandby = False
 					print("[HDMI-CEC] powered box found")
@@ -517,12 +512,15 @@ class HdmiCec:
 					(cmd != 0x36 and config.hdmicec.tv_wakeup_detection.value == "activity")):
 					self.wakeup()
 				elif ((cmd == 0x80 and config.hdmicec.handle_tv_wakeup.value == "routingrequest") or (cmd == 0x86 and config.hdmicec.handle_tv_wakeup.value == "streamrequest")):
-					physicaladdress = ord(data[0]) * 256 + ord(data[1])
+					ctrl1 = message.getControl1()
+					physicaladdress = ctrl0 * 256 + ctrl1
 					ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
 					if physicaladdress == ouraddress:
 						self.wakeup()
 				elif cmd == 0x84 and config.hdmicec.tv_wakeup_detection.value == "tvreportphysicaladdress":
-					if (ord(data[0]) * 256 + ord(data[1])) == 0 and ord(data[2]) == 0:
+					ctrl1 = message.getControl1()
+					ctrl2 = message.getControl2()					
+					if (ctrl0 * 256 + ctrl1) == 0 and ctrl2 == 0:
 						self.wakeup()
 
 
