@@ -109,11 +109,11 @@ cmdList = {
 	0x84: "<Report Physical Address>",
 	0x85: "<Request Active Source>",
 	0x86: "<Set Stream Path>",
-	0x87: "<Report Device Vendor ID>",
+	0x87: "<Reporting Device Vendor ID>",				# device (TV, AV receiver, audio device) returns its vendor ID (3 bytes)
 	0x89: "<Vendor Command><Vendor Specific Data>",
 	0x8A: "<Vendor Remote Button Down><Vendor Specific RC Code>",
 	0x8B: "<Vendor Remote Button Up>",
-	0x8C: "<Give Device Vendor ID>",
+	0x8C: "<Request Device Vendor ID>",				# request vendor ID from device(TV, AV receiver, audio device)
 	0x8D: "<Menu Request>",
 	0x8E: "<Menu Status>",
 	0x8F: "<Give Device Power Status>",
@@ -133,7 +133,7 @@ cmdList = {
 	0xFF: "<Abort>",
 	}
 
-CtrlByte0 = {
+CtrlByte0 = {								# Information only: control byte 0 status/action request by command (see cmdList)
 	0x00: {	0x00: "<Unrecognized opcode>",
 			0x01: "<Not in correct mode to respond>",
 			0x02: "<Cannot provide source>",
@@ -483,7 +483,7 @@ class HdmiCec:
 					if not Screens.Standby.inStandby:
 						if config.hdmicec.report_active_source.value:
 							self.sendMessage(message.getAddress(), "sourceactive")
-			elif cmd == 0x87 or cmd == 0x8c: 				# request vendor id
+			elif cmd == 0x8c: 				# request vendor id
 				self.sendMessage(message.getAddress(), "vendorid")
 			elif cmd == 0x8d: 				# menu request
 				if ctrl0 == 1: 			# query
