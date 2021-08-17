@@ -75,7 +75,7 @@ def getMultibootslots():
 								break
 						if slot:
 							bootslots[int(slotnumber)] = slot
-			(print("[multiboot] [getMultibootslots] Finished bootslots = %s" % bootslots))
+			print("[multiboot] [getMultibootslots] Finished bootslots = %s" % bootslots)
 			Console().ePopen("umount %s" % tmpname)
 	tmp.dir.cleanup()
 	if bootslots:	
