@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+import io
 import locale
 import os
 import skin
@@ -15,6 +16,7 @@ from Components.Harddisk import harddiskmanager
 from Components.NimManager import nimmanager
 from Components.ServiceList import refreshServiceList
 from Components.SystemInfo import SystemInfo
+from Tools.camcontrol import CamControl
 from Tools.Directories import resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation, fileHas
 from Tools.HardwareInfo import HardwareInfo
 
@@ -22,7 +24,6 @@ from Tools.HardwareInfo import HardwareInfo
 # getting a time-stamp prepended.
 # stderr expect unicode, not str, so we decode as utf-8
 #
-import io
 def raw_stderr_print(text):
 	with io.open(2, mode="wt", closefd=False) as myerr:
 		myerr.write(text)
@@ -1124,6 +1125,11 @@ def InitUsageConfig():
 	config.oscaminfo.ip = ConfigIP(default=[127, 0, 0, 1], auto_jump=True)
 	config.oscaminfo.port = ConfigInteger(default=16002, limits=(0, 65536))
 	config.oscaminfo.intervall = ConfigSelectionNumber(min=1, max=600, stepwidth=1, default=10, wraparound=True)
+	config.misc.enableCamscript = ConfigYesNo(default=False)
+	config.misc.softcams = ConfigSelection(default="None", choices=CamControl("softcam").getList())
+	config.misc.softcamrestarts = ConfigSelection(default="", choices=[
+					("", _("Don't restart")),
+					("s", _("Restart softcam"))])	
 	SystemInfo["OScamInstalled"] = False
 
 	config.cccaminfo = ConfigSubsection()
