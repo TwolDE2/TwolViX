@@ -75,11 +75,9 @@ class LogManagerPoller:
 			self.TrashTimer.callback.remove(self.TrashTimerJob)
 		self.TrashTimer.stop()
 
-
 	def TrashTimerJob(self):
 		print("[LogManager] Trash Poll Started")
 		Components.Task.job_manager.AddJob(self.createTrashJob())
-
 
 	def createTrashJob(self):
 		job = Components.Task.Job(_("LogManager"))
