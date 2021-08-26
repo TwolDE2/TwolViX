@@ -297,7 +297,7 @@
 		<item level="2" text="Show CCcam Info in extensions?" description="Allows you to show/hide CCcam Info in extensions (blue button).">config.cccaminfo.showInExtensions</item>
 		<item level="2" text="Show OScam/Ncam Info in extensions?" description="Allows you to show/hide OScam/Ncam Info in extensions (blue button).">config.oscaminfo.showInExtensions</item>
 		<item level="0" text="Select softcam script" description="Select a softcam script from the available list.">config.misc.softcams</item>
-		<item level="0" text="Restart" description="Reset the selected cams and save config changes when SoftcamSetup GREEN button is pressed.">config.misc.softcamrestarts</item>        			
+		<item level="0" text="Restart" description="Allow reinitialisation of selected cam.">config.misc.softcamrestarts</item>        			
 	</setup>
 	<setup key="logs" title="Logs settings">
 		<item level="2" text="Logs folder location" description="Choose the location for crash and debug logs folder.">config.crash.debug_path</item>
