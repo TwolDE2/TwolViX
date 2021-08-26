@@ -79,8 +79,8 @@ fi
 # becomes too large.
 # So, we define various functions for use
 #
-if grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings; then
-	DEBUG_LVL='4'
+#if grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings; then
+#	DEBUG_LVL='4'
 
 # ========== Start of log functions ==========
 # fixup_log() - remove any partial-line at the end a logfile as we

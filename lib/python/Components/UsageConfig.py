@@ -887,6 +887,7 @@ def InitUsageConfig():
 
 	config.crash = ConfigSubsection()
 	config.crash.enabledebug = ConfigYesNo(default=False)
+	config.crash.e2_debug_level = ConfigSelectionNumber(min=3, max=5, stepwidth=1, default=3, wraparound=true)
 	config.crash.debugloglimit = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=4, wraparound=True)
 
 # Just echo CHANGE var=val for the logger process to find.
