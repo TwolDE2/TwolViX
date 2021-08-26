@@ -13,7 +13,7 @@ from Tools.Directories import fileExists
 from Tools.GetEcmInfo import GetEcmInfo
 
 
-class SoftcamSetup(Setup):
+class SoftcamScript(Setup):
 	def __init__(self, session):
 		self.softcam = CamControl("softcam")
 		self.ecminfo = GetEcmInfo()
