@@ -105,18 +105,10 @@ class LogManagerPoller:
 				parts = line.strip().split()
 				mounts.append(parts[1])
 
-		if (datetime.now().hour == 3) or (time() - config.crash.lastfulljobtrashtime.value > 3600 * 24):
-			#full JobTrash (in all potential log file dirs) between 03:00 and 04:00 AM / every 24h
-			config.crash.lastfulljobtrashtime.setValue(int(time()))
-			config.crash.lastfulljobtrashtime.save()
-			configfile.save()
-			for mount in mounts:
-				if path.isdir(path.join(mount, "logs")):
-					matches.append(path.join(mount, "logs"))
-			matches.append("/home/root/logs")
-		else:
-			#small JobTrash (in selected log file dir only) twice a day
-			matches.append(config.crash.debug_path.value)
+		for mount in mounts:
+			if path.isdir(path.join(mount, 'logs')):
+				matches.append(path.join(mount, 'logs'))
+		matches.append('/home/root/logs')
 
 		print("[LogManager] found following log's:", matches)
 		if len(matches):
@@ -131,15 +123,12 @@ class LogManagerPoller:
 						try:
 							fn = path.join(root, name)
 							st = stat(fn)
-							#print "Logname: %s" % fn
-							#print "Last created: %s" % ctime(st.st_ctime)
-							#print "Last modified: %s" % ctime(st.st_mtime)
-							if st.st_mtime < ctimeLimit:
-								print("[LogManager] " + str(fn) + ": Too old:", ctime(st.st_mtime))
+							if st.st_ctime < ctimeLimit:
+								print("[LogManager] " + str(fn) + ": Too old:", name, st.st_ctime)
 								eBackgroundFileEraser.getInstance().erase(fn)
 								bytesToRemove -= st.st_size
 							else:
-								candidates.append((st.st_mtime, fn, st.st_size))
+								candidates.append((st.st_ctime, fn, st.st_size))
 								size += st.st_size
 						except Exception as e:
 							print("[LogManager] Failed to stat %s:" % name, e)
@@ -158,14 +147,7 @@ class LogManagerPoller:
 						eBackgroundFileEraser.getInstance().erase(fn)
 						bytesToRemove -= st_size
 						size -= st_size
-		now = datetime.now()
-		seconds_since_0330am = (now - now.replace(hour=3, minute=30, second=0)).total_seconds()
-		if (seconds_since_0330am <= 0):
-			seconds_since_0330am += 86400
-		if (seconds_since_0330am > 43200):
-			self.TrashTimer.startLongTimer(int(86400 - seconds_since_0330am)) #at 03:30 AM
-		else:
-			self.TrashTimer.startLongTimer(43200) #twice a day
+		self.TrashTimer.startLongTimer(43200) #twice a day
 
 
 class LogManager(Screen):
