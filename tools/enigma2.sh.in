@@ -99,10 +99,12 @@ fi
 # An in-line python script...
         python - "$old" "$new" <<EOP
 import sys, os
+
 ofile = sys.argv[1]
 nfile = sys.argv[2]
 size = os.stat(ofile).st_size
 pos = size - (size % 1024)
+
 # We partition the file into 1024-byte blocks (plus the probably
 # incomplete one at the end), read them in reverse order and
 # look for the last newline character in each block.
