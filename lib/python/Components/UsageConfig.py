@@ -24,10 +24,9 @@ from Tools.HardwareInfo import HardwareInfo
 # getting a time-stamp prepended.
 # stderr expect unicode, not str, so we decode as utf-8
 #
-import io
 def raw_stderr_print(text):
 	with io.open(2, mode="wt", closefd=False) as myerr:
-		myerr.write(text.decode('utf8'))
+		myerr.write(text)
 
 def InitUsageConfig():
 	config.version = ConfigNumber(default=0)
@@ -299,9 +298,11 @@ def InitUsageConfig():
 	config.usage.remote_fallback = ConfigText(default="", fixed_size=False)
 
 	config.usage.task_warning = ConfigYesNo(default=True)
+
 	config.usage.jobtaskextensions = ConfigYesNo(default=True)
 	config.misc.disable_background_scan = ConfigYesNo(default=False)
 	config.misc.use_ci_assignment = ConfigYesNo(default=False)
+
 	preferredTunerChoicesUpdate()
 
 	config.usage.servicenum_fontsize = ConfigSelectionNumber(default=0, stepwidth=1, min=-8, max=10, wraparound=True)
@@ -899,7 +900,6 @@ def InitUsageConfig():
 	config.crash.debugloglimit.addNotifier(report_debugloglimit_change, immediate_feedback=False)
 	config.crash.daysloglimit = ConfigSelectionNumber(min=1, max=30, stepwidth=1, default=8, wraparound=True)
 	config.crash.sizeloglimit = ConfigSelectionNumber(min=1, max=20, stepwidth=1, default=10, wraparound=True)
-	config.crash.lastfulljobtrashtime = ConfigInteger(default=1)
 	# config.crash.logtimeformat sets ENIGMA_DEBUG_TIME environmental variable on enigma2 start from enigma2.sh
 	config.crash.logtimeformat = ConfigSelection(default="1", choices=[
 		("0", _("none")),

@@ -31,7 +31,7 @@ if [ -x @bindir@/showiframe ]; then
 	else
 		skin=`sed -En 's|config\.skin\.primary_skin=(.+)/skin\.xml|\1|p' @sysconfdir@/enigma2/settings`
 		if [ -z "$skin" ]; then
-			skin=`strings -n 10 @prefix@/lib/enigma2/python/skin.pyo | egrep -o -m 1 ".+/skin.xml" | sed 's|/skin.xml.*||'`
+			skin=`grep -m1 '^DEFAULT_SKIN' @prefix@/lib/enigma2/python/skin.py | sed -e's%[^"]*"%%' -e's%/.*%%'`
 		fi
 		if [ -n "$skin" -a -f @datadir@/enigma2/$skin/backdrop.mvi ]; then
 			@bindir@/showiframe @datadir@/enigma2/$skin/backdrop.mvi
@@ -80,6 +80,7 @@ fi
 # So, we define various functions for use
 #
 if grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings; then
+	DEBUG_LVL='4'
 
 # ========== Start of log functions ==========
 # fixup_log() - remove any partial-line at the end a logfile as we
@@ -262,13 +263,8 @@ EOP
 	LD_PRELOAD=$LIBS @bindir@/enigma2 2>&1 | dblogger
 	ret=${PIPESTATUS[0]}    # enigma2 exit code, not dblogger's
 else
-	if grep -q 'config\.misc\.firstrun=False' @sysconfdir@/enigma2/settings; then
-		LD_PRELOAD=$LIBS @bindir@/enigma2 > /dev/null 2>&1
-		ret=$?
-	else
-		LD_PRELOAD=$LIBS @bindir@/enigma2
-		ret=$?
-	fi
+	LD_PRELOAD=$LIBS @bindir@/enigma2
+	ret=$?
 fi
 
 # enigma2 exit codes:
