@@ -20,13 +20,6 @@ from Tools.camcontrol import CamControl
 from Tools.Directories import resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation, fileHas
 from Tools.HardwareInfo import HardwareInfo
 
-# A raw writer for config changes to be read by the logger without
-# getting a time-stamp prepended.
-# stderr expect unicode, not str, so we decode as utf-8
-#
-def raw_stderr_print(text):
-	with io.open(2, mode="wt", closefd=False) as myerr:
-		myerr.write(text)
 
 def InitUsageConfig():
 	config.version = ConfigNumber(default=0)
@@ -889,13 +882,6 @@ def InitUsageConfig():
 	config.crash.enabledebug = ConfigYesNo(default=False)
 	config.crash.e2_debug_level = ConfigSelectionNumber(min=3, max=5, stepwidth=1, default=3, wraparound=True)
 	config.crash.debugloglimit = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=4, wraparound=True)
-
-# Just echo CHANGE var=val for the logger process to find.
-# Send a newline at the start in case some background process hasn't
-#
-	def report_debugloglimit_change(configElement):
-		raw_stderr_print("\nCHANGE config.crash.debugloglimit=%d\n" % config.crash.debugloglimit.value)
-	config.crash.debugloglimit.addNotifier(report_debugloglimit_change, immediate_feedback=False)
 	config.crash.daysloglimit = ConfigSelectionNumber(min=1, max=30, stepwidth=1, default=8, wraparound=True)
 	config.crash.sizeloglimit = ConfigSelectionNumber(min=1, max=20, stepwidth=1, default=10, wraparound=True)
 	config.crash.lastfulljobtrashtime = ConfigInteger(default=1)
@@ -914,13 +900,6 @@ def InitUsageConfig():
 			if p.mountpoint != '/':
 				debugpath.append((p.mountpoint + 'logs/', d))
 	config.crash.debug_path = ConfigSelection(default="/home/root/logs/", choices=debugpath)
-
-# Just echo CHANGE var=val for the logger process to find.
-# Send a newline at the start in case some background process hasn't
-#
-	def report_debugpath_change(configElement):
-		raw_stderr_print("\nCHANGE config.crash.debug_path=%s\n" % config.crash.debug_path.value)
-	config.crash.debug_path.addNotifier(report_debugpath_change, immediate_feedback=False)
 
 	def updatedebug_path(configElement):
 		if not os.path.exists(config.crash.debug_path.value):
