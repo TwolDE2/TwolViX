@@ -79,9 +79,15 @@ fi
 # becomes too large.
 # So, we define various functions for use
 #
-if grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings; then
+if ([grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings]  && [grep -q 'config\.crash\.e2_debug_level=4' @sysconfdir@/enigma2/settings]); then
 	DEBUG_LVL='4'
-
+else
+	DEBUG_LVL='3'
+fi
+if ([grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings]  && [grep -q 'config\.crash\.e2_debug_level=5' @sysconfdir@/enigma2/settings]); then
+	DEBUG_LVL='5'
+fi
+if grep -q 'config\.crash\.enabledebug=True' /etc/enigma2/settings; then
 # ========== Start of log functions ==========
 # fixup_log() - remove any partial-line at the end a logfile as we
 # switch and add a note there instead.
