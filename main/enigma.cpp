@@ -235,26 +235,6 @@ void catchTermSignal()
 		perror("SIGTERM");
 }
 
-// get value from enigma2 settings file
-static const std::string getConfigString(const std::string &key, const std::string &defaultValue)
-{
-	std::string value = defaultValue;
-
-	std::ifstream in(eEnv::resolve("${sysconfdir}/enigma2/settings").c_str());
-	if (in.good()) {
-		do {
-			std::string line;
-			std::getline(in, line);
-			size_t size = key.size();
-			if (!line.compare(0, size, key) && line[size] == '=') {
-				value = line.substr(size + 1);
-				break;
-			}
-		} while (in.good());
-		in.close();
-	}
-	return value;
-}
 
 int main(int argc, char **argv)
 {
@@ -278,7 +258,7 @@ int main(int argc, char **argv)
 	printf("[Enigma2] DVB_API_VERSION %d DVB_API_VERSION_MINOR %d\n", DVB_API_VERSION, DVB_API_VERSION_MINOR);
 
 	// get enigma2 debug level settings
-	debugLvl = getenv("ENIGMA_DEBUG_LVL") ? atoi(getenv("ENIGMA_DEBUG_LVL")) : atoi(getConfigString("config.crash.e2_debug_level", "4").c_str());
+	debugLvl = getenv("ENIGMA_DEBUG_LVL") ? atoi(getenv("ENIGMA_DEBUG_LVL")) : 4;
 	if (debugLvl < 0)
 		debugLvl = 0;
 	printf("ENIGMA_DEBUG_LVL=%d\n", debugLvl);
