@@ -38,8 +38,6 @@ def hasInitCam():
 	for cam in listdir("/etc/init.d"):
 		if cam.startswith("softcam.") and not cam.endswith("None"):
 			return True
-		elif cam.startswith("cardserver.") and not cam.endswith("None"):
-			return True
 		else:
 			pass
 	return False
@@ -127,7 +125,7 @@ SystemInfo["hasScartYUV"] = getHaveSCARTYUV() in ('True',)
 SystemInfo["hasYUV"] = getHaveYUV() in ('True',)
 # Videomodes
 SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
-		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "hi3798cv200", "3798cv200", "hi3716mv430", "3798mv200", "hi3798mv200"
+		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "hi3798cv200", "hi3798mv200", "hi3716mv430", "3798cv200", "3798mv200", "3798mv200h"
 	) and (
 		["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
 		{"720p", "1080p", "2160p", "1080i"} # widescreen modes
