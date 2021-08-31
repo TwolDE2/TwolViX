@@ -18,7 +18,7 @@ class SoftcamScript(Setup):
 		self.softcam = CamControl("softcam")
 		self.ecminfo = GetEcmInfo()
 		config.misc.softcams.value == ""
-		Setup.__init__(self, session=session, setup="softcamsetup")
+		Setup.__init__(self, session=session, setup="softcamscriptsetup")
 		self["key_yellow"] = StaticText()
 		self["key_blue"] = StaticText()
 		self["restartActions"] = HelpableActionMap(self, ["ColorActions"], {
@@ -66,7 +66,7 @@ class SoftcamScript(Setup):
 			self["restartActions"].setEnabled(False)
 		self["key_blue"].setText("")
 		self["infoActions"].setEnabled(False)
-		if self["config"].getCurrent()[1] == config.misc.softcams and config.misc.softcams.value and config.misc.softcams.value.lower() != "none":
+		if self["config"].getCurrent() == config.misc.softcams and config.misc.softcams.value and config.misc.softcams.value.lower() != "none":
 			self["key_blue"].setText(_("Info"))
 			self["infoActions"].setEnabled(True)
 
