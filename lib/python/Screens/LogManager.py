@@ -1,6 +1,5 @@
 from __future__ import print_function
 from __future__ import absolute_import
-from __future__ import division
 
 import sys
 from datetime import datetime
@@ -303,7 +302,7 @@ class LogManagerViewLog(Screen):
 			font = gFont("Regular", applySkinFactor(16))
 		self["list"].instance.setFont(font)
 		fontwidth = getTextBoundarySize(self.instance, font, self["list"].instance.size(), _(" ")).width()
-		listwidth = int(self["list"].instance.size().width() // fontwidth) - 2
+		listwidth = int(self["list"].instance.size().width() / fontwidth) - 2
 		if path.exists(self.logfile):
 			for line in open(self.logfile).readlines():
 				line = line.replace("\t", " " * 9)
