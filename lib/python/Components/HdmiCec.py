@@ -396,6 +396,7 @@ class HdmiCec:
 		self.delay.timeout.get().append(self.sendStandbyMessages)
 		self.useStandby = True
 		self.handlingStandbyFromTV = False
+		self.ret = 0
 
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
@@ -605,7 +606,11 @@ class HdmiCec:
 					self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
 				#	print("[hdmiCEC][sendmessage4]: address=%s, cmd=%s,data=%s \n" % (address, cmd, data))
-				eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
+				self.ret = eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
+				print("[hdmiCEC][sendmessage6]: send failed:ret = %s address=%s, cmd=%s,data=%s \n" % (self.ret, address, cmd, data))
+				if not self.ret:
+					print("[hdmiCEC][sendmessage6]: send failed:ret = %s address=%s, cmd=%s,data=%s \n" % (self.ret, address, cmd, data))
+					self.wait.start(int(600), True)				
 			if config.hdmicec.debug.value in ["1", "3"]:
 				self.debugTx(address, cmd, data)
 
@@ -613,8 +618,11 @@ class HdmiCec:
 		if len(self.queue):
 			(address, cmd, data) = self.queue.pop(0)
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
-			print("[hdmiCEC][sendmessage5]: address=%s, CECcmd=%s cmd=%s,data=%s \n" % (address, CECcmd, cmd, data))
-			eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
+			print("[hdmiCEC][sendCmd1]: address=%s, CECcmd=%s cmd=%s,data=%s \n" % (address, CECcmd, cmd, data))
+			self.ret = eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
+			if not self.ret:			
+				print("[hdmiCEC][sendCmd2]: send failed:ret = %s address=%s, cmd=%s,data=%s \n" % (self.ret, address, cmd, data))
+				self.wait.start(int(600), True)							
 			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
 	def sendMessages(self, address, messages):
