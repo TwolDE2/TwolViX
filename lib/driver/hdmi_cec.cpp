@@ -540,7 +540,7 @@ long eHdmiCEC::translateKey(unsigned char code)
 	return key;
 }
 
-void eHdmiCEC::sendMessage(struct cec_message &message)
+int eHdmiCEC::sendMessage(struct cec_message &message)
 {
 	if (hdmiFd >= 0)
 	{
