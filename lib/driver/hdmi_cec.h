@@ -97,7 +97,7 @@ public:
 		int getControl1();
 		int getControl2();						
 	};
-	void sendMessage(struct cec_message &message);
+	int sendMessage(struct cec_message &message);
 #endif
 protected:
 	static eHdmiCEC *instance;
@@ -125,7 +125,7 @@ public:
 	static eHdmiCEC *getInstance();
 	PSignal1<void, ePtr<iCECMessage> &> messageReceived;
 	PSignal1<void, int> addressChanged;
-	int sendMessage(unsigned char address, unsigned char cmd, char *data, int length);
+	void sendMessage(unsigned char address, unsigned char cmd, char *data, int length);
 	int getLogicalAddress();
 	int getPhysicalAddress();
 	void setFixedPhysicalAddress(int address);

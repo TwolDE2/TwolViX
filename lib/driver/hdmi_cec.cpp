@@ -540,7 +540,7 @@ long eHdmiCEC::translateKey(unsigned char code)
 	return key;
 }
 
-void eHdmiCEC::sendMessage(struct cec_message &message)
+int eHdmiCEC::sendMessage(struct cec_message &message)
 {
 	if (hdmiFd >= 0)
 	{
@@ -572,7 +572,7 @@ void eHdmiCEC::sendMessage(struct cec_message &message)
 	}
 }
 
-int eHdmiCEC::sendMessage(unsigned char address, unsigned char cmd, char *data, int length)
+void eHdmiCEC::sendMessage(unsigned char address, unsigned char cmd, char *data, int length)
 {
 	struct cec_message message;
 	message.address = address;
