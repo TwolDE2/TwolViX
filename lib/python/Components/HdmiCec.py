@@ -607,10 +607,10 @@ class HdmiCec:
 			else:
 				#	print("[hdmiCEC][sendmessage4]: address=%s, cmd=%s,data=%s \n" % (address, cmd, data))
 				self.ret = eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
-				print("[hdmiCEC][sendmessage6]: send failed:ret = %s address=%s, cmd=%s,data=%s \n" % (self.ret, address, cmd, data))
-				if not self.ret:
+				#	print("[hdmiCEC][sendmessage5]:write ret = %s address=%s, cmd=%s,data=%s \n" % (self.ret, address, cmd, data))
+			if self.ret != None:
 					print("[hdmiCEC][sendmessage6]: send failed:ret = %s address=%s, cmd=%s,data=%s \n" % (self.ret, address, cmd, data))
-					self.wait.start(int(600), True)				
+					self.wait.start(int(600), True)	# write error lets wait a while				
 			if config.hdmicec.debug.value in ["1", "3"]:
 				self.debugTx(address, cmd, data)
 
@@ -620,10 +620,11 @@ class HdmiCec:
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			print("[hdmiCEC][sendCmd1]: address=%s, CECcmd=%s cmd=%s,data=%s \n" % (address, CECcmd, cmd, data))
 			self.ret = eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
-			if not self.ret:			
+			if self.ret != None:			
 				print("[hdmiCEC][sendCmd2]: send failed:ret = %s address=%s, cmd=%s,data=%s \n" % (self.ret, address, cmd, data))
-				self.wait.start(int(600), True)							
-			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
+				self.wait.start(int(600), True)
+			else:								
+				self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
 	def sendMessages(self, address, messages):
 		for message in messages:
