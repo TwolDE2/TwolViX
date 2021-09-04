@@ -125,7 +125,7 @@ public:
 	static eHdmiCEC *getInstance();
 	PSignal1<void, ePtr<iCECMessage> &> messageReceived;
 	PSignal1<void, int> addressChanged;
-	void sendMessage(unsigned char address, unsigned char cmd, char *data, int length);
+	int sendMessage(unsigned char address, unsigned char cmd, char *data, int length);
 	int getLogicalAddress();
 	int getPhysicalAddress();
 	void setFixedPhysicalAddress(int address);
