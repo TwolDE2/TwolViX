@@ -1,11 +1,9 @@
 from __future__ import print_function
 
-import enigma
 import os
-import sys
-
-from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
-from sys import stdout
+import enigma
+from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion, getHaveSCART, getHaveSCARTYUV
+from sys import path, stdout
 from time import localtime, strftime, time
 from traceback import print_exc
 
@@ -31,7 +29,7 @@ if getImageArch() in ("aarch64"):
 	usb.backend.libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")
 
 if os.path.isfile("/usr/lib/enigma2/python/enigma.zip"):
-	sys.path.append("/usr/lib/enigma2/python/enigma.zip")
+	path.append("/usr/lib/enigma2/python/enigma.zip")
 
 profile("PYTHON_START")
 print("[StartEnigma]  Starting Python Level Initialisation.")
@@ -171,7 +169,7 @@ try:
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
 
-	logger = log.FileLogObserver(sys.stdout)
+	logger = log.FileLogObserver(stdout)
 	log.FileLogObserver.emit = quietEmit
 	log.startLoggingWithObserver(logger.emit)
 except ImportError:
@@ -263,7 +261,7 @@ class Session:
 			try:
 				p(reason=0, session=self)
 			except Exception:
-				print("StartEnigma] Plugin raised exception at WHERE_SESSIONSTART")
+				print("[StartEnigma] Plugin raised exception at WHERE_SESSIONSTART")
 				print_exc()
 
 	def processDelay(self):
@@ -282,16 +280,16 @@ class Session:
 	def execBegin(self, first=True, do_show=True):
 		assert not self.in_exec
 		self.in_exec = True
-		c = self.current_dialog
-		# when this is an execbegin after a execend of a "higher" dialog,
+		currentDialog = self.current_dialog
+		# When this is an execbegin after a execEnd of a "higher" dialog,
 		# popSummary already did the right thing.
 		if first:
-			self.instantiateSummaryDialog(c)
-		c.saveKeyboardMode()
-		c.execBegin()
-		# when execBegin opened a new dialog, don't bother showing the old one.
-		if c == self.current_dialog and do_show:
-			c.show()
+			self.instantiateSummaryDialog(currentDialog)
+		currentDialog.saveKeyboardMode()
+		currentDialog.execBegin()
+		# When execBegin opened a new dialog, don't bother showing the old one.
+		if currentDialog == self.current_dialog and do_show:
+			currentDialog.show()
 
 	def execEnd(self, last=True):
 		assert self.in_exec
@@ -326,16 +324,13 @@ class Session:
 			screen.addSummary(self.summary)
 
 	def doInstantiateDialog(self, screen, arguments, kwargs, desktop):
-		# create dialog
-		dlg = screen(self, *arguments, **kwargs)
-		if dlg is None:
+		dialog = screen(self, *arguments, **kwargs)  # Create dialog.
+		if dialog is None:
 			return
-		# read skin data
-		readSkin(dlg, None, dlg.skinName, desktop)
-		# create GUI view of this dialog
-		dlg.setDesktop(desktop)
-		dlg.applySkin()
-		return dlg
+		readSkin(dialog, None, dialog.skinName, desktop)  # Read skin data.
+		dialog.setDesktop(desktop)  # Create GUI view of this dialog.
+		dialog.applySkin()
+		return dialog
 
 	def pushCurrent(self):
 		if self.current_dialog is not None:
@@ -357,25 +352,23 @@ class Session:
 		self.execBegin()
 
 	def openWithCallback(self, callback, screen, *arguments, **kwargs):
-		dlg = self.open(screen, *arguments, **kwargs)
-		dlg.callback = callback
-		return dlg
+		dialog = self.open(screen, *arguments, **kwargs)
+		dialog.callback = callback
+		return dialog
 
 	def open(self, screen, *arguments, **kwargs):
 		if self.dialog_stack and not self.in_exec:
-			raise RuntimeError("modal open are allowed only from a screen which is modal!")
-			# ...unless it's the very first screen.
-
+			raise RuntimeError("[StartEnigma] Error: Modal open are allowed only from a screen which is modal!")  # ...unless it's the very first screen.
 		self.pushCurrent()
-		dlg = self.current_dialog = self.instantiateDialog(screen, *arguments, **kwargs)
-		dlg.isTmp = True
-		dlg.callback = None
+		dialog = self.current_dialog = self.instantiateDialog(screen, *arguments, **kwargs)
+		dialog.isTmp = True
+		dialog.callback = None
 		self.execBegin()
-		return dlg
+		return dialog
 
 	def close(self, screen, *retval):
 		if not self.in_exec:
-			print("StartEnigma] close after exec!")
+			print("[StartEnigma] Close after exec!")
 			return
 
 		# be sure that the close is for the right dialog!
@@ -433,7 +426,7 @@ from GlobalActions import globalActionMap
 
 
 class PowerKey:
-	""" PowerKey stuff - handles the powerkey press and powerkey release actions"""
+	""" PowerKey - handles the powerkey press and powerkey release actions"""
 
 	def __init__(self, session):
 		self.session = session
@@ -459,13 +452,13 @@ class PowerKey:
 				f.close()
 				wasRecTimerWakeup = int(file) and True or False
 			if self.session.nav.RecordTimer.isRecTimerWakeup() or wasRecTimerWakeup:
-				print("StartEnigma] PowerOff (timer wakewup) - Recording in progress or a timer about to activate, entering standby!")
+				print("[StartEnigma] PowerOff (timer wakewup) - Recording in progress or a timer about to activate, entering standby!")
 				self.standby()
 			else:
-				print("StartEnigma] PowerOff - Now!")
+				print("[StartEnigma] PowerOff - Now!")
 				self.session.open(Screens.Standby.TryQuitMainloop, 1)
 		elif not Screens.Standby.inTryQuitMainloop and self.session.current_dialog and self.session.current_dialog.ALLOW_SUSPEND:
-			print("StartEnigma] PowerOff - Now!")
+			print("[StartEnigma] PowerOff - Now!")
 			self.session.open(Screens.Standby.TryQuitMainloop, 1)
 
 	def powerlong(self):
@@ -478,7 +471,7 @@ class PowerKey:
 		if action == "shutdown":
 			self.shutdown()
 		elif action == "show_menu":
-			print("StartEnigma] Show shutdown Menu")
+			print("[StartEnigma] Show shutdown Menu")
 			root = mdom.getroot()
 			for x in root.findall("menu"):
 				y = x.find("id")
@@ -503,34 +496,34 @@ class PowerKey:
 		if not Screens.Standby.inStandby and self.session.current_dialog and self.session.current_dialog.ALLOW_SUSPEND and self.session.in_exec:
 			self.session.open(Screens.Standby.Standby)
 
+if getHaveSCARTYUV() in ('True',) or getHaveSCART() in ('True',):
+	profile("Scart")
+	print("[StartEnigma]  Initialising Scart.")
+	from Screens.Scart import Scart
 
-profile("Scart")
-print("[StartEnigma]  Initialising Scart.")
-from Screens.Scart import Scart
 
-
-class AutoScartControl:
-	def __init__(self, session):
-		self.force = False
-		self.current_vcr_sb = enigma.eAVSwitch.getInstance().getVCRSlowBlanking()
-		if self.current_vcr_sb and config.av.vcrswitch.value:
-			self.scartDialog = session.instantiateDialog(Scart, True)
-		else:
-			self.scartDialog = session.instantiateDialog(Scart, False)
-		config.av.vcrswitch.addNotifier(self.recheckVCRSb)
-		enigma.eAVSwitch.getInstance().vcr_sb_notifier.get().append(self.VCRSbChanged)
-
-	def recheckVCRSb(self, configElement):
-		self.VCRSbChanged(self.current_vcr_sb)
-
-	def VCRSbChanged(self, value):
-		#print("vcr sb changed to", value)
-		self.current_vcr_sb = value
-		if config.av.vcrswitch.value or value > 2:
-			if value:
-				self.scartDialog.showMessageBox()
+	class AutoScartControl:
+		def __init__(self, session):
+			self.force = False
+			self.current_vcr_sb = enigma.eAVSwitch.getInstance().getVCRSlowBlanking()
+			if self.current_vcr_sb and config.av.vcrswitch.value:
+				self.scartDialog = session.instantiateDialog(Scart, True)
 			else:
-				self.scartDialog.switchToTV()
+				self.scartDialog = session.instantiateDialog(Scart, False)
+			config.av.vcrswitch.addNotifier(self.recheckVCRSb)
+			enigma.eAVSwitch.getInstance().vcr_sb_notifier.get().append(self.VCRSbChanged)
+
+		def recheckVCRSb(self, configElement):
+			self.VCRSbChanged(self.current_vcr_sb)
+
+		def VCRSbChanged(self, value):
+			#print("vcr sb changed to", value)
+			self.current_vcr_sb = value
+			if config.av.vcrswitch.value or value > 2:
+				if value:
+					self.scartDialog.showMessageBox()
+				else:
+					self.scartDialog.switchToTV()
 
 
 profile("Load:CI")
@@ -586,8 +579,8 @@ def runScreenTest():
 	profile("Init:PowerKey")
 	power = PowerKey(session)
 
-	# we need session.scart to access it from within menu.xml
-	session.scart = AutoScartControl(session)
+	if getHaveSCARTYUV() in ('True',) or getHaveSCART() in ('True',):
+		session.scart = AutoScartControl(session)	# we need session.scart to access it from within menu.xml
 
 	profile("Init:Trashcan")
 	import Tools.Trashcan
@@ -769,7 +762,7 @@ try:
 	plugins.shutdown()
 	Components.ParentalControl.parentalControl.save()
 except Exception:
-	print("StartEnigma] EXCEPTION IN PYTHON STARTUP CODE:")
+	print("[StartEnigma] EXCEPTION IN PYTHON STARTUP CODE:")
 	print("-" * 60)
 	print_exc(file=stdout)
 	enigma.quitMainloop(5)
