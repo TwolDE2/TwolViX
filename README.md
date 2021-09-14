@@ -8,7 +8,7 @@
 ## minimum hardware requirement : ##
 
 > RAM:  16GB
-> SWAP: 16GB
+> SWAP: 16GB (if building feeds then RAM+SWAP should be larger)> 
 > CPU:  Multi core\thread Model
 > HDD:  for Single Build 250GB Free, for Multibuild 500GB or more
 
