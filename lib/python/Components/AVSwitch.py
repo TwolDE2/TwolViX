@@ -889,11 +889,14 @@ def InitAVSwitch():
 		config.av.wmapro.addNotifier(setWMAPRO)
 
 	if SystemInfo["CanBTAudio"]:
-		choices = [("off", _("Off")), ("on", _("On"))]
+		choices = [
+			("off", _("Off")), 
+			("on", _("On"))
+		]
 		default = "off"
 
 		if SystemInfo["CanProc"]:
-			f = "/proc/stb/audio/btaudio_choices", "w"
+			f = "/proc/stb/audio/btaudio_choices"
 			(choices, default) = readChoices(f, choices, default)
 
 		config.av.btaudio = ConfigSelection(choices=choices, default="off")
@@ -939,20 +942,20 @@ class VideomodeHotplug:
 		iAVSwitch.on_hotplug.remove(self.hotplug)
 
 	def hotplug(self, what):
-		print("[VideomodeHotplug] hotplug detected on port '%s'" % what)
+		print("[AVSwitch][VideomodeHotplug] hotplug detected on port '%s'" % what)
 		port = config.av.videoport.value
 		mode = config.av.videomode[port].value
 		rate = config.av.videorate[mode].value
 
 		if not iAVSwitch.isModeAvailable(port, mode, rate):
-			print("[VideomodeHotplug] mode %s/%s/%s went away!" % (port, mode, rate))
+			print("[AVSwitch][VideomodeHotplug] mode %s/%s/%s went away!" % (port, mode, rate))
 			modelist = iAVSwitch.getModeList(port)
 			if not len(modelist):
-				print("[VideomodeHotplug] sorry, no other mode is available (unplug?). Doing nothing.")
+				print("[AVSwitch][VideomodeHotplug] sorry, no other mode is available (unplug?). Doing nothing.")
 				return
 			mode = modelist[0][0]
 			rate = modelist[0][1]
-			print("[VideomodeHotplug] setting %s/%s/%s" % (port, mode, rate))
+			print("[AVSwitch][VideomodeHotplug] setting %s/%s/%s" % (port, mode, rate))
 			iAVSwitch.setMode(port, mode, rate)
 
 
