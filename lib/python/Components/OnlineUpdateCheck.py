@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+import six
 
 from time import time
 
@@ -82,8 +83,9 @@ class FeedsStatusCheck:
 
 	def getFeedStatus(self):
 		status = "1"
-		trafficLight = "stable"
-		if getImageType() != "rubbish":
+		print("[OnlineUpdateCheck][getFeedStatus] Q. Alien Feeds url: %s" % getFeedsUrl())		
+		if "openvix.co" not in getFeedsUrl():
+			print("[OnlineUpdateCheck][getFeedStatus] Alien Feeds url: %s" % getFeedsUrl())
 			status = "0"
 			config.softwareupdate.updateisunstable.setValue(status)
 			return "stable"
@@ -107,6 +109,7 @@ class FeedsStatusCheck:
 						trafficLight = -2
 				else:
 					trafficLight = "unknown"
+				trafficLight = six.ensure_str(trafficLight)	
 				if trafficLight == "stable":
 					status = "0"
 				config.softwareupdate.updateisunstable.setValue(status)
@@ -137,10 +140,10 @@ class FeedsStatusCheck:
 
 	def getFeedsBool(self):
 		global error
-		self.feedstatus = feedsstatuscheck.getFeedStatus()
+		self.feedstatus = six.ensure_str(feedsstatuscheck.getFeedStatus())
 		if self.feedstatus in (-2, -3, 403, 404):
 			print("[OnlineUpdateCheck][getFeedsBool] Error %s" % self.feedstatus)
-			return str(self.feedstatus)
+			return self.feedstatus
 		elif error:
 			print("[OnlineUpdateCheck][getFeedsBool] Check already in progress")
 			return "inprogress"
@@ -149,7 +152,8 @@ class FeedsStatusCheck:
 			return "updating"
 		elif self.feedstatus in ("stable", "unstable", "unknown"):
 			print("[OnlineUpdateCheck][getFeedsBool]", self.feedstatus)
-			return str(self.feedstatus)
+			return self.feedstatus
+ 	
 
 	def getFeedsErrorMessage(self):
 		global error
