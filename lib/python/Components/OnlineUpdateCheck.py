@@ -83,12 +83,11 @@ class FeedsStatusCheck:
 
 	def getFeedStatus(self):
 		status = "1"
-		print("[OnlineUpdateCheck][getFeedStatus] Q. Alien Feeds url: %s" % getFeedsUrl())		
 		if "openvix.co" not in getFeedsUrl():
-			print("[OnlineUpdateCheck][getFeedStatus] Alien Feeds url: %s" % getFeedsUrl())
+			print("[OnlineUpdateCheck][getFeedStatus] Alien feeds url: %s" % getFeedsUrl())
 			status = "0"
 			config.softwareupdate.updateisunstable.setValue(status)
-			return "stable"
+			return "alien"
 		trafficLight = "unknown"
 		if self.adapterAvailable():
 			if self.NetworkUp():
@@ -136,6 +135,7 @@ class FeedsStatusCheck:
 		"404": _("ERROR: Response 404 Not Found"),
 		"inprogress": _("ERROR: Check is already running in background, please wait a few minutes and try again"),
 		"unknown": _("Feeds status: Unknown"),
+		"alien": _("Feeds status: Unknown, user feeds url"),
 	}
 
 	def getFeedsBool(self):
@@ -150,10 +150,9 @@ class FeedsStatusCheck:
 		elif self.feedstatus == "updating":
 			print("[OnlineUpdateCheck][getFeedsBool] Feeds Updating")
 			return "updating"
-		elif self.feedstatus in ("stable", "unstable", "unknown"):
+		elif self.feedstatus in ("stable", "unstable", "unknown", "alien"):
 			print("[OnlineUpdateCheck][getFeedsBool]", self.feedstatus)
 			return self.feedstatus
- 	
 
 	def getFeedsErrorMessage(self):
 		global error
