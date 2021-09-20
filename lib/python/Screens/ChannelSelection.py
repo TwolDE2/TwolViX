@@ -52,7 +52,9 @@ from Tools.BoundFunction import boundFunction
 from Tools.LoadPixmap import LoadPixmap
 import Tools.Notifications
 from Tools.NumericalTextInput import NumericalTextInput
+from Tools.Sign import SIGN
 import Tools.Transponder
+
 
 try:
 	from Plugins.SystemPlugins.PiPServiceRelation.plugin import getRelationDict
@@ -65,8 +67,6 @@ profile("ChannelSelection.py after imports")
 FLAG_SERVICE_NEW_FOUND = 64
 FLAG_IS_DEDICATED_3D = 128
 FLAG_CENTER_DVB_SUBS = 2048 #define in lib/dvb/idvb.h as dxNewFound = 64 and dxIsDedicated3D = 128
-
-SIGN = "°" if six.PY3 else str("\xc2\xb0")
 
 
 class BouquetSelector(Screen):
