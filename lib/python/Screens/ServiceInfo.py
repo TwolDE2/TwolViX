@@ -13,6 +13,7 @@ from Components.Label import Label
 from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 from ServiceReference import ServiceReference
+from Tools.Hex2strColor import Hex2strColor
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 from skin import applySkinFactor, parameters, parseFont, parseScale
 
@@ -345,7 +346,7 @@ class ServiceInfo(Screen):
 					extra_info = "extra data=%s" % caid[2]
 			from Tools.GetEcmInfo import GetEcmInfo
 			ecmdata = GetEcmInfo().getEcmData()
-			color = "\c00ffbf00" if caid[1] == int(ecmdata[3], 16) and caid[0] == int(ecmdata[1], 16) else ""
+			color = Hex2strColor(parameters.get("ServiceInfoEcmColor", 0x00ffbf00)) if caid[1] == int(ecmdata[3], 16) and caid[0] == int(ecmdata[1], 16) else ""
 			tlist.append(ServiceInfoListEntry("%sECMPid %04X (%d) %04X-%s %s" % (color, caid[1], caid[1], caid[0], CaIdDescription, extra_info)))
 		if not tlist:
 				tlist.append(ServiceInfoListEntry(_("No ECMPids available")))
