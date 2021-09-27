@@ -93,18 +93,6 @@ config.misc.startCounter = ConfigInteger(default=0)  # number of e2 starts...
 config.misc.standbyCounter = NoSave(ConfigInteger(default=0))  # number of standby
 config.misc.DeepStandby = NoSave(ConfigYesNo(default=False))  # detect deepstandby
 
-# demo code for use of standby enter leave callbacks
-# def leaveStandby():
-# 	print "!!!!!!!!!!!!!!!!!leave standby"
-
-# def standbyCountChanged(configElement):
-# 	print "!!!!!!!!!!!!!!!!!enter standby num", configElement.value
-# 	from Screens.Standby import inStandby
-# 	inStandby.onClose.append(leaveStandby)
-
-# config.misc.standbyCounter.addNotifier(standbyCountChanged, initial_call = False)
-# ###################################################
-
 
 def useSyncUsingChanged(configElement):
 	if configElement.value == "0":
@@ -137,13 +125,8 @@ print("[StartEnigma] Initialising Twisted.")
 try:
 	import twisted.python.runtime
 	twisted.python.runtime.platform.supportsThreads = lambda: True
-
 	import e2reactor
 	e2reactor.install()
-	# from twisted.python.runtime.platform import supportsThreads
-	# supportsThreads = lambda: True
-	# from e2reactor import install
-	# install()
 	from twisted.internet import reactor
 
 	def runReactor():
@@ -371,13 +354,13 @@ class Session:
 			print("[StartEnigma] Close after exec!")
 			return
 
-		# be sure that the close is for the right dialog!
-		# if it's not, you probably closed after another dialog
-		# was opened. this can happen if you open a dialog
-		# onExecBegin, and forget to do this only once.
-		# after close of the top dialog, the underlying will
-		# gain focus again (for a short time), thus triggering
-		# the onExec, which opens the dialog again, closing the loop.
+		# Be sure that the close is for the right dialog!
+		# If it's not, you probably closed after another dialog was opened.
+		# This can happen if you open a dialog onExecBegin, and forget to do this only once.
+		# 
+		# After close of the top dialog, the underlying dialog will gain focus again (for a short time),
+		# thus triggering the onExec, which opens the dialog again, closing the loop.
+		# 
 		assert screen == self.current_dialog
 
 		self.current_dialog.returnValue = retval
@@ -750,13 +733,8 @@ if config.clientmode.enabled.value:
 	import Components.ChannelsImporter
 	Components.ChannelsImporter.autostart()
 
-# from enigma import dump_malloc_stats
-# t = eTimer()
-# t.callback.append(dump_malloc_stats)
-# t.start(1000)
 
-# first, setup a screen
-print("[StartEnigma]  Starting User Interface.")
+print("[StartEnigma]  Starting User Interface.")	# first, setup a screen
 try:
 	runScreenTest()
 	plugins.shutdown()
