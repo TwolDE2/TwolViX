@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import os
+from os import listdir, path, system
 import xml.sax
 
 from enigma import eConsoleAppContainer, eDVBDB
@@ -211,7 +211,7 @@ class PackageInfoHandler:
 		if not isinstance(self.directory, list):
 			self.directory = [self.directory]
 
-		for indexfile in os.listdir(self.directory[0]):
+		for indexfile in listdir(self.directory[0]):
 			if indexfile.startswith("index-"):
 				if indexfile.endswith(".xml"):
 					if indexfile[-7:-6] == "_":
@@ -220,7 +220,7 @@ class PackageInfoHandler:
 		if len(indexfileList):
 			for file in indexfileList:
 				neededFile = self.directory[0] + "/" + file
-				if os.path.isfile(neededFile):
+				if path.isfile(neededFile):
 					self.readIndex(self.directory[0] + "/", neededFile)
 
 		if prerequisites:
@@ -358,7 +358,7 @@ class PackageInfoHandler:
 			self.mergeServices(service["directory"], service["name"])
 
 	def readfile(self, filename):
-		if not os.path.isfile(filename):
+		if not path.isfile(filename):
 			return []
 		fd = open(filename)
 		lines = fd.readlines()
@@ -366,14 +366,14 @@ class PackageInfoHandler:
 		return lines
 
 	def mergeConfig(self, directory, name, merge=True):
-		if os.path.isfile(directory + name):
+		if path.isfile(directory + name):
 			config.loadFromFile(directory + name, base_file=False)
 			configfile.save()
 		self.installNext()
 
 	def installIPK(self, directory, name):
 		if self.blocking:
-			os.system("opkg install " + directory + name)
+			system("opkg install " + directory + name)
 			self.installNext()
 		else:
 			self.ipkg = IpkgComponent()
@@ -395,7 +395,7 @@ class PackageInfoHandler:
 				self.installNext()
 
 	def mergeServices(self, directory, name, merge=False):
-		if os.path.isfile(directory + name):
+		if path.isfile(directory + name):
 			db = eDVBDB.getInstance()
 			db.reloadServicelist()
 			db.loadServicelist(directory + name)

@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
+from os import path
 
 from Components.ActionMap import ActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
@@ -73,7 +73,7 @@ class H9SDswap(Screen):
 		self.switchtype = "mmc"
 		if "root=/dev/mmcblk0p1" in open('/proc/cmdline', 'r').read():
 			self.session.open(MessageBox, _("H9 SDcard switch ERROR! - already on mmc"), MessageBox.TYPE_INFO, timeout=20)
-		elif os.path.isfile("/media/mmc/usr/bin/enigma2"):
+		elif path.isfile("/media/mmc/usr/bin/enigma2"):
 			self.container = Console()
 			self.container.ePopen("dd if=/usr/share/bootargs-mmc.bin of=/dev/mtdblock1", self.Unm)
 		else:
@@ -83,7 +83,7 @@ class H9SDswap(Screen):
 		self.switchtype = "usb"
 		if "root=/dev/SDA1" in open('/proc/cmdline', 'r').read():
 			self.session.open(MessageBox, _("H9 USB switch ERROR! - already on USB"), MessageBox.TYPE_INFO, timeout=20)
-		elif os.path.isfile("/media/mmc/usr/bin/enigma2"):
+		elif path.isfile("/media/mmc/usr/bin/enigma2"):
 			self.container = Console()
 			self.container.ePopen("dd if=/usr/share/bootargs-usb.bin of=/dev/mtdblock1", self.Unm)
 		else:

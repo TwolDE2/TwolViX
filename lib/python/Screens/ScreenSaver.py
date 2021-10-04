@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import os
+from os import path
 import random
 from enigma import ePoint, eTimer, iPlayableService
 
@@ -44,7 +44,7 @@ class Screensaver(Screen):
 			ref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 			if ref:
 				ref = ref.toString().split(":")
-				if not os.path.splitext(ref[10])[1].lower() in AUDIO_EXTENSIONS:
+				if not path.splitext(ref[10])[1].lower() in AUDIO_EXTENSIONS:
 					self.hide()
 
 	def doMovePicture(self):

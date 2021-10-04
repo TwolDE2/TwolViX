@@ -2,9 +2,9 @@ from __future__ import absolute_import
 
 from enigma import eListboxPythonMultiContent, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER
 from Components.MenuList import MenuList
+from skin import applySkinFactor, fonts, parameters
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
-from skin import applySkinFactor, fonts, parameters
 
 
 selectiononpng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "icons/lock_on.png"))

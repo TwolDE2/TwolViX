@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
+from os import path
 
 from Tools.Profile import profile
 
@@ -212,7 +212,7 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 	def restartLastMovie(self):
 		service = enigma.eServiceReference(config.usage.last_movie_played.value)
 		if service:
-			if os.path.exists(service.getPath()):
+			if path.exists(service.getPath()):
 				from Components.ParentalControl import parentalControl
 				if parentalControl.isServicePlayable(service, self.openMoviePlayer):
 					self.openMoviePlayer(service)

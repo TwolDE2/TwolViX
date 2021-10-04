@@ -6,7 +6,7 @@ from __future__ import division
 from bisect import insort
 import itertools
 import datetime
-import os
+from os import listdir, path
 from sys import maxsize, version_info
 from time import time, localtime, strftime
 
@@ -104,9 +104,9 @@ def setResumePoint(session):
 				for k, v in list(resumePointCache.items()):
 					if v[0] < lru:
 						candidate = k
-						filepath = os.path.realpath(candidate.split(':')[-1])
+						filepath = path.realpath(candidate.split(':')[-1])
 						mountpoint = findMountPoint(filepath)
-						if os.path.ismount(mountpoint) and not os.path.exists(filepath):
+						if path.ismount(mountpoint) and not path.exists(filepath):
 							del resumePointCache[candidate]
 				saveResumePoints()
 
@@ -167,7 +167,7 @@ whitelist_vbi = None
 
 def reload_whitelist_vbi():
 	global whitelist_vbi
-	whitelist_vbi = [line.strip() for line in open('/etc/enigma2/whitelist_vbi', 'r').readlines()] if os.path.isfile('/etc/enigma2/whitelist_vbi') else []
+	whitelist_vbi = [line.strip() for line in open('/etc/enigma2/whitelist_vbi', 'r').readlines()] if path.isfile('/etc/enigma2/whitelist_vbi') else []
 
 
 reload_whitelist_vbi()
@@ -180,7 +180,7 @@ def reload_subservice_groupslist(force=False):
 	if subservice_groupslist is None or force:
 		try:
 			groupedservices = "/etc/enigma2/groupedservices"
-			if not os.path.isfile(groupedservices):
+			if not path.isfile(groupedservices):
 				groupedservices = "/usr/share/enigma2/groupedservices"
 			subservice_groupslist = [list(g) for k, g in itertools.groupby([line.split('#')[0].strip() for line in open(groupedservices).readlines()], lambda x:not x) if not k]
 		except:
@@ -337,7 +337,7 @@ class InfoBarScreenSaver:
 			ref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 			if ref and not (hasattr(self.session, "pipshown") and self.session.pipshown):
 				ref = ref.toString().split(":")
-				flag = ref[2] == "2" or os.path.splitext(ref[10])[1].lower() in AUDIO_EXTENSIONS
+				flag = ref[2] == "2" or path.splitext(ref[10])[1].lower() in AUDIO_EXTENSIONS
 		if time and flag:
 			self.screenSaverTimer.startLongTimer(time)
 		else:
@@ -2176,11 +2176,11 @@ class InfoBarSeek:
 			self.activityTimer.stop()
 			self.activity = 0
 			hdd = 0
-		if os.path.exists("/proc/stb/lcd/symbol_hdd"):
+		if path.exists("/proc/stb/lcd/symbol_hdd"):
 			file = open("/proc/stb/lcd/symbol_hdd", "w")
 			file.write('%d' % int(hdd))
 			file.close()
-		if os.path.exists("/proc/stb/lcd/symbol_hddprogress"):
+		if path.exists("/proc/stb/lcd/symbol_hddprogress"):
 			file = open("/proc/stb/lcd/symbol_hddprogress", "w")
 			file.write('%d' % int(self.activity))
 			file.close()
@@ -2611,7 +2611,7 @@ class InfoBarTimeshiftState(InfoBarPVRState):
 		self.pvrStateDialog.hide()
 
 	def __timeshiftEventName(self, state):
-		if os.path.exists("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value, self.pts_currplaying)):
+		if path.exists("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value, self.pts_currplaying)):
 			readmetafile = open("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value, self.pts_currplaying), "r")
 			servicerefname = readmetafile.readline()[0:-1]
 			eventname = readmetafile.readline()[0:-1]
@@ -2694,7 +2694,7 @@ class InfoBarExtensions:
 	def getCCcamInfo(self):
 		softcams = []
 		if pathExists('/usr/softcams/'):
-			softcams = os.listdir('/usr/softcams/')
+			softcams = listdir('/usr/softcams/')
 		for softcam in softcams:
 			if softcam.lower().startswith('cccam') and config.cccaminfo.showInExtensions.value:
 				return [((boundFunction(self.getCCname), boundFunction(self.openCCcamInfo), lambda: True), None)] or []
@@ -2707,7 +2707,7 @@ class InfoBarExtensions:
 	def getOScamInfo(self):
 		softcams = []
 		if pathExists('/usr/softcams/'):
-			softcams = os.listdir('/usr/softcams/')
+			softcams = listdir('/usr/softcams/')
 		for softcam in softcams:
 			if (softcam.lower().startswith('oscam') or softcam.lower().startswith('ncam')) and config.oscaminfo.showInExtensions.value:
 				return [((boundFunction(self.getOSname), boundFunction(self.openOScamInfo), lambda: True), None)] or []

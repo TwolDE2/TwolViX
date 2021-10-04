@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
+from os import path, walk
 from mimetypes import guess_type, add_type
 
 from Components.PluginComponent import plugins
@@ -184,11 +184,11 @@ def scanDevice(mountpoint):
 
 	# now scan the paths
 	for p in paths_to_scan:
-		path = os.path.join(mountpoint, p.path)
+		path = path.join(mountpoint, p.path)
 
-		for root, dirs, files in os.walk(path):
+		for root, dirs, files in walk(path):
 			for f in files:
-				path = os.path.join(root, f)
+				path = path.join(root, f)
 				if f.endswith(".wav") and f.startswith("track"):
 					sfile = ScanFile(path, "audio/x-cda")
 				else:

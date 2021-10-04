@@ -3,15 +3,6 @@ from __future__ import absolute_import
 import six
 
 from time import time
-
-from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
-from enigma import eTimer
-import Components.Task
-from Components.About import about
-from Components.config import config
-from Components.Ipkg import IpkgComponent
-import Components.Task
-
 import socket
 import sys
 # required methods: Request, urlopen, HTTPError, URLError
@@ -20,6 +11,14 @@ try: # python 3
 	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
 except ImportError: # Python 2
 	from urllib2 import Request, urlopen, HTTPError, URLError
+
+from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
+from enigma import eTimer
+import Components.Task
+from Components.About import about
+from Components.config import config
+from Components.Ipkg import IpkgComponent
+import Components.Task
 
 
 error = 0

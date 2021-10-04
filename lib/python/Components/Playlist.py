@@ -1,5 +1,5 @@
 from __future__ import print_function
-import os
+from os import path
 
 from enigma import eServiceReference
 from ServiceReference import ServiceReference
@@ -34,7 +34,7 @@ class PlaylistIO:
 		if entry[0] == "/":
 			path = entry
 		else:
-			path = os.path.dirname(filename) + "/" + entry
+			path = path.dirname(filename) + "/" + entry
 			for proto in self.REMOTE_PROTOS:
 				if entry.startswith(proto):
 					path = entry

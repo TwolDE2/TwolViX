@@ -7,10 +7,11 @@ from enigma import eDBoxLCD, eTimer, iPlayableService, pNavigation, iServiceInfo
 from boxbranding import getBoxType, getMachineBuild
 from Components.config import config
 from Components.ParentalControl import parentalControl
+import Components.RecordingConfig
 from Components.ServiceEventTracker import ServiceEventTracker
 from Components.SystemInfo import SystemInfo
 from Tools.Directories import fileExists
-import Components.RecordingConfig
+
 import NavigationInstance
 
 POLLTIME = 5 # seconds

@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 import six
 
-import os
+from os import listdir, path, rename, remove 
 import re
 import sys
 import unicodedata
@@ -137,7 +137,7 @@ def append_when_current_valid(current, menu, args, level=0, key=""):
 
 
 def removed_userbouquets_available():
-	for file in os.listdir("/etc/enigma2/"):
+	for file in listdir("/etc/enigma2/"):
 		if file.startswith("userbouquet") and file.endswith(".del"):
 			return True
 	return False
@@ -421,19 +421,19 @@ class ChannelContextMenu(Screen):
 
 	def purgeDeletedBouquetsCallback(self, answer):
 		if answer:
-			for file in os.listdir("/etc/enigma2/"):
+			for file in listdir("/etc/enigma2/"):
 				if file.startswith("userbouquet") and file.endswith(".del"):
 					file = "/etc/enigma2/" + file
 					print("[ChannelSelection] permantly remove file ", file)
-					os.remove(file)
+					remove(file)
 			self.close()
 
 	def restoreDeletedBouquets(self):
-		for file in os.listdir("/etc/enigma2/"):
+		for file in listdir("/etc/enigma2/"):
 			if file.startswith("userbouquet") and file.endswith(".del"):
 				file = "/etc/enigma2/" + file
 				print("[ChannelSelection] restore file ", file[:-4])
-				os.rename(file, file[:-4])
+				rename(file, file[:-4])
 		eDVBDBInstance = eDVBDB.getInstance()
 		eDVBDBInstance.setLoadUnlinkedUserbouquets(True)
 		eDVBDBInstance.reloadBouquets()
@@ -972,7 +972,7 @@ class ChannelSelectionEdit:
 				name = unicodedata.normalize(u"NFKD", servicename).encode("ascii", "ignore").decode('utf8').translate(str.maketrans('', '', '<>:"/\\|?*() '))
 			else:
 				name = unicodedata.normalize("NFKD", unicode(servicename, "utf_8", errors="ignore")).encode("ASCII", "ignore").translate(None, '<>:"/\\|?*() ')
-			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/alternatives.%s.tv' or '/etc/enigma2/alternatives.%s.radio') % name):
+			while path.isfile((self.mode == MODE_TV and '/etc/enigma2/alternatives.%s.tv' or '/etc/enigma2/alternatives.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
 			new_ref = ServiceReference((self.mode == MODE_TV and '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.tv" ORDER BY bouquet' or '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.radio" ORDER BY bouquet') % name)
@@ -1010,7 +1010,7 @@ class ChannelSelectionEdit:
 				name = unicodedata.normalize(u"NFKD", bName).encode("ASCII", "ignore").decode('utf8').translate(str.maketrans('', '', '<>:"/\\|?*() '))
 			else:
 				name = unicodedata.normalize("NFKD", unicode(bName, "utf_8", errors="ignore")).encode("ASCII", "ignore").translate(None, '<>:"/\\|?*() ')
-			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/userbouquet.%s.tv' or '/etc/enigma2/userbouquet.%s.radio') % name):
+			while path.isfile((self.mode == MODE_TV and '/etc/enigma2/userbouquet.%s.tv' or '/etc/enigma2/userbouquet.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
 			new_bouquet_ref = eServiceReference((self.mode == MODE_TV and '1:7:1:0:0:0:0:0:0:0:FROM BOUQUET "userbouquet.%s.tv" ORDER BY bouquet' or '1:7:2:0:0:0:0:0:0:0:FROM BOUQUET "userbouquet.%s.radio" ORDER BY bouquet') % name)

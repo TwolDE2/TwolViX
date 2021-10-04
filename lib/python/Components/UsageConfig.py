@@ -4,7 +4,7 @@ from __future__ import division
 
 import io
 import locale
-import os
+from os import listdir, mkdir, path, remove
 import skin
 from time import time
 
@@ -186,16 +186,16 @@ def InitUsageConfig():
 		choicelist.append((str(i), ngettext("%d minute", "%d minutes", m) % m))
 	config.usage.pip_last_service_timeout = ConfigSelection(default="0", choices=choicelist)
 
-	if not os.path.exists(resolveFilename(SCOPE_HDD)):
+	if not path.exists(resolveFilename(SCOPE_HDD)):
 		try:
-			os.mkdir(resolveFilename(SCOPE_HDD), 0o755)
+			mkdir(resolveFilename(SCOPE_HDD), 0o755)
 		except (IOError, OSError):
 			pass
 	defaultValue = resolveFilename(SCOPE_HDD)
 	config.usage.default_path = ConfigSelection(default=defaultValue, choices=[(defaultValue, defaultValue)])
 	config.usage.default_path.load()
 	if config.usage.default_path.saved_value:
-		savedValue = os.path.join(config.usage.default_path.saved_value, "")
+		savedValue = path.join(config.usage.default_path.saved_value, "")
 		if savedValue and savedValue != defaultValue:
 			config.usage.default_path.setChoices([(defaultValue, defaultValue), (savedValue, savedValue)], default=defaultValue)
 			config.usage.default_path.value = savedValue
@@ -204,7 +204,7 @@ def InitUsageConfig():
 	config.usage.timer_path = ConfigSelection(default="<default>", choices=choiceList)
 	config.usage.timer_path.load()
 	if config.usage.timer_path.saved_value:
-		savedValue = config.usage.timer_path.saved_value if config.usage.timer_path.saved_value.startswith("<") else os.path.join(config.usage.timer_path.saved_value, "")
+		savedValue = config.usage.timer_path.saved_value if config.usage.timer_path.saved_value.startswith("<") else path.join(config.usage.timer_path.saved_value, "")
 		if savedValue and savedValue not in choiceList:
 			config.usage.timer_path.setChoices(choiceList + [(savedValue, savedValue)], default="<default>")
 			config.usage.timer_path.value = savedValue
@@ -212,21 +212,21 @@ def InitUsageConfig():
 	config.usage.instantrec_path = ConfigSelection(default="<default>", choices=choiceList)
 	config.usage.instantrec_path.load()
 	if config.usage.instantrec_path.saved_value:
-		savedValue = config.usage.instantrec_path.saved_value if config.usage.instantrec_path.saved_value.startswith("<") else os.path.join(config.usage.instantrec_path.saved_value, "")
+		savedValue = config.usage.instantrec_path.saved_value if config.usage.instantrec_path.saved_value.startswith("<") else path.join(config.usage.instantrec_path.saved_value, "")
 		if savedValue and savedValue not in choiceList:
 			config.usage.instantrec_path.setChoices(choiceList + [(savedValue, savedValue)], default="<default>")
 			config.usage.instantrec_path.value = savedValue
 	config.usage.instantrec_path.save()
-	if not os.path.exists(resolveFilename(SCOPE_TIMESHIFT)):
+	if not path.exists(resolveFilename(SCOPE_TIMESHIFT)):
 		try:
-			os.mkdir(resolveFilename(SCOPE_TIMESHIFT), 0o755)
+			mkdir(resolveFilename(SCOPE_TIMESHIFT), 0o755)
 		except:
 			pass
 	defaultValue = resolveFilename(SCOPE_TIMESHIFT)
 	config.usage.timeshift_path = ConfigSelection(default=defaultValue, choices=[(defaultValue, defaultValue)])
 	config.usage.timeshift_path.load()
 	if config.usage.timeshift_path.saved_value:
-		savedValue = os.path.join(config.usage.timeshift_path.saved_value, "")
+		savedValue = path.join(config.usage.timeshift_path.saved_value, "")
 		if savedValue and savedValue != defaultValue:
 			config.usage.timeshift_path.setChoices([(defaultValue, defaultValue), (savedValue, savedValue)], default=defaultValue)
 			config.usage.timeshift_path.value = savedValue
@@ -796,8 +796,8 @@ def InitUsageConfig():
 
 	hddchoises = [("/etc/enigma2/", "Internal Flash")]
 	for p in harddiskmanager.getMountedPartitions():
-		if os.path.exists(p.mountpoint):
-			d = os.path.normpath(p.mountpoint)
+		if path.exists(p.mountpoint):
+			d = path.normpath(p.mountpoint)
 			if p.mountpoint != "/":
 				hddchoises.append((p.mountpoint, d))
 	config.misc.epgcachepath = ConfigSelection(default='/etc/enigma2/', choices=hddchoises)
@@ -805,14 +805,14 @@ def InitUsageConfig():
 	config.misc.epgcache_filename = ConfigText(default=(config.misc.epgcachepath.value + config.misc.epgcachefilename.value.replace('.dat', '') + '.dat'))
 
 	def EpgCacheChanged(configElement):
-		config.misc.epgcache_filename.setValue(os.path.join(config.misc.epgcachepath.value, config.misc.epgcachefilename.value.replace('.dat', '') + '.dat'))
+		config.misc.epgcache_filename.setValue(path.join(config.misc.epgcachepath.value, config.misc.epgcachefilename.value.replace('.dat', '') + '.dat'))
 		config.misc.epgcache_filename.save()
 		eEPGCache.getInstance().setCacheFile(config.misc.epgcache_filename.value)
 		epgcache = eEPGCache.getInstance()
 		epgcache.save()
 		if not config.misc.epgcache_filename.value.startswith("/etc/enigma2/"):
-			if os.path.exists('/etc/enigma2/' + config.misc.epgcachefilename.value.replace('.dat', '') + '.dat'):
-				os.remove('/etc/enigma2/' + config.misc.epgcachefilename.value.replace('.dat', '') + '.dat')
+			if path.exists('/etc/enigma2/' + config.misc.epgcachefilename.value.replace('.dat', '') + '.dat'):
+				remove('/etc/enigma2/' + config.misc.epgcachefilename.value.replace('.dat', '') + '.dat')
 	config.misc.epgcachepath.addNotifier(EpgCacheChanged, immediate_feedback=False)
 	config.misc.epgcachefilename.addNotifier(EpgCacheChanged, immediate_feedback=False)
 
@@ -909,8 +909,8 @@ def InitUsageConfig():
 
 	debugpath = [('/home/root/logs/', '/home/root/')]
 	for p in harddiskmanager.getMountedPartitions():
-		if os.path.exists(p.mountpoint):
-			d = os.path.normpath(p.mountpoint)
+		if path.exists(p.mountpoint):
+			d = path.normpath(p.mountpoint)
 			if p.mountpoint != '/':
 				debugpath.append((p.mountpoint + 'logs/', d))
 	config.crash.debug_path = ConfigSelection(default="/home/root/logs/", choices=debugpath)
@@ -923,8 +923,8 @@ def InitUsageConfig():
 	config.crash.debug_path.addNotifier(report_debugpath_change, immediate_feedback=False)
 
 	def updatedebug_path(configElement):
-		if not os.path.exists(config.crash.debug_path.value):
-			os.mkdir(config.crash.debug_path.value, 0o755)
+		if not path.exists(config.crash.debug_path.value):
+			mkdir(config.crash.debug_path.value, 0o755)
 	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback=False)
 
 	config.usage.timerlist_showpicons = ConfigYesNo(default=True)
@@ -1114,9 +1114,9 @@ def InitUsageConfig():
 					("2", _("with exit button")),
 					("3", _("with left/right buttons"))])
 
-	if not os.path.exists('/usr/softcams/'):
-		os.mkdir('/usr/softcams/', 0o755)
-	softcams = os.listdir('/usr/softcams/')
+	if not path.exists('/usr/softcams/'):
+		mkdir('/usr/softcams/', 0o755)
+	softcams = listdir('/usr/softcams/')
 	config.oscaminfo = ConfigSubsection()
 	config.oscaminfo.showInExtensions = ConfigYesNo(default=False)
 	config.oscaminfo.userdatafromconf = ConfigYesNo(default=True)

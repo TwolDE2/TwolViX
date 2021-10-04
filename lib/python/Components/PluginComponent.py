@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
+from os import listdir, path, unlink
 from shutil import rmtree
 from bisect import insort
 
@@ -46,15 +46,15 @@ class PluginComponent:
 	def readPluginList(self, directory):
 		"""enumerates plugins"""
 		new_plugins = []
-		for c in os.listdir(directory):
-			directory_category = os.path.join(directory, c)
-			if not os.path.isdir(directory_category):
+		for c in listdir(directory):
+			directory_category = path.join(directory, c)
+			if not path.isdir(directory_category):
 				continue
-			for pluginname in os.listdir(directory_category):
+			for pluginname in listdir(directory_category):
 				if pluginname == "__pycache__":
 					continue
-				path = os.path.join(directory_category, pluginname)
-				if os.path.isdir(path):
+				path = path.join(directory_category, pluginname)
+				if path.isdir(path):
 						profile('plugin ' + pluginname)
 						try:
 							plugin = my_import('.'.join(["Plugins", c, pluginname, "plugin"]))
@@ -64,7 +64,7 @@ class PluginComponent:
 								print("[PluginComponent] Plugin ", c + "/" + pluginname, "failed to load:", exc)
 							# suppress errors due to missing plugin.py* files (badly removed plugin)
 							for fn in ('plugin.py', 'plugin.pyc', 'plugin.pyo'):
-								if os.path.exists(os.path.join(path, fn)):
+								if path.exists(path.join(path, fn)):
 									self.warnings.append((c + "/" + pluginname, str(exc)))
 									from traceback import print_exc
 									print_exc()
@@ -74,9 +74,9 @@ class PluginComponent:
 									print("[PluginComponent] Plugin probably removed, but not cleanly in", path)
 									print("[PluginComponent] trying to remove:", path)
 									# rmtree will produce an error if path is a symlink, so...
-									if os.path.islink(path):
-										rmtree(os.path.realpath(path))
-										os.unlink(path)
+									if path.islink(path):
+										rmtree(path.realpath(path))
+										unlink(path)
 									else:
 										rmtree(path)
 							continue
@@ -90,7 +90,7 @@ class PluginComponent:
 							p.updateIcon(path)
 							new_plugins.append(p)
 
-						keymap = os.path.join(path, "keymap.xml")
+						keymap = path.join(path, "keymap.xml")
 						if fileExists(keymap):
 							try:
 								keymapparser.readKeymap(keymap)
