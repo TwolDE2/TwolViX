@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import enigma
-import os
+from os import waitpid
 import six
 
 
@@ -31,7 +31,7 @@ class ConsoleItem:
 		if callback is None:
 			pid = self.container.getPID()
 			try:
-				os.waitpid(pid, 0)
+				waitpid(pid, 0)
 			except OSError:
 				pass
 

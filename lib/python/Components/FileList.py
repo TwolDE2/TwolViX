@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 import six
 
-import os
+from os import listdir, path
 import re
 
 from enigma import RT_HALIGN_LEFT, eListboxPythonMultiContent, \
@@ -117,29 +117,29 @@ class FileList(MenuList):
 		self.serviceHandler = eServiceCenter.getInstance()
 
 	def refreshMountpoints(self):
-		self.mountpoints = [os.path.join(p.mountpoint, "") for p in harddiskmanager.getMountedPartitions()]
+		self.mountpoints = [path.join(p.mountpoint, "") for p in harddiskmanager.getMountedPartitions()]
 		self.mountpoints.sort(reverse=True)
 
 	def getMountpoint(self, file):
-		file = os.path.join(os.path.realpath(file), "")
+		file = path.join(path.realpath(file), "")
 		for m in self.mountpoints:
 			if file.startswith(m):
 				return m
 		return False
 
 	def getMountpointLink(self, file):
-		if os.path.realpath(file) == file:
+		if path.realpath(file) == file:
 			return self.getMountpoint(file)
 		else:
 			if file[-1] == "/":
 				file = file[:-1]
 			mp = self.getMountpoint(file)
 			last = file
-			file = os.path.dirname(file)
+			file = path.dirname(file)
 			while last != "/" and mp == self.getMountpoint(file):
 				last = file
-				file = os.path.dirname(file)
-			return os.path.join(last, "")
+				file = path.dirname(file)
+			return path.join(last, "")
 
 	def getSelection(self):
 		if self.l.getCurrentSelection() is None:
@@ -157,7 +157,7 @@ class FileList(MenuList):
 		return self.list
 
 	def inParentDirs(self, dir, parents):
-		dir = os.path.realpath(dir)
+		dir = path.realpath(dir)
 		for p in parents:
 			if dir.startswith(p):
 				return True
@@ -178,7 +178,7 @@ class FileList(MenuList):
 
 		if directory is None and self.showMountpoints: # present available mountpoints
 			for p in harddiskmanager.getMountedPartitions():
-				path = os.path.join(p.mountpoint, "")
+				path = path.join(p.mountpoint, "")
 				if path not in self.inhibitMounts and not self.inParentDirs(path, self.inhibitDirs):
 					self.list.append(FileEntryComponent(name=p.description, absolute=path, isDir=True))
 			files = []
@@ -211,13 +211,13 @@ class FileList(MenuList):
 		else:
 			if fileExists(directory):
 				try:
-					files = os.listdir(directory)
+					files = listdir(directory)
 				except:
 					files = []
 				files.sort()
 				tmpfiles = files[:]
 				for x in tmpfiles:
-					if os.path.isdir(directory + x):
+					if path.isdir(directory + x):
 						directories.append(directory + x + "/")
 						files.remove(x)
 
@@ -372,12 +372,12 @@ class MultiFileSelectList(FileList):
 						self.selectedFiles.remove(realPathname)
 					except:
 						try:
-							self.selectedFiles.remove(os.path.normpath(realPathname))
+							self.selectedFiles.remove(path.normpath(realPathname))
 						except:
 							print("Couldn't remove:", realPathname)
 				else:
 					SelectState = True
-					if (realPathname not in self.selectedFiles) and (os.path.normpath(realPathname) not in self.selectedFiles):
+					if (realPathname not in self.selectedFiles) and (path.normpath(realPathname) not in self.selectedFiles):
 						self.selectedFiles.append(realPathname)
 				newList[idx] = MultiFileSelectEntryComponent(name=x[0][3], absolute=x[0][0], isDir=x[0][1], selected=SelectState)
 			self.list = newList
@@ -405,7 +405,7 @@ class MultiFileSelectList(FileList):
 
 		if directory is None and self.showMountpoints: # present available mountpoints
 			for p in harddiskmanager.getMountedPartitions():
-				path = os.path.join(p.mountpoint, "")
+				path = path.join(p.mountpoint, "")
 				if path not in self.inhibitMounts and not self.inParentDirs(path, self.inhibitDirs):
 					self.list.append(MultiFileSelectEntryComponent(name=p.description, absolute=path, isDir=True))
 			files = []
@@ -434,13 +434,13 @@ class MultiFileSelectList(FileList):
 		else:
 			if fileExists(directory):
 				try:
-					files = os.listdir(directory)
+					files = listdir(directory)
 				except:
 					files = []
 				files.sort()
 				tmpfiles = files[:]
 				for x in tmpfiles:
-					if os.path.isdir(directory + x):
+					if path.isdir(directory + x):
 						directories.append(directory + x + "/")
 						files.remove(x)
 
@@ -454,7 +454,7 @@ class MultiFileSelectList(FileList):
 			for x in directories:
 				if not (self.inhibitMounts and self.getMountpoint(x) in self.inhibitMounts) and not self.inParentDirs(x, self.inhibitDirs):
 					name = x.split("/")[-2]
-					alreadySelected = (x in self.selectedFiles) or (os.path.normpath(x) in self.selectedFiles)
+					alreadySelected = (x in self.selectedFiles) or (path.normpath(x) in self.selectedFiles)
 					self.list.append(MultiFileSelectEntryComponent(name=name, absolute=x, isDir=True, selected=alreadySelected))
 
 		if self.showFiles:
@@ -468,7 +468,7 @@ class MultiFileSelectList(FileList):
 				if (self.matchingPattern is None) or self.matchingPattern.search(path):
 					alreadySelected = False
 					for entry in self.selectedFiles:
-						if os.path.basename(entry) == x:
+						if path.basename(entry) == x:
 							alreadySelected = True
 					self.list.append(MultiFileSelectEntryComponent(name=name, absolute=x, isDir=False, selected=alreadySelected))
 

@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 import six
 
-import os
+from os import close, listdir, O_NONBLOCK, O_RDWR, open, path, write
 from fcntl import ioctl
 import platform
 import struct
@@ -43,16 +43,16 @@ class inputDevices:
 		self.getInputDevices()
 
 	def getInputDevices(self):
-		devices = sorted(os.listdir("/dev/input/"))
+		devices = sorted(listdir("/dev/input/"))
 
 		for evdev in devices:
 			try:
 				buffer = "\0" * 512
-				self.fd = os.open("/dev/input/" + evdev, os.O_RDWR | os.O_NONBLOCK)
+				self.fd = open("/dev/input/" + evdev, O_RDWR | O_NONBLOCK)
 				self.name = ioctl(self.fd, EVIOCGNAME(256), buffer)
 				self.name = self.name[:self.name.find(b"\0")]
 				self.name = six.ensure_str(self.name)
-				os.close(self.fd)
+				close(self.fd)
 			except (IOError, OSError) as err:
 				print("[InputDevice] Error: evdev='%s' getInputDevices <ERROR: ioctl(EVIOCGNAME): '%s'>" % (evdev, str(err)))
 				self.name = None
@@ -116,26 +116,26 @@ class inputDevices:
 		self.setDeviceAttribute(device, 'configuredName', None)
 		event_repeat = struct.pack('LLHHi', 0, 0, 0x14, 0x01, 100)
 		event_delay = struct.pack('LLHHi', 0, 0, 0x14, 0x00, 700)
-		fd = os.open("/dev/input/" + device, os.O_RDWR)
-		os.write(fd, event_repeat)
-		os.write(fd, event_delay)
-		os.close(fd)
+		fd = open("/dev/input/" + device, O_RDWR)
+		write(fd, event_repeat)
+		write(fd, event_delay)
+		close(fd)
 
 	def setRepeat(self, device, value): #REP_PERIOD
 		if self.getDeviceAttribute(device, 'enabled'):
 			print("[InputDevice] setRepeat for device %s to %d ms" % (device, value))
 			event = struct.pack('LLHHi', 0, 0, 0x14, 0x01, int(value))
-			fd = os.open("/dev/input/" + device, os.O_RDWR)
-			os.write(fd, event)
-			os.close(fd)
+			fd = open("/dev/input/" + device, O_RDWR)
+			write(fd, event)
+			close(fd)
 
 	def setDelay(self, device, value): #REP_DELAY
 		if self.getDeviceAttribute(device, 'enabled'):
 			print("[InputDevice] setDelay for device %s to %d ms" % (device, value))
 			event = struct.pack('LLHHi', 0, 0, 0x14, 0x00, int(value))
-			fd = os.open("/dev/input/" + device, os.O_RDWR)
-			os.write(fd, event)
-			os.close(fd)
+			fd = open("/dev/input/" + device, O_RDWR)
+			write(fd, event)
+			close(fd)
 
 
 class InitInputDevices:
@@ -269,7 +269,7 @@ config.plugins.remotecontroltype.rctype = ConfigInteger(default=0)
 class RcTypeControl():
 	def __init__(self):
 		self.boxType = "Default"
-		if os.path.exists('/proc/stb/ir/rc/type') and os.path.exists('/proc/stb/info/boxtype') and getBrandOEM() != 'gigablue':
+		if path.exists('/proc/stb/ir/rc/type') and path.exists('/proc/stb/info/boxtype') and getBrandOEM() != 'gigablue':
 			self.isSupported = True
 			with open("/proc/stb/info/boxtype", "r") as fd:
 				self.boxType = fd.read().strip()
