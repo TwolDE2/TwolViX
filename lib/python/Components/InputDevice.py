@@ -2,7 +2,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 import six
 
-from os import close, listdir, O_NONBLOCK, O_RDWR, open, path, write
+from os import close, listdir, O_NONBLOCK, O_RDWR, path, write
+from os import open as os_open
 from fcntl import ioctl
 import platform
 import struct
@@ -48,7 +49,7 @@ class inputDevices:
 		for evdev in devices:
 			try:
 				buffer = "\0" * 512
-				self.fd = open("/dev/input/" + evdev, O_RDWR | O_NONBLOCK)
+				self.fd = os_open("/dev/input/" + evdev, O_RDWR | O_NONBLOCK)
 				self.name = ioctl(self.fd, EVIOCGNAME(256), buffer)
 				self.name = self.name[:self.name.find(b"\0")]
 				self.name = six.ensure_str(self.name)
@@ -116,7 +117,7 @@ class inputDevices:
 		self.setDeviceAttribute(device, 'configuredName', None)
 		event_repeat = struct.pack('LLHHi', 0, 0, 0x14, 0x01, 100)
 		event_delay = struct.pack('LLHHi', 0, 0, 0x14, 0x00, 700)
-		fd = open("/dev/input/" + device, O_RDWR)
+		fd = os_open("/dev/input/" + device, O_RDWR)
 		write(fd, event_repeat)
 		write(fd, event_delay)
 		close(fd)
@@ -125,7 +126,7 @@ class inputDevices:
 		if self.getDeviceAttribute(device, 'enabled'):
 			print("[InputDevice] setRepeat for device %s to %d ms" % (device, value))
 			event = struct.pack('LLHHi', 0, 0, 0x14, 0x01, int(value))
-			fd = open("/dev/input/" + device, O_RDWR)
+			fd = os_open("/dev/input/" + device, O_RDWR)
 			write(fd, event)
 			close(fd)
 
@@ -133,7 +134,7 @@ class inputDevices:
 		if self.getDeviceAttribute(device, 'enabled'):
 			print("[InputDevice] setDelay for device %s to %d ms" % (device, value))
 			event = struct.pack('LLHHi', 0, 0, 0x14, 0x00, int(value))
-			fd = open("/dev/input/" + device, O_RDWR)
+			fd = os_open("/dev/input/" + device, O_RDWR)
 			write(fd, event)
 			close(fd)
 
