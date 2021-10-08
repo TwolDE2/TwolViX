@@ -178,9 +178,9 @@ class FileList(MenuList):
 
 		if directory is None and self.showMountpoints: # present available mountpoints
 			for p in harddiskmanager.getMountedPartitions():
-				path = path.join(p.mountpoint, "")
-				if path not in self.inhibitMounts and not self.inParentDirs(path, self.inhibitDirs):
-					self.list.append(FileEntryComponent(name=p.description, absolute=path, isDir=True))
+				mountPath = path.join(p.mountpoint, "")
+				if mountPath not in self.inhibitMounts and not self.inParentDirs(mountPath, self.inhibitDirs):
+					self.list.append(FileEntryComponent(name=p.description, absolute=mountPath, isDir=True))
 			files = []
 			directories = []
 		elif directory is None:
@@ -236,13 +236,13 @@ class FileList(MenuList):
 		if self.showFiles:
 			for x in files:
 				if self.useServiceRef:
-					path = x.getPath()
-					name = path.split("/")[-1]
+					showPath = x.getPath()
+					name = showPath.split("/")[-1]
 				else:
-					path = directory + x
+					showPath = directory + x
 					name = x
 
-				if (self.matchingPattern is None) or self.matchingPattern.search(path):
+				if (self.matchingPattern is None) or self.matchingPattern.search(showPath):
 					self.list.append(FileEntryComponent(name=name, absolute=x, isDir=False))
 
 		if self.showMountpoints and len(self.list) == 0:
@@ -405,9 +405,9 @@ class MultiFileSelectList(FileList):
 
 		if directory is None and self.showMountpoints: # present available mountpoints
 			for p in harddiskmanager.getMountedPartitions():
-				path = path.join(p.mountpoint, "")
-				if path not in self.inhibitMounts and not self.inParentDirs(path, self.inhibitDirs):
-					self.list.append(MultiFileSelectEntryComponent(name=p.description, absolute=path, isDir=True))
+				mountPath = path.join(p.mountpoint, "")
+				if mountPath not in self.inhibitMounts and not self.inParentDirs(mountPath, self.inhibitDirs):
+					self.list.append(MultiFileSelectEntryComponent(name=p.description, absolute=mountPath, isDir=True))
 			files = []
 			directories = []
 		elif directory is None:
@@ -460,12 +460,12 @@ class MultiFileSelectList(FileList):
 		if self.showFiles:
 			for x in files:
 				if self.useServiceRef:
-					path = x.getPath()
-					name = path.split("/")[-1]
+					showPath = x.getPath()
+					name = showPath.split("/")[-1]
 				else:
-					path = directory + x
+					showPath = directory + x
 					name = x
-				if (self.matchingPattern is None) or self.matchingPattern.search(path):
+				if (self.matchingPattern is None) or self.matchingPattern.search(showPath):
 					alreadySelected = False
 					for entry in self.selectedFiles:
 						if path.basename(entry) == x:
