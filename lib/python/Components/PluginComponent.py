@@ -106,7 +106,7 @@ class PluginComponent:
 		#ignore already installed but reloaded plugins
 		for p in plugins_removed:
 			for pa in plugins_added:
-				if pa.path == p.pluginPath and pa.where == p.where:
+				if pa.path == p.path and pa.where == p.where:
 					pa.needsRestart = False
 
 		for p in plugins_removed:
@@ -117,7 +117,7 @@ class PluginComponent:
 				self.addPlugin(p)
 			else:
 				for installed_plugin in self.installedPluginList:
-					if installed_plugin.path == p.pluginPath:
+					if installed_plugin.path == p.path:
 						if installed_plugin.where == p.where:
 							p.needsRestart = False
 				self.addPlugin(p)
