@@ -133,7 +133,7 @@ cmdList = {
 	0xFF: "<Abort>",
 	}
 
-CtrlByte0 = {								# Information only: control byte 0 status/action request by command (see cmdList)
+CtrlByte0 = {		# Information only: control byte 0 status/action request by command (see cmdList)
 	0x00: {	0x00: "<Unrecognized opcode>",
 			0x01: "<Not in correct mode to respond>",
 			0x02: "<Cannot provide source>",
