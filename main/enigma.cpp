@@ -313,7 +313,7 @@ int main(int argc, char **argv)
 
 /*	if (double_buffer)
 	{
-		eDebug("[ENIGMA] - double buffering found, enable buffered graphics mode.");
+		eDebug("[Enigma] - double buffering found, enable buffered graphics mode.");
 		dsk.setCompositionMode(eWidgetDesktop::cmBuffered);
 	} */
 
@@ -350,11 +350,11 @@ int main(int argc, char **argv)
 			loadImage(wait[i], rfilename.c_str());
 			if (!wait[i])
 			{
-				eDebug("[ENIGMA] failed to load %s: %m", rfilename.c_str());
+				eDebug("[Enigma] failed to load %s: %m", rfilename.c_str());
 				break;
 			}
 		}
-		eDebug("[ENIGMA] found %d spinner!", i);
+		eDebug("[Enigma] found %d spinner!", i);
 		if (i)
 			my_dc->setSpinner(eRect(ePoint(25, 25), wait[0]->size()), wait, i);
 		else
@@ -365,7 +365,7 @@ int main(int argc, char **argv)
 
 	eRCInput::getInstance()->keyEvent.connect(sigc::ptr_fun(&keyEvent));
 
-	printf("[ENIGMA] executing main\n");
+	printf("[Enigma] executing main\n");
 	/* comment out next 2 lines to catch sigp and cause dump */
 	bsodCatchSignals();
 	catchTermSignal();
@@ -382,7 +382,7 @@ int main(int argc, char **argv)
 
 	if (exit_code == 5) /* python crash */
 	{
-		eDebug("[ENIGMA] (exit code 5)");
+		eDebug("[Enigma] (exit code 5)");
 		bsodFatal(0);
 	}
 
