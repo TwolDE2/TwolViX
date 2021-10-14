@@ -1,6 +1,6 @@
 from __future__ import print_function
 import six
-import os
+from os import remove
 
 from twisted.internet import reactor
 from twisted.internet.protocol import Protocol, Factory
@@ -49,7 +49,7 @@ def processHotplugData(self, eventData):
 			file = None
 		if file and ".cda" in file:
 			try:
-				os.remove("/etc/enigma2/playlist.e2pls")
+				remove("/etc/enigma2/playlist.e2pls")
 			except (IOError, OSError):
 				pass
 		harddiskmanager.removeHotplugPartition(dev)
@@ -91,7 +91,7 @@ class Hotplug(Protocol):
 def autostart(reason, **kwargs):
 	if reason == 0:
 		try:
-			os.remove("/tmp/hotplug.socket")
+			remove("/tmp/hotplug.socket")
 		except (IOError, OSError):
 			pass
 		factory = Factory()

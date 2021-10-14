@@ -1,7 +1,7 @@
 from __future__ import print_function
 import six
 
-import os
+from os import path, remove, unlink
 from xml.etree.cElementTree import parse
 
 from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter
@@ -181,13 +181,13 @@ class CIconfigMenu(Screen):
 		self.session.openWithCallback(self.finishedCAidSelection, CAidSelect, self.caidlist, self.selectedcaid)
 
 	def menuPressed(self):
-		if os.path.exists(self.filename):
+		if path.exists(self.filename):
 			self.session.openWithCallback(self.deleteXMLfile, MessageBox, _("Delete file") + " " + self.filename + "?", MessageBox.TYPE_YESNO)
 
 	def deleteXMLfile(self, answer):
 		if answer:
 			try:
-				os.remove(self.filename)
+				remove(self.filename)
 			except:
 				print("[CI_Config_CI%d] error remove xml..." % self.ci_slot)
 			else:
@@ -307,10 +307,10 @@ class CIconfigMenu(Screen):
 			fp.close()
 		except:
 			print("[CI_Config_CI%d] xml not written" % self.ci_slot)
-			os.unlink(self.filename)
+			unlink(self.filename)
 
 	def loadXML(self):
-		if not os.path.exists(self.filename):
+		if not path.exists(self.filename):
 			self.setServiceListInfo()
 			return
 
@@ -345,7 +345,7 @@ class CIconfigMenu(Screen):
 		except:
 			print("[CI_Config_CI%d] error parsing xml..." % self.ci_slot)
 			try:
-				os.remove(self.filename)
+				remove(self.filename)
 			except:
 				print("[CI_Activate_Config_CI%d] error remove damaged xml..." % self.ci_slot)
 
