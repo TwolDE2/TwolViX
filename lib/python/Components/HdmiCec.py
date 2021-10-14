@@ -434,6 +434,8 @@ class HdmiCec:
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			length = message.getData(data, len(data))
 			ctrl0 = message.getControl0()
+			ctrl1 = message.getControl1()
+			ctrl2 = message.getControl2()
 			msgaddress = message.getAddress()
 			print("[hdmiCEC][messageReceived0]: msgaddress=%s  CECcmd=%s, cmd = %s, ctrl0=%s, length=%s \n" % (msgaddress, CECcmd, cmd, ctrl0, length))
 			if config.hdmicec.debug.value != "0":
@@ -466,8 +468,7 @@ class HdmiCec:
 					if config.hdmicec.report_active_source.value:
 						self.sendMessage(msgaddress, "sourceactive")
 			elif cmd == 0x86:
-				ctrl1 = message.getControl1()			 				# request streaming path
-				physicaladdress = ctrl0 * 256 + ctrl1
+				physicaladdress = ctrl0 * 256 + ctrl1	# request streaming path
 				ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
 				print("[hdmiCEC][messageReceived6]:cmd 134 physical address=%s ouraddress=%s" % (physicaladdress, ouraddress))				
 				if physicaladdress == ouraddress:
@@ -509,15 +510,12 @@ class HdmiCec:
 					(cmd != 0x36 and config.hdmicec.tv_wakeup_detection.value == "activity")):
 					self.wakeup()
 				elif ((cmd == 0x80 and config.hdmicec.handle_tv_wakeup.value == "routingrequest") or (cmd == 0x86 and config.hdmicec.handle_tv_wakeup.value == "streamrequest")):
-					ctrl1 = message.getControl1()
 					physicaladdress = ctrl0 * 256 + ctrl1
 					ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
 					print("[hdmiCEC][messageReceived8]:cmd 128 physical address=%s ouraddress=%s" % (physicaladdress, ouraddress))					
 					if physicaladdress == ouraddress:
 						self.wakeup()
 				elif cmd == 0x84 and config.hdmicec.tv_wakeup_detection.value == "tvreportphysicaladdress":
-					ctrl1 = message.getControl1()
-					ctrl2 = message.getControl2()					
 					if (ctrl0 * 256 + ctrl1) == 0 and ctrl2 == 0:
 						self.wakeup()
 
