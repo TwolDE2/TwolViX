@@ -136,4 +136,3 @@ AC_DEFUN([AX_PKG_SWIG],[
         fi
         AC_SUBST([SWIG_LIB])
 ])
-
