@@ -100,7 +100,7 @@ public:
 		int getControl2() { return control2; }
 		int getControl3() { return control3; }
 	};
-	int sendMessage(struct cec_message &message);
+	void sendMessage(struct cec_message &message);
 #endif
 protected:
 	static eHdmiCEC *instance;
