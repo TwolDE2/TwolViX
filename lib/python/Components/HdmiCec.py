@@ -596,7 +596,7 @@ class HdmiCec:
 				if not self.wait.isActive():
 					self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 			else:
-				eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
+				eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 			if config.hdmicec.debug.value in ["1", "3"]:
 				self.debugTx(msgaddress, cmd, data)
 
@@ -605,7 +605,7 @@ class HdmiCec:
 			(msgaddress, cmd, data) = self.queue.pop(0)
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			print("[hdmiCEC][sendMsgQ1]: msgaddress=%s, CECcmd=%s cmd=%s,data=%s \n" % (msgaddress, CECcmd, cmd, data))
-			eHdmiCEC.getInstance().sendMessage(address, cmd, data, len(data))
+			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
 
