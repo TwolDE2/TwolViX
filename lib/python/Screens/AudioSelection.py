@@ -29,6 +29,7 @@ FOCUS_CONFIG, FOCUS_STREAMS = range(2)
 class AudioSelection(Screen, ConfigListScreen):
 	def __init__(self, session, infobar=None, page=PAGE_AUDIO):
 		Screen.__init__(self, session)
+
 		self["streams"] = List([], enableWrapAround=True)
 		self["key_red"] = Boolean(False)
 		self["key_green"] = Boolean(False)
