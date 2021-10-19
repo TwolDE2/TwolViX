@@ -91,7 +91,6 @@ class AudioSelection(Screen, ConfigListScreen):
 		if self.procChoices:
 			self.choiceslist = self.procChoices.split(" ")
 			choise_list = [(item, _(item)) for item in self.choiceslist]
-			print("[AudiSelection][readChoices from Proc] choices=%s" % (choise_list))
 		return choise_list		
 
 	def fillList(self, arg=None):
@@ -99,17 +98,21 @@ class AudioSelection(Screen, ConfigListScreen):
 		streams = []
 		conflist = []
 		selectedidx = 0
+
 		self["key_red"].setBoolean(False)
 		self["key_green"].setBoolean(False)
 		self["key_yellow"].setBoolean(False)
 		self["key_blue"].setBoolean(False)
+
 		subtitlelist = self.getSubtitleList()
+		print("[AudiSelection][fillList] subtitlelist=%s" % (subtitlelist))
 		if self.settings.menupage.value == PAGE_AUDIO:
 			self.setTitle(_("Select audio track"))
 			service = self.session.nav.getCurrentService()
 			self.audioTracks = audio = service and service.audioTracks()
 			n = audio and audio.getNumberOfTracks() or 0
-
+			if subtitlelist:
+				conflist.append(getConfigListEntry(_("To subtitle selection"), self.settings.menupage))
 			if SystemInfo["CanDownmixAC3"]:
 				choise_list = [
 					("downmix", _("Downmix")),
@@ -298,6 +301,8 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.bypass_edid_checking = ConfigSelection(choices=choice_list, default=config.av.bypass_edid_checking.value)
 				self.settings.bypass_edid_checking.addNotifier(self.changeEDIDChecking, initial_call=False)
 				conflist.append(getConfigListEntry(_("Bypass HDMI EDID Check"), self.settings.bypass_edid_checking, None))
+			else:
+				conflist.append(('',))
 			if hasattr(self.infobar, "runPlugin"):
 				class PluginCaller:
 					def __init__(self, fnc, *args):
@@ -312,6 +317,7 @@ class AudioSelection(Screen, ConfigListScreen):
 					for x in Plugins:
 						if x[0] != "AudioEffect":  # Always make AudioEffect Blue button.
 							conflist.append(getConfigListEntry(x[0], ConfigNothing(), x[1]))
+
 		elif self.settings.menupage.value == PAGE_SUBTITLES:
 			self.setTitle(_("Subtitle selection"))
 			idx = 0
@@ -346,8 +352,11 @@ class AudioSelection(Screen, ConfigListScreen):
 					number = str(int(number) + 1)
 				streams.append((x, "", number, description, language, selected))
 				idx += 1
+			conflist.append(getConfigListEntry(_("To audio selection"), self.settings.menupage))
+
 			if self.infobar.selected_subtitle and self.infobar.selected_subtitle != (0, 0, 0, 0) and not ".DVDPlayer'>" in repr(self.infobar):
 				conflist.append(getConfigListEntry(_("Subtitle quickmenu"), ConfigNothing(), None))
+
 		if len(conflist) > 0 and conflist[0][0]:
 			self["key_red"].setBoolean(True)
 		if len(conflist) > 1 and conflist[1][0]:
@@ -477,10 +486,22 @@ class AudioSelection(Screen, ConfigListScreen):
 
 	def keyRight(self, config=False):
 		if config or self.focus == FOCUS_CONFIG:
-			if self.settings.menupage.value == PAGE_AUDIO and self["config"].getCurrent()[2]:
-				self["config"].getCurrent()[2]()
+			index = self["config"].getCurrentIndex()
+			print("[AudiSelection][keyRight] index=%s" % (index))
+			if self.settings.menupage.value == PAGE_AUDIO:
+				print("[AudiSelection][keyRight1] PAGE_AUDIO")
+				if index == 0:
+					self.keyAudioSubtitle()
+					self.__updatedInfo()
+				elif self["config"].getCurrent()[2]:					
+					self["config"].getCurrent()[2]()
 			elif self.settings.menupage.value == PAGE_SUBTITLES and self.infobar.selected_subtitle and self.infobar.selected_subtitle != (0, 0, 0, 0):
-				self.session.open(QuickSubtitlesConfigMenu, self.infobar)
+				print("[AudiSelection][keyRight4] PAGE_SUBTITLES")
+				if index == 0:
+					self.keyAudioSubtitle()
+					self.__updatedInfo()
+				else:
+					self.session.open(QuickSubtitlesConfigMenu, self.infobar)
 			else:
 				ConfigListScreen.keyRight(self)
 		if self.focus == FOCUS_STREAMS and self["streams"].count() and config == False:
@@ -511,6 +532,7 @@ class AudioSelection(Screen, ConfigListScreen):
 			return 0
 
 	def keyAudioSubtitle(self):
+		print("[AudiSelection][keyAudioSubtitle] entered")
 		if self.settings.menupage.value == PAGE_AUDIO:
 			self.settings.menupage.setValue("subtitles")
 		else:
@@ -558,22 +580,28 @@ class AudioSelection(Screen, ConfigListScreen):
 			self.keyOk()
 
 	def keyOk(self):
+		print("[AudiSelection][keyOK] focus=%s" % (self.focus))
+		print("[AudiSelection][keyOK] streams=%s" % (self["streams"].list))
 		if self.focus == FOCUS_STREAMS and self["streams"].list:
 			cur = self["streams"].getCurrent()
 			if self.settings.menupage.value == PAGE_AUDIO and cur[0] is not None:
+				print("[AudiSelection][keyOK1] PAGE_AUDIO and cur[0] is not None")
 				self.changeAudio(cur[0])
 				self.__updatedInfo()
 			if self.settings.menupage.value == PAGE_SUBTITLES and cur[0] is not None:
+				print("[AudiSelection][keyOK2] PAGE_SUBTITLES and cur[0] is not None")
 				if self.infobar.selected_subtitle and self.infobar.selected_subtitle[:4] == cur[0][:4]:
 					self.enableSubtitle(None)
 					selectedidx = self["streams"].getIndex()
 					self.__updatedInfo()
 					self["streams"].setIndex(selectedidx)
 				else:
+					print("[AudiSelection][keyOK3] NO PAGE")
 					self.enableSubtitle(cur[0][:5])
 					self.__updatedInfo()
 			self.close(0)
 		elif self.focus == FOCUS_CONFIG:
+			print("[AudiSelection][keyOK4] FOCUS_CONFIG")
 			self.keyRight()
 
 	def openAutoLanguageSetup(self):
@@ -597,6 +625,7 @@ class SubtitleSelection(AudioSelection):
 	def __init__(self, session, infobar=None):
 		AudioSelection.__init__(self, session, infobar, page=PAGE_SUBTITLES)
 		self.skinName = ["AudioSelection"]
+		print("[AudiSelection][SubtitleSelection] entered")
 
 
 class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
@@ -617,6 +646,8 @@ class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 		self.center_dvb_subs = ConfigYesNo(default=(eDVBDB.getInstance().getFlag(eServiceReference(self.service_string)) & self.FLAG_CENTER_DVB_SUBS) and True)
 		self.center_dvb_subs.addNotifier(self.setCenterDvbSubs, initial_call=False)
 		self["videofps"] = Label("")
+		print("[AudiSelection][QuickSubtitlesConfigMenu] entered")
+
 		sub = self.infobar.selected_subtitle
 		if sub[0] == 0:  # dvb
 			menu = [

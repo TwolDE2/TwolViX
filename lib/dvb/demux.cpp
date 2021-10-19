@@ -6,9 +6,7 @@
 #include <signal.h>
 #include <sys/sysinfo.h>
 #include <sys/mman.h>
-
 #include <linux/dvb/dmx.h>
-
 #include <lib/base/eerror.h>
 #include <lib/base/cfile.h>
 #include <lib/dvb/dvb.h>
@@ -295,7 +293,7 @@ RESULT eDVBSectionReader::start(const eDVBSectionFilterMask &mask)
 	notifier->start();
 
 	dmx_sct_filter_params sct;
-	memset(&sct, 0, sizeof(sct));
+	//memset(&sct, 0, sizeof(sct));
 	sct.pid     = mask.pid;
 	sct.timeout = 0;
 	sct.flags   = DMX_IMMEDIATE_START;
@@ -408,7 +406,7 @@ RESULT eDVBPESReader::start(int pid)
 	m_notifier->start();
 
 	dmx_pes_filter_params flt;
-	memset(&flt, 0, sizeof(flt));
+	//memset(&flt, 0, sizeof(flt));
 
 	flt.pes_type = DMX_PES_OTHER;
 	flt.pid     = pid;
@@ -861,7 +859,7 @@ RESULT eDVBTSRecorder::start()
 	setBufferSize(1024*1024);
 
 	dmx_pes_filter_params flt;
-	memset(&flt, 0, sizeof(flt));
+	//memset(&flt, 0, sizeof(flt));
 
 	flt.pes_type = DMX_PES_OTHER;
 	flt.output  = DMX_OUT_TSDEMUX_TAP;
