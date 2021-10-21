@@ -27,10 +27,8 @@
 static int root2gold(int root)
 {
 	int x, g;
-
 	if (root < 0 || root > 0x3ffff)
 		return 0;
-
 	for (g = 0, x = 1; g < 0x3ffff; g++)
 	{
 		if (root == x)
@@ -249,7 +247,7 @@ int eDVBService::isPlayable(const eServiceReference &ref, const eServiceReferenc
 				if (pModule != NULL)
 				{
 					pFunc = PyObject_GetAttrString(pModule, "isPlayable");
-					if (pFunc) 
+					if (pFunc)
 					{
 						pArgs = PyTuple_New(1);
 						pArg = PyString_FromString(ref.toString().c_str());
@@ -1806,7 +1804,7 @@ PyObject *eDVBDB::readTerrestrials(ePyObject ter_list, ePyObject tp_dict)
 
 			Py_DECREF(tplist);
 		}
-		else if (ter_flags || ter_countrycode) 
+		else if (ter_flags || ter_countrycode)
 		{
 			if (ter_flags)
 			{
