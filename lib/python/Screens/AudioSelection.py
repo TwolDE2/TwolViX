@@ -29,7 +29,6 @@ FOCUS_CONFIG, FOCUS_STREAMS = range(2)
 class AudioSelection(Screen, ConfigListScreen):
 	def __init__(self, session, infobar=None, page=PAGE_AUDIO):
 		Screen.__init__(self, session)
-
 		self["streams"] = List([], enableWrapAround=True)
 		self["key_red"] = Boolean(False)
 		self["key_green"] = Boolean(False)
@@ -301,8 +300,6 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.bypass_edid_checking = ConfigSelection(choices=choice_list, default=config.av.bypass_edid_checking.value)
 				self.settings.bypass_edid_checking.addNotifier(self.changeEDIDChecking, initial_call=False)
 				conflist.append(getConfigListEntry(_("Bypass HDMI EDID Check"), self.settings.bypass_edid_checking, None))
-			else:
-				conflist.append(('',))
 			if hasattr(self.infobar, "runPlugin"):
 				class PluginCaller:
 					def __init__(self, fnc, *args):
@@ -635,7 +632,6 @@ class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 		self.center_dvb_subs = ConfigYesNo(default=(eDVBDB.getInstance().getFlag(eServiceReference(self.service_string)) & self.FLAG_CENTER_DVB_SUBS) and True)
 		self.center_dvb_subs.addNotifier(self.setCenterDvbSubs, initial_call=False)
 		self["videofps"] = Label("")
-
 		sub = self.infobar.selected_subtitle
 		if sub[0] == 0:  # dvb
 			menu = [
