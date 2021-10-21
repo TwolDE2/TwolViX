@@ -86,7 +86,6 @@ class AudioSelection(Screen, ConfigListScreen):
 		
 	def readChoices(self, procx, choises):
 		choise_list = choises
-		# print("[AudiSelection][readChoices from default standard] choices=%s" % (choise_list))
 		with open(procx, "r") as self.myfile:
 			self.procChoices = self.myfile.read().strip()
 		if self.procChoices:
@@ -488,21 +487,18 @@ class AudioSelection(Screen, ConfigListScreen):
 	def keyRight(self, config=False):
 		if config or self.focus == FOCUS_CONFIG:
 			index = self["config"].getCurrentIndex()
-			print("[AudiSelection][keyRight] index=%s" % (index))
 			if self.settings.menupage.value == PAGE_AUDIO:
-				print("[AudiSelection][keyRight1] PAGE_AUDIO")
-				if index == 0:
+				if index == 0:								# Sub Title selection screen
 					self.keyAudioSubtitle()
 					self.__updatedInfo()
 				elif self["config"].getCurrent()[2]:					
 					self["config"].getCurrent()[2]()
 			elif self.settings.menupage.value == PAGE_SUBTITLES and self.infobar.selected_subtitle and self.infobar.selected_subtitle != (0, 0, 0, 0):
-				print("[AudiSelection][keyRight4] PAGE_SUBTITLES")
-				if index == 0:
+				if index == 0:								# Audio selection screen
 					self.keyAudioSubtitle()
 					self.__updatedInfo()
 				else:
-					self.session.open(QuickSubtitlesConfigMenu, self.infobar)
+					self.session.open(QuickSubtitlesConfigMenu, self.infobar)	# sub title config screen
 			else:
 				ConfigListScreen.keyRight(self)
 		if self.focus == FOCUS_STREAMS and self["streams"].count() and config == False:
@@ -533,7 +529,6 @@ class AudioSelection(Screen, ConfigListScreen):
 			return 0
 
 	def keyAudioSubtitle(self):
-		print("[AudiSelection][keyAudioSubtitle] entered")
 		if self.settings.menupage.value == PAGE_AUDIO:
 			self.settings.menupage.setValue("subtitles")
 		else:
@@ -581,28 +576,22 @@ class AudioSelection(Screen, ConfigListScreen):
 			self.keyOk()
 
 	def keyOk(self):
-		print("[AudiSelection][keyOK] focus=%s" % (self.focus))
-		print("[AudiSelection][keyOK] streams=%s" % (self["streams"].list))
 		if self.focus == FOCUS_STREAMS and self["streams"].list:
 			cur = self["streams"].getCurrent()
 			if self.settings.menupage.value == PAGE_AUDIO and cur[0] is not None:
-				print("[AudiSelection][keyOK1] PAGE_AUDIO and cur[0] is not None")
 				self.changeAudio(cur[0])
 				self.__updatedInfo()
 			if self.settings.menupage.value == PAGE_SUBTITLES and cur[0] is not None:
-				print("[AudiSelection][keyOK2] PAGE_SUBTITLES and cur[0] is not None")
 				if self.infobar.selected_subtitle and self.infobar.selected_subtitle[:4] == cur[0][:4]:
 					self.enableSubtitle(None)
 					selectedidx = self["streams"].getIndex()
 					self.__updatedInfo()
 					self["streams"].setIndex(selectedidx)
 				else:
-					print("[AudiSelection][keyOK3] NO PAGE")
 					self.enableSubtitle(cur[0][:5])
 					self.__updatedInfo()
 			self.close(0)
 		elif self.focus == FOCUS_CONFIG:
-			print("[AudiSelection][keyOK4] FOCUS_CONFIG")
 			self.keyRight()
 
 	def openAutoLanguageSetup(self):
@@ -626,7 +615,6 @@ class SubtitleSelection(AudioSelection):
 	def __init__(self, session, infobar=None):
 		AudioSelection.__init__(self, session, infobar, page=PAGE_SUBTITLES)
 		self.skinName = ["AudioSelection"]
-		print("[AudiSelection][SubtitleSelection] entered")
 
 
 class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
@@ -647,7 +635,6 @@ class QuickSubtitlesConfigMenu(ConfigListScreen, Screen):
 		self.center_dvb_subs = ConfigYesNo(default=(eDVBDB.getInstance().getFlag(eServiceReference(self.service_string)) & self.FLAG_CENTER_DVB_SUBS) and True)
 		self.center_dvb_subs.addNotifier(self.setCenterDvbSubs, initial_call=False)
 		self["videofps"] = Label("")
-		print("[AudiSelection][QuickSubtitlesConfigMenu] entered")
 
 		sub = self.infobar.selected_subtitle
 		if sub[0] == 0:  # dvb
