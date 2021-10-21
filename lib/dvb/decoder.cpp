@@ -3,11 +3,12 @@
 #include <lib/base/eerror.h>
 #include <lib/base/wrappers.h>
 #include <lib/dvb/decoder.h>
+#include <lib/dvb/dvb.h>
 #include <lib/components/tuxtxtapp.h>
 #include <linux/dvb/audio.h>
 #include <linux/dvb/video.h>
 #include <linux/dvb/dmx.h>
-#include <lib/dvb/dvb.h>
+
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -800,7 +801,7 @@ eDVBTText::eDVBTText(eDVBDemux *demux, int dev)
 	sprintf(filename, "/dev/dvb/adapter%d/demux%d", demux->adapter, demux->demux);
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
-	/* eDebug("[decoder][eDVBText]  Opened tmp_fd: %d", tmp_fd); */
+	eDebug("[decoder][eDVBText]  Opened tmp_fd: %d", tmp_fd);
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
@@ -812,9 +813,10 @@ eDVBTText::eDVBTText(eDVBDemux *demux, int dev)
 	{
 		::close(tmp_fd);
 	}
+	eDebug("[decoder][eDVBText]  Opening text %s: %m", filename);
 	m_fd_demux = ::open(filename, O_RDWR | O_CLOEXEC);
 	if (m_fd_demux < 0)
-		eWarning("[decoder][eDVBText] %s: %m", filename);
+		eWarning("[decoder][eDVBText]failed opening %s: %m", filename);
 }
 
 int eDVBTText::startPid(int pid)

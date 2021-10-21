@@ -25,6 +25,7 @@ void eDVBPMTParser::clearProgramInfo(program &program)
 	program.videoStreams.clear();
 	program.audioStreams.clear();
 	program.subtitleStreams.clear();
+	program.caids.clear();
 	program.pcrPid = -1;
 	program.pmtPid = -1;
 	program.textPid = -1;
@@ -250,7 +251,7 @@ int eDVBPMTParser::getProgramInfo(program &program)
 									s.ancillary_page_id = it->getAncillaryPageId();
 									std::string language = it->getIso639LanguageCode();
 									s.language_code = language;
-//								eDebug("[eDVBPMTParser] add dvb subtitle %s PID %04x, type %d, composition page %d, ancillary_page %d", s.language_code.c_str(), s.pid, s.subtitling_type, s.composition_page_id, s.ancillary_page_id);
+									eDebug("[eDVBPMTParser] add dvb subtitle %s PID %04x, type %d, composition page %d, ancillary_page %d", s.language_code.c_str(), s.pid, s.subtitling_type, s.composition_page_id, s.ancillary_page_id);
 									issubtitle = 1;
 									program.subtitleStreams.push_back(s);
 								}
