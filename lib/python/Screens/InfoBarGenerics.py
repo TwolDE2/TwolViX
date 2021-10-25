@@ -4148,7 +4148,7 @@ class InfoBarTeletextPlugin:
 		for p in plugins.getPlugins(PluginDescriptor.WHERE_TELETEXT):
 			self.teletext_plugin = p
 
-		if self.teletext_plugin is not None:
+		if self.teletext_plugin is not None and getBrandOEM() != "gigablue":
 			self["TeletextActions"] = HelpableActionMap(self, "InfobarTeletextActions",
 				{
 					"startTeletext": (self.startTeletext, _("View teletext..."))
