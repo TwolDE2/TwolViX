@@ -833,7 +833,7 @@ def InitUsageConfig():
 
 	config.usage.keymap = ConfigText(default=eEnv.resolve("${datadir}/enigma2/keymap.xml"))
 	keytranslation = eEnv.resolve("${sysconfdir}/enigma2/keytranslation.xml")
-	if not os.path.exists(keytranslation):
+	if not path.exists(keytranslation):
 		keytranslation = eEnv.resolve("${datadir}/enigma2/keytranslation.xml")
 	config.usage.keytrans = ConfigText(default=keytranslation)
 
