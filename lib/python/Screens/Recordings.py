@@ -70,7 +70,7 @@ class RecordingSettings(Setup):
 			green = ""
 		elif not self.isValidPartition(path):
 			self.errorItem = self["config"].getCurrentIndex()
-			footnote = _("Directory '%s' not valid. Partition must be ext, nfs, or fat") % path
+			footnote = _("Directory '%s' not valid. Partition must be ext or nfs") % path
 			green = ""
 		elif not fileExists(path, "w"):
 			self.errorItem = self["config"].getCurrentIndex()
