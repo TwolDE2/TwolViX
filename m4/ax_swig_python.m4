@@ -62,4 +62,3 @@ AC_DEFUN([AX_SWIG_PYTHON],[
         AC_SUBST([AX_SWIG_PYTHON_OPT],[-python$swig_shadow])
         AC_SUBST([AX_SWIG_PYTHON_CPPFLAGS],[$PYTHON_CPPFLAGS])
 ])
-
