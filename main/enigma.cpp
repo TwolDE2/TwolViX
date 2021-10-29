@@ -333,51 +333,35 @@ int main(int argc, char **argv)
 	dsk_lcd.setRedrawTask(main);
 
 	std::string active_skin = getConfigCurrentSpinner("config.skin.primary_skin");
-	std::string spinnerPostion = getConfigString("config.misc.spinnerPosition", "25,25");
-	int spinnerPostionX,spinnerPostionY;
-	if (sscanf(spinnerPostion.c_str(), "%d,%d", &spinnerPostionX, &spinnerPostionY) != 2)
-	{
-		spinnerPostionX = spinnerPostionY = 25;
-	}
+
 	eDebug("[Enigma] Loading spinners...");
+
 	{
+		int i;
 #define MAX_SPINNER 64
-		int i = 0;
-		std::string skinpath = "${datadir}/enigma2/" + active_skin;
-		std::string defpath = "${datadir}/enigma2/spinner";
-		bool def = (skinpath.compare(defpath) == 0);
 		ePtr<gPixmap> wait[MAX_SPINNER];
-		while(i < MAX_SPINNER)
+		for (i=0; i<MAX_SPINNER; ++i)
 		{
 			char filename[64];
 			std::string rfilename;
-			snprintf(filename, sizeof(filename), "%s/wait%d.png", skinpath.c_str(), i + 1);
+			snprintf(filename, sizeof(filename), "${datadir}/enigma2/%s/wait%d.png", active_skin.c_str(), i + 1);
 			rfilename = eEnv::resolve(filename);
-			loadPNG(wait[i], rfilename.c_str());
 
-			if (!wait[i]) 
+			if (::access(rfilename.c_str(), R_OK) < 0)
+				break;
+
+			loadImage(wait[i], rfilename.c_str());
+			if (!wait[i])
 			{
-				// spinner failed
-				if (i==0)
-				{
-					// retry default spinner only once
-					if (!def)
-					{
-						def = true;
-						skinpath = defpath;
-						continue;
-					}
-				}
-				// exit loop because of no more spinners
+				eDebug("[Enigma] failed to load %s: %m", rfilename.c_str());
 				break;
 			}
-			i++;
 		}
-		eDebug("[Enigma] Found %d spinners.", i);
-		if (i==0)
-			my_dc->setSpinner(eRect(spinnerPostionX, spinnerPostionY, 0, 0), wait, 1);
+		eDebug("[Enigma] found %d spinner!", i);
+		if (i)
+			my_dc->setSpinner(eRect(ePoint(25, 25), wait[0]->size()), wait, i);
 		else
-			my_dc->setSpinner(eRect(ePoint(spinnerPostionX, spinnerPostionY), wait[0]->size()), wait, i);
+			my_dc->setSpinner(eRect(25, 25, 0, 0), wait, 1);
 	}
 
 	gRC::getInstance()->setSpinnerDC(my_dc);
