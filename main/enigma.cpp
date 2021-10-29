@@ -251,12 +251,9 @@ static const std::string getConfigString(const std::string &key, const std::stri
 				break;
 			}
 		} while (in.good());
-		in.close();
 	}
-	if (value.empty()) 
-		return defaultValue;
-	else
-		return value;
+	in.close();
+	return value;
 }
 
 int main(int argc, char **argv)
