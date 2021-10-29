@@ -148,33 +148,6 @@ bool replace(std::string& str, const std::string& from, const std::string& to)
 	return true;
 }
 
-// get value from enigma2 settings file
-static const std::string getConfigString(const std::string &key, const std::string &defaultValue)
-{
-	std::string value = defaultValue;
-
-	std::ifstream in(eEnv::resolve("${sysconfdir}/enigma2/settings").c_str());
-	if (in.good()) 
-	{
-		do 
-		{
-			std::string line;
-			std::getline(in, line);
-			size_t size = key.size();
-			if (!line.compare(0, size, key) && line[size] == '=') 
-				{
-					value = line.substr(size + 1);
-					break;
-				}
-		} while (in.good());
-		in.close();
-	}
-	if (value.empty()) 
-		return defaultValue;
-	else
-		return value;
-}
-
 static const std::string getConfigCurrentSpinner(const std::string &key)
 {
 	std::string value = "spinner";
@@ -260,6 +233,30 @@ void catchTermSignal()
 		perror("sigemptyset");
 	if (sigaction(SIGTERM, &act, 0) == -1)
 		perror("SIGTERM");
+}
+
+// get value from enigma2 settings file
+static const std::string getConfigString(const std::string &key, const std::string &defaultValue)
+{
+	std::string value = defaultValue;
+
+	std::ifstream in(eEnv::resolve("${sysconfdir}/enigma2/settings").c_str());
+	if (in.good()) {
+		do {
+			std::string line;
+			std::getline(in, line);
+			size_t size = key.size();
+			if (!line.compare(0, size, key) && line[size] == '=') {
+				value = line.substr(size + 1);
+				break;
+			}
+		} while (in.good());
+		in.close();
+	}
+	if (value.empty()) 
+		return defaultValue;
+	else
+		return value;
 }
 
 int main(int argc, char **argv)
