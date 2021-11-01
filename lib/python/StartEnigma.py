@@ -1,9 +1,10 @@
 from __future__ import print_function
 
 import os
+import sys
 import enigma
-from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion, getHaveSCART, getHaveSCARTYUV
-from sys import path, stdout
+from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
+from sys import stdout
 from time import localtime, strftime, time
 from traceback import print_exc
 
@@ -29,7 +30,7 @@ if getImageArch() in ("aarch64"):
 	usb.backend.libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")
 
 if os.path.isfile("/usr/lib/enigma2/python/enigma.zip"):
-	path.append("/usr/lib/enigma2/python/enigma.zip")
+	sys.path.append("/usr/lib/enigma2/python/enigma.zip")
 
 profile("PYTHON_START")
 print("[StartEnigma]  Starting Python Level Initialisation.")
@@ -152,7 +153,7 @@ try:
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
 
-	logger = log.FileLogObserver(stdout)
+	logger = log.FileLogObserver(sys.stdout)
 	log.FileLogObserver.emit = quietEmit
 	log.startLoggingWithObserver(logger.emit)
 except ImportError:
@@ -479,34 +480,34 @@ class PowerKey:
 		if not Screens.Standby.inStandby and self.session.current_dialog and self.session.current_dialog.ALLOW_SUSPEND and self.session.in_exec:
 			self.session.open(Screens.Standby.Standby)
 
-if getHaveSCARTYUV() in ('True',) or getHaveSCART() in ('True',):
-	profile("Scart")
-	print("[StartEnigma]  Initialising Scart.")
-	from Screens.Scart import Scart
+
+profile("Scart")
+print("[StartEnigma]  Initialising Scart.")
+from Screens.Scart import Scart
 
 
-	class AutoScartControl:
-		def __init__(self, session):
-			self.force = False
-			self.current_vcr_sb = enigma.eAVSwitch.getInstance().getVCRSlowBlanking()
-			if self.current_vcr_sb and config.av.vcrswitch.value:
-				self.scartDialog = session.instantiateDialog(Scart, True)
+class AutoScartControl:
+	def __init__(self, session):
+		self.force = False
+		self.current_vcr_sb = enigma.eAVSwitch.getInstance().getVCRSlowBlanking()
+		if self.current_vcr_sb and config.av.vcrswitch.value:
+			self.scartDialog = session.instantiateDialog(Scart, True)
+		else:
+			self.scartDialog = session.instantiateDialog(Scart, False)
+		config.av.vcrswitch.addNotifier(self.recheckVCRSb)
+		enigma.eAVSwitch.getInstance().vcr_sb_notifier.get().append(self.VCRSbChanged)
+
+	def recheckVCRSb(self, configElement):
+		self.VCRSbChanged(self.current_vcr_sb)
+
+	def VCRSbChanged(self, value):
+		#print("vcr sb changed to", value)
+		self.current_vcr_sb = value
+		if config.av.vcrswitch.value or value > 2:
+			if value:
+				self.scartDialog.showMessageBox()
 			else:
-				self.scartDialog = session.instantiateDialog(Scart, False)
-			config.av.vcrswitch.addNotifier(self.recheckVCRSb)
-			enigma.eAVSwitch.getInstance().vcr_sb_notifier.get().append(self.VCRSbChanged)
-
-		def recheckVCRSb(self, configElement):
-			self.VCRSbChanged(self.current_vcr_sb)
-
-		def VCRSbChanged(self, value):
-			#print("vcr sb changed to", value)
-			self.current_vcr_sb = value
-			if config.av.vcrswitch.value or value > 2:
-				if value:
-					self.scartDialog.showMessageBox()
-				else:
-					self.scartDialog.switchToTV()
+				self.scartDialog.switchToTV()
 
 
 profile("Load:CI")
@@ -562,8 +563,8 @@ def runScreenTest():
 	profile("Init:PowerKey")
 	power = PowerKey(session)
 
-	if getHaveSCARTYUV() in ('True',) or getHaveSCART() in ('True',):
-		session.scart = AutoScartControl(session)	# we need session.scart to access it from within menu.xml
+	# we need session.scart to access it from within menu.xml
+	session.scart = AutoScartControl(session)
 
 	profile("Init:Trashcan")
 	import Tools.Trashcan
@@ -734,6 +735,10 @@ if config.clientmode.enabled.value:
 	import Components.ChannelsImporter
 	Components.ChannelsImporter.autostart()
 
+# from enigma import dump_malloc_stats
+# t = eTimer()
+# t.callback.append(dump_malloc_stats)
+# t.start(1000)
 
 print("[StartEnigma]  Starting User Interface.")	# first, setup a screen
 try:
