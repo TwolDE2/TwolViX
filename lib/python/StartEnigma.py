@@ -4,7 +4,6 @@ import os
 import sys
 import enigma
 from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
-from sys import stdout
 from time import localtime, strftime, time
 from traceback import print_exc
 
@@ -29,8 +28,6 @@ if getImageArch() in ("aarch64"):
 	import usb.backend.libusb1
 	usb.backend.libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")
 
-if os.path.isfile("/usr/lib/enigma2/python/enigma.zip"):
-	sys.path.append("/usr/lib/enigma2/python/enigma.zip")
 
 profile("PYTHON_START")
 print("[StartEnigma]  Starting Python Level Initialisation.")
@@ -153,7 +150,7 @@ try:
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
 
-	logger = log.FileLogObserver(sys.stdout)
+	logger = log.FileLogObserver(sys.stdout)		# do not change list or no crashlog
 	log.FileLogObserver.emit = quietEmit
 	log.startLoggingWithObserver(logger.emit)
 except ImportError:
@@ -748,6 +745,6 @@ try:
 except Exception:
 	print("[StartEnigma] EXCEPTION IN PYTHON STARTUP CODE:")
 	print("-" * 60)
-	print_exc(file=stdout)
+	print_exc(file=sys.stdout)
 	enigma.quitMainloop(5)
 	print("-" * 60)
