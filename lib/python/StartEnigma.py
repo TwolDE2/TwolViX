@@ -150,7 +150,7 @@ try:
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
 
-	logger = log.FileLogObserver(sys.stdout)		# do not change list or no crashlog
+	logger = log.FileLogObserver(sys.stdout)		# do not change or no crashlog
 	log.FileLogObserver.emit = quietEmit
 	log.startLoggingWithObserver(logger.emit)
 except ImportError:
