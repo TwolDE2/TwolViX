@@ -93,6 +93,7 @@ class AudioSelection(Screen, ConfigListScreen):
 
 	def fillList(self, arg=None):
 		from Tools.ISO639 import LanguageCodes
+		from Components.UsageConfig import originalAudioTracks, visuallyImpairedCommentary
 		streams = []
 		conflist = []
 		selectedidx = 0
@@ -289,6 +290,10 @@ class AudioSelection(Screen, ConfigListScreen):
 							language += " / "
 						if lang in LanguageCodes:
 							language += _(LanguageCodes[lang][0])
+						elif lang in originalAudioTracks:
+							language += "%s  (%s)" % (_("Original version"), lang)
+						elif lang in visuallyImpairedCommentary:
+							language += "%s  (%s)" % (_("Audio description for the visually impaired"), lang)
 						else:
 							language += lang
 						cnt += 1
