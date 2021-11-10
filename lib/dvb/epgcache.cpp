@@ -2866,13 +2866,13 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	int channels_count, events_count = 0, aliases_groups_count;
 	unsigned char revision;
 
-	eDebug("[EPGC] start crossepg import");
+	eDebug("[epgcache][CrossEPG V21 patch] start crossepg import");
 
 	sprintf(headers_file, "%s/crossepg.headers.db", dbroot.c_str());
 	headers = fopen(headers_file, "r");
 	if (!headers)
 	{
-		eDebug("[EPGC] cannot open crossepg headers db");
+		eDebug("[epgcache][CrossEPG V21 patch] cannot open crossepg headers db");
 		return;
 	}
 
@@ -2880,7 +2880,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	descriptors = fopen (descriptors_file, "r");
 	if (!descriptors)
 	{
-		eDebug("[EPGC] cannot open crossepg descriptors db");
+		eDebug("[epgcache][CrossEPG V21 patch] cannot open crossepg descriptors db");
 		fclose(headers);
 		return;
 	}
@@ -2889,7 +2889,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	aliases = fopen(aliases_file, "r");
 	if (!aliases)
 	{
-	eDebug("[EPGC] cannot open crossepg aliases db");
+	eDebug("[epgcache][CrossEPG V21 patch] cannot open crossepg aliases db");
 		fclose(headers);
 		fclose(descriptors);
 		return;
@@ -2899,7 +2899,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	fread (tmp, 13, 1, headers);
 	if (memcmp (tmp, "_xEPG_HEADERS", 13) != 0)
 	{
-		eDebug("[EPGC] crossepg db invalid magic");
+		eDebug("[epgcache][CrossEPG V21 patch] crossepg db invalid magic");
 		fclose(headers);
 		fclose(descriptors);
 		fclose(aliases);
@@ -2909,7 +2909,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	fread (&revision, sizeof (unsigned char), 1, headers);
 	if (revision != 0x07)
 	{
-		eDebug("[EPGC] crossepg db invalid revision");
+		eDebug("[epgcache][CrossEPG V21 patch] crossepg db invalid revision");
 		fclose(headers);
 		fclose(descriptors);
 		fclose(aliases);
@@ -2920,7 +2920,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	fread (tmp, 13, 1, aliases);
 	if (memcmp (tmp, "_xEPG_ALIASES", 13) != 0)
 	{
-	eDebug("[EPGC] crossepg aliases db invalid magic");
+	eDebug("[epgcache][CrossEPG V21 patch] crossepg aliases db invalid magic");
 		fclose(headers);
 		fclose(descriptors);
 		fclose(aliases);
@@ -2929,7 +2929,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	fread (&revision, sizeof (unsigned char), 1, aliases);
 	if (revision != 0x07)
 	{
-		eDebug("[EPGC] crossepg aliases db invalid revision");
+		eDebug("[epgcache][CrossEPG V21 patch] crossepg aliases db invalid revision");
 		fclose(headers);
 		fclose(descriptors);
 	fclose(aliases);
@@ -2971,7 +2971,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 		}
 	}
 
-	eDebug("[EPGC] %d aliases groups in crossepg db", aliases_groups_count);
+	eDebug("[epgcache][CrossEPG V21 patch] %d aliases groups in crossepg db", aliases_groups_count);
 
 	/* import data */
 	fseek(headers, sizeof(time_t)*2, SEEK_CUR);
@@ -3155,6 +3155,6 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	fclose(descriptors);
 	fclose(aliases);
 
-	eDebug("[EPGC] imported %d events from crossepg db", events_count);
-	eDebug("[EPGC] %i bytes for cache used", eventData::CacheSize);
+	eDebug("[epgcache][CrossEPG V21 patch] imported %d events from crossepg db", events_count);
+	eDebug("[epgcache][CrossEPG V21 patch] %i bytes for cache used", eventData::CacheSize);
 }
