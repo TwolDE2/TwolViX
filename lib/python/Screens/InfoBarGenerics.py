@@ -33,6 +33,7 @@ from Components.Sources.Boolean import Boolean
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
+from Components.TimerList import TimerList
 from Components.Timeshift import InfoBarTimeshift
 from Components.UsageConfig import preferredInstantRecordPath, defaultMoviePath
 from Components.VolumeControl import VolumeControl
@@ -62,7 +63,6 @@ from Screens.Screen import Screen
 from Screens.TimeDateInput import TimeDateInput
 from Screens.TimerEdit import TimerEditList
 from Screens.TimerEntry import TimerEntry, addTimerFromEvent
-from Screens.TimerSelection import TimerSelection
 from Screens.UnhandledKey import UnhandledKey
 from ServiceReference import ServiceReference, isPlayableForCur
 from Tools import Notifications
@@ -220,6 +220,25 @@ def getActiveSubservicesForCurrentChannel(current_service):
 def hasActiveSubservicesForCurrentChannel(current_service):
 	activeSubservices = getActiveSubservicesForCurrentChannel(current_service)
 	return bool(activeSubservices and len(activeSubservices) > 1)
+
+
+class TimerSelection(Screen):
+	def __init__(self, session, list):
+		Screen.__init__(self, session)
+		self.setTitle(_("Timer selection"))
+		self.list = list
+		self["timerlist"] = TimerList(self.list)
+		self["actions"] = ActionMap(["OkCancelActions"],
+			{
+				"ok": self.selected,
+				"cancel": self.leave,
+			}, -1)
+
+	def leave(self):
+		self.close(None)
+
+	def selected(self):
+		self.close(self["timerlist"].getCurrentIndex())
 
 
 class InfoBarDish:
