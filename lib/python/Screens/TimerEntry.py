@@ -18,14 +18,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-
-try: # FIXME circular import
-	from Screens.MovieSelection import getPreferredTagEditor
-except:
-	import traceback
-	traceback.print_exc()
-	def getPreferredTagEditor():
-		return None
+from Tools.TagEditor import tagEditor
 
 
 class TimerEntry(TimerEntryBase):
@@ -102,7 +95,7 @@ class TimerEntry(TimerEntryBase):
 
 	# So that setup.xml can call it as self.getPreferredTagEditor()
 	def getPreferredTagEditor(self):
-		return getPreferredTagEditor()
+		return tagEditor.getPreferredTagEditor()
 
 	def keyText(self):
 		self.renameEntry()
@@ -147,7 +140,7 @@ class TimerEntry(TimerEntryBase):
 		elif cur and cur[1] == self.timerentry_tagsset:
 			self.session.openWithCallback(
 				self.tagEditFinished,
-				getPreferredTagEditor(),
+				tagEditor.getPreferredTagEditor(),
 				self.timerentry_tags
 			)
 		elif cur and isinstance(cur[1], ConfigText):
