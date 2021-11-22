@@ -15,10 +15,17 @@ import Screens.ChannelSelection
 from Screens.ChoiceBox import ChoiceBox
 from Screens.LocationBox import MovieLocationBox
 from Screens.MessageBox import MessageBox
-from Screens.MovieSelection import getPreferredTagEditor
 from Screens.Screen import Screen
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 from Screens.VirtualKeyBoard import VirtualKeyBoard
+
+try: # FIXME circular import
+	from Screens.MovieSelection import getPreferredTagEditor
+except:
+	import traceback
+	traceback.print_exc()
+	def getPreferredTagEditor():
+		return None
 
 
 class TimerEntry(TimerEntryBase):
