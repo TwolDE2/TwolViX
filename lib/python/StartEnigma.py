@@ -149,10 +149,15 @@ try:
 		msg = log._safeFormat("%(text)s\n", formatDict)
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
-
+	# backup stdout and stderr redirections
+	backup_stdout = sys.stdout
+	backup_stderr = sys.stderr
 	logger = log.FileLogObserver(sys.stdout)		# do not change or no crashlog
 	log.FileLogObserver.emit = quietEmit
 	log.startLoggingWithObserver(logger.emit)
+	# restore stdout and stderr redirections because of twisted redirections
+	sys.stdout = backup_stdout
+	sys.stderr = backup_stderr
 except ImportError:
 	print("[StartEnigma] Error: Twisted not available!")
 
