@@ -26,15 +26,19 @@ from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Tools.Directories import fileExists, SCOPE_CURRENT_SKIN, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
-
-from six.moves.urllib.request import Request, urlopen
-from six.moves.urllib.parse import urlparse, urlunparse
+import requests
+try: # python 3
+	from urllib.parse import urlparse, urlunparse # raises ImportError in Python 2
+except ImportError: # Python 2
+	from urlparse import urlparse, urlunparse
 
 
 VERSION = "v2"
 DATE = "21.11.2014"
 CFG = "/etc/CCcam.cfg"
-
+myheaders = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36",
+}
 #############################################################
 
 
@@ -43,55 +47,41 @@ def _parse(url):
 	parsed = urlparse(url)
 	scheme = parsed[0]
 	path = urlunparse(('', '') + parsed[2:])
-
+	if path == "":
+		path = "/"
 	host, port = parsed[1], 80
-
+	if ':' in host:
+		host, port = host.split(':')
+		port = int(port)	
+	username = ""
+	password = ""
+	Headers = myheaders
 	if '@' in host:
 		username, host = host.split('@')
 		if ':' in username:
 			username, password = username.split(':')
-		else:
-			password = ""
-	else:
-		username = ""
-		password = ""
-
-	if ':' in host:
-		host, port = host.split(':')
-		port = int(port)
-
-	if path == "":
-		path = "/"
-
-	return scheme, host, port, path, username, password
+			url = scheme + '://' + host + ':' + str(port) + path
+			base64string = six.ensure_str(b64encode(six.ensure_binary('%s:%s' % (username, password))))
+			authHeader = "Basic " + base64string
+			myheaders[Authorization] = authHeader
+	return url, myheaders
 
 
 def getPage(url, callback, errback):
 	errormsg = ""
-	base64string = ""
-	scheme, host, port, path, username, password = _parse(url)
-	
-	if username and password:
-		url = scheme + '://' + host + ':' + str(port) + path
-		base64string = six.ensure_str(b64encode(six.ensure_binary('%s:%s' % (username, password))))
-	
+	url, Headers = _parse(url)
 	try:
-		req = Request(url)
-		if base64string:
-			req.add_header("Authorization", "Basic %s" % base64string)
-		response = urlopen(req)
-		response_code = int(response.getcode())
-		if response_code == 200:
-			callback(six.ensure_str(response.read()))
-			return
+		r = requests.get(url, headers=Headers, allow_redirects=True)  # to get content after redirection
+		if r.status_code == 200:
+			data = six.ensure_str(r.content)		
+			callback(data)
 		else:
-			errormsg = "[CCcamInfo][getPage] incorrect response: %d" % response_code
+			errormsg = "[CCcamInfo][getPage] incorrect response: %d" % r.status_code
+			errback(errormsg)
 	except Exception as err:
 		print("%s: '%s'" % (type(err).__name__, err))
 		import traceback
 		traceback.print_exc()
-	errback(errormsg)
-
 #############################################################
 
 
