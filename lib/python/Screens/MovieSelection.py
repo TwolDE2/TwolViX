@@ -10,7 +10,7 @@ if sys.version_info >= (3, 0):
 	import pickle as cPickle
 else:
 	import cPickle
-
+from enigma import eServiceReference, eServiceCenter, eTimer, eSize, iPlayableService, iServiceInformation, getPrevAsciiCode, eRCInput
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
@@ -26,9 +26,11 @@ from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.StaticText import StaticText
 import Components.Harddisk
 from Components.UsageConfig import preferredTimerPath
+import NavigationInstance
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Screens.Setup import Setup
 from Plugins.Plugin import PluginDescriptor
+import RecordTimer
 from Screens.ChoiceBox import ChoiceBox
 from Screens.HelpMenu import HelpableScreen
 from Screens.InputBox import PinInput
@@ -38,15 +40,9 @@ from Screens.Screen import Screen
 import Screens.InfoBar
 from Tools import NumericalTextInput
 from Tools.BoundFunction import boundFunction
+from Tools.CopyFiles import copyFiles, moveFiles
 from Tools.Directories import resolveFilename, SCOPE_HDD
-from Tools.Trashcan import TrashInfo
-import Tools.CopyFiles
-import Tools.Trashcan
-import NavigationInstance
-import RecordTimer
-
-from enigma import eServiceReference, eServiceCenter, eTimer, eSize, iPlayableService, iServiceInformation, getPrevAsciiCode, eRCInput
-
+from Tools.Trashcan import TrashInfo, cleanAll, createTrashFolder, getTrashFolder
 
 config.movielist = ConfigSubsection()
 config.movielist.curentlyplayingservice = ConfigText()
@@ -135,7 +131,7 @@ def isInTrashFolder(ref):
 	if not config.usage.movielist_trashcan.value:
 		return False
 	path = os.path.realpath(ref.getPath())
-	return path.startswith(Tools.Trashcan.getTrashFolder(path))
+	return path.startswith(getTrashFolder(path))
 
 
 def isSimpleFile(item):
@@ -208,7 +204,7 @@ def moveServiceFiles(serviceref, dest, name=None, allowCopy=True):
 		moveList.reverse()
 		if name is None:
 			name = os.path.split(moveList[-1][0])[1]
-		Tools.CopyFiles.moveFiles(moveList, name)
+		moveFiles(moveList, name)
 	except Exception as e:
 		print("[MovieSelection] Failed move:", e)
 		# rethrow exception
@@ -226,7 +222,7 @@ def copyServiceFiles(serviceref, dest, name=None):
 		moveList.reverse()
 		if name is None:
 			name = os.path.split(moveList[-1][0])[1]
-		Tools.CopyFiles.copyFiles(moveList, name)
+		copyFiles(moveList, name)
 	except Exception as e:
 		print("[MovieSelection] Failed copy:", e)
 		# rethrow exception
@@ -1711,7 +1707,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		if self.reload_sel is None:
 			self.reload_sel = self.getCurrent()
 		if config.usage.movielist_trashcan.value and os.access(config.movielist.last_videodir.value, os.W_OK):
-			Tools.Trashcan.createTrashFolder(config.movielist.last_videodir.value)
+			createTrashFolder(config.movielist.last_videodir.value)
 		self.loadLocalSettings()
 		self["list"].reload(self.current_ref, self.selected_tags, self.collectionName)
 		self.updateTags()
@@ -2342,7 +2338,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			return
 
 		path = os.path.realpath(delList[0][0].getPath())
-		trash = Tools.Trashcan.createTrashFolder(path)
+		trash = createTrashFolder(path)
 		name = ""
 		if trash:
 			deletedList = []
@@ -2436,7 +2432,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		item = self.getCurrentSelection()
 		if item:
 			current = item[0]
-			Tools.Trashcan.cleanAll(os.path.split(current.getPath())[0])
+			cleanAll(os.path.split(current.getPath())[0])
 
 	def showNetworkMounts(self):
 		from . import NetworkSetup
