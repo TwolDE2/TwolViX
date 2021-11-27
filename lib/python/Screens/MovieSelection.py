@@ -37,12 +37,12 @@ from Screens.InputBox import PinInput
 from Screens.LocationBox import MovieLocationBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
+from Screens.TagEditor import TagEditor
 import Screens.InfoBar
 from Tools import NumericalTextInput
 from Tools.BoundFunction import boundFunction
 from Tools.CopyFiles import copyFiles, moveFiles
 from Tools.Directories import resolveFilename, SCOPE_HDD
-from Tools.TagEditor import tagEditor
 from Tools.Trashcan import TrashInfo, cleanAll, createTrashFolder, getTrashFolder
 
 
@@ -108,14 +108,14 @@ def defaultMoviePath():
 	return result
 
 
-# Wrapper function for plugins
+# Wrapper function for old plugins
 def setPreferredTagEditor(tageditor):
-	tagEditor.setPreferredTagEditor(tageditor)
+	return
 
 
-# Wrapper function for plugins
+# Wrapper function for old plugins
 def getPreferredTagEditor():
-	tagEditor.getPreferredTagEditor()
+	return None
 
 
 def isTrashFolder(ref):
@@ -2009,6 +2009,14 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			mbox = self.session.open(MessageBox, msg, type=MessageBox.TYPE_ERROR, timeout=5)
 			mbox.setTitle(self.getTitle())
 
+	def do_tageditor(self):
+		item = self.getCurrentSelection()
+		if not isFolder(item):
+			self.session.openWithCallback(self.tageditorCallback, TagEditor, service=item[0])
+
+	def tageditorCallback(self, tags):
+		return
+
 	def can_rename(self, item):
 		return self.can_move(item)
 
@@ -2572,6 +2580,3 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 						continue
 					else:
 						items.append(item)
-
-
-playlist = []

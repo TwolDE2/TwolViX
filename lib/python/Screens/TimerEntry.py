@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import six
-
+from os import statvfs
 from time import localtime, time, strftime
 
 from enigma import eEPGCache
@@ -16,9 +16,9 @@ from Screens.ChoiceBox import ChoiceBox
 from Screens.LocationBox import MovieLocationBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
+from Screens.TagEditor import TagEditor
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-from Tools.TagEditor import tagEditor
 
 
 class TimerEntry(TimerEntryBase):
@@ -97,6 +97,7 @@ class TimerEntry(TimerEntryBase):
 	def getPreferredTagEditor(self):
 		return tagEditor.getPreferredTagEditor()
 
+
 	def keyText(self):
 		self.renameEntry()
 
@@ -140,8 +141,8 @@ class TimerEntry(TimerEntryBase):
 		elif cur and cur[1] == self.timerentry_tagsset:
 			self.session.openWithCallback(
 				self.tagEditFinished,
-				tagEditor.getPreferredTagEditor(),
-				self.timerentry_tags
+				TagEditor,
+				tags=self.timerentry_tags
 			)
 		elif cur and isinstance(cur[1], ConfigText):
 			self.renameEntry()
