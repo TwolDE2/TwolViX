@@ -114,8 +114,8 @@ SystemInfo["HasTranscoding"] = pathExists("/proc/stb/encoder/0") or fileCheck("/
 SystemInfo["HasH265Encoder"] = fileHas("/proc/stb/encoder/0/vcodec_choices", "h265")
 SystemInfo["CanNotDoSimultaneousTranscodeAndPIP"] = getBoxType() in ("vusolo4k", "gbquad4k", "gbue4k")
 SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
-SystemInfo["HDMICEC"] = (fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")) and isPluginInstalled("HdmiCEC")
-SystemInfo["HasHDMI-CEC"] = isPluginInstalled("HdmiCEC")
+SystemInfo["HDMICEC"] = fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")
+SystemInfo["HasHDMI-CEC"] = fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")
 SystemInfo["HasHDMIin"] = getHaveHDMIinHD() in ("True",) or getHaveHDMIinFHD() in ("True",)
 #	Audio/Video Configuration setup values
 SystemInfo["hasJack"] = getHaveAVJACK() in ('True',)

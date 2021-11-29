@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-22 11:44+0200\n"
+"POT-Creation-Date: 2021-05-18 14:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,34 @@ msgstr ""
 
 msgid ""
 "\n"
+"Advanced options and settings."
+msgstr ""
+
+msgid ""
+"\n"
+"After pressing OK, please wait!"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Backup your %s %s settings."
+msgstr ""
+
+msgid ""
+"\n"
+"Edit the upgrade source address."
+msgstr ""
+
+msgid ""
+"\n"
 "It contains other items."
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Manage extensions or plugins for your %s %s"
 msgstr ""
 
 msgid ""
@@ -43,6 +70,17 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
+#, python-format
+msgid ""
+"\n"
+"Online update of your %s %s software."
+msgstr ""
+
+msgid ""
+"\n"
+"Press OK on your remote control to continue."
+msgstr ""
+
 msgid ""
 "\n"
 "Recording in progress."
@@ -51,10 +89,40 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
+"Restore your %s %s settings."
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Restore your %s %s with a new firmware."
+msgstr ""
+
+msgid ""
+"\n"
+"Restore your backups by date."
+msgstr ""
+
+msgid ""
+"\n"
+"Scan for local extensions and install them."
+msgstr ""
+
+msgid ""
+"\n"
+"Select your backup device.\n"
+"Current device: "
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
 "Timer '%s' disabled!"
 msgstr ""
 
-msgid " "
+msgid ""
+"\n"
+"View, install and remove available or installed packages."
 msgstr ""
 
 #, python-format
@@ -66,6 +134,9 @@ msgstr ""
 
 #, python-format
 msgid " (Channel %s)"
+msgstr ""
+
+msgid " (auto detection)"
 msgstr ""
 
 msgid " (disabled)"
@@ -87,6 +158,9 @@ msgid " - video0+video1"
 msgstr ""
 
 msgid " - video1"
+msgstr ""
+
+msgid " Warning: the selected tuner should not use SCR Unicable type for LNBs because each tuner need a own SCR number."
 msgstr ""
 
 msgid " and"
@@ -218,7 +292,7 @@ msgid "%.2f GB"
 msgstr ""
 
 #, python-format
-msgid "%02d MB"
+msgid "%03d MB"
 msgstr ""
 
 #, python-format
@@ -890,6 +964,10 @@ msgstr ""
 msgid "%d.%-m.%Y"
 msgstr ""
 
+#, python-format
+msgid "%d.%03d GB"
+msgstr ""
+
 msgid "%d.%m"
 msgstr ""
 
@@ -964,6 +1042,10 @@ msgid "%s %s remote control (native)"
 msgstr ""
 
 #, python-format
+msgid "%s %s software because updates are available."
+msgstr ""
+
+#, python-format
 msgid "%s ( %s Cards )"
 msgstr ""
 
@@ -976,7 +1058,15 @@ msgid "%s - %s (%s%d min)"
 msgstr ""
 
 #, python-format
-msgid "%s GB"
+msgid "%s Info - Configuration"
+msgstr ""
+
+#, python-format
+msgid "%s Info - Main Menu"
+msgstr ""
+
+#, python-format
+msgid "%s Log ( %s-Version: %s )"
 msgstr ""
 
 #, python-format
@@ -1003,6 +1093,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, python-format
+msgid "%s webif disabled"
+msgstr ""
+
+#, python-format
 msgid "%s%d Min"
 msgstr ""
 
@@ -1012,10 +1106,6 @@ msgstr ""
 
 #, python-format
 msgid "%s/%s: %s"
-msgstr ""
-
-#, python-format
-msgid "%s:%s"
 msgstr ""
 
 #, python-format
@@ -1039,9 +1129,6 @@ msgid "( All readers)"
 msgstr ""
 
 msgid "(Current)"
-msgstr ""
-
-msgid "(FTA Service)"
 msgstr ""
 
 #, python-format
@@ -1402,6 +1489,9 @@ msgstr ""
 msgid "A required tool (%s) was not found."
 msgstr ""
 
+msgid "A search for available updates is currently in progress."
+msgstr ""
+
 msgid ""
 "A second configured interface has been found.\n"
 "\n"
@@ -1418,6 +1508,9 @@ msgstr ""
 msgid ""
 "A sleep timer wants to shut down\n"
 "your %s %s. Proceed?"
+msgstr ""
+
+msgid "A small overview of the available icon states and actions."
 msgstr ""
 
 msgid ""
@@ -1481,9 +1574,6 @@ msgid "Abort favourites edit"
 msgstr ""
 
 msgid "About"
-msgstr ""
-
-msgid "About Boxbranding"
 msgstr ""
 
 msgid "Accept the current selection"
@@ -1654,10 +1744,7 @@ msgstr ""
 msgid "Additional cable of motorized LNB"
 msgstr ""
 
-msgid "Additional motor options allow you to enter details from your motor's spec sheet so enigma can work out how long it will take to move the dish from one satellite to another satellite."
-msgstr ""
-
-msgid "Additional motor options allow you to enter details from your motor's spec sheet so enigma can work out how long it will take to move to another satellite."
+msgid "Additional motor options opens a sub-menu where you can enter details from your motor's spec sheet so enigma can work out how long it will take to move the dish from one satellite to another satellite."
 msgstr ""
 
 msgid "Address"
@@ -1676,6 +1763,15 @@ msgid "Advanced"
 msgstr ""
 
 msgid "Advanced options"
+msgstr ""
+
+msgid "Advanced restore"
+msgstr ""
+
+msgid "Advanced software"
+msgstr ""
+
+msgid "Advanced software plugin"
 msgstr ""
 
 msgid "Advanced video enhancement setup"
@@ -1762,6 +1858,9 @@ msgstr ""
 msgid "Alternative"
 msgstr ""
 
+msgid "Always ask"
+msgstr ""
+
 msgid "Always hide infobar"
 msgstr ""
 
@@ -1772,6 +1871,9 @@ msgid "American Samoa"
 msgstr ""
 
 msgid "An empty filename is illegal."
+msgstr ""
+
+msgid "An error occurred while downloading the packetlist. Please try again."
 msgstr ""
 
 msgid "An unknown error occurred!"
@@ -1823,10 +1925,21 @@ msgid ""
 "\n"
 msgstr ""
 
+msgid ""
+"Are you sure you want to delete\n"
+"the following backup:\n"
+msgstr ""
+
+msgid "Are you sure you want to delete all the selected logs:\n"
+msgstr ""
+
 msgid "Are you sure you want to delete image:"
 msgstr ""
 
 msgid "Are you sure you want to delete the EPG data from:\n"
+msgstr ""
+
+msgid "Are you sure you want to delete this log:\n"
 msgstr ""
 
 msgid ""
@@ -1859,6 +1972,19 @@ msgstr ""
 msgid ""
 "Are you sure you want to restart your network interfaces?\n"
 "\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"Are you sure you want to restore\n"
+"the following backup:\n"
+"%s\n"
+"Your receiver will restart after the backup has been restored!"
+msgstr ""
+
+msgid ""
+"Are you sure you want to restore the backup?\n"
+"Your receiver will restart after the backup has been restored!"
 msgstr ""
 
 msgid "Are you sure you want to save the EPG Cache to:\n"
@@ -1940,6 +2066,9 @@ msgid "Australian"
 msgstr ""
 
 msgid "Austria"
+msgstr ""
+
+msgid "Author: "
 msgstr ""
 
 msgid "Authoring mode"
@@ -2067,7 +2196,19 @@ msgstr ""
 msgid "Background color"
 msgstr ""
 
+msgid "Backup completed."
+msgstr ""
+
+msgid "Backup failed."
+msgstr ""
+
+msgid "Backup is running..."
+msgstr ""
+
 msgid "Backup manager"
+msgstr ""
+
+msgid "Backup system settings"
 msgstr ""
 
 msgid "Bahamas"
@@ -2186,9 +2327,6 @@ msgid "Bouquet List"
 msgstr ""
 
 msgid "Bouvet Island"
-msgstr ""
-
-msgid "Boxbranding"
 msgstr ""
 
 msgid "Brazil"
@@ -2665,7 +2803,7 @@ msgid "Clear playlist"
 msgstr ""
 
 #, python-format
-msgid "Client Info ( Oscam-Version: %s )"
+msgid "Client Info ( %s-Version: %s )"
 msgstr ""
 
 msgid "Client mode"
@@ -2741,6 +2879,9 @@ msgid "Common Setup Actions"
 msgstr ""
 
 msgid "Common interface assignment"
+msgstr ""
+
+msgid "Communication"
 msgstr ""
 
 msgid "Comoros"
@@ -2857,6 +2998,9 @@ msgid "Content does not fit on DVD!"
 msgstr ""
 
 msgid "Context"
+msgstr ""
+
+msgid "Continue"
 msgstr ""
 
 msgid "Continue playback"
@@ -3336,6 +3480,9 @@ msgstr ""
 msgid "Default port is '%d'. Change if required."
 msgstr ""
 
+msgid "Default settings"
+msgstr ""
+
 #, python-format
 msgid "Default: '%s'."
 msgstr ""
@@ -3405,6 +3552,9 @@ msgstr ""
 
 #, python-format
 msgid "Delete %s?"
+msgstr ""
+
+msgid "Delete Confirmation"
 msgstr ""
 
 msgid "Delete Language(s)"
@@ -3480,6 +3630,9 @@ msgid "Description"
 msgstr ""
 
 msgid "Deselect"
+msgstr ""
+
+msgid "Details for plugin: "
 msgstr ""
 
 msgid "Detected devices:"
@@ -3597,6 +3750,9 @@ msgstr ""
 msgid "Display Skin"
 msgstr ""
 
+msgid "Display and user interface"
+msgstr ""
+
 msgid "Display selection list as a selection menu"
 msgstr ""
 
@@ -3700,7 +3856,15 @@ msgstr ""
 msgid "Do you want to continue?"
 msgstr ""
 
+msgid ""
+"Do you want to delete all the selected files:\n"
+"(choose 'No' to only delete the currently selected file.)"
+msgstr ""
+
 msgid "Do you want to install plugins"
+msgstr ""
+
+msgid "Do you want to install the package:\n"
 msgstr ""
 
 msgid "Do you want to play DVD in drive?"
@@ -3713,6 +3877,12 @@ msgstr ""
 msgid "Do you want to reboot your %s %s"
 msgstr ""
 
+msgid "Do you want to reboot your receiver?"
+msgstr ""
+
+msgid "Do you want to remove the package:\n"
+msgstr ""
+
 msgid "Do you want to restore your settings?"
 msgstr ""
 
@@ -3721,6 +3891,9 @@ msgstr ""
 
 #, python-format
 msgid "Do you want to update your %s %s ?"
+msgstr ""
+
+msgid "Do you want to upgrade the package:\n"
 msgstr ""
 
 msgid "Dobly Digital downmix is now"
@@ -3912,6 +4085,9 @@ msgstr ""
 msgid "Edit title"
 msgstr ""
 
+msgid "Edit upgrade source url."
+msgstr ""
+
 msgid "Education/Information"
 msgstr ""
 
@@ -3928,6 +4104,9 @@ msgid "Elapsed"
 msgstr ""
 
 msgid "Elapsed & Remaining"
+msgstr ""
+
+msgid "Electronic Program Guide"
 msgstr ""
 
 msgid "Empty slot"
@@ -3998,9 +4177,6 @@ msgid "Encrypted: "
 msgstr ""
 
 msgid "Encryption"
-msgstr ""
-
-msgid "Encryption Type:"
 msgstr ""
 
 msgid "Encryption key"
@@ -4269,6 +4445,12 @@ msgstr ""
 msgid "Extended Shares"
 msgstr ""
 
+msgid "Extended Software"
+msgstr ""
+
+msgid "Extended Software Plugin"
+msgstr ""
+
 msgid "Extended network setup plugin..."
 msgstr ""
 
@@ -4276,6 +4458,9 @@ msgid "Extended setup..."
 msgstr ""
 
 msgid "Extensions"
+msgstr ""
+
+msgid "Extensions management"
 msgstr ""
 
 msgid "External"
@@ -4446,8 +4631,9 @@ msgstr ""
 msgid "Fiji"
 msgstr ""
 
+#, python-format
 msgid ""
-"File oscam.conf not found.\n"
+"File %s.conf not found.\n"
 "Please enter username/password manually."
 msgstr ""
 
@@ -4478,9 +4664,6 @@ msgstr ""
 msgid "Finnish"
 msgstr ""
 
-msgid "FirstPage"
-msgstr ""
-
 msgid "Fixed"
 msgstr ""
 
@@ -4489,6 +4672,9 @@ msgid "Flash directory '%s' not allowed!"
 msgstr ""
 
 msgid "Flashing"
+msgstr ""
+
+msgid "Following tasks will be done after you press OK!"
 msgstr ""
 
 msgid "Force de-interlace"
@@ -4548,9 +4734,6 @@ msgstr ""
 msgid "Frequency (kHz)"
 msgstr ""
 
-msgid "Frequency Norm:"
-msgstr ""
-
 msgid "Frequency bands"
 msgstr ""
 
@@ -4569,7 +4752,7 @@ msgstr ""
 msgid "Friday"
 msgstr ""
 
-msgid "From :"
+msgid "From:"
 msgstr ""
 
 msgid "Full factory reset"
@@ -4715,9 +4898,6 @@ msgstr ""
 msgid "Goto 0"
 msgstr ""
 
-msgid "Goto :"
-msgstr ""
-
 msgid "Goto X"
 msgstr ""
 
@@ -4725,6 +4905,9 @@ msgid "Goto index position"
 msgstr ""
 
 msgid "Goto position"
+msgstr ""
+
+msgid "Goto:"
 msgstr ""
 
 msgid "GotoX calibration"
@@ -4808,7 +4991,7 @@ msgstr ""
 msgid "H9 USB switch ERROR! - already on USB"
 msgstr ""
 
-msgid "H9 switch Nand to SDcard/USB"
+msgid "H9 switch Nand and SDcard"
 msgstr ""
 
 msgid "H: = Hourly / D: = Daily / W: = Weekly / M: = Monthly"
@@ -4923,6 +5106,9 @@ msgid "Hide parental locked services"
 msgstr ""
 
 msgid "Hide player"
+msgstr ""
+
+msgid "Hide sub-menu"
 msgstr ""
 
 msgid "Hierarchy info"
@@ -5216,6 +5402,9 @@ msgstr ""
 msgid "Input Stream ID"
 msgstr ""
 
+msgid "Install"
+msgstr ""
+
 #, python-format
 msgid "Install '%s'"
 msgstr ""
@@ -5226,10 +5415,25 @@ msgstr ""
 msgid "Install channel list"
 msgstr ""
 
+msgid "Install extensions"
+msgstr ""
+
+msgid "Install extensions."
+msgstr ""
+
 msgid "Install lcd picons on"
 msgstr ""
 
+msgid "Install local extension"
+msgstr ""
+
+msgid "Install or remove finished."
+msgstr ""
+
 msgid "Install picons on"
+msgstr ""
+
+msgid "Installation finished."
 msgstr ""
 
 #, python-format
@@ -5266,6 +5470,9 @@ msgstr ""
 msgid "Internal"
 msgstr ""
 
+msgid "Internal flash"
+msgstr ""
+
 msgid "Internal hdd only"
 msgstr ""
 
@@ -5295,6 +5502,12 @@ msgid "Inversion & Bandwidth"
 msgstr ""
 
 msgid "Inversion, Pilot & Roll-off"
+msgstr ""
+
+msgid "Invert"
+msgstr ""
+
+msgid "Ipkg"
 msgstr ""
 
 msgid "Iran (Islamic Republic of)"
@@ -5483,9 +5696,6 @@ msgid "Last update: %s"
 msgstr ""
 
 msgid "Last used share: "
-msgstr ""
-
-msgid "LastPage"
 msgstr ""
 
 msgctxt "third event: 'third' event label"
@@ -5729,6 +5939,13 @@ msgid "Mali"
 msgstr ""
 
 msgid "Malta"
+msgstr ""
+
+msgid "Manage extensions"
+msgstr ""
+
+#, python-format
+msgid "Manage your %s %s's software"
 msgstr ""
 
 msgid "Manual"
@@ -6110,6 +6327,9 @@ msgstr ""
 msgid "MultiType"
 msgstr ""
 
+msgid "Multimedia"
+msgstr ""
+
 msgid "Multiple service support"
 msgstr ""
 
@@ -6322,7 +6542,7 @@ msgstr ""
 msgid "No ECM info is currently available. This is only available while decrypting."
 msgstr ""
 
-msgid "No ECMPids available"
+msgid "No ECMPids available (FTA Service)"
 msgstr ""
 
 msgid "No HDD found or HDD not initialized!"
@@ -6360,6 +6580,9 @@ msgstr ""
 msgid "No delay"
 msgstr ""
 
+msgid "No description available."
+msgstr ""
+
 msgid "No displayable files on this medium found!"
 msgstr ""
 
@@ -6379,6 +6602,9 @@ msgid "No images found"
 msgstr ""
 
 msgid "No module found"
+msgstr ""
+
+msgid "No network connection available."
 msgstr ""
 
 msgid "No networks found"
@@ -6444,6 +6670,9 @@ msgid ""
 msgstr ""
 
 msgid "No, but restart from the beginning"
+msgstr ""
+
+msgid "No, never"
 msgstr ""
 
 msgid "NodeID"
@@ -6552,7 +6781,7 @@ msgstr ""
 msgid "OSD position"
 msgstr ""
 
-msgid "OScam Info"
+msgid "OScam/Ncam  Info"
 msgstr ""
 
 msgid "OVR"
@@ -6595,6 +6824,9 @@ msgid "OnlineVersionCheck"
 msgstr ""
 
 msgid "Only change this setting if you are using a SCR device that has been reprogrammed with a custom programmer. For further information check with the person that reprogrammed the device."
+msgstr ""
+
+msgid "Only extensions."
 msgstr ""
 
 msgid "Only free scan"
@@ -6696,20 +6928,16 @@ msgstr ""
 msgid "Original"
 msgstr ""
 
-msgid "Oscam Info - Configuration"
-msgstr ""
-
-msgid "Oscam Info - Main Menu"
-msgstr ""
-
-#, python-format
-msgid "Oscam Log ( Oscam-Version: %s )"
-msgstr ""
-
 msgid "Other"
 msgstr ""
 
 msgid "Output"
+msgstr ""
+
+msgid "Overwrite configuration files during software upgrade?"
+msgstr ""
+
+msgid "Overwrite configuration files?"
 msgstr ""
 
 msgid "PAGE UP/DOWN"
@@ -6775,6 +7003,12 @@ msgstr ""
 msgid "Packages"
 msgstr ""
 
+msgid "Packet management"
+msgstr ""
+
+msgid "Packet manager"
+msgstr ""
+
 msgid "Page down"
 msgstr ""
 
@@ -6788,12 +7022,6 @@ msgid "Page up"
 msgstr ""
 
 msgid "Page up in description"
-msgstr ""
-
-msgid "PageBack"
-msgstr ""
-
-msgid "PageFwd"
 msgstr ""
 
 msgid "Pakistan"
@@ -7090,6 +7318,9 @@ msgstr ""
 msgid "Please select medium to be scanned"
 msgstr ""
 
+msgid "Please select medium to use as backup location"
+msgstr ""
+
 msgid "Please select the default action of the EPG button"
 msgstr ""
 
@@ -7148,6 +7379,15 @@ msgid "Plugin Browser"
 msgstr ""
 
 msgid "Plugin browser"
+msgstr ""
+
+msgid "Plugin details"
+msgstr ""
+
+msgid "Plugin manager activity information"
+msgstr ""
+
+msgid "Plugin manager help"
 msgstr ""
 
 msgid "Poland"
@@ -7249,6 +7489,12 @@ msgstr ""
 msgid "Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."
 msgstr ""
 
+msgid "Press INFO on your remote control for additional information."
+msgstr ""
+
+msgid "Press MENU on your remote control for additional options."
+msgstr ""
+
 msgid "Press OK on your remote control to continue."
 msgstr ""
 
@@ -7297,6 +7543,9 @@ msgstr ""
 msgid "Press OK to toggle the selection"
 msgstr ""
 
+msgid "Press OK to toggle the selection."
+msgstr ""
+
 msgid ""
 "Press up/down to scroll through the selected log\n"
 "\n"
@@ -7324,6 +7573,9 @@ msgstr ""
 msgid ""
 "Problem retrieving update list.\n"
 "If this issue persists please check/report on forum"
+msgstr ""
+
+msgid "Process"
 msgstr ""
 
 #, python-format
@@ -7482,7 +7734,8 @@ msgstr ""
 msgid "Re-enter PIN"
 msgstr ""
 
-msgid "Read Userdata from oscam.conf"
+#, python-format
+msgid "Read Userdata from %s.conf"
 msgstr ""
 
 msgid "Reader"
@@ -7572,6 +7825,10 @@ msgstr ""
 msgid "Recording and playback settings"
 msgstr ""
 
+#, python-format
+msgid "Recording in progress: %s"
+msgstr ""
+
 msgid "Recording(s) are in progress or coming up in few seconds!"
 msgstr ""
 
@@ -7579,6 +7836,10 @@ msgid "Recording/media selection"
 msgstr ""
 
 msgid "Recordings"
+msgstr ""
+
+#, python-format
+msgid "Recordings in progress: %d"
 msgstr ""
 
 msgid "Red"
@@ -7621,6 +7882,9 @@ msgstr ""
 msgid "Relevant PIDs routing"
 msgstr ""
 
+msgid "Reload"
+msgstr ""
+
 msgid "Reload blacklists"
 msgstr ""
 
@@ -7649,6 +7913,9 @@ msgid "Remote box"
 msgstr ""
 
 msgid "Remote control type"
+msgstr ""
+
+msgid "Remove"
 msgstr ""
 
 msgid "Remove Confirmation"
@@ -7718,6 +7985,9 @@ msgid "Remove currently selected title"
 msgstr ""
 
 msgid "Remove entry"
+msgstr ""
+
+msgid "Remove finished."
 msgstr ""
 
 msgid "Remove from parental protection"
@@ -7854,10 +8124,19 @@ msgstr ""
 msgid "Restore"
 msgstr ""
 
+msgid "Restore backups"
+msgstr ""
+
 msgid "Restore defaults"
 msgstr ""
 
 msgid "Restore deleted user bouquets"
+msgstr ""
+
+msgid "Restore system settings"
+msgstr ""
+
+msgid "Restoring..."
 msgstr ""
 
 msgid "Restricted 18+"
@@ -8021,6 +8300,9 @@ msgid "Sat"
 msgstr ""
 
 msgid "Satellite"
+msgstr ""
+
+msgid "Satellite equipment"
 msgstr ""
 
 msgid "Satellite equipment setup"
@@ -8194,6 +8476,12 @@ msgstr ""
 msgid "Searching east ..."
 msgstr ""
 
+msgid "Searching for available updates. Please wait..."
+msgstr ""
+
+msgid "Searching for new installed or removed packages. Please wait..."
+msgstr ""
+
 msgid "Searching west ..."
 msgstr ""
 
@@ -8352,6 +8640,12 @@ msgstr ""
 msgid "Select audio track"
 msgstr ""
 
+msgid "Select backup files"
+msgstr ""
+
+msgid "Select backup location"
+msgstr ""
+
 msgid "Select channel from history"
 msgstr ""
 
@@ -8374,6 +8668,12 @@ msgid "Select destination for:"
 msgstr ""
 
 msgid "Select directory for logfile"
+msgstr ""
+
+msgid "Select files for backup."
+msgstr ""
+
+msgid "Select files/folders to backup"
 msgstr ""
 
 msgid "Select first service in bouquet"
@@ -8508,6 +8808,12 @@ msgstr ""
 msgid "Select to restore all deleted images"
 msgstr ""
 
+msgid "Select upgrade source"
+msgstr ""
+
+msgid "Select upgrade source to edit."
+msgstr ""
+
 msgid "Select whether your SCR device is externally powered."
 msgstr ""
 
@@ -8572,7 +8878,7 @@ msgid "Serv.Name"
 msgstr ""
 
 #, python-format
-msgid "Server Info ( Oscam-Version: %s )"
+msgid "Server Info ( %s-Version: %s )"
 msgstr ""
 
 msgid "Server:"
@@ -8895,6 +9201,9 @@ msgstr ""
 msgid "Show stream clients"
 msgstr ""
 
+msgid "Show sub-menu"
+msgstr ""
+
 msgid "Show subservice selection"
 msgstr ""
 
@@ -9025,6 +9334,9 @@ msgstr ""
 msgid "SkinSelector: Restart GUI"
 msgstr ""
 
+msgid "Skins"
+msgstr ""
+
 msgid "Skip back"
 msgstr ""
 
@@ -9081,11 +9393,11 @@ msgid "Slot %d"
 msgstr ""
 
 #, python-format
-msgid "Slot%s %s: %s - %s mode%s"
+msgid "Slot %s: %s - %s mode%s"
 msgstr ""
 
 #, python-format
-msgid "Slot%s %s: %s%s"
+msgid "Slot %s: %s%s"
 msgstr ""
 
 msgid "Slovak"
@@ -9121,7 +9433,22 @@ msgstr ""
 msgid "SoftcamCheck"
 msgstr ""
 
+msgid "Software"
+msgstr ""
+
+msgid "Software management"
+msgstr ""
+
+msgid "Software manager setup"
+msgstr ""
+
+msgid "Software restore"
+msgstr ""
+
 msgid "Software update"
+msgstr ""
+
+msgid "Softwaremanager information"
 msgstr ""
 
 msgid "Solomon Islands"
@@ -9154,7 +9481,22 @@ msgstr ""
 msgid "Sorry your uShare config is missing"
 msgstr ""
 
+#, python-format
+msgid "Sorry, %s has not been installed!"
+msgstr ""
+
+msgid "Sorry, no backups found!"
+msgstr ""
+
+msgid "Sorry, no details available!"
+msgstr ""
+
 msgid "Sorry, this tuner is in use."
+msgstr ""
+
+msgid ""
+"Sorry, your backup destination is not writeable.\n"
+"Please select a different one."
 msgstr ""
 
 msgid "Sort"
@@ -9488,9 +9830,6 @@ msgstr ""
 msgid "SwaptoSD"
 msgstr ""
 
-msgid "SwaptoUSB"
-msgstr ""
-
 msgid "Swaziland"
 msgstr ""
 
@@ -9742,6 +10081,11 @@ msgid ""
 "Install latest image using USB stick or Image Manager."
 msgstr ""
 
+msgid ""
+"The Linux kernel has changed, plugins are not compatible. \n"
+"Install latest image using USB stick or Image Manager."
+msgstr ""
+
 msgid "The PIN code has been changed successfully."
 msgstr ""
 
@@ -9823,6 +10167,16 @@ msgid ""
 "Please install it."
 msgstr ""
 
+msgid "There are at least "
+msgstr ""
+
+#, python-format
+msgid "There are at least %s updates available."
+msgstr ""
+
+msgid "There are currently no outstanding actions."
+msgstr ""
+
 msgid "There are no items currently available for this screen."
 msgstr ""
 
@@ -9830,6 +10184,9 @@ msgid "There are no saved playlists to delete!"
 msgstr ""
 
 msgid "There are no saved playlists to load!"
+msgstr ""
+
+msgid "There are no updates available."
 msgstr ""
 
 msgid "There has been an error, please try again later. If this issue persists, please check openvix.co.uk or world-of-satellite.com"
@@ -9905,7 +10262,7 @@ msgstr ""
 msgid "This option allows you to choose how to display 720p 24Hz on your TV. (as not all TVs support these resolutions)"
 msgstr ""
 
-msgid "This option allows you to choose how to display SD progressive 24Hz on your TV. (as not all TV's support these resolutions)"
+msgid "This option allows you to choose how to display SD progressive 24Hz on your TV. (as not all TVs support these resolutions)"
 msgstr ""
 
 msgid "This option allows you to choose how to display standard defintion video on your TV."
@@ -9972,6 +10329,18 @@ msgid "This option sets the surpression of false digital contours, that are the 
 msgstr ""
 
 msgid "This option sets up the picture sharpness, used when the picture is being upscaled."
+msgstr ""
+
+msgid "This plugin is installed."
+msgstr ""
+
+msgid "This plugin is not installed."
+msgstr ""
+
+msgid "This plugin will be installed."
+msgstr ""
+
+msgid "This plugin will be removed."
 msgstr ""
 
 msgid "This setting allows the tuner configuration to be a duplication of how another tuner is already configured."
@@ -10253,6 +10622,9 @@ msgstr ""
 msgid "Try to find used transponders in terrestrial network... please wait..."
 msgstr ""
 
+msgid "Trying to download a new packetlist. Please wait..."
+msgstr ""
+
 msgid "Tue"
 msgstr ""
 
@@ -10388,6 +10760,12 @@ msgstr ""
 msgid "Undetermined"
 msgstr ""
 
+msgid "Undo install"
+msgstr ""
+
+msgid "Undo uninstall"
+msgstr ""
+
 msgid "Unencrypted"
 msgstr ""
 
@@ -10401,6 +10779,9 @@ msgid "Unicable delay after enable voltage before switch command"
 msgstr ""
 
 msgid "Unicable delay after last diseqc command"
+msgstr ""
+
+msgid "Uninstall"
 msgstr ""
 
 msgid "United Arab Emirates"
@@ -10461,6 +10842,9 @@ msgstr ""
 msgid "Update packages..."
 msgstr ""
 
+msgid "Updatefeed not available."
+msgstr ""
+
 msgid "Updating Cache"
 msgstr ""
 
@@ -10468,6 +10852,9 @@ msgid "Updating cache"
 msgstr ""
 
 msgid "Updating cache, please wait..."
+msgstr ""
+
+msgid "Updating software catalog"
 msgstr ""
 
 msgid "Upgrade and reboot system"
@@ -10575,6 +10962,9 @@ msgid "Use the network wizard to configure your Network\n"
 msgstr ""
 
 msgid "Use these input device settings?"
+msgstr ""
+
+msgid "Use these settings?"
 msgstr ""
 
 msgid "Use this video enhancement settings?"
@@ -10715,7 +11105,49 @@ msgstr ""
 msgid "View Video CD..."
 msgstr ""
 
+msgid "View details"
+msgstr ""
+
 msgid "View extensions..."
+msgstr ""
+
+msgid "View list of available "
+msgstr ""
+
+msgid "View list of available CommonInterface extensions"
+msgstr ""
+
+msgid "View list of available EPG extensions."
+msgstr ""
+
+msgid "View list of available Satellite equipment extensions."
+msgstr ""
+
+msgid "View list of available communication extensions."
+msgstr ""
+
+msgid "View list of available default settings"
+msgstr ""
+
+msgid "View list of available display and userinterface extensions."
+msgstr ""
+
+msgid "View list of available multimedia extensions."
+msgstr ""
+
+msgid "View list of available networking extensions"
+msgstr ""
+
+msgid "View list of available recording extensions"
+msgstr ""
+
+msgid "View list of available skins"
+msgstr ""
+
+msgid "View list of available software extensions"
+msgstr ""
+
+msgid "View list of available system extensions"
 msgstr ""
 
 msgid "View photos..."
@@ -10809,6 +11241,9 @@ msgid "Warning"
 msgstr ""
 
 msgid "Warning: no LNB; using factory defaults."
+msgstr ""
+
+msgid "Warning: the second input of this dual tuner may not support SCR LNBs. "
 msgstr ""
 
 msgid "Watch movies..."
@@ -10983,6 +11418,9 @@ msgstr ""
 msgid "Yes to all"
 msgstr ""
 
+msgid "Yes, always"
+msgstr ""
+
 msgid "Yes, and delete this movie"
 msgstr ""
 
@@ -11024,11 +11462,23 @@ msgid ""
 "\"%s\"?"
 msgstr ""
 
+msgid "You can cancel the installation."
+msgstr ""
+
+msgid "You can cancel the removal."
+msgstr ""
+
 msgid "You can continue watching TV while this is running."
+msgstr ""
+
+msgid "You can install this plugin."
 msgstr ""
 
 #, python-format
 msgid "You can only burn %s %s recordings!"
+msgstr ""
+
+msgid "You can remove this plugin."
 msgstr ""
 
 msgid "You cannot delete this!"
@@ -11325,6 +11775,9 @@ msgstr ""
 msgid "advertisement/shopping"
 msgstr ""
 
+msgid "all tuners"
+msgstr ""
+
 msgid "alpha then oldest"
 msgstr ""
 
@@ -11611,6 +12064,9 @@ msgstr ""
 msgid "entertainment (general)"
 msgstr ""
 
+msgid "epg cache backup"
+msgstr ""
+
 msgid "equestrian"
 msgstr ""
 
@@ -11644,6 +12100,9 @@ msgstr ""
 msgid "experimental film/video"
 msgstr ""
 
+msgid "extensions."
+msgstr ""
+
 msgid "extra wide"
 msgstr ""
 
@@ -11660,9 +12119,6 @@ msgid "fashion"
 msgstr ""
 
 msgid "fast"
-msgstr ""
-
-msgid "file can not displayed - file not found"
 msgstr ""
 
 msgid "fileformats (BMP, PNG, JPG, GIF)"
@@ -11708,6 +12164,9 @@ msgid "free"
 msgstr ""
 
 msgid "free diskspace"
+msgstr ""
+
+msgid "from"
 msgstr ""
 
 msgid "full"
@@ -12010,6 +12469,9 @@ msgstr ""
 msgid "not supported"
 msgstr ""
 
+msgid "not valid frontend"
+msgstr ""
+
 msgid "nothing connected"
 msgstr ""
 
@@ -12049,7 +12511,7 @@ msgstr ""
 msgid "original language"
 msgstr ""
 
-msgid "oscam webif disabled"
+msgid "packages selected."
 msgstr ""
 
 msgid "page left"
@@ -12154,6 +12616,9 @@ msgstr ""
 msgid "rotor"
 msgstr ""
 
+msgid "rotor is not used"
+msgstr ""
+
 msgid "running..."
 msgstr ""
 
@@ -12242,6 +12707,12 @@ msgid "show event details"
 msgstr ""
 
 msgid "show mediaplayer on mainmenu"
+msgstr ""
+
+msgid "show softwaremanager in plugin menu"
+msgstr ""
+
+msgid "show softwaremanager on blue button"
 msgstr ""
 
 msgid "show/game show (general)"
@@ -12400,6 +12871,9 @@ msgstr ""
 msgid "unconfirmed"
 msgstr ""
 
+msgid "undefined"
+msgstr ""
+
 msgid "unknown"
 msgstr ""
 
@@ -12410,6 +12884,9 @@ msgid "unpublished"
 msgstr ""
 
 msgid "until standby/restart"
+msgstr ""
+
+msgid "updates available."
 msgstr ""
 
 msgid "use best / controlled by HDMI"
@@ -12538,6 +13015,9 @@ msgstr ""
 msgid "IGNORE"
 msgstr ""
 
+msgid "REC "
+msgstr ""
+
 msgid "C"
 msgstr ""
 
@@ -12569,40 +13049,6 @@ msgid "IMDB Search"
 msgstr ""
 
 msgid "1,1"
-msgstr ""
-
-msgid "Configure interface"
-msgstr ""
-
-msgid ""
-"Please setup your user interface by adjusting the values till the edges of the user interface box are covering the test pattern and touching the edges of your TV.\n"
-"When you are ready press OK to continue."
-msgstr ""
-
-msgid "REC "
-msgstr ""
-
-msgid "Refresh rate selection."
-msgstr ""
-
-msgid "Select refresh rate"
-msgstr ""
-
-msgid "Select video input with up/down buttons"
-msgstr ""
-
-msgid "Select video mode"
-msgstr ""
-
-msgid ""
-"Video input selection\n"
-"\n"
-"Please press OK if you can see this page on your TV (or select a different input port).\n"
-"\n"
-"The next input port will be automatically probed in 10 seconds."
-msgstr ""
-
-msgid "Video mode selection."
 msgstr ""
 
 msgid "3D Setup"
@@ -12671,6 +13117,9 @@ msgstr ""
 msgid "OSD Position"
 msgstr ""
 
+msgid "OScam/Ncam Info"
+msgstr ""
+
 msgid "Plugins"
 msgstr ""
 
@@ -12726,128 +13175,6 @@ msgid "Utilities"
 msgstr ""
 
 msgid "VCR Scart"
-msgstr ""
-
-msgid "Check the internet connection"
-msgstr ""
-
-msgid "Check the internet connection again"
-msgstr ""
-
-msgid "Checking the internet connection"
-msgstr ""
-
-msgid "Do you want to do a service scan?"
-msgstr ""
-
-msgid "Do you want to do another manual service scan?"
-msgstr ""
-
-msgid "Exit the wizard"
-msgstr ""
-
-msgid "No, scan later manually"
-msgstr ""
-
-msgid "Please connect your receiver to the internet"
-msgstr ""
-
-msgid "Please set up the following common options"
-msgstr ""
-
-msgid "Please set up tuner A"
-msgstr ""
-
-msgid "Please set up tuner B"
-msgstr ""
-
-msgid "Please set up tuner C"
-msgstr ""
-
-msgid "Please set up tuner D"
-msgstr ""
-
-msgid "Please set up tuner E"
-msgstr ""
-
-msgid "Please set up tuner F"
-msgstr ""
-
-msgid "Please set up tuner G"
-msgstr ""
-
-msgid "Please set up tuner H"
-msgstr ""
-
-msgid "Please set up tuner I"
-msgstr ""
-
-msgid "Please set up tuner J"
-msgstr ""
-
-msgid "Please set up tuner K"
-msgstr ""
-
-msgid "Please set up tuner Q"
-msgstr ""
-
-msgid "Please set up tuner R"
-msgstr ""
-
-msgid "Please set your time options"
-msgstr ""
-
-msgid ""
-"Please set your time options.\n"
-"\n"
-"Press YELLOW to set the time zone via geolocation."
-msgstr ""
-
-msgid "Plugin install"
-msgstr ""
-
-msgid "Skin install"
-msgstr ""
-
-msgid "Skip internet connection check (disables automatic package installation)"
-msgstr ""
-
-msgid ""
-"Thank you for using the wizard. Your %s %s is now ready to use.\n"
-"Please press OK to start using your %s %s."
-msgstr ""
-
-msgid ""
-"This start wizard will guide you through the basic setup of your %s %s.\n"
-"Press the OK button on your remote control to move to the next step."
-msgstr ""
-
-msgid "Use the up/down keys on your remote control to select an option. After that, press OK."
-msgstr ""
-
-msgid "Use the wizard to set up basic features"
-msgstr ""
-
-msgid ""
-"Welcome.\n"
-"\n"
-"This start wizard will guide you through the basic setup of your %s %s.\n"
-"Press the OK button on your remote control to move to the next step."
-msgstr ""
-
-msgid "What do you want to scan?"
-msgstr ""
-
-msgid "Yes, do a manual scan now"
-msgstr ""
-
-msgid "Yes, do an automatic scan now"
-msgstr ""
-
-msgid "Yes, do another manual scan now"
-msgstr ""
-
-msgid "Your receiver is not connected to the internet"
 msgstr ""
 
 msgid "."
@@ -12910,9 +13237,6 @@ msgstr ""
 msgid "Allows you to enable the debug logs. They contain very detailed information about everything the system does. Reboot required to enable this!"
 msgstr ""
 
-msgid "Allows you to enable the twisted log. They contain very detailed information of everything the twisted does."
-msgstr ""
-
 msgid "Allows you to enable/disable displaying icons on the front panel."
 msgstr ""
 
@@ -12934,7 +13258,7 @@ msgstr ""
 msgid "Allows you to show/hide Log Manager in extensions (blue button)."
 msgstr ""
 
-msgid "Allows you to show/hide OScam Info in extensions (blue button)."
+msgid "Allows you to show/hide OScam/Ncam Info in extensions (blue button)."
 msgstr ""
 
 msgid "Alternative numbering mode"
@@ -13567,9 +13891,6 @@ msgid "Enable to display all true/false, yes/no, on/off and enable/disable set u
 msgstr ""
 
 msgid "Enable to highlight events that are currently in progress."
-msgstr ""
-
-msgid "Enable twisted log *"
 msgstr ""
 
 msgid "Enter the FTP password of the host receiver (required for any server running OpenViX 5.4 or greater)."
@@ -14298,7 +14619,7 @@ msgstr ""
 msgid "Show MiniTV in the Front Display"
 msgstr ""
 
-msgid "Show OScam Info in extensions?"
+msgid "Show OScam/Ncam Info in extensions?"
 msgstr ""
 
 msgid "Show PIP in the Front Display"
@@ -14983,6 +15304,159 @@ msgstr ""
 msgid "Zap mode"
 msgstr ""
 
+msgid "Check the internet connection"
+msgstr ""
+
+msgid "Check the internet connection again"
+msgstr ""
+
+msgid "Checking the internet connection"
+msgstr ""
+
+msgid "Do you want to do a service scan?"
+msgstr ""
+
+msgid "Do you want to do another manual service scan?"
+msgstr ""
+
+msgid "Exit the wizard"
+msgstr ""
+
+msgid "No, scan later manually"
+msgstr ""
+
+msgid "Please connect your receiver to the internet"
+msgstr ""
+
+msgid "Please set up the following common options"
+msgstr ""
+
+msgid "Please set up tuner A"
+msgstr ""
+
+msgid "Please set up tuner B"
+msgstr ""
+
+msgid "Please set up tuner C"
+msgstr ""
+
+msgid "Please set up tuner D"
+msgstr ""
+
+msgid "Please set up tuner E"
+msgstr ""
+
+msgid "Please set up tuner F"
+msgstr ""
+
+msgid "Please set up tuner G"
+msgstr ""
+
+msgid "Please set up tuner H"
+msgstr ""
+
+msgid "Please set up tuner I"
+msgstr ""
+
+msgid "Please set up tuner J"
+msgstr ""
+
+msgid "Please set up tuner K"
+msgstr ""
+
+msgid "Please set up tuner Q"
+msgstr ""
+
+msgid "Please set up tuner R"
+msgstr ""
+
+msgid "Please set your time options"
+msgstr ""
+
+msgid ""
+"Please set your time options.\n"
+"\n"
+"Press YELLOW to set the time zone via geolocation."
+msgstr ""
+
+msgid "Plugin install"
+msgstr ""
+
+msgid "Skin install"
+msgstr ""
+
+msgid "Skip internet connection check (disables automatic package installation)"
+msgstr ""
+
+msgid ""
+"Thank you for using the wizard. Your %s %s is now ready to use.\n"
+"Please press OK to start using your %s %s."
+msgstr ""
+
+msgid ""
+"This start wizard will guide you through the basic setup of your %s %s.\n"
+"Press the OK button on your remote control to move to the next step."
+msgstr ""
+
+msgid "Use the up/down keys on your remote control to select an option. After that, press OK."
+msgstr ""
+
+msgid "Use the wizard to set up basic features"
+msgstr ""
+
+msgid ""
+"Welcome.\n"
+"\n"
+"This start wizard will guide you through the basic setup of your %s %s.\n"
+"Press the OK button on your remote control to move to the next step."
+msgstr ""
+
+msgid "What do you want to scan?"
+msgstr ""
+
+msgid "Yes, do a manual scan now"
+msgstr ""
+
+msgid "Yes, do an automatic scan now"
+msgstr ""
+
+msgid "Yes, do another manual scan now"
+msgstr ""
+
+msgid "Your receiver is not connected to the internet"
+msgstr ""
+
+msgid "Configure interface"
+msgstr ""
+
+msgid ""
+"Please setup your user interface by adjusting the values till the edges of the user interface box are covering the test pattern and touching the edges of your TV.\n"
+"When you are ready press OK to continue."
+msgstr ""
+
+msgid "Refresh rate selection."
+msgstr ""
+
+msgid "Select refresh rate"
+msgstr ""
+
+msgid "Select video input with up/down buttons"
+msgstr ""
+
+msgid "Select video mode"
+msgstr ""
+
+msgid ""
+"Video input selection\n"
+"\n"
+"Please press OK if you can see this page on your TV (or select a different input port).\n"
+"\n"
+"The next input port will be automatically probed in 10 seconds."
+msgstr ""
+
+msgid "Video mode selection."
+msgstr ""
+
 msgid "Allows the TV remote to be used to control the receiver."
 msgstr ""
 
@@ -15201,4 +15675,63 @@ msgid "Update Interval"
 msgstr ""
 
 msgid "When enabled a forced download will be possible from the extensions menu (blue button). Shows after next restart."
+msgstr ""
+
+msgid "Install a new image with a USB stick"
+msgstr ""
+
+msgid "Install a new image with your web browser"
+msgstr ""
+
+msgid "No backup needed"
+msgstr ""
+
+msgid "No, do nothing."
+msgstr ""
+
+msgid "No, just start my %s %s"
+msgstr ""
+
+msgid "OK, guide me through the upgrade process"
+msgstr ""
+
+msgid "The backup failed. Please choose a different backup location."
+msgstr ""
+
+msgid "The wizard can backup your current settings. Do you want to do a backup now?"
+msgstr ""
+
+msgid "The wizard is finished now."
+msgstr ""
+
+msgid "Welcome to the image upgrade wizard. The wizard will assist you in upgrading the firmware of your %s %s by providing a backup facility for your current settings and a short explanation of how to upgrade your firmware."
+msgstr ""
+
+msgid "Where do you want to backup your settings?"
+msgstr ""
+
+msgid "Yes, backup my settings!"
+msgstr ""
+
+msgid "Yes, restore the settings now"
+msgstr ""
+
+msgid "Yes, shut down now."
+msgstr ""
+
+msgid "You have chosen to backup your settings. Please press OK to start the backup now."
+msgstr ""
+
+msgid "You have chosen to restore your settings. Enigma2 will restart after restore. Please press OK to start the restore now."
+msgstr ""
+
+msgid ""
+"You need a PC connected to your %s %s. If you need further instructions, please visit the website http://www.dm7025.de.\n"
+"Your %s %s will now be halted. After you have performed the update instructions from the website, your new firmware will ask you to restore your settings."
+msgstr ""
+
+msgid "Your %s %s is shutting down. Please wait..."
+msgstr ""
+
+msgid "Your backup succeeded. We will now continue to explain the further upgrade process."
 msgstr ""
