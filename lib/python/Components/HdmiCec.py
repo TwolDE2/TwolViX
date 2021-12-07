@@ -381,8 +381,12 @@ class HdmiCec:
 	instance = None
 
 	def __init__(self):
-		assert HdmiCec.instance is None, "only one HdmiCec instance is allowed!"
-		HdmiCec.instance = self
+		try:
+			assert HdmiCec.instance is None, "only one HdmiCec instance is allowed!"
+		except:
+			self = HdmiCec.instance
+		else:	
+			HdmiCec.instance = self
 		self.wait = eTimer()
 		self.wait.timeout.get().append(self.sendMsgQ)
 		self.queue = []			# if config.hdmicec.minimum_send_interval.value != "0" queue send message ->  (sendMsgQ)
@@ -453,7 +457,7 @@ class HdmiCec:
 						self.volumeForwardingEnabled = False
 			elif cmd == 0x46: 				# request name
 				self.sendMessage(msgaddress, "osdname")
-			elif cmd == 0x72 or cmd == 0x7e: 		# system audio mode status
+			elif cmd == 0x72 or cmd == 0x7e: 		# system audio mode status 114 or 126
 				if ctrl0 == 1:
 					self.volumeForwardingDestination = 5 		# on: send volume keys to receiver
 				else:
@@ -581,7 +585,7 @@ class HdmiCec:
 			data = data[:14]
 		elif message == "givesystemaudiostatus":
 			cmd = 0x7d
-			msgaddress = 0x05
+			msgaddress = 0x0f
 		elif message == "requestactivesource":
 			cmd = 0x85
 			msgaddress = 0x0f # use broadcast address
@@ -700,8 +704,9 @@ class HdmiCec:
 			Screens.Standby.inStandby.Power()
 
 	def configVolumeForwarding(self, configElement):
+		print("[hdmiCEC][configVolumeForwarding]: hdmicec.enabled=%s, hdmicec.volume_forwarding=%s" % (config.hdmicec.enabled.value, config.hdmicec.volume_forwarding.value))	
 		if config.hdmicec.enabled.value and config.hdmicec.volume_forwarding.value:
-			self.volumeForwardingEnabled = True
+#			self.volumeForwardingEnabled = True
 			self.sendMessage(0x05, "givesystemaudiostatus")
 		else:
 			self.volumeForwardingEnabled = False

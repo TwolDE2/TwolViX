@@ -702,6 +702,11 @@ print("[StartEnigma]  Initialising Network.")
 import Components.Network
 Components.Network.InitNetwork()
 
+profile("HdmoCEC")
+print("[StartEnigma]  Initialising hdmiCEC.")
+import Components.HdmiCec
+Components.HdmiCec.HdmiCec()
+
 profile("LCD")
 print("[StartEnigma]  Initialising LCD / FrontPanel.")
 import Components.Lcd
