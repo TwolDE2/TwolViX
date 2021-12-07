@@ -1,5 +1,5 @@
 from os.path import isdir, isfile
-
+from errno import ENOENT
 from enigma import eServiceCenter, eServiceReference, iDVBMetaFile, iServiceInformation
 
 from Components.ActionMap import HelpableActionMap
@@ -11,9 +11,7 @@ from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-from Tools.Directories import SCOPE_CONFIG, fileReadLines, fileWriteLines, resolveFilename
-
-MODULE_NAME = __name__.split(".")[-1]
+from Tools.Directories import SCOPE_CONFIG, resolveFilename
 
 
 class TagManager():
@@ -24,7 +22,12 @@ class TagManager():
 	def loadTags(self):
 		tags = []
 		filename = resolveFilename(SCOPE_CONFIG, "movietags")
-		tags = fileReadLines(filename, tags, source=MODULE_NAME)
+		try:
+			with open(filename, "r") as fd:
+				tags = fd.read().splitlines()		
+		except (IOError, OSError) as err:
+			if err.errno != ENOENT:  # ENOENT - No such file or directory.
+				print("[TagEditor] Error %d: Unable to read lines from file '%s'!  (%s)" % (err.errno, filename, err.strerror))		
 		tags = [self.formatTag(x) for x in tags]
 		while "" in tags:
 			tags.remove("")
@@ -35,8 +38,15 @@ class TagManager():
 	def saveTags(self):
 		if self.tags != self.fileTags:
 			filename = resolveFilename(SCOPE_CONFIG, "movietags")
-			if fileWriteLines(filename, self.tags, source=MODULE_NAME):
-				print("[TagEditor] %d tags written to '%s'." % (len(self.tags), filename))
+			try:
+				with open(filename, "w") as fd:
+					if isinstance(lines, list):
+						lines.append("")
+						lines = "\n".join(lines)
+					fd.write(lines)
+				print("[TagEditor] %d tags written to '%s'." % (len(self.tags), filename))					
+			except (IOError, OSError) as err:
+				print("[TagEditor] Error %d: Unable to write %d lines to file '%s'!  (%s)" % (err.errno, len(lines), filename, err.strerror))			
 
 	def getTags(self):
 		return self.tags
@@ -308,13 +318,26 @@ class TagEditor(Screen, HelpableScreen, TagManager):
 		filename = serviceRef.getPath()
 		filename = "%s.meta" % filename if filename.endswith(".ts") else "%s.ts.meta" % filename
 		if isfile(filename):
-			lines = fileReadLines(filename, source=MODULE_NAME)
+			try:
+				with open(filename, "r") as fd:
+					lines = fd.read().splitlines()		
+			except (IOError, OSError) as err:
+				if err.errno != ENOENT:  # ENOENT - No such file or directory.
+					print("[TagEditor] Error %d: Unable to read lines from file '%s'!  (%s)" % (err.errno, filename, err.strerror))
+				lines = None
 			idTags = iDVBMetaFile.idTags
 			if len(lines) > idTags:
 				tagList = " ".join(tags)
 				if tagList != lines[idTags]:
 					lines[idTags] = tagList
-					fileWriteLines(filename, lines, source=MODULE_NAME)
+					try:
+						with open(filename, "w") as fd:
+							if isinstance(lines, list):
+								lines.append("")
+								lines = "\n".join(lines)
+							fd.write(lines)
+					except (IOError, OSError) as err:
+						print("[TagEditor] Error %d: Unable to write %d lines to file '%s'!  (%s)" % (err.errno, len(lines), filename, err.strerror))
 
 
 tagManager = TagManager()
