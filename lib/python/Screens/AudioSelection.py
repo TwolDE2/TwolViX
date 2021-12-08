@@ -24,6 +24,7 @@ from Tools.ISO639 import LanguageCodes
 FOCUS_CONFIG, FOCUS_STREAMS = range(2)
 [PAGE_AUDIO, PAGE_SUBTITLES] = ["audio", "subtitles"]
 
+global conflist
 
 class AudioSelection(Screen, ConfigListScreen):
 	def __init__(self, session, infobar=None, page=PAGE_AUDIO):
@@ -95,6 +96,7 @@ class AudioSelection(Screen, ConfigListScreen):
 		from Tools.ISO639 import LanguageCodes
 		from Components.UsageConfig import originalAudioTracks, visuallyImpairedCommentary
 		streams = []
+		global conflist
 		conflist = []
 		selectedidx = 0
 		self.subtitlelist = []
@@ -111,8 +113,6 @@ class AudioSelection(Screen, ConfigListScreen):
 			service = self.session.nav.getCurrentService()
 			self.audioTracks = audio = service and service.audioTracks()
 			n = audio and audio.getNumberOfTracks() or 0
-			if self.subtitlelist:
-				conflist.append(getConfigListEntry(_("To subtitle selection"), self.settings.menupage))
 			if SystemInfo["CanDownmixAC3"]:
 				choise_list = [
 					("downmix", _("Downmix")),
@@ -217,6 +217,9 @@ class AudioSelection(Screen, ConfigListScreen):
 				self.settings.pcm_multichannel = ConfigOnOff(default=config.av.pcm_multichannel.value)
 				self.settings.pcm_multichannel.addNotifier(self.changePCMMultichannel, initial_call=False)
 				conflist.append(getConfigListEntry(_("PCM multichannel"), self.settings.pcm_multichannel, None))
+				
+			if self.subtitlelist:
+				conflist.append(getConfigListEntry(_("To subtitle selection"), self.settings.menupage))				
 
 			if SystemInfo["CanBTAudio"]:
 				choice_list = [("off", _("Off")), ("on", _("On"))]
@@ -487,10 +490,11 @@ class AudioSelection(Screen, ConfigListScreen):
 			self["streams"].setIndex(0)
 
 	def keyRight(self, config=False):
+		global conflist	
 		if config or self.focus == FOCUS_CONFIG:
 			index = self["config"].getCurrentIndex()
 			if self.settings.menupage.value == PAGE_AUDIO:
-				if self.subtitlelist and index == 0:					# Subtitle selection screen
+				if self.subtitlelist and "To subtitle selection" in conflist[index]:					# Subtitle selection screen
 					self.keyAudioSubtitle()
 					self.__updatedInfo()
 				elif self["config"].getCurrent()[2]:					
