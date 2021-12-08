@@ -383,9 +383,12 @@ class HdmiCec:
 	def __init__(self):
 		try:
 			assert HdmiCec.instance is None, "only one HdmiCec instance is allowed!"
+			print("[hdmiCEC][Assert try]")
 		except:
+			print("[hdmiCEC][Assert except]")
 			self = HdmiCec.instance
-		else:	
+		else:
+			print("[hdmiCEC][Assert else]")	
 			HdmiCec.instance = self
 		self.wait = eTimer()
 		self.wait.timeout.get().append(self.sendMsgQ)

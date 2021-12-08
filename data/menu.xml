@@ -200,7 +200,7 @@ self.session.open(SABnzbdSetupScreen)
 		</menu>
 
 		<!-- Menu / Setup / HDMI-CEC -->
-		<item entryID="hdmicec" level="0" text="HDMI-CEC Setup" weight="55" requires="HDMICEC"><screen module="HDMICEC" screen="HDMICECSetup" />
+		<item entryID="hdmicec" level="0" text="HDMI-CEC Setup" weight="55" requires="HDMICEC"><screen module="CecSetup" screen="CecSetup" />
 		</item>
 	</menu>
 

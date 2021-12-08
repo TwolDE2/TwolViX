@@ -5,7 +5,7 @@ from Components.Sources.StaticText import StaticText
 from Screens.Setup import Setup
 
 
-class HDMICECSetup(Setup):
+class CecSetup(Setup):
 	def __init__(self, session):
 		Setup.__init__(self, session=session, setup="HdmiCec")
 		self.setTitle(_("HDMI-CEC Setup"))
@@ -43,8 +43,8 @@ class HDMICECSetup(Setup):
 
 	def setDefaults(self):
 		for item in config.hdmicec.dict():
-			if item in ("enabled", "advanced_settings"):
-				continue
+#			if item in ("enabled", "advanced_settings"):
+#				continue
 			configItem = getattr(config.hdmicec, item)
 			configItem.value = configItem.default
 		self.createSetup()

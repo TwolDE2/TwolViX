@@ -324,9 +324,9 @@ def setupDom(setup=None, plugin=None):
 					key = setup.get("key")
 					if key:  # If there is no key then this element is useless and can be skipped!
 						title = setup.get("title", "").encode("UTF-8", errors="ignore") if six.PY2 else setup.get("title", "")
-						if title == "":
-							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-							title = "** Setup error: '%s' title is missing or blank!" % key
+#						if title == "":
+#							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
+#							title = "** Setup error: '%s' title is missing or blank!" % key
 					title = six.ensure_str(title)
 					# print("[Setup] [setupDOM]title = %s key = %s" % (title, key))
 			except xml.etree.cElementTree.ParseError as err:
