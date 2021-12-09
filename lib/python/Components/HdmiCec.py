@@ -381,15 +381,8 @@ class HdmiCec:
 	instance = None
 
 	def __init__(self):
-		try:
-			assert HdmiCec.instance is None, "only one HdmiCec instance is allowed!"
-			print("[hdmiCEC][Assert try]")
-		except:
-			print("[hdmiCEC][Assert except]")
-			self = HdmiCec.instance
-		else:
-			print("[hdmiCEC][Assert else]")	
-			HdmiCec.instance = self
+		assert HdmiCec.instance is None, "only one HdmiCec instance is allowed!"				
+		HdmiCec.instance = self
 		self.wait = eTimer()
 		self.wait.timeout.get().append(self.sendMsgQ)
 		self.queue = []			# if config.hdmicec.minimum_send_interval.value != "0" queue send message ->  (sendMsgQ)
@@ -406,7 +399,9 @@ class HdmiCec:
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
 		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
-		self.setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
+		address = config.hdmicec.fixed_physical_address.value
+		hexstring = address[0] + address[2] + address[4] + address[6]
+		eHdmiCEC.getInstance().setFixedPhysicalAddress(int(float.fromhex(hexstring)))
 
 		self.volumeForwardingEnabled = False
 		self.volumeForwardingDestination = 0
@@ -421,18 +416,6 @@ class HdmiCec:
 				self.sendMessage(0, "menuactive")
 			if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
 				self.onLeaveStandby()
-
-	def getPhysicalAddress(self):
-		physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
-		hexstring = "%04x" % physicaladdress
-		return hexstring[0] + "." + hexstring[1] + "." + hexstring[2] + "." + hexstring[3]
-
-	def setFixedPhysicalAddress(self, address):
-		if address != config.hdmicec.fixed_physical_address.value:
-			config.hdmicec.fixed_physical_address.value = address
-			config.hdmicec.fixed_physical_address.save()
-		hexstring = address[0] + address[2] + address[4] + address[6]
-		eHdmiCEC.getInstance().setFixedPhysicalAddress(int(float.fromhex(hexstring)))
 
 	def messageReceived(self, message):
 		if config.hdmicec.enabled.value:
@@ -813,6 +796,3 @@ class HdmiCec:
 			fp = open(path, "a")
 			fp.write(output)
 			fp.close()
-
-
-hdmi_cec = HdmiCec()

@@ -1,8 +1,22 @@
+from enigma import eHdmiCEC
+
 from Components.ActionMap import HelpableActionMap
 from Components.config import config, configfile
-from Components.HdmiCec import hdmi_cec as hdmiCec
+from Components.HdmiCec import HdmiCec
 from Components.Sources.StaticText import StaticText
 from Screens.Setup import Setup
+
+def getPhysicalAddress():
+	physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
+	hexstring = "%04x" % physicaladdress
+	return hexstring[0] + "." + hexstring[1] + "." + hexstring[2] + "." + hexstring[3]
+
+def setFixedPhysicalAddress(address):
+	if address != config.hdmicec.fixed_physical_address.value:
+		config.hdmicec.fixed_physical_address.value = address
+		config.hdmicec.fixed_physical_address.save()
+	hexstring = address[0] + address[2] + address[4] + address[6]
+	eHdmiCEC.getInstance().setFixedPhysicalAddress(int(float.fromhex(hexstring)))
 
 
 class CecSetup(Setup):
@@ -21,16 +35,16 @@ class CecSetup(Setup):
 		self["fixed_address"] = StaticText()
 
 	def updateFixedAddress(self):
-		config.hdmicec.fixed_physical_address.value = hdmiCec.getPhysicalAddress() if config.hdmicec.fixed_physical_address.value == "0.0.0.0" else "0.0.0.0"
-		hdmiCec.setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
+		config.hdmicec.fixed_physical_address.value = getPhysicalAddress() if config.hdmicec.fixed_physical_address.value == "0.0.0.0" else "0.0.0.0"
+		setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
 		self.updateAddress()
 
 	def updateAddress(self):
-		self["current_address"].setText("%s: %s" % (_("Current CEC address"), hdmiCec.getPhysicalAddress()))
+		self["current_address"].setText("%s: %s" % (_("Current CEC address"), getPhysicalAddress()))
 		value = config.hdmicec.fixed_physical_address.value
 		if value == "0.0.0.0":
 			self["fixed_address"].setText(_("Using automatic address"))
-			if hdmiCec.getPhysicalAddress() != "0.0.0.0":
+			if getPhysicalAddress() != "0.0.0.0":
 				self["addressActions"].setEnabled(True)
 				self["key_yellow"].setText(_("Set fixed"))
 			else:
