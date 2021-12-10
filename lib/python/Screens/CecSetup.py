@@ -1,8 +1,7 @@
 from enigma import eHdmiCEC
 
 from Components.ActionMap import HelpableActionMap
-from Components.config import config, configfile
-from Components.HdmiCec import HdmiCec
+from Components.config import config
 from Components.Sources.StaticText import StaticText
 from Screens.Setup import Setup
 
