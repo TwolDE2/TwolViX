@@ -18,7 +18,6 @@ from Tools.Directories import pathExists
 from Tools import Notifications
 from Tools.StbHardware import getFPWasTimerWakeup
 
-LOGFILE = "hdmicec.log"
 
 CEC = ["1.1", "1.2", "1.2a", "1.3", "1.3a", "1.4", "2.0?", "unknown"]	# CEC Version's table,  cmdList from http://www.cec-o-matic.com
 cmdList = {
