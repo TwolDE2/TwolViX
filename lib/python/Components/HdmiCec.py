@@ -4,7 +4,7 @@ import six
 
 import chardet
 import datetime
-from os import path
+from os import path, uname
 import struct
 import time
 from sys import maxsize
@@ -14,6 +14,7 @@ import NavigationInstance
 
 from Components.config import config
 import Screens.Standby
+from Screens.CecSetup import getPhysicalAddress, setFixedPhysicalAddress
 from Tools.Directories import pathExists
 from Tools import Notifications
 from Tools.StbHardware import getFPWasTimerWakeup
@@ -351,9 +352,12 @@ class HdmiCec:
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
 		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
-		address = config.hdmicec.fixed_physical_address.value
-		hexstring = address[0] + address[2] + address[4] + address[6]
-		eHdmiCEC.getInstance().setFixedPhysicalAddress(int(float.fromhex(hexstring)))
+		if config.hdmicec.fixed_physical_address.value == "9.9.9.9":
+			address = getPhysicalAddress()
+		else:
+			address = config.hdmicec.fixed_physical_address.value
+		print("[hdmiCEC][init] physical_address.value=%s" % address)		
+		setFixedPhysicalAddress(address)
 
 		self.volumeForwardingEnabled = False
 		self.volumeForwardingDestination = 0
@@ -519,7 +523,7 @@ class HdmiCec:
 			cmd = 0x36
 		elif message == "osdname":
 			cmd = 0x47
-			data = os.uname()[1]
+			data = uname()[1]
 			data = data[:14]
 		elif message == "givesystemaudiostatus":
 			cmd = 0x7d

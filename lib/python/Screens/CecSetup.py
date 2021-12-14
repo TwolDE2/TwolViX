@@ -22,21 +22,25 @@ class CecSetup(Setup):
 	def __init__(self, session):
 		Setup.__init__(self, session=session, setup="HdmiCec")
 		self.setTitle(_("HDMI-CEC Setup (PhysicalAddress = %s)" % getPhysicalAddress()))
-		self["addressActions"] = HelpableActionMap(self, ["ColorActions"],
-		{
-			"yellow": (self.setFixedAddress, _("Set HDMI-CEC fixed address %s" % getPhysicalAddress())),
-			"blue": (self.clearFixedAddress, _("Clear HDMI-CEC fixed address")),
-		}, prio=0, description=_("HDMI-CEC Setup Actions CEC = %s" % getPhysicalAddress()))
+		self["fixedActions"] = HelpableActionMap(self, ["ColorActions"], {
+			"yellow": (self.setFixedAddress, _("Set HDMI-CEC fixed address %s" % getPhysicalAddress()))
+		}, prio=0, description=_("HDMI-CEC Setup Actions"))
+		self["clearActions"] = HelpableActionMap(self, ["ColorActions"], {
+			"blue": (self.clearFixedAddress, _("Clear HDMI-CEC fixed address"))
+		}, prio=0, description=_("HDMI-CEC Setup Actions"))		
 		self["key_yellow"] = StaticText()
 		self["key_blue"] = StaticText()
 		print("[CecSetup][init] Physical addr=%s config.hdmicec.fixed_physical_address.value=%s" % (getPhysicalAddress(), config.hdmicec.fixed_physical_address.value)) 
 
 
 	def setFixedAddress(self):
+		config.hdmicec.fixed_physical_address.value = "9.9.9.9"
 		setFixedPhysicalAddress(getPhysicalAddress())
 		self.updateAddress()
+								
 
 	def clearFixedAddress(self):
+		config.hdmicec.fixed_physical_address.value = "9.9.9.9"	
 		setFixedPhysicalAddress("0.0.0.0")
 		self.updateAddress()
 
@@ -47,7 +51,17 @@ class CecSetup(Setup):
 			self.fixed_address = ""
 		else:
 			self.fixed_address = _("Using fixed address") + ": " + config.hdmicec.fixed_physical_address.value
-		self.updateDescription()		
+		self.updateDescription()
+		if config.hdmicec.fixed_physical_address.value != "0.0.0.0":
+			self["fixedActions"].setEnabled(False)
+			self["clearActions"].setEnabled(True)			
+			self["key_yellow"].setText("")
+			self["key_blue"].setText(_("Clear Cec"))			
+		else:
+			self["fixedActions"].setEnabled(True)
+			self["clearActions"].setEnabled(False)
+			self["key_yellow"].setText(_("Fix Cec to %s" % getPhysicalAddress()))
+			self["key_blue"].setText("")				
 
 	def updateDescription(self): # Called by selectionChanged() or updateAddress()
 		self["description"].setText("%s\n%s\n\n%s" % (self.current_address, self.fixed_address, self.getCurrentDescription()))
@@ -56,15 +70,11 @@ class CecSetup(Setup):
 	def selectionChanged(self):
 		if self.getCurrentItem() == config.hdmicec.enabled:
 			if config.hdmicec.enabled.value:
-				self["addressActions"].setEnabled(True)
-				self["key_yellow"].setText(_("Fix Cec to %s" % getPhysicalAddress()))
-				self["key_blue"].setText(_("Clear Cec"))						
 				self.updateAddress()
 			else:
 				self["key_yellow"].setText("")
 				self["key_blue"].setText("")
 		print("[CecSetup][selectionChanged] Physical addr=%s config.hdmicec.fixed_physical_address.value=%s" % (getPhysicalAddress(), config.hdmicec.fixed_physical_address.value))
-		self.updateDescription()			
 		Setup.selectionChanged(self)
 
 	def keySave(self):
