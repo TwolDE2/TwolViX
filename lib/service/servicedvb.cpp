@@ -1042,7 +1042,7 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_nownext_timer(eTimer::create(eApp))
 {
 /*	m_is_streamx = m_is_stream;	// sets to false if looking at fallback url at this point as m_is_stream(ref.path.find("://") is false.      */
-	m_is_streamx = False		// temp noop of code for subtitel testing
+	m_is_streamx = false		// temp noop of code for subtitle testing
 	eDebug("[servicedvb][eDVBServicePlay] now running: m_is_streamx set by M_is_stream %d", m_is_streamx);
 	eDebug("[servicedvb][eDVBServicePlay] now running: m_is_pvr set to; %d", m_is_pvr);
 	CONNECT(m_service_handler.serviceEvent, eDVBServicePlay::serviceEvent);
