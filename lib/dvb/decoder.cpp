@@ -925,7 +925,7 @@ int eTSMPEGDecoder::setState()
 		{
 			m_text->stop();
 //			if (m_demux && m_decoder == 0 && m_is_streamx == 0)	// Tuxtxt caching actions only on primary decoder and not stream
-			if (m_demux && m_decoder)	// Tuxtxt caching actions only on primary decoder			
+			if (m_demux && m_decoder == 0)	// Tuxtxt caching actions only on primary decoder			
 			{
 				eDebug("[decoder][eDVBText] stopCaching");
 				eTuxtxtApp::getInstance()->stopCaching();
