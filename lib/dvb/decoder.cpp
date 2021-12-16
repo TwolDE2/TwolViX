@@ -967,7 +967,8 @@ int eTSMPEGDecoder::setState()
 	{
 		if ((m_textpid >= 0) && (m_textpid < 0x1FFF) && !nott)
 		{
-			eDebug("[decoder][eDVBText] startPID entry  M_is_stream %d", m_is_streamx);	// m_is_streamx set in servicedvb 0 = false 1 = stream
+			eDebug("[decoder][eDVBText] startPID entry  M_is_streamx %d", m_is_streamx);	// m_is_streamx set in servicedvb 0 = false 1 = stream
+			m_is_streamx = 0;
 			m_text = new eDVBTText(m_demux, m_decoder);
 			if (m_text->startPid(m_textpid))
 			{
