@@ -813,7 +813,6 @@ eDVBTText::eDVBTText(eDVBDemux *demux, int dev)
 	{
 		::close(tmp_fd);
 	}
-	eDebug("[decoder][eDVBText]  Opening text %s: %m", filename);
 	m_fd_demux = ::open(filename, O_RDWR | O_CLOEXEC);
 	if (m_fd_demux < 0)
 		eWarning("[decoder][eDVBText]failed opening %s: %m", filename);
@@ -924,8 +923,7 @@ int eTSMPEGDecoder::setState()
 		if (m_text)
 		{
 			m_text->stop();
-//			if (m_demux && m_decoder == 0 && m_is_streamx == 0)	// Tuxtxt caching actions only on primary decoder and not stream
-			if (m_demux && m_decoder == 0)	// Tuxtxt caching actions only on primary decoder			
+			if (m_demux && m_decoder == 0 && m_is_streamx == 0)	// Tuxtxt caching actions only on primary decoder and not stream
 			{
 				eDebug("[decoder][eDVBText] stopCaching");
 				eTuxtxtApp::getInstance()->stopCaching();
@@ -975,10 +973,9 @@ int eTSMPEGDecoder::setState()
 				eDebug("[decoder][eDVBText] startPID");
 				res = -1;
 			}
-//			if (m_demux && m_decoder == 0 && m_is_streamx == 0)	// Tuxtxt caching actions only on primary decoder and not stream = false(0)
-			if (m_demux && m_decoder == 0)	// Tuxtxt caching actions only on primary decoder			
+			if (m_demux && m_decoder == 0 && m_is_streamx == 0)	// Tuxtxt caching actions only on primary decoder and not stream = false(0)
 			{
-				eDebug("[decoder][eDVBText] startCaching  M_is_stream %d", m_is_streamx);
+				eDebug("[decoder][eDVBText] startCaching  m_is_streamx %d", m_is_streamx);
 				uint8_t demux = 0;
 				m_demux->getCADemuxID(demux);
 				eTuxtxtApp::getInstance()->startCaching(m_textpid, demux);
