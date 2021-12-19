@@ -352,9 +352,8 @@ class HdmiCec:
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
 		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
-		address = getPhysicalAddress()
-		print("[hdmiCEC][init] physical_address.value=%s" % address)		
-		setFixedPhysicalAddress(address)		# issue I am here - ehdmicec broadcasts 0x84 report receiver Cec address
+		print("[hdmiCEC][init] physical_address.value=%s" % getPhysicalAddress())		
+		setFixedPhysicalAddress(getPhysicalAddress())		# inform world I am here - ehdmicec broadcasts 0x84 report receiver Cec address
 		self.volumeForwardingEnabled = False
 		self.volumeForwardingDestination = 0
 		self.wakeup_from_tv = False
