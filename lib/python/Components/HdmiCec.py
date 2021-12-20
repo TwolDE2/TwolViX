@@ -14,7 +14,6 @@ import NavigationInstance
 
 from Components.config import config
 import Screens.Standby
-from Screens.CecSetup import getPhysicalAddress, setFixedPhysicalAddress
 from Tools.Directories import pathExists
 from Tools import Notifications
 from Tools.StbHardware import getFPWasTimerWakeup
@@ -328,6 +327,19 @@ CtrlByte0 = {		# Information only: control byte 0 status/action request by comma
 			0x05: "<1.4>",
 			0x06: "<2.0>"},
 	}
+
+
+def getPhysicalAddress():
+	physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
+	hexstring = "%04x" % physicaladdress
+	return hexstring[0] + "." + hexstring[1] + "." + hexstring[2] + "." + hexstring[3]
+
+def setFixedPhysicalAddress(address):
+	if address != config.hdmicec.fixed_physical_address.value:
+		config.hdmicec.fixed_physical_address.value = address
+		config.hdmicec.fixed_physical_address.save()
+	hexstring = address[0] + address[2] + address[4] + address[6]
+	eHdmiCEC.getInstance().setFixedPhysicalAddress(int(float.fromhex(hexstring)))
 
 
 class HdmiCec:
