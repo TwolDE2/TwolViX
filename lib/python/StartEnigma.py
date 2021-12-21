@@ -702,7 +702,7 @@ print("[StartEnigma]  Initialising Network.")
 import Components.Network
 Components.Network.InitNetwork()
 
-profile("HdmoCEC")
+profile("HdmiCec")
 print("[StartEnigma]  Initialising hdmiCEC.")
 import Components.HdmiCec
 Components.HdmiCec.HdmiCec()

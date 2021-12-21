@@ -335,9 +335,6 @@ def getPhysicalAddress():
 	return hexstring[0] + "." + hexstring[1] + "." + hexstring[2] + "." + hexstring[3]
 
 def setFixedPhysicalAddress(address):
-	if address != config.hdmicec.fixed_physical_address.value:
-		config.hdmicec.fixed_physical_address.value = address
-		config.hdmicec.fixed_physical_address.save()
 	hexstring = address[0] + address[2] + address[4] + address[6]
 	eHdmiCEC.getInstance().setFixedPhysicalAddress(int(float.fromhex(hexstring)))
 
