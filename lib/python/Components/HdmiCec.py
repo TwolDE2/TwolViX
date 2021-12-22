@@ -343,7 +343,7 @@ class HdmiCec:
 	instance = None
 
 	def __init__(self):
-		assert HdmiCec.instance is None, "only one HdmiCec instance is allowed!"				
+		assert HdmiCec.instance is None, "only one HdmiCec instance is allowed!"
 		HdmiCec.instance = self
 		self.wait = eTimer()
 		self.wait.timeout.get().append(self.sendMsgQ)
@@ -361,8 +361,8 @@ class HdmiCec:
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
 		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
-		print("[hdmiCEC][init] physical_address.value=%s" % getPhysicalAddress())		
-		setFixedPhysicalAddress(getPhysicalAddress())		# inform world I am here - ehdmicec broadcasts 0x84 report receiver Cec address
+		print("[hdmiCEC][init] physical_address.value=%s" % getPhysicalAddress())
+		setFixedPhysicalAddress(getPhysicalAddress())		# inform world - ehdmicec broadcasts 0x84 report receiver Cec address
 		self.volumeForwardingEnabled = False
 		self.volumeForwardingDestination = 0
 		self.wakeup_from_tv = False
@@ -652,7 +652,6 @@ class HdmiCec:
 	def configVolumeForwarding(self, configElement):
 		print("[hdmiCEC][configVolumeForwarding]: hdmicec.enabled=%s, hdmicec.volume_forwarding=%s" % (config.hdmicec.enabled.value, config.hdmicec.volume_forwarding.value))	
 		if config.hdmicec.enabled.value and config.hdmicec.volume_forwarding.value:
-#			self.volumeForwardingEnabled = True
 			self.sendMessage(0x05, "givesystemaudiostatus")
 		else:
 			self.volumeForwardingEnabled = False
