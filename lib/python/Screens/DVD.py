@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-import os
+from os import path as ospath
 
 from enigma import eTimer, iPlayableService, iServiceInformation, eServiceReference, iServiceKeys, getDesktop
 
@@ -516,7 +516,7 @@ class DVDPlayer(Screen, InfoBarBase, InfoBarNotifications, InfoBarSeek, InfoBarP
 			self.askLeavePlayer()
 		else:
 			isopathname = "/VIDEO_TS.ISO"
-			if os.path.exists(val + isopathname):
+			if ospath.exists(val + isopathname):
 				val += isopathname
 			newref = eServiceReference(4369, 0, val)
 			print("[DVD] play", newref.toString())

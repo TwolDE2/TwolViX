@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import os
+from os import access, path as ospath, F_OK, R_OK
 
 from Components.Scanner import scanDevice
 from Plugins.Plugin import PluginDescriptor

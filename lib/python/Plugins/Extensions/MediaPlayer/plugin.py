@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
+from os import listdir, path as ospath, remove
 from time import strftime
 import random
 from boxbranding import getMachineBrand, getMachineName
@@ -526,7 +526,7 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 				if r is None:
 					return
 				text = r.getPath()
-				self["currenttext"].setText(os.path.basename(text))
+				self["currenttext"].setText(ospath.basename(text))
 
 		if self.currList == "playlist":
 			t = self.playlist.getSelection()
@@ -614,7 +614,7 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 		if choice[1] == "copydir":
 			self.copyDirectory(self.filelist.getSelection()[0])
 		elif choice[1] == "copyfiles":
-			self.copyDirectory(os.path.dirname(self.filelist.getSelection()[0].getPath()) + "/", recursive=False)
+			self.copyDirectory(ospath.dirname(self.filelist.getSelection()[0].getPath()) + "/", recursive=False)
 		elif choice[1] == "playlist":
 			self.switchToPlayList()
 		elif choice[1] == "filelist":
@@ -925,7 +925,7 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 					self.copyDirectory(sel[0])
 				else:
 					# add files to playlist
-					self.copyDirectory(os.path.dirname(sel[0].getPath()) + "/", recursive=False)
+					self.copyDirectory(ospath.dirname(sel[0].getPath()) + "/", recursive=False)
 			if len(self.playlist) > 0:
 				self.changeEntry(0)
 
@@ -942,7 +942,7 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 				idx = self.playlist.getCurrentIndex()
 				currref = self.playlist.getServiceRefList()[idx]
 				text = self.getIdentifier(currref)
-				self.ext = os.path.splitext(text)[1].lower()
+				self.ext = ospath.splitext(text)[1].lower()
 				text = ">" + text
 				# FIXME: the information if the service contains video (and we should hide our window) should com from the service instead
 				if self.ext not in AUDIO_EXTENSIONS and not self.isAudioCD:
@@ -971,7 +971,7 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 				idx = self.playlist.getCurrentIndex()
 				currref = self.playlist.getServiceRefList()[idx]
 				text = currref.getPath()
-				ext = os.path.splitext(text)[1].lower()
+				ext = ospath.splitext(text)[1].lower()
 				if self.ext not in AUDIO_EXTENSIONS and not self.isAudioCD:
 					self.hideAndInfoBar()
 				else:
@@ -1222,7 +1222,7 @@ def movielist_open(list, session, **kwargs):
 	else:
 		stype = 4097
 	if InfoBar.instance:
-		path = os.path.split(f.path)[0]
+		path = ospath.split(f.path)[0]
 		if not path.endswith('/'):
 			path += '/'
 		config.movielist.last_videodir.value = path

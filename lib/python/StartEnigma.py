@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import os
+from os import chmod, path as ospath
 import sys
 import enigma
 from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
@@ -110,7 +110,7 @@ def NTPserverChanged(configElement):
 	f = open("/etc/default/ntpdate", "w")
 	f.write("NTPSERVERS=\"%s\"\n" % configElement.value)
 	f.close()
-	os.chmod("/etc/default/ntpdate", 0o755)
+	chmod("/etc/default/ntpdate", 0o755)
 	from Components.Console import Console
 	Console = Console()
 	Console.ePopen("/usr/bin/ntpdate-sync")
@@ -432,7 +432,7 @@ class PowerKey:
 		if not recordings:
 			next_rec_time = self.session.nav.RecordTimer.getNextRecordingTime()
 		if recordings or (next_rec_time > 0 and (next_rec_time - time()) < 360):
-			if os.path.exists("/tmp/was_rectimer_wakeup") and not self.session.nav.RecordTimer.isRecTimerWakeup():
+			if ospath.exists("/tmp/was_rectimer_wakeup") and not self.session.nav.RecordTimer.isRecTimerWakeup():
 				f = open("/tmp/was_rectimer_wakeup", "r")
 				file = f.read()
 				f.close()

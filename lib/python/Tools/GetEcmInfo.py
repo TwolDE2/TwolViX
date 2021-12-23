@@ -1,6 +1,6 @@
 import six
 
-import os
+from os import stat
 import time
 
 from Components.config import config
@@ -24,7 +24,7 @@ class GetEcmInfo:
 		global info
 		global ecm
 		try:
-			ecm_time = os.stat(ECM_INFO).st_mtime
+			ecm_time = stat(ECM_INFO).st_mtime
 		except:
 			ecm_time = old_ecm_time
 			data = EMPTY_ECM_INFO

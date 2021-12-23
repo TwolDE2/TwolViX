@@ -2,7 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-import os
+from os import remove, path as ospath
 
 from Components.Task import Task, Job, DiskspacePrecondition, Condition, ToolExistsPrecondition
 from Components.Harddisk import harddiskmanager
@@ -193,10 +193,9 @@ class DemuxTask(Task):
 		print(self.mplex_streamfiles)
 
 		if failed:
-			import os
 			for file in self.generated_files:
 				try:
-					os.remove(file)
+					remove(file)
 				except OSError:
 					pass
 
@@ -938,7 +937,7 @@ class DVDJob(Job):
 		if self.menupreview:
 			PreviewTask(self, self.workspace + "/dvd/VIDEO_TS/")
 		else:
-			hasProjectX = os.path.exists('/usr/bin/projectx')
+			hasProjectX = ospath.exists('/usr/bin/projectx')
 			print("[DVDJob] hasProjectX=", hasProjectX)
 			for self.i in range(nr_titles):
 				self.title = self.project.titles[self.i]

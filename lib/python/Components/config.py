@@ -4,7 +4,7 @@ from __future__ import division
 import six
 
 from copy import copy as copy_copy
-from os import path as os_path
+from os import path as os_path, fsync, rename
 import sys
 from time import localtime, strftime, mktime
 
@@ -2205,13 +2205,12 @@ class Config(ConfigSubsection):
 	def saveToFile(self, filename):
 		text = self.pickle()
 		try:
-			import os
 			f = open(filename + ".writing", "w")
 			f.write(text)
 			f.flush()
-			os.fsync(f.fileno())
+			fsync(f.fileno())
 			f.close()
-			os.rename(filename + ".writing", filename)
+			rename(filename + ".writing", filename)
 		except IOError:
 			print("[Config] Couldn't write %s" % filename)
 

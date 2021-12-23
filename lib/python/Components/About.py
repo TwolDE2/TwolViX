@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import division
 
 from sys import modules, version_info
+from os import path as ospath
 import socket
 import fcntl
 import struct
@@ -215,10 +216,9 @@ def getPythonVersionString():
 
 def getEnigmaUptime():
 	from time import time
-	import os
 	location = "/etc/enigma2/profile"
 	try:
-		seconds = int(time() - os.path.getmtime(location))
+		seconds = int(time() - ospath.getmtime(location))
 		return formatUptime(seconds)
 	except:
 		return ''
@@ -252,10 +252,9 @@ def formatUptime(seconds):
 
 def getEnigmaUptime():
 	from time import time
-	import os
 	location = "/etc/enigma2/profile"
 	try:
-		seconds = int(time() - os.path.getmtime(location))
+		seconds = int(time() - ospath.getmtime(location))
 		return formatUptime(seconds)
 	except:
 		return ''

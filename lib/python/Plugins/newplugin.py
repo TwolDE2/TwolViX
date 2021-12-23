@@ -2,18 +2,19 @@
 from __future__ import print_function
 from six.moves import input
 
-import os
-os.system("clear")
+from os import  listdir, mkdir, path as ospath, system as ossystem
+
+ossystem("clear")
 internalname = input("Internal plugin name (no whitespaces, plugin directory): ")
 name = input("Visible plugin name: ")
 print()
 
-os.system("clear")
+ossystem("clear")
 dirlist = []
 count = 0
 print("Plugin categories:")
-for dir in os.listdir("."):
-	if os.path.isdir(dir):
+for dir in listdir("."):
+	if ospath.isdir(dir):
 		count += 1
 		dirlist.append(dir)
 		print(count, dir)
@@ -42,7 +43,7 @@ targetlist = []
 stop = False
 
 while not stop:
-	os.system("clear")
+	ossystem("clear")
 	print("selected targets:")
 	for where in targetlist:
 		print(where[0])
@@ -66,7 +67,7 @@ while not stop:
 
 
 pluginpath = category + "/" + internalname
-os.mkdir(pluginpath)
+mkdir(pluginpath)
 
 makefile = open(category + "/Makefile.am", "r")
 lines = makefile.readlines()
@@ -121,7 +122,7 @@ def %s(session, **kwargs):
 
 descriptorlist = []
 for count in range(len(targetlist)):
-	os.system("clear")
+	ossystem("clear")
 	where = targetlist[count]
 	print("Options for target %s" % where[0])
 	descriptorlist.append(where[1](name, mainlist[count]))

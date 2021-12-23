@@ -2,7 +2,7 @@ from __future__ import print_function, division
 from builtins import range
 import six
 
-import os
+from os import fsync, path as ospath. remove, rename
 from bisect import insort
 from time import ctime, time
 from timer import Timer, TimerEntry
@@ -149,9 +149,9 @@ class PowerTimerEntry(TimerEntry, object):
 
 		elif next_state == self.StateRunning:
 			self.wasPowerTimerWakeup = False
-			if os.path.exists("/tmp/was_powertimer_wakeup"):
+			if ospath.exists("/tmp/was_powertimer_wakeup"):
 				self.wasPowerTimerWakeup = int(open("/tmp/was_powertimer_wakeup", "r").read()) and True or False
-				os.remove("/tmp/was_powertimer_wakeup")
+				remove("/tmp/was_powertimer_wakeup")
 			# if this timer has been cancelled, just go to "end" state.
 			if self.cancelled:
 				return True
@@ -489,8 +489,7 @@ class PowerTimer(Timer):
 
 			print("pm_timers.xml failed to load!")
 			try:
-				import os
-				os.rename(self.Filename, self.Filename + "_old")
+				rename(self.Filename, self.Filename + "_old")
 			except (IOError, OSError):
 				print("renaming broken timer failed")
 			return
@@ -565,9 +564,9 @@ class PowerTimer(Timer):
 		file.writelines(list)
 		file.flush()
 
-		os.fsync(file.fileno())
+		fsync(file.fileno())
 		file.close()
-		os.rename(self.Filename + ".writing", self.Filename)
+		rename(self.Filename + ".writing", self.Filename)
 
 	def getNextZapTime(self):
 		now = time()

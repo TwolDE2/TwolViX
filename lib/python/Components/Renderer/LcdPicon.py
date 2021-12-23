@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import os
+from os import path as ospath
 import re
 import unicodedata
 
@@ -42,7 +42,7 @@ class LcdPicon(Renderer):
 		pngname = lcdPiconLocator.findPicon(serviceName)
 		if not pngname:
 			pngname = resolveFilename(SCOPE_CURRENT_SKIN, serviceName + ".png")
-		self.defaultpngname = pngname if os.path.getsize(pngname) else None
+		self.defaultpngname = pngname if ospath.getsize(pngname) else None
 		self.changed((self.CHANGED_DEFAULT,))
 
 	def destroy(self):

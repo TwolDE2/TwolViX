@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import os
+from os import access, mkdir, path as ospath, rmdir, stat, statvfs, walk, W_OK
 import enigma
 import time
 
@@ -13,23 +13,23 @@ from Components.VariableText import VariableText
 
 
 def isTrashFolder(path):
-	path = os.path.realpath(path)
+	path = ospath.realpath(path)
 	return getTrashFolder(path) == path
 
 
 def getTrashFolder(path=None):
 	# Returns trash folder without symlinks
 	try:
-		if path is None or os.path.realpath(path) == "/media/autofs":
+		if path is None or ospath.realpath(path) == "/media/autofs":
 			return ""
 		else:
-			trashcan = Harddisk.findMountPoint(os.path.realpath(path))
+			trashcan = Harddisk.findMountPoint(ospath.realpath(path))
 			if "/movie" in path:
-				trashcan = os.path.join(trashcan, "movie")
+				trashcan = ospath.join(trashcan, "movie")
 			elif config.usage.default_path.value in path:
 				# if default_path happens to not be the default /hdd/media/movie, then we can have a trash folder there instead
-				trashcan = os.path.join(trashcan, config.usage.default_path.value)
-			return os.path.realpath(os.path.join(trashcan, ".Trash"))
+				trashcan = ospath.join(trashcan, config.usage.default_path.value)
+			return ospath.realpath(ospath.join(trashcan, ".Trash"))
 	except:
 		return None
 
@@ -37,8 +37,8 @@ def getTrashFolder(path=None):
 def createTrashFolder(path=None):
 	trash = getTrashFolder(path)
 	print("[Trashcan] Debug path %s => %s" % (path, trash))
-	if trash and os.access(os.path.split(trash)[0], os.W_OK):
-		if not os.path.isdir(trash):
+	if trash and os.access(ospath.split(trash)[0], os.W_OK):
+		if not ospath.isdir(trash):
 			try:
 				os.mkdir(trash)
 			except:
@@ -54,8 +54,8 @@ def get_size(start_path="."):
 		for dirpath, dirnames, filenames in os.walk(start_path):
 			for f in filenames:
 				try:
-					fp = os.path.join(dirpath, f)
-					total_size += os.path.getsize(fp)
+					fp = ospath.join(dirpath, f)
+					total_size += ospath.getsize(fp)
 				except:
 					pass
 	return total_size
@@ -120,12 +120,12 @@ def clean(ctimeLimit, reserveBytes):
 
 def cleanAll(path=None):
 	trash = getTrashFolder(path)
-	if not os.path.isdir(trash):
+	if not ospath.isdir(trash):
 		print("[Trashcan] No trash.", trash)
 		return 0
 	for root, dirs, files in os.walk(trash, topdown=False):
 		for name in files:
-			fn = os.path.join(root, name)
+			fn = ospath.join(root, name)
 			try:
 				enigma.eBackgroundFileEraser.getInstance().erase(fn)
 			except Exception as e:
@@ -133,7 +133,7 @@ def cleanAll(path=None):
 		# Remove empty directories if possible
 		for name in dirs:
 			try:
-				os.rmdir(os.path.join(root, name))
+				os.rmdir(ospath.join(root, name))
 			except:
 				pass
 
@@ -150,7 +150,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 
 	def work(self):
 		# add the default movie path
-		trashcanLocations = set([os.path.join(config.usage.default_path.value)])
+		trashcanLocations = set([ospath.join(config.usage.default_path.value)])
 
 		# add the root and the movie directory of each mount
 		print("[Trashcan] probing folders")
@@ -165,12 +165,12 @@ class CleanTrashTask(Components.Task.PythonTask):
 				continue
 			# one trashcan in the root, one in movie subdirectory
 			trashcanLocations.add(parts[1])
-			trashcanLocations.add(os.path.join(parts[1], "movie"))
+			trashcanLocations.add(ospath.join(parts[1], "movie"))
 		f.close()
 
 		for trashfolder in trashcanLocations:
-			trashfolder = os.path.join(trashfolder, ".Trash")
-			if os.path.isdir(trashfolder):
+			trashfolder = ospath.join(trashfolder, ".Trash")
+			if ospath.isdir(trashfolder):
 				print("[Trashcan] looking in trashcan", trashfolder)
 				trashsize = get_size(trashfolder)
 				diskstat = os.statvfs(trashfolder)
@@ -185,7 +185,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 						if (config.movielist.settings_per_directory.value and name == ".e2settings.pkl"):
 							continue
 						try:
-							fn = os.path.join(root, name)
+							fn = ospath.join(root, name)
 							st = os.stat(fn)
 							if st.st_ctime < self.ctimeLimit:
 								enigma.eBackgroundFileEraser.getInstance().erase(fn)
@@ -198,7 +198,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 					# Remove empty directories if possible
 					for name in dirs:
 						try:
-							os.rmdir(os.path.join(root, name))
+							os.rmdir(ospath.join(root, name))
 						except:
 							pass
 					candidates.sort()

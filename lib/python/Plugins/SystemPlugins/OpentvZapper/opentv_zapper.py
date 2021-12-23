@@ -2,29 +2,24 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from Components.config import config
-from Components.NimManager import nimmanager
-
-from Screens.ChannelSelection import ChannelSelection
-from Screens.MessageBox import MessageBox
-
-from Tools import Notifications
-
 # from this plugin
 from .providers import providers
-
-from enigma import eDVBDB, eServiceReference, eTimer, eDVBFrontendParametersSatellite
-
-from time import localtime, time, strftime
-
-import os
 import codecs
 import re
 import six
+from time import localtime, time, strftime
 
-#for pip
-from Screens.PictureInPicture import PictureInPicture
+from enigma import eDVBDB, eDVBFrontendParametersSatelliteePoint, eSize, eServiceReference, eTimer
+
+from Components.config import config
+from Components.NimManager import nimmanager
 from Components.SystemInfo import SystemInfo
+from Screens.ChannelSelection import ChannelSelection
+from Screens.MessageBox import MessageBox
+from Screens.PictureInPicture import PictureInPicture
+from Tools import Notifications
+
+
 from enigma import ePoint, eSize
 
 debug_name = "opentv_zapper"
