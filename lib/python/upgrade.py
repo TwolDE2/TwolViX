@@ -1,5 +1,5 @@
 from __future__ import print_function
-from os import listdir, path as os path, system
+from os import listdir, path as ospath, system
 
 opkgDestinations = ['/']
 opkgStatusPath = ''
