@@ -2,7 +2,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 import six
 
-import os
 from os import access, listdir, mkdir, path as ospath, remove, rename, stat, W_OK
 import sys
 import time
