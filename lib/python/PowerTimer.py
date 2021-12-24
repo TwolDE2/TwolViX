@@ -2,7 +2,7 @@ from __future__ import print_function, division
 from builtins import range
 import six
 
-from os import fsync, path as ospath. remove, rename
+from os import fsync, path as ospath, remove, rename
 from bisect import insort
 from time import ctime, time
 from timer import Timer, TimerEntry
