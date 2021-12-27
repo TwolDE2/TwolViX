@@ -4,7 +4,7 @@ import six
 
 import errno
 import inspect
-from os import access, chmod, makedirs, mkdir, path as ospath, readlink, rename, rmdir, sep as ossep, stat as osstat, statvfs, symlink, utime, walk, F_OK, R_OK, W_OK  
+from os import access, chmod, listdir, makedirs, mkdir, path as ospath, readlink, rename, rmdir, sep as ossep, stat as osstat, statvfs, symlink, utime, walk, F_OK, R_OK, W_OK  
 
 from enigma import eEnv, getDesktop
 from re import compile
