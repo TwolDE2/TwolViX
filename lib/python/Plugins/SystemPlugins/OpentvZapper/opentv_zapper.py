@@ -9,7 +9,7 @@ import re
 import six
 from time import localtime, time, strftime
 
-from enigma import eDVBDB, eDVBFrontendParametersSatelliteePoint, eSize, eServiceReference, eTimer
+from enigma import eDVBDB, eDVBFrontendParametersSatellite, ePoint, eSize, eServiceReference, eTimer
 
 from Components.config import config
 from Components.NimManager import nimmanager
