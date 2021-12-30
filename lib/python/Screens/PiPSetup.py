@@ -82,7 +82,7 @@ class PiPSetup(Screen):
 
 	def setPiPPosition(self):
 		self.pip.resize(int(self.size[0]), int(self.size[1]))
-		self.pip.move(self.pos[0], self.pos[1])
+		self.pip.move(int(self.pos[0]), int(self.pos[1]))
 
 	def resizePiP(self, resize):
 		resize += 100 # resize is in percent, so resize=+20 means: 120%
