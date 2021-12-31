@@ -37,10 +37,10 @@ def getTrashFolder(path=None):
 def createTrashFolder(path=None):
 	trash = getTrashFolder(path)
 	print("[Trashcan] Debug path %s => %s" % (path, trash))
-	if trash and os.access(ospath.split(trash)[0], os.W_OK):
+	if trash and access(ospath.split(trash)[0], W_OK):
 		if not ospath.isdir(trash):
 			try:
-				os.mkdir(trash)
+				mkdir(trash)
 			except:
 				return None
 		return trash
@@ -51,7 +51,7 @@ def createTrashFolder(path=None):
 def get_size(start_path="."):
 	total_size = 0
 	if start_path:
-		for dirpath, dirnames, filenames in os.walk(start_path):
+		for dirpath, dirnames, filenames in walk(start_path):
 			for f in filenames:
 				try:
 					fp = ospath.join(dirpath, f)
@@ -123,7 +123,7 @@ def cleanAll(path=None):
 	if not ospath.isdir(trash):
 		print("[Trashcan] No trash.", trash)
 		return 0
-	for root, dirs, files in os.walk(trash, topdown=False):
+	for root, dirs, files in walk(trash, topdown=False):
 		for name in files:
 			fn = ospath.join(root, name)
 			try:
@@ -133,7 +133,7 @@ def cleanAll(path=None):
 		# Remove empty directories if possible
 		for name in dirs:
 			try:
-				os.rmdir(ospath.join(root, name))
+				rmdir(ospath.join(root, name))
 			except:
 				pass
 
@@ -173,20 +173,20 @@ class CleanTrashTask(Components.Task.PythonTask):
 			if ospath.isdir(trashfolder):
 				print("[Trashcan] looking in trashcan", trashfolder)
 				trashsize = get_size(trashfolder)
-				diskstat = os.statvfs(trashfolder)
+				diskstat = statvfs(trashfolder)
 				free = diskstat.f_bfree * diskstat.f_bsize
 				bytesToRemove = self.reserveBytes - free
 				print("[Trashcan] " + str(trashfolder) + ": Size:", "{:,}".format(trashsize))
 				candidates = []
 				size = 0
-				for root, dirs, files in os.walk(trashfolder, topdown=False):
+				for root, dirs, files in walk(trashfolder, topdown=False):
 					for name in files:
 						# Don't delete any per-directory config files from .Trash if the option is in use
 						if (config.movielist.settings_per_directory.value and name == ".e2settings.pkl"):
 							continue
 						try:
 							fn = ospath.join(root, name)
-							st = os.stat(fn)
+							st = stat(fn)
 							if st.st_ctime < self.ctimeLimit:
 								enigma.eBackgroundFileEraser.getInstance().erase(fn)
 								bytesToRemove -= st.st_size
@@ -198,7 +198,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 					# Remove empty directories if possible
 					for name in dirs:
 						try:
-							os.rmdir(ospath.join(root, name))
+							rmdir(ospath.join(root, name))
 						except:
 							pass
 					candidates.sort()
