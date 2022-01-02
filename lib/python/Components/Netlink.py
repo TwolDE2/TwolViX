@@ -13,18 +13,21 @@ class NetlinkSocket(socket.socket):
 		self.bind((getpid(), -1))
 
 	def parse(self):
-		data = six.ensure_str(self.recv(512), encoding="ascii", errors='ignore')
+		data = self.recv(512)
 		event = {}
-		for item in data.split('\x00'):
+		for item in data.split(b'\x00'):
+			print("[netlink][parse] item=%s" % item)
 			if not item:
 				# terminator
 				yield event
 				event = {}
 			else:
 				try:
-					k, v = item.split('=', 1)
+					k, v = item.decode().split('=', 1)
+					print("[netlink][parse] k=%s, v=%s" % (k,v))	
 					event[k] = v
 				except:
+					print("[netlink][parse] exception item=%s" % item)				
 					event[None] = item
 
 
