@@ -16,6 +16,7 @@
 #include <lib/base/ebase.h>
 #include <lib/base/eenv.h>
 #include <lib/base/eerror.h>
+#include <lib/base/esimpleconfig.h>
 #include <lib/base/init.h>
 #include <lib/base/init_num.h>
 #include <lib/gdi/gmaindc.h>
@@ -148,65 +149,24 @@ bool replace(std::string& str, const std::string& from, const std::string& to)
 	return true;
 }
 
-// get value from enigma2 settings file
-static const std::string getConfigString(const std::string &key, const std::string &defaultValue)
+static const std::string getConfigCurrentSpinner(const char* key)
 {
-	std::string value = defaultValue;
+	auto value = eSimpleConfig::getString(key);
 
-	std::ifstream in(eEnv::resolve("${sysconfdir}/enigma2/settings").c_str());
-	if (in.good()) 
+	 // if value is NOT empty, means config.skin.primary_skin exists in settings file, so return SCOPE_CURRENT_SKIN + "/spinner"
+	 // ( /usr/share/enigma2/MYSKIN/spinner ) BUT check if /usr/share/enigma2/MYSKIN/spinner/wait1.png exist
+	if (!value.empty())
 	{
-		do 
-		{
-			std::string line;
-			std::getline(in, line);
-			size_t size = key.size();
-			if (!line.compare(0, size, key) && line[size] == '=') 
-				{
-					value = line.substr(size + 1);
-					break;
-				}
-		} while (in.good());
-		in.close();
+		replace(value, "skin.xml", "spinner");
+		std::string png_location = eEnv::resolve("${datadir}/enigma2/" + value + "/wait1.png");
+		std::ifstream png(png_location.c_str());
+		if (png.good()) {
+			png.close();
+			return value; 
+		}
 	}
-	if (value.empty()) 
-		return defaultValue;
-	else
-		return value;
-}
-
-static const std::string getConfigCurrentSpinner(const std::string &key)
-{
-	std::string value = "spinner";
-	std::ifstream in(eEnv::resolve("${sysconfdir}/enigma2/settings").c_str());
-	
-	if (in.good()) {
-		do {
-			std::string line;
-			std::getline(in, line);
-			size_t size = key.size();
-			if (line.compare(0, size, key)== 0) {
-				value = line.substr(size + 1);
-				replace(value, "skin.xml", "spinner");
-				break;
-			}
-		} while (in.good());
-		in.close();
-	}
-	// if value is empty, means no config.skin.primary_skin exist in settings file, so return just default spinner ( /usr/share/enigma2/spinner )
-	if (value.empty()) 
-		return value;
-	
-	 //  if value is NOT empty, means config.skin.primary_skin exist in settings file, so return SCOPE_CURRENT_SKIN + "/spinner" ( /usr/share/enigma2/MYSKIN/spinner ) BUT check if /usr/share/enigma2/MYSKIN/spinner/wait1.png exist
-	std::string png_location = "/usr/share/enigma2/" + value + "/wait1.png";
-	std::ifstream png(png_location.c_str());
-	if (png.good()) {
-		png.close();
-		return value; // if value is NOT empty, means config.skin.primary_skin exist in settings file, so return SCOPE_CURRENT_SKIN + "/spinner" ( /usr/share/enigma2/MYSKIN/spinner/wait1.png exist )
-	}
-	else
-		return "spinner";  // if value is NOT empty, means config.skin.primary_skin exist in settings file, so return "spinner" ( /usr/share/enigma2/MYSKIN/spinner/wait1.png DOES NOT exist )
-}
+	return "spinner"; // fallback on default system spinner
+} 
 
 int exit_code;
 
@@ -284,7 +244,7 @@ int main(int argc, char **argv)
 	printf("[Enigma] DVB_API_VERSION %d DVB_API_VERSION_MINOR %d\n", DVB_API_VERSION, DVB_API_VERSION_MINOR);
 
 	// get enigma2 debug level settings
-	debugLvl = getenv("ENIGMA_DEBUG_LVL") ? atoi(getenv("ENIGMA_DEBUG_LVL")) : atoi(getConfigString("config.crash.e2_debug_level", "4").c_str());
+	debugLvl = getenv("ENIGMA_DEBUG_LVL") ? atoi(getenv("ENIGMA_DEBUG_LVL")) : eSimpleConfig::getInt("config.crash.e2_debug_level", 4);
 	if (debugLvl < 0)
 		debugLvl = 0;
 	printf("[Enigma]ENIGMA_DEBUG_LVL=%d\n", debugLvl);
@@ -336,7 +296,7 @@ int main(int argc, char **argv)
 	dsk_lcd.setRedrawTask(main);
 
 	std::string active_skin = getConfigCurrentSpinner("config.skin.primary_skin");
-	std::string spinnerPostion = getConfigString("config.misc.spinnerPosition", "25,25");
+	std::string spinnerPostion = eSimpleConfig::getString("config.misc.spinnerPosition", "25,25");
 	int spinnerPostionX,spinnerPostionY;
 	if (sscanf(spinnerPostion.c_str(), "%d,%d", &spinnerPostionX, &spinnerPostionY) != 2)
 	{
