@@ -19,9 +19,6 @@ from Screens.MessageBox import MessageBox
 from Screens.PictureInPicture import PictureInPicture
 from Tools import Notifications
 
-
-from enigma import ePoint, eSize
-
 debug_name = "opentv_zapper"
 lamedb_path = "/etc/enigma2"
 download_interval = config.plugins.opentvzapper.update_interval.value * 60 * 60 #  6 hours
