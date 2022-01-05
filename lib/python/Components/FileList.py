@@ -468,7 +468,9 @@ class MultiFileSelectList(FileList):
 				if (self.matchingPattern is None) or self.matchingPattern.search(showPath):
 					alreadySelected = False
 					for entry in self.selectedFiles:
-						if path.basename(entry) == x:
+						if self.useServiceRef and path.basename(entry) == x:
+							alreadySelected = True
+						elif entry == showPath:
 							alreadySelected = True
 					self.list.append(MultiFileSelectEntryComponent(name=name, absolute=x, isDir=False, selected=alreadySelected))
 
