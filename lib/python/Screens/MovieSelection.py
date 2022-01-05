@@ -1098,7 +1098,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		self.filePlayingTimer.stop()
 
 	def onFirstTimeShown(self):
-		self.filePlayingTimer.start(100)
+		self.FilePlaying()
 		self.onShown.remove(self.onFirstTimeShown) # Just once, not after returning etc.
 		self.show()
 		self.reloadList(self.selectedmovie, home=True)
