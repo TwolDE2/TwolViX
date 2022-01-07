@@ -760,7 +760,7 @@ class MovieList(GUIComponent):
 
 			if not collectionName and serviceref.flags & eServiceReference.mustDescent:
 				if not name.endswith('.AppleDouble/') and not name.endswith('.AppleDesktop/') and not name.endswith('.AppleDB/') and not name.endswith('Network Trash Folder/') and not name.endswith('Temporary Items/'):
-					begin = os.stat(serviceref.getPath()).st_mtime
+					begin = stat(serviceref.getPath()).st_mtime
 					data = MovieListData()
 					data.txt = getItemDisplayName(serviceref, info)
 					self.list.append((serviceref, info, begin, data))
