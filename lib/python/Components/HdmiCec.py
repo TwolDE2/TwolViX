@@ -361,8 +361,6 @@ class HdmiCec:
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
 		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
-		print("[HdmiCEC][init] physical_address.value=%s" % getPhysicalAddress())
-		setFixedPhysicalAddress(getPhysicalAddress())		# inform world - ehdmicec broadcasts 0x84 report receiver Cec address
 		self.volumeForwardingEnabled = False
 		self.volumeForwardingDestination = 0
 		self.wakeup_from_tv = False
@@ -420,7 +418,7 @@ class HdmiCec:
 						self.sendMessage(msgaddress, "sourceactive")
 			elif cmd == 0x86:
 				physicaladdress = ctrl0 * 256 + ctrl1	# request streaming path
-				ouraddress = eHdmiCec.getInstance().getPhysicalAddress()
+				ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
 				print("[HdmiCec][messageReceived6]:cmd 134 physical address=%s ouraddress=%s" % (physicaladdress, ouraddress))				
 				if physicaladdress == ouraddress:
 					if not Screens.Standby.inStandby:
@@ -474,6 +472,7 @@ class HdmiCec:
 	def sendMessage(self, msgaddress, message):
 		cmd = 0
 		data = ""
+		data1 = self.packDevAddr()		
 		if message == "keypoweroff":
 			cmd = 0x44	# 68
 			data = struct.pack("B", 0x6c)
@@ -483,11 +482,11 @@ class HdmiCec:
 		elif message == "setsystemaudiomode":
 			cmd = 0x70	# 112
 			msgaddress = 0x05
-			data = self.packDevAddr()
+			data = data1
 		elif message == "sourceactive":
 			msgaddress = 0x0f # use broadcast for active source command
 			cmd = 0x82	# 130
-			data = self.packDevAddr()
+			data = data1
 		elif message == "reportaddress":
 			msgaddress = 0x0f # use broadcast address
 			cmd = 0x84	# 132
@@ -509,7 +508,7 @@ class HdmiCec:
 			data = struct.pack("B", 0x01)
 		elif message == "sourceinactive":
 			cmd = 0x9d	# 157
-			data = self.packDevAddr()
+			data = data1
 		elif message == "sendcecversion":
 			cmd = 0x9E	# 158
 			data = struct.pack("B", 0x04) # v1.3a
@@ -531,7 +530,7 @@ class HdmiCec:
 			data = data[:14]
 		elif message == "givesystemaudiostatus":
 			cmd = 0x7d
-			msgaddress = 0x0f
+			msgaddress = 0x05
 		elif message == "requestactivesource":
 			cmd = 0x85
 			msgaddress = 0x0f # use broadcast address
