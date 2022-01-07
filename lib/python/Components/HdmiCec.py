@@ -385,8 +385,7 @@ class HdmiCec:
 			ctrl1 = message.getControl1()
 			ctrl2 = message.getControl2()
 			msgaddress = message.getAddress()			# 0 = TV, 5 = receiver 15 = broadcast 
-			if cmd != 0x87:
-				print("[HdmiCec][messageReceived0]: msgaddress=%s  CECcmd=%s, cmd=%X, ctrl0=%s, length=%s" % (msgaddress, CECcmd, cmd, ctrl0, length))
+			print("[HdmiCec][messageReceived0]: msgaddress=%s  CECcmd=%s, cmd=%X, ctrl0=%s, length=%s" % (msgaddress, CECcmd, cmd, ctrl0, length))
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, ctrl0)
 			if msgaddress > 15:	# workaround for wrong address from driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
@@ -472,7 +471,6 @@ class HdmiCec:
 	def sendMessage(self, msgaddress, message):
 		cmd = 0
 		data = ""
-		data1 = self.packDevAddr()		
 		if message == "keypoweroff":
 			cmd = 0x44	# 68
 			data = struct.pack("B", 0x6c)
@@ -482,11 +480,11 @@ class HdmiCec:
 		elif message == "setsystemaudiomode":
 			cmd = 0x70	# 112
 			msgaddress = 0x05
-			data = data1
+			data = self.packDevAddr()
 		elif message == "sourceactive":
 			msgaddress = 0x0f # use broadcast for active source command
 			cmd = 0x82	# 130
-			data = data1
+			data = self.packDevAddr()
 		elif message == "reportaddress":
 			msgaddress = 0x0f # use broadcast address
 			cmd = 0x84	# 132
@@ -508,7 +506,7 @@ class HdmiCec:
 			data = struct.pack("B", 0x01)
 		elif message == "sourceinactive":
 			cmd = 0x9d	# 157
-			data = data1
+			data = self.packDevAddr()
 		elif message == "sendcecversion":
 			cmd = 0x9E	# 158
 			data = struct.pack("B", 0x04) # v1.3a
