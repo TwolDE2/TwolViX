@@ -782,12 +782,15 @@ class EPGListGrid(EPGListBase):
 		else:
 			self.selectedEventIndex = None
 			self.selectedService = None
-			test = [(service.ref.toString(), 0, self.timeBase, self.timeEpoch) for service in services]
+			test = [(service.ref.toString(), 0, int(self.timeBase), int(self.timeEpoch)) for service in services]
 			serviceList = services
 			piconIdx = 0
 			channelIdx = 0
 
 		test.insert(0, "XRnITBD")  # return record, service ref, service name, event id, event title, begin time, duration
+#		print("[EpgListGrid] test", test)
+#		print("[EpgListGrid] type(test)", type(test))
+#		print("[EpgListGrid] len(test)", len(test))		
 		epgData = self.queryEPG(test)
 		self.list = []
 		eventList = None
