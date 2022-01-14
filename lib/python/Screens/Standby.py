@@ -45,9 +45,10 @@ def setLCDMiniTVMode(value):
 
 class Standby2(Screen):
 	def Power(self):
-		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"]:
+		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getMachineBuild() in ('gbmv200'):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("on")
+				print("[Standby] open hdmi on leave standby")
 			except:
 				pass
 		print("[Standby] leave standby")
@@ -121,12 +122,13 @@ class Standby2(Screen):
 			self.avswitch.setInput("SCART")
 		else:
 			self.avswitch.setInput("AUX")
-		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"]:
+		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getMachineBuild() in ('gbmv200'):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("off")
+				print("[Standby] close hdmi on leave standby")		
 			except:
 				pass
-
+		print("[Standby] enter standby")
 		self.onFirstExecBegin.append(self.__onFirstExecBegin)
 		self.onClose.append(self.__onClose)
 
