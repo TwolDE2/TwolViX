@@ -130,7 +130,7 @@ def GetImagelist():
 		# print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))			
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
 			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))		
-			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")) and BoxInfo.getItem("distro"):
+			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
 				print("[multiboot] [BoxInfo] using BoxInfo")			
 				BoxInfo = BoxConfig(root=imagedir) if SystemInfo["MultiBootSlot"] != slot else SystemInfo["BoxInfo"]
 				Creator = BoxInfo.getItem("distro")
