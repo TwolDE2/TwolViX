@@ -997,7 +997,7 @@ RESULT eServiceFactoryDVB::lookupService(ePtr<eDVBService> &service, const eServ
 		if (!ret)
 			eDVBDB::getInstance()->parseServiceData(service, parser.m_service_data);
 	}
-	else if (ref.path.find("://") != std::string::npos)
+	else if (ref.path.find("://"))
 	{
 		return 0;
 	}
