@@ -152,7 +152,7 @@ public:
 	{
 		static const uint64_t data = 1;
 		if (::write(m_fd, &data, sizeof(data)) < 0)
-			eFatal("[eFixedMessagePump<%s>] write error %m", name);
+			eeWarning("[eFixedMessagePump<%s>] write error %m", name);
 	}
 public:
 	sigc::signal1<void,const T&> recv_msg;
