@@ -997,6 +997,10 @@ RESULT eServiceFactoryDVB::lookupService(ePtr<eDVBService> &service, const eServ
 		if (!ret)
 			eDVBDB::getInstance()->parseServiceData(service, parser.m_service_data);
 	}
+	else if (m_is_stream)
+	{
+		return 0;
+	}
 	else
 	{
 			// TODO: handle the listing itself
