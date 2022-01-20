@@ -997,10 +997,6 @@ RESULT eServiceFactoryDVB::lookupService(ePtr<eDVBService> &service, const eServ
 		if (!ret)
 			eDVBDB::getInstance()->parseServiceData(service, parser.m_service_data);
 	}
-	else if (ref.path.find("://"))
-	{
-		return 0;
-	}
 	else
 	{
 			// TODO: handle the listing itself
@@ -1012,7 +1008,7 @@ RESULT eServiceFactoryDVB::lookupService(ePtr<eDVBService> &service, const eServ
 		int err;
 		if ((err = eDVBDB::getInstance()->getService((eServiceReferenceDVB&)ref, service)) != 0)
 		{
-			eTrace("[eServiceFactoryDVB] lookupService getService failed!");
+			/* eTrace("[eServiceFactoryDVB] lookupService getService failed!"); */
 			return err;
 		}
 	}
