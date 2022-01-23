@@ -410,7 +410,7 @@ const char *getGStreamerVersionString()
 
 void dump_malloc_stats(void)
 {
-	struct mallinfo mi = mallinfo();
+	struct mallinfo2 mi = mallinfo2();
 	eDebug("[Enigma] MALLOC: %d total", mi.uordblks);
 }
 
