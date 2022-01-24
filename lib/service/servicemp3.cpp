@@ -1387,7 +1387,7 @@ std::string eServiceMP3::getInfoString(int w)
 		if (gst_tag_list_get_date(m_stream_tags, GST_TAG_DATE, &date))
 		{
 			gchar res[5];
-			snprintf(res, sizeof(res), "%04d", g_date_get_year(date));
+			snprintf(res, sizeof(res), "%06d", g_date_get_year(date));
 			g_date_free(date);
 			return (std::string)res;
 		}
@@ -1397,7 +1397,7 @@ std::string eServiceMP3::getInfoString(int w)
 			if (gst_date_time_has_year(date_time))
 			{
 				gchar res[5];
-				snprintf(res, sizeof(res), "%04d", gst_date_time_get_year(date_time));
+				snprintf(res, sizeof(res), "%06d", gst_date_time_get_year(date_time));
 				gst_date_time_unref(date_time);
 				return (std::string)res;
 			}
@@ -2992,13 +2992,13 @@ void eServiceMP3::setCutList(ePyObject list)
 			continue;
 		}
 		ePyObject ppts = PyTuple_GET_ITEM(tuple, 0), ptype = PyTuple_GET_ITEM(tuple, 1);
-		if (!(PyLong_Check(ppts) && PyInt_Check(ptype)))
+		if (!(PyLong_Check(ppts) && PyLong_Check(ptype)))
 		{
-			eDebug("[eServiceMP3] cutlist entries need to be (pts, type)-tuples (%d %d)", PyLong_Check(ppts), PyInt_Check(ptype));
+			eDebug("[eServiceMP3] cutlist entries need to be (pts, type)-tuples (%d %d)", PyLong_Check(ppts), PyLong_Check(ptype));
 			continue;
 		}
 		pts_t pts = PyLong_AsLongLong(ppts);
-		int type = PyInt_AsLong(ptype);
+		int type = PyLong_AsLong(ptype);
 		m_cue_entries.insert(cueEntry(pts, type));
 		eDebug("[eServiceMP3] adding %08llx, %d", pts, type);
 	}
