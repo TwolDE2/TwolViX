@@ -750,8 +750,8 @@ next:
 #ifdef EPG_DEBUG
 		if ( servicemap.byEvent.size() != servicemap.byTime.size() )
 		{
-			{
-				# CFile f("/media/hdd/event_map.txt", "w+");
+/*			{
+				CFile f("/media/hdd/event_map.txt", "w+");
 				int i = 0;
 				for (eventMap::iterator it(servicemap.byEvent.begin()); it != servicemap.byEvent.end(); ++it )
 				{
@@ -760,14 +760,14 @@ next:
 				}
 			}
 			{
-				# CFile f("/media/hdd/time_map.txt", "w+");
+				CFile f("/media/hdd/time_map.txt", "w+");
 				int i = 0;
 				for (timeMap::iterator it(servicemap.byTime.begin()); it != servicemap.byTime.end(); ++it )
 				{
 					fprintf("%d(key %d) -> time %d, event_id %d, data %p\n",
 						i++, (int)it->first, (int)it->second->getStartTime(), (int)it->second->getEventID(), it->second );
 				}
-			}
+			}	*/
 			eFatal("[eEPGCache] (1)map sizes not equal :( sid %04x tsid %04x onid %04x size %zu size2 %zu",
 				service.sid, service.tsid, service.onid,
 				servicemap.byEvent.size(), servicemap.byTime.size() );
