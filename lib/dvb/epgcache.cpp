@@ -5,7 +5,7 @@
 #ifdef EPG_DEBUG
 #include <lib/service/event.h>
 #endif
-
+#include <afx.h>
 #include <fcntl.h>
 #include <fstream>
 #include <sys/vfs.h> // for statfs
@@ -728,10 +728,10 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 				if ( tm_it->second != evt || ev_it->second != evt )
 					eFatal("[eEPGCache] tm_it->second != ev_it->second");
 				else if ( tm_it->second->getStartTime() != tm_it->first )
-					eFatal("[eEPGCache] event start_time(%d) non equal timemap key(%d)",
+					eFatal("[eEPGCache] event start_time(%ld) non equal timemap key(%ld)",
 						tm_it->second->getStartTime(), tm_it->first );
 				else if ( tm_it->first != TM )
-					eFatal("[eEPGCache] timemap key(%d) non equal TM(%d)",
+					eFatal("[eEPGCache] timemap key(%ld) non equal TM(%ld)",
 						tm_it->first, TM);
 				else if ( ev_it->second->getEventID() != ev_it->first )
 					eFatal("[eEPGCache] event_id (%d) non equal event_map key(%d)",
