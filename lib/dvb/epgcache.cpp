@@ -1,6 +1,6 @@
 #include <lib/dvb/epgcache.h>
 
-#undef EPG_DEBUG
+#define EPG_DEBUG
 
 #ifdef EPG_DEBUG
 #include <lib/service/event.h>
