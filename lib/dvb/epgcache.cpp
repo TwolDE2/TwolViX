@@ -1622,7 +1622,7 @@ int handleEvent(eServiceEvent *ptr, ePyObject dest_list, const char* argstring, 
 PyObject *eEPGCache::lookupEvent(ePyObject list, ePyObject convertFunc)
 {
 	ePyObject convertFuncArgs;
-	int argcount=0;
+	ssize_t argcount=0;
 	const char *argstring=NULL;
 	if (!PyList_Check(list))
 	{
@@ -2187,7 +2187,7 @@ PyObject *eEPGCache::search(ePyObject arg)
 	int eventid = -1;
 	const char *argstring=0;
 	const char *refstr=0;
-	int argcount=0;
+	ssize_t argcount=0;
 	int querytype=-1;
 	bool needServiceEvent=false;
 	int maxmatches=0;
