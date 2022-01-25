@@ -5,7 +5,6 @@
 #ifdef EPG_DEBUG
 #include <lib/service/event.h>
 #endif
-#include <afx.h>
 #include <fcntl.h>
 #include <fstream>
 #include <sys/vfs.h> // for statfs
