@@ -302,6 +302,7 @@ private:
 	bool m_is_live;
 	bool m_use_prefillbuffer;
 	bool m_paused;
+	bool m_seek_paused;
 	/* cuesheet load check */
 	bool m_cuesheet_loaded;
 	/* servicemMP3 chapter TOC support CVR */
@@ -356,7 +357,6 @@ private:
 	subtitle_pages_map_t m_subtitle_pages;
 	ePtr<eTimer> m_subtitle_sync_timer;
 
-	ePtr<eTimer> m_streamingsrc_timeout;
 	pts_t m_prev_decoder_time;
 	int m_decoder_time_valid_state;
 
