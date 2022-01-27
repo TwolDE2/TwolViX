@@ -2992,7 +2992,6 @@ void eServiceMP3::loadCuesheet()
 		eDebug("[eServiceMP3] skip loading cuesheet multiple times");
 		return;
 	}
-
 	m_cue_entries.clear();
 	/* only load manual cuts if no chapter info avbl CVR */
 	if (m_use_chapter_entries)
