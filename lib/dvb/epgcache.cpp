@@ -2037,7 +2037,8 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 		packet->setServiceId(sids[i]);
 		packet->setTransportStreamId(chids[i].transport_stream_id.get());
 		packet->setOriginalNetworkId(chids[i].original_network_id.get());
-		eDebug("[eEPGCache:import] submitEventData path4");		
+		eDebug("[eEPGCache:import] submitEventData path4");
+		eDebug("[eEPGCache:import] submitEventData path4a i = %d chids.size()=%d", i, chids.size());				
 		sectionRead(data, source, 0);
 	}
 }
