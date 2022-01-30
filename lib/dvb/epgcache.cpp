@@ -533,6 +533,7 @@ bool eEPGCache::FixOverlapping(EventCacheItem &servicemap, time_t TM, int durati
 
 void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *channel)
 {
+	eDebug("[eEPGCache:import] SectionRead path7");
 	const eit_t *eit = (const eit_t*) data;
 
 	int len = eit->getSectionLength() - 1;
@@ -547,7 +548,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 		 *
 		 * Multichoice should be the exception, not the rule...
 		 */
-
+	eDebug("[eEPGCache:import] SectionRead path8");
 	// This fixed the EPG on the Multichoice irdeto systems
 	// the EIT packet is non-compliant.. their EIT packet stinks
 	if ( data[ptr-1] < 0x40 )
@@ -574,7 +575,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 		tsid = chid.transport_stream_id.get();
 	}
 	uniqueEPGKey service( eit->getServiceID(), onid, tsid);
-
+	eDebug("[eEPGCache:import] SectionRead path9");
 	eit_event_struct* eit_event = (eit_event_struct*) (data+ptr);
 	int eit_event_size;
 	int duration;
@@ -591,7 +592,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 	EventCacheItem &servicemap = eventDB[service];
 	eventMap::iterator prevEventIt = servicemap.byEvent.end();
 	timeMap::iterator prevTimeIt = servicemap.byTime.end();
-
+	eDebug("[eEPGCache:import] SectionRead path10");
 	while (ptr<len)
 	{
 		uint16_t event_hash;
@@ -627,7 +628,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 			eventMap::iterator ev_it =
 				servicemap.byEvent.find(event_id);
 
-//			eDebug("[eEPGCache] event_id is %d sid is %04x", event_id, service.sid);
+			eDebug("[eEPGCache] event_id is %d sid is %04x", event_id, service.sid);
 
 			// entry with this event_id is already exist ?
 			if ( ev_it != servicemap.byEvent.end() )
@@ -664,7 +665,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 					}
 				}
 			}
-
+			eDebug("[eEPGCache:import] SectionRead path11");
 			// search in timemap, for check of a case if new time has coincided with time of other event
 			// or event was is not found in eventmap
 			timeMap::iterator tm_it =
@@ -2029,6 +2030,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 		packet->setServiceId(sids[i]);
 		packet->setTransportStreamId(chids[i].transport_stream_id.get());
 		packet->setOriginalNetworkId(chids[i].original_network_id.get());
+		eDebug("[eEPGCache:import] submitEventData path4");		
 		sectionRead(data, source, 0);
 	}
 }
@@ -2642,6 +2644,7 @@ struct less_datetime
 
 void eEPGCache::privateSectionRead(const uniqueEPGKey &current_service, const uint8_t *data)
 {
+	eDebug("[eEPGCache:import] privateSectionRead path5");
 	contentMap &content_time_table = content_time_tables[current_service];
 	singleLock s(cache_lock);
 	std::map< date_time, std::list<uniqueEPGKey>, less_datetime > start_times;
@@ -2656,6 +2659,7 @@ void eEPGCache::privateSectionRead(const uniqueEPGKey &current_service, const ui
 
 	contentTimeMap &time_event_map =
 		content_time_table[content_id];
+	eDebug("[eEPGCache:import] privateSectionRead path6");		
 	for ( contentTimeMap::iterator it( time_event_map.begin() );
 		it != time_event_map.end(); ++it )
 	{
@@ -2676,7 +2680,7 @@ void eEPGCache::privateSectionRead(const uniqueEPGKey &current_service, const ui
 	ptr+=3;
 	int duration_sec =
 		fromBCD(duration[0])*3600+fromBCD(duration[1])*60+fromBCD(duration[2]);
-
+	eDebug("[eEPGCache:import] privateSectionRead path7");
 	const uint8_t *descriptors[65];
 	const uint8_t **pdescr = descriptors;
 
