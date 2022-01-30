@@ -548,13 +548,12 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 		 *
 		 * Multichoice should be the exception, not the rule...
 		 */
-	eDebug("[eEPGCache:import] SectionRead path8");
 	// This fixed the EPG on the Multichoice irdeto systems
 	// the EIT packet is non-compliant.. their EIT packet stinks
 	if ( data[ptr-1] < 0x40 )
 		--ptr;
 #endif
-
+	eDebug("[eEPGCache:import] SectionRead path8");
 	int onid = eit->getOriginalNetworkId();
 	int tsid  = eit->getTransportStreamId();
 
@@ -595,7 +594,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 	eDebug("[eEPGCache:import] SectionRead path10");
 	while (ptr<len)
 	{
-		eDebug("[eEPGCache:import] SectionRead path11");
+		eDebug("[eEPGCache:import] SectionRead path11 ptr = %d len=%d", ptr, len);
 		uint16_t event_hash;
 		eit_event_size = eit_event->getDescriptorsLoopLength()+EIT_LOOP_SIZE;
 
@@ -782,14 +781,16 @@ next:
 #endif
 		eDebug("[eEPGCache:import] SectionRead path15");
 		ptr += eit_event_size;
+		eDebug("[eEPGCache:import] SectionRead path15a ptr = %d eit_event_size=%d", ptr, eit_event_size);		
 		eit_event = (eit_event_struct*)(((uint8_t*)eit_event) + eit_event_size);
+		eDebug("[eEPGCache:import] SectionRead path16");
 	}
 }
 
 // epg cache needs to be locked(cache_lock) before calling the procedure
 void eEPGCache::clearCompleteEPGCache()
 {
-	eDebug("[eEPGCache:import] SectionRead path16");
+	eDebug("[eEPGCache:import] SectionRead path17");
 	// cache_lock needs to be set in calling procedure!
 	for (eventCache::iterator it(eventDB.begin()); it != eventDB.end(); ++it)
 	{
