@@ -2151,10 +2151,11 @@ void eEPGCache::importEvents(ePyObject serviceReferences, ePyObject list)
 		const char *long_description = getStringFromPython(PyTuple_GET_ITEM(singleEvent, 4));
 		char event_type = (char) PyLong_AsLong(PyTuple_GET_ITEM(singleEvent, 5));
 
-		Py_BEGIN_ALLOW_THREADS;
+#		Py_BEGIN_ALLOW_THREADS;
 		eDebug("[eEPGCache:import] submitEventData called");		
 		submitEventData(refs, start, duration, title, short_summary, long_description, event_type);
-		Py_END_ALLOW_THREADS;
+		eDebug("[eEPGCache:import] submitEventData returned");		
+#		Py_END_ALLOW_THREADS;
 	}
 }
 
