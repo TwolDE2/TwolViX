@@ -2209,7 +2209,7 @@ PyObject *eEPGCache::search(ePyObject arg)
 	int maxmatches=0;
 	int must_get_service_name = 0;
 	bool must_get_service_reference = false;
-
+	eDebug("[eEPGCache][search] entered");
 	if (PyTuple_Check(arg))
 	{
 		int tuplesize=PyTuple_Size(arg);
@@ -2244,9 +2244,9 @@ PyObject *eEPGCache::search(ePyObject arg)
 			}
 			else
 			{
-				PyErr_SetString(PyExc_Exception,
-					"type error");
 				eDebug("[eEPGCache] tuple arg 0 is not a string");
+				PyErr_SetString(PyExc_Exception,
+					"type error");				
 				return NULL;
 			}
 		}
@@ -2295,15 +2295,15 @@ PyObject *eEPGCache::search(ePyObject arg)
 					}
 					else
 					{
-						PyErr_SetString(PyExc_Exception, "type error");
 						eDebug("[eEPGCache] tuple arg 4 is not a valid service reference string");
+						PyErr_SetString(PyExc_Exception, "type error");
 						return NULL;
 					}
 				}
 				else
 				{
-					PyErr_SetString(PyExc_Exception, "type error");
 					eDebug("[eEPGCache] tuple arg 4 is not a string");
+					PyErr_SetString(PyExc_Exception, "type error");
 					return NULL;
 				}
 			}
@@ -2443,33 +2443,33 @@ PyObject *eEPGCache::search(ePyObject arg)
 				}
 				else
 				{
+					eDebug("[eEPGCache] tuple arg 4 is not a string");
 					PyErr_SetString(PyExc_Exception,
 						"type error");
-					eDebug("[eEPGCache] tuple arg 4 is not a string");
 					return NULL;
 				}
 			}
 			else
 			{
+				eDebug("[eEPGCache] tuple arg 3(%d) is not a known querytype(0..3)", querytype);
 				PyErr_SetString(PyExc_Exception,
 					"type error");
-				eDebug("[eEPGCache] tuple arg 3(%d) is not a known querytype(0..3)", querytype);
 				return NULL;
 			}
 		}
 		else
 		{
+			eDebug("[eEPGCache] not enough args in tuple");
 			PyErr_SetString(PyExc_Exception,
 				"type error");
-			eDebug("[eEPGCache] not enough args in tuple");
 			return NULL;
 		}
 	}
 	else
 	{
+		eDebug("[eEPGCache] arg 0 is not a tuple");
 		PyErr_SetString(PyExc_Exception,
 			"type error");
-		eDebug("[eEPGCache] arg 0 is not a tuple");
 		return NULL;
 	}
 
