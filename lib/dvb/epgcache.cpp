@@ -1890,6 +1890,7 @@ void eEPGCache::submitEventData(const std::vector<eServiceReferenceDVB>& service
 			service->m_flags |= eDVBService::dxNoEIT;
 		}
 	}
+	eDebug("[eEPGCache:import] submitEventData called from submitEventData");	
 	submitEventData(sids, chids, start, duration, title, short_summary, long_description, event_type, 0, EPG_IMPORT);
 }
 
@@ -1897,6 +1898,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 	long duration, const char* title, const char* short_summary,
 	const char* long_description, char event_type, int event_id, int source)
 {
+	eDebug("[eEPGCache:import] submitEventData entered");
 	if (!title)
 		return;
 	if (sids.size() != chids.size())
@@ -1928,7 +1930,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 
 	evt_struct->running_status = 0;
 	evt_struct->free_CA_mode = 0;
-
+	eDebug("[eEPGCache:import] submitEventData path1");
 	//no support for different code pages, only DVB's latin1 character set
 	//TODO: convert text to correct character set (data is probably passed in as UTF-8)
 	uint8_t *x = (uint8_t *) evt_struct;
@@ -1975,7 +1977,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 		x[3] = 0;
 		x += 4;
 	}
-
+	eDebug("[eEPGCache:import] submitEventData path2");
 	//Long description
 	int currentLoopLength = x - (uint8_t*)short_evt;
 	static const int overheadPerDescriptor = 9; //increase if codepages are added!!!
@@ -2014,7 +2016,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 
 		x += 2 + ext_evt->descriptor_length;
 	}
-
+	eDebug("[eEPGCache:import] submitEventData path3");
 	//TODO: add age and more
 	int desc_loop_length = x - ((uint8_t*)evt_struct + EIT_LOOP_SIZE);
 	evt_struct->setDescriptorsLoopLength(desc_loop_length);
