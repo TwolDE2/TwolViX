@@ -2073,7 +2073,7 @@ void eEPGCache::importEvents(ePyObject serviceReferences, ePyObject list)
 {
 	std::vector<eServiceReferenceDVB> refs;
 	const char *refstr;
-
+	eDebug("[eEPGCache:import] importEvents entered");
 	if (PyUnicode_Check(serviceReferences))
 	{
 		refstr = PyUnicode_AsUTF8(serviceReferences);
@@ -2140,6 +2140,7 @@ void eEPGCache::importEvents(ePyObject serviceReferences, ePyObject list)
 		char event_type = (char) PyLong_AsLong(PyTuple_GET_ITEM(singleEvent, 5));
 
 		Py_BEGIN_ALLOW_THREADS;
+		eDebug("[eEPGCache:import] submitEventData called");		
 		submitEventData(refs, start, duration, title, short_summary, long_description, event_type);
 		Py_END_ALLOW_THREADS;
 	}
