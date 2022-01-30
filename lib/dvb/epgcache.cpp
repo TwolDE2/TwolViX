@@ -595,6 +595,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 	eDebug("[eEPGCache:import] SectionRead path10");
 	while (ptr<len)
 	{
+		eDebug("[eEPGCache:import] SectionRead path11");
 		uint16_t event_hash;
 		eit_event_size = eit_event->getDescriptorsLoopLength()+EIT_LOOP_SIZE;
 
@@ -611,6 +612,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 		     ( (onid != 1714) || (duration != (24*3600-1)) )	// PlatformaHD invalid event
 		   )
 		{
+			eDebug("[eEPGCache:import] SectionRead path12");		
 			uint16_t event_id = eit_event->getEventId();
 			eventData *evt = 0;
 			int ev_erase_count = 0;
@@ -665,7 +667,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 					}
 				}
 			}
-			eDebug("[eEPGCache:import] SectionRead path11");
+			eDebug("[eEPGCache:import] SectionRead path13");
 			// search in timemap, for check of a case if new time has coincided with time of other event
 			// or event was is not found in eventmap
 			timeMap::iterator tm_it =
@@ -694,6 +696,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 #ifdef EPG_DEBUG
 			bool consistencyCheck=true;
 #endif
+			eDebug("[eEPGCache:import] SectionRead path14");
 			if (ev_erase_count > 0 && tm_erase_count > 0) // 2 different pairs have been removed
 			{
 				// exempt memory
@@ -777,6 +780,7 @@ next:
 				servicemap.byEvent.size(), servicemap.byTime.size() );
 		}
 #endif
+		eDebug("[eEPGCache:import] SectionRead path15");
 		ptr += eit_event_size;
 		eit_event = (eit_event_struct*)(((uint8_t*)eit_event) + eit_event_size);
 	}
@@ -785,6 +789,7 @@ next:
 // epg cache needs to be locked(cache_lock) before calling the procedure
 void eEPGCache::clearCompleteEPGCache()
 {
+	eDebug("[eEPGCache:import] SectionRead path16");
 	// cache_lock needs to be set in calling procedure!
 	for (eventCache::iterator it(eventDB.begin()); it != eventDB.end(); ++it)
 	{
@@ -799,6 +804,7 @@ void eEPGCache::clearCompleteEPGCache()
 #ifdef ENABLE_PRIVATE_EPG
 	content_time_tables.clear();
 #endif
+	eDebug("[eEPGCache:import] SectionRead path17");
 	eEPGTransponderDataReader::getInstance()->restartReader();
 }
 
