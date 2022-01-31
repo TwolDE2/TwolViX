@@ -1580,9 +1580,9 @@ int handleEvent(eServiceEvent *ptr, ePyObject dest_list, const char* argstring, 
 				Py_DECREF(nowTime);
 			Py_DECREF(convertFuncArgs);
 			Py_DECREF(dest_list);
+			eDebug("[eEPGCache] handleEvent: error in convertFunc execute");			
 			PyErr_SetString(PyExc_Exception,
 				"error in convertFunc execute");
-			eDebug("[eEPGCache] handleEvent: error in convertFunc execute");
 			return -1;
 		}
 		PyList_Append(dest_list, result);
@@ -1636,18 +1636,18 @@ PyObject *eEPGCache::lookupEvent(ePyObject list, ePyObject convertFunc)
 	const char *argstring=NULL;
 	if (!PyList_Check(list))
 	{
+		eDebug("[eEPGCache] no list");
 		PyErr_SetString(PyExc_Exception,
 			"type error");
-		eDebug("[eEPGCache] no list");
 		return NULL;
 	}
 	int listIt=0;
 	int listSize=PyList_Size(list);
 	if (!listSize)
 	{
+		eDebug("[eEPGCache] no params given");
 		PyErr_SetString(PyExc_Exception,
 			"no params given");
-		eDebug("[eEPGCache] no params given");
 		return NULL;
 	}
 	else
@@ -1672,9 +1672,9 @@ PyObject *eEPGCache::lookupEvent(ePyObject list, ePyObject convertFunc)
 	{
 		if (!PyCallable_Check(convertFunc))
 		{
+			eDebug("[eEPGCache] convertFunc is not callable");
 			PyErr_SetString(PyExc_Exception,
 				"convertFunc must be callable");
-			eDebug("[eEPGCache] convertFunc is not callable");
 			return NULL;
 		}
 		convertFuncArgs = PyTuple_New(argcount);
@@ -2041,6 +2041,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 		eDebug("[eEPGCache:import] submitEventData path4a i = %d chids.size()=%d", i, chids.size());				
 		sectionRead(data, source, 0);
 	}
+	eDebug("[eEPGCache:import] submitEventData path4b EXIT");
 }
 
 void eEPGCache::setEpgHistorySeconds(time_t seconds)
@@ -2151,12 +2152,13 @@ void eEPGCache::importEvents(ePyObject serviceReferences, ePyObject list)
 		const char *long_description = getStringFromPython(PyTuple_GET_ITEM(singleEvent, 4));
 		char event_type = (char) PyLong_AsLong(PyTuple_GET_ITEM(singleEvent, 5));
 
-#		Py_BEGIN_ALLOW_THREADS;
+		/* Py_BEGIN_ALLOW_THREADS;  */
 		eDebug("[eEPGCache:import] submitEventData called");		
 		submitEventData(refs, start, duration, title, short_summary, long_description, event_type);
 		eDebug("[eEPGCache:import] submitEventData returned");		
-#		Py_END_ALLOW_THREADS;
+		/* Py_END_ALLOW_THREADS;  */
 	}
+	eDebug("[eEPGCache:import] importEvents terminate");
 }
 
 
