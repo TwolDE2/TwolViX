@@ -1,6 +1,6 @@
 #include <lib/dvb/epgcache.h>
 
-#define EPG_DEBUG
+#undef EPG_DEBUG
 
 #ifdef EPG_DEBUG
 #include <lib/base/cfile.h>
@@ -547,11 +547,13 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 		 *
 		 * Multichoice should be the exception, not the rule...
 		 */
+
 	// This fixed the EPG on the Multichoice irdeto systems
 	// the EIT packet is non-compliant.. their EIT packet stinks
 	if ( data[ptr-1] < 0x40 )
 		--ptr;
 #endif
+
 	int onid = eit->getOriginalNetworkId();
 	int tsid  = eit->getTransportStreamId();
 
@@ -572,6 +574,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 		tsid = chid.transport_stream_id.get();
 	}
 	uniqueEPGKey service( eit->getServiceID(), onid, tsid);
+
 	eit_event_struct* eit_event = (eit_event_struct*) (data+ptr);
 	int eit_event_size;
 	int duration;
@@ -588,9 +591,9 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 	EventCacheItem &servicemap = eventDB[service];
 	eventMap::iterator prevEventIt = servicemap.byEvent.end();
 	timeMap::iterator prevTimeIt = servicemap.byTime.end();
+
 	while (ptr<len)
 	{
-//		eDebug("[eEPGCache:import] SectionRead path11 ptr = %d len=%d", ptr, len);
 		uint16_t event_hash;
 		eit_event_size = eit_event->getDescriptorsLoopLength()+EIT_LOOP_SIZE;
 
@@ -661,6 +664,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 					}
 				}
 			}
+
 			// search in timemap, for check of a case if new time has coincided with time of other event
 			// or event was is not found in eventmap
 			timeMap::iterator tm_it =
@@ -773,9 +777,7 @@ next:
 		}
 #endif
 		ptr += eit_event_size;
-		eDebug("[eEPGCache:import] SectionRead path15 ptr = %d eit_event_size=%d", ptr, eit_event_size);		
 		eit_event = (eit_event_struct*)(((uint8_t*)eit_event) + eit_event_size);
-		eDebug("[eEPGCache:import] SectionRead path16 eit_event=%d", eit_event);
 	}
 }
 
@@ -1895,7 +1897,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 	long duration, const char* title, const char* short_summary,
 	const char* long_description, char event_type, int event_id, int source)
 {
-	eDebug("[eEPGCache:import] submitEventData entered title=%d short=%d long=%d", title, short_summary, long_description);
+	/* eDebug("[eEPGCache:import] submitEventData entered title=%d short=%d long=%d", title, short_summary, long_description); */
 	if (!title)
 		return;
 	if (sids.size() != chids.size())
@@ -1927,6 +1929,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 
 	evt_struct->running_status = 0;
 	evt_struct->free_CA_mode = 0;
+
 	//no support for different code pages, only DVB's latin1 character set
 	//TODO: convert text to correct character set (data is probably passed in as UTF-8)
 	uint8_t *x = (uint8_t *) evt_struct;
@@ -1973,6 +1976,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 		x[3] = 0;
 		x += 4;
 	}
+
 	//Long description
 	int currentLoopLength = x - (uint8_t*)short_evt;
 	static const int overheadPerDescriptor = 9; //increase if codepages are added!!!
@@ -2011,6 +2015,7 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 
 		x += 2 + ext_evt->descriptor_length;
 	}
+
 	//TODO: add age and more
 	int desc_loop_length = x - ((uint8_t*)evt_struct + EIT_LOOP_SIZE);
 	evt_struct->setDescriptorsLoopLength(desc_loop_length);
@@ -2023,7 +2028,6 @@ void eEPGCache::submitEventData(const std::vector<int>& sids, const std::vector<
 		packet->setServiceId(sids[i]);
 		packet->setTransportStreamId(chids[i].transport_stream_id.get());
 		packet->setOriginalNetworkId(chids[i].original_network_id.get());
-//		eDebug("[eEPGCache:import] submitEventData path4a i = %d chids.size()=%d", i, chids.size());				
 		sectionRead(data, source, 0);
 	}
 }
@@ -2070,6 +2074,7 @@ void eEPGCache::importEvents(ePyObject serviceReferences, ePyObject list)
 {
 	std::vector<eServiceReferenceDVB> refs;
 	const char *refstr;
+
 	if (PyUnicode_Check(serviceReferences))
 	{
 		refstr = PyUnicode_AsUTF8(serviceReferences);
@@ -2191,6 +2196,7 @@ PyObject *eEPGCache::search(ePyObject arg)
 	int maxmatches=0;
 	int must_get_service_name = 0;
 	bool must_get_service_reference = false;
+
 	if (PyTuple_Check(arg))
 	{
 		int tuplesize=PyTuple_Size(arg);
@@ -2668,6 +2674,7 @@ void eEPGCache::privateSectionRead(const uniqueEPGKey &current_service, const ui
 	ptr+=3;
 	int duration_sec =
 		fromBCD(duration[0])*3600+fromBCD(duration[1])*60+fromBCD(duration[2]);
+
 	const uint8_t *descriptors[65];
 	const uint8_t **pdescr = descriptors;
 
