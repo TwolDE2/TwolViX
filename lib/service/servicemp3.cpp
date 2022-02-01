@@ -145,7 +145,7 @@ DEFINE_REF(eServiceFactoryMP3)
 RESULT eServiceFactoryMP3::play(const eServiceReference &ref, ePtr<iPlayableService> &ptr)
 {
 		// check resources...
-	ptr = new eServiceMP3(ref);
+	/* ptr = new eServiceMP3(ref); */
 	return 0;
 }
 
