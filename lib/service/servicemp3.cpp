@@ -153,7 +153,7 @@ RESULT eServiceFactoryMP3::record(const eServiceReference &ref, ePtr<iRecordable
 {
 	if (ref.path.find("://") != std::string::npos)
 	{
-		ptr = new eServiceMP3Record((eServiceReference&)ref);
+		/* ptr = new eServiceMP3Record((eServiceReference&)ref); */
 		return 0;
 	}
 	ptr=0;
