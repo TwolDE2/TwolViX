@@ -431,9 +431,9 @@ class EPGListGrid(EPGListBase):
 				namefont = 0
 				namefontflag = int(config.epgselection.grid.servicenumber_alignment.value)
 				font = gFont(self.serviceFontName, self.serviceFontSize + self.epgConfig.servfs.value)
-				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(),
-					"0000" if channel < 10000 else str(channel)).width()
-				if channel:
+				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000").width()
+				if channel is not None:
+					channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000").width() if channel < 10000 else str(channel).width()
 					res.append(MultiContentEntryText(
 						pos=(colX + self.serviceNumberPadding, r1.top() + self.serviceBorderWidth),
 						size=(channelWidth, r1.height() - 2 * self.serviceBorderWidth),
@@ -442,6 +442,8 @@ class EPGListGrid(EPGListBase):
 						color=serviceForeColor, color_sel=serviceForeColor,
 						backcolor=serviceBackColor, backcolor_sel=serviceBackColor))
 				colX += channelWidth + 2 * self.serviceNumberPadding
+#				except:
+#					continue	
 
 			if titleItem == "servicename":
 				namefont = 0
