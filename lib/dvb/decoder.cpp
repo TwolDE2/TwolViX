@@ -35,7 +35,7 @@ DEFINE_REF(eDVBAudio);
 eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
 	:m_demux(demux), m_dev(dev)
 {
-	char filename[128];
+	char filename[128] = {};
 	sprintf(filename, "/dev/dvb/adapter%d/audio%d", demux ? demux->adapter : 0, dev);
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
@@ -76,7 +76,7 @@ int eDVBAudio::startPid(int pid, int type)
 {
 	if (m_fd_demux >= 0)
 	{
-		dmx_pes_filter_params pes;
+		dmx_pes_filter_params pes = {};
 		memset(&pes, 0, sizeof(pes));
 
 		pes.pid      = pid;
@@ -268,7 +268,7 @@ eDVBVideo::eDVBVideo(eDVBDemux *demux, int dev)
 	: m_demux(demux), m_dev(dev),
 	m_width(-1), m_height(-1), m_framerate(-1), m_aspect(-1), m_progressive(-1), m_gamma(-1)
 {
-	char filename[128];
+	char filename[128] = {};
 	sprintf(filename, "/dev/dvb/adapter%d/video%d", demux ? demux->adapter : 0, dev);
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
@@ -389,7 +389,7 @@ int eDVBVideo::startPid(int pid, int type)
 
 	if (m_fd_demux >= 0)
 	{
-		dmx_pes_filter_params pes;
+		dmx_pes_filter_params pes = {};
 		memset(&pes, 0, sizeof(pes));
 
 		pes.pid      = pid;
@@ -552,13 +552,13 @@ void eDVBVideo::video_event(int)
 	while (m_fd >= 0)
 	{
 		int retval;
-		pollfd pfd[1];
+		pollfd pfd[1] = {};
 		pfd[0].fd = m_fd;
 		pfd[0].events = POLLPRI;
 		retval = ::poll(pfd, 1, 0);
 		if (retval < 0 && errno == EINTR) continue;
 		if (retval <= 0) break;
-		struct video_event evt;
+		struct video_event evt = {};
 		eDebugNoNewLineStart("[decoder][eDVBVideo%d] VIDEO_GET_EVENT ", m_dev);
 		if (::ioctl(m_fd, VIDEO_GET_EVENT, &evt) < 0)
 		{
@@ -569,7 +569,7 @@ void eDVBVideo::video_event(int)
 		{
 			if (evt.type == VIDEO_EVENT_SIZE_CHANGED)
 			{
-				struct iTSMPEGDecoder::videoEvent event;
+				struct iTSMPEGDecoder::videoEvent event = {};
 				event.type = iTSMPEGDecoder::videoEvent::eventSizeChanged;
 				m_aspect = event.aspect = evt.u.size.aspect_ratio == 0 ? 2 : 3;  // convert dvb api to etsi
 				m_height = event.height = evt.u.size.h;
@@ -579,7 +579,7 @@ void eDVBVideo::video_event(int)
 			}
 			else if (evt.type == VIDEO_EVENT_FRAME_RATE_CHANGED)
 			{
-				struct iTSMPEGDecoder::videoEvent event;
+				struct iTSMPEGDecoder::videoEvent event = {};
 				event.type = iTSMPEGDecoder::videoEvent::eventFrameRateChanged;
 				m_framerate = event.framerate = evt.u.frame_rate;
 				eDebugNoNewLine("FRAME_RATE_CHANGED %d fps\n", m_framerate);
@@ -587,7 +587,7 @@ void eDVBVideo::video_event(int)
 			}
 			else if (evt.type == 16 /*VIDEO_EVENT_PROGRESSIVE_CHANGED*/)
 			{
-				struct iTSMPEGDecoder::videoEvent event;
+				struct iTSMPEGDecoder::videoEvent event = {};
 				event.type = iTSMPEGDecoder::videoEvent::eventProgressiveChanged;
 				m_progressive = event.progressive = evt.u.frame_rate;
 				eDebugNoNewLine("PROGRESSIVE_CHANGED %d\n", m_progressive);
@@ -595,7 +595,7 @@ void eDVBVideo::video_event(int)
 			}
 			else if (evt.type == 17 /*VIDEO_EVENT_GAMMA_CHANGED*/)
 			{
-				struct iTSMPEGDecoder::videoEvent event;
+				struct iTSMPEGDecoder::videoEvent event = {};
 				event.type = iTSMPEGDecoder::videoEvent::eventGammaChanged;
 				/*
 				 * Possible gamma values
@@ -622,7 +622,7 @@ RESULT eDVBVideo::connectEvent(const sigc::slot<void(struct iTSMPEGDecoder::vide
 
 int eDVBVideo::readApiSize(int fd, int &xres, int &yres, int &aspect)
 {
-	video_size_t size;
+	video_size_t size = {};
 	if (!::ioctl(fd, VIDEO_GET_SIZE, &size))
 	{
 		xres = size.w;
@@ -673,7 +673,7 @@ int eDVBVideo::getProgressive()
 	{
 		if (m_progressive == -1)
 		{
-			char tmp[64];
+			char tmp[64] = {};
 			sprintf(tmp, "/proc/stb/vmpeg/%d/progressive", m_dev);
 			CFile::parseIntHex(&m_progressive, tmp);
 		}
@@ -704,7 +704,7 @@ int eDVBVideo::getGamma()
 	{
 		if (m_gamma == -1)
 		{
-			char tmp[64];
+			char tmp[64] = {};
 			sprintf(tmp, "/proc/stb/vmpeg/%d/gamma", m_dev);
 			CFile::parseIntHex(&m_gamma, tmp);
 		}
@@ -716,7 +716,7 @@ DEFINE_REF(eDVBPCR);
 
 eDVBPCR::eDVBPCR(eDVBDemux *demux, int dev): m_demux(demux), m_dev(dev)
 {
-	char filename[128];
+	char filename[128] = {};
 	sprintf(filename, "/dev/dvb/adapter%d/demux%d", demux->adapter, demux->demux);
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
@@ -741,7 +741,7 @@ int eDVBPCR::startPid(int pid)
 {
 	if (m_fd_demux < 0)
 		return -1;
-	dmx_pes_filter_params pes;
+	dmx_pes_filter_params pes = {};
 	memset(&pes, 0, sizeof(pes));
 
 	pes.pid      = pid;
@@ -801,7 +801,7 @@ DEFINE_REF(eDVBTText);
 eDVBTText::eDVBTText(eDVBDemux *demux, int dev)
     :m_demux(demux), m_dev(dev)
 {
-	char filename[128];
+	char filename[128] = {};
 	sprintf(filename, "/dev/dvb/adapter%d/demux%d", demux->adapter, demux->demux);
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
@@ -826,7 +826,7 @@ int eDVBTText::startPid(int pid)
 {
 	if (m_fd_demux < 0)
 		return -1;
-	dmx_pes_filter_params pes;
+	dmx_pes_filter_params pes = {};
 	memset(&pes, 0, sizeof(pes));
 
 	pes.pid      = pid;
@@ -1083,7 +1083,7 @@ eTSMPEGDecoder::eTSMPEGDecoder(eDVBDemux *demux, int decoder)
 	CONNECT(m_showSinglePicTimer->timeout, eTSMPEGDecoder::finishShowSinglePic);
 	m_state = stateStop;
 
-	char filename[128];
+	char filename[128] = {};
 	sprintf(filename, "/dev/dvb/adapter%d/audio%d", m_demux ? m_demux->adapter : 0, m_decoder);
 	m_has_audio = !access(filename, W_OK);
 
@@ -1318,7 +1318,7 @@ RESULT eTSMPEGDecoder::showSinglePic(const char *filename)
 		int f = open(filename, O_RDONLY);
 		if (f >= 0)
 		{
-			struct stat s;
+			struct stat s = {};
 			fstat(f, &s);
 #if HAVE_HISILICON
 			if (m_video_clip_fd >= 0)
