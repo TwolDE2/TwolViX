@@ -433,7 +433,8 @@ class EPGListGrid(EPGListBase):
 				font = gFont(self.serviceFontName, self.serviceFontSize + self.epgConfig.servfs.value)
 				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000").width()
 				if channel is not None:
-					channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000").width() if channel < 10000 else str(channel).width()
+ 					if channel => 10000:
+						channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), str(channel)).width()
 					res.append(MultiContentEntryText(
 						pos=(colX + self.serviceNumberPadding, r1.top() + self.serviceBorderWidth),
 						size=(channelWidth, r1.height() - 2 * self.serviceBorderWidth),
