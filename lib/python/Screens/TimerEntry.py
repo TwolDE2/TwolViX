@@ -95,8 +95,8 @@ class TimerEntry(TimerEntryBase):
 
 	# So that setup.xml can call it as self.getPreferredTagEditor()
 	def getPreferredTagEditor(self):
-		return TagEditor.getPreferredTagEditor()
-
+#		return TagEditor.getPreferredTagEditor()
+		return None
 
 	def keyText(self):
 		self.renameEntry()
