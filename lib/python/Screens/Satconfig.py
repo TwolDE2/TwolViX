@@ -97,7 +97,7 @@ class ServiceStopScreen:
 			self.oldref = self.oldAlternativeref = None
 			self.slot_number = -1
 
-class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
+class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 	def createSimpleSetup(self, list, mode):
 		nim = self.nimConfig
 

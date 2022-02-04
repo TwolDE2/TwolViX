@@ -11,7 +11,7 @@ from Components.TuneTest import Tuner
 from Screens.Screen import Screen
 
 
-class AutoDiseqc(Screen, ConfigListScreen):
+class AutoDiseqc(ConfigListScreen, Screen):
 	diseqc_ports = [
 		"A", "B", "C", "D"
 	]

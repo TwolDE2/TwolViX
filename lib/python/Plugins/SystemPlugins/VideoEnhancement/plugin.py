@@ -287,7 +287,7 @@ class VideoEnhancementSetup(Screen, ConfigListScreen):
 		return SetupSummary
 
 
-class VideoEnhancementPreview(Screen, ConfigListScreen):
+class VideoEnhancementPreview(ConfigListScreen, Screen):
 	skin = """
 		<screen name="VideoEnhancementPreview" position="center,e-170" size="560,170" title="VideoEnhancementPreview">
 			<ePixmap pixmap="buttons/red.png" position="0,0" size="140,40" alphatest="on" />

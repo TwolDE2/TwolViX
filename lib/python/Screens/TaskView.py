@@ -17,7 +17,7 @@ import Screens.Standby
 import Tools.Notifications
 
 
-class JobView(InfoBarNotifications, Screen, ConfigListScreen):
+class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 	def __init__(self, session, job, parent=None, cancelable=True, backgroundable=True, afterEventChangeable=True, afterEvent="nothing"):
 		Screen.__init__(self, session, parent)
 		Screen.setTitle(self, _("Job View"))
