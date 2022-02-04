@@ -11,11 +11,11 @@ try: # python 3
 	from urllib.parse import urlparse, urlunparse # raises ImportError in Python 2
 except ImportError: # Python 2
 	from urlparse import urlparse, urlunparse
-
+agent = "%s %s Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;OpenViX;;;)" % (getMachineBrand(), getMachineName()
 
 class HTTPProgressDownloader(client.HTTPDownloader):
 	def __init__(self, url, outfile, headers=None):
-		client.HTTPDownloader.__init__(self, url, outfile, headers=headers, agent=b"%s %s Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;OpenViX;;;)" % (getMachineBrand(), getMachineName()))
+		client.HTTPDownloader.__init__(self, url, outfile, headers=headers, agent="%s %s Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;OpenViX;;;)" % (getMachineBrand(), getMachineName()))
 		self.status = self.progress_callback = self.error_callback = self.end_callback = None
 		self.deferred = defer.Deferred()
 
