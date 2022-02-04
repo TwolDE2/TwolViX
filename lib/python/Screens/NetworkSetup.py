@@ -3513,12 +3513,6 @@ class NetworkPassword(ConfigListScreen, Screen):
 		self.output_line = ""
 
 		self.updateList()
-		if self.selectionChanged not in self["config"].onSelectionChanged:
-			self["config"].onSelectionChanged.append(self.selectionChanged)
-		self.selectionChanged()
-
-	def selectionChanged(self):
-		self["description"].setText(self.getCurrentDescription())
 
 	def newRandom(self):
 		self.password.value = self.GeneratePassword()
