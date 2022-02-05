@@ -206,10 +206,8 @@ eConsolePy_write(eConsolePy* self, PyObject *args)
 		return NULL;
 	}
 #endif
-
 	if (len < 0)
 		len = data_len;	
-
 	self->cont->write(data, len);
 	Py_RETURN_NONE;
 }

@@ -255,11 +255,7 @@ inline ePyObject Impl_PyString_FromFormat(const char* file, int line, const char
 {
 	va_list ap;
 	va_start(ap, fmt);
-#if PY_MAJOR_VERSION >= 3
 	PyObject *ob = PyUnicode_FromFormatV(fmt, ap);
-#else
-	PyObject *ob = PyString_FromFormatV(fmt, ap);
-#endif
 	va_end(ap);
 	return ePyObject(ob, file, line);
 }
