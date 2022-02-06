@@ -1,13 +1,8 @@
 import six
 
 from os import access, listdir, mkdir, path as ospath, remove, rename, stat, W_OK
-import sys
 import time
-
-if sys.version_info >= (3, 0):
-	import pickle as cPickle
-else:
-	import cPickle
+import pickle as cPickle
 from enigma import eServiceReference, eServiceCenter, eTimer, eSize, iPlayableService, iServiceInformation, getPrevAsciiCode, eRCInput
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
@@ -42,7 +37,6 @@ from Tools.BoundFunction import boundFunction
 from Tools.CopyFiles import copyFiles, moveFiles
 from Tools.Directories import resolveFilename, SCOPE_HDD
 from Tools.Trashcan import TrashInfo, cleanAll, createTrashFolder, getTrashFolder
-
 
 config.movielist = ConfigSubsection()
 config.movielist.curentlyplayingservice = ConfigText()
