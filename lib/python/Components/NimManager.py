@@ -1,5 +1,3 @@
-import six
-
 from os import access, path, F_OK 
 from datetime import datetime
 from time import localtime, mktime

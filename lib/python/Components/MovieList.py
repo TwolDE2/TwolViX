@@ -1,4 +1,3 @@
-import six
 from six.moves import reload_module
 
 from os import path, stat
