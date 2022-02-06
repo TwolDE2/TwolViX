@@ -1,8 +1,5 @@
 # A Job consists of many "Tasks".
 # A task is the run of an external tool, with proper methods for failure handling
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
 import six
 
 from os import access, environ, path as ospath, pathsep, statvfs, F_OK, X_OK, W_OK

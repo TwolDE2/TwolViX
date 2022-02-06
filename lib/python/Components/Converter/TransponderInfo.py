@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceCenter
 
 from Components.Converter.Converter import Converter

@@ -1,6 +1,5 @@
 # Listen to hotplug events. Can be used to listen for hotplug events and
 # similar things, like network connections being (un)plugged.
-from __future__ import print_function
 from os import getpid
 import socket
 import six

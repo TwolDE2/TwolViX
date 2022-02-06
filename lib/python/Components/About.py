@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import division
-
 from sys import modules, version_info
 from os import path as ospath
 import socket

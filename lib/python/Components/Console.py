@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import enigma
 from os import waitpid
 import six

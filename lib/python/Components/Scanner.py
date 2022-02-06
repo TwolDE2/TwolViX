@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from os import path, walk
 from mimetypes import guess_type, add_type
 

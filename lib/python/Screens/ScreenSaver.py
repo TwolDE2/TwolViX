@@ -1,9 +1,6 @@
-from __future__ import absolute_import
-
 from os import path
 import random
 from enigma import ePoint, eTimer, iPlayableService
-
 from Components.MovieList import AUDIO_EXTENSIONS
 from Components.Pixmap import Pixmap
 from Components.ServiceEventTracker import ServiceEventTracker

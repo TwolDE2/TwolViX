@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
 import six
 
 from os import close, listdir, O_NONBLOCK, O_RDWR, path, write

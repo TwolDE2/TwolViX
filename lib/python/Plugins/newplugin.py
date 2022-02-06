@@ -1,5 +1,4 @@
 #!/usr/bin/python
-from __future__ import print_function
 from six.moves import input
 
 from os import  listdir, mkdir, path as ospath, system as ossystem

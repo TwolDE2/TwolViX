@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from Components.Console import Console
 from Components.Pixmap import Pixmap
 from Components.Sources.Boolean import Boolean

@@ -1,4 +1,3 @@
-from __future__ import print_function
 from os import path as ospath
 from Tools.Directories import fileExists
 from Plugins.Plugin import PluginDescriptor

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from enigma import eDVBFrontendParametersSatellite, eDVBResourceManager, eTimer
 
 from Components.ActionMap import ActionMap

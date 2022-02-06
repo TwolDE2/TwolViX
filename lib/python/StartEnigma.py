@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from os import chmod, path as ospath
 import sys
 import enigma

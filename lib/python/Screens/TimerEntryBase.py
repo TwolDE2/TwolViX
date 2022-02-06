@@ -1,9 +1,5 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from time import localtime, mktime, strftime
 from datetime import datetime
-
 from Components.ActionMap import HelpableActionMap
 from Components.Button import Button
 from Components.config import config, ConfigSelection, ConfigSubList, ConfigDateTime, ConfigClock, ConfigYesNo

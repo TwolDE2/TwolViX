@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from boxbranding import getBoxType
 
 from Components.config import config, ConfigBoolean, configfile

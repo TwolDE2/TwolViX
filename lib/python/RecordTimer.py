@@ -1,4 +1,3 @@
-from __future__ import print_function, division
 import six
 
 from os import access, fsync, makedirs, remove, rename, path as ospath, statvfs, W_OK

@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-
 from enigma import eDVBDB
-
 from Components.config import config, ConfigSubsection, ConfigBoolean, getConfigListEntry, ConfigSelection, ConfigYesNo, ConfigIP
 from Components.ConfigList import ConfigListScreen
 from Components.Ipkg import IpkgComponent

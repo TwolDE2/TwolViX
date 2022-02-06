@@ -1,8 +1,4 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from time import time
-
 from enigma import eTimer, eDVBLocalTimeHandler, eEPGCache
 from Components.config import config
 from Components.Console import Console

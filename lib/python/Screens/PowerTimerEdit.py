@@ -1,9 +1,6 @@
-from __future__ import absolute_import
-
 from time import time
 from timer import TimerEntry as RealTimerEntry
 from functools import cmp_to_key
-
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config

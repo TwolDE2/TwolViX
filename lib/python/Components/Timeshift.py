@@ -26,7 +26,6 @@
 
 # note that a timeshift can be enabled ("recording") and
 # activated (currently time-shifting).
-from __future__ import print_function
 
 from os import link as oslink, listdir, makedirs, path as ospath, stat, statvfs, system as ossystem
 from time import time, localtime, strftime

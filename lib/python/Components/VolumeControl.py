@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from enigma import eDVBVolumecontrol, eTimer
 from Components.config import config, ConfigSubsection, ConfigInteger
 from GlobalActions import globalActionMap

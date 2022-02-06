@@ -1,8 +1,5 @@
-from __future__ import absolute_import
-
 import time
 import datetime
-
 from Components.ActionMap import NumberActionMap
 from Components.config import config, ConfigClock, ConfigDateTime, getConfigListEntry
 from Components.ConfigList import ConfigListScreen

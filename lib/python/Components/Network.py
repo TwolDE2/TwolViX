@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from os import listdir, path, system
 import re
 import netifaces as ni

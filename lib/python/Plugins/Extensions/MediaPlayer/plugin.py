@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from os import listdir, path as ospath, remove
 from time import strftime
 import random

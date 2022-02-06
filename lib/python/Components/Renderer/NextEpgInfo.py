@@ -1,9 +1,12 @@
+<<<<<<< HEAD
 from __future__ import absolute_import
 
 from time import time, localtime, strftime
 
 from enigma import eLabel, eEPGCache, eServiceReference
 
+=======
+>>>>>>> 92e1086... Remove __future__ as this should not be needed for Python3
 from Components.config import config
 from Components.Renderer.Renderer import Renderer
 from Components.VariableText import VariableText
