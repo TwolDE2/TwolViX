@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-from __future__ import absolute_import
-
 from os import path as ospath
-=======
-import os
->>>>>>> 92e1086... Remove __future__ as this should not be needed for Python3
 import re
 import unicodedata
 

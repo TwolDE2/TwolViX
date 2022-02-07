@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-from __future__ import absolute_import
-=======
-from Components.VariableValue import VariableValue
-from Components.Renderer.Renderer import Renderer
->>>>>>> 92e1086... Remove __future__ as this should not be needed for Python3
-
 from enigma import eGauge
 
 from Components.Renderer.Renderer import Renderer
