@@ -392,6 +392,7 @@ inline ePyObject Impl_PyTuple_GET_ITEM(ePyObject list, unsigned int pos)
 	return PyTuple_GET_ITEM(list, pos);
 #endif
 }
+#endif
 
 inline void Impl_INCREF(PyObject *ob)
 {
