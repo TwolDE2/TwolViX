@@ -918,10 +918,23 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 					continue;
 
 				const char *string = (PyUnicode_Check(pstring)) ? PyUnicode_AsUTF8(pstring) : "<not-a-string>";
-				int x = PyLong_AsLong(px) + offset.x();
-				int y = PyLong_AsLong(py) + offset.y();
-				int width = PyLong_AsLong(pwidth);
-				int height = PyLong_AsLong(pheight);
+
+				#if PY_VERSION_HEX >= 0x030a0000
+
+					int x = (PyFloat_Check(px) ? (int)PyFloat_AsDouble(px) : PyLong_AsLong(px)) + offset.x();
+					int y = (PyFloat_Check(py) ? (int)PyFloat_AsDouble(py) : PyLong_AsLong(py)) + offset.y();
+					int width = PyFloat_Check(pwidth) ? (int)PyFloat_AsDouble(pwidth) : PyLong_AsLong(pwidth);
+					int height = PyFloat_Check(pheight) ? (int)PyFloat_AsDouble(pheight) : PyLong_AsLong(pheight);
+
+				#else
+
+					int x = PyLong_AsLong(px) + offset.x();
+					int y = PyLong_AsLong(py) + offset.y();
+					int width = PyLong_AsLong(pwidth);
+					int height = PyLong_AsLong(pheight);
+
+				#endif
+
 				int flags = PyLong_AsLong(pflags);
 				int fnt = PyLong_AsLong(pfnt);
 				int bwidth = pborderWidth ? PyLong_AsLong(pborderWidth) : 0;
@@ -1039,11 +1052,21 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 						pbackColorSelected=ePyObject();
 				}
 
-				int x = PyLong_AsLong(px) + offset.x();
-				int y = PyLong_AsLong(py) + offset.y();
-				int width = PyLong_AsLong(pwidth);
-				int height = PyLong_AsLong(pheight);
-				int filled = PyLong_AsLong(pfilled_perc);
+
+				#if PY_VERSION_HEX >= 0x030a0000
+
+					int x = (PyFloat_Check(px) ? (int)PyFloat_AsDouble(px) : PyLong_AsLong(px)) + offset.x();
+					int y = (PyFloat_Check(py) ? (int)PyFloat_AsDouble(py) : PyLong_AsLong(py)) + offset.y();
+					int width = PyFloat_Check(pwidth) ? (int)PyFloat_AsDouble(pwidth) : PyLong_AsLong(pwidth);
+					int height = PyFloat_Check(pheight) ? (int)PyFloat_AsDouble(pheight) : PyLong_AsLong(pheight);
+					int filled = PyFloat_Check(pfilled_perc) ? (int)PyFloat_AsDouble(pfilled_perc) : PyLong_AsLong(pfilled_perc);
+				#else
+					int x = PyLong_AsLong(px) + offset.x();
+					int y = PyLong_AsLong(py) + offset.y();
+					int width = PyLong_AsLong(pwidth);
+					int height = PyLong_AsLong(pheight);
+					int filled = PyLong_AsLong(pfilled_perc);
+				#endif
 
 				if ((filled < 0) && data) /* if the string is in a negative number, it refers to the 'data' list. */
 					filled = PyLong_AsLong(PyTuple_GetItem(data, -filled));
@@ -1129,10 +1152,18 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 				if (!ppixmap || ppixmap == Py_None)
 					continue;
 
-				int x = PyLong_AsLong(px) + offset.x();
-				int y = PyLong_AsLong(py) + offset.y();
-				int width = PyLong_AsLong(pwidth);
-				int height = PyLong_AsLong(pheight);
+				#if PY_VERSION_HEX >= 0x030a0000
+					int x = (PyFloat_Check(px) ? (int)PyFloat_AsDouble(px) : PyLong_AsLong(px)) + offset.x();
+					int y = (PyFloat_Check(py) ? (int)PyFloat_AsDouble(py) : PyLong_AsLong(py)) + offset.y();
+					int width = PyFloat_Check(pwidth) ? (int)PyFloat_AsDouble(pwidth) : PyLong_AsLong(pwidth);
+					int height = PyFloat_Check(pheight) ? (int)PyFloat_AsDouble(pheight) : PyLong_AsLong(pheight);
+				#else
+					int x = PyLong_AsLong(px) + offset.x();
+					int y = PyLong_AsLong(py) + offset.y();
+					int width = PyLong_AsLong(pwidth);
+					int height = PyLong_AsLong(pheight);
+				#endif
+
 				int flags = 0;
 				ePtr<gPixmap> pixmap;
 				if (SwigFromPython(pixmap, ppixmap))
