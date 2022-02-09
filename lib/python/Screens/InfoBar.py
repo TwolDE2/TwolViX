@@ -91,8 +91,9 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 			})
 
 		self.current_begin_time = 0
-		assert InfoBar.instance is None, "class InfoBar is a singleton class and just one instance of this class is allowed!"
-		InfoBar.instance = self
+		if type(self) is InfoBar:
+			assert InfoBar.instance is None, "class InfoBar is a singleton class and just one instance of this class is allowed!"
+			InfoBar.instance = self
 
 		cfgbouquets = [(("Disabled"), _("Disabled"))]
 		for bouq in InfoBar.instance.servicelist.getBouquetList():
@@ -305,8 +306,9 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 		self.onShow.append(self.doButtonsCheck)
 		config.misc.standbyCounter.addNotifier(self.standbyCountChanged, initial_call=False)
 
-		assert MoviePlayer.instance is None, "class InfoBar is a singleton class and just one instance of this class is allowed!"
-		MoviePlayer.instance = self
+		if type(self) is MoviePlayer:
+			assert MoviePlayer.instance is None, "class InfoBar is a singleton class and just one instance of this class is allowed!"
+			MoviePlayer.instance = self
 
 	def doButtonsCheck(self):
 		if config.vixsettings.ColouredButtons.value:
