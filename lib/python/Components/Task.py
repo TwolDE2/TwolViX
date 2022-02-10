@@ -7,7 +7,7 @@ from os import access, environ, path as ospath, pathsep, statvfs, F_OK, X_OK, W_
 from Tools.CList import CList
 
 
-class Job(object):
+class Job:
 	NOT_STARTED, IN_PROGRESS, FINISHED, FAILED = range(4)
 
 	def __init__(self, name):
@@ -118,7 +118,7 @@ class Job(object):
 		return "Components.Task.Job name=%s #tasks=%s" % (self.name, len(self.tasks))
 
 
-class Task(object):
+class Task:
 	def __init__(self, job, name):
 		self.name = name
 		self.immediate_preconditions = []
