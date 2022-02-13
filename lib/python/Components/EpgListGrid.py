@@ -1,7 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
 from time import localtime, time, strftime
 
 from enigma import eListbox, eListboxPythonMultiContent, eServiceReference, gFont, eRect, eSize, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_HALIGN_CENTER, RT_VALIGN_CENTER, RT_VALIGN_TOP, RT_WRAP, BT_SCALE, BT_KEEP_ASPECT_RATIO, BT_ALIGN_CENTER
@@ -431,9 +427,10 @@ class EPGListGrid(EPGListBase):
 				namefont = 0
 				namefontflag = int(config.epgselection.grid.servicenumber_alignment.value)
 				font = gFont(self.serviceFontName, self.serviceFontSize + self.epgConfig.servfs.value)
-				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(),
-					"0000" if channel < 10000 else str(channel)).width()
-				if channel:
+				channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), "0000").width()
+				if channel is not None:
+					if channel >= 10000:
+						channelWidth = getTextBoundarySize(self.instance, font, self.instance.size(), str(channel)).width()
 					res.append(MultiContentEntryText(
 						pos=(colX + self.serviceNumberPadding, r1.top() + self.serviceBorderWidth),
 						size=(channelWidth, r1.height() - 2 * self.serviceBorderWidth),
@@ -442,6 +439,8 @@ class EPGListGrid(EPGListBase):
 						color=serviceForeColor, color_sel=serviceForeColor,
 						backcolor=serviceBackColor, backcolor_sel=serviceBackColor))
 				colX += channelWidth + 2 * self.serviceNumberPadding
+#				except:
+#					continue	
 
 			if titleItem == "servicename":
 				namefont = 0

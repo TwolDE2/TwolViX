@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from enigma import eServiceCenter, eTimer, eServiceReference
 from operator import itemgetter
 

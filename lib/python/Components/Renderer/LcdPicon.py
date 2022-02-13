@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from os import path as ospath
 import re
 import unicodedata

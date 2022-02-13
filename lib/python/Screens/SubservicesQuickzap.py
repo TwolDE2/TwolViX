@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-
 from enigma import eServiceReference
-
 from Components.ActionMap import NumberActionMap
 from Components.Label import Label
 from Components.ServiceEventTracker import InfoBarBase

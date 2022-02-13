@@ -1,7 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
 from enigma import iPlayableService, iRdsDecoder
 from Components.ActionMap import NumberActionMap
 from Components.Label import Label

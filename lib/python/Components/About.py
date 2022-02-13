@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import division
-
 from sys import modules, version_info
 from os import path as ospath
 import socket
@@ -192,7 +189,7 @@ def getIfConfig(ifname):
 	infos["hwaddr"] = 0x8927 # SIOCSIFHWADDR
 	infos["netmask"] = 0x891b # SIOCGIFNETMASK
 	try:
-		for k, v in list(infos.items()):
+		for k, v in infos.items():
 			ifreq[k] = _ifinfo(sock, v, ifname)
 	except:
 		pass

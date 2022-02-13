@@ -1,4 +1,3 @@
-from __future__ import print_function
 from Components.config import ConfigSubsection, config
 from os import path as ospath
 
@@ -130,10 +129,10 @@ class PluginDescriptor(object):
 			return self._icon
 
 	def __eq__(self, other):
-		return self._fnc == other._fnc
+		return self.fnc == other.fnc
 
 	def __ne__(self, other):
-		return self._fnc != other._fnc
+		return self.fnc != other.fnc
 
 	def __lt__(self, other):
 		if self.weight < other.weight:

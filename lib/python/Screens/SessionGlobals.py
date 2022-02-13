@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from Components.Converter.Combine import Combine
 from Components.Renderer.FrontpanelLed import FrontpanelLed
 from Components.Sources.Boolean import Boolean

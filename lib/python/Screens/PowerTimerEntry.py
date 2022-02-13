@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-
 from time import localtime, time, strftime
-
 from Components.ActionMap import HelpableActionMap, NumberActionMap
 from Components.config import ConfigSelection, ConfigYesNo, ConfigInteger
 from Components.SystemInfo import SystemInfo

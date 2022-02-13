@@ -1,15 +1,8 @@
-from __future__ import print_function
-from __future__ import absolute_import
 import six
 
 from os import access, listdir, mkdir, path as ospath, remove, rename, stat, W_OK
-import sys
 import time
-
-if sys.version_info >= (3, 0):
-	import pickle as cPickle
-else:
-	import cPickle
+import pickle as cPickle
 from enigma import eServiceReference, eServiceCenter, eTimer, eSize, iPlayableService, iServiceInformation, getPrevAsciiCode, eRCInput
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
@@ -44,7 +37,6 @@ from Tools.BoundFunction import boundFunction
 from Tools.CopyFiles import copyFiles, moveFiles
 from Tools.Directories import resolveFilename, SCOPE_HDD
 from Tools.Trashcan import TrashInfo, cleanAll, createTrashFolder, getTrashFolder
-
 
 config.movielist = ConfigSubsection()
 config.movielist.curentlyplayingservice = ConfigText()
@@ -2131,10 +2123,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		filepath = item[0].getPath()
 		if not filepath.endswith(".ts"):
 			return
-		if six.PY3:
-			serviceref = ServiceReference(None, reftype=eServiceReference.idDVB, path=filepath)
-		else:
-			serviceref = eServiceReference(eServiceReference.idDVB, 0, filepath)
+		serviceref = ServiceReference(None, reftype=eServiceReference.idDVB, path=filepath)
 		name = info.getName(item[0]) + " - decoded"
 		description = info.getInfoString(item[0], iServiceInformation.sDescription)
 		recording = RecordTimer.RecordTimerEntry(serviceref, int(time.time()), int(time.time()) + 3600, name, description, 0, dirname=preferredTimerPath())

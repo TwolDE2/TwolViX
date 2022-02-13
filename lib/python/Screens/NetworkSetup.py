@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
 import six
 
 from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
@@ -113,9 +110,9 @@ class NSCommon:
 	def UninstallCheck(self):
 		self.Console.ePopen("/usr/bin/opkg list_installed " + self.service_name, self.RemovedataAvail)
 
-	def RemovedataAvail(self, str, retval, extra_args):
-		str = six.ensure_str(str)
-		if str:
+	def RemovedataAvail(self, result, retval, extra_args):
+		result = six.ensure_str(result)
+		if result:
 			self.session.openWithCallback(self.RemovePackage, MessageBox, _("Are you ready to remove %s ?") % self.getTitle(), MessageBox.TYPE_YESNO)
 		else:
 			self.updateService()
@@ -348,7 +345,7 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 					self.session.openWithCallback(self.AdapterSetupClosed, NetworkWizard, selection[0])
 
 
-class NameserverSetup(Screen, ConfigListScreen, HelpableScreen):
+class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
@@ -442,7 +439,7 @@ class NameserverSetup(Screen, ConfigListScreen, HelpableScreen):
 			self.createSetup()
 
 
-class NetworkMacSetup(Screen, ConfigListScreen, HelpableScreen):
+class NetworkMacSetup(ConfigListScreen, HelpableScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
@@ -516,7 +513,7 @@ class NetworkMacSetup(Screen, ConfigListScreen, HelpableScreen):
 			self.session.openWithCallback(self.close, MessageBox, _("Finished configuring your network"), type=MessageBox.TYPE_INFO, timeout=10, default=False)
 
 
-class AdapterSetup(Screen, ConfigListScreen, HelpableScreen):
+class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 	def __init__(self, session, networkinfo=None, essid=None):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
@@ -986,44 +983,24 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		self.onLayoutFinish.append(self.updateStatusbar)
 
 	def queryWirelessDevice(self, iface):
-		if six.PY3:
+		try:
+			from wifi.scan import Cell
+			import errno
+		except ImportError:
+			return False
+		else:
 			try:
-				from wifi.scan import Cell
-				import errno
-			except ImportError:
-				return False
-			else:
-				try:
-					system("ifconfig %s up" % iface)
-					wlanresponse = list(Cell.all(iface))
-				except IOError as err:
-					error_no, error_str = err.args
-					if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-						return False
-					else:
-						print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-						return True
+				system("ifconfig %s up" % iface)
+				wlanresponse = list(Cell.all(iface))
+			except IOError as err:
+				error_no, error_str = err.args
+				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+					return False
 				else:
+					print("[AdapterSetupConfiguration] error: ", error_no, error_str)
 					return True
-
-		if six.PY2:
-			try:
-				from pythonwifi.iwlibs import Wireless
-				import errno
-			except ImportError:
-				return False
 			else:
-				try:
-					ifobj = Wireless(iface) # a Wireless NIC Object
-					wlanresponse = ifobj.getAPaddr()
-				except IOError as error_no:
-					if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-						return False
-					else:
-						print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-						return True
-				else:
-					return True
+				return True
 
 	def ok(self):
 		self.cleanup()
@@ -2460,7 +2437,7 @@ class NetworkInadyn(NSCommon, Screen):
 		self.session.open(NetworkInadynLog)
 
 
-class NetworkInadynSetup(Screen, ConfigListScreen):
+class NetworkInadynSetup(ConfigListScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.setTitle(_("Settings"))
@@ -2788,7 +2765,7 @@ class NetworkuShare(NSCommon, Screen):
 		self.session.open(NetworkuShareLog)
 
 
-class NetworkuShareSetup(Screen, ConfigListScreen):
+class NetworkuShareSetup(ConfigListScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.onChangedEntry = []
@@ -3208,7 +3185,7 @@ class NetworkMiniDLNA(NSCommon, Screen):
 		self.session.open(NetworkMiniDLNALog)
 
 
-class NetworkMiniDLNASetup(Screen, ConfigListScreen):
+class NetworkMiniDLNASetup(ConfigListScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.onChangedEntry = []
@@ -3513,12 +3490,6 @@ class NetworkPassword(ConfigListScreen, Screen):
 		self.output_line = ""
 
 		self.updateList()
-		if self.selectionChanged not in self["config"].onSelectionChanged:
-			self["config"].onSelectionChanged.append(self.selectionChanged)
-		self.selectionChanged()
-
-	def selectionChanged(self):
-		self["description"].setText(self.getCurrentDescription())
 
 	def newRandom(self):
 		self.password.value = self.GeneratePassword()

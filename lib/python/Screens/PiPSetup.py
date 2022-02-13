@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-
 from Components.ActionMap import NumberActionMap
 from Components.config import config
 from Components.Label import Label

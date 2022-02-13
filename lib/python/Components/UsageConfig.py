@@ -1,7 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
 import io
 import locale
 from os import listdir, mkdir, path, remove
@@ -1388,7 +1384,7 @@ def upgradeConfig():
 		upgrade(config.epgselection.grid.piconwidth, "epgselection.graph_piconwidth")
 		upgrade(config.epgselection.grid.infowidth, "epgselection.graph_infowidth")
 		upgrade(config.epgselection.grid.rec_icon_height, "epgselection.graph_rec_icon_height")
-		for (key, item) in list(config.misc.ButtonSetup.content.items.items()):
+		for (key, item) in config.misc.ButtonSetup.content.items.items():
 			if item.value == "Infobar/openGraphEPG":
 				item.value = "Infobar/openGridEPG"
 				item.save()

@@ -1,7 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
 from os import remove, path as ospath
 
 from Components.Task import Task, Job, DiskspacePrecondition, Condition, ToolExistsPrecondition

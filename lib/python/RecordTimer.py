@@ -1,4 +1,3 @@
-from __future__ import print_function, division
 import six
 
 from os import access, fsync, makedirs, remove, rename, path as ospath, statvfs, W_OK
@@ -188,7 +187,7 @@ wasRecTimerWakeup = False
 # please do not translate log messages
 
 
-class RecordTimerEntry(TimerEntry, object):
+class RecordTimerEntry(TimerEntry):
 	def __init__(self, serviceref, begin, end, name, description, eit, disabled=False, justplay=False, afterEvent=AFTEREVENT.AUTO, checkOldTimers=False, dirname=None, tags=None, descramble="notset", record_ecm="notset", isAutoTimer=False, always_zap=False, rename_repeat=True, conflict_detection=True, pipzap=False, autoTimerId=None):
 		TimerEntry.__init__(self, int(begin), int(end))
 
@@ -1021,10 +1020,11 @@ class RecordTimer(Timer):
 					insort(self.processed_timers, w)
 			# correct wrong running timers
 			self.checkWrongRunningTimers()
-			# check for disabled timers, if time as passed set to completed
+			# check for disabled timers, if time has passed set to completed
 			self.cleanupDisabled()
-			# Remove old timers as set in config
-			self.cleanupDaily(config.recording.keep_timers.value, config.recording.keep_finished_timer_logs.value)
+
+		# Remove old log entries as set in config
+		self.cleanupLogs(config.recording.keep_timers.value, config.recording.keep_finished_timer_logs.value, False)
 
 		self.stateChanged(w)
 		if dosave:

@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-
 from time import time, localtime, strftime
-
 from enigma import eLabel, eEPGCache, eServiceReference
 
 from Components.config import config

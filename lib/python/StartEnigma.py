@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from os import chmod, path as ospath
 import sys
 import enigma
@@ -182,10 +180,10 @@ had = dict()
 
 def dump(dir, p=""):
 	if isinstance(dir, dict):
-		for (entry, val) in list(dir.items()):
+		for (entry, val) in dir.items():
 			dump(val, "%s(dict)/%s" % (p, entry))
 	if hasattr(dir, "__dict__"):
-		for name, value in list(dir.__dict__.items()):
+		for name, value in dir.__dict__.items():
 			if str(value) not in had:
 				had[str(value)] = 1
 				dump(value, "%s/%s" % (p, str(name)))

@@ -1,17 +1,12 @@
-from __future__ import print_function
-from __future__ import absolute_import
-import six
-
 from os import listdir, path as ospath
 import re
-import unicodedata
 
 from enigma import ePixmap, eServiceReference
 
 from Components.Harddisk import harddiskmanager
 from Components.Renderer.Renderer import Renderer
 from Tools.Alternatives import GetWithAlternative
-from Tools.Directories import pathExists, SCOPE_CURRENT_SKIN, resolveFilename
+from Tools.Directories import pathExists, SCOPE_CURRENT_SKIN, resolveFilename, sanitizeFilename
 
 
 class PiconLocator:
@@ -94,8 +89,7 @@ class PiconLocator:
 			fields[2] = "1"
 			pngname = self.findPicon("_".join(fields))
 		if not pngname: # picon by channel name
-			name = eServiceReference(serviceName).getServiceName()
-			name = six.ensure_str(unicodedata.normalize("NFKD", name).encode("ASCII", "ignore")) if six.PY3 else unicodedata.normalize("NFKD", unicode(name, "utf_8", errors="ignore")).encode("ASCII", "ignore")
+			name = sanitizeFilename(eServiceReference(serviceName).getServiceName())			
 			name = re.sub("[^a-z0-9]", "", name.replace("&", "and").replace("+", "plus").replace("*", "star").lower())
 			if len(name) > 0:
 				pngname = self.findPicon(name)

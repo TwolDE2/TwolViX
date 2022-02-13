@@ -1,9 +1,5 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 import sys
 from enigma import ePicLoad
-
 
 from Components.ActionMap import ActionMap
 from Components.Sources.StaticText import StaticText
@@ -15,7 +11,7 @@ from Screens.Screen import Screen
 from . import DVDTitle
 
 
-class TitleProperties(Screen, ConfigListScreen):
+class TitleProperties(ConfigListScreen, Screen):
 	skin = """
 		<screen name="TitleProperties" position="center,center" size="560,445" title="Properties of current title" >
 			<ePixmap pixmap="buttons/red.png" position="0,0" size="140,40" alphatest="on" />

@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from os import path
 
 from enigma import iPlayableService, iServiceInformation, eTimer, eServiceCenter, eServiceReference, eDVBDB
@@ -51,13 +48,6 @@ class VideoSetup(ConfigListScreen, Screen):
 		self["description"] = Label("")
 		self.createSetup()
 		self.grabLastGoodMode()
-
-		if not self.selectionChanged in self["config"].onSelectionChanged:
-			self["config"].onSelectionChanged.append(self.selectionChanged)
-		self.selectionChanged()
-
-	def selectionChanged(self):
-		self["description"].setText(self["config"].getCurrent() and len(self["config"].getCurrent()) > 2 and self["config"].getCurrent()[2] or "")
 
 	def startHotplug(self):
 		iAV.on_hotplug.append(self.createSetup)

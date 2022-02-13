@@ -1,9 +1,5 @@
-from __future__ import absolute_import
-from __future__ import division
-
 from datetime import datetime
 from time import mktime, localtime, time
-
 from enigma import eDVBDB, getLinkedSlotID, eDVBResourceManager
 
 from boxbranding import getImageType
@@ -97,7 +93,7 @@ class ServiceStopScreen:
 			self.oldref = self.oldAlternativeref = None
 			self.slot_number = -1
 
-class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
+class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 	def createSimpleSetup(self, list, mode):
 		nim = self.nimConfig
 
@@ -606,7 +602,7 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self.list.append(self.configMode)
 		self.advancedSatsEntry = getConfigListEntry(self.indent % _("Satellite"), self.nimConfig.advanced.sats)
 		self.list.append(self.advancedSatsEntry)
-		for x in list(self.nimConfig.advanced.sat.keys()):
+		for x in self.nimConfig.advanced.sat.keys():
 			Sat = self.nimConfig.advanced.sat[x]
 			self.fillListWithAdvancedSatEntrys(Sat)
 		self["config"].list = self.list
@@ -730,13 +726,6 @@ class NimSetup(Screen, ConfigListScreen, ServiceStopScreen):
 		self.nimConfig = self.nim.config
 		self.createSetup()
 		self.setTitle(_("Setup") + " " + self.nim.friendly_full_description)
-
-		if not self.selectionChanged in self["config"].onSelectionChanged:
-			self["config"].onSelectionChanged.append(self.selectionChanged)
-		self.selectionChanged()
-
-	def selectionChanged(self):
-		self["description"].setText(self["config"].getCurrent() and len(self["config"].getCurrent()) > 2 and self["config"].getCurrent()[2] or "")
 
 	def keyLeft(self):
 		if self.nim.isFBCLink() and self["config"].getCurrent() in (self.advancedLof, self.advancedConnected):

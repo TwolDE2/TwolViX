@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from enigma import RT_HALIGN_LEFT, eListboxPythonMultiContent, gFont
 from Components.MenuList import MenuList
 from skin import applySkinFactor, fonts, parameters

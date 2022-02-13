@@ -1,11 +1,7 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from os import access, R_OK
 
 from enigma import getDesktop
 from boxbranding import getBoxType
-
 from Components.ActionMap import ActionMap
 from Components.config import config, configfile, ConfigSubsection, getConfigListEntry, ConfigSelectionNumber, ConfigSelection, ConfigSlider, ConfigYesNo, NoSave, ConfigNumber, ConfigText
 from Components.ConfigList import ConfigListScreen
@@ -232,10 +228,3 @@ class OSD3DSetupScreen(ConfigListScreen, Screen):
 		self.list.append(getConfigListEntry(_("Show in extensions list ?"), config.osd.show3dextensions, _("This option lets you show the option in the extension screen")))
 		self["config"].list = self.list
 		self["config"].l.setList(self.list)
-
-		if not self.selectionChanged in self["config"].onSelectionChanged:
-			self["config"].onSelectionChanged.append(self.selectionChanged)
-		self.selectionChanged()
-
-	def selectionChanged(self):
-		self["description"].setText(self["config"].getCurrent()[2])

@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-
 from enigma import eDVBDB
-
 from Components.config import config, ConfigSubsection, ConfigBoolean, getConfigListEntry, ConfigSelection, ConfigYesNo, ConfigIP
 from Components.ConfigList import ConfigListScreen
 from Components.Ipkg import IpkgComponent
@@ -15,7 +12,7 @@ config.misc.installwizard.ipkgloaded = ConfigBoolean(default=False)
 config.misc.installwizard.channellistdownloaded = ConfigBoolean(default=False)
 
 
-class InstallWizard(Screen, ConfigListScreen):
+class InstallWizard(ConfigListScreen, Screen):
 
 	STATE_UPDATE = 0
 	STATE_CHOISE_CHANNELLIST = 1

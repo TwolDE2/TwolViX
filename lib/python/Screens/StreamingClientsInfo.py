@@ -1,6 +1,5 @@
-from __future__ import absolute_import
-
 from enigma import eTimer, eStreamServer
+
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from os import listdir
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 

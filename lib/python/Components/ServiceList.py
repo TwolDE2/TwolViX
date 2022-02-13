@@ -1,7 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-
 from enigma import eListboxServiceContent, eListbox, eServiceCenter, eServiceReference, gFont, eRect, eSize
 from Components.config import config
 from Components.GUIComponent import GUIComponent
@@ -198,7 +194,8 @@ class ServiceList(GUIComponent):
 
 		def itemsDistances(value):
 			self.l.setItemsDistances(parseScale(value))
-		for (attrib, value) in list(self.skinAttributes):
+
+		for (attrib, value) in self.skinAttributes[:]:
 			try:
 				locals().get(attrib)(value)
 				self.skinAttributes.remove((attrib, value))

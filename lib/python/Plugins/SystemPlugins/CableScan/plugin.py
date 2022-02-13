@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from enigma import eCableScan, eDVBFrontendParametersCable, eTimer
 
 from Screens.Screen import Screen
@@ -152,7 +150,6 @@ class CableScanScreen(ConfigListScreen, Screen):
 
 		ConfigListScreen.__init__(self, self.list)
 		self["config"].list = self.list
-		self["config"].l.setList(self.list)
 		self["introduction"] = Label(_("Configure your network settings, and press OK to start the scan"))
 
 	def restoreService(self):

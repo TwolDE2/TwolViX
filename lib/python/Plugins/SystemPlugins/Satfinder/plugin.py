@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import division
-import six
 from enigma import eDVBResourceManager, eDVBFrontendParametersSatellite, eDVBFrontendParametersTerrestrial, eTimer
 
 from enigma import eDVBResourceManager, eDVBFrontendParametersSatellite, eDVBFrontendParametersTerrestrial
@@ -33,10 +30,7 @@ if dvbreader_available:
 	from Tools.Hex2strColor import Hex2strColor
 	import time
 	import datetime
-	if six.PY3:
-		import _thread as thread
-	else:
-		import thread
+	import _thread as thread
 
 
 class Satfinder(ScanSetup, ServiceScan):

@@ -1,7 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
-import six
 from six.moves import reload_module
 
 from os import path, stat
@@ -760,7 +756,12 @@ class MovieList(GUIComponent):
 
 			if not collectionName and serviceref.flags & eServiceReference.mustDescent:
 				if not name.endswith('.AppleDouble/') and not name.endswith('.AppleDesktop/') and not name.endswith('.AppleDB/') and not name.endswith('Network Trash Folder/') and not name.endswith('Temporary Items/'):
-					begin = stat(serviceref.getPath()).st_mtime
+					try:
+						begin = stat(serviceref.getPath()).st_mtime
+					except FileNotFoundError as err: # possibly os.stat failed due to unavailable mount
+						begin = 0
+						import traceback
+						traceback.print_exc()
 					data = MovieListData()
 					data.txt = getItemDisplayName(serviceref, info)
 					self.list.append((serviceref, info, begin, data))
@@ -915,7 +916,7 @@ class MovieList(GUIComponent):
 
 		# reverse the dictionary to see which unique movie each tag now references
 		rautotags = {}
-		for tag, movies in list(autotags.items()):
+		for tag, movies in autotags.items():
 			if (len(movies) > 1):
 				movies = tuple(movies) # a tuple can be hashed, but a list not
 				item = rautotags.get(movies, [])
@@ -923,7 +924,7 @@ class MovieList(GUIComponent):
 					rautotags[movies] = item
 				item.append(tag)
 		self.tags = {}
-		for movies, tags in list(rautotags.items()):
+		for movies, tags in rautotags.items():
 			movie = movies[0]
 			# format the tag lists so that they are in 'original' order
 			tags.sort(key=movie.find)

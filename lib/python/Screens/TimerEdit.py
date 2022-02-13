@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from time import time
 from timer import TimerEntry as RealTimerEntry
 from functools import cmp_to_key

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from os import path
 from shutil import rmtree, copy2, move
 from enigma import eTimer

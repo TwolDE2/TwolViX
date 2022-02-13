@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from os import access, mkdir, path as ospath, rmdir, stat, statvfs, walk, W_OK
 import enigma
 import time

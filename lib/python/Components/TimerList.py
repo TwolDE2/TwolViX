@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
 import six
 
 from timer import TimerEntry
@@ -123,7 +121,7 @@ class TimerList(GUIComponent, object):
 			state = _("done!")
 			icon = self.iconDone
 
-		icon and res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, colX + self.iconMargin / 2, (self.rowSplit - self.iconHeight) / 2, self.iconWidth, self.iconHeight, icon))
+		icon and res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, colX + self.iconMargin // 2, (self.rowSplit - self.iconHeight) // 2, self.iconWidth, self.iconHeight, icon))
 
 		orbpos = self.getOrbitalPos(timer.service_ref)
 		orbposWidth = getTextBoundarySize(self.instance, self.font, self.l.getItemSize(), orbpos).width()
@@ -183,7 +181,8 @@ class TimerList(GUIComponent, object):
 
 		def satPosLeft(value):
 			self.satPosLeft = parseScale(value)
-		for (attrib, value) in list(self.skinAttributes):
+
+		for (attrib, value) in self.skinAttributes[:]:
 			try:
 				locals().get(attrib)(value)
 				self.skinAttributes.remove((attrib, value))

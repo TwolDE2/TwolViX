@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
 import six
 
 from copy import copy as copy_copy
@@ -81,7 +78,9 @@ KEY_9 = ACTIONKEY_9
 #            the default if saved_value is 'None' (default)
 #            or invalid.
 #
-class ConfigElement(object):
+
+
+class ConfigElement:
 	def __init__(self):
 		self.extra_args = []
 		self.saved_value = None
@@ -253,7 +252,7 @@ class ConfigElement(object):
 		self.extra_args.append((notifier, extra_args))
 
 	def __removeExtraArgs(self, notifier):
-		for i in list(range(len(self.extra_args))):
+		for i in range(len(self.extra_args)):
 			if self.extra_args[i][0] == notifier:
 				del self.extra_args[i]
 
@@ -268,7 +267,7 @@ def getKeyNumber(key):
 	return key - ACTIONKEY_0
 
 
-class choicesList(object):  # XXX: we might want a better name for this
+class choicesList:  # XXX: we might want a better name for this
 	LIST_TYPE_LIST = 1
 	LIST_TYPE_DICT = 2
 
@@ -442,7 +441,7 @@ class ConfigSelection(ConfigElement):
 			self.changed()
 
 	def setValue(self, value):
-		if str(value) in list(map(str, self.choices)):
+		if str(value) in map(str, self.choices):
 			self._value = self.choices[self.choices.index(value)]
 		else:
 			self._value = self.default
@@ -1738,9 +1737,6 @@ class ConfigDictionarySet(ConfigElement):
 		self.dirs = {}
 		self.value = self.default
 
-	def getKeys(self):
-		return self.dir_pathes
-
 	def setValue(self, value):
 		if isinstance(value, dict):
 			self.dirs = value
@@ -1970,7 +1966,7 @@ class ConfigNothing(ConfigSelection):
 #
 
 
-class ConfigSubsectionContent(object):
+class ConfigSubsectionContent:
 	pass
 
 # we store a backup of the loaded configuration
@@ -1985,7 +1981,7 @@ class ConfigSubsectionContent(object):
 # config.dipswitches.append(ConfigYesNo())
 
 
-class ConfigSubList(list, object):
+class ConfigSubList(list):
 	def __init__(self):
 		list.__init__(self)
 		self.stored_values = {}
@@ -2008,7 +2004,7 @@ class ConfigSubList(list, object):
 
 	def setSavedValue(self, values):
 		self.stored_values = dict(values)
-		for (key, val) in list(self.stored_values.items()):
+		for (key, val) in self.stored_values.items():
 			if int(key) < len(self):
 				self[int(key)].saved_value = val
 
@@ -2030,22 +2026,22 @@ class ConfigSubList(list, object):
 # file.
 
 
-class ConfigSubDict(dict, object):
+class ConfigSubDict(dict):
 	def __init__(self):
 		dict.__init__(self)
 		self.stored_values = {}
 
 	def save(self):
-		for x in list(self.values()):
+		for x in self.values():
 			x.save()
 
 	def load(self):
-		for x in list(self.values()):
+		for x in self.values():
 			x.load()
 
 	def getSavedValue(self):
 		res = {}
-		for (key, val) in list(self.items()):
+		for (key, val) in self.items():
 			sv = val.saved_value
 			if sv is not None:
 				res[str(key)] = sv
@@ -2053,7 +2049,7 @@ class ConfigSubDict(dict, object):
 
 	def setSavedValue(self, values):
 		self.stored_values = dict(values)
-		for (key, val) in list(self.items()):
+		for (key, val) in self.items():
 			if str(key) in self.stored_values:
 				val.saved_value = self.stored_values[str(key)]
 
@@ -2081,7 +2077,7 @@ class ConfigSubDict(dict, object):
 # __setattr__ to a usual exisiting class and you will.
 
 
-class ConfigSubsection(object):
+class ConfigSubsection:
 	def __init__(self):
 		self.__dict__["content"] = ConfigSubsectionContent()
 		self.content.items = {}
@@ -2106,7 +2102,7 @@ class ConfigSubsection(object):
 
 	def getSavedValue(self):
 		res = self.content.stored_values
-		for (key, val) in list(self.content.items.items()):
+		for (key, val) in self.content.items.items():
 			sv = val.saved_value
 			if sv is not None:
 				res[key] = sv
@@ -2117,7 +2113,7 @@ class ConfigSubsection(object):
 	def setSavedValue(self, values):
 		values = dict(values)
 		self.content.stored_values = values
-		for (key, val) in list(self.content.items.items()):
+		for (key, val) in self.content.items.items():
 			value = values.get(key, None)
 			if value is not None:
 				val.saved_value = value
@@ -2125,15 +2121,15 @@ class ConfigSubsection(object):
 	saved_value = property(getSavedValue, setSavedValue)
 
 	def save(self):
-		for x in list(self.content.items.values()):
+		for x in self.content.items.values():
 			x.save()
 
 	def load(self):
-		for x in list(self.content.items.values()):
+		for x in self.content.items.values():
 			x.load()
 
 	def cancel(self):
-		for x in list(self.content.items.values()):
+		for x in self.content.items.values():
 			x.cancel()
 
 	def dict(self):

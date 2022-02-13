@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from os import access, path as ospath, F_OK, R_OK
 
 from Components.Scanner import scanDevice

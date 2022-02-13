@@ -1,6 +1,3 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 import sys
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
@@ -11,7 +8,6 @@ from Components.FileList import FileList
 from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS, SCOPE_FONTS, SCOPE_HDD
 from Components.config import config, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
-import six
 
 
 class FileBrowser(Screen, HelpableScreen):
@@ -88,7 +84,7 @@ class FileBrowser(Screen, HelpableScreen):
 		self.close(None, False, None)
 
 
-class ProjectSettings(Screen, ConfigListScreen):
+class ProjectSettings(ConfigListScreen, Screen):
 	skin = """
 		<screen name="ProjectSettings" position="center,center" size="560,440" title="Collection settings" >
 			<ePixmap pixmap="buttons/red.png" position="0,0" size="140,40" alphatest="on" />
@@ -179,9 +175,9 @@ class ProjectSettings(Screen, ConfigListScreen):
 
 		self["config"].setList(self.list)
 		self.keydict = {}
-		for key, val in six.iteritems(self.settings.dict()):
+		for key, val in self.settings.dict().items():
 			self.keydict[val] = key
-		for key, val in six.iteritems(self.project.menutemplate.settings.dict()):
+		for key, val in self.project.menutemplate.settings.dict().items():
 			self.keydict[val] = key
 
 	def keyLeft(self):

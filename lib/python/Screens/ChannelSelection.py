@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
-from __future__ import division
 import six
 
 from os import listdir, path, rename, remove 
 import re
 import sys
-import unicodedata
 from time import localtime, time, strftime
 
 from enigma import eActionMap, eServiceReference, eEPGCache, eServiceCenter, eRCInput, eTimer, ePoint, eDVBDB, iPlayableService, iServiceInformation, getPrevAsciiCode, eEnv, eDVBLocalTimeHandler
@@ -49,6 +45,7 @@ from Screens.VirtualKeyBoard import VirtualKeyBoard
 from ServiceReference import ServiceReference
 from Tools.Alternatives import GetWithAlternative
 from Tools.BoundFunction import boundFunction
+from Tools.Directories import sanitizeFilename
 from Tools.LoadPixmap import LoadPixmap
 import Tools.Notifications
 from Tools.NumericalTextInput import NumericalTextInput
@@ -968,11 +965,8 @@ class ChannelSelectionEdit:
 		mutableBouquet = cur_root.list().startEdit()
 		if mutableBouquet:
 			servicename = cur_service.getServiceName()
-			if six.PY3:
-				name = unicodedata.normalize(u"NFKD", servicename).encode("ascii", "ignore").decode('utf8').translate(str.maketrans('', '', '<>:"/\\|?*() '))
-			else:
-				name = unicodedata.normalize("NFKD", unicode(servicename, "utf_8", errors="ignore")).encode("ASCII", "ignore").translate(None, '<>:"/\\|?*() ')
-			while path.isfile((self.mode == MODE_TV and '/etc/enigma2/alternatives.%s.tv' or '/etc/enigma2/alternatives.%s.radio') % name):
+			name = unicodedata.normalize(u"NFKD", servicename).encode("ascii", "ignore").decode('utf8').translate(str.maketrans('', '', '<>:"/\\|?*() '))
+			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/alternatives.%s.tv' or '/etc/enigma2/alternatives.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
 			new_ref = ServiceReference((self.mode == MODE_TV and '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.tv" ORDER BY bouquet' or '1:134:1:0:0:0:0:0:0:0:FROM BOUQUET "alternatives.%s.radio" ORDER BY bouquet') % name)
@@ -1006,10 +1000,7 @@ class ChannelSelectionEdit:
 		mutableBouquetList = serviceHandler.list(self.bouquet_root).startEdit()
 		if mutableBouquetList:
 			bName += ' ' + (_("(TV)") if self.mode == MODE_TV else _("(Radio)"))
-			if six.PY3:
-				name = unicodedata.normalize(u"NFKD", bName).encode("ASCII", "ignore").decode('utf8').translate(str.maketrans('', '', '<>:"/\\|?*() '))
-			else:
-				name = unicodedata.normalize("NFKD", unicode(bName, "utf_8", errors="ignore")).encode("ASCII", "ignore").translate(None, '<>:"/\\|?*() ')
+			name = sanitizeFilename(bName)
 			while path.isfile((self.mode == MODE_TV and '/etc/enigma2/userbouquet.%s.tv' or '/etc/enigma2/userbouquet.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
