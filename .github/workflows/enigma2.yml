@@ -44,12 +44,12 @@ jobs:
         sudo apt-get install libgstreamer1.0-dev
         sudo apt-get install libgstreamer-plugins-base1.0-dev
         sudo apt-get install libfreetype6-dev
-        sudo apt-get install libsigc++-2.0-dev
         sudo apt-get install libfribidi-dev
         sudo apt-get install libssl-dev
         sudo apt-get install libavahi-client-dev
         sudo apt-get install libjpeg-turbo8-dev
         sudo apt-get install libgif-dev
+        sudo apt-get install mm-common
     - name: build enigma2 dependencies
       env:
         CC: "gcc-${{ matrix.gcc }}"
@@ -65,11 +65,11 @@ jobs:
         make
         sudo make install
         popd
-        echo "installing libsigci++-3"
+        echo "installing libsigc++-3"
         pushd .
         cd /tmp
-        git clone --depth 1 https://github.com/libsigcplusplus/libsigcplusplus.git
-        cd libsigcplusplus
+        git clone --depth 1 https://github.com/dbus-cxx/libsigc--3.0.git
+        cd libsigc--3.0
         autoreconf -i
         ./configure
         make
