@@ -67,7 +67,7 @@ jobs:
         echo "installing libsigc++-3"
         pushd .
         cd /tmp
-        git clone --depth 1 https://github.com/libsigcplusplus/libsigcplusplus.git
+        git clone --depth 1 https://download.gnome.org/sources/libsigc++/3.0/libsigc++-3.0.6.tar.xz
         cd libsigcplusplus
         autoreconf -i
         ./configure
