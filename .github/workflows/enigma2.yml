@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-21.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         gcc: [11]
@@ -70,6 +70,16 @@ jobs:
         cd /tmp
         git clone --depth 1 https://github.com/dbus-cxx/libsigc--3.0.git
         cd libsigc--3.0
+        autoreconf -i
+        ./configure
+        make
+        sudo make install
+        popd
+        echo "installing glibc 233"
+        pushd .
+        cd /tmp
+        git clone --depth 1 https://github.com/TwolDE2/glic233.git
+        cd glic233
         autoreconf -i
         ./configure
         make
