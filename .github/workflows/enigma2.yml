@@ -55,6 +55,7 @@ jobs:
         CC: "gcc-${{ matrix.gcc }}"
         CXX: "g++-${{ matrix.gcc }}"
       run: |
+      https://github.com/bminor/glibc
         echo "installing libdvbsi++"
         pushd .
         cd /tmp
@@ -70,6 +71,16 @@ jobs:
         cd /tmp
         git clone --depth 1 https://github.com/dbus-cxx/libsigc--3.0.git
         cd libsigc--3.0
+        autoreconf -i
+        ./configure
+        make
+        sudo make install
+        popd
+        echo "installing glibc 233"
+        pushd .
+        cd /tmp
+        git clone --depth 1 https://github.com/bminor/glibc.git
+        cd glibc
         autoreconf -i
         ./configure
         make
