@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         gcc: [11]
-        python: ['3.9', '3.10']
+        python: ['3.10']
     steps:
     - uses: actions/checkout@v2
     - name: Setup Python
@@ -60,6 +60,16 @@ jobs:
         cd /tmp
         git clone --depth 1 https://github.com/oe-alliance/libdvbsi.git
         cd libdvbsi
+        autoreconf -i
+        ./configure
+        make
+        sudo make install
+        popd
+        echo "installing libsigci++-3"
+        pushd .
+        cd /tmp
+        git clone --depth 1 https://github.com/libsigcplusplus/libsigcplusplus.git
+        cd libsigcplusplus
         autoreconf -i
         ./configure
         make
