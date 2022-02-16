@@ -55,7 +55,6 @@ jobs:
         CC: "gcc-${{ matrix.gcc }}"
         CXX: "g++-${{ matrix.gcc }}"
       run: |
-      https://github.com/bminor/glibc
         echo "installing libdvbsi++"
         pushd .
         cd /tmp
