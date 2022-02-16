@@ -80,6 +80,8 @@ jobs:
         cd /tmp
         git clone --depth 1 https://github.com/TwolDE2/glic233.git
         cd glic233
+        make clean
+        rm -rf autom4te.cache configure        
         autoreconf -i
         ./configure
         make
