@@ -4,7 +4,7 @@ from os import path as ospath
 config.plugins = ConfigSubsection()
 
 
-class PluginDescriptor(object):
+class PluginDescriptor():
 	"""An object to describe a plugin."""
 
 	# where to list the plugin. Note that there are different call arguments,
@@ -100,18 +100,21 @@ class PluginDescriptor(object):
 
 		self.wakeupfnc = wakeupfnc
 
-		self._fnc = fnc
+		self.fnc = fnc
 
 	def __call__(self, *args, **kwargs):
-		if callable(self._fnc):
-			return self._fnc(*args, **kwargs)
+		if callable(self.fnc):
+			return self.fnc(*args, **kwargs)
 		else:
 			print("PluginDescriptor called without a function!")
 			return []
 
+	# overrides the builtin object.__getattribute__(self, name).
+	# Method for old code still using the __call__ attribute expecting 
+	# to get the plugin's fnc, i.e. old code was "self.__call__ = fnc"
 	def __getattribute__(self, name):
 		if name == '__call__':
-			return self._fnc is not None and self._fnc or {}
+			return self.fnc is not None and self.fnc or {}
 		return object.__getattribute__(self, name)
 
 	def updateIcon(self, path):
