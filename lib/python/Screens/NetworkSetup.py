@@ -1,5 +1,3 @@
-import six
-
 from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
 import netifaces as ni
 from random import Random
@@ -95,7 +93,7 @@ class NSCommon:
 		self.Console.ePopen("/usr/bin/opkg install " + pkgname, callback)
 
 	def checkNetworkState(self, str, retval, extra_args):
-		str = six.ensure_str(str)
+		str = str.decode()
 		if "Collected errors" in str:
 			self.session.openWithCallback(self.close, MessageBox, _("A background update check is in progress, please wait a few minutes and then try again."), type=MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 		elif not str:
@@ -111,7 +109,7 @@ class NSCommon:
 		self.Console.ePopen("/usr/bin/opkg list_installed " + self.service_name, self.RemovedataAvail)
 
 	def RemovedataAvail(self, result, retval, extra_args):
-		result = six.ensure_str(result)
+		result = result.decode()
 		if result:
 			self.session.openWithCallback(self.RemovePackage, MessageBox, _("Are you ready to remove %s ?") % self.getTitle(), MessageBox.TYPE_YESNO)
 		else:
@@ -1201,7 +1199,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 			self.session.open(MessageBox, _("Your network has finished restarting"), type=MessageBox.TYPE_INFO, timeout=10, default=False)
 
 	def dataAvail(self, data):
-		data = six.ensure_str(data)
+		data = data.decode()
 		self.LinkState = None
 		for line in data.splitlines():
 			line = line.strip()
@@ -3526,7 +3524,7 @@ class NetworkPassword(ConfigListScreen, Screen):
 			self.close()
 
 	def dataAvail(self, data):
-		data = six.ensure_str(data)
+		data = data.decode()
 		self.output_line += data
 		while True:
 			i = self.output_line.find('\n')

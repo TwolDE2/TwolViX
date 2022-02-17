@@ -1,5 +1,3 @@
-import six
-
 from time import time
 import socket
 import sys
@@ -92,7 +90,7 @@ class FeedsStatusCheck:
 						print("[OnlineUpdateCheck][getFeedStatus] checking feeds state")
 						req = Request("http://openvix.co.uk/TrafficLightState.php")
 						d = urlopen(req)
-						trafficLight = six.ensure_str(d.read())
+						trafficLight = d.read().decode()
 						if trafficLight == "stable":
 							status = 0
 						print("trafficLight", trafficLight)

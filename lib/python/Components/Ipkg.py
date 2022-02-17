@@ -1,5 +1,3 @@
-import six
-
 from os import listdir, path, remove
 
 from enigma import eConsoleAppContainer
@@ -122,7 +120,7 @@ class IpkgComponent:
 		self.cmd.dataAvail.remove(self.cmdData)
 
 	def cmdData(self, data):
-		data = six.ensure_str(data)
+		data = data.decode()
 # 		print "data:", data
 		if self.cache is None:
 			self.cache = data

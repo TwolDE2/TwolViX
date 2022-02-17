@@ -1,5 +1,3 @@
-import six
-
 import xml.etree.cElementTree
 
 from gettext import dgettext
@@ -78,7 +76,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 				if skin and skin != "":
 					self.skinName.insert(0, skin)
 				title = setup.get("title", None)
-				title = six.ensure_str(title)
+				title = title.decode()
 				# print("[Setup] [createSetup] %s" % title)
 				# If this break is executed then there can only be one setup tag with this key.
 				# This may not be appropriate if conditional setup blocks become available.
@@ -322,7 +320,7 @@ def setupDom(setup=None, plugin=None):
 #						if title == "":
 #							print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
 #							title = "** Setup error: '%s' title is missing or blank!" % key
-					title = six.ensure_str(title)
+					title = title.decode()
 					# print("[Setup] [setupDOM]title = %s key = %s" % (title, key))
 			except xml.etree.cElementTree.ParseError as err:
 				fd.seek(0)

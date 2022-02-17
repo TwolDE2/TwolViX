@@ -2,7 +2,6 @@
 # similar things, like network connections being (un)plugged.
 from os import getpid
 import socket
-import six
 
 
 class NetlinkSocket(socket.socket):
@@ -15,7 +14,7 @@ class NetlinkSocket(socket.socket):
 		data = self.recv(512)
 		event = {}
 		for item in data.split(b'\x00'):
-			print("[netlink][parse] item=%s" % item)
+			# print("[netlink][parse] item=%s" % item)
 			if not item:
 				# terminator
 				yield event
@@ -23,17 +22,17 @@ class NetlinkSocket(socket.socket):
 			else:
 				try:
 					k, v = item.decode().split('=', 1)
-					print("[netlink][parse] k=%s, v=%s" % (k,v))	
+					# print("[netlink][parse] k=%s, v=%s" % (k,v))	
 					event[k] = v
 				except:
-					print("[netlink][parse] exception item=%s" % item)				
+					# print("[netlink][parse] exception item=%s" % item)				
 					event[None] = item
 
 
 # Quick unit test (you can run this on any Linux machine)
 if __name__ == '__main__':
 	nls = NetlinkSocket()
-	print("socket no:", nls.fileno())
+	# print("socket no:", nls.fileno())
 	while 1:
 		for item in nls.parse():
 			print(repr(item))
