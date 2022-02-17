@@ -75,7 +75,6 @@ class Console:
 	def eBatchCB(self, data, retval, _extra_args):
 		(cmds, callback, extra_args) = _extra_args
 		if self.debug:
-			data = data.decode()
 			print('[Console][eBatch] retval=%s, cmds=%s cmds left=%d, data:\n%s' % (retval, cmds, len(cmds), data))
 		if cmds:
 			cmd = cmds.pop(0)
