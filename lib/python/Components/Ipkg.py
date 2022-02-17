@@ -121,11 +121,11 @@ class IpkgComponent:
 
 	def cmdData(self, data):
 # 		print "data:", data
+		data = data.decode()
 		if self.cache is None:
 			self.cache = data
 		else:
 			self.cache += data
-
 		if '\n' in data:
 			splitcache = self.cache.split('\n')
 			if self.cache[-1] == '\n':
