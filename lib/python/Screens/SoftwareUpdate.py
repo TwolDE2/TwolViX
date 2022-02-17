@@ -1,5 +1,3 @@
-import six
-
 from gettext import dgettext
 
 from enigma import eTimer, eDVBDB

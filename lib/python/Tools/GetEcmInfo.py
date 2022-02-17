@@ -1,5 +1,3 @@
-import six
-
 from os import stat
 import time
 

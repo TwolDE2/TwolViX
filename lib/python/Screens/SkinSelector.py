@@ -1,5 +1,3 @@
-import six
-
 from os import listdir
 from os.path import dirname, exists, isdir, join as pathjoin
 import mmap

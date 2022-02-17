@@ -1,5 +1,3 @@
-import six
-
 from os import listdir, path
 import re
 
