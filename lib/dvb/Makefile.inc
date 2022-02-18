@@ -80,3 +80,13 @@ dvbinclude_HEADERS = \
 	dvb/teletext.h \
 	dvb/tstools.h \
 	dvb/volume.h
+	
+if HAVE_FCC
+dvbinclude_HEADERS = += \
+	dvb/fcc.h \
+	dvb/fccdecoder.h	
+dvb_libenigma_dvb_a_SOURCES = \
+	dvb/fcc.cpp \
+	dvb/fccdecoder.cpp
+endif		
+	
