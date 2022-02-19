@@ -361,7 +361,7 @@ class HdmiCec:
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
 		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
 		self.volumeForwardingEnabled = False
-		self.volumeForwardingDestination = 0
+		self.volumeForwardingDestination = 0x0f if config.hdmicec.force_volume_forwarding.value else 0x00
 		self.wakeup_from_tv = False
 		eActionMap.getInstance().bindAction("", -maxsize - 1, self.keyEvent)
 		config.hdmicec.volume_forwarding.addNotifier(self.configVolumeForwarding)
@@ -401,9 +401,9 @@ class HdmiCec:
 				self.sendMessage(msgaddress, "osdname")
 			elif cmd == 0x72 or cmd == 0x7e: 		# system audio mode status 114 or 126
 				if ctrl0 == 1:
-					self.volumeForwardingDestination = 5 		# on: send volume keys to receiver
+					self.volumeForwardingDestination = 0x05 		# on: send volume keys to receiver
 				else:
-					self.volumeForwardingDestination = 0 		# off: send volume keys to tv
+					self.volumeForwardingDestination = 0x00 		# off: send volume keys to tv
 				print("[HdmiCec][messageReceived4]: volume forwarding=%s, msgaddress=%s" % (self.volumeForwardingDestination, msgaddress))					
 				if config.hdmicec.volume_forwarding.value:
 					print("[HdmiCec][messageReceived5]: volume forwarding to device %02x enabled" % self.volumeForwardingDestination)
@@ -527,7 +527,7 @@ class HdmiCec:
 			data = data[:14]
 		elif message == "givesystemaudiostatus":
 			cmd = 0x7d
-			msgaddress = 0x05
+			msgaddress = 0x0f # use broadcast address
 		elif message == "requestactivesource":
 			cmd = 0x85
 			msgaddress = 0x0f # use broadcast address
@@ -653,7 +653,8 @@ class HdmiCec:
 			self.volumeForwardingEnabled = False
 
 	def keyEvent(self, keyCode, keyEvent):
-		if not self.volumeForwardingEnabled:
+		if not self.volumeForwardingEnabled or not config.hdmicec.force_volume_forwarding.value:
+			print("[hdmiCEC][keyEvent]: config.hdmicec.force_volume_forwarding=%s, hdmicec.volume_forwarding=%s" % (config.hdmicec.force_volume_forwarding.value, config.hdmicec.volume_forwarding.value))
 			return
 		cmd = 0
 		data = ""
@@ -668,7 +669,7 @@ class HdmiCec:
 				cmd = 0x44
 				data = struct.pack("B", 0x41)		# 0x41: "<Volume Up>"
 		elif keyEvent == 1 and keyCode in (113, 114, 115):
-			cmd = 0x45
+			cmd = 0x45					# 0x45: "<stop>"
 		if cmd != 0:
 			print("[HdmiCec][keyEvent1]: cmd=%X,data=%s" % (cmd, data))
 			if data:
