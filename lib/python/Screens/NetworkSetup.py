@@ -669,14 +669,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 			self.dhcpdefault = False
 		self.hasGatewayConfigEntry = NoSave(ConfigYesNo(default=self.dhcpdefault or False))
 		self.gatewayConfigEntry = NoSave(ConfigIP(default=iNetwork.getAdapterAttribute(self.iface, "gateway") or [0, 0, 0, 0]))
-		if iNetwork.getAdapterAttribute(self.iface, "dns-nameservers"):
-			self.dnsconfigdefault = True
-		else:
-			self.dnsconfigdefault = False
-		self.hasDNSConfigEntry = NoSave(ConfigYesNo(default=self.dnsconfigdefault or False))
-		manualNameservers = (iNetwork.getInterfacesNameserverList(self.iface) + [[0, 0, 0, 0]] * 2)[0:2]
-		self.manualPrimaryDNS = NoSave(ConfigIP(default=manualNameservers[0]))
-		self.manualSecondaryDNS = NoSave(ConfigIP(default=manualNameservers[1]))
 		nameserver = (iNetwork.getNameserverList() + [[0, 0, 0, 0]] * 2)[0:2]
 		self.primaryDNS = NoSave(ConfigIP(default=nameserver[0]))
 		self.secondaryDNS = NoSave(ConfigIP(default=nameserver[1]))
@@ -696,11 +688,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 				self.list.append(self.gatewayEntry)
 				if self.hasGatewayConfigEntry.value:
 					self.list.append(getConfigListEntry(_("Gateway"), self.gatewayConfigEntry))
-				self.primaryDNSEntry = getConfigListEntry(_('Primary DNS') + " (" + _("Nameserver %d") % 1 + ")", self.manualPrimaryDNS)
-				self.secondaryDNSEntry = getConfigListEntry(_('Secondary DNS') + " (" + _("Nameserver %d") % 2 + ")", self.manualSecondaryDNS)
-				self.list.append(self.primaryDNSEntry)
-				self.list.append(self.secondaryDNSEntry)
-
 			self.extended = None
 			self.configStrings = None
 			for p in plugins.getPlugins(PluginDescriptor.WHERE_NETWORKSETUP):
@@ -809,14 +796,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 				iNetwork.setAdapterAttribute(self.iface, "gateway", self.gatewayConfigEntry.value)
 			else:
 				iNetwork.removeAdapterAttribute(self.iface, "gateway")
-
-			if self.hasDNSConfigEntry.value or not self.dhcpConfigEntry.value:
-				interfacesDnsLines = self.makeLineDnsNameservers([self.manualPrimaryDNS.value, self.manualSecondaryDNS.value])
-				if interfacesDnsLines == "":
-					interfacesDnsLines = False
-				iNetwork.setAdapterAttribute(self.iface, "dns-nameservers", interfacesDnsLines)
-			else:
-				iNetwork.setAdapterAttribute(self.iface, "dns-nameservers", False)
 
 			if self.extended != None and self.configStrings != None:
 				iNetwork.setAdapterAttribute(self.iface, "configStrings", self.configStrings(self.iface))
