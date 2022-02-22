@@ -22,7 +22,6 @@ from Screens.SoftwareUpdate import UpdatePlugin
 from Tools.Directories import fileExists, fileCheck, pathExists
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
-from Tools.Sign import SIGN
 
 
 class About(Screen):
@@ -138,7 +137,7 @@ class About(Screen):
 			with open("/proc/stb/sensors/temp/value", "r") as f:
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			AboutText += _("System temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + SIGN + "C\n"
+			AboutText += _("System temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
 
 		tempinfo = ""
 		if path.exists("/proc/stb/fp/temp_sensor_avs"):
@@ -157,7 +156,7 @@ class About(Screen):
 			except:
 				tempinfo = ""
 		if tempinfo and int(tempinfo) > 0:
-			AboutText += _("Processor temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + SIGN + "C\n"
+			AboutText += _("Processor temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
 
 		fp_version = getFPVersion()
 		if fp_version is None:
@@ -687,7 +686,7 @@ class AboutSummary(ScreenSummary):
 			with open("/proc/stb/sensors/temp/value", "r") as f:
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			aboutText += _("System temperature: %s") % tempinfo.replace("\n", "") + SIGN + "C\n\n"
+			aboutText += _("System temperature: %s") % tempinfo.replace("\n", "") + "\xb0" + "C\n\n"
 		self["about"] = StaticText(aboutText)  # DEBUG: Proposed for new summary screens.
 		self["AboutText"] = StaticText(aboutText)
 
