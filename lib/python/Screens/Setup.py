@@ -82,7 +82,7 @@ class Setup(ConfigListScreen, Screen, HelpableScreen):
 		self.setTitle(title if title else _("Setup"))
 		if self.list != oldList or self.showDefaultChanged or self.graphicSwitchChanged:
 			currentItem = self["config"].getCurrent()
-			self["config"].setList(self.list)
+			self["config"].list = self.list
 			if config.usage.sort_settings.value:
 				self["config"].list.sort()
 			self.moveToItem(currentItem)
