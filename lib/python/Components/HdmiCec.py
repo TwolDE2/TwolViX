@@ -355,13 +355,13 @@ class HdmiCec:
 		self.delay.timeout.get().append(self.sendStandbyMessages)
 		self.useStandby = True
 		self.handlingStandbyFromTV = False
-		if config.hdmicec.enabled.value and config.hdmicec.fixed_physical_address.value != "0.0.0.0":
+		if config.hdmicec.enabled.value and config.hdmicec.fixed_physical_address.value != "1.0.0.0":
 			setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
 		config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
 		self.volumeForwardingEnabled = False
-		self.volumeForwardingDestination = 0x0f if config.hdmicec.force_volume_forwarding.value else 0x00
+		self.volumeForwardingDestination = 0
 		self.wakeup_from_tv = False
 		eActionMap.getInstance().bindAction("", -maxsize - 1, self.keyEvent)
 		config.hdmicec.volume_forwarding.addNotifier(self.configVolumeForwarding)
@@ -478,14 +478,11 @@ class HdmiCec:
 			data = struct.pack("B", 0x6d)
 		elif message == "setsystemaudiomode":
 			cmd = 0x70	# 112
-			msgaddress = 0x05
 			data = self.packDevAddr()
 		elif message == "sourceactive":
-			msgaddress = 0x0f # use broadcast for active source command
 			cmd = 0x82	# 130
 			data = self.packDevAddr()
 		elif message == "reportaddress":
-			msgaddress = 0x0f # use broadcast address
 			cmd = 0x84	# 132
 			data = self.packDevAddr(True)
 		elif message == "vendorid":
@@ -527,14 +524,11 @@ class HdmiCec:
 			data = data[:14]
 		elif message == "givesystemaudiostatus":
 			cmd = 0x7d
-			msgaddress = 0x0f # use broadcast address
 		elif message == "requestactivesource":
 			cmd = 0x85
-			msgaddress = 0x0f # use broadcast address
 		elif message == "getpowerstatus":
 			self.useStandby = True
 			cmd = 0x8f
-			msgaddress = 0x0f # use broadcast msgaddress => boxes will send info
 		if cmd != 0:
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			print("[HdmiCec][sendMessage3]: CECcmd=%s cmd=%X, msgaddress=%s data=%s" % (CECcmd, cmd, msgaddress, data))
@@ -649,50 +643,55 @@ class HdmiCec:
 		print("[hdmiCEC][configVolumeForwarding]: hdmicec.enabled=%s, hdmicec.volume_forwarding=%s" % (config.hdmicec.enabled.value, config.hdmicec.volume_forwarding.value))	
 		if config.hdmicec.enabled.value and config.hdmicec.volume_forwarding.value:
 			self.sendMessage(0x05, "givesystemaudiostatus")
+			self.sendMessage(0x00, "givesystemaudiostatus")
 		else:
 			self.volumeForwardingEnabled = False
 
 	def keyEvent(self, keyCode, keyEvent):
-		if not self.volumeForwardingEnabled or not config.hdmicec.force_volume_forwarding.value:
-			print("[hdmiCEC][keyEvent]: config.hdmicec.force_volume_forwarding=%s, hdmicec.volume_forwarding=%s" % (config.hdmicec.force_volume_forwarding.value, config.hdmicec.volume_forwarding.value))
-			return
-		cmd = 0
-		data = ""
-		if keyEvent in (0, 2):
-			if keyCode == 113:
-				cmd = 0x44
-				data = struct.pack("B", 0x43)		# 0x43: "<Mute>"
-			if keyCode == 114:
-				cmd = 0x44
-				data = struct.pack("B", 0x42)		# 0x42: "<Volume Down>"
-			if keyCode == 115:
-				cmd = 0x44
-				data = struct.pack("B", 0x41)		# 0x41: "<Volume Up>"
-		elif keyEvent == 1 and keyCode in (113, 114, 115):
-			cmd = 0x45					# 0x45: "<stop>"
-		if cmd != 0:
-			print("[HdmiCec][keyEvent1]: cmd=%X,data=%s" % (cmd, data))
-			if data:
-				encoder = chardet.detect(data)["encoding"]
-				data = six.ensure_str(data, encoding=encoder, errors='ignore')
-				# print("[HdmiCec][keyEvent2]: encoder=%s, cmd=%x, data=%s" % (encoder, cmd, data))
-			if config.hdmicec.minimum_send_interval.value != "0":
-				self.queueKeyEvent.append((self.volumeForwardingDestination, cmd, data))
-				if not self.waitKeyEvent.isActive():
-					self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
+		if self.volumeForwardingEnabled or config.hdmicec.force_volume_forwarding.value:
+			cmd = 0
+			data = ""
+			if keyEvent in (0, 2):
+				if keyCode == 113:
+					cmd = 0x44
+					data = struct.pack("B", 0x43)		# 0x43: "<Mute>"
+				if keyCode == 114:
+					cmd = 0x44
+					data = struct.pack("B", 0x42)		# 0x42: "<Volume Down>"
+				if keyCode == 115:
+					cmd = 0x44
+					data = struct.pack("B", 0x41)		# 0x41: "<Volume Up>"
+			elif keyEvent == 1 and keyCode in (113, 114, 115):
+				cmd = 0x45					# 0x45: "<stop>"
+			if cmd != 0:
+				# print("[HdmiCec][keyEvent1]: cmd=%X,data=%s" % (cmd, data))
+				if data:
+					encoder = chardet.detect(data)["encoding"]
+					data = six.ensure_str(data, encoding=encoder, errors='ignore')
+					# print("[HdmiCec][keyEvent2]: encoder=%s, cmd=%x, data=%s" % (encoder, cmd, data))
+				if config.hdmicec.minimum_send_interval.value != "0":
+					self.queueKeyEvent.append((self.volumeForwardingDestination, cmd, data))
+					if not self.waitKeyEvent.isActive():
+						self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
+				else:
+					print("[HdmiCec][keyEvent3]: forwarding dest=%s, cmd=%X, data=%s" % (self.volumeForwardingDestination, cmd, data))
+				if self.volumeForwardingEnabled:
+					eHdmiCEC.getInstance().sendMessage(self.volumeForwardingDestination, cmd, data, len(data))
+				else:
+					eHdmiCEC.getInstance().sendMessage(0, cmd, data, len(data))
+					eHdmiCEC.getInstance().sendMessage(5, cmd, data, len(data))
+				if config.hdmicec.debug.value in ["2", "3"]:
+					self.debugTx(self.volumeForwardingDestination, cmd, data)
+				return 1
 			else:
-				print("[HdmiCec][keyEvent3]: forwarding dest=%s, cmd=%X, data=%s" % (self.volumeForwardingDestination, cmd, data))			
-				eHdmiCEC.getInstance().sendMessage(self.volumeForwardingDestination, cmd, data, len(data))
-			if config.hdmicec.debug.value in ["2", "3"]:
-				self.debugTx(self.volumeForwardingDestination, cmd, data)
-			return 1
+				return 0
 		else:
 			return 0
 
 	def sendKeyEventQ(self):
 		if len(self.queueKeyEvent):
 			(msgaddress, cmd, data) = self.queueKeyEvent.pop(0)
-			print("[HdmiCec][sendmessage2]: msgaddress=%s, cmd=%X, data=%s" % (msgaddress, cmd, data))
+			print("[HdmiCec][sendKeyEventQ]: msgaddress=%s, cmd=%X, data=%s" % (msgaddress, cmd, data))
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 			self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 
