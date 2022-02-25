@@ -28,7 +28,7 @@ def mountpoint_choosen(option):
 
 	if not list:
 		from Screens.MessageBox import MessageBox
-		if os.access(mountpoint, os.F_OK | os.R_OK):
+		if access(mountpoint, F_OK | R_OK):
 			session.open(MessageBox, _("No displayable files on this medium found!"), MessageBox.TYPE_INFO, simple=True, timeout=5)
 		else:
 			print("ignore", mountpoint, "because its not accessible")
@@ -41,7 +41,7 @@ def mountpoint_choosen(option):
 
 def scan(session):
 	from Screens.ChoiceBox import ChoiceBox
-	parts = [(r.tabbedDescription(), r.mountpoint, session) for r in harddiskmanager.getMountedPartitions(onlyhotplug=False) if os.access(r.mountpoint, os.F_OK | os.R_OK)]
+	parts = [(r.tabbedDescription(), r.mountpoint, session) for r in harddiskmanager.getMountedPartitions(onlyhotplug=False) if access(r.mountpoint, F_OK | R_OK)]
 	parts.append((_("Memory") + "\t/tmp", "/tmp", session))
 	session.openWithCallback(mountpoint_choosen, ChoiceBox, title=_("Please select medium to be scanned"), list=parts)
 
@@ -108,7 +108,7 @@ def movielist_open(list, session, **kwargs):
 	else:
 		stype = 4097
 	if InfoBar.instance:
-		path = os.path.split(f.path)[0]
+		path = ospath.split(f.path)[0]
 		if not path.endswith('/'):
 			path += '/'
 		config.movielist.last_videodir.value = path
