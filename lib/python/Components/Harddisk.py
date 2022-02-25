@@ -1,5 +1,3 @@
-import six
-
 import errno
 from os import listdir, major, minor, path as ospath, rmdir, sep as ossep, stat, statvfs, system as ossystem, unlink
 import re
@@ -102,7 +100,8 @@ def getProcMounts():
 			import subprocess
 			res = subprocess.run(['blkid', '-sTYPE', '-ovalue', item[0]], capture_output=True)
 			if res.returncode == 0:
-				item[2] = six.ensure_str(res.stdout).strip()
+				print("[Harddisk] fuseblk", res.stdout)			
+				item[2] = res.stdout.strip().decode()
 	return result
 
 
@@ -983,7 +982,7 @@ class UnmountTask(Components.Task.LoggingTask):
 		print("[Harddisk] UnMountTask - prepare")
 		try:
 			dev = self.hdd.disk_path.split(ossep)[-1]
-			dev = six.ensure_binary(dev)
+			print("[Harddisk] [UnMountTask - prepare]", dev)
 			open("/dev/nomount.%s" % dev, "wb").close()
 		except (IOError, OSError) as err:
 			print("[Harddisk] UnmountTask - Error: Failed to create /dev/nomount file:", err)
@@ -1046,7 +1045,7 @@ class MkfsTask(Components.Task.LoggingTask):
 		self.fsck_state = None
 
 	def processOutput(self, data):
-		data = six.ensure_str(data)
+		data = data.decode()
 		print("[Harddisk] MkfsTask - [Mkfs]", data)
 		if "Writing inode tables:" in data:
 			self.fsck_state = "inode"
