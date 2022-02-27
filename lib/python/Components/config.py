@@ -114,8 +114,10 @@ class ConfigElement:
 
 	# you need to override this to do input validation
 	def setValue(self, value):
+		prev = self._value if hasattr(self, "_value") else None
 		self._value = value
-		self.changed()
+		if prev != value:
+			self.changed()
 
 	def getValue(self):
 		return self._value
@@ -441,12 +443,14 @@ class ConfigSelection(ConfigElement):
 			self.changed()
 
 	def setValue(self, value):
+		prev = self._value if hasattr(self, "_value") else None
 		if str(value) in map(str, self.choices):
 			self._value = self.choices[self.choices.index(value)]
 		else:
 			self._value = self.default
 		self._descr = None
-		self.changed()
+		if prev != self._value:
+			self.changed()
 
 	def tostring(self, val):
 		return str(val)
@@ -974,12 +978,14 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 			return self.text
 
 	def setValue(self, val):
+		prev = self.text if hasattr(self, "text") else None
 		try:
 			self.text = six.ensure_text(val)
 		except UnicodeDecodeError:
 			self.text = six.ensure_text(val, errors='ignore')
 			print("[Config] Broken UTF8!")
-		self.changed()
+		if self.text != prev:
+			self.changed()
 
 	value = property(getValue, setValue)
 	_value = property(getValue, setValue)
@@ -1172,8 +1178,10 @@ class ConfigInteger(ConfigSequence):
 
 	# you need to override this to do input validation
 	def setValue(self, value):
+		prev = self._value if hasattr(self, "_value") and len(self._value) else None
 		self._value = [value]
-		self.changed()
+		if self._value != prev:
+			self.changed()
 
 	def getValue(self):
 		return self._value[0]
@@ -1367,12 +1375,14 @@ class ConfigText(ConfigElement, NumericalTextInput):
 			return self.text
 
 	def setValue(self, val):
+		prev = self.text if hasattr(self, "text") else None
 		try:
 			self.text = six.ensure_text(val)
 		except UnicodeDecodeError:
 			self.text = val.decode("utf-8", "ignore")
 			print("[Config] Broken UTF8!")
-		self.changed()
+		if self.text != prev:
+			self.changed()
 
 	value = property(getValue, setValue)
 	_value = property(getValue, setValue)
@@ -1507,8 +1517,10 @@ class ConfigNumber(ConfigText):
 		return int(self.text)
 
 	def setValue(self, val):
+		prev = self.text if hasattr(self, "text") else None
 		self.text = str(val)
-		self.changed()
+		if self.text != prev:
+			self.changed()
 
 	value = property(getValue, setValue)
 	_value = property(getValue, setValue)
@@ -1738,6 +1750,8 @@ class ConfigDictionarySet(ConfigElement):
 		self.value = self.default
 
 	def setValue(self, value):
+		if value == self.dirs:
+			return
 		if isinstance(value, dict):
 			self.dirs = value
 			self.changed()
@@ -1817,9 +1831,10 @@ class ConfigLocations(ConfigElement):
 		add = [x for x in value if x not in loc]
 		diff = add + [x for x in loc if x not in value]
 		locations = [x for x in locations if x[0] not in diff] + [[x, self.getMountpoint(x), True, True] for x in add]
-		# locations.sort(key = lambda x: x[0])
-		self.locations = locations
-		self.changed()
+		locations.sort(key = lambda x: x[0])
+		if self.locations != locations:
+			self.locations = locations
+			self.changed()
 
 	def getValue(self):
 		self.checkChangedMountpoints()
