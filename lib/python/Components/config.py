@@ -1811,6 +1811,7 @@ class ConfigLocations(ConfigElement):
 		self.value = default[:]
 
 	def setValue(self, value):
+		value = list(set(value)) # avoid duplicates
 		locations = self.locations
 		loc = [x[0] for x in locations if x[3]]
 		add = [x for x in value if x not in loc]
@@ -1841,6 +1842,7 @@ class ConfigLocations(ConfigElement):
 			tmp = self.default
 		else:
 			tmp = self.fromstring(sv)
+		tmp = list(set(tmp)) # avoid duplicates
 		locations = [[x, None, False, False] for x in tmp]
 		self.refreshMountpoints()
 		for x in locations:
