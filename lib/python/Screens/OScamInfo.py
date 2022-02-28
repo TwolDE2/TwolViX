@@ -1,13 +1,10 @@
-from os import path
+from os import path as ospath
 import time
 from operator import itemgetter
 from xml.etree import ElementTree
 # required methods: Request, urlopen, HTTPError, URLError, HTTPHandler, HTTPPasswordMgrWithDefaultRealm, HTTPDigestAuthHandler, build_opener, install_opener
-try: # python 3
-	from urllib.request import urlopen, Request, HTTPHandler, HTTPPasswordMgrWithDefaultRealm, HTTPDigestAuthHandler, build_opener, install_opener # raises ImportError in Python 2
-	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
-except ImportError: # Python 2
-	from urllib2 import Request, urlopen, HTTPError, URLError, HTTPHandler, HTTPPasswordMgrWithDefaultRealm, HTTPDigestAuthHandler, build_opener, install_opener
+from urllib.request import urlopen, Request, HTTPHandler, HTTPPasswordMgrWithDefaultRealm, HTTPDigestAuthHandler, build_opener, install_opener # raises ImportError in Python 2
+from urllib.error import HTTPError, URLError
 
 from enigma import eTimer, RT_HALIGN_LEFT, eListboxPythonMultiContent, gFont, getDesktop, eSize, ePoint
 
@@ -131,7 +128,7 @@ class OscamInfo:
 
 		if webif and port is not None:
 		# oscam/ncam reports it got webif support and webif is running (Port != 0)
-			if conf is not None and os.path.exists(conf):
+			if conf is not None and ospath.exists(conf):
 				# If we have a config file, we need to investigate it further
 				with open(conf, 'r') as data:
 					for i in data:
@@ -376,7 +373,7 @@ class OscamInfo:
 
 	def getECMInfo(self, ecminfo):
 		result = []
-		if path.exists(ecminfo):
+		if ospath.exists(ecminfo):
 			data = open(ecminfo, "r").readlines()
 			for i in data:
 				if "caid" in i:
@@ -493,7 +490,7 @@ class OscamInfoMenu(Screen):
 				config.oscaminfo.userdatafromconf.save()
 				self.session.openWithCallback(self.ErrMsgCallback, MessageBox, _("File %s.conf not found.\nPlease enter username/password manually." % NAMEBIN), MessageBox.TYPE_ERROR)
 			elif entry == 0:
-				if os.path.exists("/tmp/ecm.info"):
+				if ospath.exists("/tmp/ecm.info"):
 					self.session.open(oscECMInfo)
 				else:
 					self.session.open(MessageBox, _("No ECM info is currently available. This is only available while decrypting."), MessageBox.TYPE_INFO)
