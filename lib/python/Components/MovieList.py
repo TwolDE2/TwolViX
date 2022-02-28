@@ -1,5 +1,3 @@
-from six.moves import reload_module
-
 from os import path, stat
 import struct
 import random
