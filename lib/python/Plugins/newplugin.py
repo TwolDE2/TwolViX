@@ -1,6 +1,4 @@
 #!/usr/bin/python
-from six.moves import input
-
 from os import  listdir, mkdir, path as ospath, system as ossystem
 
 ossystem("clear")
