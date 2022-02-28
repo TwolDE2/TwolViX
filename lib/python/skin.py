@@ -1,5 +1,3 @@
-import six
-
 import errno
 import xml.etree.cElementTree
 
@@ -422,7 +420,6 @@ def collectAttributes(skinAttributes, node, context, skinPath=None, ignore=(), f
 				pngfile = resolveFilename(SCOPE_CURRENT_SKIN, value, path_prefix=skinPath)
 				if not isfile(pngfile) and isfile(resolveFilename(SCOPE_CURRENT_LCDSKIN, value, path_prefix=skinPath)):
 					pngfile = resolveFilename(SCOPE_CURRENT_LCDSKIN, value, path_prefix=skinPath)
-				value = pngfile
 			# Bit of a hack this, really.  When a window has a flag (e.g. wfNoBorder)
 			# it needs to be set at least before the size is set, in order for the
 			# window dimensions to be calculated correctly in all situations.
@@ -431,14 +428,14 @@ def collectAttributes(skinAttributes, node, context, skinPath=None, ignore=(), f
 			# listbox; when the scrollbar setting is applied after the size, a scrollbar
 			# will not be shown until the selection moves for the first time.
 			if attrib == "size":
-				size = six.ensure_str(value)
+				size = value
 			elif attrib == "position":
-				pos = six.ensure_str(value)
+				pos = value
 			elif attrib == "font":
-				font = six.ensure_str(value)
+				font = value
 				skinAttributes.append((attrib, font))
 			else:
-				skinAttributes.append((attrib, six.ensure_str(value)))
+				skinAttributes.append((attrib, value))
 	if pos != None:
 		pos, size = context.parse(pos, size, font)
 		skinAttributes.append(("position", pos))
