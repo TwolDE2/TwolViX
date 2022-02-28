@@ -1,5 +1,3 @@
-import six
-
 from enigma import eConsoleAppContainer
 
 from Components.ActionMap import ActionMap
@@ -65,6 +63,6 @@ class Console(Screen):
 			self.container.appClosed.remove(self.runFinished)
 			self.container.dataAvail.remove(self.dataAvail)
 
-	def dataAvail(self, str):
-		str = six.ensure_str(str)
-		self["text"].appendText(str)
+	def dataAvail(self, output):
+		# print("[Console][dataAvail] data is:", output)
+		self["text"].appendText(output.decode())
