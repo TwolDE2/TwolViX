@@ -27,7 +27,7 @@
 # note that a timeshift can be enabled ("recording") and
 # activated (currently time-shifting).
 
-from os import link as oslink, listdir, makedirs, path as ospath, stat, statvfs, system as ossystem
+from os import link as oslink, listdir, makedirs, path as ospath, stat as osstat, statvfs, system as ossystem
 from time import time, localtime, strftime
 from random import randint
 from timer import TimerEntry
@@ -581,7 +581,7 @@ class InfoBarTimeshift:
 			for filename in filelist:
 				if filename.startswith("pts_livebuffer") and not ospath.splitext(filename)[1]:
 					# print("[Timeshift]TRUE")
-					statinfo = stat("%s%s" % (config.usage.timeshift_path.value, filename))
+					statinfo = osstat("%s%s" % (config.usage.timeshift_path.value, filename))
 					if statinfo.st_mtime < (time() - 5.0):
 						# Get Event Info from meta file
 						readmetafile = open("%s%s.meta" % (config.usage.timeshift_path.value, filename), "r")
@@ -631,7 +631,7 @@ class InfoBarTimeshift:
 			for filename in listdir(config.usage.timeshift_path.value):
 				# print("[Timeshift]filename", filename)
 				if filename.startswith("timeshift.") and not filename.endswith((".del", ".copy", ".sc")):
-					statinfo = stat("%s%s" % (config.usage.timeshift_path.value, filename))
+					statinfo = osstat("%s%s" % (config.usage.timeshift_path.value, filename))
 					if statinfo.st_mtime > (time() - 5.0):
 						savefilename = filename
 
@@ -727,8 +727,8 @@ class InfoBarTimeshift:
 			# Let's try to copy the file in background now! This might take a while ...
 			if not timeshift_saved:
 				try:
-					stat = statvfs(config.usage.default_path.value)
-					freespace = stat.f_bfree / 1000 * stat.f_bsize / 1000
+					statv = statvfs(config.usage.default_path.value)
+					freespace = statv.f_bfree / 1000 * statv.f_bsize / 1000
 					randomint = randint(1, 999)
 
 					if timeshiftfile is None:
@@ -803,7 +803,7 @@ class InfoBarTimeshift:
 		for filename in listdir(config.usage.timeshift_path.value):
 			if (filename.startswith("timeshift.") or filename.startswith("pts_livebuffer_")) and (filename.endswith(".del") is False and filename.endswith(".copy") is False):
 				# print("[Timeshift]filename:", filename)
-				statinfo = stat("%s%s" % (config.usage.timeshift_path.value, filename)) # if no write for 3 sec = stranded timeshift
+				statinfo = osstat("%s%s" % (config.usage.timeshift_path.value, filename)) # if no write for 3 sec = stranded timeshift
 				if statinfo.st_mtime < (time() - 3.0):
 				# try:
 					# print("[Timeshift][TimeShift] Erasing stranded timeshift %s" % filename)
@@ -974,7 +974,7 @@ class InfoBarTimeshift:
 
 					# If still recording or transfering, try again later ...
 					if fileExists("%s%s" % (config.usage.default_path.value, ptsmergeDEST)):
-						statinfo = stat("%s%s" % (config.usage.default_path.value, ptsmergeDEST))
+						statinfo = osstat("%s%s" % (config.usage.default_path.value, ptsmergeDEST))
 						if statinfo.st_mtime > (time() - 10.0):
 							self.pts_mergeRecords_timer.start(120000, True)
 							return
