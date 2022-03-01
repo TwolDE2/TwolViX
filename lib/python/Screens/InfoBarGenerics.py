@@ -5,10 +5,7 @@ from os import listdir, path
 from sys import maxsize, version_info
 from time import time, localtime, strftime
 
-if version_info[0] >= 3:
-	import pickle as cPickle	# py3
-else:
-	import cPickle			# py2
+import pickle as cPickle
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from boxbranding import getBrandOEM, getMachineBuild
@@ -4258,31 +4255,35 @@ class InfoBarSubtitleSupport:
 				self.enableSubtitle(cachedsubtitle)
 				self.doCenterDVBSubs()
 
+	def enableSubtitle(self, selectedSubtitle):
+		subtitle = self.getCurrentServiceSubtitle()
+		self.selected_subtitle = selectedSubtitle
+		if subtitle and self.selected_subtitle:
+			subtitle.enableSubtitles(self.subtitle_window.instance, self.selected_subtitle)
+			self.subtitle_window.show()
+			self.doCenterDVBSubs()
+		else:
+			if subtitle:
+				subtitle.disableSubtitles(self.subtitle_window.instance)
+			self.subtitle_window.hide()
+
 	def toggleDefaultSubtitles(self):
 		subtitle = self.getCurrentServiceSubtitle()
 		subtitlelist = subtitle and subtitle.getSubtitleList()
 		if subtitlelist is None or len(subtitlelist) == 0:
 			self.subtitle_window.showMessage(_("No subtitles available"), True)
 		elif self.selected_subtitle:
-			self.enableSubtitle(None)
+			self.toggleenableSubtitle(None)
 			self.subtitle_window.showMessage(_("Subtitles off"), True)
 			self.selected_subtitle = None
 		else:
-			self.enableSubtitle(subtitlelist[0])
+			self.toggleenableSubtitle(subtitlelist[0])
 			self.subtitle_window.showMessage(_("Subtitles on"), False)
 
-	def enableSubtitle(self, newSubtitle):
+
+	def toggleenableSubtitle(self, newSubtitle):
 		if self.selected_subtitle != newSubtitle:
-			subtitle = self.getCurrentServiceSubtitle()
-			self.selected_subtitle = newSubtitle
-			if subtitle and newSubtitle:
-				subtitle.enableSubtitles(self.subtitle_window.instance, newSubtitle)
-				self.subtitle_window.show()
-				self.doCenterDVBSubs()
-			else:
-				if subtitle:
-					subtitle.disableSubtitles(self.subtitle_window.instance)
-				self.subtitle_window.hide()
+			self.enableSubtitle(newSubtitle)
 
 	def restartSubtitle(self):
 		if self.selected_subtitle:
