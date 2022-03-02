@@ -3466,7 +3466,7 @@ class NetworkPassword(Setup):
 		if not password:
 			self.session.open(MessageBox, _("The password can not be blank."), MessageBox.TYPE_ERROR)
 			return
-		#print("[NetworkPassword] Changing the password for %s to %s" % (self.user,self.password))
+		# print("[NetworkPassword] Changing the password for %s to %s" % (self.user,self.password.value))
 		self.container = eConsoleAppContainer()
 		self.container.appClosed.append(self.runFinished)
 		self.container.dataAvail.append(self.dataAvail)
@@ -3480,7 +3480,8 @@ class NetworkPassword(Setup):
 			self.close()
 
 	def dataAvail(self, data):
-		if data.endswith("password: "):
+		# print("[NetworkPassword][dataAvail] data is:", data)
+		if data.endswith(b"password: "):
 			self.container.write("%s\n" % self.password.value)
 
 	def runFinished(self, retval):
