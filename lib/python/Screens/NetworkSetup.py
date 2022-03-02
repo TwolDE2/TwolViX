@@ -93,7 +93,6 @@ class NSCommon:
 		self.Console.ePopen("/usr/bin/opkg install " + pkgname, callback)
 
 	def checkNetworkState(self, str, retval, extra_args):
-		str = str
 		if "Collected errors" in str:
 			self.session.openWithCallback(self.close, MessageBox, _("A background update check is in progress, please wait a few minutes and then try again."), type=MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 		elif not str:
@@ -3438,53 +3437,31 @@ class NetworkServicesSummary(Screen):
 		self["autostartstatus_summary"].text = autostartstatus_summary
 
 
-class NetworkPassword(ConfigListScreen, Screen):
+class NetworkPassword(Setup):
 	def __init__(self, session):
-		Screen.__init__(self, session)
-		self.setTitle(_("Password Setup"))
+		self.password = NoSave(ConfigPassword(default=""))
+		Setup.__init__(self, session=session, setup=None)
 		self.skinName = "Setup"
-		self.onChangedEntry = []
-		self.list = []
-		ConfigListScreen.__init__(self, self.list, session=self.session)
-
-		self["key_red"] = StaticText(_("Exit"))
-		self["key_green"] = StaticText(_("Save"))
-		self["key_yellow"] = StaticText(_("Random password"))
-
-		self["actions"] = ActionMap(["SetupActions", "ColorActions"], {
-			"cancel": self.close,
-			"save": self.SetPasswd,
-			"yellow": self.newRandom
-		})
-
-		self["description"] = Label()
-		self['footnote'] = Label()
-		self["VKeyIcon"] = Boolean(False)
-		self["HelpWindow"] = Pixmap()
-		self["HelpWindow"].hide()
-
+		self.title = _("Password Setup")
+		self["key_yellow"] = StaticText(_("Random Password"))
+		self["passwordActions"] = HelpableActionMap(self, ["ColorActions"], {
+			"yellow": (self.newRandom, _("Randomly generate a password"))
+		}, prio=0, description=_("Password Actions"))
 		self.user = "root"
-		self.output_line = ""
-
-		self.updateList()
 
 	def newRandom(self):
-		self.password.value = self.GeneratePassword()
+		passwdChars = string.ascii_letters + string.digits
+		passwdLength = 10
+		self.password.value = "".join(Random().sample(passwdChars, passwdLength))
 		self["config"].invalidateCurrent()
 
-	def updateList(self):
-		self.password = NoSave(ConfigPassword(default=""))
+	def createSetup(self):
 		instructions = _("Setting a network password is mandatory in OpenViX %s if you wish to use network services. \nTo set a password using the virtual keyboard press the 'text' button on your remote control.") % getImageVersion()
 		self.list.append(getConfigListEntry(_('New password'), self.password, instructions))
 		self['config'].list = self.list
 		self['config'].l.setList(self.list)
 
-	def GeneratePassword(self):
-		passwdChars = string.ascii_letters + string.digits
-		passwdLength = 10
-		return ''.join(Random().sample(passwdChars, passwdLength))
-
-	def SetPasswd(self):
+	def keySave(self):
 		password = self.password.value
 		if not password:
 			self.session.open(MessageBox, _("The password can not be blank."), MessageBox.TYPE_ERROR)
@@ -3493,7 +3470,7 @@ class NetworkPassword(ConfigListScreen, Screen):
 		self.container = eConsoleAppContainer()
 		self.container.appClosed.append(self.runFinished)
 		self.container.dataAvail.append(self.dataAvail)
-		retval = self.container.execute("echo -e '%s\n%s' | (passwd %s)" % (password, password, self.user))
+		retval = self.container.execute(*("/usr/bin/passwd", "/usr/bin/passwd", self.user))
 		if retval:
 			message = _("Unable to change password")
 			self.session.open(MessageBox, message, MessageBox.TYPE_ERROR)
@@ -3503,17 +3480,7 @@ class NetworkPassword(ConfigListScreen, Screen):
 			self.close()
 
 	def dataAvail(self, data):
-		data = data
-		self.output_line += data
-		while True:
-			i = self.output_line.find('\n')
-			if i == -1:
-				break
-			self.processOutputLine(self.output_line[:i + 1])
-			self.output_line = self.output_line[i + 1:]
-
-	def processOutputLine(self, line):
-		if line.find("password: "):
+		if data.endswith("password: "):
 			self.container.write("%s\n" % self.password.value)
 
 	def runFinished(self, retval):
