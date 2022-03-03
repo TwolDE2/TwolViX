@@ -420,6 +420,7 @@ def collectAttributes(skinAttributes, node, context, skinPath=None, ignore=(), f
 				pngfile = resolveFilename(SCOPE_CURRENT_SKIN, value, path_prefix=skinPath)
 				if not isfile(pngfile) and isfile(resolveFilename(SCOPE_CURRENT_LCDSKIN, value, path_prefix=skinPath)):
 					pngfile = resolveFilename(SCOPE_CURRENT_LCDSKIN, value, path_prefix=skinPath)
+				value = pngfile
 			# Bit of a hack this, really.  When a window has a flag (e.g. wfNoBorder)
 			# it needs to be set at least before the size is set, in order for the
 			# window dimensions to be calculated correctly in all situations.
