@@ -2,9 +2,9 @@ name: Enigma2 Py3
 
 on:
   push:
-    branches: [ Py3D ]
+    branches: [ Py3, Py3D, Py3E]
   pull_request:
-    branches: [ Py3D ]
+    branches: [Py3, Py3D, Py3E]
 
 jobs:
   build:
@@ -68,10 +68,9 @@ jobs:
         echo "installing libsigc++-3"
         pushd .
         cd /tmp
-        git clone --depth 1 https://github.com/dbus-cxx/libsigc--3.0.git
-        cd libsigc--3.0
-        autoreconf -i
-        ./configure
+        git clone --depth 1 https://github.com/libsigcplusplus/libsigcplusplus.git
+        cd libsigcplusplus
+        ./autogen.sh
         make
         sudo make install
         popd
@@ -90,6 +89,9 @@ jobs:
         make
         sudo make install
         popd
+    - name: patch enigma cpp files
+      run: |
+        sed -i 's/mallinfo2/mallinfo/g' main/enigma.cpp
     - name: build enigma2
       env: 
         CC: "gcc-${{ matrix.gcc }}"
