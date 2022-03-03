@@ -2,7 +2,6 @@ import six
 
 from copy import copy as copy_copy
 from os import path as os_path, fsync, rename
-import sys
 from time import localtime, strftime, mktime
 
 # DO NOT CHANGE THE ORDER OF THESE IMPORTS OR Harddisk will crash!!

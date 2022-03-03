@@ -1,5 +1,4 @@
 #!/usr/bin/python
-from __future__ import print_function
 from os import system as ossystem
 
 from datasource import genericdatasource

@@ -2,11 +2,8 @@ from time import time
 import socket
 import sys
 # required methods: Request, urlopen, HTTPError, URLError
-try: # python 3
-	from urllib.request import urlopen, Request # raises ImportError in Python 2
-	from urllib.error import HTTPError, URLError # raises ImportError in Python 2
-except ImportError: # Python 2
-	from urllib2 import Request, urlopen, HTTPError, URLError
+from urllib.request import urlopen, Request 
+from urllib.error import HTTPError, URLError
 
 from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
 from enigma import eTimer
@@ -324,8 +321,7 @@ def kernelMismatch():
 
 	pattern = "kernel-([0-9]+[.][0-9]+[.][0-9]+)"
 	# print("[OnlineUpdateCheck][kernelMismatch] packages=%s" % (packages))
-	if sys.version_info[0] >= 3:
-		packages = packages.decode()
+	packages = packages.decode()
 	matches = re.findall(pattern, packages)
 	if matches:
 		match = sorted(matches, key=lambda s: list(map(int, s.split("."))))[-1]

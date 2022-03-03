@@ -3,7 +3,6 @@ import netifaces as ni
 from random import Random
 from shutil import move
 import string
-import sys
 import time
 
 from enigma import eTimer, eConsoleAppContainer
