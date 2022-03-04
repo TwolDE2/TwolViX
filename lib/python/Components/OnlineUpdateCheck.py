@@ -63,8 +63,7 @@ class FeedsStatusCheck:
 			print("[OnlineUpdateCheck][NetworkUp] PASSED")
 			result = True
 		except:
-			err = sys.exc_info()[0]
-			print("[OnlineUpdateCheck][NetworkUp] FAILED", err)
+			print("[OnlineUpdateCheck][NetworkUp] FAILED", sys.exc_info()[0])
 			result = False
 		finally:
 			if sd is not None:
