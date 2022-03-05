@@ -1173,7 +1173,6 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 			self.session.open(MessageBox, _("Your network has finished restarting"), type=MessageBox.TYPE_INFO, timeout=10, default=False)
 
 	def dataAvail(self, data):
-		data = data
 		self.LinkState = None
 		for line in data.splitlines():
 			line = line.strip()
