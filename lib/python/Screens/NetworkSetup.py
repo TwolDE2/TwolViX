@@ -107,7 +107,6 @@ class NSCommon:
 		self.Console.ePopen("/usr/bin/opkg list_installed " + self.service_name, self.RemovedataAvail)
 
 	def RemovedataAvail(self, result, retval, extra_args):
-		result = result
 		if result:
 			self.session.openWithCallback(self.RemovePackage, MessageBox, _("Are you ready to remove %s ?") % self.getTitle(), MessageBox.TYPE_YESNO)
 		else:
