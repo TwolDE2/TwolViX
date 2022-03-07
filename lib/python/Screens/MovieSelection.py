@@ -1,5 +1,3 @@
-import six
-
 from os import access, listdir, mkdir, path as ospath, remove, rename, stat, W_OK
 import time
 import pickle as cPickle
@@ -928,13 +926,13 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 
 	def keyNumberGlobal(self, number):
 		unichar = self.numericalTextInput.getKey(number)
-		charstr = six.ensure_str(unichar)
+		charstr = str(unichar)
 		if len(charstr) == 1:
 			self.list.moveToChar(charstr[0], self["chosenletter"])
 
 	def keyAsciiCode(self):
-		unichar = six.unichr(getPrevAsciiCode())
-		charstr = six.ensure_str(unichar)
+		unichar = chr(getPrevAsciiCode())
+		charstr = str(unichar)
 		if len(charstr) == 1:
 			self.list.moveToString(charstr[0], self["chosenletter"])
 
