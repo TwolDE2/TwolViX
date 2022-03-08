@@ -1,6 +1,3 @@
-from builtins import range
-import six
-
 from os import fsync, path as ospath, remove, rename
 from bisect import insort
 from time import ctime, time
@@ -378,8 +375,7 @@ def createTimer(xml):
 		}[timertype]
 	begin = int(xml.get("begin"))
 	end = int(xml.get("end"))
-	# FIXME WHY NOT str()
-	repeated = six.ensure_str(xml.get("repeated"))
+	repeated = str(xml.get("repeated"))
 	disabled = int(xml.get("disabled") or "0")
 	afterevent = str(xml.get("afterevent") or "nothing")
 	afterevent = {
@@ -391,6 +387,8 @@ def createTimer(xml):
 	autosleepinstandbyonly = str(xml.get("autosleepinstandbyonly") or "no")
 	autosleepdelay = str(xml.get("autosleepdelay") or "0")
 	autosleeprepeat = str(xml.get("autosleeprepeat") or "once")
+	# print("[PowerManager]:1", xml.get("begin"), "   ", xml.get("end"), "   ", xml.get("repeated"))
+	# print("[PowerManager]:2", xml.get("disabled"), "   ", xml.get("afterevent"), "   ", xml.get("autosleepinstandbyonly"), "   ", xml.get("autosleepdelay"), "   ", xml.get("autosleeprepeat"))	
 #
 # If this is a repeating auto* timer then start it in 30 secs,
 # which means it will start its repeating countdown from when enigma2
@@ -413,7 +411,8 @@ def createTimer(xml):
 	for l in xml.findall("log"):
 		ltime = int(l.get("time"))
 		lcode = int(l.get("code"))
-		msg = six.ensure_str(l.text).strip()
+		# print("[PowerManager]: ltext, time, code", l.text, "   ", l.get("time"), "   ", l.get("code"))		
+		msg = l.text.strip()
 		entry.log_entries.append((ltime, lcode, msg))
 	return entry
 
