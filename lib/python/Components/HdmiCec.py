@@ -1,5 +1,3 @@
-import six
-
 import chardet
 import datetime
 from os import path, uname
@@ -384,6 +382,8 @@ class HdmiCec:
 			ctrl1 = message.getControl1()
 			ctrl2 = message.getControl2()
 			msgaddress = message.getAddress()			# 0 = TV, 5 = receiver 15 = broadcast 
+			if cmd == 0x87:					# LG OLED TV/Sonos
+				return
 			print("[HdmiCec][messageReceived0]: msgaddress=%s  CECcmd=%s, cmd=%X, ctrl0=%s, length=%s" % (msgaddress, CECcmd, cmd, ctrl0, length))
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, ctrl0)
@@ -509,7 +509,7 @@ class HdmiCec:
 		if data:				# keep cmd+data calls above this line so binary data converted
 			CECcmd = cmdList.get(cmd, "<Polling Message>")		
 			encoder = chardet.detect(data)["encoding"]
-			data = six.ensure_str(data, encoding=encoder, errors='ignore')	
+			data = data.decode(encoding=encoder, errors="ignore")	
 			print("[HdmiCec][sendMessage]: CECcmd=%s  cmd=%X, data=struct.pack" % (CECcmd, cmd))
 		elif message == "wakeup":
 			if config.hdmicec.tv_wakeup_command.value == "textview":
@@ -667,7 +667,7 @@ class HdmiCec:
 				# print("[HdmiCec][keyEvent1]: cmd=%X,data=%s" % (cmd, data))
 				if data:
 					encoder = chardet.detect(data)["encoding"]
-					data = six.ensure_str(data, encoding=encoder, errors='ignore')
+					data = data.decode(encoding=encoder, errors="ignore")
 					# print("[HdmiCec][keyEvent2]: encoder=%s, cmd=%x, data=%s" % (encoder, cmd, data))
 				if config.hdmicec.minimum_send_interval.value != "0":
 					self.queueKeyEvent.append((self.volumeForwardingDestination, cmd, data))
