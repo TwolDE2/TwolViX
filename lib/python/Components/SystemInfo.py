@@ -129,7 +129,7 @@ SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable har
 		["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
 		{"720p", "1080p", "2160p", "1080i"} # widescreen modes
 	) or getChipSetString() in ( # 1080p capable hardware
-		"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "hi3716mv410", "hi3716mv430", "3716mv430
+		"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "hi3716mv410", "hi3716mv430", "3716mv430"
 	) and (
 		["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
 		{"720p", "1080p", "1080i"} # widescreen modes
