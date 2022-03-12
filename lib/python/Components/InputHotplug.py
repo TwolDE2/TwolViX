@@ -4,7 +4,7 @@ from os import path
 import Components.Netlink
 
 
-class NetlinkReader():
+class NetlinkReader:
 	def __init__(self):
 		from twisted.internet import reactor
 		self.nls = Components.Netlink.NetlinkSocket()

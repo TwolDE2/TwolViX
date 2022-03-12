@@ -147,7 +147,7 @@ class TitleProperties(ConfigListScreen, Screen):
 from Tools.ISO639 import LanguageCodes
 
 
-class LanguageChoices():
+class LanguageChoices:
 	def __init__(self):
 		from Components.Language import language as syslanguage
 		syslang = syslanguage.getLanguage()[:2]

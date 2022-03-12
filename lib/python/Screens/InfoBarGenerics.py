@@ -940,7 +940,7 @@ class BufferIndicator(Screen):
 		return info and info.getInfo(iServiceInformation.sBuffer)
 
 
-class InfoBarBuffer():
+class InfoBarBuffer:
 	def __init__(self):
 		self.bufferScreen = self.session.instantiateDialog(BufferIndicator)
 		self.bufferScreen.hide()
@@ -2482,7 +2482,6 @@ class InfoBarSeek:
 		seekstate = self.seekstate
 		if self.seekstate != self.SEEK_STATE_PAUSE:
 			self.setSeekState(self.SEEK_STATE_EOF)
-
 		if seekstate not in (self.SEEK_STATE_PLAY, self.SEEK_STATE_PAUSE): # if we are seeking
 			seekable = self.getSeek()
 			if seekable is not None:
