@@ -1,9 +1,7 @@
-import six
-
-import xml.etree.cElementTree
-
-from enigma import eTimer
-
+from Screens.HelpMenu import HelpableScreen
+from Screens.Screen import Screen, ScreenSummary
+from Screens.MessageBox import MessageBox
+from Screens.ParentalControlSetup import ProtectedScreen
 from Components.Sources.List import List
 from Components.ActionMap import HelpableNumberActionMap, HelpableActionMap
 from Components.Sources.StaticText import StaticText
@@ -11,14 +9,14 @@ from Components.PluginComponent import plugins
 from Components.config import config, ConfigDictionarySet, configfile, NoSave
 from Components.NimManager import nimmanager
 from Components.SystemInfo import SystemInfo
-from Plugins.Plugin import PluginDescriptor
-from Screens.HelpMenu import HelpableScreen
-from Screens.MessageBox import MessageBox
-from Screens.ParentalControlSetup import ProtectedScreen
-from Screens.Screen import Screen, ScreenSummary
-from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
+from Plugins.Plugin import PluginDescriptor
 from Tools.Directories import resolveFilename, SCOPE_SKIN
+from enigma import eTimer
+
+import xml.etree.cElementTree
+
+from Screens.Setup import Setup
 
 # read the menu
 file = open(resolveFilename(SCOPE_SKIN, 'menu.xml'), 'r')
@@ -113,7 +111,8 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 					return
 			elif not SystemInfo.get(requires, False):
 				return
-		MenuTitle = six.ensure_str(_(node.get("text", "??")))
+		# print("[Menu][addMenu] Menu text=", node.get("text", "??"))				
+		MenuTitle = str(_(node.get("text", "??")))
 		entryID = node.get("entryID", "undefined")
 		weight = node.get("weight", 50)
 		x = node.get("flushConfigOnClose")
@@ -147,7 +146,9 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		conditional = node.get("conditional")
 		if conditional and not eval(conditional):
 			return
-		item_text = six.ensure_str(node.get("text", "* Undefined *"))
+		# print("[Menu][addItem] item text=", node.get("text", "* Undefined *"))
+		item_text = str(node.get("text", "* Undefined *"))
+		
 		if item_text:
 			item_text = _(item_text)
 		entryID = node.get("entryID", "undefined")
@@ -159,8 +160,6 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 
 				if screen is None:
 					screen = module
-
-				# print module, screen
 				if module:
 					module = "Screens." + module
 				else:
