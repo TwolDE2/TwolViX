@@ -12,11 +12,11 @@
 > CPU:  Multi core\thread Model
 > HDD:  for Single Build 250GB Free, for Multibuild 500GB or more
 
-## OpenViX python3 is built using oe-alliance build-environment and several git repositories: ##
+## TwolDE (OpenViX) python3 is built using oe-alliance build-environment and several git repositories: ##
 
 > [https://github.com/oe-alliance/oe-alliance-core/tree/5.1](https://github.com/oe-alliance/oe-alliance-core/tree/5.1 "OE-Alliance")
 > 
-> [https://github.com/OpenViX/enigma2/tree/Dev-python3-compatible](https://github.com/OpenViX/enigma2/tree/Dev-python3-compatible "openViX E2")
+> [https://github.com/TwolDE/enigma2/tree/Py3](https://github.com/OpenViX/enigma2/tree/Py3 "openViX E2")
 
 
 ----------
