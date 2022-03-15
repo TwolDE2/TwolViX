@@ -904,13 +904,13 @@ class RecordTimerEntry(TimerEntry):
 	# we have record_service as property to automatically subscribe to record service events
 	def setRecordService(self, service):
 		if self.__record_service is not None:
-#			print("[RecordTimer][remove callback]")
+			# print("[RecordTimer][remove callback]")
 			NavigationInstance.instance.record_event.remove(self.gotRecordEvent)
 
 		self.__record_service = service
 
 		if self.__record_service is not None:
-#			print("[RecordTimer][add callback]")
+			# print("[RecordTimer][add callback]")
 			NavigationInstance.instance.record_event.append(self.gotRecordEvent)
 
 	record_service = property(lambda self: self.__record_service, setRecordService)
@@ -922,8 +922,8 @@ def createTimer(xml):
 	serviceref = eServiceReference(str(xml.get("serviceref")))
 	description = str(xml.get("description"))
 	repeated = str(xml.get("repeated"))
-	print("[RecordTimer]:1 serviceref, description, begin, end, repeated", xml.get("serviceref"), "   ", xml.get("description"), "   ", xml.get("begin"), "   ", xml.get("end"), "   ", xml.get("repeated"))
-	print("[RecordTimer]:2 location, tags, name, flags, filename, eit", xml.get("location"), "   ", xml.get("tags"), "   ", xml.get("name"), "   ", xml.get("flags"), "   ", xml.get("filename"), "   ", xml.get("eit"))		
+	# print("[RecordTimer]:1 serviceref, description, begin, end, repeated", xml.get("serviceref"), "   ", xml.get("description"), "   ", xml.get("begin"), "   ", xml.get("end"), "   ", xml.get("repeated"))
+	# print("[RecordTimer]:2 location, tags, name, flags, filename, eit", xml.get("location"), "   ", xml.get("tags"), "   ", xml.get("name"), "   ", xml.get("flags"), "   ", xml.get("filename"), "   ", xml.get("eit"))		
 	rename_repeat = int(xml.get("rename_repeat") or "1")
 	disabled = int(xml.get("disabled") or "0")
 	justplay = int(xml.get("justplay") or "0")
@@ -1381,7 +1381,7 @@ class RecordTimer(Timer):
 		return returnValue or (None, None)
 
 	def removeEntry(self, entry):
-		#	print("[RecordTimer] Remove " + str(entry))
+		# print("[RecordTimer] Remove " + str(entry))
 
 		# avoid re-enqueuing
 		entry.repeated = False
