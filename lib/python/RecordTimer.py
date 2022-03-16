@@ -1253,7 +1253,7 @@ class RecordTimer(Timer):
 						entry.begin += 1
 			entry.conflict_detection = real_cd
 		entry.timeChanged()
-		print("[Timer] Record %s" % entry)
+		# print("[Timer] Record %s" % entry)
 		entry.Timer = self
 		self.addTimerEntry(entry)
 		if dosave:
