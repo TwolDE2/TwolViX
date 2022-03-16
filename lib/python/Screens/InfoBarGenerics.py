@@ -2,7 +2,7 @@ from bisect import insort
 import itertools
 import datetime
 from os import listdir, path
-from sys import maxsize, version_info
+from sys import maxsize
 from time import time, localtime, strftime
 
 import pickle as cPickle
