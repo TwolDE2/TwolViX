@@ -12,7 +12,7 @@ from boxbranding import getBrandOEM, getMachineBuild
 from keyids import KEYFLAGS, KEYIDS, invertKeyIds
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap
-from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection
+from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection, ACTIONKEY_RIGHT
 from Components.Harddisk import harddiskmanager, findMountPoint
 from Components.Input import Input
 from Components.Label import Label
@@ -3480,14 +3480,9 @@ class InfoBarAudioSelection:
 
 	def audioSelectionLong(self):
 		if SystemInfo["CanDownmixAC3"]:
-			if config.av.downmix_ac3.value:
-				message = _("Dobly Digital downmix is now") + " " + _("disabled")
-				print("[InfoBarGenerics] [Audio] Dobly Digital downmix is now disabled")
-				config.av.downmix_ac3.setValue(False)
-			else:
-				config.av.downmix_ac3.setValue(True)
-				message = _("Dobly Digital downmix is now") + " " + _("enabled")
-				print("[InfoBarGenerics] [Audio] Dobly Digital downmix is now enabled")
+			config.av.downmix_ac3.handleKey(ACTIONKEY_RIGHT)
+			message = _("Dolby Digital downmix is now %s") % config.av.downmix_ac3.getText()
+			print("[InfoBarGenerics] [Audio] Dolby Digital downmix is now %s" % config.av.downmix_ac3.value)
 			Notifications.AddPopup(text=message, type=MessageBox.TYPE_INFO, timeout=5, id="DDdownmixToggle")
 
 
