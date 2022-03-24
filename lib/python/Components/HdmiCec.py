@@ -1,4 +1,3 @@
-import chardet
 import datetime
 from os import path, uname
 import struct
