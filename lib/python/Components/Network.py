@@ -255,6 +255,7 @@ class Network:
 				if len(self.lan_interfaces) and not iface == "eth1":
 					name += " " + str(len(self.lan_interfaces) + 1)
 				self.lan_interfaces.append(iface)
+		print("[Network][getFriendlyAdapterNaming] iface=, name=, self.wlan_interfaces =, self.lan_interfaces= ", iface, "   ", name, "   ", self.wlan_interfaces, "   ", self.lan_interfaces)
 		return name
 
 	def getFriendlyAdapterDescription(self, iface):
@@ -338,6 +339,20 @@ class Network:
 		(mode, callback) = extra_args
 		if not self.resetNetworkConsole.appContainers:
 			self.writeDefaultNetworkConfig(mode, callback)
+			
+	def resetWiFiMac(self,Mac=None, callback=None):
+		if Mac is not None:
+			mode= "wlan"		
+			self.commands = []
+			self.commands.append("ifconfig wlan0 down")
+			self.commands.append("ifconfig wlan0 hw ether %s" % Mac)
+			self.commands.append("ifconfig wlan0s up")
+			self.resetNetworkConsole.eBatch(self.commands, self.resetWiFiMacFinishedCB, [mode, callback], debug=True)
+
+	def resetWiFiMacFinishedCB(self, extra_args):
+		(mode, callback) = extra_args
+		if not self.resetNetworkConsole.appContainers:
+			self.writeDefaultNetworkConfig(mode, callback)			
 
 	def writeDefaultNetworkConfig(self, mode='lan', callback=None):
 		fp = open('/etc/network/interfaces', 'w')
