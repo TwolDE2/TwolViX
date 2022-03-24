@@ -405,10 +405,10 @@ class HdmiCec:
 				self.sendMessage(msgaddress, "osdname")
 			elif cmd == 0x72 or cmd == 0x7e: 		# system audio mode status 114 or 126
 				if ctrl0 == 1:
-					self.volumeForwardingDestination = 0x05 		# on: send volume keys to receiver
+					self.volumeForwardingDestination = 5 		# on: send volume keys to receiver
 				else:
-					self.volumeForwardingDestination = 0x00 		# off: send volume keys to tv
-				print("[HdmiCec][messageReceived4]: volume forwarding=%s, msgaddress=%s" % (self.volumeForwardingDestination, msgaddress))					
+					self.volumeForwardingDestination = 0 		# off: send volume keys to tv
+				print("[HdmiCec][messageReceived4]: volume forwarding=%s, msgaddress=%s" % (self.volumeForwardingDestination, msgaddress))			
 				if config.hdmicec.volume_forwarding.value:
 					print("[HdmiCec][messageReceived5]: volume forwarding to device %02x enabled" % self.volumeForwardingDestination)
 					self.volumeForwardingEnabled = True
@@ -482,11 +482,14 @@ class HdmiCec:
 			data = struct.pack("B", 0x6d)
 		elif message == "setsystemaudiomode":
 			cmd = 0x70	# 112
+			msgaddress = 0x05
 			data = self.packDevAddr()
 		elif message == "sourceactive":
+			msgaddress = 0x0f # use broadcast for active source command
 			cmd = 0x82	# 130
 			data = self.packDevAddr()
 		elif message == "reportaddress":
+			msgaddress = 0x0f # use broadcast address
 			cmd = 0x84	# 132
 			data = self.packDevAddr(True)
 		elif message == "vendorid":
@@ -512,8 +515,7 @@ class HdmiCec:
 			data = struct.pack("B", 0x04) # v1.3a
 		if data:				# keep cmd+data calls above this line so binary data converted
 			CECcmd = cmdList.get(cmd, "<Polling Message>")		
-			encoder = chardet.detect(data)["encoding"]
-			data = data.decode(encoding=encoder, errors="ignore")	
+			data = data.decode(encoding="ascii")	
 			print("[HdmiCec][sendMessage]: CECcmd=%s  cmd=%X, data=struct.pack" % (CECcmd, cmd))
 		elif message == "wakeup":
 			if config.hdmicec.tv_wakeup_command.value == "textview":
@@ -528,11 +530,14 @@ class HdmiCec:
 			data = data[:14]
 		elif message == "givesystemaudiostatus":
 			cmd = 0x7d
+			msgaddress = 0x05
 		elif message == "requestactivesource":
 			cmd = 0x85
+			msgaddress = 0x0f # use broadcast address
 		elif message == "getpowerstatus":
 			self.useStandby = True
 			cmd = 0x8f
+			msgaddress = 0x0f # use broadcast msgaddress => boxes will send info
 		if cmd != 0:
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			print("[HdmiCec][sendMessage3]: CECcmd=%s cmd=%X, msgaddress=%s data=%s" % (CECcmd, cmd, msgaddress, data))
