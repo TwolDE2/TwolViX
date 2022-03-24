@@ -648,7 +648,7 @@ class HdmiCec:
 			Screens.Standby.inStandby.Power()
 
 	def configVolumeForwarding(self, configElement):
-		print("[hdmiCEC][configVolumeForwarding]: hdmicec.enabled=%s, hdmicec.volume_forwarding=%s" % (config.hdmicec.enabled.value, config.hdmicec.volume_forwarding.value))	
+		print("[HdmiCec][configVolumeForwarding]: hdmicec.enabled=%s, hdmicec.volume_forwarding=%s" % (config.hdmicec.enabled.value, config.hdmicec.volume_forwarding.value))	
 		if config.hdmicec.enabled.value and config.hdmicec.volume_forwarding.value:
 			self.sendMessage(0x05, "givesystemaudiostatus")
 			self.sendMessage(0x00, "givesystemaudiostatus")
