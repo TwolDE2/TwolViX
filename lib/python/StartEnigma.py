@@ -637,6 +637,10 @@ def runScreenTest():
 	InfoBarGenerics.saveResumePoints()
 	return 0
 
+profile("Init:NTPSync")
+print("[StartEnigma]  Initialising NTPSync.")
+import Components.NetworkTime
+Components.NetworkTime.AutoNTPSync()
 
 profile("Init:skin")
 print("[StartEnigma] Initialising Skins.")
@@ -689,11 +693,6 @@ profile("Init:OnlineCheckState")
 print("[StartEnigma]  Initialising OnlineCheckState.")
 import Components.OnlineUpdateCheck
 Components.OnlineUpdateCheck.OnlineUpdateCheck()
-
-profile("Init:NTPSync")
-print("[StartEnigma]  Initialising NTPSync.")
-import Components.NetworkTime
-Components.NetworkTime.AutoNTPSync()
 
 profile("keymapparser")
 print("[StartEnigma]  Initialising KeymapParser.")
