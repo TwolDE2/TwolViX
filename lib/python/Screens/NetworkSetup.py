@@ -213,27 +213,27 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 		if not iNetwork.isWirelessInterface(iface):
 			if active == True:
 				interfacepng = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/network_wired-active.png"))
-			elif active == False:
+			elif active is False:
 				interfacepng = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/network_wired-inactive.png"))
 			else:
 				interfacepng = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/network_wired.png"))
 		elif iNetwork.isWirelessInterface(iface):
 			if active == True:
 				interfacepng = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/network_wireless-active.png"))
-			elif active == False:
+			elif active is False:
 				interfacepng = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/network_wireless-inactive.png"))
 			else:
 				interfacepng = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/network_wireless.png"))
 
 		num_configured_if = len(iNetwork.getConfiguredAdapters())
 		if num_configured_if >= 2:
-			if default == True:
+			if default is True:
 				defaultpng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "buttons/button_blue.png"))
-			elif default == False:
+			elif default is False:
 				defaultpng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "buttons/button_blue_off.png"))
-		if active == True:
+		if active is True:
 			activepng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "icons/lock_on.png"))
-		elif active == False:
+		elif active is False:
 			activepng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "icons/lock_error.png"))
 
 		description = iNetwork.getFriendlyAdapterDescription(iface)
@@ -399,7 +399,6 @@ class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 		for nameserver in self.nameserverEntries:
 			iNetwork.addNameserver(nameserver.value)
 		iNetwork.writeNameserverConfig()
-		config.usage.dns.save()
 		self.close()
 
 	def run(self):
@@ -622,7 +621,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 		self.InterfaceEntry = None
 		self.dhcpEntry = None
 		self.gatewayEntry = None
-		self.DNSConfigEntry = None
 		self.hiddenSSID = None
 		self.wlanSSID = None
 		self.encryption = None
@@ -632,8 +630,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 		self.weplist = None
 		self.wsconfig = None
 		self.default = None
-		self.primaryDNSEntry = None
-		self.secondaryDNSEntry = None
 
 		if iNetwork.isWirelessInterface(self.iface):
 			driver = iNetwork.detectWlanModule(self.iface)
@@ -731,12 +727,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 		if self["config"].getCurrent() == self.dhcpEntry:
 			self.createSetup()
 		if self["config"].getCurrent() == self.gatewayEntry:
-			self.createSetup()
-		if self["config"].getCurrent() == self.DNSConfigEntry:
-			self.createSetup()
-		if self["config"].getCurrent() == self.primaryDNSEntry:
-			self.createSetup()
-		if self["config"].getCurrent() == self.secondaryDNSEntry:
 			self.createSetup()
 		if iNetwork.isWirelessInterface(self.iface):
 			if self["config"].getCurrent() == self.encryption:
@@ -890,13 +880,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 		elif current == self.encryptionKey and config.plugins.wlan.encryption.value != "Unencrypted":
 			if current[1].help_window.instance != None:
 				current[1].help_window.instance.hide()
-
-	def makeLineDnsNameservers(self, nameservers=[]):
-		line = ""
-		entry = ' '.join([("%d.%d.%d.%d" % tuple(x)) for x in nameservers if x != [0, 0, 0, 0]])
-		if len(entry):
-			line += "\tdns-nameservers %s\n" % entry
-		return line
 
 
 class AdapterSetupConfiguration(Screen, HelpableScreen):

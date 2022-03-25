@@ -91,17 +91,13 @@ class Network:
 		fp.write("auto lo\n")
 		fp.write("iface lo inet loopback\n\n")
 		for ifacename, iface in self.ifaces.items():
-			if 'dns-nameservers' in iface and iface['dns-nameservers']:
-				dns = []
-				for s in iface['dns-nameservers'].split()[1:]:
-					dns.append((self.convertIP(s)))
-				if dns:
-					self.nameservers = dns
 			if iface['up']:
 				fp.write("auto " + ifacename + "\n")
 				self.configuredInterfaces.append(ifacename)
 			if iface['dhcp']:
 				fp.write("iface " + ifacename + " inet dhcp\n")
+				fp.write("udhcpc_opts -T1 -t9\n")
+				fp.write("  hostname $(hostname)\n")
 			if not iface['dhcp']:
 				fp.write("iface " + ifacename + " inet static\n")
 				fp.write("  hostname $(hostname)\n")
@@ -137,7 +133,7 @@ class Network:
 				fp.close()
 			#self.restartNetwork()
 		except:
-			print("[Network] resolv.conf or nameserversdns.conf - write failed")
+			print("[Network] resolv.conf or nameserversdns.conf - writing failed")
 
 	def loadNetworkConfig(self, iface, callback=None):
 		interfaces = []
@@ -641,19 +637,6 @@ class Network:
 			except KeyError:
 				pass
 
-	def getInterfacesNameserverList(self, iface):
-		result = []
-		nameservers = self.getAdapterAttribute(iface, "dns-nameservers")
-		if nameservers:
-			ipRegexp = '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
-			ipPattern = re.compile(ipRegexp)
-			for x in nameservers.split()[1:]:
-				ip = self.regExpMatch(ipPattern, x)
-				if ip:
-					result.append([int(n) for n in ip.split('.')])
-		if len(self.nameservers) and not result: # use also global nameserver if we got no one from interface
-			result.extend(self.nameservers)
-		return result
 
 iNetwork = Network()
 
