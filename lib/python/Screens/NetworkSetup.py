@@ -31,7 +31,7 @@ from Screens.Screen import Screen
 from Screens.Setup import Setup
 from Screens.Standby import TryQuitMainloop
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_SKIN
+from Tools.Directories import fileExists, isPluginInstalled, resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
 
 
@@ -273,7 +273,7 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 				active_int = False
 			self.list.append(self.buildInterfaceList(x[1], _(x[0]), default_int, active_int))
 
-		if os_path.exists(resolveFilename(SCOPE_PLUGINS, "SystemPlugins/NetworkWizard/networkwizard.xml")):
+		if isPluginInstalled("NetworkWizard"):
 			self["key_blue"].setText(_("Network wizard"))
 		self["list"].list = self.list
 
@@ -329,7 +329,7 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 			self.session.open(MessageBox, _("Finished configuring your network"), type=MessageBox.TYPE_INFO, timeout=10, default=False)
 
 	def openNetworkWizard(self):
-		if os_path.exists(resolveFilename(SCOPE_PLUGINS, "SystemPlugins/NetworkWizard/networkwizard.xml")):
+		if isPluginInstalled("NetworkWizard")::
 			try:
 				from Plugins.SystemPlugins.NetworkWizard.NetworkWizard import NetworkWizard
 			except ImportError:
