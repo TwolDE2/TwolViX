@@ -370,21 +370,10 @@ class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 
 	def createConfig(self):
 		self.nameservers = iNetwork.getNameserverList()
-		if config.usage.dns.value == 'google':
-			self.nameserverEntries = [NoSave(ConfigIP(default=[8, 8, 8, 8])), NoSave(ConfigIP(default=[8, 8, 4, 4]))]
-		elif config.usage.dns.value == 'cloudflare':
-			self.nameserverEntries = [NoSave(ConfigIP(default=[1, 1, 1, 1])), NoSave(ConfigIP(default=[1, 0, 0, 1]))]
-		elif config.usage.dns.value == 'opendns-familyshield':
-			self.nameserverEntries = [NoSave(ConfigIP(default=[208, 67, 222, 123])), NoSave(ConfigIP(default=[208, 67, 220, 123]))]
-		elif config.usage.dns.value == 'opendns-home':
-			self.nameserverEntries = [NoSave(ConfigIP(default=[208, 67, 222, 222])), NoSave(ConfigIP(default=[208, 67, 220, 220]))]
-		elif config.usage.dns.value == 'custom' or config.usage.dns.value == 'dhcp-router':
-			self.nameserverEntries = [NoSave(ConfigIP(default=nameserver)) for nameserver in self.nameservers]
+		self.nameserverEntries = [NoSave(ConfigIP(default=nameserver)) for nameserver in self.nameservers]
 
 	def createSetup(self):
 		self.list = []
-		self.DNSEntry = getConfigListEntry(_("Nameserver configuration"), config.usage.dns)
-		self.list.append(self.DNSEntry)
 
 		i = 1
 		for x in self.nameserverEntries:
@@ -394,7 +383,6 @@ class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 		self["config"].list = self.list
 
 	def ok(self):
-		self.RefreshNameServerUsed()
 		iNetwork.clearNameservers()
 		for nameserver in self.nameserverEntries:
 			iNetwork.addNameserver(nameserver.value)
@@ -421,13 +409,6 @@ class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 		index = self["config"].getCurrentIndex()
 		if index < len(self.nameservers):
 			iNetwork.removeNameserver(self.nameservers[index])
-			self.createConfig()
-			self.createSetup()
-
-	def RefreshNameServerUsed(self):
-		print("[NetworkSetup] currentIndex:", self["config"].getCurrentIndex())
-		index = self["config"].getCurrentIndex()
-		if index < len(self.nameservers):
 			self.createConfig()
 			self.createSetup()
 
@@ -689,6 +670,7 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 				self.list.append(self.gatewayEntry)
 				if self.hasGatewayConfigEntry.value:
 					self.list.append(getConfigListEntry(_("Gateway"), self.gatewayConfigEntry))
+
 			self.extended = None
 			self.configStrings = None
 			for p in plugins.getPlugins(PluginDescriptor.WHERE_NETWORKSETUP):
