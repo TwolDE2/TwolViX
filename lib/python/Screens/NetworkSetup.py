@@ -1092,7 +1092,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 					self.extendedSetup = ("extendedSetup", menuEntryDescription, self.extended)
 					menu.append((menuEntryName, self.extendedSetup))
 
-		if os_path.exists(resolveFilename(SCOPE_PLUGINS, "SystemPlugins/NetworkWizard/networkwizard.xml")):
+		if isPluginInstalled("NetworkWizard"):
 			menu.append((_("Network wizard"), "openwizard"))
 		menu.append((_("Network MAC settings"), "mac"))
 		return menu
