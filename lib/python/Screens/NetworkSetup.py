@@ -445,10 +445,10 @@ class NetworkMacSetup(ConfigListScreen, HelpableScreen, Screen):
 		else:
 			self.mode = "eth0"		
 			self.curMac = self.getmac("eth0")	 	
-		print("[NetworkSetup]self.mode=, MacWiFiLan=", self.mode, "   ", self.curMac)			
+		# print("[NetworkSetup]self.mode=, MacWiFiLan=", self.mode, "   ", self.curMac)			
 		if self.curMac:
 			self.getConfigMac = NoSave(ConfigMacText(default=self.curMac))
-			print("[NetworkSetup]self.mode=, MacWiFiLan=, self.getConfigMac=", self.mode, "   ", self.curMac, "   ", self.getConfigMac.value)
+			# print("[NetworkSetup]self.mode=, MacWiFiLan=, self.getConfigMac=", self.mode, "   ", self.curMac, "   ", self.getConfigMac.value)
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
 
