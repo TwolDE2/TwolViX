@@ -1,5 +1,5 @@
+from os import environ
 from enigma import eTimer
-from Components.Language import language
 
 MAP_SEARCH_UPCASE = "SearchUpper"  # NOTE: Legacy interface for previous and deprecated versions of NumericalTextInput.
 MAP_SEARCH = "SearchLower"
@@ -221,7 +221,11 @@ class NumericalTextInput:
 			self.mapping = []
 			for num in range(0, 10):
 				self.mapping.append((MAPPINGS[num][index]))
-			locale = LOCALES.get(language.getLanguage(), None)
+			try:
+				locale = LOCALES.get(environ["LANGUAGE2"], None)
+			except KeyError:
+				locale =  None
+				pass			
 			if locale is not None and index in range(0, 6):
 				index = index % 3
 				for num in range(0, 10):
