@@ -7,7 +7,6 @@ from skin import fonts, parameters, applySkinFactor
 from Components.ActionMap import HelpableNumberActionMap
 from Components.Input import Input
 from Components.Label import Label
-from Components.Language import language
 from Components.MenuList import MenuList
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaBlend
 from Components.Sources.StaticText import StaticText
@@ -514,7 +513,7 @@ class VirtualKeyBoard(Screen, HelpableScreen):
 			"gotAsciiCode": (self.keyGotAscii, _("Keyboard data entry"))
 		}, -2, description=_("Virtual KeyBoard Functions"))
 		self.lang = environ["LANGUAGE2"]	
-		print("[VirtualKeyBoard] self.lang:", self.lang)		
+		# print("[VirtualKeyBoard] self.lang:", self.lang)		
 		self["prompt"] = Label(prompt)
 		self["text"] = Input(text=text, maxSize=maxSize, visible_width=visible_width, type=type, currPos=len((text)) if currPos is None else currPos, allMarked=allMarked)
 		self["list"] = VirtualKeyBoardList([])
@@ -878,7 +877,7 @@ class VirtualKeyBoard(Screen, HelpableScreen):
 
 	def setLocale(self):
 		self.language, self.location, self.keyList = self.locales.get(self.lang, [None, None, None])
-		print("[VirtualKeyBoard] self.language:", self.language, "   ", self.location, "   ", self.keyList)		
+		# print("[VirtualKeyBoard] self.language:", self.language, "   ", self.location, "   ", self.keyList)		
 		if self.language is None or self.location is None or self.keyList is None:
 			self.lang = "en_EN"
 			self.language = _("English")
