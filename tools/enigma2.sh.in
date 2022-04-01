@@ -315,7 +315,7 @@ fi
 
 # hook to execute user startup script before enigma2 exits
 if [ -x @sysconfdir@/enigma2/standby.sh ]; then
-	/etc/enigma2/staandby.sh
+	/etc/enigma2/standby.sh
 fi
 
 case $ret in
