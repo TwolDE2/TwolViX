@@ -83,29 +83,24 @@ config.misc.radiopic = ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "r
 config.misc.blackradiopic = ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "black.mvi"))
 config.misc.isNextRecordTimerAfterEventActionAuto = ConfigYesNo(default=False)
 config.misc.isNextPowerTimerAfterEventActionAuto = ConfigYesNo(default=False)
-config.misc.SyncTimeUsing = ConfigSelection(default="0", choices=[("0", _("Transponder Time")), ("1", _("NTP"))])
+config.misc.SyncTimeUsing = ConfigSelection(default="dvb", choices=[("dvb", _("Transponder Time")), ("ntp", _("NTP"))])
 config.misc.NTPserver = ConfigText(default="pool.ntp.org", fixed_size=False)
 config.misc.startCounter = ConfigInteger(default=0)  # number of e2 starts...
 config.misc.standbyCounter = NoSave(ConfigInteger(default=0))  # number of standby
 config.misc.DeepStandby = NoSave(ConfigYesNo(default=False))  # detect deepstandby
 
-
-def useSyncUsingChanged(configElement):
-	if configElement.value == "0":
-		print("[[StartEnigma] Time By]: Transponder")
-		enigma.eDVBLocalTimeHandler.getInstance().setUseDVBTime(True)
-	else:
-		print("[StartEnigma] [Time By]: NTP")
-		enigma.eDVBLocalTimeHandler.getInstance().setUseDVBTime(False)
+def SyncTimeUsingChanged(configElement):
+	print("[Time By]: %s" % configElement.toDisplayString(configElement.value))
+	enigma.eDVBLocalTimeHandler.getInstance().setUseDVBTime(configElement.value == "dvb")
 	enigma.eEPGCache.getInstance().timeUpdated()
 
 
-config.misc.SyncTimeUsing.addNotifier(useSyncUsingChanged)
+config.misc.SyncTimeUsing.addNotifier(SyncTimeUsingChanged)
 
 
 def NTPserverChanged(configElement):
 	f = open("/etc/default/ntpdate", "w")
-	f.write("NTPSERVERS=\"%s\"\n" % configElement.value)
+	f.write('NTPSERVERS="' + configElement.value + '"\n')
 	f.close()
 	chmod("/etc/default/ntpdate", 0o755)
 	from Components.Console import Console
