@@ -44,13 +44,6 @@ class MenuList(GUIComponent):
 
 	list = property(getList, setList)
 
-	def getList(self):
-		return self.list
-		
-	# We can't have a "list" property due to terrible coding in 
-	# plugins with no understanding of inheritance and namespace.
-	# So we have to make do with using self.list as a variable. Yuck!
-
 	def moveToIndex(self, idx):
 		if self.instance != None:
 			self.instance.moveSelectionTo(idx)
