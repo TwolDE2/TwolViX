@@ -3,10 +3,9 @@ from timer import Timer, TimerEntry
 import xml.etree.cElementTree
 from bisect import insort
 from sys import maxsize
-import struct
 from time import localtime, strftime, ctime, time
 
-from enigma import eEPGCache, eHdmiCEC, getBestPlayableServiceReference, eStreamServer, eServiceReference, iRecordableService, quitMainloop, eActionMap, setPreferredTuner, eServiceCenter
+from enigma import eEPGCache, getBestPlayableServiceReference, eStreamServer, eServiceReference, iRecordableService, quitMainloop, eActionMap, setPreferredTuner, eServiceCenter
 from boxbranding import getMachineBrand, getMachineName
 from Components.config import config
 import Components.ParentalControl
@@ -14,7 +13,6 @@ from Components.UsageConfig import defaultMoviePath
 from Components.SystemInfo import SystemInfo
 from Components.TimerSanityCheck import TimerSanityCheck
 import Screens.InfoBar
-import Components.ParentalControl
 from Screens.MessageBox import MessageBox
 from Screens.PictureInPicture import PictureInPicture
 import Screens.Standby
@@ -419,10 +417,12 @@ class RecordTimerEntry(TimerEntry):
 
 	def sendactivesource(self):
 		if SystemInfo["hasHdmiCec"] and config.hdmicec.enabled.value and config.hdmicec.sourceactive_zaptimers.value:	# Command the TV to switch to the correct HDMI input when zap timers activate
+			import struct
+			from enigma import eEPGCache, eHdmiCEC	
 			msgaddress = 0x0f # use broadcast for active source command
 			cmd = 0x82	# 130
 			physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
-			data = struct.pack("BB", int(physicaladdress / 256), int(physicaladdress % 256))
+			data = struct.pack("BB", int(physicaladdress // 256), int(physicaladdress % 256))
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))			
 			print("[TIMER] sourceactive was sent")
 
