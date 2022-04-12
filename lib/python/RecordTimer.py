@@ -430,7 +430,7 @@ class RecordTimerEntry(TimerEntry):
 				print("[RecordTimer[sendactivesource] data decode failed with utf-8, trying iso-8859-1")			
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))			
 			print("[TIMER] sourceactive was sent")
-			
+
 
 	def _bouquet_search(self):
 		from Screens.ChannelSelection import ChannelSelection
