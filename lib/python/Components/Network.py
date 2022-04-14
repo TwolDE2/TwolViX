@@ -331,13 +331,13 @@ class Network:
 			self.commands = []
 			self.commands.append("ifconfig wlan0 down")
 			self.commands.append("ifconfig wlan0 hw ether %s" % Mac)
-			self.commands.append("ifconfig wlan0s up")
+			self.commands.append("ifconfig wlan0 up")
 			self.resetNetworkConsole.eBatch(self.commands, self.resetWiFiMacFinishedCB, [mode, callback], debug=True)
 
 	def resetWiFiMacFinishedCB(self, extra_args):
 		(mode, callback) = extra_args
 		if not self.resetNetworkConsole.appContainers:
-			self.writeDefaultNetworkConfig(mode, callback)			
+			self.writeDefaultNetworkConfig(mode, callback)
 
 	def writeDefaultNetworkConfig(self, mode='lan', callback=None):
 		fp = open('/etc/network/interfaces', 'w')
