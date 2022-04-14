@@ -122,7 +122,7 @@ class Standby2(Screen):
 		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getMachineBuild() in ('gbmv200'):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("off")
-				print("[Standby] close hdmi on leave standby")		
+				print("[Standby] close hdmi on enter standby")		
 			except:
 				pass
 		print("[Standby] enter standby")
