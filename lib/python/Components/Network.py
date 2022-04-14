@@ -330,7 +330,7 @@ class Network:
 			mode= wlan
 			self.commands = []
 			self.commands.append("ifconfig %s down" % wlan)
-			self.commands.append("ifconfig %s hw ether %s" % (wlan, Mac)
+			self.commands.append("ifconfig %s hw ether %s" % (wlan, Mac))
 			self.commands.append("ifconfig %s up" % wlan)
 			self.resetNetworkConsole.eBatch(self.commands, self.resetWiFiMacFinishedCB, [mode, callback], debug=True)
 
