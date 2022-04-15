@@ -327,7 +327,7 @@ class Network:
 
 	def resetWiFiMac(self,Mac=None, wlan=None, callback=None):
 		if Mac is not None:
-			mode= wlan
+			mode = wlan
 			self.commands = []
 			self.commands.append("ifconfig %s down" % wlan)
 			self.commands.append("ifconfig %s hw ether %s" % (wlan, Mac))
@@ -357,7 +357,7 @@ class Network:
 		fp.close()
 
 		self.commands = []
-		if mode in ("wlan0", "wlan0"):
+		if mode in ("wlan0", "wlan3"):
 			self.commands.append("/sbin/ifconfig eth0 down")
 			self.commands.append("/sbin/ifconfig ath0 down")
 			self.commands.append("/sbin/ifconfig %s up" % mode)
