@@ -569,9 +569,6 @@ def runScreenTest():
 	# we need session.scart to access it from within menu.xml
 	session.scart = AutoScartControl(session)
 
-	profile("Init:Trashcan")
-	import Tools.Trashcan
-	Tools.Trashcan.init(session)
 
 	profile("Init:AutoVideoMode")
 	import Screens.VideoMode
@@ -737,6 +734,10 @@ Screens.Ci.InitCiConfig()
 profile("RcModel")
 print("[StartEnigma]  Initialising RCModel.")
 import Components.RcModel
+
+profile("Init:Trashcan")
+import Tools.Trashcan
+Tools.Trashcan.init(session)
 
 if config.clientmode.enabled.value:
 	import Components.ChannelsImporter
