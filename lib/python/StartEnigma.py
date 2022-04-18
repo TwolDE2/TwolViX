@@ -536,6 +536,10 @@ def runScreenTest():
 	nav = Navigation(config.misc.isNextRecordTimerAfterEventActionAuto.value, config.misc.isNextPowerTimerAfterEventActionAuto.value)
 	session = Session(desktop=enigma.getDesktop(0), summary_desktop=enigma.getDesktop(1), navigation=nav)
 
+	profile("Init:Trashcan")
+	import Tools.Trashcan
+	Tools.Trashcan.init(session)
+
 	CiHandler.setSession(session)
 	screensToRun = [p.fnc for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
 	profile("wizards")
@@ -560,6 +564,7 @@ def runScreenTest():
 			session.openWithCallback(boundFunction(runNextScreen, session, screensToRun[1:]), screen, *args)
 
 	runNextScreen(session, screensToRun)
+
 
 	profile("Init:VolumeControl")
 	vol = VolumeControl(session)
@@ -735,9 +740,6 @@ profile("RcModel")
 print("[StartEnigma]  Initialising RCModel.")
 import Components.RcModel
 
-profile("Init:Trashcan")
-import Tools.Trashcan
-Tools.Trashcan.init(session)
 
 if config.clientmode.enabled.value:
 	import Components.ChannelsImporter
