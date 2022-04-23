@@ -586,7 +586,7 @@ class HdmiCec:
 		self.standbyMessages()
 
 	def onEnterDeepStandby(self, configElement):
-		print("[HdmiCec][onEnterDeepStandby: config.hdmicec.enabled, config.hdmicec.handle_deepstandby_events=", config.hdmicec.enabled.value, "   ", config.hdmicec.handle_deepstandby_events.value)	
+		# print("[HdmiCec][onEnterDeepStandby: config.hdmicec.enabled, config.hdmicec.handle_deepstandby_events=", config.hdmicec.enabled.value, "   ", config.hdmicec.handle_deepstandby_events.value)	
 		if config.hdmicec.enabled.value and config.hdmicec.handle_deepstandby_events.value:
 			self.standbyMessages()
 
@@ -621,7 +621,7 @@ class HdmiCec:
 				self.sendMessage(5, "standby")
 
 
-	def standby(self):
+	def standby(self):			# Standby initiated from TV
 		if not Screens.Standby.inStandby:
 			Notifications.AddNotification(Screens.Standby.Standby)
 
