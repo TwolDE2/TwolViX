@@ -16,12 +16,10 @@
 void eRCDeviceInputDev::handleCode(long rccode)
 {
 	struct input_event *ev = (struct input_event *)rccode;
-
+	eDebug("[eInputDeviceInit] %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
 	if (ev->type != EV_KEY)
 		return;
 		
-	eDebug("[eInputDeviceInit] %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
-
 	int km = iskeyboard ? input->getKeyboardMode() : eRCInput::kmNone;
 
 	switch (ev->code)
@@ -102,34 +100,26 @@ void eRCDeviceInputDev::handleCode(long rccode)
 	else
 	{
 
+#if KEY_BOOKMARKS_TO_KEY_MEDIA
+		if (ev->code == KEY_BOOKMARKS)
+		{
+			/* formuler and triplex remote send wrong keycode */
+			ev->code = KEY_MEDIA;
+		}
+#endif
+
 #if KEY_CONTEXT_MENU_TO_KEY_AUX
 		if (ev->code == KEY_CONTEXT_MENU)
 		{
-			/* Gigablue New Remote rc has a KEY_HDMI-IN, which sends KEY_CONTEXT_MENU events. Correct this, so we do not have to place hacks in the keymaps. */
+			/* Gigablue gbuhd4K/gbue4k Remote rc has a KEY_HDMI-IN, which sends KEY_CONTEXT_MENU events. Correct this, so we do not have to place hacks in the keymaps. */
 			ev->code = KEY_AUX;
 		}
 #endif
 
-#if KEY_F2_TO_KEY_F6
-		if (ev->code == KEY_F2)
-		{
-			/* Gigablue New Remote rc has a KEY_PIP key, which sends KEY_F2 events. Correct this, so we do not have to place hacks in the keymaps. */
-			ev->code = KEY_F6;
-		}
-#endif
-
 #if KEY_F1_TO_KEY_HELP
-		if (ev->code == KEY_F1)
+		if (ev->code == KEY_HELP)
 		{
-			/* Gigablue New Remote rc has no help key so use KEY_F1 key */
-			ev->code = KEY_HELP;
-		}
-#endif
-
-#if KEY_OPTION_TO_KEY_HELP
-		if (ev->code == KEY_OPTION)
-		{
-			/* Gigablue New Remote rc has no help key so use KEY_F1 key */
+			/* Gigablue Trio4K Remote rc has no help key so use KEY_F1 key */
 			ev->code = KEY_HELP;
 		}
 #endif
@@ -148,6 +138,34 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 #endif
 
+#if KEY_F2_TO_KEY_SCREEN
+		if (ev->code == KEY_F2)
+		{
+			/* Gigablue Trio4K Remote rc has a KEY_PIP key, which sends KEY_F2 events. Correct this, so we do not have to place hacks in the keymaps. */
+			ev->code = KEY_SCREEN;
+		}
+#endif
+
+#if KEY_F2_TO_KEY_F6
+		if (ev->code == KEY_F2)
+		{
+			/* Gigablue gbuhd4K/gbue4k Remote rc has a KEY_PIP key, which sends KEY_F2 events. Correct this, so we do not have to place hacks in the keymaps. */
+			ev->code = KEY_F6;
+		}
+#endif
+
+
+
+#if KEY_OPTION_TO_KEY_HELP
+		if (ev->code == KEY_OPTION)
+		{
+			/* Gigablue gbuhd4K/gbue4k Remote rc has no help key so use KEY_F1 key */
+			ev->code = KEY_HELP;
+		}
+#endif
+
+
+
 #if KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE
 		if (ev->code == KEY_PLAY)
 		{
@@ -159,6 +177,14 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 #endif
 
+#if KEY_SCREEN_TO_KEY_MODE
+	if (ev->code == KEY_SCREEN)
+	{
+		/* GBTrio4K rc has a KEY_ASPECT key, which sends KEY_SCREEN events. Correct this, so we do not have to place hacks in the keymaps. */
+		ev->code = KEY_MODE;
+	}
+#endif
+
 #if KEY_VIDEO_TO_KEY_FAVORITES
 		if (ev->code == KEY_VIDEO)
 		{
@@ -167,13 +193,6 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 #endif
 
-#if KEY_BOOKMARKS_TO_KEY_MEDIA
-		if (ev->code == KEY_BOOKMARKS)
-		{
-			/* formuler and triplex remote send wrong keycode */
-			ev->code = KEY_MEDIA;
-		}
-#endif
 	}
 
 	eDebug("[eRCDeviceInputDev] emit: %u", ev->value); // ZZ
