@@ -1410,7 +1410,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 					productparameters = [p for p in [list(m) for m in unicable_xml.find(lnb_or_matrix) if m.get("name") == manufacturer][0] if p.get("name") == configEntry.value][0]
 					section.bootuptime = ConfigInteger(default=int(productparameters.get("bootuptime", 1000)), limits=(0, 9999))
 					section.bootuptime.save_forced = True
-					section.powerinserter = ConfigYesNo(default=SystemInfo["FbcTunerPowerAlwaysOn"])
+					section.powerinserter = ConfigYesNo(default=SystemInfo["HasFBCtuner"])
 					section.powerinserter.save_forced = True
 					section.powerinserter.addNotifier(setPowerInserter)
 					srcfrequencylist = productparameters.get("scrs").split(",")
@@ -1446,7 +1446,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 					section.scrList.addNotifier(boundFunction(userScrListChanged, srcfrequencyList))
 					section.bootuptime = ConfigInteger(default=1000, limits=(0, 9999))
 					section.bootuptime.save_forced = True
-					section.powerinserter = ConfigYesNo(default=SystemInfo["FbcTunerPowerAlwaysOn"])
+					section.powerinserter = ConfigYesNo(default=SystemInfo["HasFBCtuner"])
 					section.powerinserter.save_forced = True
 					section.powerinserter.addNotifier(setPowerInserter)
 
