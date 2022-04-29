@@ -16,7 +16,7 @@
 void eRCDeviceInputDev::handleCode(long rccode)
 {
 	struct input_event *ev = (struct input_event *)rccode;
-	eDebug("[eInputDeviceInit] %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
+	eDebug("[eInputDeviceInit0] %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
 	if (ev->type != EV_KEY)
 		return;
 		
@@ -93,7 +93,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		std::unordered_map<unsigned int, unsigned int>::iterator i = remaps.find(ev->code);
 		if (i != remaps.end())
 		{
-			eDebug("[eRCDeviceInputDev] map: %u->%u", i->first, i->second);
+			eDebug("[eRCDeviceInputDev1] map: %u->%u", i->first, i->second);
 			ev->code = i->second;
 		}
 	}
@@ -195,7 +195,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 
 	}
 
-	eDebug("[eRCDeviceInputDev] emit: %u", ev->value); // ZZ
+	eDebug("[eRCDeviceInputDev2] emit: %u", ev->value); // ZZ
 	switch (ev->value)
 	{
 		case 0:
@@ -222,7 +222,7 @@ eRCDeviceInputDev::eRCDeviceInputDev(eRCInputEventDriver *driver, int consolefd)
 		consoleFd(consolefd), shiftState(false), capsState(false)
 {
 	setExclusive(true);
-	eDebug("[eRCDeviceInputDev] device \"%s\" is a %s", id.c_str(), iskeyboard ? "keyboard" : (ismouse ? "mouse" : "remotecontrol"));
+	eDebug("[eRCDeviceInputDev3] device \"%s\" is a %s", id.c_str(), iskeyboard ? "keyboard" : (ismouse ? "mouse" : "remotecontrol"));
 }
 
 void eRCDeviceInputDev::setExclusive(bool b)
@@ -276,7 +276,7 @@ public:
 			add(filename);
 			++i;
 		}
-		eDebug("[eInputDeviceInit] Found %d input devices.", i);
+		eDebug("[eInputDeviceInit4] Found %d input devices.", i);
 	}
 
 	~eInputDeviceInit()
@@ -305,7 +305,7 @@ public:
 				return;
 			}
 		}
-		eDebug("[eInputDeviceInit] Remove '%s', not found", filename);
+		eDebug("[eInputDeviceInit5] Remove '%s', not found", filename);
 	}
 };
 
