@@ -430,6 +430,7 @@ if test "$BOXTYPE" == "gbtrio4k" -o "$BOXTYPE" == "gbmv200"; then
 	AC_DEFINE(KEY_SUBTITLE_TO_KEY_SUBTITLE, 1,[define when rc sends a KEY_SUBTITLE event for its KEY_OPTION key])		
 	AC_DEFINE(KEY_F1_TO_KEY_HELP, 1,[define when rc sends a KEY_F1 event for its KEY_F1 key])
 	AC_DEFINE(KEY_F2_TO_KEY_SCREEN, 1,[define when rc sends a KEY_F2 event for its KEY_PIP key])
+	AC_DEFINE(KEY_SUBT_TO_KEY_SUBTITLE, 1,[define when rc sends a 50afa15e KEY event for its KEY_SUBT key])	
 
 fi
 
