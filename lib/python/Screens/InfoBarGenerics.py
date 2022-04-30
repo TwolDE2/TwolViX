@@ -215,25 +215,6 @@ def hasActiveSubservicesForCurrentChannel(current_service):
 	return bool(activeSubservices and len(activeSubservices) > 1)
 
 
-class TimerSelection(Screen):
-	def __init__(self, session, list):
-		Screen.__init__(self, session)
-		self.setTitle(_("Timer selection"))
-		self.list = list
-		self["timerlist"] = TimerList(self.list)
-		self["actions"] = ActionMap(["OkCancelActions"],
-			{
-				"ok": self.selected,
-				"cancel": self.leave,
-			}, -1)
-
-	def leave(self):
-		self.close(None)
-
-	def selected(self):
-		self.close(self["timerlist"].getCurrentIndex())
-
-
 class InfoBarDish:
 	def __init__(self):
 		self.dishDialog = self.session.instantiateDialog(Dish)
@@ -288,7 +269,7 @@ class InfoBarUnhandledKey:
 			self.unhandledKeyDialog = None
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
-		# print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS[flag], self.invKeyIds.get(key, ""), getKeyDescription(key)))
+		print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS[flag], self.invKeyIds.get(key, ""), getKeyDescription(key)))
 		if flag != 2: # don't hide on repeat
 			self.unhandledKeyDialog.hide()
 			if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:

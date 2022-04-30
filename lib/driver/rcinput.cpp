@@ -116,11 +116,35 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 #endif
 
+#if KEY_SCREEN_TO_KEY_MODE
+		if (ev->code == KEY_SCREEN)
+		{
+			/* GBTrio4K rc has a KEY_ASPECT key, which sends KEY_SCREEN events. Correct this, so we do not have to place hacks in the keymaps. */
+			ev->code = KEY_MODE;
+		}
+#endif
+
+#if KEY_SUBTITLE_TO_KEY_SUBTITLE
+		if (ev->code == KEY_SCREEN)
+		{
+			/* GBTrio4K rc has a KEY_OPTION key, which sends KEY_SUBTITLE events. Correct this, so we do not have to place hacks in the keymaps. */
+			ev->code = KEY_SUBTITLE;
+		}
+#endif
+
 #if KEY_F1_TO_KEY_HELP
-		if (ev->code == KEY_HELP)
+		if (ev->code == KEY_F1)
 		{
 			/* Gigablue Trio4K Remote rc has no help key so use KEY_F1 key */
 			ev->code = KEY_HELP;
+		}
+#endif
+
+#if KEY_F2_TO_KEY_SCREEN
+		if (ev->code == KEY_F2)
+		{
+			/* Gigablue Trio4K Remote rc has a KEY_PIP key, which sends KEY_F2 events. Correct this, so we do not have to place hacks in the keymaps. */
+			ev->code = KEY_SCREEN;
 		}
 #endif
 
@@ -138,13 +162,6 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 #endif
 
-#if KEY_F2_TO_KEY_SCREEN
-		if (ev->code == KEY_F2)
-		{
-			/* Gigablue Trio4K Remote rc has a KEY_PIP key, which sends KEY_F2 events. Correct this, so we do not have to place hacks in the keymaps. */
-			ev->code = KEY_SCREEN;
-		}
-#endif
 
 #if KEY_F2_TO_KEY_F6
 		if (ev->code == KEY_F2)
@@ -153,7 +170,6 @@ void eRCDeviceInputDev::handleCode(long rccode)
 			ev->code = KEY_F6;
 		}
 #endif
-
 
 
 #if KEY_OPTION_TO_KEY_HELP
@@ -177,13 +193,6 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		}
 #endif
 
-#if KEY_SCREEN_TO_KEY_MODE
-	if (ev->code == KEY_SCREEN)
-	{
-		/* GBTrio4K rc has a KEY_ASPECT key, which sends KEY_SCREEN events. Correct this, so we do not have to place hacks in the keymaps. */
-		ev->code = KEY_MODE;
-	}
-#endif
 
 #if KEY_VIDEO_TO_KEY_FAVORITES
 		if (ev->code == KEY_VIDEO)
