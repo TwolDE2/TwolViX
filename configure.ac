@@ -425,15 +425,7 @@ if test "$BOXTYPE" == "gb7252" -o "$BOXTYPE" == "gb72604"; then
 fi
 
 
-if test "$BOXTYPE" == "gbtrio4k"; then
-	AC_DEFINE(KEY_SUBT_IS_KEY_SUBTITLE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
-	AC_DEFINE(KEY_SCREEN_TO_KEY_MODE, 1,[define when rc sends a KEY_HELP event for its KEY_EPG key])
-	AC_DEFINE(KEY_F1_TO_KEY_HELP, 1,[define when rc sends a KEY_F2 event for its KEY_F6 key])
-	AC_DEFINE(KEY_F2_TO_KEY_SCREEN, 1,[define when rc sends a KEY_MODE event for its KEY_ASPECT key])
-	AC_DEFINE(KEY_CONTEXT_TO_KEY_MODE, 1,[define when rc sends a KEY_CONTEXT_MENU event for its KEY_AUX key])
-fi
-
-if test "$BOXTYPE" == "gbmv200"; then
+if test "$BOXTYPE" == "gbtrio4k" -o "$BOXTYPE" == "gbmv200"; then
 	AC_DEFINE(KEY_SUBT_IS_KEY_SUBTITLE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
 	AC_DEFINE(KEY_SCREEN_TO_KEY_MODE, 1,[define when rc sends a KEY_HELP event for its KEY_EPG key])
 	AC_DEFINE(KEY_F1_TO_KEY_HELP, 1,[define when rc sends a KEY_F2 event for its KEY_F6 key])
