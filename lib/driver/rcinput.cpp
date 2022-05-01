@@ -17,7 +17,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 {
 	struct input_event *ev = (struct input_event *)rccode;
 	eDebug("[eInputDeviceInit0] %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
-	if (ev->type != EV_KEY && ev->value != "0x50afa15e")
+	if (ev->type != EV_KEY && *ev->value != "0x50afa15e")
 		return;
 	eDebug("[eInputDeviceInit0a] %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);	
 	int km = iskeyboard ? input->getKeyboardMode() : eRCInput::kmNone;
@@ -109,7 +109,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 #endif
 
 #if KEY_SUBT_TO_KEY_SUBTITLE
-		if (ev->value == "0x50afa15e")
+		if (*ev->value == "0x50afa15e")
 		{
 			/* Gigablue gbuhd4K/gbue4k Remote rc has a KEY_SUBT, which sends No events. Correct this, so we do not have to place hacks in the keymaps. */
 			ev->code = KEY_SUBTITLE;
