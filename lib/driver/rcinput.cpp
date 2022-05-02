@@ -97,6 +97,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 			ev->code = i->second;
 		}
 	}
+/*	
 	else
 	{
 
@@ -203,7 +204,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 #endif
 
 	}
-
+*/
 	eDebug("[eRCDeviceInputDev2] emit: %u", ev->value); // ZZ
 	switch (ev->value)
 	{
