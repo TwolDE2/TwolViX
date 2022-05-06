@@ -14,6 +14,7 @@
 
 #include <lib/base/eerror.h>
 #include <lib/base/nconfig.h> // access to python config
+#include <lib/base/esimpleconfig.h> // access to startup config
 #include <lib/dvb/db.h>
 #include <lib/dvb/pmt.h>
 #include <lib/dvb_ci/dvbci.h>
