@@ -6,6 +6,7 @@ from Components.config import config, getConfigListEntry, ConfigSubsection, Conf
 from Components.ConfigList import ConfigListScreen
 from Components.NimManager import nimmanager
 from Components.Sources.StaticText import StaticText
+from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
