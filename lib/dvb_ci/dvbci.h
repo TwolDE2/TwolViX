@@ -66,7 +66,7 @@ class eDVBCISlot: public iObject, public sigc::trackable
 	bool user_mapped;
 	void data(int);
 	bool plugged;
-	eMainloop *m_context
+	eMainloop *m_context;
 
 	eDVBCIApplicationManagerSession *getAppManager() { return application_manager; }
 	eDVBCIMMISession *getMMIManager() { return mmi_session; }
@@ -94,7 +94,7 @@ public:
 	eDVBCISlot(eMainloop *context, int nr);
 	~eDVBCISlot();
 	void closeDevice();
-	void openDevice()
+	void openDevice();
 	int send(const unsigned char *data, size_t len);
 
 	void setAppManager( eDVBCIApplicationManagerSession *session );
