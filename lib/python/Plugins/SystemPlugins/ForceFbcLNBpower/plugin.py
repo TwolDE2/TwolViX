@@ -1,5 +1,4 @@
 # Author: Dimitrij <Dima-73@inbox.lv>
-from . import _
 import os
 from enigma import eTimer
 from Components.ActionMap import ActionMap
