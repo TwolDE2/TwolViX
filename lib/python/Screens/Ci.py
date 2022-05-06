@@ -27,6 +27,8 @@ def setdvbCiDelay(configElement):
 def setRelevantPidsRouting(configElement):
 	open(SystemInfo["CI%dRelevantPidsRoutingSupport" % configElement.slotid], "w").write("yes" if configElement.value else "no")
 
+def setCIEnabled(configElement):
+    eDVBCI_UI.getInstance().setEnabled(configElement.slotid, configElement.value)
 
 def InitCiConfig():
 	config.ci = ConfigSubList()
@@ -34,6 +36,9 @@ def InitCiConfig():
 	if SystemInfo["CommonInterface"]:
 		for slot in range(SystemInfo["CommonInterface"]):
 			config.ci.append(ConfigSubsection())
+			config.ci[slot].enabled = ConfigYesNo(default=True)
+			config.ci[slot].enabled.slotid = slot
+			config.ci[slot].enabled.addNotifier(setCIEnabled)
 			config.ci[slot].canDescrambleMultipleServices = ConfigSelection(choices=[("auto", _("auto")), ("no", _("no")), ("yes", _("yes"))], default="auto")
 			config.ci[slot].use_static_pin = ConfigYesNo(default=True)
 			config.ci[slot].static_pin = ConfigPIN(default=0)
@@ -389,6 +394,8 @@ class CiSelection(Screen):
 		self.slot = 0
 		for slot in range(SystemInfo["CommonInterface"]):
 			state = eDVBCI_UI.getInstance().getState(slot)
+			if self.state == 3:  # module disabled by the user
+				continue
 			if state != -1:
 				self.slot += 1
 				self.appendEntries(slot, state)

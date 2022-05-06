@@ -1027,6 +1027,14 @@ PyObject *eDVBCIInterfaces::readCICaIds(int slotid)
 	return 0;
 }
 
+int eDVBCIInterfaces::setCIEnabled(int slotid, bool enabled)
+{
+	eDVBCISlot *slot = getSlot(slotid);
+	if (slot)
+		return slot->setEnabled(enabled);
+	return -1;
+}
+
 int eDVBCIInterfaces::setCIClockRate(int slotid, int rate)
 {
 	singleLock s(m_slot_lock);
@@ -1232,6 +1240,20 @@ DEFINE_REF(eDVBCISlot);
 
 eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 {
+	char configStr[255];
+	slotid = nr;
+	m_context = context;
+	state = stateDisabled;
+	snprintf(configStr, 255, "config.ci.%d.enabled", slotid);
+	bool enabled = eSimpleConfig::getBool(configStr, true);
+	if (enabled)
+		openDevice();
+	else
+		eDVBCI_UI::getInstance()->setState(getSlotID(), 3); // state disabled
+}
+
+void eDVBCISlot::openDevice()
+{
 	char filename[128];
 
 	application_manager = 0;
@@ -1244,9 +1266,7 @@ eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 	plugged = true;
 	m_ci_version = versionUnknown;
 
-	slotid = nr;
-
-	sprintf(filename, "/dev/ci%d", nr);
+	sprintf(filename, "/dev/ci%d", slotid);
 
 //	possible_caids.insert(0x1702);
 //	possible_providers.insert(providerPair("PREMIERE", 0xC00000));
@@ -1259,7 +1279,7 @@ eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 
 	if (fd >= 0)
 	{
-		notifier = eSocketNotifier::create(context, fd, eSocketNotifier::Read | eSocketNotifier::Priority | eSocketNotifier::Write);
+		notifier = eSocketNotifier::create(m_context, fd, eSocketNotifier::Read | eSocketNotifier::Priority | eSocketNotifier::Write);
 		CONNECT(notifier->activated, eDVBCISlot::data);
 	} else
 	{
@@ -1270,10 +1290,25 @@ eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 eDVBCISlot::~eDVBCISlot()
 {
 	eDVBCISession::deleteSessions(this);
-	close(fd);
 }
 
-void eDVBCISlot::setAppManager( eDVBCIApplicationManagerSession *session )
+void eDVBCISlot::closeDevice() 
+{
+	close(fd);
+	fd = -1;
+	notifier->stop();
+#ifdef __sh__
+	mmi_active = false;
+	eDVBCI_UI::getInstance()->setAppName(getSlotID(), "");
+	eDVBCISession::deleteSessions(this);
+	eDVBCIInterfaces::getInstance()->ciRemoved(this);
+#else
+	data(eSocketNotifier::Priority);
+#endif
+	state = stateDisabled;
+}
+
+void eDVBCISlot::setAppManager(eDVBCIApplicationManagerSession *session)
 {
 	singleLock s(eDVBCIInterfaces::m_slot_lock);
 	application_manager=session;
@@ -1604,6 +1639,24 @@ int eDVBCISlot::setClockRate(int rate)
 	snprintf(buf, sizeof(buf), "/proc/stb/tsmux/ci%d_tsclk", slotid);
 	if(CFile::write(buf, rate ? "high" : "normal") == -1)
 		return -1;
+	return 0;
+}
+
+int eDVBCISlot::setEnabled(bool enabled)
+{
+	eDebug("[CI] Slot: %d Enabled: %d, state %d", getSlotID(), enabled, state);
+	if (enabled && state != stateDisabled)
+		return 0;
+
+	if (!enabled && state == stateDisabled)
+		return 0;
+
+	if(enabled)
+		openDevice();
+	else {
+		closeDevice();
+		eDVBCI_UI::getInstance()->setState(getSlotID(), 3); // state disabled
+	}
 	return 0;
 }
 
