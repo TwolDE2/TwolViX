@@ -1,12 +1,11 @@
 from xml.etree.ElementTree import ElementTree
-
+from os import path
 from Components.config import config, ConfigInteger
 from Components.Pixmap import MovingPixmap, MultiPixmap
-from Components.RcModel import rc_model
+from Components.SystemInfo import SystemInfo
 from Tools.Directories import resolveFilename, SCOPE_SKIN
 
 config.misc.rcused = ConfigInteger(default=1)
-
 
 class Rc:
 	def __init__(self):
@@ -17,14 +16,13 @@ class Rc:
 		self["arrowup2"] = MovingPixmap()
 
 		config.misc.rcused = ConfigInteger(default=1)
-		self.isDefaultRc = rc_model.rcIsDefault()
+		self.isDefaultRc = True if SystemInfo["rc_model"] == 'dmm0' else False				# Default RC can only happen with DMM type remote controls.
 		self.rcheight = 500
 		self.rcheighthalf = 250
 
 		self.selectpics = []
 		self.selectpics.append((self.rcheighthalf, ["arrowdown", "arrowdown2"], (-18, -70)))
 		self.selectpics.append((self.rcheight, ["arrowup", "arrowup2"], (-18, 0)))
-
 		self.readPositions()
 		self.clearSelectedKeys()
 		self.onShown.append(self.initRc)
@@ -39,7 +37,7 @@ class Rc:
 		if self.isDefaultRc:
 			target = resolveFilename(SCOPE_SKIN, "rcpositions.xml")
 		else:
-			target = rc_model.getRcLocation() + 'rcpositions.xml'
+			target = resolveFilename(SCOPE_SKIN, path.join("rc_models", SystemInfo["rc_model"], "rcpositions.xml"))			
 		tree = ElementTree(file=target)
 		rcs = tree.getroot()
 		self.rcs = {}
