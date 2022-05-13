@@ -598,10 +598,6 @@ print("[StartEnigma]  Initialising CommonInterface.")
 import Screens.Ci
 Screens.Ci.InitCiConfig()
 
-profile("RcModel")
-print("[StartEnigma]  Initialising RCModel.")
-import Components.RcModel
-
 
 if config.clientmode.enabled.value:
 	import Components.ChannelsImporter
