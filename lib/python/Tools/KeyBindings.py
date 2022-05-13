@@ -369,7 +369,7 @@ def queryKeyBinding(context, action):
 
 
 def getKeyDescription(key):
-	if SystemInfo["rc_model"] == 'dmm0':
+	if SystemInfo["rc_default"]:
 		idx = config.misc.rcused.value
 	else:
 		rcType = config.plugins.remotecontroltype.rctype.value

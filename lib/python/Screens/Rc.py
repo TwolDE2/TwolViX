@@ -7,6 +7,7 @@ from Tools.Directories import resolveFilename, SCOPE_SKIN
 
 config.misc.rcused = ConfigInteger(default=1)
 
+
 class Rc:
 	def __init__(self):
 		self["rc"] = MultiPixmap()
@@ -16,7 +17,6 @@ class Rc:
 		self["arrowup2"] = MovingPixmap()
 
 		config.misc.rcused = ConfigInteger(default=1)
-		self.isDefaultRc = True if SystemInfo["rc_model"] == 'dmm0' else False				# Default RC can only happen with DMM type remote controls.
 		self.rcheight = 500
 		self.rcheighthalf = 250
 
@@ -28,16 +28,16 @@ class Rc:
 		self.onShown.append(self.initRc)
 
 	def initRc(self):
-		if self.isDefaultRc:
+		if SystemInfo["rc_default"]:
 			self["rc"].setPixmapNum(config.misc.rcused.value)
 		else:
 			self["rc"].setPixmapNum(0)
 
 	def readPositions(self):
-		if self.isDefaultRc:
+		if SystemInfo["rc_default"]:
 			target = resolveFilename(SCOPE_SKIN, "rcpositions.xml")
 		else:
-			target = resolveFilename(SCOPE_SKIN, path.join("rc_models", SystemInfo["rc_model"], "rcpositions.xml"))			
+			target = resolveFilename(SCOPE_SKIN, path.join("rc_models", SystemInfo["rc_model"], "rcpositions.xml"))
 		tree = ElementTree(file=target)
 		rcs = tree.getroot()
 		self.rcs = {}
@@ -63,7 +63,7 @@ class Rc:
 		self["rc"].show()
 
 	def selectKey(self, key):
-		if self.isDefaultRc:
+		if SystemInfo["rc_default"]:
 			rc = self.rcs[config.misc.rcused.value]
 		else:
 			try:
