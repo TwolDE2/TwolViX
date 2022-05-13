@@ -367,26 +367,6 @@ config.misc.startCounter = ConfigInteger(default=0)  # number of e2 starts...
 config.misc.standbyCounter = NoSave(ConfigInteger(default=0))  # number of standby
 config.misc.DeepStandby = NoSave(ConfigYesNo(default=False))  # detect deepstandby
 
-def SyncTimeUsingChanged(configElement):
-	print("[Time By]: %s" % configElement.toDisplayString(configElement.value))
-	enigma.eDVBLocalTimeHandler.getInstance().setUseDVBTime(configElement.value == "dvb")
-	enigma.eEPGCache.getInstance().timeUpdated()
-
-
-config.misc.SyncTimeUsing.addNotifier(SyncTimeUsingChanged)
-
-
-def NTPserverChanged(configElement):
-	f = open("/etc/default/ntpdate", "w")
-	f.write('NTPSERVERS="' + configElement.value + '"\n')
-	f.close()
-	chmod("/etc/default/ntpdate", 0o755)
-	from Components.Console import Console
-	Console = Console()
-	Console.ePopen("/usr/bin/ntpdate-sync")
-
-
-config.misc.NTPserver.addNotifier(NTPserverChanged, immediate_feedback=False)
 
 profile("Twisted")
 print("[StartEnigma] Initialising Twisted.")
