@@ -46,7 +46,7 @@ SystemInfo["MachineBrand"] = getMachineBrand()
 SystemInfo["MachineName"] = getMachineName()
 SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
 SystemInfo["rc_model"] = rc_model.getRcFolder()
-SystemInfo[rc_default] = SystemInfo["rc_model"] in ("dmm0", )
+SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
 SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4") # due to button limitations of the remote control
 SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "sf8008", "sf8008m", "uniboxhde") # due to button limitations of the remote control
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
