@@ -79,7 +79,10 @@ class IpkgComponent:
 		self.currentCommand = command
 
 	def runCmdEx(self, cmd):
-		self.runCmd("%s %s" % (opkgExtraDestinations(), cmd))
+		if opkgDestinations is None:
+			self.runCmd(dmd)			
+		else:
+			self.runCmd("%s %s" % (opkgExtraDestinations(), cmd))
 
 	def runCmd(self, cmd):
 		print("[IPKG] executing", self.ipkg, cmd)
