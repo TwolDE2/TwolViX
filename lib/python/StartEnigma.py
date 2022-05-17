@@ -43,7 +43,6 @@ class Session:
 		retval = self.current_dialog.returnValue
 		if self.current_dialog.isTmp:
 			self.current_dialog.doClose()
-			# dump(self.current_dialog)
 			del self.current_dialog
 		else:
 			del self.current_dialog.callback
@@ -428,21 +427,6 @@ FlashInstallTime()
 
 profile("misc")
 had = dict()
-
-
-def dump(dir, p=""):
-	if isinstance(dir, dict):
-		for (entry, val) in dir.items():
-			dump(val, "%s(dict)/%s" % (p, entry))
-	if hasattr(dir, "__dict__"):
-		for name, value in dir.__dict__.items():
-			if str(value) not in had:
-				had[str(value)] = 1
-				dump(value, "%s/%s" % (p, str(name)))
-			else:
-				print("%s/%s:%s(cycle)" % (p, str(name), str(dir.__class__)))
-	else:
-		print("%s:%s" % (p, str(dir)))  # + ":" + str(dir.__class__)
 
 
 profile("LOAD:ScreenGlobals")
