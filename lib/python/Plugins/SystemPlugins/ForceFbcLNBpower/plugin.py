@@ -1,5 +1,5 @@
 # Author: Dimitrij <Dima-73@inbox.lv>
-import os
+from os import path as ospath
 from enigma import eTimer
 from Components.ActionMap import ActionMap
 from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigSelection
@@ -21,8 +21,8 @@ config.plugins.miscControl.forceToneBurst = ConfigSelection(default="disable", c
 PROC_FORCE_LNBPOWER = "/proc/stb/frontend/fbc/force_lnbon"
 PROC_FORCE_TONEBURST = "/proc/stb/frontend/fbc/force_toneburst"
 
-IS_PROC_FORCE_LNBPOWER = os.path.exists(PROC_FORCE_LNBPOWER)
-IS_PROC_FORCE_TONEBURST = os.path.exists(PROC_FORCE_TONEBURST)
+IS_PROC_FORCE_LNBPOWER = ospath.exists(PROC_FORCE_LNBPOWER)
+IS_PROC_FORCE_TONEBURST = ospath.exists(PROC_FORCE_TONEBURST)
 
 def setProcValueOnOff(value, procPath):
 	try:
