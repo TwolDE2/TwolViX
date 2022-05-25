@@ -2433,7 +2433,7 @@ PyObject *eEPGCache::search(ePyObject arg)
 			}
 			else
 			{
-				PyErr_SetString(PyExc_TypeError, tmp);
+				PyErr_SetString(PyExc_TypeError, "[eEPGCache] tuple arg 3(%d) is not a known querytype(0..3)", querytype);
 				//eDebug("[eEPGCache] tuple arg 3(%d) is not a known querytype(0..3)", querytype);
 				return NULL;
 			}
