@@ -116,11 +116,7 @@ class Job:
 		return "Components.Task.Job name=%s #tasks=%s" % (self.name, len(self.tasks))
 
 
-<<<<<<< HEAD
 class Task:
-=======
-class Task():
->>>>>>> 248c2f0... Remove class declaration to inherit from object
 	def __init__(self, job, name):
 		self.name = name
 		self.immediate_preconditions = []

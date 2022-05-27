@@ -266,11 +266,7 @@ def getKeyNumber(key):
 	return key - ACTIONKEY_0
 
 
-<<<<<<< HEAD
 class choicesList:  # XXX: we might want a better name for this
-=======
-class choicesList():  # XXX: we might want a better name for this
->>>>>>> 248c2f0... Remove class declaration to inherit from object
 	LIST_TYPE_LIST = 1
 	LIST_TYPE_DICT = 2
 
@@ -1999,11 +1995,7 @@ class ConfigNothing(ConfigSelection):
 #
 
 
-<<<<<<< HEAD
 class ConfigSubsectionContent:
-=======
-class ConfigSubsectionContent():
->>>>>>> 248c2f0... Remove class declaration to inherit from object
 	pass
 
 # we store a backup of the loaded configuration
@@ -2114,11 +2106,7 @@ class ConfigSubDict(dict):
 # __setattr__ to a usual exisiting class and you will.
 
 
-<<<<<<< HEAD
 class ConfigSubsection:
-=======
-class ConfigSubsection():
->>>>>>> 248c2f0... Remove class declaration to inherit from object
 	def __init__(self):
 		self.__dict__["content"] = ConfigSubsectionContent()
 		self.content.items = {}
