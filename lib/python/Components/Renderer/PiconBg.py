@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from enigma import ePixmap
 
 from Components.config import config

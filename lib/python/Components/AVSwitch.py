@@ -1,4 +1,3 @@
-
 from os import path
 
 from enigma import eAVSwitch, getDesktop
