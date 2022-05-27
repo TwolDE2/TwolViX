@@ -13,7 +13,7 @@ from Components.Converter.Converter import Converter
 from Components.Element import cached
 
 
-class MovieReference(Converter, object):
+class MovieReference(Converter):
 
 	def __init__(self, type):
 		Converter.__init__(self, type)

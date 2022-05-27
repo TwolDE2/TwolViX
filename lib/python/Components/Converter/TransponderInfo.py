@@ -9,7 +9,7 @@ from ServiceReference import resolveAlternate, ServiceReference
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 
 
-class TransponderInfo(Converter, object):
+class TransponderInfo(Converter):
 	def __init__(self, type):
 		Converter.__init__(self, type)
 		self.type = type.split(";")

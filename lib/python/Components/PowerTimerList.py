@@ -10,7 +10,7 @@ from Tools.FuzzyDate import FuzzyTime
 from Tools.LoadPixmap import LoadPixmap
 
 
-class PowerTimerList(GUIComponent, object):
+class PowerTimerList(GUIComponent):
 #
 #  | <Service>     <Name of the Timer>  |
 #  | <start, end>              <state>  |

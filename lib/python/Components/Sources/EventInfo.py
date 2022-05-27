@@ -99,7 +99,7 @@ class pServiceEvent:
 		return 0
 
 
-class EventInfo(PerServiceBase, Source, object):
+class EventInfo(PerServiceBase, Source):
 	NOW = 0
 	NEXT = 1
 

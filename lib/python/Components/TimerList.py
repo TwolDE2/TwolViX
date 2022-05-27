@@ -14,7 +14,7 @@ from Tools.LoadPixmap import LoadPixmap
 from Tools.TextBoundary import getTextBoundarySize
 
 
-class TimerList(GUIComponent, object):
+class TimerList(GUIComponent):
 #
 #  | <Name of the Timer>     <Service>  <orb.pos>|
 #  | <state>  <start, end>  |

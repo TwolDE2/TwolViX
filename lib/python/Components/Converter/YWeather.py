@@ -15,7 +15,7 @@ from urllib.request import urlopen, Request # raises ImportError in Python 2
 from urllib.error import HTTPError, URLError # raises ImportError in Python 2
 
 
-class YWeather(Poll, Converter, object):
+class YWeather(Poll, Converter):
 	weather_city = '677944'
 	time_update = 20
 	time_update_ms = 30000
