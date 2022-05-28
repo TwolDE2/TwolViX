@@ -1,3 +1,4 @@
+from os import chmod as oschmod
 from time import time
 # import traceback
 from enigma import eTimer, eDVBLocalTimeHandler, eEPGCache
@@ -95,4 +96,4 @@ class NTPSyncPoller:
 			ntpdate = [server, ""]
 		with open(path, "w") as f:
 			f.write("\n".join(ntpdate))
-		os.chmod("/etc/default/ntpdate", 0o755)
+		oschmod("/etc/default/ntpdate", 0o755)
