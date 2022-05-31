@@ -84,12 +84,12 @@ class NSCommon:
 	def doRemove(self, callback, pkgname):
 		self.message = self.session.open(MessageBox, _("Please wait..."), MessageBox.TYPE_INFO, enable_input=False)
 		self.message.setTitle(_("Removing Service"))
-		self.Console.ePopen("/usr/bin/opkg remove " + pkgname + " --force-remove --autoremove", callback)
+		self.ConsoleB.ePopen("/usr/bin/opkg remove " + pkgname + " --force-remove --autoremove", callback)
 
 	def doInstall(self, callback, pkgname):
 		self.message = self.session.open(MessageBox, _("Please wait..."), MessageBox.TYPE_INFO, enable_input=False)
 		self.message.setTitle(_("Installing Service"))
-		self.Console.ePopen("/usr/bin/opkg install " + pkgname, callback)
+		self.ConsoleB.ePopen("/usr/bin/opkg install " + pkgname, callback)
 
 	def checkNetworkState(self, str, retval, extra_args):
 		if "Collected errors" in str:
@@ -104,7 +104,7 @@ class NSCommon:
 			self.updateService()
 
 	def UninstallCheck(self):
-		self.Console.ePopen("/usr/bin/opkg list_installed " + self.service_name, self.RemovedataAvail)
+		self.ConsoleB.ePopen("/usr/bin/opkg list_installed " + self.service_name, self.RemovedataAvail)
 
 	def RemovedataAvail(self, result, retval, extra_args):
 		if result:
@@ -1750,6 +1750,7 @@ class NetworkAfp(NSCommon, Screen):
 		self["status_summary"] = StaticText()
 		self["autostartstatus_summary"] = StaticText()
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)
 		self.my_afp_active = False
 		self.my_afp_run = False
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
@@ -1766,15 +1767,15 @@ class NetworkAfp(NSCommon, Screen):
 
 	def AfpStartStop(self):
 		if not self.my_afp_run:
-			self.Console.ePopen("/etc/init.d/atalk start", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/atalk start", self.StartStopCallback)
 		elif self.my_afp_run:
-			self.Console.ePopen("/etc/init.d/atalk stop", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/atalk stop", self.StartStopCallback)
 
 	def activateAfp(self):
 		if ServiceIsEnabled("atalk"):
-			self.Console.ePopen("update-rc.d -f atalk remove", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f atalk remove", self.StartStopCallback)
 		else:
-			self.Console.ePopen("update-rc.d -f atalk defaults", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f atalk defaults", self.StartStopCallback)
 
 	def updateService(self, result=None, retval=None, extra_args=None):
 		import process
@@ -1825,7 +1826,8 @@ class NetworkFtp(NSCommon, Screen):
 		self["key_red"] = Label()
 		self["key_yellow"] = Label(_("Autostart"))
 		self["key_blue"] = Label()
-		self.Console = Console()
+		self.Console = Console()		
+		self.ConsoleB = Console(binary=True)
 		self.my_ftp_active = False
 		self.my_ftp_run = False
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
@@ -1835,7 +1837,6 @@ class NetworkFtp(NSCommon, Screen):
 			"green": self.FtpStartStop,
 			"yellow": self.activateFtp
 		})
-		self.Console = Console()
 		self.onLayoutFinish.append(self.updateService)
 		self.reboot_at_end = False
 
@@ -1845,7 +1846,7 @@ class NetworkFtp(NSCommon, Screen):
 			commands.append("/etc/init.d/vsftpd start")
 		elif self.my_ftp_run:
 			commands.append("/etc/init.d/vsftpd stop")
-		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
+		self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def activateFtp(self):
 		commands = []
@@ -1853,7 +1854,7 @@ class NetworkFtp(NSCommon, Screen):
 			commands.append("update-rc.d -f vsftpd remove")
 		else:
 			commands.append("update-rc.d -f vsftpd defaults")
-		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
+		self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
 		import process
@@ -1906,6 +1907,7 @@ class NetworkNfs(NSCommon, Screen):
 		self["key_yellow"] = Label(_("Autostart"))
 		self["key_blue"] = Label()
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)
 		self.my_nfs_active = False
 		self.my_nfs_run = False
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
@@ -1922,15 +1924,15 @@ class NetworkNfs(NSCommon, Screen):
 
 	def NfsStartStop(self):
 		if not self.my_nfs_run:
-			self.Console.ePopen("/etc/init.d/nfsserver start", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/nfsserver start", self.StartStopCallback)
 		elif self.my_nfs_run:
-			self.Console.ePopen("/etc/init.d/nfsserver stop", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/nfsserver stop", self.StartStopCallback)
 
 	def Nfsset(self):
 		if ServiceIsEnabled("nfsserver"):
-			self.Console.ePopen("update-rc.d -f nfsserver remove", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f nfsserver remove", self.StartStopCallback)
 		else:
-			self.Console.ePopen("update-rc.d -f nfsserver defaults 13", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f nfsserver defaults 13", self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -1980,6 +1982,7 @@ class NetworkOpenvpn(NSCommon, Screen):
 		self["key_yellow"] = Label(_("Autostart"))
 		self["key_blue"] = Label(_("Show Log"))
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True))
 		self.my_vpn_active = False
 		self.my_vpn_run = False
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
@@ -2000,15 +2003,15 @@ class NetworkOpenvpn(NSCommon, Screen):
 
 	def VpnStartStop(self):
 		if not self.my_vpn_run:
-			self.Console.ePopen("/etc/init.d/openvpn start", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/openvpn start", self.StartStopCallback)
 		elif self.my_vpn_run:
-			self.Console.ePopen("/etc/init.d/openvpn stop", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/openvpn stop", self.StartStopCallback)
 
 	def activateVpn(self):
 		if ServiceIsEnabled("openvpn"):
-			self.Console.ePopen("update-rc.d -f openvpn remove", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f openvpn remove", self.StartStopCallback)
 		else:
-			self.Console.ePopen("update-rc.d -f openvpn defaults", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f openvpn defaults", self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -2049,6 +2052,7 @@ class NetworkVpnLog(Screen):
 		self.skinName = "NetworkInadynLog"
 		self["infotext"] = ScrollLabel("")
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)		
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
 		{
 			"ok": self.close,
@@ -2057,7 +2061,7 @@ class NetworkVpnLog(Screen):
 			"down": self["infotext"].pageDown
 		})
 		strview = ""
-		self.Console.ePopen("tail /etc/openvpn/openvpn.log > /etc/openvpn/tmp.log")
+		self.ConsoleB.ePopen("tail /etc/openvpn/openvpn.log > /etc/openvpn/tmp.log")
 		time.sleep(1)
 		if fileExists("/etc/openvpn/tmp.log"):
 			f = open("/etc/openvpn/tmp.log", "r")
@@ -2084,6 +2088,7 @@ class NetworkSamba(NSCommon, Screen):
 		self["key_yellow"] = Label(_("Autostart"))
 		self["key_blue"] = Label(_("Show Log"))
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)		
 		self.my_Samba_active = False
 		self.my_Samba_run = False
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
@@ -2110,7 +2115,7 @@ class NetworkSamba(NSCommon, Screen):
 			commands.append("/etc/init.d/samba stop")
 			commands.append("killall nmbd")
 			commands.append("killall smbd")
-		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
+		self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def activateSamba(self):
 		commands = []
@@ -2118,7 +2123,7 @@ class NetworkSamba(NSCommon, Screen):
 			commands.append("update-rc.d -f samba remove")
 		else:
 			commands.append("update-rc.d -f samba defaults")
-		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
+		self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
 		import process
@@ -2162,6 +2167,7 @@ class NetworkSambaLog(Screen):
 		self.skinName = "NetworkInadynLog"
 		self["infotext"] = ScrollLabel("")
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)		
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
 		{
 			"ok": self.close,
@@ -2170,7 +2176,7 @@ class NetworkSambaLog(Screen):
 			"down": self["infotext"].pageDown
 		})
 		strview = ""
-		self.Console.ePopen("tail /tmp/smb.log > /tmp/tmp.log")
+		self.ConsoleB.ePopen("tail /tmp/smb.log > /tmp/tmp.log")
 		time.sleep(1)
 		if fileExists("/tmp/tmp.log"):
 			f = open("/tmp/tmp.log", "r")
@@ -2195,6 +2201,7 @@ class NetworkTelnet(NSCommon, Screen):
 		self["key_green"] = Label(_("Start"))
 		self["key_yellow"] = Label(_("Autostart"))
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)
 		self.my_telnet_active = False
 		self.my_telnet_run = False
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
@@ -2213,7 +2220,7 @@ class NetworkTelnet(NSCommon, Screen):
 				commands.append("/etc/init.d/telnetd.busybox stop")
 			else:
 				commands.append("/bin/su -l -c '/etc/init.d/telnetd.busybox start'")
-			self.Console.eBatch(commands, self.StartStopCallback, debug=True)
+			self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def activateTelnet(self):
 		commands = []
@@ -2222,7 +2229,7 @@ class NetworkTelnet(NSCommon, Screen):
 				commands.append("update-rc.d -f telnetd.busybox remove")
 			else:
 				commands.append("update-rc.d -f telnetd.busybox defaults")
-		self.Console.eBatch(commands, self.StartStopCallback, debug=True)
+		self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
 		import process
@@ -2298,21 +2305,22 @@ class NetworkInadyn(NSCommon, Screen):
 			"blue": self.inaLog
 		})
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)		
 		self.service_name = "inadyn-mt"
 		self.onLayoutFinish.append(self.InstallCheck)
 		self.reboot_at_end = False
 
 	def InadynStartStop(self):
 		if not self.my_inadyn_run:
-			self.Console.ePopen("/etc/init.d/inadyn-mt start", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/inadyn-mt start", self.StartStopCallback)
 		elif self.my_inadyn_run:
-			self.Console.ePopen("/etc/init.d/inadyn-mt stop", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/inadyn-mt stop", self.StartStopCallback)
 
 	def autostart(self):
 		if ServiceIsEnabled("inadyn-mt"):
-			self.Console.ePopen("update-rc.d -f inadyn-mt remove", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f inadyn-mt remove", self.StartStopCallback)
 		else:
-			self.Console.ePopen("update-rc.d -f inadyn-mt defaults", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f inadyn-mt defaults", self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -2600,21 +2608,22 @@ class NetworkuShare(NSCommon, Screen):
 			"blue": self.ushareLog
 		})
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)		
 		self.service_name = "ushare"
 		self.onLayoutFinish.append(self.InstallCheck)
 		self.reboot_at_end = False
 
 	def uShareStartStop(self):
 		if not self.my_ushare_run:
-			self.Console.ePopen("/etc/init.d/ushare start >> /tmp/uShare.log", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/ushare start >> /tmp/uShare.log", self.StartStopCallback)
 		elif self.my_ushare_run:
-			self.Console.ePopen("/etc/init.d/ushare stop >> /tmp/uShare.log", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/ushare stop >> /tmp/uShare.log", self.StartStopCallback)
 
 	def autostart(self):
 		if ServiceIsEnabled("ushare"):
-			self.Console.ePopen("update-rc.d -f ushare remove", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f ushare remove", self.StartStopCallback)
 		else:
-			self.Console.ePopen("update-rc.d -f ushare defaults", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f ushare defaults", self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -2960,6 +2969,7 @@ class NetworkuShareLog(Screen):
 		self.skinName = "NetworkInadynLog"
 		self["infotext"] = ScrollLabel("")
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
 		{
 			"ok": self.close,
@@ -2968,7 +2978,7 @@ class NetworkuShareLog(Screen):
 			"down": self["infotext"].pageDown
 		})
 		strview = ""
-		self.Console.ePopen("tail /tmp/uShare.log > /tmp/tmp.log")
+		self.ConsoleB.ePopen("tail /tmp/uShare.log > /tmp/tmp.log")
 		time.sleep(1)
 		if fileExists("/tmp/tmp.log"):
 			f = open("/tmp/tmp.log", "r")
@@ -3030,21 +3040,22 @@ class NetworkMiniDLNA(NSCommon, Screen):
 			"blue": self.minidlnaLog
 		})
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)		
 		self.service_name = "minidlna"
 		self.onLayoutFinish.append(self.InstallCheck)
 		self.reboot_at_end = False
 
 	def MiniDLNAStartStop(self):
 		if not self.my_minidlna_run:
-			self.Console.ePopen("/etc/init.d/minidlna start", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/minidlna start", self.StartStopCallback)
 		elif self.my_minidlna_run:
-			self.Console.ePopen("/etc/init.d/minidlna stop", self.StartStopCallback)
+			self.ConsoleB.ePopen("/etc/init.d/minidlna stop", self.StartStopCallback)
 
 	def autostart(self):
 		if ServiceIsEnabled("minidlna"):
-			self.Console.ePopen("update-rc.d -f minidlna remove", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f minidlna remove", self.StartStopCallback)
 		else:
-			self.Console.ePopen("update-rc.d -f minidlna defaults", self.StartStopCallback)
+			self.ConsoleB.ePopen("update-rc.d -f minidlna defaults", self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -3366,6 +3377,7 @@ class NetworkMiniDLNALog(Screen):
 		self.skinName = "NetworkInadynLog"
 		self["infotext"] = ScrollLabel("")
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
 		{
 			"ok": self.close,
@@ -3374,7 +3386,7 @@ class NetworkMiniDLNALog(Screen):
 			"down": self["infotext"].pageDown
 		})
 		strview = ""
-		self.Console.ePopen("tail /var/volatile/log/minidlna.log > /tmp/tmp.log")
+		self.ConsoleB.ePopen("tail /var/volatile/log/minidlna.log > /tmp/tmp.log")
 		time.sleep(1)
 		if fileExists("/tmp/tmp.log"):
 			f = open("/tmp/tmp.log", "r")
