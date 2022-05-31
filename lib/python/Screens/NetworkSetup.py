@@ -1982,7 +1982,7 @@ class NetworkOpenvpn(NSCommon, Screen):
 		self["key_yellow"] = Label(_("Autostart"))
 		self["key_blue"] = Label(_("Show Log"))
 		self.Console = Console()
-		self.ConsoleB = Console(binary=True))
+		self.ConsoleB = Console(binary=True)
 		self.my_vpn_active = False
 		self.my_vpn_run = False
 		self["actions"] = ActionMap(["WizardActions", "ColorActions"],
