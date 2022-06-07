@@ -177,6 +177,16 @@ public:
 		}
 		trigger_event();
 	}
+	eFixedMessagePump(eMainloop *context, int mt)
+	{
+		if (pipe(m_pipe) == -1)
+		{
+			eDebug("[eFixedMessagePump] failed to create pipe (%m)");
+		}
+		sn = eSocketNotifier::create(context, m_pipe[0], eSocketNotifier::Read, false);
+		CONNECT(sn->activated, eFixedMessagePump<T>::do_recv);
+		sn->start();
+	}
 	eFixedMessagePump(eMainloop *context, int mt, const char *name):
 		FD(eventfd(0, EFD_CLOEXEC)),
 		name(name),
