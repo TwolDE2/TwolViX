@@ -183,6 +183,7 @@ SystemInfo["HasInitCam"] = hasInitCam()
 SystemInfo["MachineBrand"] = getMachineBrand()
 SystemInfo["MachineName"] = getMachineName()
 SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
+SystemInfo["FCCactive"] = False
 SystemInfo["rc_model"] = rc_model.getRcFolder()
 SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
 SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4") # due to button limitations of the remote control

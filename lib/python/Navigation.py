@@ -172,7 +172,10 @@ class Navigation:
 			else:
 				playref = ref
 			if self.pnav:
-				self.pnav.stopService()
+				if not SystemInfo["FCCactive"]:
+					self.pnav.stopService()
+				else:
+					self.skipServiceReferenceReset = True
 				self.currentlyPlayingServiceReference = playref
 				self.currentlyPlayingServiceOrGroup = ref
 				if InfoBarInstance and InfoBarInstance.servicelist.servicelist.setCurrent(ref, adjust):
