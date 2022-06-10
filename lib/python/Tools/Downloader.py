@@ -4,11 +4,13 @@ from twisted.internet import reactor
 from urllib.request import urlopen, Request
 from enigma import eTimer
 
+from boxbranding import getMachineBrand, getMachineName
+
 class DownloadWithProgress:
 	def __init__(self, url, outputFile):
 		self.url = url
 		self.outputFile = outputFile
-		self.userAgent = "Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;OpenATV;;;)"
+		self.userAgent=("%s %s Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;OpenViX;;;)" % (getMachineBrand(), getMachineName()))
 		# self.agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5"
 		self.totalSize = 0
 		self.progress = 0
@@ -62,13 +64,11 @@ class DownloadWithProgress:
 	def stop(self):
 		self.stopFlag = True
 
-
 	def reportProgress(self):
 		self.progressCallback(self.progress, self.totalSize)
 
 	def addProgress(self, progressCallback):
 		self.progressCallback = progressCallback
-
 
 	def addEnd(self, endCallback):
 		self.endCallback = endCallback
@@ -91,5 +91,5 @@ class DownloadWithProgress:
 		return self
 
 
-class downloadWithProgress(DownloadWithProgress):  # Class names should start with a Capital letter, this catches old code until that code can be updated.
+class downloadWithProgress(DownloadWithProgress):  # support old code
 	pass
