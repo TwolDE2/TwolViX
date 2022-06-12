@@ -54,13 +54,13 @@ class ActionMap:
 
 	def action(self, context, action):
 		if action in self.actions:
-			# print("[ActionMap] Keymap '%s' -> Action = '%s'." % (context, action))
+			print("[ActionMap] Keymap '%s' -> Action = '%s'." % (context, action))
 			res = self.actions[action]()
 			if res is not None:
 				return res
 			return 1
 		else:
-			# print("[ActionMap] Keymap '%s' -> Unknown action '%s'! (Typo in keymap?)" % (context, action))
+			print("[ActionMap] Keymap '%s' -> Unknown action '%s'! (Typo in keymap?)" % (context, action))
 			return 0
 
 	def destroy(self):
