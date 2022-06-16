@@ -19,10 +19,9 @@ from Components.SystemInfo import SystemInfo
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
-from Tools.Directories import fileExists, fileCheck, pathExists
+from Tools.Directories import fileExists, fileCheck, pathExists, isPluginInstalled
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
-
 
 class About(Screen):
 	def __init__(self, session):
@@ -114,6 +113,10 @@ class About(Screen):
 		AboutText += _("Drivers:\t%s\n") % driversdate
 		AboutText += _("Kernel:\t%s\n") % about.getKernelVersionString()
 		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ", "")
+		if isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True:
+			AboutText += _("IPTV 4097 player:\t%s\n") % config.plugins.serviceapp.servicemp3.player.value
+		else:
+			AboutText += _("IPTV 4097 player:\tDefault player\n")	
 		AboutText += _("Python:\t%s\n") % about.getPythonVersionString()
 		AboutText += _("Installed:\t%s\n") % about.getFlashDateString()
 		AboutText += _("Last update:\t%s\n") % getEnigmaVersionString()
