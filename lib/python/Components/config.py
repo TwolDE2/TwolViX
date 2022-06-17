@@ -2230,7 +2230,7 @@ class Config(ConfigSubsection):
 	def saveToFile(self, filename):
 		text = self.pickle()
 		try:
-			with open(filename + ".writing", "w") as f:
+			with open(filename + ".writing", "w", encoding="UTF-8") as f:
 				f.write(text)
 				f.flush()
 				fsync(f.fileno())
@@ -2239,7 +2239,7 @@ class Config(ConfigSubsection):
 			print("[Config] Couldn't write %s" % filename)
 
 	def loadFromFile(self, filename, base_file=True):
-		with open(filename, "r") as f:
+		with open(filename, "r", encoding="UTF-8") as f:
 			self.unpickle(f, base_file)
 
 
