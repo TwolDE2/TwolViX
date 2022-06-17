@@ -1,7 +1,7 @@
 import six
 
 from copy import copy as copy_copy
-from os import path as os_path, fsync, rename
+from os import fsync, path as os_path, rename, sep
 from time import localtime, strftime, mktime
 
 # DO NOT CHANGE THE ORDER OF THESE IMPORTS OR Harddisk will crash!!
@@ -1907,7 +1907,7 @@ class ConfigLocations(ConfigElement):
 				x[2] = False
 
 	def refreshMountpoints(self):
-		self.mountpoints = [p.mountpoint for p in harddiskmanager.getMountedPartitions() if p.mountpoint != "/"]
+		self.mountpoints = [p.mountpoint for p in harddiskmanager.getMountedPartitions() if p.mountpoint != sep]
 		self.mountpoints.sort(key=lambda x: -len(x))
 
 	def checkChangedMountpoints(self):
@@ -1924,7 +1924,7 @@ class ConfigLocations(ConfigElement):
 				self.addedMount(x)
 
 	def getMountpoint(self, file):
-		file = os_path.realpath(file) + "/"
+		file = os_path.realpath(file) + sep
 		for m in self.mountpoints:
 			if file.startswith(m):
 				return m
