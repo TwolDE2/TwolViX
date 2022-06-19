@@ -14,7 +14,6 @@
 
 #include <lib/base/eerror.h>
 #include <lib/base/nconfig.h> // access to python config
-#include <lib/base/esimpleconfig.h> // access to startup config
 #include <lib/dvb/db.h>
 #include <lib/dvb/pmt.h>
 #include <lib/dvb_ci/dvbci.h>
@@ -1246,11 +1245,11 @@ eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 	m_context = context;
 	state = stateDisabled;
 	snprintf(configStr, 255, "config.ci.%d.enabled", slotid);
-	bool enabled = eSimpleConfig::getBool(configStr, true);
+	bool enabled = eConfigManager::getConfigBoolValue(configStr, true);
 	if (enabled)
 		openDevice();
 	else
-		eDVBCI_UI::getInstance()->setState(getSlotID(), 3); // state disabled
+		/* emit */ eDVBCI_UI::getInstance()->m_messagepump.send(eDVBCIInterfaces::Message(eDVBCIInterfaces::Message::slotStateChanged, getSlotID(), 3)); // state disabled
 }
 
 void eDVBCISlot::openDevice()
@@ -1291,6 +1290,7 @@ void eDVBCISlot::openDevice()
 eDVBCISlot::~eDVBCISlot()
 {
 	eDVBCISession::deleteSessions(this);
+	close(fd);
 }
 
 void eDVBCISlot::closeDevice() 
@@ -1298,14 +1298,7 @@ void eDVBCISlot::closeDevice()
 	close(fd);
 	fd = -1;
 	notifier->stop();
-#ifdef __sh__
-	mmi_active = false;
-	eDVBCI_UI::getInstance()->setAppName(getSlotID(), "");
-	eDVBCISession::deleteSessions(this);
-	eDVBCIInterfaces::getInstance()->ciRemoved(this);
-#else
 	data(eSocketNotifier::Priority);
-#endif
 	state = stateDisabled;
 }
 
@@ -1656,7 +1649,7 @@ int eDVBCISlot::setEnabled(bool enabled)
 		openDevice();
 	else {
 		closeDevice();
-		eDVBCI_UI::getInstance()->setState(getSlotID(), 3); // state disabled
+		/* emit */ eDVBCI_UI::getInstance()->m_messagepump.send(eDVBCIInterfaces::Message(eDVBCIInterfaces::Message::slotStateChanged, getSlotID(), 3)); // state disabled
 	}
 	return 0;
 }
