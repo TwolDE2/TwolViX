@@ -192,13 +192,17 @@ class RecordTimerEntry(TimerEntry):
 
 		if self.end < self.begin:
 			self.end = self.begin
-
+		print("[RecordTimer][RecordTimerEntry] serviceref, eServiceReference", serviceref, eServiceReference())	
 		assert isinstance(serviceref, eServiceReference)
 
 		if serviceref and serviceref.isRecordable():
 			self.service_ref = serviceref
 		else:
 			self.service_ref = eServiceReference()
+		if "4097" in self.service_ref.toString():
+			pre_serviceref = self.service_ref.toString().replace("4097", "1")
+			self.service_ref = eServiceReference(pre_serviceref)				
+		print("[RecordTimer][RecordTimerEntry] serviceref", serviceref)				
 		self.eit = eit
 		self.dontSave = False
 		self.name = name
@@ -350,7 +354,7 @@ class RecordTimerEntry(TimerEntry):
 				if not rec_ref:
 					self.log(1, "'get best playable service for group... record' failed")
 					return False
-
+			print("[RecordTimer][tryPrepare] rec_ref", rec_ref)
 			self.setRecordingPreferredTuner()
 			self.record_service = rec_ref and NavigationInstance.instance.recordService(rec_ref)
 
@@ -470,10 +474,8 @@ class RecordTimerEntry(TimerEntry):
 			ChannelSelectionInstance.addToHistory(self.service_ref.ref)
 		NavigationInstance.instance.playService(self.service_ref.ref)
 
-# Report the tuner that the current recording is using
-	def log_tuner(self, level, state):
-# If we have a Zap timer then the tuner is for the current service
-		if self.justplay:
+	def log_tuner(self, level, state):				# Report the tuner that the current recording is using
+		if self.justplay:					# If we have a Zap timer then the tuner is for the current service
 			timer_rs = NavigationInstance.instance.getCurrentService()
 		else:
 			timer_rs = self.record_service
@@ -540,12 +542,17 @@ class RecordTimerEntry(TimerEntry):
 				return True
 			self.log(7, "prepare failed")
 			if eStreamServer.getInstance().getConnectedClients():
+				self.log(71, "eStreamerServer client - stop")
 				eStreamServer.getInstance().stopStream()
 				return False
+			print("[RecordTimer] tryPrepare failed self.first_try_prepare, rec_ref.toString, self.ts_dialog, self.checkingTimeshiftRunning()", self.first_try_prepare, self.ts_dialog, self.checkingTimeshiftRunning())				
 			if self.first_try_prepare or (self.ts_dialog is not None and not self.checkingTimeshiftRunning()):
 				self.first_try_prepare = False
 				cur_ref = NavigationInstance.instance.getCurrentlyPlayingServiceReference()
-				if cur_ref and not cur_ref.getPath():
+				rec_ref = self.service_ref and self.service_ref.ref
+				if cur_ref:
+					print("[RecordTimer] tryPrepare failed cur_ref, cur_ref.getPath, rec_ref.toString", cur_ref, cur_ref.getPath(), rec_ref.toString())				
+				if (cur_ref and not cur_ref.getPath()) or "4097" in rec_ref.toString():
 					if self.always_zap:
 						return False
 					if Screens.Standby.inStandby:
@@ -922,8 +929,13 @@ class RecordTimerEntry(TimerEntry):
 def createTimer(xml):
 	begin = int(xml.get("begin"))
 	end = int(xml.get("end"))
-	serviceref = eServiceReference(str(xml.get("serviceref")))
+	pre_serviceref = xml.get("serviceref")
+	if "4097" in pre_serviceref:
+		serviceref = pre_serviceref.replace("4097", "1")	
+#	serviceref = eServiceReference(str(xml.get("serviceref")))
+	serviceref = eServiceReference(pre_serviceref)	
 	description = str(xml.get("description"))
+	print("[RecordTimer][createTimer] serviceref, description", serviceref, "   ", description)
 	repeated = str(xml.get("repeated"))
 	# print("[RecordTimer]:1 serviceref, description, begin, end, repeated", xml.get("serviceref"), "   ", xml.get("description"), "   ", xml.get("begin"), "   ", xml.get("end"), "   ", xml.get("repeated"))
 	# print("[RecordTimer]:2 location, tags, name, flags, filename, eit", xml.get("location"), "   ", xml.get("tags"), "   ", xml.get("name"), "   ", xml.get("flags"), "   ", xml.get("filename"), "   ", xml.get("eit"))		
@@ -980,8 +992,8 @@ class RecordTimer(Timer):
 			print("[RecordTimer] unable to load timers from file!")
 
 	def doActivate(self, w, dosave=True):
-		# print("[RecordTimer][doActivate] w", w)
-		# print("[RecordTimer][doActivate] w serviceref", w.service_ref)		
+		print("[RecordTimer][RecordTimer][doActivate] w", w)
+		print("[RecordTimer][RecordTimer][doActivate] w serviceref", w.service_ref)		
 		# when activating a timer for servicetype 4097,	
 		# and SystemApp has player enabled, then skip recording.
 		if "4097:" in w.service_ref.toString() and Directories.isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True:
@@ -1000,13 +1012,13 @@ class RecordTimer(Timer):
 			# the timer entry itself will fix up the delay then.
 			if w.activate():
 				w.state += 1
-
+			elif "4097:" in w.service_ref.toString():
+				w.state = RecordTimerEntry.StateEnded	
 		try:
 			self.timer_list.remove(w)
 		except:
 			print("[RecordTimer] Remove list failed")
-
-		# did this timer reached the last state?
+		# did this timer reached the last state?		# did this timer reached the last state?
 		if w.state < RecordTimerEntry.StateEnded:
 			# no, sort it into active list
 			insort(self.timer_list, w)
@@ -1050,9 +1062,7 @@ class RecordTimer(Timer):
 				return True
 		return False
 
-	# justLoad is passed on to record()
-	#
-	def loadTimer(self, justLoad=False):
+	def loadTimer(self, justLoad=False):		# justLoad is passed on to record()
 		try:
 			file = open(self.Filename, 'r')
 			doc = xml.etree.cElementTree.parse(file)
