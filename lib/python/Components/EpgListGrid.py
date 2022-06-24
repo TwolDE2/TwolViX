@@ -530,7 +530,10 @@ class EPGListGrid(EPGListBase):
 				duration = ev[3]
 
 				xpos, ewidth = self.calcEventPosAndWidthHelper(stime, duration, start, end, width)
-				serviceTimers = self.filteredTimerList.get(':'.join(service.split(':')[:11]))
+				# print("[EpgListGrid][if events1] service, config.recording.setstreamto1.value ", service, "   ", config.recording.setstreamto1.value, "   ", service)
+				serviceref = service.replace("4097", "1", 1) if config.recording.setstreamto1.value else service
+				# print("[EpgListGrid][if events2] service, config.recording.setstreamto1.value ", service, "   ", config.recording.setstreamto1.value, "   ", serviceref)				
+				serviceTimers = self.filteredTimerList.get(':'.join(serviceref.split(':')[:11]))
 				if serviceTimers is not None:
 					timer, matchType = RecordTimer.isInTimerOnService(serviceTimers, stime, duration)
 					timerIcon, autoTimerIcon = self.getPixmapsForTimer(timer, matchType, selected)
@@ -827,6 +830,9 @@ class EPGListGrid(EPGListBase):
 			# repeat timers represent all their future repetitions, so always include them
 			if (startTime <= timer.end or timer.repeated) and timer.begin < endTime:
 				serviceref = timer.service_ref.ref.toCompareString()
+				# print("[EpgListGrid][snapshotTimers1] config.recording.setstreamto1.value, serviceref ", config.recording.setstreamto1.value, "   ", serviceref)				
+				serviceref = serviceref.replace("4097", "1", 1) if config.recording.setstreamto1.value else serviceref
+				# print("[EpgListGrid][snapshotTimers2] config.recording.setstreamto1.value, serviceref ", config.recording.setstreamto1.value, "   ", serviceref)				
 				l = self.filteredTimerList.get(serviceref)
 				if l is None:
 					self.filteredTimerList[serviceref] = l = [timer]

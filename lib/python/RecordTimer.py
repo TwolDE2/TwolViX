@@ -192,17 +192,18 @@ class RecordTimerEntry(TimerEntry):
 
 		if self.end < self.begin:
 			self.end = self.begin
-		print("[RecordTimer][RecordTimerEntry] serviceref, eServiceReference", serviceref, eServiceReference())	
+		# print("[RecordTimer][RecordTimerEntry] serviceref, eServiceReference", serviceref, eServiceReference())
 		assert isinstance(serviceref, eServiceReference)
 
 		if serviceref and serviceref.isRecordable():
 			self.service_ref = serviceref
 		else:
 			self.service_ref = eServiceReference()
-		if "4097" in self.service_ref.toString():
-			pre_serviceref = self.service_ref.toString().replace("4097", "1")
+		# print("[RecordTimer][RecordTimerEntry1] serviceref", self.service_ref)
+		if config.recording.setstreamto1.value:
+			pre_serviceref = self.service_ref.toString().replace("4097", "1", 1)
 			self.service_ref = eServiceReference(pre_serviceref)				
-		print("[RecordTimer][RecordTimerEntry] serviceref", serviceref)				
+		# print("[RecordTimer][RecordTimerEntry2] serviceref", self.service_ref)				
 		self.eit = eit
 		self.dontSave = False
 		self.name = name
@@ -275,9 +276,9 @@ class RecordTimerEntry(TimerEntry):
 
 	def __repr__(self):
 		if not self.disabled:
-			return "RecordTimerEntry(name = %s, begin = %s, serviceref = %s, justplay = %s, isAutoTimer = %s, autoTimerId = %s)" % (self.name, ctime(self.begin), self.service_ref, self.justplay, self.isAutoTimer, self.autoTimerId)
+			return "RecordTimerEntry(name=%s, begin=%s, serviceref=%s, justplay=%s, isAutoTimer=%s, autoTimerId=%s)" % (self.name, ctime(self.begin), self.service_ref, self.justplay, self.isAutoTimer, self.autoTimerId)
 		else:
-			return "RecordTimerEntry(name = %s, begin = %s, serviceref = %s, justplay = %s, isAutoTimer = %s, autoTimerId = %s, Disabled)" % (self.name, ctime(self.begin), self.service_ref, self.justplay, self.isAutoTimer, self.autoTimerId)
+			return "RecordTimerEntry(name=%s, begin=%s, serviceref=%s, justplay=%s, isAutoTimer=%s, autoTimerId=%s, Disabled)" % (self.name, ctime(self.begin), self.service_ref, self.justplay, self.isAutoTimer, self.autoTimerId)
 
 	def log(self, code, msg):
 		self.log_entries.append((int(time()), code, msg))
@@ -545,13 +546,11 @@ class RecordTimerEntry(TimerEntry):
 				self.log(71, "eStreamerServer client - stop")
 				eStreamServer.getInstance().stopStream()
 				return False
-			print("[RecordTimer] tryPrepare failed self.first_try_prepare, rec_ref.toString, self.ts_dialog, self.checkingTimeshiftRunning()", self.first_try_prepare, self.ts_dialog, self.checkingTimeshiftRunning())				
+			# print("[RecordTimer] tryPrepare failed self.first_try_prepare, rec_ref.toString, self.ts_dialog, self.checkingTimeshiftRunning()", self.first_try_prepare, self.ts_dialog, self.checkingTimeshiftRunning())				
 			if self.first_try_prepare or (self.ts_dialog is not None and not self.checkingTimeshiftRunning()):
 				self.first_try_prepare = False
 				cur_ref = NavigationInstance.instance.getCurrentlyPlayingServiceReference()
 				rec_ref = self.service_ref and self.service_ref.ref
-				if cur_ref:
-					print("[RecordTimer] tryPrepare failed cur_ref, cur_ref.getPath, rec_ref.toString", cur_ref, cur_ref.getPath(), rec_ref.toString())				
 				if (cur_ref and not cur_ref.getPath()) or "4097" in rec_ref.toString():
 					if self.always_zap:
 						return False
@@ -930,15 +929,10 @@ def createTimer(xml):
 	begin = int(xml.get("begin"))
 	end = int(xml.get("end"))
 	pre_serviceref = xml.get("serviceref")
-	if "4097" in pre_serviceref:
-		serviceref = pre_serviceref.replace("4097", "1")	
-#	serviceref = eServiceReference(str(xml.get("serviceref")))
-	serviceref = eServiceReference(pre_serviceref)	
+	serviceref = pre_serviceref.replace("4097", "1", 1) if config.recording.setstreamto1.value else eServiceReference(pre_serviceref)
 	description = str(xml.get("description"))
-	print("[RecordTimer][createTimer] serviceref, description", serviceref, "   ", description)
+	# print("[RecordTimer][createTimer] serviceref, description", serviceref, "   ", description)
 	repeated = str(xml.get("repeated"))
-	# print("[RecordTimer]:1 serviceref, description, begin, end, repeated", xml.get("serviceref"), "   ", xml.get("description"), "   ", xml.get("begin"), "   ", xml.get("end"), "   ", xml.get("repeated"))
-	# print("[RecordTimer]:2 location, tags, name, flags, filename, eit", xml.get("location"), "   ", xml.get("tags"), "   ", xml.get("name"), "   ", xml.get("flags"), "   ", xml.get("filename"), "   ", xml.get("eit"))		
 	rename_repeat = int(xml.get("rename_repeat") or "1")
 	disabled = int(xml.get("disabled") or "0")
 	justplay = int(xml.get("justplay") or "0")
@@ -992,8 +986,6 @@ class RecordTimer(Timer):
 			print("[RecordTimer] unable to load timers from file!")
 
 	def doActivate(self, w, dosave=True):
-		print("[RecordTimer][RecordTimer][doActivate] w", w)
-		print("[RecordTimer][RecordTimer][doActivate] w serviceref", w.service_ref)		
 		# when activating a timer for servicetype 4097,	
 		# and SystemApp has player enabled, then skip recording.
 		if "4097:" in w.service_ref.toString() and Directories.isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True:
@@ -1018,8 +1010,7 @@ class RecordTimer(Timer):
 			self.timer_list.remove(w)
 		except:
 			print("[RecordTimer] Remove list failed")
-		# did this timer reached the last state?		# did this timer reached the last state?
-		if w.state < RecordTimerEntry.StateEnded:
+		if w.state < RecordTimerEntry.StateEnded:	# did this timer reached the last state?
 			# no, sort it into active list
 			insort(self.timer_list, w)
 		else:
@@ -1380,7 +1371,7 @@ class RecordTimer(Timer):
 		for timer in self.timer_list:
 			# repeat timers represent all their future repetitions, so always include them
 			if (startAt <= timer.end or timer.repeated) and timer.begin < endAt:
-				check = timer.service_ref.toCompareString() == refstr
+				check = timer.service_ref.toCompareString().split(":", 2)[2] == refstr.split(":", 2)[2]
 				if check:
 					matchType = RecordTimer.__checkTimer(timer, check_offset_time, begin, end, duration)
 					if matchType is not None:
