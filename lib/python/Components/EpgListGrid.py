@@ -530,9 +530,7 @@ class EPGListGrid(EPGListBase):
 				duration = ev[3]
 
 				xpos, ewidth = self.calcEventPosAndWidthHelper(stime, duration, start, end, width)
-				# print("[EpgListGrid][if events1] service, config.recording.setstreamto1.value ", service, "   ", config.recording.setstreamto1.value, "   ", service)
-				serviceref = service.replace("4097", "1", 1) if config.recording.setstreamto1.value else service
-				# print("[EpgListGrid][if events2] service, config.recording.setstreamto1.value ", service, "   ", config.recording.setstreamto1.value, "   ", serviceref)				
+				serviceref = "1" + service[4:] if serviceref[:4] in config.recording.setstreamto1.value else serviceref # converts 4097, 5001, 5002 to 1
 				serviceTimers = self.filteredTimerList.get(':'.join(serviceref.split(':')[:11]))
 				if serviceTimers is not None:
 					timer, matchType = RecordTimer.isInTimerOnService(serviceTimers, stime, duration)

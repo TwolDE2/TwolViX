@@ -199,9 +199,8 @@ class RecordTimerEntry(TimerEntry):
 			self.service_ref = serviceref
 		else:
 			self.service_ref = eServiceReference()
-		# print("[RecordTimer][RecordTimerEntry1] serviceref", self.service_ref)
-		if config.recording.setstreamto1.value:
-			pre_serviceref = self.service_ref.toString().replace("4097", "1", 1)
+		if self.service_ref.toString()[:4] in config.recording.setstreamto1.value:
+			pre_serviceref = "1" + self.service_ref.toString()[4:]
 			self.service_ref = eServiceReference(pre_serviceref)				
 		# print("[RecordTimer][RecordTimerEntry2] serviceref", self.service_ref)				
 		self.eit = eit
@@ -551,7 +550,7 @@ class RecordTimerEntry(TimerEntry):
 				self.first_try_prepare = False
 				cur_ref = NavigationInstance.instance.getCurrentlyPlayingServiceReference()
 				rec_ref = self.service_ref and self.service_ref.ref
-				if (cur_ref and not cur_ref.getPath()) or "4097" in rec_ref.toString():
+				if cur_ref and not cur_ref.getPath() or rec_ref.toString()[:4] in config.recording.setstreamto1.value:
 					if self.always_zap:
 						return False
 					if Screens.Standby.inStandby:
@@ -929,7 +928,7 @@ def createTimer(xml):
 	begin = int(xml.get("begin"))
 	end = int(xml.get("end"))
 	pre_serviceref = xml.get("serviceref")
-	serviceref = pre_serviceref.replace("4097", "1", 1) if config.recording.setstreamto1.value else eServiceReference(pre_serviceref)
+	serviceref = eServiceReference("1" + pre_serviceref[4:]) if pre_serviceref[:4] in config.recording.setstreamto1.value else eServiceReference(pre_serviceref)
 	description = str(xml.get("description"))
 	# print("[RecordTimer][createTimer] serviceref, description", serviceref, "   ", description)
 	repeated = str(xml.get("repeated"))
@@ -988,12 +987,13 @@ class RecordTimer(Timer):
 	def doActivate(self, w, dosave=True):
 		# when activating a timer for servicetype 4097,	
 		# and SystemApp has player enabled, then skip recording.
-		if "4097:" in w.service_ref.toString() and Directories.isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True:
+		# Or always skip if in ("5001", "5002") as these cannot be recorded.
+		if w.service_ref.toString().startswith("4097:") and Directories.isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True or w.service_ref.toString()[:4] in ("5001", "5002"):
 			print("[RecordTimer][doActivate] found Serviceapp & player enabled - disable this timer recording")		
 			w.state = RecordTimerEntry.StateEnded
 			from Tools.Notifications import AddPopup
 			from Screens.MessageBox import MessageBox
-			AddPopup(_("Recording IPTV 4097 with systemapp enabled, timer ended!\nPlease recheck it!"), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerRecordingFailed")		
+			AddPopup(_("Recording IPTV with systemapp enabled, timer ended!\nPlease recheck it!"), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerRecordingFailed")		
 		# when activating a timer which has already passed,
 		# simply abort the timer. don't run trough all the stages.
 		elif w.shouldSkip():
