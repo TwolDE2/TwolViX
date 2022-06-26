@@ -197,6 +197,8 @@ class RecordTimerEntry(TimerEntry):
 
 		if serviceref and serviceref.isRecordable():
 			self.service_ref = serviceref
+		elif serviceref.toString()[:4] in config.recording.setstreamto1.value:
+			self.service_ref = serviceref  	
 		else:
 			self.service_ref = eServiceReference()
 		if self.service_ref.toString()[:4] in config.recording.setstreamto1.value:
@@ -354,7 +356,7 @@ class RecordTimerEntry(TimerEntry):
 				if not rec_ref:
 					self.log(1, "'get best playable service for group... record' failed")
 					return False
-			print("[RecordTimer][tryPrepare] rec_ref", rec_ref)
+			# print("[RecordTimer][tryPrepare] rec_ref", rec_ref)
 			self.setRecordingPreferredTuner()
 			self.record_service = rec_ref and NavigationInstance.instance.recordService(rec_ref)
 
@@ -1004,7 +1006,7 @@ class RecordTimer(Timer):
 			# the timer entry itself will fix up the delay then.
 			if w.activate():
 				w.state += 1
-			elif "4097:" in w.service_ref.toString():
+			elif w.service_ref.toString()[:4] in ("4097", "5001", "5002")
 				w.state = RecordTimerEntry.StateEnded	
 		try:
 			self.timer_list.remove(w)
