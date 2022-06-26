@@ -1006,7 +1006,7 @@ class RecordTimer(Timer):
 			# the timer entry itself will fix up the delay then.
 			if w.activate():
 				w.state += 1
-			elif w.service_ref.toString()[:4] in ("4097", "5001", "5002")
+			elif w.service_ref.toString()[:4] in ("4097", "5001", "5002"):
 				w.state = RecordTimerEntry.StateEnded	
 		try:
 			self.timer_list.remove(w)
