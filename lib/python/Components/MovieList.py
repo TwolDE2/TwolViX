@@ -756,7 +756,8 @@ class MovieList(GUIComponent):
 				if not name.endswith('.AppleDouble/') and not name.endswith('.AppleDesktop/') and not name.endswith('.AppleDB/') and not name.endswith('Network Trash Folder/') and not name.endswith('Temporary Items/'):
 					try:
 						begin = stat(serviceref.getPath()).st_mtime
-					except FileNotFoundError as err: # possibly os.stat failed due to unavailable mount
+
+					except (FileNotFoundError, PermissionError) as err: # possibly os.stat failed due to unavailable mount or a permission error over a network mount
 						begin = 0
 						import traceback
 						traceback.print_exc()
@@ -984,7 +985,7 @@ class MovieList(GUIComponent):
 	def buildAlphaDateSortKey(self, x):
 		# x = ref,info,begin,...
 		name = x[3].txt
-		return self.getSortPrimaryGroup(x), name and name.lower() or "", -x[2]
+		return self.getSortPrimaryGroup(x), name and name.lower() or "", x[2]
 
 	def buildAlphaNumericFlatSortKey(self, x):
 		# x = ref,info,begin,...
