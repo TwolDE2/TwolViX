@@ -192,16 +192,15 @@ class RecordTimerEntry(TimerEntry):
 
 		if self.end < self.begin:
 			self.end = self.begin
-		# print("[RecordTimer][RecordTimerEntry] serviceref, eServiceReference", serviceref, eServiceReference())
+		print("[RecordTimer][RecordTimerEntry] serviceref, eServiceReference", serviceref, eServiceReference())
 		assert isinstance(serviceref, eServiceReference)
-
+		if serviceref:
+			print("[RecordTimer][RecordTimerEntry] serviceref.toString(), config.recording.setstreamto1.value", serviceref.toString(), "   ", config.recording.setstreamto1.value)
 		if serviceref and serviceref.toString()[:4] in config.recording.setstreamto1.value: # check if to convert IPTV services (4097, etc) to "1"
 			serviceref = eServiceReference("1" + serviceref.toString()[4:])				
 
 		if serviceref and serviceref.isRecordable():
 			self.service_ref = serviceref
-		elif serviceref.toString()[:4] in config.recording.setstreamto1.value:
-			self.service_ref = serviceref  	
 		else:
 			self.service_ref = eServiceReference()
 		# print("[RecordTimer][RecordTimerEntry2] serviceref", self.service_ref)				
@@ -936,9 +935,10 @@ def createTimer(xml):
 	begin = int(xml.get("begin"))
 	end = int(xml.get("end"))
 	pre_serviceref = xml.get("serviceref")
+	print("[RecordTimer][createTimer] pre_serviceref, config.recording.setstreamto1.value", pre_serviceref, "   ", config.recording.setstreamto1.value)
 	serviceref = eServiceReference("1" + pre_serviceref[4:]) if pre_serviceref[:4] in config.recording.setstreamto1.value else eServiceReference(pre_serviceref)
 	description = str(xml.get("description"))
-	# print("[RecordTimer][createTimer] serviceref, description", serviceref, "   ", description)
+	print("[RecordTimer][createTimer] serviceref, description", serviceref, "   ", description)
 	repeated = str(xml.get("repeated"))
 	rename_repeat = int(xml.get("rename_repeat") or "1")
 	disabled = int(xml.get("disabled") or "0")
