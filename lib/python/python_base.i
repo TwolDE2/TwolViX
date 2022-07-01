@@ -17,9 +17,8 @@ static int
 eTimerPy_traverse(eTimerPy *self, visitproc visit, void *arg)
 {
 	PyObject *obj = self->tm->timeout.getSteal();
-	if (obj) {
+	if (obj)
 		Py_VISIT(obj);
-	}
 	return 0;
 }
 
@@ -122,23 +121,23 @@ eTimerPy_get_callback_list(eTimerPy *self)
 
 static PyMethodDef eTimerPy_methods[] = {
 	{"isActive", (PyCFunction)eTimerPy_is_active, METH_NOARGS,
-	 "returns the timer state"
+	"returns the timer state"
 	},
 	{"start", (PyCFunction)eTimerPy_start, METH_VARARGS,
-	 "start timer with interval in msecs"
+	"start timer with interval in msecs"
 	},
 	{"startLongTimer", (PyCFunction)eTimerPy_start_long, METH_VARARGS,
-	 "start timer with interval in secs"
+	"start timer with interval in secs"
 	},
 	{"changeInterval", (PyCFunction)eTimerPy_change_interval, METH_VARARGS,
-	 "change interval of a timer (in msecs)"
+	"change interval of a timer (in msecs)"
 	},
 	{"stop", (PyCFunction)eTimerPy_stop, METH_NOARGS,
-	 "stops the timer"
+	"stops the timer"
 	},
 	//used for compatibilty with the old eTimer
 	{"get", (PyCFunction)eTimerPy_get_callback_list, METH_NOARGS,
-	 "get timeout callback list"
+	"get timeout callback list"
 	},
 	{}  /* Sentinel */
 };
@@ -158,14 +157,14 @@ eTimerPy_timeout(eTimerPy *self, void *closure)
 
 static PyGetSetDef eTimerPy_getseters[] = {
 	{(char*)"callback",
-	 (getter)eTimerPy_get_cb_list, (setter)0,
-	 (char*)"returns the callback python list",
-	 NULL},
+	(getter)eTimerPy_get_cb_list, (setter)0,
+	(char*)"returns the callback python list",
+	NULL},
 
 	{(char*)"timeout", //used for compatibilty with the old eTimer
-	 (getter)eTimerPy_timeout, (setter)0,
-	 (char*)"synonym for our self",
-	 NULL},
+	(getter)eTimerPy_timeout, (setter)0,
+	(char*)"synonym for our self",
+	NULL},
 
 	{} /* Sentinel */
 };
@@ -294,22 +293,22 @@ eSocketNotifierPy_set_requested(eSocketNotifierPy* self, PyObject *args)
 
 static PyMethodDef eSocketNotifierPy_methods[] = {
 	{"isRunning", (PyCFunction)eSocketNotifierPy_is_running, METH_NOARGS,
-	 "returns the running state"
+	"returns the running state"
 	},
 	{"start", (PyCFunction)eSocketNotifierPy_start, METH_NOARGS,
-	 "start the sn"
+	"start the sn"
 	},
 	{"stop", (PyCFunction)eSocketNotifierPy_stop, METH_NOARGS,
-	 "stops the sn"
+	"stops the sn"
 	},
 	{"getFD", (PyCFunction)eSocketNotifierPy_get_fd, METH_NOARGS,
-	 "get file descriptor"
+	"get file descriptor"
 	},
 	{"getRequested", (PyCFunction)eSocketNotifierPy_get_requested, METH_NOARGS,
-	 "get requested"
+	"get requested"
 	},
 	{"setRequested", (PyCFunction)eSocketNotifierPy_set_requested, METH_VARARGS,
-	 "set requested"
+	"set requested"
 	},
 	{}  /* Sentinel */
 };
@@ -322,9 +321,9 @@ eSocketNotifierPy_get_cb_list(eSocketNotifierPy *self, void *closure)
 
 static PyGetSetDef eSocketNotifierPy_getseters[] = {
 	{(char*)"callback",
-	 (getter)eSocketNotifierPy_get_cb_list, (setter)0,
-	 (char*)"returns the callback python list",
-	 NULL},
+	(getter)eSocketNotifierPy_get_cb_list, (setter)0,
+	(char*)"returns the callback python list",
+	NULL},
 	{} /* Sentinel */
 };
 

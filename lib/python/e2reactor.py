@@ -140,13 +140,13 @@ class PollReactor(posixbase.PosixReactorBase):
 		return result
 
 	def doPoll(self, timeout,
-			   reads=reads,
-			   writes=writes,
-			   selectables=selectables,
-			   select=select,
-			   log=log,
-			   POLLIN=select.POLLIN,
-			   POLLOUT=select.POLLOUT):
+			reads=reads,
+			writes=writes,
+			selectables=selectables,
+			select=select,
+			log=log,
+			POLLIN=select.POLLIN,
+			POLLOUT=select.POLLOUT):
 		"""Poll the poller for new events."""
 
 		if timeout is not None:
@@ -158,8 +158,8 @@ class PollReactor(posixbase.PosixReactorBase):
 				if self.running:
 					self.stop()
 				l = []
-		except select.error as e:
-			if e[0] == errno.EINTR:
+		except OSError as e:
+			if e.errno == errno.EINTR:
 				return
 			else:
 				raise
