@@ -152,7 +152,7 @@ SystemInfo["havehdmihdrtype"] = fileCheck("/proc/stb/video/hdmi_hdrtype")
 SystemInfo["HDRSupport"] = fileExists("/proc/stb/hdmi/hlg_support_choices")
 #
 SystemInfo["Can3DSurround"] = fileHas("/proc/stb/audio/3d_surround_choices", "none") and fileCheck("/proc/stb/audio/3d_surround")
-SystemInfo["Can3DSpeaker"] = fileHas("/proc/stb/audio/3d_surround_speaker_position_choices", "center")
+SystemInfo["Can3DSpeaker"] = fileHas("/proc/stb/audio/3d_surround_speaker_position_choices", "center") and fileCheck("/proc/stb/audio/3d_surround_speaker_position")
 SystemInfo["CanAACTranscode"] = fileHas("/proc/stb/audio/aac_transcode_choices", "off")
 SystemInfo["CanAC3Transcode"] = fileHas("/proc/stb/audio/ac3plus_choices", "force_ac3")
 SystemInfo["Canaudiosource"] = fileCheck("/proc/stb/hdmi/audio_source")
