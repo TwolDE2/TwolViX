@@ -4,9 +4,7 @@ import locale
 from os import listdir, environ, mkdir, path, stat, system
 from shutil import rmtree
 from time import time, localtime, strftime
-from Screens.MessageBox import MessageBox
 from Tools.Directories import SCOPE_LANGUAGE, resolveFilename
-from Tools import Notifications
 
 LPATH = resolveFilename(SCOPE_LANGUAGE, "")
 Lpackagename = "enigma2-locale-"
@@ -85,6 +83,8 @@ class Language:
 		self.langlistselection.append((str(lang + "_" + country), name))
 
 	def activateLanguage_TRY(self, index):
+		from Tools import Notifications
+		from Screens.MessageBox import MessageBox	
 		if index not in self.lang:
 			print("[Language] Selected language %s is not installed, fallback to en_US!" % index)
 			index = "en_US"
@@ -129,6 +129,8 @@ class Language:
 		return True
 
 	def activateLanguage(self, index):
+		from Screens.MessageBox import MessageBox	
+		from Tools import Notifications
 		if not self.activateLanguage_TRY(index):
 			print("[Language] - retry with ", "en_US")
 			Notifications.AddNotification(MessageBox, _("The selected language is unavailable - using en_US"), MessageBox.TYPE_INFO, timeout=3)

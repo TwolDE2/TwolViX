@@ -329,13 +329,13 @@ RESULT eServiceTS::unpause()
 	if (!m_streamthread->running())
 	{
 		int tmp_fd = -1;
-		tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 		/* eDebug("[servicets] Twol00 Opened tmp_fd: %d", tmp_fd); */
 		if (tmp_fd == 0)
 		{
 			::close(tmp_fd);
 			tmp_fd = -1;	
-			fd0lock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+			fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 			/* eDebug("[servicets] opening null fd returned: %d", fd0lock); */
 		}
 		if (tmp_fd != -1)
