@@ -26,7 +26,6 @@ def resolveAlternate(serviceref):
 
 # Extensions to eServiceReference
 
-
 @staticmethod
 def __fromDirectory(path):
 	ref = eServiceReference(eServiceReference.idFile,
