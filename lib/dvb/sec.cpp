@@ -479,7 +479,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 						| ((band & 2) ? 0x800 : 0)			//VertHor
 						| ((lnb_param.LNBNum & 1) ? 0 : 0x1000)			//Umschaltung LNB1 LNB2
 						| (lnb_param.SatCR_idx << 13));		//Adresse des SatCR
-						// eDebug("[eDVBSatelliteEquipmentControl] [prepare] UnicableTuningWord %#04x, guard_offset %d",lnb_param.UnicableTuningWord ,lnb_param.guard_offset);
+/*						eDebug("[eDVBSatelliteEquipmentControl] [prepare] UnicableTuningWord %#04x, guard_offset %d",lnb_param.UnicableTuningWord ,lnb_param.guard_offset);  */
 				frontend.setData(eDVBFrontend::FREQ_OFFSET, (lnb_param.UnicableTuningWord & 0x3FF) *4000 + 1400000 + lof - (2 * (lnb_param.SatCRvco - (tmp1-tmp2))) );
 				voltage = VOLTAGE(13);
 			}
