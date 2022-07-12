@@ -648,7 +648,7 @@ std::string convertDVBUTF8(const unsigned char *data, int len, int table, int ts
 			if (table != 11)
 				table = data[i] + 4;
 			++i;
-			// eTrace("[convertDVBUTF8] (1..11)text encoded in ISO-8859-%d", table);
+/*			eTrace("[convertDVBUTF8] (1..11)text encoded in ISO-8859-%d", table);  */
 			break;
 		case ISO8859_xx:
 		{
@@ -969,14 +969,14 @@ unsigned int truncateUTF8(std::string &s, unsigned int newsize)
 
 	if (len > idx){
 		while (idx > 0) {
-			if (!s.at(idx) & 0x80 || (s.at(idx) & 0xc0) == 0xc0){
-				if (!s.at(idx) & 0x80)
+			if (s[idx] < 0x80 || (s[idx] & 0xc0) == 0xc0){
+				if (s[idx] < 0x80)
 					idx++;
-				else if ((s.at(idx) & 0xF8) == 0xf0 && n == 3)
+				else if ((s[idx] & 0xF8) == 0xf0 && n == 3)
 					idx += n + 1;
-				else if ((s.at(idx) & 0xF0) == 0xe0 && n == 2)
+				else if ((s[idx] & 0xF0) == 0xe0 && n == 2)
 					idx += n + 1;
-				else if ((s.at(idx) & 0xE0) == 0xc0 && n == 1)
+				else if ((s[idx] & 0xE0) == 0xc0 && n == 1)
 					idx += n + 1;
 				break;
 			}
