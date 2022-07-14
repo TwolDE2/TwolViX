@@ -109,6 +109,7 @@ class Scanner:
 		return True
 
 	def handleFile(self, res, file):
+#		print("[Scanner] self.mimetypes file.mimetype checkfile", self.mimetypes, "   ", file.mimetype, "   ", self.checkFile(file))
 		if file.mimetype and file.mimetype.lower() in list(map(lambda x: x.lower(), self.mimetypes)) and self.checkFile(file):
 			res.setdefault(self, []).append(file)
 
@@ -145,8 +146,10 @@ class ScanPath:
 class ScanFile:
 	def __init__(self, path, mimetype=None, size=None, autodetect=True):
 		self.path = path
+#		print("[Scanner][ScanFile] path=%s, mimetype=%s, autodetect=%s" % (path, mimetype, autodetect))
 		if mimetype is None and autodetect:
 			self.mimetype = getType(path)
+#			print("[Scanner][ScanFile] getType(path)", getType(path))
 		else:
 			self.mimetype = mimetype
 		self.size = size
@@ -172,8 +175,8 @@ def scanDevice(mountpoint):
 		if not isinstance(l, list):
 			l = [l]
 		scanner += l
-
-	print("[Scanner] ", scanner)
+#	print("[Scanner][scanDevice] mountpoint ", mountpoint)
+#	print("[Scanner][scanDevice] scanner", scanner)
 
 	res = {}
 
@@ -181,7 +184,7 @@ def scanDevice(mountpoint):
 	# with_subdirs.
 
 	paths_to_scan = set()
-
+	print("[Scanner]1 paths_to_scan", paths_to_scan)
 	# first merge them all...
 	for s in scanner:
 		paths_to_scan.update(set(s.paths_to_scan))
@@ -195,7 +198,6 @@ def scanDevice(mountpoint):
 	# now scan the paths
 	for p in paths_to_scan:
 		path = ospath.join(mountpoint, p.path)
-
 		for root, dirs, files in walk(path):
 			for f in files:
 				path = ospath.join(root, f)
@@ -203,15 +205,15 @@ def scanDevice(mountpoint):
 					sfile = ScanFile(path, "audio/x-cda")
 				else:
 					sfile = ScanFile(path)
+				print("[Scanner][scanDevice] sfile=%s" % sfile)
 				for s in scanner:
 					s.handleFile(res, sfile)
 
 			# if we really don't want to scan subdirs, stop here.
 			if not p.with_subdirs:
 				del dirs[:]
-
-	# res is a dict with scanner -> [ScanFiles]
-	return res
+	print("[Scanner][scanDevice] res=%s" % res)
+	return res			# res is a dict with scanner -> [ScanFiles]
 
 
 def openList(session, files):
