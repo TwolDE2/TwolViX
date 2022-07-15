@@ -184,33 +184,34 @@ def scanDevice(mountpoint):
 	# with_subdirs.
 
 	paths_to_scan = set()
-	print("[Scanner]1 paths_to_scan", paths_to_scan)
+#	print("[Scanner][scanDevice] paths_to_scan", paths_to_scan)
 	# first merge them all...
 	for s in scanner:
 		paths_to_scan.update(set(s.paths_to_scan))
 
 	# ...then remove with_subdir=False when same path exists
 	# with with_subdirs=True
-	for p in paths_to_scan:
+	for p in paths_to_scan.copy():
 		if p.with_subdirs == True and ScanPath(path=p.path) in paths_to_scan:
 			paths_to_scan.remove(ScanPath(path=p.path))
-
 	# now scan the paths
 	for p in paths_to_scan:
-		path = ospath.join(mountpoint, p.path)
-		for root, dirs, files in walk(path):
+		mediaPath = ospath.join(mountpoint, p.path)
+		for root, dirs, files in walk(mediaPath):
 			for f in files:
-				path = ospath.join(root, f)
+				filePath = ospath.join(root, f)
 				if f.endswith(".wav") and f.startswith("track"):
-					sfile = ScanFile(path, "audio/x-cda")
+					sfile = ScanFile(filePath, "audio/x-cda")
 				else:
-					sfile = ScanFile(path)
-				print("[Scanner][scanDevice] sfile=%s" % sfile)
+					sfile = ScanFile(filePath)
+#				print("[Scanner][scanDevice] sfile=%s" % sfile)
 				for s in scanner:
 					s.handleFile(res, sfile)
 
 			# if we really don't want to scan subdirs, stop here.
-			if not p.with_subdirs:
+			if len(p.path) == 0 and ("net" in mountpoint or "autofs" in mountpoint):
+				continue
+			else:
 				del dirs[:]
 	print("[Scanner][scanDevice] res=%s" % res)
 	return res			# res is a dict with scanner -> [ScanFiles]

@@ -31,7 +31,7 @@ def mountpoint_chosen(option):
 		if osaccess(mountpoint, F_OK | R_OK):
 			session.open(MessageBox, _("No displayable files on this medium found!"), MessageBox.TYPE_INFO, simple=True, timeout=5)
 		else:
-			# print("[MediaScanner][ mountpoint_chosen] ignore", mountpoint, "because its not accessible")
+			print("[MediaScanner][ mountpoint_chosen] ignore", mountpoint, "because its not accessible")
 		return
 
 	session.openWithCallback(execute, ChoiceBox,
