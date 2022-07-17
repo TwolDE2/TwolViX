@@ -1,4 +1,4 @@
-installdir = $(pkglibdir)/python/Plugins/SystemPlugins/ForceFbcLNBpower
+installdir = $(pkglibdir)/python/Plugins/SystemPlugins/FrontprocessorUpgrade
 
 SUBDIRS = meta
 
