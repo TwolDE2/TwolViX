@@ -192,10 +192,9 @@ class RecordTimerEntry(TimerEntry):
 
 		if self.end < self.begin:
 			self.end = self.begin
-		print("[RecordTimer][RecordTimerEntry] serviceref, eServiceReference", serviceref, eServiceReference())
+
 		assert isinstance(serviceref, eServiceReference)
-		if serviceref:
-			print("[RecordTimer][RecordTimerEntry] serviceref.toString(), config.recording.setstreamto1.value", serviceref.toString(), "   ", config.recording.setstreamto1.value)
+
 		if serviceref and serviceref.toString()[:4] in config.recording.setstreamto1.value: # check if to convert IPTV services (4097, etc) to "1"
 			serviceref = eServiceReference("1" + serviceref.toString()[4:])				
 
@@ -355,7 +354,7 @@ class RecordTimerEntry(TimerEntry):
 				if not rec_ref:
 					self.log(1, "'get best playable service for group... record' failed")
 					return False
-			# print("[RecordTimer][tryPrepare] rec_ref", rec_ref)
+
 			self.setRecordingPreferredTuner()
 			self.record_service = rec_ref and NavigationInstance.instance.recordService(rec_ref)
 
@@ -552,12 +551,11 @@ class RecordTimerEntry(TimerEntry):
 				self.log(71, "eStreamerServer client - stop")
 				eStreamServer.getInstance().stopStream()
 				return False
-			# print("[RecordTimer] tryPrepare failed self.first_try_prepare, rec_ref.toString, self.ts_dialog, self.checkingTimeshiftRunning()", self.first_try_prepare, self.ts_dialog, self.checkingTimeshiftRunning())				
 			if self.first_try_prepare or (self.ts_dialog is not None and not self.checkingTimeshiftRunning()):
 				self.first_try_prepare = False
 				cur_ref = NavigationInstance.instance.getCurrentlyPlayingServiceReference()
 				rec_ref = self.service_ref and self.service_ref.ref
-				if cur_ref and not cur_ref.getPath() or rec_ref.toString()[:4] in config.recording.setstreamto1.value:
+				if cur_ref and not cur_ref.getPath() or rec_ref.toString()[:4] in config.recording.setstreamto1.value:  # "or" check if IPTV services (4097, etc)
 					if self.always_zap:
 						return False
 					if Screens.Standby.inStandby:
@@ -935,10 +933,8 @@ def createTimer(xml):
 	begin = int(xml.get("begin"))
 	end = int(xml.get("end"))
 	pre_serviceref = xml.get("serviceref")
-	print("[RecordTimer][createTimer] pre_serviceref, config.recording.setstreamto1.value", pre_serviceref, "   ", config.recording.setstreamto1.value)
-	serviceref = eServiceReference("1" + pre_serviceref[4:]) if pre_serviceref[:4] in config.recording.setstreamto1.value else eServiceReference(pre_serviceref)
+	serviceref = eServiceReference("1" + pre_serviceref[4:]) if pre_serviceref[:4] in config.recording.setstreamto1.value else eServiceReference(pre_serviceref) # check if to convert IPTV services (4097, etc) to "1"
 	description = str(xml.get("description"))
-	print("[RecordTimer][createTimer] serviceref, description", serviceref, "   ", description)
 	repeated = str(xml.get("repeated"))
 	rename_repeat = int(xml.get("rename_repeat") or "1")
 	disabled = int(xml.get("disabled") or "0")
@@ -1275,7 +1271,7 @@ class RecordTimer(Timer):
 						entry.begin += 1
 			entry.conflict_detection = real_cd
 		entry.timeChanged()
-		# print("[Timer] Record %s" % entry)
+#		print("[Timer] Record %s" % entry)
 		entry.Timer = self
 		self.addTimerEntry(entry)
 		if dosave:
