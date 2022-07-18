@@ -512,8 +512,7 @@ class VirtualKeyBoard(Screen, HelpableScreen):
 			"9": (self.keyNumberGlobal, _("Number or SMS style data entry")),
 			"gotAsciiCode": (self.keyGotAscii, _("Keyboard data entry"))
 		}, -2, description=_("Virtual KeyBoard Functions"))
-		self.lang = environ["LANGUAGE2"]	
-		# print("[VirtualKeyBoard] self.lang:", self.lang)		
+		self.lang = environ["LANGUAGE2"]
 		self["prompt"] = Label(prompt)
 		self["text"] = Input(text=text, maxSize=maxSize, visible_width=visible_width, type=type, currPos=len((text)) if currPos is None else currPos, allMarked=allMarked)
 		self["list"] = VirtualKeyBoardList([])
@@ -877,7 +876,6 @@ class VirtualKeyBoard(Screen, HelpableScreen):
 
 	def setLocale(self):
 		self.language, self.location, self.keyList = self.locales.get(self.lang, [None, None, None])
-		# print("[VirtualKeyBoard] self.language:", self.language, "   ", self.location, "   ", self.keyList)		
 		if self.language is None or self.location is None or self.keyList is None:
 			self.lang = "en_EN"
 			self.language = _("English")
