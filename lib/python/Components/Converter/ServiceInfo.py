@@ -172,10 +172,8 @@ class ServiceInfo(Poll, Converter):
 		if not info:
 			return False
 		video_height = None
-		video_width = None
 		video_aspect = None
 		video_height = self._getVideoHeight(info)
-		video_width = self._getVideoWidth(info)
 		video_aspect = info.getInfo(iServiceInformation.sAspect)
 		if self.type == self.HAS_TELETEXT:
 			tpid = info.getInfo(iServiceInformation.sTXTPID)
