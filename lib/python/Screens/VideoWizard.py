@@ -54,6 +54,7 @@ class VideoWizard(WizardLanguage, Rc):
 		Rc.__init__(self)
 		self["wizard"] = Pixmap()
 		self["portpic"] = Pixmap()
+
 		self.port = None
 		self.mode = None
 		self.rate = None
@@ -185,4 +186,5 @@ class VideoWizard(WizardLanguage, Rc):
 				iAV.saveMode("Scart", "Multi", "multi")
 			iAV.setConfiguredMode()
 			self.close()
+
 		WizardLanguage.keyNumberGlobal(self, number)
