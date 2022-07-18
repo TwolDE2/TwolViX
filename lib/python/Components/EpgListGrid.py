@@ -439,8 +439,6 @@ class EPGListGrid(EPGListBase):
 						color=serviceForeColor, color_sel=serviceForeColor,
 						backcolor=serviceBackColor, backcolor_sel=serviceBackColor))
 				colX += channelWidth + 2 * self.serviceNumberPadding
-#				except:
-#					continue	
 
 			if titleItem == "servicename":
 				namefont = 0
@@ -788,9 +786,6 @@ class EPGListGrid(EPGListBase):
 			channelIdx = 0
 
 		test.insert(0, "XRnITBD")  # return record, service ref, service name, event id, event title, begin time, duration
-#		print("[EpgListGrid] test", test)
-#		print("[EpgListGrid] type(test)", type(test))
-#		print("[EpgListGrid] len(test)", len(test))		
 		epgData = self.queryEPG(test)
 		self.list = []
 		eventList = None
@@ -828,9 +823,7 @@ class EPGListGrid(EPGListBase):
 			# repeat timers represent all their future repetitions, so always include them
 			if (startTime <= timer.end or timer.repeated) and timer.begin < endTime:
 				serviceref = timer.service_ref.ref.toCompareString()
-				# print("[EpgListGrid][snapshotTimers1] config.recording.setstreamto1.value, serviceref ", config.recording.setstreamto1.value, "   ", serviceref)				
-				serviceref = serviceref.replace("4097", "1", 1) if config.recording.setstreamto1.value else serviceref
-				# print("[EpgListGrid][snapshotTimers2] config.recording.setstreamto1.value, serviceref ", config.recording.setstreamto1.value, "   ", serviceref)				
+				serviceref = "1" + serviceref[4:] if serviceref[:4] in config.recording.setstreamto1.value else serviceref # converts 4097, 5001, 5002 to 1
 				l = self.filteredTimerList.get(serviceref)
 				if l is None:
 					self.filteredTimerList[serviceref] = l = [timer]
