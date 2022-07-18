@@ -387,8 +387,6 @@ def createTimer(xml):
 	autosleepinstandbyonly = str(xml.get("autosleepinstandbyonly") or "no")
 	autosleepdelay = str(xml.get("autosleepdelay") or "0")
 	autosleeprepeat = str(xml.get("autosleeprepeat") or "once")
-	# print("[PowerManager]:1", xml.get("begin"), "   ", xml.get("end"), "   ", xml.get("repeated"))
-	# print("[PowerManager]:2", xml.get("disabled"), "   ", xml.get("afterevent"), "   ", xml.get("autosleepinstandbyonly"), "   ", xml.get("autosleepdelay"), "   ", xml.get("autosleeprepeat"))	
 #
 # If this is a repeating auto* timer then start it in 30 secs,
 # which means it will start its repeating countdown from when enigma2
@@ -605,9 +603,9 @@ class PowerTimer(Timer):
 				return True
 		return False
 
-	def record(self, entry, ignoreTSC=False, dosave=True):		#wird von loadTimer mit dosave=False aufgerufen
+	def record(self, entry, ignoreTSC=False, dosave=True):		#  called by loadTimer with dosave=False
 		entry.timeChanged()
-		# print("[PowerTimer]", str(entry))
+#		print("[PowerTimer]", str(entry))
 		entry.Timer = self
 		self.addTimerEntry(entry)
 		if dosave:
@@ -615,7 +613,7 @@ class PowerTimer(Timer):
 		return None
 
 	def removeEntry(self, entry):
-		# print("[PowerTimer] Remove", str(entry))
+#		print("[PowerTimer] Remove", str(entry))
 
 		# avoid re-enqueuing
 		entry.repeated = False
@@ -628,9 +626,9 @@ class PowerTimer(Timer):
 		if entry.state != entry.StateEnded:
 			self.timeChanged(entry)
 
-		# print "state: ", entry.state
- 		# print "in processed: ", entry in self.processed_timers
- 		# print "in running: ", entry in self.timer_list
+# 		print "state: ", entry.state
+# 		print "in processed: ", entry in self.processed_timers
+# 		print "in running: ", entry in self.timer_list
 		# disable timer first
 		if entry.state != 3:
 			entry.disable()
