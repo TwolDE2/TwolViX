@@ -236,7 +236,6 @@ class Network:
 				if len(self.lan_interfaces) and not iface == "eth1":
 					name += " " + str(len(self.lan_interfaces) + 1)
 				self.lan_interfaces.append(iface)
-		print("[Network][getFriendlyAdapterNaming] iface=, name=, self.wlan_interfaces =, self.lan_interfaces= ", iface, "   ", name, "   ", self.wlan_interfaces, "   ", self.lan_interfaces)
 		return name
 
 	def getFriendlyAdapterDescription(self, iface):
