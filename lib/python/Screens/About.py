@@ -1,9 +1,7 @@
 from os import listdir, path, popen
 from re import search
-
 from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
-
 from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button
@@ -301,7 +299,6 @@ class Devices(Screen):
 					hddp = hddp.replace("ATA", "")
 					hddp = hddp.replace("Internal", "ATA Bus ")
 				free = hdd.Totalfree()
-				print("[About] [free] free=%s hdd=%s" % (free, hddp))
 				if (free / 1000 / 1000) >= 1:
 					freeline = _("Free: ") + str(round((free / 1000 / 1000), 2)) + _("TB")
 				elif (free / 1000) >= 1:
