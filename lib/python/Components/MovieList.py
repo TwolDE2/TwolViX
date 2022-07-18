@@ -756,7 +756,6 @@ class MovieList(GUIComponent):
 				if not name.endswith('.AppleDouble/') and not name.endswith('.AppleDesktop/') and not name.endswith('.AppleDB/') and not name.endswith('Network Trash Folder/') and not name.endswith('Temporary Items/'):
 					try:
 						begin = stat(serviceref.getPath()).st_mtime
-
 					except (FileNotFoundError, PermissionError) as err: # possibly os.stat failed due to unavailable mount or a permission error over a network mount
 						begin = 0
 						import traceback
