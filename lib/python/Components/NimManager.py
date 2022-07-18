@@ -1,4 +1,4 @@
-from os import access, path, F_OK 
+from os import access, path, F_OK
 from datetime import datetime
 from time import localtime, mktime
 from itertools import chain
@@ -6,7 +6,10 @@ import xml.etree.cElementTree
 
 from enigma import eDVBFrontendParametersSatellite, eDVBSatelliteEquipmentControl as secClass, eDVBSatelliteDiseqcParameters as diseqcParam, eDVBSatelliteSwitchParameters as switchParam, eDVBSatelliteRotorParameters as rotorParam, eDVBResourceManager, eDVBDB, eEnv
 
+from Components.About import about
+
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigFloat, ConfigSatlist, ConfigYesNo, ConfigInteger, ConfigSubList, ConfigNothing, ConfigSubDict, ConfigOnOff, ConfigDateTime, ConfigText
+
 from Components.SystemInfo import SystemInfo
 from Tools.BoundFunction import boundFunction
 
@@ -1190,6 +1193,7 @@ class NimManager:
 
 	def getNimListForSat(self, orb_pos):
 		return [nim.slot for nim in self.nim_slots if nim.isCompatible("DVB-S") and not nim.isFBCLink() and orb_pos in [sat[0] for sat in self.getSatListForNim(nim.slot)]]
+
 
 	def rotorLastPositionForNim(self, slotid, number=True):
 		available_slot = False
