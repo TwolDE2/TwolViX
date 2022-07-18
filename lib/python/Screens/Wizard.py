@@ -234,6 +234,7 @@ class Wizard(Screen):
 			"9": self.keyNumberGlobal,
 			"0": self.keyNumberGlobal
 		}, -1)
+
 		self["VirtualKB"] = NumberActionMap(["VirtualKeyboardActions"],
 		{
 			"showVirtualKeyboard": self.KeyText,
