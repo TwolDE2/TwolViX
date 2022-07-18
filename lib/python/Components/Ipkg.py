@@ -80,7 +80,7 @@ class IpkgComponent:
 
 	def runCmdEx(self, cmd):
 		if opkgDestinations is None:
-			self.runCmd(dmd)
+			self.runCmd(cmd)
 		else:
 			self.runCmd("%s %s" % (opkgExtraDestinations(), cmd))
 
