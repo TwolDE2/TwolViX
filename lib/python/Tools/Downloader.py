@@ -7,6 +7,7 @@ from twisted.internet import reactor, defer
 # required methods: Request, urlopen, HTTPError, URLError, urlparse
 from urllib.parse import urlparse, urlunparse
 
+
 class HTTPProgressDownloader(client.HTTPDownloader):
 	def __init__(self, url, outfile, headers=None):
 		client.HTTPDownloader.__init__(self, url, outfile, headers=headers, agent=("%s %s Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;OpenViX;;;)" % (getMachineBrand(), getMachineName())).encode())
