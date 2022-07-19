@@ -23,8 +23,7 @@ class StartWizard(WizardLanguage, Rc):
 		Rc.__init__(self)
 		self["wizard"] = Pixmap()
 
-	def markDone(self):
-		# setup remote control, all stb have same settings except dm8000 which uses a different settings
+	def markDone(self):		# setup remote control
 		config.misc.rcused.value = 1
 		config.misc.rcused.save()
 
