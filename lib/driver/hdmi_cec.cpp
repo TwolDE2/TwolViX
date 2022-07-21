@@ -375,7 +375,7 @@ void eHdmiCEC::hdmiEvent(int what)
 		{
 			bool keypressed = false;
 			static unsigned char pressedkey = 0;
-
+/*
 			eDebugNoNewLineStart("[eHdmiCEC] received message");
 			eDebugNoNewLine(" %02X", rxmessage.address);
 			for (int i = 0; i < rxmessage.length; i++)
@@ -383,6 +383,7 @@ void eHdmiCEC::hdmiEvent(int what)
 				eDebugNoNewLine(" %02X", rxmessage.data[i]);
 			}
 			eDebugNoNewLine("\n");
+*/
 			bool hdmicec_report_active_menu = eConfigManager::getConfigBoolValue("config.hdmicec.report_active_menu", false);
 			if (hdmicec_report_active_menu)
 			{
