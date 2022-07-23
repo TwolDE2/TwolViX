@@ -45,36 +45,35 @@ class MenuList(GUIComponent):
 	list = property(getList, setList)
 
 	def moveToIndex(self, idx):
-		if self.instance != None:
+		if self.instance is not None:
 			self.instance.moveSelectionTo(idx)
 
 	def moveTop(self):
-		if self.instance != None:
+		if self.instance is not None:
 			self.instance.moveSelection(self.instance.moveTop)
 
 	def moveBottom(self):
-		if self.instance != None:
+		if self.instance is not None:
 			self.instance.moveSelection(self.instance.moveEnd)
 
 	def pageUp(self):
 		print("menulist pageUp")
-		if self.instance != None:
+		if self.instance is not None:
 			self.instance.moveSelection(self.instance.pageUp)
 
 	def pageDown(self):
 		print("menulist pageDown")
-		if self.instance != None:
+		if self.instance is not None:
 			self.instance.moveSelection(self.instance.pageDown)
 
 	# Add new moveUp method for symmetry with ConfigList
 	def moveUp(self):
-		if self.instance != None:
+		if self.instance is not None:
 			self.instance.moveSelection(self.instance.moveUp)
 
 	# Add new moveDown method for symmetry with ConfigList
 	def moveDown(self):
-		if self.instance != None:
-
+		if self.instance is not None:
 			self.instance.moveSelection(self.instance.moveDown)
 
 	# Maintain the old up method for legacy compatibility
@@ -86,5 +85,5 @@ class MenuList(GUIComponent):
 		self.moveDown()
 
 	def selectionEnabled(self, enabled):
-		if self.instance != None:
+		if self.instance is not None:
 			self.instance.setSelectionEnable(enabled)
