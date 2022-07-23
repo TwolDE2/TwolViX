@@ -21,8 +21,7 @@
 #ifndef SWIG
 class eMessagePumpMT
 {
-	int tmp_fd = -1;
-	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+	int tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 	eDebug("[ServiceApp][eConsoleContainer1]  Opened tmp_fd: %d", tmp_fd);
 	int fd[2];
 	eLock content;
@@ -39,10 +38,9 @@ protected:
 class FD
 {
 protected:
-	int tmp_fd = -1;
 	int m_fd;
 public:
-	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+	int tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 	eDebug("[ServiceApp][eConsoleContainer2]  Opened tmp_fd: %d", tmp_fd);
 	FD(int fd): m_fd(fd) {}
 	~FD()
