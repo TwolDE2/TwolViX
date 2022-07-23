@@ -30,6 +30,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.TagEditor import TagEditor
 import Screens.InfoBar
+from ServiceReference import ServiceReference
 from Tools import NumericalTextInput
 from Tools.BoundFunction import boundFunction
 from Tools.CopyFiles import copyFiles, moveFiles
