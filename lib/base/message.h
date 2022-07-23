@@ -10,6 +10,7 @@
 #include <lib/base/wrappers.h>
 #ifndef HAVE_HISILICON
 #include <sys/eventfd.h>
+#include <fcntl.h>
 #endif
 
 /**
