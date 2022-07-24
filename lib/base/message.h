@@ -62,19 +62,18 @@ class eFixedMessagePump: public sigc::trackable
 class eFixedMessagePump: public sigc::trackable, FD
 #endif
 {
+	const char *name;
 	eSingleLock lock;
 	ePtr<eSocketNotifier> sn;
 	std::queue<T> m_queue;
 #ifdef HAVE_HISILICON
 	int m_pipe[2];
-	const char *name;
 #endif
 	void do_recv(int)
 	{
 #ifdef HAVE_HISILICON
 		char byte;
 		if (singleRead(m_pipe[0], &byte, sizeof(byte)) <= 0) return;
-
 		lock.lock();
 		if (!m_queue.empty())
 		{
@@ -137,7 +136,7 @@ public:
 		uint64_t data;
 		if (::read(m_fd, &data, sizeof(data)) <= 0)
 		{
-			eWarning("[eFixedMessagePump] read error %m");
+			eWarning("[eFixedMessagePump<%s>] read error %m", name);
 			return;
 		}
 
@@ -150,7 +149,7 @@ public:
 			if (m_queue.empty())
 			{
 				lock.unlock();
-				eWarning("[eFixedMessagePump] Got event but queue is empty");
+				eWarning("[eFixedMessagePump<%s>] Got event but queue is empty", name);
 				break;
 			}
 			T msg = m_queue.front();
@@ -170,7 +169,7 @@ public:
 	{
 		static const uint64_t data = 1;
 		if (::write(m_fd, &data, sizeof(data)) < 0)
-			eWarning("[eFixedMessagePump] write error %m");
+			eWarning("[eFixedMessagePump<%s>] write error %m", name);
 	}
 public:
 	sigc::signal<void(const T&)> recv_msg;
@@ -184,6 +183,14 @@ public:
 	}
 	eFixedMessagePump(eMainloop *context, int mt):
 		FD(eventfd(0, EFD_CLOEXEC)),
+		sn(eSocketNotifier::create(context, m_fd, eSocketNotifier::Read, false))
+	{
+		CONNECT(sn->activated, eFixedMessagePump<T>::do_recv);
+		sn->start();
+	}
+	eFixedMessagePump(eMainloop *context, int mt, const char *name):
+		FD(eventfd(0, EFD_CLOEXEC)),
+		name(name),
 		sn(eSocketNotifier::create(context, m_fd, eSocketNotifier::Read, false))
 	{
 		CONNECT(sn->activated, eFixedMessagePump<T>::do_recv);
