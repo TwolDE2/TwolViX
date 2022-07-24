@@ -6,11 +6,11 @@
 #include <lib/python/connections.h>
 #include <lib/python/swig.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <lib/base/elock.h>
 #include <lib/base/wrappers.h>
 #ifndef HAVE_HISILICON
 #include <sys/eventfd.h>
-#include <fcntl.h>
 #endif
 
 /**
