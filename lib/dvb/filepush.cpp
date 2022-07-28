@@ -44,7 +44,7 @@ static void ignore_but_report_signals()
 	pthread_sigmask(SIG_UNBLOCK, &sigmask, NULL);
 	
 	/* we set the signal to not restart syscalls, so we can detect our signal. */
-	struct sigaction act;
+	struct sigaction act = {};
 	act.sa_handler = signal_handler; // no, SIG_IGN doesn't do it. we want to receive the -EINTR
 	act.sa_flags = 0;
 	sigaction(SIGUSR1, &act, 0);
