@@ -2,9 +2,9 @@ name: Enigma2 Py3
 
 on:
   push:
-    branches: [ Py3, Py3D, Py3E]
+    branches: [ Py3, Py3D, Py3E, Py3F]
   pull_request:
-    branches: [Py3, Py3D, Py3E]
+    branches: [Py3, Py3D, Py3E, Py3F]
 
 jobs:
   build:
