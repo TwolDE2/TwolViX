@@ -258,7 +258,7 @@ void eHttpStream::thread()
 		if (newurl == "")
 		{
 			/* we have a valid stream connection */
-			eDebug("[eHttpStream] Thread end connection");
+			eDebug("[eHttpStream] Thread end - have connection");
 			connectionStatus = CONNECTED;
 			return;
 		}
@@ -268,7 +268,7 @@ void eHttpStream::thread()
 		newurl = "";
 	}
 	/* too many redirect / playlist levels */
-	eDebug("[eHttpStream] hread end NO connection");
+	eDebug("[eHttpStream] thread end NO connection");
 	connectionStatus = FAILED;
 	return;
 }
