@@ -5,7 +5,7 @@ from os import listdir, path
 from sys import maxsize
 from time import time, localtime, strftime
 
-import pickle as cPickle
+import pickle
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from boxbranding import getBrandOEM, getMachineBuild
@@ -60,6 +60,7 @@ from ServiceReference import ServiceReference, isPlayableForCur
 from Tools import Notifications
 from Tools.Directories import pathExists, fileExists
 from Tools.KeyBindings import getKeyDescription, getKeyBindingKeys
+
 
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
@@ -128,7 +129,7 @@ def saveResumePoints():
 	global resumePointCache, resumePointCacheLast
 	try:
 		f = open('/etc/enigma2/resumepoints.pkl', 'wb')
-		cPickle.dump(resumePointCache, f, cPickle.HIGHEST_PROTOCOL)
+		pickle.dump(resumePointCache, f, pickle.HIGHEST_PROTOCOL)
 		f.close()
 	except Exception as ex:
 		print("[InfoBarGenerics] Failed to write resumepoints:%s" % ex)
@@ -138,7 +139,7 @@ def saveResumePoints():
 def loadResumePoints():
 	try:
 		file = open('/etc/enigma2/resumepoints.pkl', 'rb')
-		PickleFile = cPickle.load(file)
+		PickleFile = pickle.load(file)
 		file.close()
 		return PickleFile
 	except Exception as ex:

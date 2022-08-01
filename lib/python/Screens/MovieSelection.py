@@ -1,6 +1,6 @@
 from os import access, listdir, mkdir, path as ospath, remove, rename, stat, W_OK
 import time
-import pickle as cPickle
+import pickle
 from enigma import eServiceReference, eServiceCenter, eTimer, eSize, iPlayableService, iServiceInformation, getPrevAsciiCode, eRCInput
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
@@ -36,6 +36,7 @@ from Tools.BoundFunction import boundFunction
 from Tools.CopyFiles import copyFiles, moveFiles
 from Tools.Directories import resolveFilename, SCOPE_HDD
 from Tools.Trashcan import TrashInfo, cleanAll, createTrashFolder, getTrashFolder
+
 
 config.movielist = ConfigSubsection()
 config.movielist.curentlyplayingservice = ConfigText()
@@ -1461,7 +1462,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		try:
 			path = ospath.join(config.movielist.last_videodir.value, ".e2settings.pkl")
 			file = open(path, "wb")
-			cPickle.dump(self.settings, file)
+			pickle.dump(self.settings, file)
 			file.close()
 		except Exception as e:
 			print("[MovieSelection] Failed to save settings to %s: %s" % (path, e))
@@ -1478,7 +1479,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			try:
 				path = ospath.join(config.movielist.last_videodir.value, ".e2settings.pkl")
 				file = open(path, "rb")
-				updates = cPickle.load(file)
+				updates = pickle.load(file)
 				file.close()
 				self.applyConfigSettings(updates)
 			except IOError as e:
