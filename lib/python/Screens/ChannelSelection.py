@@ -371,7 +371,7 @@ class ChannelContextMenu(Screen):
 		cur = self.csel.getCurrentSelection()
 		if cur and cur.valid():
 			name = eServiceCenter.getInstance().info(cur).getName(cur) or ServiceReference(cur).getServiceName() or ""
-			name = name.replace("\xc2\x86", "").replace("\xc2\x87", "")
+			name = name.replace('\x86', '').replace('\x87', '')
 			return name
 		return ""
 
