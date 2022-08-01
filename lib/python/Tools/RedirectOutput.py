@@ -1,5 +1,7 @@
+import sys
+
 from enigma import ePythonOutput
-import	sys
+
 
 class EnigmaLog:
 	def __init__(self, level):
