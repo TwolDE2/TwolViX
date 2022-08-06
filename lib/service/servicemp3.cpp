@@ -423,7 +423,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_cuesheet_changed(0),
 	m_cutlist_enabled(1),
 	m_ref(ref),
-	m_pump(eApp, 1, "servicemp3")
+	m_pump(eApp, 1, "Servicemp3")
 {
 	m_subtitle_sync_timer = eTimer::create(eApp);
 	m_stream_tags = 0;
@@ -2992,6 +2992,7 @@ void eServiceMP3::loadCuesheet()
 		eDebug("[eServiceMP3] skip loading cuesheet multiple times");
 		return;
 	}
+
 	m_cue_entries.clear();
 	/* only load manual cuts if no chapter info avbl CVR */
 	if (m_use_chapter_entries)
