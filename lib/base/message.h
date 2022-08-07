@@ -22,7 +22,6 @@
 #ifndef SWIG
 class eMessagePumpMT
 {
-	int tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 	int fd[2];
 	eLock content;
 public:
@@ -31,6 +30,7 @@ public:
 protected:
 	int send(const void *data, int len);
 	int recv(void *data, int len); // blockierend
+	int tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);	
 	int getInputFD() const { return fd[1]; }
 	int getOutputFD() const { return fd[0]; }
 };
