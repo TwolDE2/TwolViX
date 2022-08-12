@@ -113,7 +113,7 @@ eDVBResourceManager::eDVBResourceManager()
 	}
 	eDebug("[eDVB][eDVBResourceManager] found %zd adapter, %zd frontends(%zd sim) and %zd demux",
 		m_adapter.size(), m_frontend.size(), m_simulate_frontend.size(), m_demux.size());
-	eDebug("[eDVB][eDVBResourceManager] found IOC_NONE = %u, VMSG_TYPE1= %u ", _IOC_NONE,  VMSG_TYPE1);
+	eDebug("[eDVB][eDVBResourceManager] found IOC_NONE = %u", _IOC_NONE);
 	m_fbcmng = new eFBCTunerManager(instance);
 
 	CONNECT(m_releaseCachedChannelTimer->timeout, eDVBResourceManager::releaseCachedChannel);
