@@ -113,6 +113,8 @@ eDVBResourceManager::eDVBResourceManager()
 	}
 	eDebug("[eDVB][eDVBResourceManager] found %zd adapter, %zd frontends(%zd sim) and %zd demux",
 		m_adapter.size(), m_frontend.size(), m_simulate_frontend.size(), m_demux.size());
+	eDebug("[eDVB][eDVBResourceManager] found IOC_NONE = %d, VMSG_TYPE1= %d ", _IOC_NONE,  VMSG_TYPE1);
+#if (_IOC_NONE == 0) && (!VMSG_TYPE1)
 
 	m_fbcmng = new eFBCTunerManager(instance);
 
