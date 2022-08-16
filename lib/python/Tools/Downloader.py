@@ -38,8 +38,8 @@ class DownloadWithProgress:
 		return self
 
 	def run(self):
-		# requests.Response object = requests.get(url, params=None, allow_redirects=True, auth=None, cert=None, cookies=None, headers=None, proxies=None, stream=False, timeout=None, verify=True)
-		response = requests.get(self.url, headers=self.requestHeader, stream=True)  # Streaming, so we can iterate over the response.
+		# requests.Response object = requests.get(url, params=None, allow_redirects=True, auth=None, cert=None, cookies=None, headers=None, proxies=None, stream=False, timeout=(3.05, 21), verify=True)
+		response = requests.get(self.url, headers=self.requestHeader, stream=True, timeout=(3.05, 21))  # Streaming, so we can iterate over the response.
 		try:
 			with open(self.outputFile, "wb") as fd:
 				for buffer in response.iter_content(self.blockSize):
