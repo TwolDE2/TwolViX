@@ -54,11 +54,11 @@ class pServiceEvent:
 		seek = service and service.seek()
 		if seek:
 			length = seek.getLength()
-			pos = seek.getPlayPosition()
-			if pos[0] == 0:
-				self.m_Begin = time() - pos[1] / 90000
 			if length[0] == 0:
 				self.m_Duration = length[1] / 90000
+			position = seek.getPlayPosition()
+			if position[0] == 0:
+				self.m_Begin = time() - position[1] / 90000
 
 	def getEventName(self):
 		return self.m_EventNameNow if self.now_or_next == self.NOW else self.m_EventNameNext
@@ -71,6 +71,9 @@ class pServiceEvent:
 
 	def getBeginTime(self):
 		return self.m_Begin if self.now_or_next == self.NOW else 0
+
+	def getEndTime(self):
+		return 0
 
 	def getDuration(self):
 		return self.m_Duration if self.now_or_next == self.NOW else 0
@@ -118,6 +121,7 @@ class EventInfo(PerServiceBase, Source):
 		PerServiceBase.__init__(self, navcore,
 			{
 				iPlayableService.evStart: self.gotEvent,
+				iPlayableService.evUpdatedInfo: self.gotEvent,
 				iPlayableService.evUpdatedEventInfo: self.gotEvent,
 				iPlayableService.evEnd: self.gotEvent
 			}, with_event=True)
