@@ -201,7 +201,6 @@ class InitInputDevices:
 		exec(cmd)
 
 	def remapRemoteControl(self, device):
-		print("[InputDevice][remapRemoteControl] rc_model = ", SystemInfo["rc_model"])
 		filename = resolveFilename(SCOPE_SKIN, path.join("rc_models", SystemInfo["rc_model"], "rcpositions.xml"))
 		domRemote = self.loadRemoteControl(filename)
 		logRemaps = []
