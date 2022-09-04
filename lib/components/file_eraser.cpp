@@ -15,7 +15,7 @@ eBackgroundFileEraser *eBackgroundFileEraser::instance;
 
 eBackgroundFileEraser::eBackgroundFileEraser():
 	messages(this,1, "eBackgroundFileEraser"),
-	stop_thread_timer(eTimer::create(this)),
+	stop_thread_timer(eTimer::create(this))
 {
 	if (!instance)
 		instance=this;
