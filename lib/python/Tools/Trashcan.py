@@ -2,7 +2,6 @@ from os import access, mkdir, path as ospath, rmdir, stat, statvfs, walk, W_OK
 import enigma
 import time
 
-
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components import Harddisk
@@ -165,30 +164,39 @@ class CleanTrashTask(Components.Task.PythonTask):
 		for trashfolder in trashcanLocations:
 			trashfolder = ospath.join(trashfolder, ".Trash")
 			if ospath.isdir(trashfolder):
-				print("[Trashcan] looking in trashcan", trashfolder)
+				print("[Trashcan][CleanTrashTask][work] looking in trashcan", trashfolder)
 				trashsize = get_size(trashfolder)
 				diskstat = statvfs(trashfolder)
 				free = diskstat.f_bfree * diskstat.f_bsize
 				bytesToRemove = self.reserveBytes - free
-				print("[Trashcan][work] " + str(trashfolder) + ": Size:", "{:,}".format(trashsize))
+				print("[Trashcan][CleanTrashTask][work] " + str(trashfolder) + ": Size:", "{:,}".format(trashsize))
 				candidates = []
 				size = 0
-				for root, dirs, files in walk(trashfolder.encode(), topdown=False):
+				for root, dirs, files in walk(trashfolder.encode(), topdown=False):	# handle non utf-8 files
+#					print("[Trashcan][CleanTrashTask][work] lets look at files")
 					for name in files:	# Don't delete any per-directory config files from .Trash
 						if (config.movielist.settings_per_directory.value and name == b".e2settings.pkl"):
 							continue
 						fn = ospath.join(root, name)
-						st = stat(fn)
-						if st.st_ctime < self.ctimeLimit:
+						try:			# file may not exist, if dual delete activities.
+							st = stat(fn)
+						except FileNotFoundError:						
+							print("[Trashcan][CleanTrashTask[work]  FileNotFoundError ", fn)
+							pass					
+#						print("[Trashcan][CleanTrashTask[work]  fn = ", fn)
+						if st.st_ctime < self.ctimeLimit or config.usage.movielist_trashcan_days.value == 0:
 							enigma.eBackgroundFileEraser.getInstance().erase(fn)
 							bytesToRemove -= st.st_size
 						else:
 							candidates.append((st.st_ctime, fn, st.st_size))
 							size += st.st_size
+#					print("[Trashcan][CleanTrashTask][work] lets look at directories")
 					for name in dirs:		# Remove empty directories if possible
+#						print("[Trashcan][CleanTrashTask][work] dir name", dirs, "   ", name)					
 						try:
 							rmdir(ospath.join(root, name))
-						except:
+						except Exception as e:
+							print("[Trashcan][CleanTrashTask][work] unable to delete directory ", root, "/", name, "   ", e)	
 							pass
 					candidates.sort()
 					# Now we have a list of ctime, candidates, size. Sorted by ctime (=deletion time)
@@ -201,7 +209,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 							pass
 						bytesToRemove -= st_size
 						size -= st_size
-					print("[Trashcan][work] " + str(trashfolder) + ": Size now:", "{:,}".format(size))
+					print("[Trashcan][CleanTrashTask][work]   " + str(trashfolder) + ": Size now:", "{:,}".format(size))
 
 
 class TrashInfo(VariableText, GUIComponent):
