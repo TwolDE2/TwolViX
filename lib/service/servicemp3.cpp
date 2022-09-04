@@ -836,7 +836,6 @@ RESULT eServiceMP3::start()
 			eDebug("[eServiceMP3] failed to start pipeline");
 			stop();
 			return -1;
-			break;
 		case GST_STATE_CHANGE_SUCCESS:
 			m_is_live = false;
 			break;
