@@ -16,8 +16,6 @@ eBackgroundFileEraser *eBackgroundFileEraser::instance;
 eBackgroundFileEraser::eBackgroundFileEraser():
 	messages(this,1, "eBackgroundFileEraser"),
 	stop_thread_timer(eTimer::create(this)),
-	erase_speed(20 << 20),
-	erase_flags(ERASE_FLAG_HDD)
 {
 	if (!instance)
 		instance=this;
@@ -32,7 +30,6 @@ void eBackgroundFileEraser::idle()
 
 eBackgroundFileEraser::~eBackgroundFileEraser()
 {
-	erase_flags = 0; // Stop erasing in background, do it ASAP
 	messages.send(Message());
 	if (instance==this)
 		instance=0;
