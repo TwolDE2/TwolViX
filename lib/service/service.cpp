@@ -25,9 +25,9 @@ static std::string encode(const std::string s)
 	return res;
 }
 
-void eServiceReference::eServiceReferenceBase(const std::string &string)char* string2
+void eServiceReference::eServiceReferenceBase(char* string2)
 {
-	const char *c = string.c_str();
+	const char *c = string2;
 	int pathl = 0;
 
 	number = 0;
@@ -116,8 +116,9 @@ void eServiceReference::eServiceReferenceBase(const std::string &string)char* st
 
 eServiceReference::eServiceReference(const std::string &string)
 {
+	string2 = string.c_str()
 	/* eDebug("[eServiceReference][std]"); */
-	eServiceReferenceBase(string.c_str());
+	eServiceReferenceBase(string2);
 }
 
 eServiceReference::eServiceReference(const char* string2)
