@@ -32,7 +32,7 @@ void eServiceReference::eServiceReferenceBase(const char* string2)
 
 	number = 0;
 
-	if (string2.empty())
+	if ((c != NULL) && (c[0] == '\0'))
 	{
 		type = idInvalid;
 		return;
@@ -55,8 +55,9 @@ void eServiceReference::eServiceReferenceBase(const char* string2)
 			}
 			else
 			{
-				path = string2;
-				name = string2;
+				std::string string(string2);			
+				path = string;
+				name = string;
 			}
 			eDebug("[eServiceReference] URL=%s name=%s", path.c_str(), name.c_str());
 			return;
