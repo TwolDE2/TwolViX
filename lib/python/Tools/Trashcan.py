@@ -182,7 +182,6 @@ class CleanTrashTask(Components.Task.PythonTask):
 							st = stat(fn)
 						except FileNotFoundError:						
 							print("[Trashcan][CleanTrashTask[work]  FileNotFoundError ", fn)
-							pass					
 #						print("[Trashcan][CleanTrashTask[work]  fn = ", fn)
 						if st.st_ctime < self.ctimeLimit or config.usage.movielist_trashcan_days.value == 0:
 							enigma.eBackgroundFileEraser.getInstance().erase(fn)
