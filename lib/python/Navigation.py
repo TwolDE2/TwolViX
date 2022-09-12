@@ -166,6 +166,7 @@ class Navigation:
 			else:
 				playref = ref
 			if self.pnav:
+				self.pnav.stopService()
 				self.currentlyPlayingServiceReference = playref
 				self.currentlyPlayingServiceOrGroup = ref
 				if InfoBarInstance and InfoBarInstance.servicelist.servicelist.setCurrent(ref, adjust):
