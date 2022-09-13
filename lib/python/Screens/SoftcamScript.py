@@ -1,4 +1,4 @@
-from enigma import eTimer, getDesktop
+from enigma import eTimer
 
 
 from Components.ActionMap import HelpableActionMap
