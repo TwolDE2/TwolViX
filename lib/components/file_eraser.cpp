@@ -96,10 +96,8 @@ void eBackgroundFileEraser::gotMessage(const Message &msg )
 		const char* c_filename = msg.filename.c_str();
 		if ( ::remove(c_filename) < 0 )
 		{			
-			char tmp[255];
-			snprintf(tmp, 255, "[eBackgroundFileEraser] removing %s failed", c_filename);
-			PyErr_SetString(PyExc_OSError, tmp);
-			return NULL;			
+			eDebug("[eBackgroundFileEraser] removing %s failed: %m", c_filename);
+			throw "[eBackgroundFileEraser] removing %s failed", c_filename;
 		} else
 		{
 			eDebug("[eBackgroundFileEraser] removing %s OK", c_filename);				
