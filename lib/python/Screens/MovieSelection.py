@@ -1,6 +1,7 @@
 from os import access, listdir, mkdir, path as ospath, remove, rename, stat, W_OK
 import time
 import pickle
+import shutil
 from enigma import eServiceReference, eServiceCenter, eTimer, eSize, iPlayableService, iServiceInformation, getPrevAsciiCode, eRCInput
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
@@ -2332,14 +2333,12 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 				are_you_sure = _("Do you really want to permanently delete '%s'?") % singleName
 			else:
 				are_you_sure = _("Do you really want to permanently delete these %d items?") % itemCount
-		if dirCount > 0 and subItemCount > 0:
-			# deleting one or more non empty directories, so it's a good idea to get confirmation
+		if dirCount > 0 and subItemCount > 0:	# deleting one or more non empty directories, so get confirmation
 			if itemCount == 1:
 				are_you_sure += _("\nIt contains other items.")
 			else:
 				are_you_sure += ngettext("\nOne is a directory that isn't empty.", "\nThere are directories that aren't empty.", dirCount)
-		elif not inTrash and config.usage.movielist_trashcan.value:
-			# currently we don't ask for confirmation when moving just files into the trash can
+		elif not inTrash and config.usage.movielist_trashcan.value:	# No confirmation when moving just files into the trash can
 			self.__deleteListConfirmed(delList, True)
 			return
 		mbox = self.session.openWithCallback(callback, MessageBox, are_you_sure)
@@ -2415,6 +2414,10 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 				failedList.append((name, ex))
 
 		if deletedList:
+			path2 = path + ".del"
+			if offline is None and ospath.isdir(path2):		# directory not deleted by eraser and .del added to path name
+#				print("[MovieSelection][permanentDeleteListConfirmed] shutil path", path2)
+				shutil.rmtree(path2) 
 			self["list"].removeServices(deletedList)
 			deletedCount = len(deletedList)
 			self.showActionFeedback(_("Deleted '%s'") % name if deletedCount == 1 else _("Deleted %d items") % deletedCount)
