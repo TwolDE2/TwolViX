@@ -808,7 +808,7 @@ class oscInfo(Screen, OscamInfo):
 		self.out = []
 		self.itemheight = 25
 		print("[OscamInfo] data[0], data[1]", data[0], "   ", data[1])
-		if not isinstance(data[1], str):
+		if data[0]:
 			print("[OscamInfo] data[0], data[1] not isinstance(data[1], str)")
 			if self.what != "l":
 				heading = (self.HEAD[self.NAME], self.HEAD[self.PROT], self.HEAD[self.CAID_SRVID],
@@ -837,12 +837,12 @@ class oscInfo(Screen, OscamInfo):
 				self["key_blue"].setText("")
 				self.itemheight = 20
 		else:
-			self.errmsg = (data,)
+			self.errmsg = (data[1],)
 			if config.oscaminfo.autoupdate.value:
 				self.loop.stop()
 			for i in self.errmsg:
 				self.out.append(self.buildListEntry((i,)))
-			self.setTitle(_("Error") + ": " + data)
+			self.setTitle(_("Error") + ": " + data[1])
 			self["key_green"].setText(_("Clients"))
 			self["key_yellow"].setText(_("Servers"))
 			self["key_blue"].setText(_("Log"))
