@@ -25,10 +25,11 @@ def getMultibootslots():
 	slotname = ""
 	BoxInfo = SystemInfo["BoxInfo"]
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
-	tmpname = tmp.dir 
-	for device in ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/block/by-name/bootoptions" ):
+	tmpname = tmp.dir
+	for device in ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/block/by-name/bootoptions", "/dev/mtdblock2"):
 		if bootslots:
-			continue 
+			continue
+		print("[multiboot*****] [getMultibootslots0] device = %s" % (device))			 
 		if path.exists(device):
 			Console(binary=True).ePopen("mount %s %s" % (device, tmpname))
 			if path.isfile(path.join(tmpname, "STARTUP")):
@@ -65,7 +66,7 @@ def getMultibootslots():
 										slot["rootsubdir"] = getparam(line, "rootsubdir")
 										slot["kernel"] = getparam(line, "kernel")
 									elif "sda" in line:
-										slot["kernel"] = getparam(line, "kernel")	# sf8008 SD card slot pairs same as oldsystle MB
+										slot["kernel"] = getparam(line, "kernel")	# sf8008 SD card slot pairs same as oldstyle MB
 										slot["rootsubdir"] = None
 									else:
 										slot["kernel"] = "%sp%s" % (root.split("p")[0], int(root.split("p")[1]) - 1)	# oldstyle MB kernel = root-1
@@ -120,7 +121,10 @@ def GetImagelist():
 		Imagelist[slot] = {"imagename": _("Empty slot")}
 		imagedir = "/"	
 		if SystemInfo["MultiBootSlot"] != slot or SystemInfo["HasHiSi"]:
-			Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))		
+			if slot == 'ubi0:ubifs':
+				Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))				
+			else:
+				Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))		
 			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 		# print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))			
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
