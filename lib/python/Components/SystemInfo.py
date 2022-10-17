@@ -12,6 +12,7 @@ SystemInfo = {}
 SystemInfo["BoxInfo"] = BoxConfig()
 SystemInfo["HasRootSubdir"] = False	# This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["RecoveryMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["HasMultibootMTD"] = False # This needs to be here so it can be reset by getMultibootslots!
 from Tools.Multiboot import GetCurrentImage, getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
 SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40")	# This needs to be for later checks
 SystemInfo["canMultiBoot"] = getMultibootslots()	# SystemInfo["MBbootdevice"] set on call see below
@@ -49,7 +50,7 @@ SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
 SystemInfo["rc_model"] = rc_model.getRcFolder()
 SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
 SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4") # due to button limitations of the remote control
-SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "sf8008", "sf8008m", "uniboxhde") # due to button limitations of the remote control
+SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "sf8008", "sf8008m", "uniboxhde", 'sfx6008') # due to button limitations of the remote control
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
@@ -133,7 +134,7 @@ SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable har
 		["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
 		{"720p", "1080p", "2160p", "1080i"} # widescreen modes
 	) or getChipSetString() in ( # 1080p capable hardware
-		"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "hi3716mv410", "hi3716mv430", "3716mv430"
+		"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "hi3716mv410", "hi3716mv430", "3716mv430", '3716mv430'
 	) and (
 		["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
 		{"720p", "1080p", "1080i"} # widescreen modes

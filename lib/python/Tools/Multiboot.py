@@ -15,6 +15,9 @@ from Tools.BoxConfig import BoxConfig
 class tmp:
 	dir = None
 
+def getMountType():
+	if SystemInfo["HasMultibootMTD"]:
+		return "-t ubifs"
 
 def getparam(line, param):
 	return line.replace("userdataroot", "rootuserdata").rsplit("%s=" % param, 1)[1].split(" ", 1)[0]
@@ -56,12 +59,14 @@ def getMultibootslots():
 							if "root=" in line:
 								line = line.rstrip("\n")
 								root = getparam(line, "root")
-								if path.exists(root):
+								if path.exists(root) or device == "ubi0:ubifs":
 									slot["root"] = root
 									slot["startupfile"] = path.basename(file)
 									slot["slotname"] = slotname
 									if "rootsubdir" in line:
 										SystemInfo["HasRootSubdir"] = True
+										if "ubi.mtd=" in line:
+											SystemInfo["HasMultibootMTD"] = True
 #										print("[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"])
 										slot["rootsubdir"] = getparam(line, "rootsubdir")
 										slot["kernel"] = getparam(line, "kernel")
@@ -94,12 +99,18 @@ def GetCurrentImage():
 
 def GetCurrentKern():
 	if SystemInfo["HasRootSubdir"]:
-		return SystemInfo["HasRootSubdir"] and (int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()[:-1].split("kernel=/dev/mmcblk0p")[1].split(" ")[0]))
+		if SystemInfo["HasMultibootMTD"]:
+			return SystemInfo["HasRootSubdir"] and (int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()[:-1].split("kernel=/dev/mtd")[1].split(" ")[0]))
+		else:
+			return SystemInfo["HasRootSubdir"] and (int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()[:-1].split("kernel=/dev/mmcblk0p")[1].split(" ")[0]))
 
 
 def GetCurrentRoot():
 	if SystemInfo["HasRootSubdir"]:
-		return SystemInfo["HasRootSubdir"] and (int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()[:-1].split("root=/dev/mmcblk0p")[1].split(" ")[0]))
+		if SystemInfo["HasMultibootMTD"]:
+			return SystemInfo["HasRootSubdir"] and (int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()[:-1].split("ubi.mtd=")[1].split(" ")[0]))
+		else:
+			return SystemInfo["HasRootSubdir"] and (int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()[:-1].split("root=/dev/mmcblk0p")[1].split(" ")[0]))
 
 
 def GetCurrentImageMode():
@@ -148,10 +159,6 @@ def GetImagelist():
 #				print("[multiboot] [GetImagelist] Creator = %s imagedir = %s" % (Creator, imagedir))
 				if Creator.startswith("Openvix"):
 					reader = boxbranding_reader(imagedir)
-					# print("[multiboot] [GetImagelist]3 slot = %s imagedir = %s" % (slot, imagedir))
-					if path.isfile(path.join(imagedir, "usr/lib/enigma2/python/ImageIdentifier.py")):
-#						print("[multiboot] [GetImagelist]4 slot = %s imagedir = %s" % (slot, imagedir))
-						reader = readImageIdentifier(imagedir)
 					BuildType = reader.getImageType()
 					Build = reader.getImageBuild()
 					Creator = Creator.replace("-release", " rel")
@@ -190,7 +197,10 @@ def VerDate(imagedir):
 
 def emptySlot(slot):
 	tmp.dir = tempfile.mkdtemp(prefix="emptySlot")
-	Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
+	if SystemInfo["HasMultibootMTD"]:
+		Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
+	else:
+		Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
 	imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 	if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
 		rename((path.join(imagedir, "usr/bin/enigma2")), (path.join(imagedir, "usr/bin/enigmax")))
@@ -207,6 +217,9 @@ def emptySlot(slot):
 def restoreSlots():
 	for slot in SystemInfo["canMultiBoot"]:
 		tmp.dir = tempfile.mkdtemp(prefix="restoreSlot")
+	if SystemInfo["HasMultibootMTD"]:
+		Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
+	else:
 		Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
 		imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 		if path.isfile(path.join(imagedir, "usr/bin/enigmax")):
@@ -306,82 +319,4 @@ class boxbranding_reader:  # Many thanks to Huevos for creating this reader - we
 		return "\n".join(out)
 
 
-class readImageIdentifier():
 
-	#
-	# typical use...
-	#
-	# from readImageIdentifier import readImageIdentifier
-	# reader = readImageIdentifier()
-	# boxtype = reader.getBoxType()
-	#
-
-	def __init__(self, OsPath=None):
-		if OsPath is None:
-			OsPath = ""
-
-		if path.exists("%s/usr/lib64" % OsPath):
-			self.filepath = "%s/usr/lib64/enigma2/python/" % OsPath
-		else:
-			self.filepath = "%s/usr/lib/enigma2/python/" % OsPath
-		self.filename = "ImageIdentifier.py"
-
-		self.methods = {
-			"getBoxType": "",
-			"getImageDistro": "",
-			"getImageVersion": "",
-			"getImageBuild": "",
-			"getImageDevBuild": "",
-			"getImageType": "",
-			"getMachineBrand": "",
-			"getImageBuildDate": "",
-		}
-
-		self.__getfile()
-		self.__readfile()
-
-	def __getfile(self):
-		self.file_content = ""
-		try:
-			self.file_content = open("%s%s" % (self.filepath, self.filename)).read()
-			# print("[readImageIdentifier][self.file_content] %s" % (self.file_content))
-		except:
-			print("[readImageIdentifier][getfile] Could not read %s%s" % (self.filepath, self.filename))
-
-	def __readfile(self):
-		try:
-			exec(self.file_content)
-		except Exception as e:
-			print("[readImageIdentifier][readfile] failed to exec")
-			print(e)
-
-		for key in list(self.methods.keys()):
-			try:
-				exec("global m;m = %s()" % (key,))
-				self.methods[key] = m
-			except Exception as e:
-				print("[readImageIdentifier][readfile] failed to exec %s" % (key,))
-
-	def getBoxType(self):
-		return self.methods["getBoxType"]
-
-	def getImageDistro(self):
-		return self.methods["getImageDistro"]
-
-	def getImageVersion(self):
-		return self.methods["getImageVersion"]
-
-	def getImageBuild(self):
-		return self.methods["getImageBuild"]
-
-	def getImageDevBuild(self):
-		return self.methods["getImageDevBuild"]
-
-	def getImageType(self):
-		return self.methods["getImageType"]
-
-	def getMachineBrand(self):
-		return self.methods["getMachineBrand"]
-
-	def getImageBuildDate(self):
-		return self.methods["getImageBuildDate"]
