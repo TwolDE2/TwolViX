@@ -29,23 +29,24 @@ def getMultibootslots():
 	BoxInfo = SystemInfo["BoxInfo"]
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
-	for device in ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/block/by-name/bootoptions", "/dev/mtdblock2"):
+	for device in ("/dev/block/by-name/bootoptions", "/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2"):
+#		print("[multiboot*****][getMultibootslots]00 device, bootslots", device, "   ", bootslots)		
 		if bootslots:
-			continue
-		print("[multiboot*****] [getMultibootslots0] device = %s" % (device))			 
+			break
+#		print("[multiboot*****][getMultibootslots]0 device = ", device)			 
 		if path.exists(device):
 			Console(binary=True).ePopen("mount %s %s" % (device, tmpname))
 			if path.isfile(path.join(tmpname, "STARTUP")):
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
-				print("[Multiboot] [getMBbootdevices] Bootdevice found: %s" % device2)				
+				print("[Multiboot][[getMultibootslots]1 Bootdevice found: %s" % device2)				
 				BoxInfo.setItem("mtdbootfs", device2)
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
-#					print("[multiboot*****] [getMultibootslots0] tmpname = %s" % (tmpname))
+					print("[multiboot*****] [getMultibootslots]2 tmpname = %s" % (tmpname))
 					if "STARTUP_RECOVERY" in file:
 						SystemInfo["RecoveryMode"] = True
-#						print("[multiboot] [getMultibootslots] RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
-#					print("[multiboot] [getMultibootslots0] file = %s" % (file))
+#						print("[multiboot] [getMultibootslots]3 RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
+#					print("[multiboot] [getMultibootslots]4 file = ", file)
 					slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 					slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[0]
 					slotname = file.rsplit("/", 1)[1]
@@ -55,7 +56,7 @@ def getMultibootslots():
 					if slotnumber.isdigit() and slotnumber not in bootslots:
 						slot = {}
 						for line in open(file).readlines():
-#							print("Multiboot getMultibootslots readlines = %s " % line)
+#							print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 							if "root=" in line:
 								line = line.rstrip("\n")
 								root = getparam(line, "root")
@@ -65,11 +66,14 @@ def getMultibootslots():
 									slot["slotname"] = slotname
 									if "rootsubdir" in line:
 										SystemInfo["HasRootSubdir"] = True
+										slot["rootsubdir"] = getparam(line, "rootsubdir")
+#										print("[multiboot] [getMultibootslots]7 HasRootSubdir is set to:%s line=%s" % (SystemInfo["HasRootSubdir"], line))																				
 										if "ubi.mtd=" in line:
 											SystemInfo["HasMultibootMTD"] = True
-#										print("[multiboot] [getMultibootslots] HasRootSubdir is set to:%s" % SystemInfo["HasRootSubdir"])
-										slot["rootsubdir"] = getparam(line, "rootsubdir")
-										slot["kernel"] = getparam(line, "kernel")
+											slot["kernel"] = "/dev/mtd%s" % line.split("mtd", 1)[1].split(" ", 1)[0]
+											print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"])
+										else:
+											slot["kernel"] = getparam(line, "kernel")
 									elif "sda" in line:
 										slot["kernel"] = getparam(line, "kernel")	# sf8008 SD card slot pairs same as oldstyle MB
 										slot["rootsubdir"] = None
@@ -78,7 +82,7 @@ def getMultibootslots():
 								break
 						if slot:
 							bootslots[int(slotnumber)] = slot
-#			print("[multiboot] [getMultibootslots] Finished bootslots = %s" % bootslots)
+			print("[multiboot][getMultibootslots]8 Finished bootslots = %s" % bootslots)
 			Console(binary=True).ePopen("umount %s" % tmpname)
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
@@ -121,7 +125,7 @@ def GetImagelist():
 	Imagelist = {}
 	tmp.dir = tempfile.mkdtemp(prefix="GetImagelist")
 	tmpname = tmp.dir
-	# print("[multiboot] [GetImagelist] tmpname = %s" % (tmpname))	
+#	print("[multiboot] [GetImagelist] tmpname = %s" % (tmpname))	
 	for slot in sorted(list(SystemInfo["canMultiBoot"].keys())):
 		BuildVersion = "  "
 		Build = " "  # ViX Build No.
@@ -132,12 +136,12 @@ def GetImagelist():
 		Imagelist[slot] = {"imagename": _("Empty slot")}
 		imagedir = "/"	
 		if SystemInfo["MultiBootSlot"] != slot or SystemInfo["HasHiSi"]:
-			if slot == 'ubi0:ubifs':
+			if SystemInfo["HasMultibootMTD"]:
 				Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))				
 			else:
 				Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))		
 			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
-		# print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))			
+#		print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))			
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
 			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))		
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
