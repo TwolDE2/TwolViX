@@ -31,7 +31,7 @@ def getMultibootslots():
 	tmpname = tmp.dir
 	for device in ("/dev/block/by-name/bootoptions", "/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2"):
 #		print("[multiboot*****][getMultibootslots]00 device, bootslots", device, "   ", bootslots)		
-		if bootslots:
+		if len(bootslots) != 0:
 			break
 #		print("[multiboot*****][getMultibootslots]0 device = ", device)			 
 		if path.exists(device):
@@ -60,7 +60,7 @@ def getMultibootslots():
 							if "root=" in line:
 								line = line.rstrip("\n")
 								root = getparam(line, "root")
-								if path.exists(root) or device == "ubi0:ubifs":
+								if path.exists(root) or root == "ubi0:ubifs":
 									slot["root"] = root
 									slot["startupfile"] = path.basename(file)
 									slot["slotname"] = slotname
