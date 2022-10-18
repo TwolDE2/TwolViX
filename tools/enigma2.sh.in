@@ -361,7 +361,7 @@ case $ret in
 		fi
 		[[ -e /etc/enigma2/.deep ]] && rm /etc/enigma2/.deep
 		/sbin/reboot
-		;;
+		;;		
 	42)
 		python @prefix@/lib/enigma2/python/upgrade.pyc
 		;;
