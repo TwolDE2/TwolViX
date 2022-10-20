@@ -20,7 +20,11 @@ def getMountType():
 		return "-t ubifs"
 
 def getparam(line, param):
-	return line.replace("userdataroot", "rootuserdata").rsplit("%s=" % param, 1)[1].split(" ", 1)[0]
+	return line.replace("userdataroot", "rootuserdata").rsplit("%s=" % param, 1)[1].split(" ", 1)[0]	# avoid root= picking up userdataroot
+
+
+def getparam2(line, param):
+	return line.rsplit("%s=" % param, 1)[1].split(" ", 1)[0]											# sfx6008 provide userdataroot	
 
 
 def getMultibootslots():
@@ -64,16 +68,14 @@ def getMultibootslots():
 									slot["root"] = root
 									slot["startupfile"] = path.basename(file)
 									slot["slotname"] = slotname
+									slot["kernel"] = getparam(line, "kernel")									
 									if "rootsubdir" in line:
 										SystemInfo["HasRootSubdir"] = True
 										slot["rootsubdir"] = getparam(line, "rootsubdir")
-#										print("[multiboot] [getMultibootslots]7 HasRootSubdir is set to:%s line=%s" % (SystemInfo["HasRootSubdir"], line))
 										if "ubi.mtd=" in line:
 											SystemInfo["HasMultibootMTD"] = True
-											slot["kernel"] = "/dev/mtd%s" % line.split("mtd", 1)[1].split(" ", 1)[0]
-											print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"])
-										else:
-											slot["kernel"] = getparam(line, "kernel")
+											slot["mtd"] = mtd = getparam2(line, "userdataroot")
+#											print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel, root, mtd", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"], "   ", slot["root"], "   ", slot["mtd"])
 									elif "sda" in line:
 										slot["kernel"] = getparam(line, "kernel")	# sf8008 SD card slot pairs same as oldstyle MB
 										slot["rootsubdir"] = None
@@ -321,6 +323,3 @@ class boxbranding_reader:  # Many thanks to Huevos for creating this reader - we
 		out.append("print(output)")
 		out.append("")
 		return "\n".join(out)
-
-
-
