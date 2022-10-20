@@ -173,7 +173,10 @@ public:
 		memset(data, 0, sizeof(data));
 		number = 0;
 	}
-	void eServiceReferenceBase(const char* string2);
+	void eServiceReferenceBase(const std::string &string);
+#ifdef SWIG
+	eServiceReference(const eServiceReference &ref);
+#endif
 	eServiceReference(const std::string &string);
 	eServiceReference(const char* string2);
 	std::string toString() const;
