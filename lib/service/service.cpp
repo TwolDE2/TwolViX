@@ -25,14 +25,14 @@ static std::string encode(const std::string s)
 	return res;
 }
 
-void eServiceReference::eServiceReferenceBase(const char* string2)
+void eServiceReference::eServiceReferenceBase(const std::string &string)
 {
-	const char *c = string2;
+	const char *c = string.c_str();
 	int pathl = 0;
 
 	number = 0;
 
-	if ((c != NULL) && (c[0] == '\0'))
+	if (string.empty())
 	{
 		type = idInvalid;
 		return;
@@ -55,7 +55,6 @@ void eServiceReference::eServiceReferenceBase(const char* string2)
 			}
 			else
 			{
-				std::string string(string2);			
 				path = string;
 				name = string;
 			}
@@ -117,15 +116,15 @@ void eServiceReference::eServiceReferenceBase(const char* string2)
 
 eServiceReference::eServiceReference(const std::string &string)
 {
-	const char* string2 = string.c_str();
 	/* eDebug("[eServiceReference][std]"); */
-	eServiceReferenceBase(string2);
+	eServiceReferenceBase(string);
 }
 
 eServiceReference::eServiceReference(const char* string2)
 {
+	std::string string(string2);
 	/* eDebug("[eServiceReference][char]"); */
-	eServiceReferenceBase(string2);
+	eServiceReferenceBase(string);
 }
 
 std::string eServiceReference::toString() const
