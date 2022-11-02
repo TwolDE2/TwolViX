@@ -46,7 +46,7 @@ def getMultibootslots():
 				print("[Multiboot][[getMultibootslots]1 Bootdevice found: %s" % device2)				
 				BoxInfo.setItem("mtdbootfs", device2)
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
-					print("[multiboot*****] [getMultibootslots]2 tmpname = %s" % (tmpname))
+#					print("[multiboot*****] [getMultibootslots]2 tmpname = %s" % (tmpname))
 					if "STARTUP_RECOVERY" in file:
 						SystemInfo["RecoveryMode"] = True
 #						print("[multiboot] [getMultibootslots]3 RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
@@ -84,10 +84,12 @@ def getMultibootslots():
 								break
 						if slot:
 							bootslots[int(slotnumber)] = slot
-			print("[multiboot][getMultibootslots]8 Finished bootslots = %s" % bootslots)
+#			print("[multiboot] [getMultibootslots] Finished bootslots = %s" % bootslots)
 			Console(binary=True).ePopen("umount %s" % tmpname)
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
+	if bootslots:	
+		print("[Multiboot] Bootslots found:", bootslots)
 	return bootslots
 
 
@@ -145,7 +147,7 @@ def GetImagelist():
 			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 #		print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))			
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
-			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))		
+#			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))		
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
 #				print("[multiboot] [BoxInfo] using BoxInfo")			
 				BoxInfo = BoxConfig(root=imagedir) if SystemInfo["MultiBootSlot"] != slot else SystemInfo["BoxInfo"]
@@ -168,7 +170,7 @@ def GetImagelist():
 					BuildType = reader.getImageType()
 					Build = reader.getImageBuild()
 					Creator = Creator.replace("-release", " rel")
-					# print("[multiboot] [GetImagelist]5 Slot = %s Creator = %s BuildType = %s Build = %s" % (slot, Creator, BuildType, Build))
+#					print("[multiboot] [GetImagelist]5 Slot = %s Creator = %s BuildType = %s Build = %s" % (slot, Creator, BuildType, Build))
 					Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ""
 					date = VerDate(imagedir)
 					BuildVersion = "%s %s %s %s %s" % (Creator, BuildType[0:3], Build, Dev, date)
