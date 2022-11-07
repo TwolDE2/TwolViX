@@ -61,8 +61,9 @@ def getMultibootslots():
 							if "kernel" not in slot.keys():
 								slot["kernel"] = "%sp%s" % (slot["root"].split("p")[0], int(slot["root"].split("p")[1]) - 1)	# oldstyle MB kernel = root-1								
 							print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel, root, SystemInfo['HasRootSubdir'] ", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"], "   ", slot["root"], "   ", SystemInfo["HasRootSubdir"])
-						if slot:
-							bootslots[int(slotnumber)] = slot
+						else:
+							continue
+						bootslots[int(slotnumber)] = slot
 #			print("[multiboot] [getMultibootslots] Finished bootslots = %s" % bootslots)
 			Console(binary=True).ePopen("umount %s" % tmpname)
 	if not path.ismount(tmp.dir):
