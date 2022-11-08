@@ -47,9 +47,9 @@ def getMultibootslots():
 #					print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 					if slotnumber.isdigit() and slotnumber not in bootslots:
 						line = open(file).read().replace("'", "").replace("ubi.mtd", "mtd")						
-						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
+#						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
-						print("[Multiboot][getMultibootslots]6a slot", slot)							
+#						print("[Multiboot][getMultibootslots]6a slot", slot)							
 						if path.exists(slot["root"]) or slot["root"] == "ubi0:ubifs":
 							slot["startupfile"] = path.basename(file)
 							slot["slotname"] = slotname
@@ -60,7 +60,7 @@ def getMultibootslots():
 								slot["rootsubdir"] = None																		# sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir 
 							if "kernel" not in slot.keys():
 								slot["kernel"] = "%sp%s" % (slot["root"].split("p")[0], int(slot["root"].split("p")[1]) - 1)	# oldstyle MB kernel = root-1								
-							print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel, root, SystemInfo['HasRootSubdir'] ", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"], "   ", slot["root"], "   ", SystemInfo["HasRootSubdir"])
+#							print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel, root, SystemInfo['HasRootSubdir'] ", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"], "   ", slot["root"], "   ", SystemInfo["HasRootSubdir"])
 						else:
 							continue
 						bootslots[int(slotnumber)] = slot
@@ -69,7 +69,7 @@ def getMultibootslots():
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	if bootslots:
-		print("[Multiboot] Bootslots found:", bootslots)
+#		print("[Multiboot] Bootslots found:", bootslots)
 		if SystemInfo["HasRootSubdir"]:
 			slot = [x[-1] for x in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read().split() if x.startswith("rootsubdir")]
 			SystemInfo["MultiBootSlot"] = int(slot[0])
