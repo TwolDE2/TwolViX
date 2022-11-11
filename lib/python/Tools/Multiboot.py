@@ -46,10 +46,10 @@ def getMultibootslots():
 					slotname = ""	# nullify for current moment
 #					print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 					if slotnumber.isdigit() and slotnumber not in bootslots:
-						line = open(file).read().replace("'", "").replace("ubi.mtd", "mtd")						
-#						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
+						line = open(file).read().replace("'", "").replace('"', "").replace("\n", " ").replace("ubi.mtd", "mtd").replace("bootargs=", "")						
+						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
-#						print("[Multiboot][getMultibootslots]6a slot", slot)							
+						print("[Multiboot][getMultibootslots]6a slot", slot)							
 						if path.exists(slot["root"]) or slot["root"] == "ubi0:ubifs":
 							slot["startupfile"] = path.basename(file)
 							slot["slotname"] = slotname
