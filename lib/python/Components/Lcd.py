@@ -118,9 +118,6 @@ class LCD:
 
 	def setFlipped(self, value):
 		eDBoxLCD.getInstance().setFlipped(value)
-		
-	def setScreenShot(self, value):
- 		eDBoxLCD.getInstance().setDump(value)
 
 	def isOled(self):
 		return eDBoxLCD.getInstance().isOled()
@@ -192,7 +189,7 @@ def InitLcd():
 		detected = True
 	else:
 		detected = eDBoxLCD.getInstance().detected()
-		print("[Lcd.py] %s Display is set to %s" % (getBoxType(), detected))
+
 	if SystemInfo["7segment"]:
 		detected = True
 
