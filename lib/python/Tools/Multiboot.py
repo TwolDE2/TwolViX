@@ -31,7 +31,7 @@ def getMultibootslots():
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
 				print("[Multiboot][[getMultibootslots]1 Bootdevice found: %s" % device2)
-				BoxInfo.setItem("mtdbootfs", device2)
+				BoxInfo.setItem("mtdbootfs", device2, forceOverride=True)				
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
 #					print("[multiboot*****] [getMultibootslots]2 tmpname = %s" % (tmpname))
 					if "STARTUP_RECOVERY" in file:
