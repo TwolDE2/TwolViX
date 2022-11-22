@@ -43,25 +43,25 @@ eConsolePy_appClosed(eConsolePy *self, void *closure)
 
 static PyGetSetDef eConsolePy_getseters[] = {
 	{(char*)"dataAvail",
-	 (getter)eConsolePy_dataAvail, (setter)0,
-	 (char*)"dataAvail callback list",
-	 NULL},
+	(getter)eConsolePy_dataAvail, (setter)0,
+	(char*)"dataAvail callback list",
+	NULL},
 	{(char*)"stdoutAvail",
-	 (getter)eConsolePy_stdoutAvail, (setter)0,
-	 (char*)"stdoutAvail callback list",
-	 NULL},
+	(getter)eConsolePy_stdoutAvail, (setter)0,
+	(char*)"stdoutAvail callback list",
+	NULL},
 	{(char*)"stderrAvail",
-	 (getter)eConsolePy_stderrAvail, (setter)0,
-	 (char*)"stderrAvail callback list",
-	 NULL},
+	(getter)eConsolePy_stderrAvail, (setter)0,
+	(char*)"stderrAvail callback list",
+	NULL},
 	{(char*)"dataSent",
-	 (getter)eConsolePy_dataSent, (setter)0,
-	 (char*)"dataSent callback list",
-	 NULL},
+	(getter)eConsolePy_dataSent, (setter)0,
+	(char*)"dataSent callback list",
+	NULL},
 	{(char*)"appClosed",
-	 (getter)eConsolePy_appClosed, (setter)0,
-	 (char*)"appClosed callback list",
-	 NULL},
+	(getter)eConsolePy_appClosed, (setter)0,
+	(char*)"appClosed callback list",
+	NULL},
 	{} /* Sentinel */
 };
 
@@ -188,8 +188,6 @@ eConsolePy_write(eConsolePy* self, PyObject *args)
 {
 	char *data;
 	int len = -1;
-
-#if PY_VERSION_HEX >= 0x030a0000
 	if (!PyArg_ParseTuple(args, "s|i", &data, &len))
 	{
 		PyErr_SetString(PyExc_TypeError,
@@ -197,15 +195,6 @@ eConsolePy_write(eConsolePy* self, PyObject *args)
 		return NULL;
 	}
 	int data_len = strlen(data);
-#else
-	int data_len;
-	if (!PyArg_ParseTuple(args, "s#|i", &data, &data_len, &len))
-	{
-		PyErr_SetString(PyExc_TypeError,
-			"1st arg must be a string, optionaly 2nd arg can be the string length");
-		return NULL;
-	}
-#endif
 	if (len < 0)
 		len = data_len;	
 	self->cont->write(data, len);
@@ -310,37 +299,37 @@ eConsolePy_readFromFile(eConsolePy* self, PyObject *args)
 
 static PyMethodDef eConsolePy_methods[] = {
 	{(char*)"setCWD", (PyCFunction)eConsolePy_setCWD, METH_VARARGS,
-	 (char*)"set working dir"
+	(char*)"set working dir"
 	},
 	{(char*)"setBufferSize", (PyCFunction)eConsolePy_setBufferSize, METH_VARARGS,
-	 (char*)"set transfer buffer size"
+	(char*)"set transfer buffer size"
 	},
 	{(char*)"execute", (PyCFunction)eConsolePy_execute, METH_VARARGS,
-	 (char*)"execute command"
+	(char*)"execute command"
 	},
 	{(char*)"dumpToFile", (PyCFunction)eConsolePy_dumpToFile, METH_VARARGS,
-	 (char*)"set output file"
+	(char*)"set output file"
 	},
 	{(char*)"readFromFile", (PyCFunction)eConsolePy_readFromFile, METH_VARARGS,
-	 (char*)"set input file"
+	(char*)"set input file"
 	},
 	{(char*)"getPID", (PyCFunction)eConsolePy_getPID, METH_NOARGS,
-	 (char*)"execute command"
+	(char*)"execute command"
 	},
 	{(char*)"kill", (PyCFunction)eConsolePy_kill, METH_NOARGS,
-	 (char*)"kill application"
+	(char*)"kill application"
 	},
 	{(char*)"sendCtrlC", (PyCFunction)eConsolePy_sendCtrlC, METH_NOARGS,
-	 (char*)"send Ctrl-C to application"
+	(char*)"send Ctrl-C to application"
 	},
 	{(char*)"sendEOF", (PyCFunction)eConsolePy_sendEOF, METH_NOARGS,
-	 (char*)"send EOF to application"
+	(char*)"send EOF to application"
 	},
 	{(char*)"write", (PyCFunction)eConsolePy_write, METH_VARARGS,
-	 (char*)"write data to application"
+	(char*)"write data to application"
 	},
 	{(char*)"running", (PyCFunction)eConsolePy_running, METH_NOARGS,
-	 (char*)"returns the running state"
+	(char*)"returns the running state"
 	},
 	{}  /* Sentinel */
 };
@@ -364,16 +353,16 @@ static PyMethodDef console_module_methods[] = {
 	{}  /* Sentinel */
 };
 
-	static struct PyModuleDef eConsole_moduledef = {
+static struct PyModuleDef eConsole_moduledef = {
 	PyModuleDef_HEAD_INIT,
-	"eConsoleImpl",																			/* m_name */
+	"eConsoleImpl",																		/* m_name */
 	"Module that implements eConsoleAppContainer with working cyclic garbage collection.",	/* m_doc */
-	-1,																						/* m_size */
+	-1,																				/* m_size */
 	console_module_methods,																	/* m_methods */
-	NULL,																					/* m_reload */
-	NULL,																					/* m_traverse */
-	NULL,																					/* m_clear */
-	NULL,																					/* m_free */
+	NULL,																				/* m_reload */
+	NULL,																				/* m_traverse */
+	NULL,																				/* m_clear */
+	NULL,																				/* m_free */
 	};
 
 PyObject* PyInit_eConsoleImpl(void)

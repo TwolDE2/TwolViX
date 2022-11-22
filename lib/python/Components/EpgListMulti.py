@@ -95,7 +95,7 @@ class EPGListMulti(EPGListBase):
 			timer, matchType = self.session.nav.RecordTimer.isInTimer(service, beginTime, duration)
 			if timer:
 				clockSize = applySkinFactor(17)
-				width -= clockSize / 2 if matchType == 0 else clockSize
+				width -= clockSize // 2 if matchType == 0 else clockSize
 				timerIcon, autoTimerIcon = self.getPixmapsForTimer(timer, matchType)
 				res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, r5.left() + width, (r5.height() - clockSize) // 2, clockSize, clockSize, timerIcon))
 				if autoTimerIcon:
@@ -108,9 +108,6 @@ class EPGListMulti(EPGListBase):
 	def fillEPG(self, services, stime=None):
 		test = [(service.ref.toString(), 0, int(stime)) for service in services]
 		test.insert(0, 'XRIBDTCn0')
-#		print("[EpgListMulti] test1", test)
-#		print("[EpgListMulti] type(test)", type(test))
-#		print("[EpgListMulti] len(test)", len(test))		
 		self.list = self.queryEPG(test)
 		self.l.setList(self.list)
 		self.recalcEntrySize()
@@ -135,9 +132,6 @@ class EPGListMulti(EPGListBase):
 	def updateEPG(self, direction):
 		test = [x[2] and (x[0], direction, x[2]) or (x[0], direction, 0) for x in self.list]
 		test.insert(0, 'XRIBDTCn')
-#		print("[EpgListMulti] test2", test)
-#		print("[EpgListMulti] type(test)", type(test))
-#		print("[EpgListMulti] len(test)", len(test))		
 		epgData = self.queryEPG(test)
 		cnt = 0
 		for x in epgData:

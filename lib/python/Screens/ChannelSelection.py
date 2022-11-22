@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import six
-
 from os import listdir, path, rename, remove 
 import re
 from time import localtime, time, strftime
@@ -373,7 +371,7 @@ class ChannelContextMenu(Screen):
 		cur = self.csel.getCurrentSelection()
 		if cur and cur.valid():
 			name = eServiceCenter.getInstance().info(cur).getName(cur) or ServiceReference(cur).getServiceName() or ""
-			name = name.replace("\xc2\x86", "").replace("\xc2\x87", "")
+			name = name.replace('\xc2\x86', '').replace('\xc2\x87', '')
 			return name
 		return ""
 
@@ -841,9 +839,9 @@ class ChannelSelectionEPG(InfoBarButtonSetup, HelpableScreen):
 					# Next
 					cb_func1 = lambda ret: self.removeTimer(timer)
 					cb_func2 = lambda ret: self.editTimer(timer)
-					menu = [(_("Delete Timer"), "CALLFUNC", self.RemoveTimerDialogCB, cb_func1), (_("Edit Timer"), "CALLFUNC", self.RemoveTimerDialogCB, cb_func2)]
-					self.ChoiceBoxDialog = self.session.instantiateDialog(ChoiceBox, title=_("Select action for timer %s:") % eventname, list=menu, keys=["green", "blue"], skin_name="RecordTimerQuestion")
-					selx, sely = self.serviceList.getSelectionPosition()
+					menu = [(_("Delete Timer"), 'CALLFUNC', self.RemoveTimerDialogCB, cb_func1), (_("Edit Timer"), 'CALLFUNC', self.RemoveTimerDialogCB, cb_func2)]
+					self.ChoiceBoxDialog = self.session.instantiateDialog(ChoiceBox, title=_("Select action for timer %s:") % eventname, list=menu, keys=['green', 'blue'], skin_name="RecordTimerQuestion")
+					selx, sely = self.servicelist.getSelectionPosition()
 					self.ChoiceBoxDialog.instance.move(ePoint(selx - self.ChoiceBoxDialog.instance.size().width(), self.instance.position().y() + sely))
 				self.showChoiceBoxDialog()
 				break
@@ -963,7 +961,7 @@ class ChannelSelectionEdit:
 		mutableBouquet = cur_root.list().startEdit()
 		if mutableBouquet:
 			servicename = cur_service.getServiceName()
-			name = unicodedata.normalize(u"NFKD", servicename).encode("ascii", "ignore").decode('utf8').translate(str.maketrans('', '', '<>:"/\\|?*() '))
+			name = sanitizeFilename(servicename)
 			while os.path.isfile((self.mode == MODE_TV and '/etc/enigma2/alternatives.%s.tv' or '/etc/enigma2/alternatives.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
@@ -1831,12 +1829,12 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 						self.numberSelectionActions(number)
 				else:
 					unichar = self.numericalTextInput.getKey(number)
-					charstr = six.ensure_str(unichar)
+					charstr = str(unichar)
 					if len(charstr) == 1:
 						self.servicelist.moveToChar(charstr[0])
 		else:
 			unichar = self.numericalTextInput.getKey(number)
-			charstr = six.ensure_str(unichar)
+			charstr = str(unichar)
 			if len(charstr) == 1:
 				self.servicelist.moveToChar(charstr[0])
 
@@ -1859,8 +1857,8 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 		self.selectionNumber = ""
 
 	def keyAsciiCode(self):
-		unichar = unichr(getPrevAsciiCode())
-		charstr = six.ensure_str(unichar)
+		unichar = chr(getPrevAsciiCode())
+		charstr = str(unichar)
 		if len(charstr) == 1:
 			self.servicelist.moveToChar(charstr[0])
 
@@ -1999,6 +1997,8 @@ config.servicelist.startupmode = ConfigText(default="tv")
 
 class ChannelSelection(ChannelSelectionEdit, ChannelSelectionBase, ChannelSelectionEPG, SelectionEventInfo):
 	instance = None
+
+	ALLOW_SUSPEND = True
 
 	def __init__(self, session):
 		ChannelSelectionBase.__init__(self, session)

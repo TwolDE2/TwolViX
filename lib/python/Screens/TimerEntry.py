@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from os import statvfs
 from time import localtime, time, strftime
 
 from enigma import eEPGCache

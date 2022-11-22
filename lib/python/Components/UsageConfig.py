@@ -13,7 +13,7 @@ from Components.NimManager import nimmanager
 from Components.ServiceList import refreshServiceList
 from Components.SystemInfo import SystemInfo
 from Tools.camcontrol import CamControl
-from Tools.Directories import resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation, fileHas
+from Tools.Directories import resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation
 from Tools.HardwareInfo import HardwareInfo
 
 # A raw writer for config changes to be read by the logger without
@@ -29,31 +29,12 @@ visuallyImpairedCommentary = "NAR qad"
 
 def InitUsageConfig():
 	config.version = ConfigNumber(default=0)
-	config.misc.useNTPminutes = ConfigSelection(default="30", choices=[("30", "30" + " " + _("minutes")), ("60", _("Hour")), ("1440", _("Once per day"))])
 	if getBrandOEM() in ('vuplus', 'ini'):
 		config.misc.remotecontrol_text_support = ConfigYesNo(default=True)
 	else:
 		config.misc.remotecontrol_text_support = ConfigYesNo(default=False)
 
 	config.usage = ConfigSubsection()
-	if fileHas("/etc/network/interfaces", "iface eth0 inet static") and not fileHas("/etc/network/interfaces", "iface wlan0 inet dhcp") or fileHas("/etc/network/interfaces", "iface wlan0 inet static") and fileHas("/run/ifstate", "wlan0=wlan0"):
-		config.usage.dns = ConfigSelection(default="custom", choices=[
-			("custom", _("Static IP or Custom")),
-			("google", _("Google DNS")),
-			("cloudflare", _("Cloudflare")),
-			("opendns-familyshield", _("OpenDNS FamilyShield")),
-			("opendns-home", _("OpenDNS Home"))
-		])
-	else:
-		config.usage.dns = ConfigSelection(default="dhcp-router", choices=[
-			("dhcp-router", _("DHCP Router")),
-			("custom", _("Static IP or Custom")),
-			("google", _("Google DNS")),
-			("cloudflare", _("Cloudflare")),
-			("opendns-familyshield", _("OpenDNS FamilyShield")),
-			("opendns-home", _("OpenDNS Home"))
-		])
-
 	config.usage.subnetwork = ConfigYesNo(default=True)
 	config.usage.subnetwork_cable = ConfigYesNo(default=True)
 	config.usage.subnetwork_terrestrial = ConfigYesNo(default=True)
@@ -134,6 +115,7 @@ def InitUsageConfig():
 
 	config.usage.show_picon_bkgrn = ConfigSelection(default="transparent", choices=[("none", _("Disabled")), ("transparent", _("Transparent")), ("blue", _("Blue")), ("red", _("Red")), ("black", _("Black")), ("white", _("White")), ("lightgrey", _("Light Grey")), ("grey", _("Grey"))])
 	config.usage.show_genre_info = ConfigYesNo(default=False)
+	config.usage.menu_style = ConfigSelection(default="standard", choices=[("standard", _("Standard")), ("horizontal", _("Horizontal"))])
 	config.usage.menu_sort_weight = ConfigDictionarySet(default={"mainmenu": {"submenu": {}}})
 	config.usage.menu_sort_mode = ConfigSelection(default="default", choices=[("a_z", _("alphabetical")), ("default", _("Default")), ("user", _("user defined")), ("user_hidden", _("user defined hidden"))])
 	config.usage.menu_show_numbers = ConfigYesNo(default=False)
@@ -232,6 +214,7 @@ def InitUsageConfig():
 			config.usage.timeshift_path.value = savedValue
 	config.usage.timeshift_path.save()
 	config.usage.allowed_timeshift_paths = ConfigLocations(default=[resolveFilename(SCOPE_TIMESHIFT)])
+	config.usage.timeshift_skipreturntolive = ConfigYesNo(default=False)
 
 	config.usage.trashsort_deltime = ConfigSelection(default="no", choices=[
 		("no", _("no")),
@@ -255,7 +238,7 @@ def InitUsageConfig():
 	config.usage.next_movie_msg = ConfigYesNo(default=True)
 	config.usage.last_movie_played = ConfigText()
 	config.usage.leave_movieplayer_onExit = ConfigSelection(default="no", choices=[
-		("no", _("No")), ("popup", _("With popup")), ("without popup", _("Without popup"))])
+		("no", _("No")), ("popup", _("With popup")), ("without popup", _("Without popup")), ("stop", _("Behave like stop-button"))])
 
 	config.usage.setup_level = ConfigSelection(default="expert", choices=[
 		("simple", _("Simple")),
@@ -272,7 +255,7 @@ def InitUsageConfig():
 		("shutdown", _("Immediate shutdown")),
 		("standby", _("Standby"))])
 
-	choicelist = [("0", "Disabled")]
+	choicelist = [("0", _("Disabled"))]
 	for i in (5, 30, 60, 300, 600, 900, 1200, 1800, 2700, 3600):
 		if i < 60:
 			m = ngettext("%d second", "%d seconds", i) % i
@@ -797,13 +780,13 @@ def InitUsageConfig():
 	config.epg.cacheloadtimer = ConfigSelectionNumber(default=24, stepwidth=1, min=1, max=24, wraparound=True)
 	config.epg.cachesavetimer = ConfigSelectionNumber(default=24, stepwidth=1, min=1, max=24, wraparound=True)
 
-	hddchoises = [("/etc/enigma2/", "Internal Flash")]
+	hddchoices = [("/etc/enigma2/", "Internal Flash")]
 	for p in harddiskmanager.getMountedPartitions():
 		if path.exists(p.mountpoint):
 			d = path.normpath(p.mountpoint)
 			if p.mountpoint != "/":
-				hddchoises.append((p.mountpoint, d))
-	config.misc.epgcachepath = ConfigSelection(default='/etc/enigma2/', choices=hddchoises)
+				hddchoices.append((p.mountpoint, d))
+	config.misc.epgcachepath = ConfigSelection(default='/etc/enigma2/', choices=hddchoices)
 	config.misc.epgcachefilename = ConfigText(default='epg', fixed_size=False)
 	config.misc.epgcache_filename = ConfigText(default=(config.misc.epgcachepath.value + config.misc.epgcachefilename.value.replace('.dat', '') + '.dat'))
 
@@ -861,7 +844,7 @@ def InitUsageConfig():
 	config.softwareupdate.showinextensions = ConfigSelection(default="no", choices=[("no", _("no")), ("yes", _("yes")), ("available", _("only when available"))])
 
 	config.timeshift = ConfigSubsection()
-	choicelist = [("0", "Disabled")]
+	choicelist = [("0", _("Disabled"))]
 	for i in (2, 3, 4, 5, 10, 20, 30):
 		choicelist.append(("%d" % i, ngettext("%d second", "%d seconds", i) % i))
 	for i in (60, 120, 300):
@@ -882,6 +865,7 @@ def InitUsageConfig():
 	config.seek.selfdefined_46 = ConfigSelectionNumber(min=1, max=240, stepwidth=1, default=60, wraparound=True)
 	config.seek.selfdefined_79 = ConfigSelectionNumber(min=1, max=480, stepwidth=1, default=300, wraparound=True)
 
+	config.seek.vod_buttons = ConfigYesNo(default = True)
 	config.seek.speeds_forward = ConfigSet(default=[2, 4, 8, 16, 32, 64, 128], choices=[2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128])
 	config.seek.speeds_backward = ConfigSet(default=[2, 4, 8, 16, 32, 64, 128], choices=[1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128])
 	config.seek.speeds_slowmotion = ConfigSet(default=[2, 4, 8], choices=[2, 4, 6, 8, 12, 16, 25])
@@ -951,23 +935,6 @@ def InitUsageConfig():
 		updateChoices(config.seek.enter_backward, configElement.value)
 
 	config.seek.speeds_backward.addNotifier(updateEnterBackward, immediate_feedback=False)
-
-	def updateEraseSpeed(el):
-		eBackgroundFileEraser.getInstance().setEraseSpeed(int(el.value))
-
-	def updateEraseFlags(el):
-		eBackgroundFileEraser.getInstance().setEraseFlags(int(el.value))
-	config.misc.erase_speed = ConfigSelection(default="20", choices=[
-		("10", _("10 MB/s")),
-		("20", _("20 MB/s")),
-		("50", _("50 MB/s")),
-		("100", _("100 MB/s"))])
-	config.misc.erase_speed.addNotifier(updateEraseSpeed, immediate_feedback=False)
-	config.misc.erase_flags = ConfigSelection(default="1", choices=[
-		("0", _("Disable")),
-		("1", _("Internal hdd only")),
-		("3", _("Everywhere"))])
-	config.misc.erase_flags.addNotifier(updateEraseFlags, immediate_feedback=False)
 
 	config.misc.zapkey_delay = ConfigSelectionNumber(default=5, stepwidth=1, min=0, max=20, wraparound=True)
 	config.misc.numzap_picon = ConfigYesNo(default=False)
@@ -1209,7 +1176,7 @@ def InitUsageConfig():
 		"textview": _("Text View On"),
 		},
 		default="imageview")
-	config.hdmicec.fixed_physical_address = ConfigText(default="1.0.0.0")		
+	config.hdmicec.fixed_physical_address = ConfigText(default="0.0.0.0")		
 	config.hdmicec.volume_forwarding = ConfigYesNo(default=False)
 	config.hdmicec.force_volume_forwarding = ConfigYesNo(default=False)	
 	config.hdmicec.control_receiver_wakeup = ConfigYesNo(default=False)

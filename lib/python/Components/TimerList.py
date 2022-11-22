@@ -14,7 +14,7 @@ from Tools.LoadPixmap import LoadPixmap
 from Tools.TextBoundary import getTextBoundarySize
 
 
-class TimerList(GUIComponent, object):
+class TimerList(GUIComponent):
 #
 #  | <Name of the Timer>     <Service>  <orb.pos>|
 #  | <state>  <start, end>  |
@@ -88,7 +88,9 @@ class TimerList(GUIComponent, object):
 		if not processed:
 			if timer.state == TimerEntry.StateWaiting:
 				state = _("waiting")
-				if timer.isAutoTimer:
+				if self.iconIceTVTimer and hasattr(timer, "ice_timer_id") and timer.ice_timer_id:
+					icon = self.iconIceTVTimer
+				elif timer.isAutoTimer:
 					icon = self.iconAutoTimer
 				else:
 					icon = self.iconWait
@@ -156,6 +158,11 @@ class TimerList(GUIComponent, object):
 		self.iconDisabled = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/timer_off.png"))
 		self.iconFailed = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/timer_failed.png"))
 		self.iconAutoTimer = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/timer_autotimer.png"))
+		try:
+			from Plugins.SystemPlugins.IceTV import loadIceTVIcon
+			self.iconIceTVTimer = loadIceTVIcon("timer_icetv.png")
+		except ImportError:
+			self.iconIceTVTimer = None
 
 	def applySkin(self, desktop, parent):
 		def itemHeight(value):

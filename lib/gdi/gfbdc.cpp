@@ -33,6 +33,7 @@ extern void  dinibot_accel_notify(void);
 gFBDC::gFBDC()
 {
 	fb=new fbClass;
+
 	if (!fb->Available())
 		eFatal("[gFBDC] no framebuffer available");
 
@@ -256,8 +257,10 @@ void gFBDC::setResolution(int xres, int yres, int bpp)
 	#endif
 		)
 		return;
+
 	if (gAccel::getInstance())
 		gAccel::getInstance()->releaseAccelMemorySpace();
+
 	fb->SetMode(xres, yres, bpp);
 
 	surface.x = xres;
@@ -287,10 +290,9 @@ void gFBDC::setResolution(int xres, int yres, int bpp)
 		surface_back.data_phys = 0;
 	}
 
-	eDebug("[gFBDC] resolution: %d x %d x %d (stride: %d) pages: %d", surface.x, surface.y, surface.bpp, fb->Stride(), fb->getNumPages());
+	eDebug("[gFBDC] resolution: %dx%dx%d stride=%d, %dkB available for acceleration surfaces.",
+		 surface.x, surface.y, surface.bpp, fb->Stride(), (fb->Available() - fb_size)/1024);
 
-	/* accel is already set in fb.cpp */
-	eDebug("[gFBDC] %dkB available for acceleration surfaces.", (fb->Available() - fb_size)/1024);
 	if (gAccel::getInstance())
 		gAccel::getInstance()->setAccelMemorySpace(fb->lfb + fb_size, surface.data_phys + fb_size, fb->Available() - fb_size);
 

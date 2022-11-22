@@ -1,5 +1,5 @@
 from os import access, R_OK
-
+import traceback
 from enigma import getDesktop
 from boxbranding import getBoxType
 from Components.ActionMap import ActionMap
@@ -26,6 +26,12 @@ def setPositionParameter(parameter, configElement):
 	if fileExists(getFilePath("apply")):
 		f = open(getFilePath("apply"), "w")
 		f.write('1')
+		f.close()
+	# This is a horrible hack to work around a problem with Vu+ not updating the background properly
+	# when changing height. Previously the background only updated after changing the width fields.
+	elif parameter != "width" and fileExists(getFilePath("width")):
+		f = open(getFilePath("width"), "w")
+		f.write('%08X\n' % config.osd.dst_width.value)
 		f.close()
 
 
@@ -105,7 +111,7 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.setTitle(_("OSD position"))
-		self.Console = Console()
+		self.ConsoleB = Console(binary=True)
 		self["status"] = StaticText()
 		self["key_yellow"] = StaticText(_("Defaults"))
 
@@ -113,7 +119,7 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 			{
 				"yellow": self.keyDefault,
 			}, -2)
-
+		self.alpha = config.osd.alpha.value
 		self.onChangedEntry = []
 		self.list = []
 		ConfigListScreen.__init__(self, self.list, session=self.session, on_change=self.changedEntry, fullUI=True)
@@ -127,6 +133,8 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 		self["config"].list = self.list
 
 		self.serviceRef = None
+		if "wizard" not in str(traceback.extract_stack()).lower():
+			self.onClose.append(self.__onClose)
 		if self.welcomeWarning not in self.onShow:
 			self.onShow.append(self.welcomeWarning)
 		if self.selectionChanged not in self["config"].onSelectionChanged:
@@ -152,7 +160,8 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 			self.session.nav.stopService()
 			if self.restoreService not in self.onClose:
 				self.onClose.append(self.restoreService)
-			self.Console.ePopen('/usr/bin/showiframe /usr/share/enigma2/hd-testcard.mvi')
+			self.ConsoleB.ePopen('/usr/bin/showiframe /usr/share/enigma2/hd-testcard.mvi')
+#			config.osd.alpha.setValue(155)
 		else:
 			self.close()
 
@@ -201,9 +210,14 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 			self["config"].invalidate(item)
 		print('[UserInterfacePositioner] Setting OSD position: %s %s %s %s' % (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value))
 
+	def __onClose(self):
+#		config.osd.alpha.setValue(self.alpha)	
+		self.ConsoleB.ePopen('/usr/bin/showiframe /usr/share/backdrop.mvi')
+
 # This is called by the Wizard...
 
 	def run(self):
+#		config.osd.alpha.setValue(self.alpha)	
 		config.osd.dst_left.save()
 		config.osd.dst_width.save()
 		config.osd.dst_top.save()

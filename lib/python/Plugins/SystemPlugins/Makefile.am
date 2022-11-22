@@ -3,6 +3,7 @@ installdir = $(pkglibdir)/python/Plugins/SystemPlugins
 SUBDIRS = PositionerSetup Satfinder \
 	VideoTune Hotplug OpentvZapper \
 	DefaultServicesScanner CommonInterfaceAssignment \
+	ForceFbcLNBpower \
 	VideoClippingSetup \
 	VideoEnhancement WirelessLan NetworkWizard \
 	SABnzbdSetup FastScan SatelliteEquipmentControl DiseqcTester

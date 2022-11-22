@@ -1,8 +1,6 @@
 #
 # Generic Screen to select a path/filename combination
 #
-import six
-
 # GUI (Screens)
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
@@ -31,7 +29,8 @@ from Components.MenuList import MenuList
 # Timer
 from enigma import eTimer
 
-defaultInhibitDirs = ["/bin", "/boot", "/dev", "/etc", "/lib", "/proc", "/sbin", "/sys", "/var"]
+DEFAULT_INHIBIT_DIRECTORIES = ("/bin", "/boot", "/dev", "/etc", "/lib", "/proc", "/sbin", "/sys", "/var", "/picon", "/piconlcd", "/run", "/sbin", "/share", "/sys", "/tmp", "/usr", "/home")
+defaultInhibitDirs =  list(DEFAULT_INHIBIT_DIRECTORIES)
 
 
 class LocationBox(Screen, NumericalTextInput, HelpableScreen):
@@ -453,7 +452,7 @@ class LocationBox(Screen, NumericalTextInput, HelpableScreen):
 
 		# Get char and append to text
 		char = self.getKey(number)
-		self.quickselect = self.quickselect[:self.curr_pos] + six.text_type(char)
+		self.quickselect = self.quickselect[:self.curr_pos] + str(char)
 
 		# Start Timeout
 		self.qs_timer_type = 0

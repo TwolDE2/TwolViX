@@ -189,7 +189,9 @@ int eDVBSatelliteEquipmentControl::canTune(const eDVBFrontendParametersSatellite
 					}
 					else
 					{
-						ret -= abs(rotor_orbital_position - sat.orbital_position) + 10;
+						// set low priory
+						ret = 10000 - lnb_param.m_satellites.size();
+						satcount = old_satcount + 1;
 					}
 					eSecDebugNoSimulate("[eDVBSatelliteEquipmentControl] ret1 %d", ret);
 				}
@@ -394,7 +396,8 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 				}
 				if (satposDependPtr != -1)  // we dont need uncommitted switch and rotor cmds on second output of a rotor lnb
 					diseqc_mode = eDVBSatelliteDiseqcParameters::V1_0;
-				else {
+				else if (!((eDVBFrontend*)&frontend)->is_FBCTuner()) 
+				{
 					// in eDVBFrontend::tuneLoop we call closeFrontend and ->inc_use() in this this condition (to put the kernel frontend thread into idle state)
 					// so we must resend all diseqc stuff (voltage is disabled when the frontend is closed)
 					int state;
@@ -478,7 +481,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 						| ((band & 2) ? 0x800 : 0)			//VertHor
 						| ((lnb_param.LNBNum & 1) ? 0 : 0x1000)			//Umschaltung LNB1 LNB2
 						| (lnb_param.SatCR_idx << 13));		//Adresse des SatCR
-						// eDebug("[eDVBSatelliteEquipmentControl] [prepare] UnicableTuningWord %#04x, guard_offset %d",lnb_param.UnicableTuningWord ,lnb_param.guard_offset);
+/*						eDebug("[eDVBSatelliteEquipmentControl] [prepare] UnicableTuningWord %#04x, guard_offset %d",lnb_param.UnicableTuningWord ,lnb_param.guard_offset);  */
 				frontend.setData(eDVBFrontend::FREQ_OFFSET, (lnb_param.UnicableTuningWord & 0x3FF) *4000 + 1400000 + lof - (2 * (lnb_param.SatCRvco - (tmp1-tmp2))) );
 				voltage = VOLTAGE(13);
 			}

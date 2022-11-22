@@ -13,7 +13,7 @@ from Screens.Standby import QUIT_RESTART, TryQuitMainloop
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 
 
-class ConfigList(GUIComponent, object):
+class ConfigList(GUIComponent):
 	def __init__(self, list, session=None):
 		GUIComponent.__init__(self)
 		self.l = eListboxPythonConfigContent()
@@ -41,10 +41,10 @@ class ConfigList(GUIComponent, object):
 	def timeout(self):
 		self.handleKey(ACTIONKEY_TIMEOUT)
 
-	def handleKey(self, key):
+	def handleKey(self, key, callback=None):
 		selection = self.getCurrent()
 		if selection and selection[1].enabled:
-			selection[1].handleKey(key)
+			selection[1].handleKey(key, callback)
 			self.invalidateCurrent()
 			if key in ACTIONKEY_NUMBERS:
 				self.timer.start(1000, 1)
@@ -204,10 +204,18 @@ class ConfigListScreen:
 			"showVirtualKeyboard": (self.keyText, _("Display the virtual keyboard for data entry"))
 		}, prio=1, description=_("Common Setup Actions"))
 		self["virtualKeyBoardActions"].setEnabled(False)
+
+		# Temporary support for legacy code and plugins that hasn't yet been updated (next 4 lines).
+		self["config_actions"] = DummyActions()
+		self["config_actions"].setEnabled = self.dummyConfigActions
+		self["VirtualKB"] = DummyActions()
+		self["VirtualKB"].setEnabled = self.dummyVKBActions
+
 		self["config"] = ConfigList(list, session=session)
 		self.setCancelMessage(None)
 		self.setRestartMessage(None)
 		self.onChangedEntry = []
+		self.onSave = []
 		if self.noNativeKeys not in self.onLayoutFinish:
 			self.onLayoutFinish.append(self.noNativeKeys)
 		if self.handleInputHelpers not in self["config"].onSelectionChanged:
@@ -293,7 +301,7 @@ class ConfigListScreen:
 		elif isinstance(self.getCurrentItem(), ConfigText) and not isinstance(self.getCurrentItem(), ConfigNumber):
 			self.keyText()
 		else:
-			self["config"].handleKey(ACTIONKEY_SELECT)
+			self["config"].handleKey(ACTIONKEY_SELECT, self.entryChanged)
 
 	def keyOK(self):  # This is the deprecated version of keySelect!
 		self.keySelect()
@@ -335,20 +343,16 @@ class ConfigListScreen:
 		self["config"].moveUp()
 
 	def keyFirst(self):
-		self["config"].handleKey(ACTIONKEY_FIRST)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_FIRST, self.entryChanged)
 
 	def keyLeft(self):
-		self["config"].handleKey(ACTIONKEY_LEFT)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_LEFT, self.entryChanged)
 
 	def keyRight(self):
-		self["config"].handleKey(ACTIONKEY_RIGHT)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_RIGHT, self.entryChanged)
 
 	def keyLast(self):
-		self["config"].handleKey(ACTIONKEY_LAST)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_LAST, self.entryChanged)
 
 	def keyDown(self):
 		self["config"].moveDown()
@@ -360,30 +364,26 @@ class ConfigListScreen:
 		self["config"].moveBottom()
 
 	def keyBackspace(self):
-		self["config"].handleKey(ACTIONKEY_BACKSPACE)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_BACKSPACE, self.entryChanged)
 
 	def keyDelete(self):
-		self["config"].handleKey(ACTIONKEY_DELETE)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_DELETE, self.entryChanged)
 
 	def keyErase(self):
-		self["config"].handleKey(ACTIONKEY_ERASE)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_ERASE, self.entryChanged)
 
 	def keyToggle(self):
-		self["config"].handleKey(ACTIONKEY_TOGGLE)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_TOGGLE, self.entryChanged)
 
 	def keyGotAscii(self):
-		self["config"].handleKey(ACTIONKEY_ASCII)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_ASCII, self.entryChanged)
 
 	def keyNumberGlobal(self, number):
-		self["config"].handleKey(ACTIONKEY_0 + number)
-		self.entryChanged()
+		self["config"].handleKey(ACTIONKEY_0 + number, self.entryChanged)
 
 	def keySave(self):
+		for notifier in self.onSave:
+			notifier()
 		if self.saveAll():
 			self.session.openWithCallback(self.restartConfirm, MessageBox, self.restartMsg, default=True, type=MessageBox.TYPE_YESNO)
 		else:
@@ -403,6 +403,19 @@ class ConfigListScreen:
 				item[1].save()
 		configfile.save()
 		return restart
+
+	def addSaveNotifier(self, notifier):
+		if callable(notifier):
+			self.onSave.append(notifier)
+		else:
+			raise TypeError("[ConfigList] Error: Notifier must be callable!")
+
+	def removeSaveNotifier(self, notifier):
+		while notifier in self.onSave:
+			self.onSave.remove(notifier)
+
+	def clearSaveNotifiers(self):
+		self.onSave = []
 
 	def keyCancel(self):
 		self.closeConfigList(())
@@ -433,3 +446,27 @@ class ConfigListScreen:
 
 	def run(self):  # Allow ConfigList based screens to be processed from the Wizard.
 		self.keySave()
+
+	def dummyConfigActions(self, value):  # Temporary support for legacy code and plugins that hasn't yet been updated.
+		self["configActions"].setEnabled(value)
+		self["navigationActions"].setEnabled(value)
+		self["menuConfigActions"].setEnabled(value)
+		self["charConfigActions"].setEnabled(value)
+		self["editConfigActions"].setEnabled(value)
+
+	def dummyVKBActions(self, value):  # Temporary support for legacy code and plugins that hasn't yet been updated.
+		self["virtualKeyBoardActions"].setEnabled(value)
+
+
+class DummyActions:  # Temporary support for legacy code and plugins that hasn't yet been updated.
+	def setEnabled(self, enabled):
+		pass
+
+	def destroy(self):
+		pass
+
+	def execBegin(self):
+		pass
+
+	def execEnd(self):
+		pass

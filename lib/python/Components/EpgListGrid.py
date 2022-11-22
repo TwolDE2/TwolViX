@@ -439,8 +439,6 @@ class EPGListGrid(EPGListBase):
 						color=serviceForeColor, color_sel=serviceForeColor,
 						backcolor=serviceBackColor, backcolor_sel=serviceBackColor))
 				colX += channelWidth + 2 * self.serviceNumberPadding
-#				except:
-#					continue	
 
 			if titleItem == "servicename":
 				namefont = 0
@@ -530,9 +528,15 @@ class EPGListGrid(EPGListBase):
 				duration = ev[3]
 
 				xpos, ewidth = self.calcEventPosAndWidthHelper(stime, duration, start, end, width)
-				serviceTimers = self.filteredTimerList.get(':'.join(service.split(':')[:11]))
+				serviceref = "1" + service[4:] if service[:4] in config.recording.setstreamto1.value else service # converts 4097, 5001, 5002 to 1
+				serviceTimers = self.filteredTimerList.get(':'.join(serviceref.split(':')[:11]))
 				if serviceTimers is not None:
-					timer, matchType = RecordTimer.isInTimerOnService(serviceTimers, stime, duration)
+					# Code below: "+ (20 if config.recording.margin_before.value == 0 else 0)"
+					# When recording-start-margin is zero allow recordings that start up to 20 seconds
+					# after the program boundary to still produce matchType in (2, 3). This allows 
+					# correct display of "epg/RecordEvent.png" when multiple recodings are programmed to
+					# start at the same instant.
+					timer, matchType = RecordTimer.isInTimerOnService(serviceTimers, stime + (20 if config.recording.margin_before.value == 0 else 0), duration)
 					timerIcon, autoTimerIcon = self.getPixmapsForTimer(timer, matchType, selected)
 					if matchType not in (2, 3):
 						timer = None
@@ -787,9 +791,6 @@ class EPGListGrid(EPGListBase):
 			channelIdx = 0
 
 		test.insert(0, "XRnITBD")  # return record, service ref, service name, event id, event title, begin time, duration
-#		print("[EpgListGrid] test", test)
-#		print("[EpgListGrid] type(test)", type(test))
-#		print("[EpgListGrid] len(test)", len(test))		
 		epgData = self.queryEPG(test)
 		self.list = []
 		eventList = None
@@ -827,6 +828,7 @@ class EPGListGrid(EPGListBase):
 			# repeat timers represent all their future repetitions, so always include them
 			if (startTime <= timer.end or timer.repeated) and timer.begin < endTime:
 				serviceref = timer.service_ref.ref.toCompareString()
+				serviceref = "1" + serviceref[4:] if serviceref[:4] in config.recording.setstreamto1.value else serviceref # converts 4097, 5001, 5002 to 1
 				l = self.filteredTimerList.get(serviceref)
 				if l is None:
 					self.filteredTimerList[serviceref] = l = [timer]

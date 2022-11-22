@@ -4,7 +4,7 @@ from Components.Converter.Converter import Converter
 from Components.Element import cached, ElementError
 
 
-class ServiceTime(Converter, object):
+class ServiceTime(Converter):
 	STARTTIME = 0
 	ENDTIME = 1
 	DURATION = 2
@@ -39,6 +39,11 @@ class ServiceTime(Converter, object):
 			length = info.getLength(service)
 			return begin + length
 		elif self.type == self.DURATION:
-			return info.getLength(service)
+			len = info.getLength(service)
+			if len == -1: # try to get duration from event
+				ev = info.getEvent(service)
+				if ev:
+					len = ev.getDuration()
+			return len + 10 # added 10 seconds to fix round to minutes
 
 	time = property(getTime)

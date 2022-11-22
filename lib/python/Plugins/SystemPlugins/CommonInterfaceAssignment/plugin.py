@@ -1,5 +1,3 @@
-import six
-
 from os import path, remove, unlink
 from xml.etree.cElementTree import parse
 
@@ -67,6 +65,8 @@ class CIselectMainMenu(Screen):
 						appname = _("Slot %d") % (slot + 1) + " - " + _("Init modules")
 					elif state == 2:
 						appname = _("Slot %d") % (slot + 1) + " - " + eDVBCI_UI.getInstance().getAppName(slot)
+					elif state == 3:
+						appname = _("Slot %d") % (slot + 1) + " - " + _("module disabled")
 					self.list.append((appname, ConfigNothing(), 0, slot))
 		else:
 			self.list.append((_("no CI slots found"), ConfigNothing(), 1, -1))
@@ -323,7 +323,7 @@ class CIconfigMenu(Screen):
 		try:
 			tree = parse(self.filename).getroot()
 			for slot in tree.findall("slot"):
-				read_slot = six.ensure_str(getValue(slot.findall("id"), False))
+				read_slot = str(getValue(slot.findall("id"), False))
 				i = 0
 				for caid in slot.findall("caid"):
 					read_caid = caid.get("id").encode("UTF-8")
@@ -332,13 +332,13 @@ class CIconfigMenu(Screen):
 					i += 1
 
 				for service in slot.findall("service"):
-					read_service_name = six.ensure_str(service.get("name"))
-					read_service_ref = six.ensure_str(service.get("ref"))
+					read_service_name = str(service.get("name"))
+					read_service_ref = str(service.get("ref"))
 					self.read_services.append(read_service_ref)
 
 				for provider in slot.findall("provider"):
-					read_provider_name = six.ensure_str(provider.get("name"))
-					read_provider_dvbname = six.ensure_str(provider.get("dvbnamespace"))
+					read_provider_name = str(provider.get("name"))
+					read_provider_dvbname = str(provider.get("dvbnamespace"))
 					self.read_providers.append((read_provider_name, read_provider_dvbname))
 				self.ci_config.append((int(read_slot), (self.read_services, self.read_providers, self.usingcaid)))
 		except:

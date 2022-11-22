@@ -423,7 +423,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_cuesheet_changed(0),
 	m_cutlist_enabled(1),
 	m_ref(ref),
-	m_pump(eApp, 1, "servicemp3")
+	m_pump(eApp, 1, "Servicemp3")
 {
 	m_subtitle_sync_timer = eTimer::create(eApp);
 	m_stream_tags = 0;
@@ -606,13 +606,13 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	else if ( m_sourceinfo.containertype == ctVCD )
 	{
 		int tmp_fd = -1;
-		tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+		tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 		/* eDebug("[servicemp3] Twol00 Opened tmp_fd: %d", tmp_fd); */
 		if (tmp_fd == 0)
 		{
 			::close(tmp_fd);
 			tmp_fd = -1;
-			fd0lock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+			fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 			/* eDebug("[servicemp3] opening null fd returned: %d", fd0lock); */
 		}
 		if (tmp_fd != -1)
@@ -835,7 +835,7 @@ RESULT eServiceMP3::start()
 		case GST_STATE_CHANGE_FAILURE:
 			eDebug("[eServiceMP3] failed to start pipeline");
 			stop();
-			break;
+			return -1;
 		case GST_STATE_CHANGE_SUCCESS:
 			m_is_live = false;
 			break;
@@ -2992,6 +2992,7 @@ void eServiceMP3::loadCuesheet()
 		eDebug("[eServiceMP3] skip loading cuesheet multiple times");
 		return;
 	}
+
 	m_cue_entries.clear();
 	/* only load manual cuts if no chapter info avbl CVR */
 	if (m_use_chapter_entries)

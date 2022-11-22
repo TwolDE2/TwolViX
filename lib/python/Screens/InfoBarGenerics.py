@@ -2,17 +2,17 @@ from bisect import insort
 import itertools
 import datetime
 from os import listdir, path
-from sys import maxsize, version_info
+from sys import maxsize
 from time import time, localtime, strftime
 
-import pickle as cPickle
+import pickle
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from boxbranding import getBrandOEM, getMachineBuild
 from keyids import KEYFLAGS, KEYIDS, invertKeyIds
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap
-from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection
+from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection, ACTIONKEY_RIGHT
 from Components.Harddisk import harddiskmanager, findMountPoint
 from Components.Input import Input
 from Components.Label import Label
@@ -60,6 +60,7 @@ from ServiceReference import ServiceReference, isPlayableForCur
 from Tools import Notifications
 from Tools.Directories import pathExists, fileExists
 from Tools.KeyBindings import getKeyDescription, getKeyBindingKeys
+
 
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
@@ -128,7 +129,7 @@ def saveResumePoints():
 	global resumePointCache, resumePointCacheLast
 	try:
 		f = open('/etc/enigma2/resumepoints.pkl', 'wb')
-		cPickle.dump(resumePointCache, f, cPickle.HIGHEST_PROTOCOL)
+		pickle.dump(resumePointCache, f, pickle.HIGHEST_PROTOCOL)
 		f.close()
 	except Exception as ex:
 		print("[InfoBarGenerics] Failed to write resumepoints:%s" % ex)
@@ -138,7 +139,7 @@ def saveResumePoints():
 def loadResumePoints():
 	try:
 		file = open('/etc/enigma2/resumepoints.pkl', 'rb')
-		PickleFile = cPickle.load(file)
+		PickleFile = pickle.load(file)
 		file.close()
 		return PickleFile
 	except Exception as ex:
@@ -215,25 +216,6 @@ def hasActiveSubservicesForCurrentChannel(current_service):
 	return bool(activeSubservices and len(activeSubservices) > 1)
 
 
-class TimerSelection(Screen):
-	def __init__(self, session, list):
-		Screen.__init__(self, session)
-		self.setTitle(_("Timer selection"))
-		self.list = list
-		self["timerlist"] = TimerList(self.list)
-		self["actions"] = ActionMap(["OkCancelActions"],
-			{
-				"ok": self.selected,
-				"cancel": self.leave,
-			}, -1)
-
-	def leave(self):
-		self.close(None)
-
-	def selected(self):
-		self.close(self["timerlist"].getCurrentIndex())
-
-
 class InfoBarDish:
 	def __init__(self):
 		self.dishDialog = self.session.instantiateDialog(Dish)
@@ -288,7 +270,7 @@ class InfoBarUnhandledKey:
 			self.unhandledKeyDialog = None
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
-		# print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS[flag], self.invKeyIds.get(key, ""), getKeyDescription(key)))
+		print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS[flag], self.invKeyIds.get(key, ""), getKeyDescription(key)))
 		if flag != 2: # don't hide on repeat
 			self.unhandledKeyDialog.hide()
 			if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
@@ -940,7 +922,7 @@ class BufferIndicator(Screen):
 		return info and info.getInfo(iServiceInformation.sBuffer)
 
 
-class InfoBarBuffer():
+class InfoBarBuffer:
 	def __init__(self):
 		self.bufferScreen = self.session.instantiateDialog(BufferIndicator)
 		self.bufferScreen.hide()
@@ -1070,6 +1052,19 @@ class InfoBarNumberZap:
 				self.setSeekState(self.SEEK_STATE_PLAY)
 			self.ptsSeekPointerOK()
 			return
+
+		seekable = self.getSeek()
+		if seekable:
+			length = seekable.getLength() or (None, 0)
+			if length[1] > 0:
+				key = int(number)
+				time = (-config.seek.selfdefined_13.value, False, config.seek.selfdefined_13.value,
+					-config.seek.selfdefined_46.value, False, config.seek.selfdefined_46.value,
+					-config.seek.selfdefined_79.value, False, config.seek.selfdefined_79.value)[key - 1]
+
+				time = time * 90000
+				seekable.seekRelative(time < 0 and -1 or 1, abs(time))
+				return
 
 		if self.pts_blockZap_timer.isActive():
 			return
@@ -2157,9 +2152,14 @@ class InfoBarSeek:
 		return seek
 
 	def isSeekable(self):
-		if self.getSeek() is None or (isStandardInfoBar(self) and not self.timeshiftEnabled()):
-			return False
-		return True
+		if config.seek.vod_buttons.value:
+			if self.getSeek() is None:
+				return False
+			return True
+		else:
+			if self.getSeek() is None or (isStandardInfoBar(self) and not self.timeshiftEnabled()):
+				return False
+			return True
 
 	def __seekableStatusChanged(self):
 		if isStandardInfoBar(self) and self.timeshiftEnabled():
@@ -2482,7 +2482,6 @@ class InfoBarSeek:
 		seekstate = self.seekstate
 		if self.seekstate != self.SEEK_STATE_PAUSE:
 			self.setSeekState(self.SEEK_STATE_EOF)
-
 		if seekstate not in (self.SEEK_STATE_PLAY, self.SEEK_STATE_PAUSE): # if we are seeking
 			seekable = self.getSeek()
 			if seekable is not None:
@@ -2816,11 +2815,19 @@ class InfoBarExtensions:
 	@staticmethod
 	def _getAutoTimerPluginFunc():
 		# Use the WHERE_MENU descriptor because it's the only
-		# AutoTimer plugin descriptor that opens the AotoTimer
+		# AutoTimer plugin descriptor that opens the AutoTimer
 		# overview and is always present.
 
 		for l in plugins.getPlugins(PluginDescriptor.WHERE_MENU):
-			if l.name == _("Auto Timers"):  # Must use translated name
+			# l.name is the translated version from the *.po in the 
+			# AutoTimer plugin, whereas with _("Auto Timers") the 
+			# translated version comes from enigma2 *.po. This means 
+			# for this to work the translation in plugin.po must 
+			# match the translation in enigma.po. We also have the 
+			# problem that the maybe it is translated in enigma.po 
+			# but in plugin.po it is still in the untranslated form.
+			# For that case we also test against the untranslated form.
+			if l.name in (_("Auto Timers"), "Auto Timers"):
 				menuEntry = l("timermenu")
 				if menuEntry and len(menuEntry[0]) > 1 and callable(menuEntry[0][1]):
 					return menuEntry[0][1]
@@ -2841,12 +2848,14 @@ class InfoBarExtensions:
 			return
 		s = self.session.nav.getCurrentService()
 		if s:
+			name = ""
 			info = s.info()
 			event = info.getEvent(0) # 0 = now, 1 = next
 			if event:
 				name = event and event.getEventName() or ''
 			elif self.session.nav.getCurrentlyPlayingServiceOrGroup() is None:
-				self.session.open(EPGSearch)				
+				self.session.open(EPGSearch)
+				return
 			else:
 				name = self.session.nav.getCurrentlyPlayingServiceOrGroup().toString()
 				name = name.split('/')
@@ -3093,16 +3102,20 @@ class InfoBarPiP:
 			swapservice = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 			pipref = self.session.pip.getCurrentService()
 			if swapservice and pipref and pipref.toString() != swapservice.toString():
-				currentServicePath = self.servicelist.getCurrentServicePath()
-				currentBouquet = self.servicelist and self.servicelist.getRoot()
-				self.servicelist.setCurrentServicePath(self.session.pip.servicePath, doZap=False)
+				slist = self.servicelist
+				if slist:
+					currentServicePath = slist.getCurrentServicePath()
+					currentBouquet = slist.getRoot()
+					slist.setCurrentServicePath(self.session.pip.servicePath, doZap=False)
+				self.session.nav.stopService()
 				self.session.pip.playService(swapservice)
 				self.session.nav.playService(pipref, checkParentalControl=False, adjust=False)
-				self.session.pip.servicePath = currentServicePath
-				self.session.pip.servicePath[1] = currentBouquet
-				if self.servicelist.dopipzap:
-					# This unfortunately won't work with subservices
-					self.servicelist.setCurrentSelection(self.session.pip.getCurrentService())
+				if slist:
+					self.session.pip.servicePath = currentServicePath
+					self.session.pip.servicePath[1] = currentBouquet
+				if slist and slist.dopipzap:
+					slist.setCurrentSelection(self.session.pip.getCurrentService())
+					slist.saveChannel(pipref)
 
 	def movePiP(self):
 		if self.pipShown():
@@ -3273,7 +3286,7 @@ class InfoBarInstantRecord:
 
 		# print("[InfoBarGenerics]test1")
 		if answer is None or answer[1] == "no":
-			# print([InfoBarGenerics]"test2")
+			# print(["InfoBarGenerics]test2")
 			return
 		list = []
 		recording = self.recording[:]
@@ -3479,16 +3492,26 @@ class InfoBarAudioSelection:
 
 	def audioSelectionLong(self):
 		if SystemInfo["CanDownmixAC3"]:
-			if config.av.downmix_ac3.value:
-				message = _("Dobly Digital downmix is now") + " " + _("disabled")
-				print("[InfoBarGenerics] [Audio] Dobly Digital downmix is now disabled")
-				config.av.downmix_ac3.setValue(False)
-			else:
-				config.av.downmix_ac3.setValue(True)
-				message = _("Dobly Digital downmix is now") + " " + _("enabled")
-				print("[InfoBarGenerics] [Audio] Dobly Digital downmix is now enabled")
+			config.av.downmix_ac3.handleKey(ACTIONKEY_RIGHT)
+			message = _("Dolby Digital downmix is now %s") % config.av.downmix_ac3.getText()
+			print("[InfoBarGenerics] [Audio] Dolby Digital downmix is now %s" % config.av.downmix_ac3.value)
 			Notifications.AddPopup(text=message, type=MessageBox.TYPE_INFO, timeout=5, id="DDdownmixToggle")
 
+
+class InfoBarVideoSetup:
+	def __init__(self):
+		if SystemInfo["hasDuplicateVideoAndPvrButtons"]:
+			self["VideoSetupAction"] = HelpableActionMap(self, "InfoBarVideoSetupActions",
+				{
+					"videoSetup": (self.videoSetup, _("Video settings...")),
+				}, prio=-10, description=_("Video settings options"))
+
+	def videoSetup(self):
+		from Screens.VideoMode import VideoSetup
+		self.session.openWithCallback(self.videoSetupDone, VideoSetup)
+
+	def videoSetupDone(self, ret=None):
+		print("[InfoBarGenerics][videoSetupDone] %s" % ret)
 
 class InfoBarSubserviceSelection:
 	def __init__(self):

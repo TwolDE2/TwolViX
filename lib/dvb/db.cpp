@@ -430,7 +430,7 @@ void eDVBDB::parseServiceData(ePtr<eDVBService> s, std::string str)
 		else if (p == 'f')
 		{
 			sscanf(v.c_str(), "%x", &s->m_flags);
-			s->m_flags &= ~eDVBService::dxDontshow;
+			s->m_flags &= ~eDVBService::dxIsParentalProtected;
 		} else if (p == 'c')
 		{
 			int cid, val;
@@ -837,11 +837,15 @@ void eDVBDB::saveServicelist(const char *file)
 					if (g)
 						fprintf(g, ",MIS/PLS:%d:%d:%d", sat.is_id, sat.pls_code & 0x3FFFF, sat.pls_mode & 3);
 				}
-				// Old lamedb format cannot have multiple optional values so we must pad lamedb with default multistream 
-				// values if they will be followed by t2mi values. In lamedb5 format this is not necessary.
 				else if (static_cast<unsigned int>(sat.t2mi_plp_id) != eDVBFrontendParametersSatellite::No_T2MI_PLP_Id)
 				{
-					fprintf(f, ":%d:%d:%d", eDVBFrontendParametersSatellite::No_Stream_Id_Filter, eDVBFrontendParametersSatellite::PLS_Default_Gold_Code, eDVBFrontendParametersSatellite::PLS_Gold);
+					/*
+					 * Old lamedb format cannot have multiple optional values
+					 * so we must pad lamedb with default multistream values
+					 * otherwise the t2mi values will be stored on mulistream ones
+					 */
+					fprintf(f, ":%d:%d:%d", eDVBFrontendParametersSatellite::No_Stream_Id_Filter,
+						eDVBFrontendParametersSatellite::PLS_Default_Gold_Code, eDVBFrontendParametersSatellite::PLS_Gold);
 				}
 
 				if (static_cast<unsigned int>(sat.t2mi_plp_id) != eDVBFrontendParametersSatellite::No_T2MI_PLP_Id)
@@ -1296,23 +1300,20 @@ eDVBDB::eDVBDB()
 PyObject *eDVBDB::readSatellites(ePyObject sat_list, ePyObject sat_dict, ePyObject tp_dict)
 {
 	if (!PyDict_Check(tp_dict)) {
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readSatellites arg 2 is not a python dict");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readSatellites arg 2 is not a python dict");
+		//eDebug("[eDVBDB] readSatellites arg 2 is not a python dict");
 		return NULL;
 	}
 	else if (!PyDict_Check(sat_dict))
 	{
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readSatellites arg 1 is not a python dict");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readSatellites arg 1 is not a python dict");
+		//eDebug("[eDVBDB] readSatellites arg 1 is not a python dict");
 		return NULL;
 	}
 	else if (!PyList_Check(sat_list))
 	{
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readSatellites arg 0 is not a python list");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readSatellites arg 0 is not a python list");
+		//eDebug("[eDVBDB] readSatellites arg 0 is not a python list");
 		return NULL;
 	}
 
@@ -1493,16 +1494,14 @@ PyObject *eDVBDB::readSatellites(ePyObject sat_list, ePyObject sat_dict, ePyObje
 PyObject *eDVBDB::readCables(ePyObject cab_list, ePyObject tp_dict)
 {
 	if (!PyDict_Check(tp_dict)) {
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readCables arg 1 is not a python dict");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readCables arg 1 is not a python dict");
+		//eDebug("[eDVBDB] readCables arg 1 is not a python dict");
 		return NULL;
 	}
 	else if (!PyList_Check(cab_list))
 	{
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readCables arg 0 is not a python list");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readCables arg 0 is not a python list");
+		//eDebug("[eDVBDB] readCables arg 0 is not a python list");
 		return NULL;
 	}
 
@@ -1645,16 +1644,14 @@ PyObject *eDVBDB::readCables(ePyObject cab_list, ePyObject tp_dict)
 PyObject *eDVBDB::readTerrestrials(ePyObject ter_list, ePyObject tp_dict)
 {
 	if (!PyDict_Check(tp_dict)) {
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readTerrestrials arg 1 is not a python dict");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readTerrestrials arg 1 is not a python dict");
+		//eDebug("[eDVBDB] readTerrestrials arg 1 is not a python dict");
 		return NULL;
 	}
 	else if (!PyList_Check(ter_list))
 	{
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readTerrestrials arg 0 is not a python list");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readTerrestrials arg 0 is not a python list");
+		//eDebug("[eDVBDB] readTerrestrials arg 0 is not a python list");
 		return NULL;
 	}
 
@@ -1829,16 +1826,14 @@ PyObject *eDVBDB::readTerrestrials(ePyObject ter_list, ePyObject tp_dict)
 PyObject *eDVBDB::readATSC(ePyObject atsc_list, ePyObject tp_dict)
 {
 	if (!PyDict_Check(tp_dict)) {
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readATSC arg 1 is not a python dict");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readATSC arg 1 is not a python dict");
+		//eDebug("[eDVBDB] readATSC arg 1 is not a python dict");
 		return NULL;
 	}
 	else if (!PyList_Check(atsc_list))
 	{
-		PyErr_SetString(PyExc_Exception,
-			"type error");
-			eDebug("[eDVBDB] readATSC arg 0 is not a python list");
+		PyErr_SetString(PyExc_TypeError, "[eDVBDB] readATSC arg 0 is not a python list");
+		//eDebug("[eDVBDB] readATSC arg 0 is not a python list");
 		return NULL;
 	}
 

@@ -108,9 +108,6 @@ class EPGListSingle(EPGListBase):
 		now = int(time())
 		epgTime = now - config.epg.histminutes.value * SECS_IN_MIN
 		test = ['RIBDT', (service.toString(), 0, int(epgTime), -1)]
-#		print("[EpgListSingle] test", test)
-#		print("[EpgListSingle]type(test)", type(test))
-#		print("[EpgListSingle]len(test)", len(test))
 		self.list = self.queryEPG(test)
 
 		odds = chr(0xc2) + chr(0x86)

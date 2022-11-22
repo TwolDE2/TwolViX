@@ -6,13 +6,11 @@ import errno
 import xml.etree.cElementTree
 from enigma import eRCInput
 from keyids import KEYIDS
-from Components.RcModel import rc_model
 
 from boxbranding import getBrandOEM
 from Components.config import config, ConfigInteger, ConfigSlider, ConfigSubsection, ConfigText, ConfigYesNo
-from Components.RcModel import rc_model
 from Components.SystemInfo import SystemInfo
-
+from Tools.Directories import resolveFilename, SCOPE_SKIN
 
 # include/uapi/asm-generic/ioctl.h
 IOC_NRBITS = 8
@@ -25,6 +23,7 @@ IOC_SIZESHIFT = IOC_TYPESHIFT + IOC_TYPEBITS
 IOC_DIRSHIFT = IOC_SIZESHIFT + IOC_SIZEBITS
 
 IOC_READ = 2
+
 
 def EVIOCGNAME(length):
 	return (IOC_READ << IOC_DIRSHIFT) | (length << IOC_SIZESHIFT) | (0x45 << IOC_TYPESHIFT) | (0x06 << IOC_NRSHIFT)
@@ -43,11 +42,13 @@ class inputDevices:
 		for evdev in devices:
 			deviceName = None
 			buffer = "\0" * 512
+			if path.isdir("/dev/input/" + evdev):
+				continue
 			with open("/dev/input/" + evdev) as fd:
 				try:
 					name = ioctl(fd, EVIOCGNAME(512), buffer)
 				except (IOError, OSError) as err:
-					# print("[InputDevice] Error: evdev='%s' getInputDevices <ERROR: ioctl(EVIOCGNAME): '%s'>" % (evdev, str(err)))
+					print("[InputDevice] Error: evdev='%s' getInputDevices <ERROR: ioctl(EVIOCGNAME): '%s'>" % (evdev, str(err)))
 					continue					
 			deviceName = name[:name.find(b'\0')].decode()
 			if deviceName:
@@ -200,7 +201,7 @@ class InitInputDevices:
 		exec(cmd)
 
 	def remapRemoteControl(self, device):
-		filename = rc_model.getRcPositions()
+		filename = resolveFilename(SCOPE_SKIN, path.join("rc_models", SystemInfo["rc_model"], "rcpositions.xml"))
 		domRemote = self.loadRemoteControl(filename)
 		logRemaps = []
 		remapButtons = {}

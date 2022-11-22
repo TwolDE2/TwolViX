@@ -1,5 +1,3 @@
-import six
-
 import errno
 import xml.etree.cElementTree
 from os import environ, path, symlink, unlink, walk
@@ -50,12 +48,15 @@ def InitTimeZones():
 	config.timezone = ConfigSubsection()
 	config.timezone.area = ConfigSelection(default=DEFAULT_AREA, choices=timezones.getTimezoneAreaList())
 	config.timezone.val = ConfigSelection(default=timezones.getTimezoneDefault(), choices=timezones.getTimezoneList())
+#	print("[Timezones][InitTimeZones1] config.timezone.area, config.timezone.val", config.timezone.area.value, "   ", config.timezone.val.value)
 	if not config.timezone.area.value and config.timezone.val.value.find("/") == -1:
 		config.timezone.area.value = "Generic"
+#		print("[Timezones][InitTimeZones2] config.timezone.area, config.timezone.val", config.timezone.area.value, "   ", config.timezone.val.value)
 	try:
 		tzLink = path.realpath("/etc/localtime")[20:]
 		msgs = []
 		if config.timezone.area.value == "Classic":
+#			print("[Timezones][InitTimeZones3] config.timezone.val, tzlink",  config.timezone.val.value, "   ", tzlink)
 			if config.timezone.val.value != tzLink:
 				msgs.append("time zone '%s' != '%s'" % (config.timezone.val.value, tzLink))
 		else:
@@ -63,9 +64,11 @@ def InitTimeZones():
 			if tzSplit == -1:
 				tzArea = "Generic"
 				tzVal = tzLink
+#			print("[Timezones][InitTimeZones4] tzArea, tzVal(tzlink) config.timezone.area.value",  tzArea, "   ", tzlink, "   ", config.timezone.area.value)
 			else:
 				tzArea = tzLink[:tzSplit]
 				tzVal = tzLink[tzSplit + 1:]
+#				print("[Timezones][InitTimeZones5] tzArea, tzVal(tzlink) config.timezone.area.value",  tzArea, "   ", tzVal, "   ", config.timezone.area.value)
 			if config.timezone.area.value != tzArea:
 				msgs.append("area '%s' != '%s'" % (config.timezone.area.value, tzArea))
 			if config.timezone.val.value != tzVal:
@@ -135,12 +138,7 @@ class Timezones:
 				name = commonTimezoneNames.get(tz, zone)  # Use the more common name if one is defined.
 				if name is None:
 					continue
-				if isinstance(name, six.text_type):
-					name = six.ensure_str(name.encode(encoding="UTF-8", errors="ignore"))
-				if isinstance(area, six.text_type):
-					area = six.ensure_str(area.encode(encoding="UTF-8", errors="ignore"))
-				if isinstance(zone, six.text_type):
-					zone = six.ensure_str(zone.encode(encoding="UTF-8", errors="ignore"))
+#				print("[Timeszones][loadTimeszones2], name, area, zone", name, "   ", area, "   ", zone)
 				zones.append((zone, name.replace("_", " ")))
 			if area:
 				if area in self.timezones:
@@ -200,16 +198,16 @@ class Timezones:
 		if root is not None:
 			for zone in root.findall("zone"):
 				name = zone.get("name", "")
-				if isinstance(name, six.text_type):
-					name = six.ensure_str(name.encode(encoding="UTF-8", errors="ignore"))
 				zonePath = zone.get("zone", "")
-				if isinstance(zonePath, six.text_type):
-					zonePath = six.ensure_str(zonePath.encode(encoding="UTF-8", errors="ignore"))
+#				print("[Timeszones][readTimeszones2], name", name)
+#				print("[Timeszones][readTimeszones3], zonePath", zonePath)
+#				print("[Timeszones][readTimeszones4], zonePath, pathJoin", zonePath, path.join(TIMEZONE_DATA, zonePath))
 				if path.exists(path.join(TIMEZONE_DATA, zonePath)):
 					zones.append((zonePath, name))
 				else:
 					print("[Timezones] Warning: Classic time zone '%s' (%s) is not available in '%s'!" % (name, zonePath, TIMEZONE_DATA))
 			self.timezones["Classic"] = zones
+#		print("[Timeszones][readTimeszones5, zones", zones)
 		if len(zones) == 0:
 			self.timezones["Classic"] = [("UTC", "UTC")]
 

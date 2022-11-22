@@ -602,13 +602,13 @@ int eDVBFrontend::openFrontend()
 		if (m_fd < 0)
 		{
 			int tmp_fd = -1;
-			tmp_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+			tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 			/* eDebug("[eDVBFrontend] 0 Opened tmp_fd: %d", tmp_fd); */
 			if (tmp_fd == 0)
 			{
 				::close(tmp_fd);
-				tmp_fd = -1;	
-				fd0lock = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+				tmp_fd = -1;
+				fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 				/* eDebugNoSimulate("[eDVBFrontend] 0 opening null fd returned: %d", fd0lock); */
 			}
 			if (tmp_fd != -1)
@@ -931,12 +931,12 @@ int eDVBFrontend::calculateSignalPercentage(int signalqualitydb)
 		When using new API, signalqualitydb is Carrier-to-Noise-Ratio (CNR) - i.e. SNR at a specific point in the receiver chain
 		Minimum CNR for lock is ~20 dB, not 0 dB as previously assumed
 		Maximum expected CNR is an estimate of typical value of CNR at which limiting could occur in the absence of interference etc
-		Percentage is now of maximum expected CNR to approximately match the figures provided by any drivers that supply this data, not 2/3 of maximum expected signal as previously assumed. 
+		Percentage is now of maximum expected CNR to approximately match the figures provided by any drivers that supply this data, not 2/3 of maximum expected signal as previously assumed.
 		Using 2/3 for DVB-T gives 100% at ~33 dB, which less than half way up the scale from just acheiving lock at 20 dB and expected maximum at 50 dB
 */
-		
+
 {
-	int maxdb; 					// Maximum expected CNR in units of 0.01 dB 
+	int maxdb; 					// Maximum expected CNR in units of 0.01 dB
 	int type = -1;
 	oparm.getSystem(type);
 	switch (type)
@@ -1156,11 +1156,36 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = snr*10;
 	}
-	else if (!strcmp(m_description, "ATBM7821 DVB-T2/C"))
+	else if (!strcmp(m_description, "Si21682") || !strcmp(m_description, "Si2168")) // SF4008 T/T2/C and Zgemma TC Models
+	{
+		int type = -1;
+		oparm.getSystem(type);
+		switch (type)
+		{
+			case feCable:
+				ret = (int)(snr / 17);
+				cab_max = 3800;
+				break;
+			case feTerrestrial:
+				ret = (int)(snr / 22.3);
+				break;
+		}
+	}	
+	else if (!strcmp(m_description, "Hi3716 Internal S2")) // SFX6008 S2
+	{
+		ret = snr;
+	}
+
+	else if (!strcmp(m_description, "ATBM7821 DVB-T2/C")) //SF8008	
 	{
 		ret = snr*10;
 		ter_max = 4200;
 	}
+	else if (!strncmp(m_description, "Si2166D", 7)) // SF8008 S2
+	{
+		ret = snr;
+		sat_max = 1620;
+	}	
 	else if (!strcmp(m_description, "Vuplus DVB-S NIM(AVL2108)")) // VU+Ultimo/VU+Uno DVB-S2 NIM
 	{
 		ret = (int)((((double(snr) / (65535.0 / 100.0)) * 0.1600) + 0.2100) * 100);
@@ -1253,7 +1278,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	}
 	else if (strstr(m_description, "Vuplus DVB-T NIM(BCM3466)")) // VU+ 4K dual DVB-C/T2
 	{
-		ret = (int)(snr / 43.5);
+		ret = (int)(snr / 22.8);
 	}
 	else if (!strcmp(m_description, "GIGA DVB-S2X NIM (TS3L10)") // dual/single plug&play tuners GB UE/Quad UHD 4K
 		|| !strcmp(m_description, "GIGA DVB-S2X NIM (TS2L08)")
@@ -1269,7 +1294,6 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 		|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI4768)")
 		|| !strcmp(m_description, "GIGA DVB-C/T2 NIM (SI41682)")
 		|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT2L10)")
-		|| !strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")
 		)
 	{
 		int type = -1;
@@ -1285,6 +1309,10 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 				ter_max = 1700;
 				break;
 		}
+	}
+	else if (!strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")) // dual plug & play tuner GB UE/Quad UHD 4K 
+	{
+		ret = (int)(snr / 15);
 	}
 	else if (!strcmp(m_description, "BCM7356 DVB-S2 NIM (internal)") // VU+ Solo2
 		|| !strcmp(m_description, "BCM7346 DVB-S2 NIM (internal)")
@@ -1331,25 +1359,9 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 				break;
 		}
 	}
-	else if (!strcmp(m_description, "Si21682") || !strcmp(m_description, "Si2168")) // SF4008 T/T2/C and Zgemma TC Models
-	{
-		int type = -1;
-		oparm.getSystem(type);
-		switch (type)
-		{
-			case feCable:
-				ret = (int)(snr / 17);
-				cab_max = 3800;
-				break;
-			case feTerrestrial:
-				ret = (int)(snr / 22.3);
-				break;
-		}
-	}
-	else if (!strncmp(m_description, "Si2166D", 7)) // SF8008 S2
+	else if (!strcmp(m_description, "Vuplus DVB-S NIM(Si2166)")) // VU+ Zero4K
 	{
 		ret = snr;
-		sat_max = 1620;
 	}
 	else if (!strncmp(m_description, "Si216", 5)) // New models with SI tuners
 	{
@@ -1424,7 +1436,7 @@ int eDVBFrontend::readFrontendData(int type)
 				return ber;
 			}
 			break;
-		case iFrontendInformation_ENUMS::snrValue:					
+		case iFrontendInformation_ENUMS::snrValue:
 /* 	N.B. This uses the legacy API, defined at https://linuxtv.org/downloads/v4l-dvb-apis/uapi/dvb
 	"snrValue" is not supported by the new API, nor is it generated by all tuners/drivers, and its use is deprecated.
 	Neither the scaling nor the point at which the SNR is measured is defined in the API, leading to inconsistencies between tuners and need for tuner-specific code above  to get values for signalQualitydB and signalQuality from the legacy API
@@ -1442,25 +1454,25 @@ int eDVBFrontend::readFrontendData(int type)
 			}
 			break;
 		case iFrontendInformation_ENUMS::signalQuality:
-/*	The signalQuality is a percentage figure representing signalQualitydB divided by its expected maximum value 
+/*	The signalQuality is a percentage figure representing signalQualitydB divided by its expected maximum value
 	A value of 0 represents 0% and 65535 represents 100%.
-	A value of zero is returned when not locked on. 
+	A value of zero is returned when not locked on.
 	A minimum value of 30-40% (depending on DVB type) can be expected when locked on when using DVB API 5.10 or later.
 	It is not a reliable indicator of closeness to limiting as:
-		(a) A generic value for the upper limit of signalQualitydB is used unless % data is provided by the driver, so the assumed upper limit may be significantly different to that of any actual tuner 
+		(a) A generic value for the upper limit of signalQualitydB is used unless % data is provided by the driver, so the assumed upper limit may be significantly different to that of any actual tuner
 		(b) Signal levels close to limiting may be accompanied by high noise (e.g. interference) levels, thus leading to moderate or low signalQualitydB values
-	Values derived from the legacy API are likely to be unreliable, with 100% being returned for a wide range of signalQualitydB values - comparison between muxes is probably safer using signalQualitydB.	
+	Values derived from the legacy API are likely to be unreliable, with 100% being returned for a wide range of signalQualitydB values - comparison between muxes is probably safer using signalQualitydB.
 */
 		case iFrontendInformation_ENUMS::signalQualitydB:
-/* 	This moved into the driver on DVB API 5.10 
+/* 	This moved into the driver on DVB API 5.10
 	When using new API:
 		(a) signalQualitydB is Carrier-to-Noise-Ratio (CNR) measured in dB - i.e. SNR at a specific point in the receiver chain
 		(b) Minimum CNR for lock is ~20 dB (exact figure depending on DVB and modulation types)
 		(c) Maximum CNR will depend on the particular tuner and DVB type, but is likely to be in the range 40-70 dB. Figures much above 70 dB are almost certainly erroneous
 		(d) Comparisons between different tuner models should be valid - i.e. differ by no more than a couple of dB + any differences in input signal
-	A value of zero is returned when not locked on. 
+	A value of zero is returned when not locked on.
 	LSB = 0.01 dB.
-	Values derived from the legacy API are likely to be unreliable. 
+	Values derived from the legacy API are likely to be unreliable.
 */
 			if (m_state == stateLock)
 			{
@@ -1779,7 +1791,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 		if (tmp == -1 && sec_fe != this && !prev->m_inuse) {
 			int state = sec_fe->m_state;
 			// workaround to put the kernel frontend thread into idle state!
-			if (state != eDVBFrontend::stateIdle && state != stateClosed)
+			if (!m_fbc && state != eDVBFrontend::stateIdle && state != stateClosed)
 			{
 				/* eDebug("[eDVBFrontend] tuneLoopint tuner %d is closed m_sn stop", m_dvbid); */
 				sec_fe->m_sn->stop();

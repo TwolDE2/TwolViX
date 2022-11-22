@@ -1,7 +1,6 @@
 from boxbranding import getBoxType
 
 from Components.config import config, ConfigBoolean, configfile
-#from Components.Language import Language
 from Components.Pixmap import Pixmap
 from Screens.LanguageSelection import LanguageWizard
 from Screens.Rc import Rc
@@ -23,12 +22,8 @@ class StartWizard(WizardLanguage, Rc):
 		Rc.__init__(self)
 		self["wizard"] = Pixmap()
 
-	def markDone(self):
-		# setup remote control, all stb have same settings except dm8000 which uses a different settings
-		if getBoxType() == 'dm8000':
-			config.misc.rcused.value = 0
-		else:
-			config.misc.rcused.value = 1
+	def markDone(self):		# setup remote control
+		config.misc.rcused.value = 1
 		config.misc.rcused.save()
 
 		config.misc.firstrun.value = 0

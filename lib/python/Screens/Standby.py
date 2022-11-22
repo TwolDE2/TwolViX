@@ -48,7 +48,7 @@ class Standby2(Screen):
 				print("[Standby] open hdmi on leave standby")
 			except:
 				pass
-		print("[Standby] leave standby")
+		print("[Standby] leave standby 2")
 		self.close(True)
 
 	def setMute(self):
@@ -122,7 +122,7 @@ class Standby2(Screen):
 		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getMachineBuild() in ('gbmv200'):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("off")
-				print("[Standby] close hdmi on leave standby")		
+				print("[Standby] close hdmi on enter standby")		
 			except:
 				pass
 		print("[Standby] enter standby")
@@ -305,11 +305,33 @@ class TryQuitMainloop(MessageBox):
 						self.close(True) # immediate shutdown
 			elif event == iRecordableService.evStart:
 				self.stopTimer()
+				
+	def sendCEC(self):
+			print("[Standby][sendCEC] entered ")	
+			import struct
+			from enigma import eHdmiCEC
+			physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()				
+			msgaddress = 0x0f # use broadcast for active source command
+			cmd0 = 0x9d	# 157 sourceinactive
+			data0 = struct.pack("BB", int(physicaladdress // 256), int(physicaladdress % 256))
+			data0 = data0.decode("UTF-8", "ignore")
+			cmd1 = 0x44	# 68 keypoweroff
+			data1 = struct.pack("B", 0x6c)
+			data1 = data1.decode("UTF-8", "ignore")
+			cmd2 = 0x36	# 54 standby
+			data2 = ""
+			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd0, data0, len(data0))
+			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd1, data1, len(data1))
+			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd2, data2, len(data2))
+			print("[Standby][sendCEC] departed ")								
 
 	def close(self, value):
 		if self.connected:
 			self.connected = False
 			self.session.nav.record_event.remove(self.getRecordEvent)
+		print("[Standby][TryQuitMainloop][close] hdmicece enabled, retval", config.hdmicec.enabled.value, "   ", self.retval)
+		if config.hdmicec.enabled.value and self.retval == 1:
+			self.sendCEC()				
 		if value:
 			self.hide()
 			if self.retval == 1:

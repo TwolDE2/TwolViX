@@ -100,7 +100,7 @@ void eTimer::changeInterval(long msek)
 	else
 		bActive=true; // then activate Timer
 
-	interval = msek;   			 			// set new Interval
+	interval = msek; 			// set new Interval
 	nextActivation += interval;		// calc nextActivation
 
 	context.addTimer(this);				// add Timer to context TimerList
@@ -237,11 +237,6 @@ int eMainloop::processOneEvent(long user_timeout, PyObject **res, ePyObject addi
 
 	if (additional)
 	{
-#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
-		typedef int Py_ssize_t;
-# define PY_SSIZE_T_MAX INT_MAX
-# define PY_SSIZE_T_MIN INT_MIN
-#endif
 		PyObject *key, *val;
 		Py_ssize_t pos=0;
 		while (PyDict_Next(additional, &pos, &key, &val)) {
@@ -277,8 +272,8 @@ int eMainloop::processOneEvent(long user_timeout, PyObject **res, ePyObject addi
 					m_inActivate = 0;
 				}
 				if (pfd[i].revents & (POLLERR|POLLHUP|POLLNVAL))
-					return_reason = 1;				
-//					eTrace("[eMainloop::processOneEvent] unhandled POLLERR/HUP/NVAL for fd %d(%d)", pfd[i].fd, pfd[i].revents);
+					return_reason = 1;
+/*					eTrace("[eMainloop::processOneEvent] unhandled POLLERR/HUP/NVAL for fd %d(%d)", pfd[i].fd, pfd[i].revents);  */
 			}
 		}
 		for (; i < fdcount; ++i)

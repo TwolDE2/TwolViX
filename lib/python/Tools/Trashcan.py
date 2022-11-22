@@ -2,7 +2,6 @@ from os import access, mkdir, path as ospath, rmdir, stat, statvfs, walk, W_OK
 import enigma
 import time
 
-
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components import Harddisk
@@ -121,15 +120,11 @@ def cleanAll(path=None):
 	if not ospath.isdir(trash):
 		print("[Trashcan] No trash.", trash)
 		return 0
-	for root, dirs, files in walk(trash, topdown=False):
+	for root, dirs, files in walk(trash.encode(), topdown=False):
 		for name in files:
 			fn = ospath.join(root, name)
-			try:
-				enigma.eBackgroundFileEraser.getInstance().erase(fn)
-			except Exception as e:
-				print("[Trashcan] Failed to erase %s:" % name, e)
-		# Remove empty directories if possible
-		for name in dirs:
+			enigma.eBackgroundFileEraser.getInstance().erase(fn)
+		for name in dirs:		# Remove empty directories if possible
 			try:
 				rmdir(ospath.join(root, name))
 			except:
@@ -169,49 +164,52 @@ class CleanTrashTask(Components.Task.PythonTask):
 		for trashfolder in trashcanLocations:
 			trashfolder = ospath.join(trashfolder, ".Trash")
 			if ospath.isdir(trashfolder):
-				print("[Trashcan] looking in trashcan", trashfolder)
+				print("[Trashcan][CleanTrashTask][work] looking in trashcan", trashfolder)
 				trashsize = get_size(trashfolder)
 				diskstat = statvfs(trashfolder)
 				free = diskstat.f_bfree * diskstat.f_bsize
 				bytesToRemove = self.reserveBytes - free
-				print("[Trashcan] " + str(trashfolder) + ": Size:", "{:,}".format(trashsize))
+				print("[Trashcan][CleanTrashTask][work] " + str(trashfolder) + ": Size:", "{:,}".format(trashsize))
 				candidates = []
 				size = 0
-				for root, dirs, files in walk(trashfolder, topdown=False):
-					for name in files:
-						# Don't delete any per-directory config files from .Trash if the option is in use
-						if (config.movielist.settings_per_directory.value and name == ".e2settings.pkl"):
+				for root, dirs, files in walk(trashfolder.encode(), topdown=False):	# handle non utf-8 files
+#					print("[Trashcan][CleanTrashTask][work] lets look at files")
+					for name in files:	# Don't delete any per-directory config files from .Trash
+						if (config.movielist.settings_per_directory.value and name == b".e2settings.pkl"):
 							continue
-						try:
-							fn = ospath.join(root, name)
+						fn = ospath.join(root, name)
+						try:			# file may not exist, if dual delete activities.
 							st = stat(fn)
-							if st.st_ctime < self.ctimeLimit:
-								enigma.eBackgroundFileEraser.getInstance().erase(fn)
-								bytesToRemove -= st.st_size
-							else:
-								candidates.append((st.st_ctime, fn, st.st_size))
-								size += st.st_size
-						except Exception as e:
-							print("[Trashcan] Failed to stat %s:" % name, e)
-					# Remove empty directories if possible
-					for name in dirs:
+						except FileNotFoundError:						
+							print("[Trashcan][CleanTrashTask[work]  FileNotFoundError ", fn)
+							continue
+#						print("[Trashcan][CleanTrashTask[work]  fn = ", fn)
+						if st.st_ctime < self.ctimeLimit or config.usage.movielist_trashcan_days.value == 0:
+							enigma.eBackgroundFileEraser.getInstance().erase(fn)
+							bytesToRemove -= st.st_size
+						else:
+							candidates.append((st.st_ctime, fn, st.st_size))
+							size += st.st_size
+#					print("[Trashcan][CleanTrashTask][work] lets look at directories")
+					for name in dirs:		# Remove empty directories if possible
+#						print("[Trashcan][CleanTrashTask][work] dir name", dirs, "   ", name)					
 						try:
 							rmdir(ospath.join(root, name))
-						except:
+						except Exception as e:
+							print("[Trashcan][CleanTrashTask][work] unable to delete directory ", root, "/", name, "   ", e)	
 							pass
 					candidates.sort()
 					# Now we have a list of ctime, candidates, size. Sorted by ctime (=deletion time)
 					for st_ctime, fn, st_size in candidates:
 						if bytesToRemove < 0:
 							break
-						try:
-							# somtimes the file does not exist, can happen if trashcan is on a network, the main box could also be emptying trash at same time.
+						try:	# file may not exist if simultaneously a network trashcan and main box emptying trash
 							enigma.eBackgroundFileEraser.getInstance().erase(fn)
 						except:
 							pass
 						bytesToRemove -= st_size
 						size -= st_size
-					print("[Trashcan] " + str(trashfolder) + ": Size now:", "{:,}".format(size))
+					print("[Trashcan][CleanTrashTask][work]   " + str(trashfolder) + ": Size now:", "{:,}".format(size))
 
 
 class TrashInfo(VariableText, GUIComponent):

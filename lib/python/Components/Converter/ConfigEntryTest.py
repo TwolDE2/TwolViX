@@ -3,7 +3,7 @@ from Components.Converter.Converter import Converter
 from Components.Element import cached
 
 
-class ConfigEntryTest(Converter, object):
+class ConfigEntryTest(Converter):
 	def __init__(self, argstr):
 		Converter.__init__(self, argstr)
 		args = argstr.split(',')
@@ -42,7 +42,7 @@ class ConfigEntryTest(Converter, object):
 		if self.argerror:
 			print("ConfigEntryTest got invalid arguments", self.converter_arguments, "force True!!")
 			return True
-		if self.checkSourceBoolean and not self.source.boolean:
+		if self.checkSourceBoolean and not getattr(self.source, "boolean", False):
 			return False
 		val = configfile.getResolvedKey(self.configKey)
 		ret = val == self.configValue

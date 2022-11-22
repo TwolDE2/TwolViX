@@ -4,8 +4,10 @@
 		<item level="0" text="Time zone area" description="Select your time zone area or region.">config.timezone.area</item>
 		<item level="0" text="Time zone" description="Select the time zone within the area or region.">config.timezone.val</item>
 		<item level="0" text="Sync time using" description="Synchronize system time using transponder or internet.">config.misc.SyncTimeUsing</item>
-		<item level="0" text="NTP server" description="Configure your NTP server.">config.misc.NTPserver</item>
-		<item level="0" text="NTP sync interval" description="Setup network time synchronization interval." requires="config.misc.SyncTimeUsing" >config.misc.useNTPminutes</item>
+		<if conditional="config.misc.SyncTimeUsing.value == 'ntp'">
+			<item level="0" text="NTP server" description="Configure your NTP server.">config.misc.NTPserver</item>
+			<item level="0" text="NTP sync interval" description="Setup network time synchronization interval.">config.misc.useNTPminutes</item>
+		</if>
 		<item level="0" text="Date style" description="Choose the display formatting style for dates. 'D' / 'DD' is the date and 'M' / 'MM' is the month in digits.  ('DD' and 'MM' have leading zeros for single digit values.) The screen display will be based on your choice but can be influenced by the skin." requires="config.usage.date.enabled">config.usage.date.dayfull</item>
 		<item level="0" text="Time style" description="Choose the display formatting style for times. 'H' / 'HH' is the hour for a 24 hour clock, 'h' / 'hh' is the hour for a 12 hour clock, 'mm' is the minutes and 'ss' is the seconds.  ('HH' and 'hh' have leading zeros for single digit values.) The screen display will be based on your choice but can be influenced by the skin." requires="config.usage.time.enabled">config.usage.time.long</item>
 	</setup>
@@ -20,9 +22,10 @@
 		<item level="2" text="Descramble sending http streams" description="When enabled, http streams are descrambled on the server side. The (remote) client receiver does not have to do descrambling. Default on.">config.streaming.descramble</item>
 		<item level="2" text="Descramble receiving http streams" description="When enabled, always descramble receiving http streams. This takes up more resources (descrambling demuxers), only enable if necessary. Individual streams are always descrambled if 0x100 is added to the service type, regardless of this setting. Default off.">config.streaming.descramble_client</item>
 		<item level="2" text="Require authentication for http streams" description="When enabled, authentication is required to watch http streams.">config.streaming.authentication</item>
+		<item level="2" text="Http(s) stream start delay" description="Define additional delay in milliseconds before start of http(s) streams, e.g. to connect a remote tuner, you use a complex system of DiSEqC.">config.usage.http_startdelay</item>
 		<item level="2" text="Wake On LAN" description="When enabled the set top box is able to wakeup on LAN" requires="WakeOnLAN">config.usage.wakeOnLAN</item>
 	</setup>
-	<setup key="tunermisc" title="Tuner miscellaneous" showOpenWebIf="1">
+	<setup key="tunermisc" title="Tuner miscellaneous" showOpenWebif="1">
 		<item level="1" text="12V output" description="12V output." requires="12V_Output">config.usage.output_12V</item>
 		<item level="2" text="Preferred tuner" description="Configure which tuner will be preferred, when more than one tuner is available. If set to 'auto' the system will give priority to the tuner having the lowest number of channels/satellites.">config.usage.frontend_priority</item>
 		<item level="2" text="Preferred tuner DVB-S" description="When enabled, this setting has more weight than 'Preferred tuner'." requires="DVB-S_priority_tuner_available">config.usage.frontend_priority_dvbs</item>
@@ -72,8 +75,9 @@
 		<item level="2" text="Swap SNR in '&#37;' with SNR in 'db'" description="This option allows you to show the SNR as a percentage (not all receivers support this).">config.usage.swap_snr_on_osd</item>
 		<item level="1" text="Show screen path" description="This option allows you to show the full screen path leading to the current screen.">config.usage.showScreenPath</item>
 		<item level="1" text="Sort setting screens alphabetically" description="This option allows you to disable sorting of the option in setting screens">config.usage.sort_settings</item>
-		<item level="1" text="Sort menu screens" description="When set to 'user' this option allows you to sort or hide menu items via the blue button in menu screens. When set to 'user defined hidden' the blue button text in the menu remains hidden even though the user sort feature is active.">config.usage.menu_sort_mode</item>
+		<item level="1" text="Sort menu screens" description="When set to 'user defined' this option allows you to sort or hide menu items via the blue button in menu screens. When set to 'user defined hidden' the blue button text in the menu remains hidden even though the user sort feature is active.">config.usage.menu_sort_mode</item>
 		<item level="0" text="Show menu numbers" description="This option allows you to show menu number quick links.">config.usage.menu_show_numbers</item>
+		<item level="0" text="Menu style" conditional="findSkinScreen('MenuHorizontal')" description="Select 'Standard' to display the standard vertical menu layout, or 'Horizontal' to display the menu items in a row.">config.usage.menu_style</item>
 		<item level="1" text="Sort plug-in browser alphabetically" description="This option allows you to disable sorting of the plugin browser.">config.usage.sort_pluginlist</item>
 		<item level="1" text="Show PVR status in Movie Player infobar" description="This option moves the PVR status from the separate window into the Movie Player infobar.">config.usage.movieplayer_pvrstate</item>
 		<item level="2" text="Close PiP on exit" description="When enabled, the PiP can be closed by the EXIT button.">config.usage.pip_hideOnExit</item>
@@ -187,6 +191,7 @@
 		<item level="0" text="Default movie location" description="Set the default location for your recordings. Press OK to add new locations, LEFT/RIGHT to select from any existing locations.">config.usage.default_path</item>
 		<item level="2" text="Timer recording location" description="Set the default location for your timers. Press OK to add new locations, LEFT/RIGHT to select from any existing locations.">config.usage.timer_path</item>
 		<item level="2" text="Instant recording location" description="Set the default location for your instant recordings. Press OK to add new locations, LEFT/RIGHT to select from any existing locations.">config.usage.instantrec_path</item>
+		<item level="2" text="Recordings - convert IPTV servicetypes to  1" description="Recording 4097, 5001 and 5002 streams not possible with external players, so convert recordings to servicetype 1.">config.recording.setstreamto1</item>		
 <!--		<item level="2" text="Preferred tuner for recordings" description="Configure which tuner will be preferred for recordings, when more than one tuner is available. 'Disabled' would select a tuner based on preferred tuner in customise screen. 'Auto' would choose based on E2's default rules, ignoring preferred tuner in customise screen.">config.usage.recording_frontend_priority</item>-->
 		<item level="1" text="Recordings always have priority" description="When enabled, a recording is allowed to interrupt live TV, when there are no free tuners.">config.recording.asktozap</item>
 		<item level="0" text="Margin before recording (minutes)" description="When nonzero, a recording will start earlier than the starting time indicated by the EPG.">config.recording.margin_before</item>
@@ -199,6 +204,7 @@
 		<item level="2" text="Behavior when a movie reaches the end" description="Configure the behavior when reaching the end of a movie, during movie playback.">config.usage.on_movie_eof</item>
 		<item level="2" text="Display message before playing next movie" description="When enabled, a popup message will be shown when a movie has finished and the next one will start.">config.usage.next_movie_msg</item>
 		<item level="2" text="Behavior of 'pause' when paused" description="Configure the behavior of the 'pause' key when movie playback is already paused.">config.seek.on_pause</item>
+		<item level="1" text="Enable VOD skip buttons">config.seek.vod_buttons</item>		
 		<item level="2" text="Custom skip time for '1'/'3' buttons" description="Configure the skip time interval for the 1 and 3 buttons.">config.seek.selfdefined_13</item>
 		<item level="2" text="Custom skip time for '4'/'6' buttons" description="Configure the skip time interval for the 4 and 6 buttons.">config.seek.selfdefined_46</item>
 		<item level="2" text="Custom skip time for '7'/'9' buttons" description="Configure the skip time interval for the 7 and 9 buttons.">config.seek.selfdefined_79</item>
@@ -324,6 +330,7 @@
 		<item level="2" text="Timeshift-save action on zap" description="Select if timeshift should continue when set to record.">config.timeshift.favoriteSaveAction</item>
 		<item level="2" text="Stop timeshift while recording?" description="Stops timeshift being used if a recording is in progress. (Advisable for USB sticks)">config.timeshift.stopwhilerecording</item>
 		<item level="2" text="Use timeshift seekbar while timeshifting?" description="If set to 'yes', allows you to use the seekbar to jump to a point within the event.">config.timeshift.showinfobar</item>
+		<item level="2" text="Skip jumping to live TV while timeshifting with plugins" description="If set to 'yes', allows you to use timeshift with alternative audio plugins.">config.usage.timeshift_skipreturntolive</item>
 	</setup>
 	<setup key="epgchannel" title="Channel EPG">
 		<item level="2" text="Sort list by" description="You can have the list sorted by time or alphanumerical.">config.epgselection.sort</item>
@@ -489,8 +496,6 @@
 		<item level="0" text="Remove items from trash can after (days)" description="Configure the number of days after which items are automatically removed from the trash can. A setting of 0 disables this.">config.usage.movielist_trashcan_days</item>
 		<item level="0" text="Clean network trash cans" description="When enabled, network trash cans are probed for cleaning.">config.usage.movielist_trashcan_network_clean</item>
 		<item level="0" text="Disk space to reserve for recordings (in GB)" description="Configure the minimum amount of disk space to be available for recordings. When the amount of space drops below this value, deleted items will be removed from the trash can.">config.usage.movielist_trashcan_reserve</item>
-		<item level="0" text="Background delete option" description="Configure on which devices the background delete option should be used.">config.misc.erase_flags</item>
-		<item level="0" text="Background delete speed" description="Configure the speed of the background deletion process. Lower speed will consume less hard disk drive performance.">config.misc.erase_speed</item>
 		<item level="0" text="Font size" description="This allows you change the font size relative to skin size, so 1 increases by 1 point size, and -1 decreases by 1 point size">config.movielist.fontsize</item>
 		<item level="0" text="Number of rows" description="Number of rows to display">config.movielist.itemsperpage</item>
 		<item level="0" text="Use slim screen" description="Use the alternative screen">config.movielist.useslim</item>

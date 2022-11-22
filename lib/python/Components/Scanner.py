@@ -4,6 +4,21 @@ from mimetypes import guess_type, add_type
 from Components.PluginComponent import plugins
 from Plugins.Plugin import PluginDescriptor
 
+# start: temporary workaround until we discover why mimetypes.add_type() is not updating the map
+from mimetypes import types_map
+
+types_map_dict = dict(types_map)
+
+def add_type(type, ext, strict=True):
+	types_map_dict[ext] = type
+
+def guess_type(url, strict=True):
+	p = url.rfind('.')
+	if p == -1:
+		return (None, None)
+	return (types_map_dict.get(url[p:].lower()), None)
+# end: temporary workaround
+
 
 add_type("audio/dts", ".dts")
 add_type("audio/mpeg", ".mp3")
@@ -34,6 +49,7 @@ add_type("image/gif", ".gif")
 add_type("image/bmp", ".bmp")
 add_type("image/jpeg", ".jpeg")
 add_type("image/jpeg", ".jpe")
+add_type("image/svg+xml", ".svg")
 add_type("video/mpeg", ".mpg")
 add_type("video/dvd", ".vob")
 add_type("video/mp4", ".m4v")
@@ -82,11 +98,7 @@ def getType(file):
 
 
 class Scanner:
-	def __init__(self, name, mimetypes=None, paths_to_scan=None, description="", openfnc=None):
-		if not mimetypes:
-			mimetypes = []
-		if not paths_to_scan:
-			paths_to_scan = []
+	def __init__(self, name, mimetypes=[], paths_to_scan=[], description="", openfnc=None):
 		self.mimetypes = mimetypes
 		self.name = name
 		self.paths_to_scan = paths_to_scan
@@ -97,7 +109,8 @@ class Scanner:
 		return True
 
 	def handleFile(self, res, file):
-		if (self.mimetypes is None or file.mimetype in self.mimetypes) and self.checkFile(file):
+#		print("[Scanner] self.mimetypes file.mimetype checkfile", self.mimetypes, "   ", file.mimetype, "   ", self.checkFile(file))
+		if file.mimetype and file.mimetype.lower() in list(map(lambda x: x.lower(), self.mimetypes)) and self.checkFile(file):
 			res.setdefault(self, []).append(file)
 
 	def __repr__(self):
@@ -116,24 +129,27 @@ class ScanPath:
 	def __repr__(self):
 		return self.path + "(" + str(self.with_subdirs) + ")"
 
-	# we will use this in a set(), so we need to implement __hash__ and __cmp__
+	# we will use this in a set(), so we need in python 3 to implement __hash__ and __eq__ ,   __lt__ ,  __gt__
 	def __hash__(self):
 		return self.path.__hash__() ^ self.with_subdirs.__hash__()
 
-	def __cmp__(self, other):
-		if self.path < other.path:
-			return -1
-		elif self.path > other.path:
-			return +1
-		else:
-			return self.with_subdirs.__cmp__(other.with_subdirs)
+	def __eq__(self, other):
+		return ((self.with_subdirs, self.path) == (other.with_subdirs, other.path))
+
+	def __lt__(self, other):
+		return ((self.with_subdirs, self.path) < (other.with_subdirs, other.path))
+
+	def __gt__(self, other):
+		return ((self.with_subdirs, self.path) > (other.with_subdirs, other.path))
 
 
 class ScanFile:
 	def __init__(self, path, mimetype=None, size=None, autodetect=True):
 		self.path = path
+#		print("[Scanner][ScanFile] path=%s, mimetype=%s, autodetect=%s" % (path, mimetype, autodetect))
 		if mimetype is None and autodetect:
 			self.mimetype = getType(path)
+#			print("[Scanner][ScanFile] getType(path)", getType(path))
 		else:
 			self.mimetype = mimetype
 		self.size = size
@@ -159,8 +175,8 @@ def scanDevice(mountpoint):
 		if not isinstance(l, list):
 			l = [l]
 		scanner += l
-
-	print("[Scanner] ", scanner)
+#	print("[Scanner][scanDevice] mountpoint ", mountpoint)
+#	print("[Scanner][scanDevice] scanner", scanner)
 
 	res = {}
 
@@ -168,37 +184,37 @@ def scanDevice(mountpoint):
 	# with_subdirs.
 
 	paths_to_scan = set()
-
+#	print("[Scanner][scanDevice] paths_to_scan", paths_to_scan)
 	# first merge them all...
 	for s in scanner:
 		paths_to_scan.update(set(s.paths_to_scan))
 
 	# ...then remove with_subdir=False when same path exists
 	# with with_subdirs=True
-	for p in paths_to_scan:
+	for p in paths_to_scan.copy():
 		if p.with_subdirs == True and ScanPath(path=p.path) in paths_to_scan:
 			paths_to_scan.remove(ScanPath(path=p.path))
-
 	# now scan the paths
 	for p in paths_to_scan:
-		path = ospath.join(mountpoint, p.path)
-
-		for root, dirs, files in walk(path):
+		mediaPath = ospath.join(mountpoint, p.path)
+		for root, dirs, files in walk(mediaPath):
 			for f in files:
-				path = ospath.join(root, f)
+				filePath = ospath.join(root, f)
 				if f.endswith(".wav") and f.startswith("track"):
-					sfile = ScanFile(path, "audio/x-cda")
+					sfile = ScanFile(filePath, "audio/x-cda")
 				else:
-					sfile = ScanFile(path)
+					sfile = ScanFile(filePath)
+#				print("[Scanner][scanDevice] sfile=%s" % sfile)
 				for s in scanner:
 					s.handleFile(res, sfile)
 
 			# if we really don't want to scan subdirs, stop here.
-			if not p.with_subdirs:
+			if len(p.path) == 0 and ("net" in mountpoint or "autofs" in mountpoint):
+				continue
+			else:
 				del dirs[:]
-
-	# res is a dict with scanner -> [ScanFiles]
-	return res
+	print("[Scanner][scanDevice] res=%s" % res)
+	return res			# res is a dict with scanner -> [ScanFiles]
 
 
 def openList(session, files):

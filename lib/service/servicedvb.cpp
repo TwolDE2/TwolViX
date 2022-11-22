@@ -1302,8 +1302,11 @@ void eDVBServicePlay::serviceEventTimeshift(int event)
 		{
 			if (m_timeshift_file_next.empty())
 			{
-				eDebug("[servicedvb][eDVBServicePlay] timeshift EOF, so let's go live");
-				switchToLive();
+				if (!eConfigManager::getConfigBoolValue("config.usage.timeshift_skipreturntolive", false))
+				{
+					eDebug("[servicedvb][eDVBServicePlay] timeshift EOF, so let's go live");
+					switchToLive();
+				}
 			}
 			else
 			{
@@ -1333,6 +1336,7 @@ RESULT eDVBServicePlay::start()
 	eServiceReferenceDVB service = (eServiceReferenceDVB&)m_reference;
 	bool scrambled = true;
 	int packetsize = 188;
+	RESULT ret = 0;
 	eDVBServicePMTHandler::serviceType type = eDVBServicePMTHandler::livetv;
 	eDebug("[servicedvb][eDVBServicePlay][start] m_is_stream set to: %d", m_is_stream);
 	eDebug("[servicedvb][eDVBServicePlay][start] m_is_pvr set to; %d", m_is_pvr);
@@ -1381,7 +1385,7 @@ RESULT eDVBServicePlay::start()
 
 	m_first_program_info = 1;
 	ePtr<iTsSource> source = createTsSource(service, packetsize);
-	m_service_handler.tuneExt(service, source, service.path.c_str(), m_cue, false, m_dvb_service, type, scrambled);
+	ret = m_service_handler.tuneExt(service, source, service.path.c_str(), m_cue, false, m_dvb_service, type, scrambled);
 
 	if (m_is_pvr)
 	{
@@ -1398,7 +1402,7 @@ RESULT eDVBServicePlay::start()
 		}
 		m_event(this, evStart);
 	}
-	return 0;
+	return ret;
 }
 
 RESULT eDVBServicePlay::stop()

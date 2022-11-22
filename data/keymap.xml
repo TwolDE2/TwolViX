@@ -575,13 +575,17 @@
 	</map>
 
 	<map context="InfobarActions">
-		<key id="KEY_VIDEO" mapto="showMovies" flags="b" />
+		<key id="KEY_VIDEO" mapto="showMovies" flags="m" />
 		<key id="KEY_RADIO" mapto="showRadio" flags="b" />
 		<key id="KEY_RADIO" mapto="openBouquetList" flags="l" />
 		<key id="KEY_TV" mapto="showTv" flags="b" />
 		<key id="KEY_TV" mapto="openBouquetList" flags="l" />
 		<key id="KEY_TV2" mapto="showTv" flags="b" />
 		<key id="KEY_TV2" mapto="openBouquetList" flags="l" />
+		<key id="KEY_HOMEPAGE" mapto="showWWW" flags="b" />
+		<key id="KEY_BOOKMARKS" mapto="showWWW" flags="b" />
+		<key id="KEY_VOD" mapto="showWWW" flags="b" />
+		<key id="KEY_WWW" mapto="showWWW" flags="b" />
 		<key id="KEY_PROG1" mapto="openBouquetList" flags="m" />
 		<key id="KEY_PROG2" mapto="openBouquetList" flags="m" />
 		<key id="KEY_FILE" mapto="showMovies" flags="b" />
@@ -605,6 +609,10 @@
 	<map context="InfobarAudioSelectionActions">
 		<key id="KEY_AUDIO" mapto="audioSelection" flags="b" />
 		<key id="KEY_AUDIO" mapto="audioSelectionLong" flags="l" />
+	</map>
+
+	<map context="InfoBarVideoSetupActions">
+		<key id="KEY_VIDEO" mapto="videoSetup" flags="m" />
 	</map>
 
 	<map context="InfobarSubtitleSelectionActions">
@@ -828,6 +836,7 @@
 		<key id="KEY_DOWN" mapto="down" flags="m" />
 		<key id="KEY_VIDEO" mapto="movieList" flags="m" />
 		<key id="KEY_FILE" mapto="movieList" flags="m" />
+		<key id="KEY_PVR" mapto="movieList" flags="m" />
 	</map>
 
 	<map context="MoviePlayerActions">
@@ -1242,9 +1251,13 @@
 		<key id="KEY_F2" mapto="f2_long" flags="l" />
 		<key id="KEY_F3" mapto="f3" flags="b" />
 		<key id="KEY_F3" mapto="f3_long" flags="l" />
+		<key id="KEY_F4" mapto="f4" flags="b" />
+		<key id="KEY_F4" mapto="f4_long" flags="l" />
 		<key id="KEY_AUX" mapto="HDMIin" flags="b" />
 		<key id="KEY_AUX" mapto="HDMIin_long" flags="l" />
 		<key id="KEY_FILE" mapto="file" flags="b" />
 		<key id="KEY_FILE" mapto="file_long" flags="l" />
+		<key id="KEY_WWW" mapto="www" flags="b" />
+		<key id="KEY_WWW" mapto="www_long" flags="l" />
 	</map>
 </keymap>

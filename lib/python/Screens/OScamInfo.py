@@ -180,15 +180,12 @@ class OscamInfo:
 			self.proto = "https"
 			self.port.replace("+", "")
 
-		print("[openWebIF] NAMEBIN=%s, CAM=%s" % (NAMEBIN, NAMEBIN))
 		if part is None:
 			self.url = "%s://%s:%s/%sapi.html?part=status" % (self.proto, self.ip, self.port, NAMEBIN)
 		else:
 			self.url = "%s://%s:%s/%sapi.html?part=%s" % (self.proto, self.ip, self.port, NAMEBIN, part)
 		if part is not None and reader is not None:
 			self.url = "%s://%s:%s/%sapi.html?part=%s&label=%s" % (self.proto, self.ip, self.port, NAMEBIN, part, reader)
-		print("[openWebIF] NAMEBIN=%s, NAMEBIN=%s url=%s" % (NAMEBIN, NAMEBIN, self.url))
-		print("[OscamInfo] self.url=%s" % self.url)
 		opener = build_opener(HTTPHandler)
 		if not self.username == "":
 			pwman = HTTPPasswordMgrWithDefaultRealm()
@@ -200,16 +197,18 @@ class OscamInfo:
 		err = False
 		try:
 			data = urlopen(request).read()
-			# print data
+			print("[OscamInfo][openWebIF] data=", data)
 		except URLError as e:
 			if hasattr(e, "reason"):
 				err = str(e.reason)
 			elif hasattr(e, "code"):
 				err = str(e.code)
 		if err is not False:
-			print("[openWebIF] error: %s" % err)
+#			print("[OscamInfo][openWebIF] error: %s" % err)
 			return False, err
 		else:
+			if isinstance(data, bytes):
+				data = data.decode(encoding="UTF-8", errors="ignore")		
 			return True, data
 
 	def readXML(self, typ):
@@ -223,14 +222,9 @@ class OscamInfo:
 		retval = []
 		tmp = {}
 		if result[0]:
+			print("[OscamInfo] show result 0,1", result[0], "  ", result[1])
 			if not self.showLog:
 				data = ElementTree.XML(result[1])
-#				if typ=="version":
-#					if "version" in data.attrib:
-#						self.version = data.attrib["version"]
-#					else:
-#						self.version = "n/a"
-#					return self.version
 				status = data.find("status")
 				clients = status.findall("client")
 				for cl in clients:
@@ -275,10 +269,11 @@ class OscamInfo:
 							tmp[cl.attrib["type"]] = []
 							tmp[cl.attrib["type"]].append((name, proto, "%s:%s" % (caid, srvid), srvname_short, ecmtime, ip, connstatus))
 			else:
-				if b"<![CDATA" not in result[1]:
+				if "<![CDATA" not in result[1]:
 					tmp = result[1].replace("<log>", "<log><![CDATA[").replace("</log>", "]]></log>")
 				else:
 					tmp = result[1]
+#				print("[OscamInfo] show tmp", tmp)					
 				data = ElementTree.XML(tmp)
 				log = data.find("log")
 				logtext = log.text
@@ -305,10 +300,10 @@ class OscamInfo:
 							txt += "%s " % j.strip()
 						retval.append(txt)
 
-			return retval
+			return result[0], retval
 
 		else:
-			return result[1]
+			return result[0], result[1]
 
 	def getVersion(self):
 		xmldata = self.openWebIF()
@@ -484,7 +479,7 @@ class OscamInfoMenu(Screen):
 	def goEntry(self, entry):
 		NAMEBIN = check_NAMEBIN()
 		if NAMEBIN:
-			print("[openWebIF] NAMEBIN=%s" % (NAMEBIN))
+#			print("[OscamInfo] NAMEBIN=%s" % (NAMEBIN))
 			if entry in (1, 2, 3) and config.oscaminfo.userdatafromconf.value and self.osc.confPath()[0] is None:
 				config.oscaminfo.userdatafromconf.setValue(False)
 				config.oscaminfo.userdatafromconf.save()
@@ -812,15 +807,17 @@ class oscInfo(Screen, OscamInfo):
 			data = self.readXML(typ=self.what)
 		self.out = []
 		self.itemheight = 25
-		if not isinstance(data, str):
+		print("[OscamInfo] data[0], data[1]", data[0], "   ", data[1])
+		if data[0]:
+			print("[OscamInfo] data[0], data[1] not isinstance(data[1], str)")
 			if self.what != "l":
 				heading = (self.HEAD[self.NAME], self.HEAD[self.PROT], self.HEAD[self.CAID_SRVID],
 						self.HEAD[self.SRVNAME], self.HEAD[self.ECMTIME], self.HEAD[self.IP_PORT], "")
 				self.out = [self.buildListEntry(heading, heading=True)]
-				for i in data:
+				for i in data[1]:
 					self.out.append(self.buildListEntry(i))
 			else:
-				for i in data:
+				for i in data[1]:
 					if i != "":
 						self.out.append(self.buildLogListEntry((i,)))
 			if self.what == "c":
@@ -840,12 +837,12 @@ class oscInfo(Screen, OscamInfo):
 				self["key_blue"].setText("")
 				self.itemheight = 20
 		else:
-			self.errmsg = (data,)
+			self.errmsg = (data[1],)
 			if config.oscaminfo.autoupdate.value:
 				self.loop.stop()
 			for i in self.errmsg:
 				self.out.append(self.buildListEntry((i,)))
-			self.setTitle(_("Error") + ": " + data)
+			self.setTitle(_("Error") + ": " + data[1])
 			self["key_green"].setText(_("Clients"))
 			self["key_yellow"].setText(_("Servers"))
 			self["key_blue"].setText(_("Log"))

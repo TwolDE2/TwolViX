@@ -832,7 +832,7 @@ PyObject *eDVBCIInterfaces::getDescrambleRules(int slotid)
 	{
 		char tmp[255];
 		snprintf(tmp, 255, "eDVBCIInterfaces::getDescrambleRules try to get rules for CI Slot %d... but just %zd slots are available", slotid, m_slots.size());
-		PyErr_SetString(PyExc_Exception, tmp);
+		PyErr_SetString(PyExc_ValueError, tmp);
 		return 0;
 	}
 	ePyObject tuple = PyTuple_New(3);
@@ -885,14 +885,14 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 	{
 		char tmp[255];
 		snprintf(tmp, 255, "eDVBCIInterfaces::setDescrambleRules try to set rules for CI Slot %d... but just %zd slots are available", slotid, m_slots.size());
-		PyErr_SetString(PyExc_Exception, tmp);
+		PyErr_SetString(PyExc_ValueError, tmp);
 		return -1;
 	}
 	if (!PyTuple_Check(obj))
 	{
 		char tmp[255];
 		snprintf(tmp, 255, "2nd argument of setDescrambleRules is not a tuple.. it is a '%s'!!", PyObject_TypeStr(obj));
-		PyErr_SetString(PyExc_Exception, tmp);
+		PyErr_SetString(PyExc_TypeError, tmp);
 		return -1;
 	}
 	if (PyTuple_Size(obj) != 3)
@@ -901,7 +901,7 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 			"first argument should be a pythonlist with possible services\n"
 			"second argument should be a pythonlist with possible providers/dvbnamespace tuples\n"
 			"third argument should be a pythonlist with possible caids";
-		PyErr_SetString(PyExc_Exception, errstr);
+		PyErr_SetString(PyExc_TypeError, errstr);
 		return -1;
 	}
 	ePyObject service_list = PyTuple_GET_ITEM(obj, 0);
@@ -915,7 +915,7 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 			"second argument(%s) should be a pythonlist with possible providers (providername strings)\n"
 			"third argument(%s) should be a pythonlist with possible caids (ints)",
 			PyObject_TypeStr(service_list), PyObject_TypeStr(provider_list), PyObject_TypeStr(caid_list));
-		PyErr_SetString(PyExc_Exception, errstr);
+		PyErr_SetString(PyExc_TypeError, errstr);
 		return -1;
 	}
 	slot->possible_caids.clear();
@@ -930,7 +930,7 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules entry in service list is not a string.. it is '%s'!!", PyObject_TypeStr(refstr));
-			PyErr_SetString(PyExc_Exception, buf);
+			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
 		const char *tmpstr = PyUnicode_AsUTF8(refstr);
@@ -949,28 +949,28 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules entry in provider list is not a tuple it is '%s'!!", PyObject_TypeStr(tuple));
-			PyErr_SetString(PyExc_Exception, buf);
+			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
 		if (PyTuple_Size(tuple) != 2)
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules provider tuple has %zd instead of 2 entries!!", PyTuple_Size(tuple));
-			PyErr_SetString(PyExc_Exception, buf);
+			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
 		if (!PyUnicode_Check(PyTuple_GET_ITEM(tuple, 0)))
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules 1st entry in provider tuple is not a string it is '%s'", PyObject_TypeStr(PyTuple_GET_ITEM(tuple, 0)));
-			PyErr_SetString(PyExc_Exception, buf);
+			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
 		if (!PyLong_Check(PyTuple_GET_ITEM(tuple, 1)))
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules 2nd entry in provider tuple is not a long it is '%s'", PyObject_TypeStr(PyTuple_GET_ITEM(tuple, 1)));
-			PyErr_SetString(PyExc_Exception, buf);
+			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
 		const char *tmpstr = PyUnicode_AsUTF8(PyTuple_GET_ITEM(tuple, 0));
@@ -989,7 +989,7 @@ RESULT eDVBCIInterfaces::setDescrambleRules(int slotid, SWIG_PYOBJECT(ePyObject)
 		{
 			char buf[255];
 			snprintf(buf, 255, "eDVBCIInterfaces::setDescrambleRules entry in caid list is not a long it is '%s'!!", PyObject_TypeStr(caid));
-			PyErr_SetString(PyExc_Exception, buf);
+			PyErr_SetString(PyExc_TypeError, buf);
 			return -1;
 		}
 		int tmpcaid = PyLong_AsLong(caid);
@@ -1009,7 +1009,7 @@ PyObject *eDVBCIInterfaces::readCICaIds(int slotid)
 	{
 		char tmp[255];
 		snprintf(tmp, 255, "eDVBCIInterfaces::readCICaIds try to get CAIds for CI Slot %d... but just %zd slots are available", slotid, m_slots.size());
-		PyErr_SetString(PyExc_Exception, tmp);
+		PyErr_SetString(PyExc_ValueError, tmp);
 	}
 	else
 	{
@@ -1025,6 +1025,14 @@ PyObject *eDVBCIInterfaces::readCICaIds(int slotid)
 		return list;
 	}
 	return 0;
+}
+
+int eDVBCIInterfaces::setCIEnabled(int slotid, bool enabled)
+{
+	eDVBCISlot *slot = getSlot(slotid);
+	if (slot)
+		return slot->setEnabled(enabled);
+	return -1;
 }
 
 int eDVBCIInterfaces::setCIClockRate(int slotid, int rate)
@@ -1232,6 +1240,20 @@ DEFINE_REF(eDVBCISlot);
 
 eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 {
+	char configStr[255];
+	slotid = nr;
+	m_context = context;
+	state = stateDisabled;
+	snprintf(configStr, 255, "config.ci.%d.enabled", slotid);
+	bool enabled = eConfigManager::getConfigBoolValue(configStr, true);
+	if (enabled)
+		openDevice();
+	else
+		/* emit */ eDVBCI_UI::getInstance()->m_messagepump.send(eDVBCIInterfaces::Message(eDVBCIInterfaces::Message::slotStateChanged, getSlotID(), 3)); // state disabled
+}
+
+void eDVBCISlot::openDevice()
+{
 	char filename[128];
 
 	application_manager = 0;
@@ -1244,9 +1266,7 @@ eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 	plugged = true;
 	m_ci_version = versionUnknown;
 
-	slotid = nr;
-
-	sprintf(filename, "/dev/ci%d", nr);
+	sprintf(filename, "/dev/ci%d", slotid);
 
 //	possible_caids.insert(0x1702);
 //	possible_providers.insert(providerPair("PREMIERE", 0xC00000));
@@ -1259,7 +1279,7 @@ eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 
 	if (fd >= 0)
 	{
-		notifier = eSocketNotifier::create(context, fd, eSocketNotifier::Read | eSocketNotifier::Priority | eSocketNotifier::Write);
+		notifier = eSocketNotifier::create(m_context, fd, eSocketNotifier::Read | eSocketNotifier::Priority | eSocketNotifier::Write);
 		CONNECT(notifier->activated, eDVBCISlot::data);
 	} else
 	{
@@ -1273,7 +1293,16 @@ eDVBCISlot::~eDVBCISlot()
 	close(fd);
 }
 
-void eDVBCISlot::setAppManager( eDVBCIApplicationManagerSession *session )
+void eDVBCISlot::closeDevice() 
+{
+	close(fd);
+	fd = -1;
+	notifier->stop();
+	data(eSocketNotifier::Priority);
+	state = stateDisabled;
+}
+
+void eDVBCISlot::setAppManager(eDVBCIApplicationManagerSession *session)
 {
 	singleLock s(eDVBCIInterfaces::m_slot_lock);
 	application_manager=session;
@@ -1604,6 +1633,24 @@ int eDVBCISlot::setClockRate(int rate)
 	snprintf(buf, sizeof(buf), "/proc/stb/tsmux/ci%d_tsclk", slotid);
 	if(CFile::write(buf, rate ? "high" : "normal") == -1)
 		return -1;
+	return 0;
+}
+
+int eDVBCISlot::setEnabled(bool enabled)
+{
+	eDebug("[CI] Slot: %d Enabled: %d, state %d", getSlotID(), enabled, state);
+	if (enabled && state != stateDisabled)
+		return 0;
+
+	if (!enabled && state == stateDisabled)
+		return 0;
+
+	if(enabled)
+		openDevice();
+	else {
+		closeDevice();
+		/* emit */ eDVBCI_UI::getInstance()->m_messagepump.send(eDVBCIInterfaces::Message(eDVBCIInterfaces::Message::slotStateChanged, getSlotID(), 3)); // state disabled
+	}
 	return 0;
 }
 

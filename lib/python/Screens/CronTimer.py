@@ -39,6 +39,7 @@ class CronTimers(Screen):
 		self.summary_running = ''
 		self['key'] = Label(_("H: = Hourly / D: = Daily / W: = Weekly / M: = Monthly"))
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)
 		self.my_crond_active = False
 		self.my_crond_run = False
 
@@ -80,7 +81,7 @@ class CronTimers(Screen):
 	def doInstall(self, callback, pkgname):
 		self.message = self.session.open(MessageBox, _("Please wait..."), MessageBox.TYPE_INFO, enable_input=False)
 		self.message.setTitle(_('Installing service'))
-		self.Console.ePopen('/usr/bin/opkg install ' + pkgname, callback)
+		self.ConsoleB.ePopen('/usr/bin/opkg install ' + pkgname, callback)
 
 	def installComplete(self, result=None, retval=None, extra_args=None):
 		self.message.close()
@@ -88,7 +89,7 @@ class CronTimers(Screen):
 
 	def UninstallCheck(self):
 		if not self.my_crond_run:
-			self.Console.ePopen('/usr/bin/opkg list_installed ' + self.service_name, self.RemovedataAvail)
+			self.ConsoleB.ePopen('/usr/bin/opkg list_installed ' + self.service_name, self.RemovedataAvail)
 		else:
 			self.close()
 
@@ -107,7 +108,7 @@ class CronTimers(Screen):
 	def doRemove(self, callback, pkgname):
 		self.message = self.session.open(MessageBox, _("Please wait..."), MessageBox.TYPE_INFO, enable_input=False)
 		self.message.setTitle(_('Removing service'))
-		self.Console.ePopen('/usr/bin/opkg remove ' + pkgname + ' --force-remove --autoremove', callback)
+		self.ConsoleB.ePopen('/usr/bin/opkg remove ' + pkgname + ' --force-remove --autoremove', callback)
 
 	def removeComplete(self, result=None, retval=None, extra_args=None):
 		self.message.close()
@@ -131,9 +132,9 @@ class CronTimers(Screen):
 
 	def CrondStart(self):
 		if not self.my_crond_run:
-			self.Console.ePopen('/etc/init.d/crond start', self.StartStopCallback)
+			self.ConsoleB.ePopen('/etc/init.d/crond start', self.StartStopCallback)
 		elif self.my_crond_run:
-			self.Console.ePopen('/etc/init.d/crond stop', self.StartStopCallback)
+			self.ConsoleB.ePopen('/etc/init.d/crond stop', self.StartStopCallback)
 
 	def StartStopCallback(self, result=None, retval=None, extra_args=None):
 		sleep(3)
@@ -141,9 +142,9 @@ class CronTimers(Screen):
 
 	def autostart(self):
 		if fileExists('/etc/rc2.d/S90crond'):
-			self.Console.ePopen('update-rc.d -f crond remove')
+			self.ConsoleB.ePopen('update-rc.d -f crond remove')
 		else:
-			self.Console.ePopen('update-rc.d -f crond defaults 90 60')
+			self.ConsoleB.ePopen('update-rc.d -f crond defaults 90 60')
 		sleep(3)
 		self.updateList()
 
@@ -185,55 +186,19 @@ class CronTimers(Screen):
 		if path.exists('/etc/cron/crontabs/root'):
 			f = open('/etc/cron/crontabs/root', 'r')
 			for line in f.readlines():
-				parts = line.strip().split()
-				if parts:
+				parts = line.strip().split(maxsplit=5)
+				if parts and len(parts) == 6:
 					if parts[1] == '*':
-						try:
-							line2 = 'H: 00:' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7] + parts[8] + parts[9]
-						except:
-							try:
-								line2 = 'H: 00:' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7] + parts[8]
-							except:
-								try:
-									line2 = 'H: 00:' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7]
-								except:
-									try:
-										line2 = 'H: 00:' + parts[0].zfill(2) + '\t' + parts[5] + parts[6]
-									except:
-										line2 = 'H: 00:' + parts[0].zfill(2) + '\t' + parts[5]
+						line2 = 'H: 00:' + parts[0].zfill(2) + '\t' + parts[5]
 						res = (line2, line)
 						self.list.append(res)
 					elif parts[2] == '*' and parts[4] == '*':
-						try:
-							line2 = 'D: ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7] + parts[8] + parts[9]
-						except:
-							try:
-								line2 = 'D: ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7] + parts[8]
-							except:
-								try:
-									line2 = 'D: ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7]
-								except:
-									try:
-										line2 = 'D: ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6]
-									except:
-										line2 = 'D: ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5]
+						line2 = 'D: ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5]
 						res = (line2, line)
 						self.list.append(res)
 					elif parts[3] == '*':
 						if parts[4] == "*":
-							try:
-								line2 = 'M:  Day ' + parts[2] + '  ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7] + parts[8] + parts[9]
-							except:
-								try:
-									line2 = 'M:  Day ' + parts[2] + '  ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7] + parts[8]
-								except:
-									try:
-										line2 = 'M:  Day ' + parts[2] + '  ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7]
-									except:
-										try:
-											line2 = 'M:  Day ' + parts[2] + '  ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6]
-										except:
-											line2 = 'M:  Day ' + parts[2] + '  ' + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5]
+							line2 = 'M:  Day ' + parts[2] + '  ' + parts[1].zfill(2) + '\t' + parts[5]
 						header = 'W:  '
 						day = ""
 						if str(parts[4]).find('0') >= 0:
@@ -252,19 +217,7 @@ class CronTimers(Screen):
 							day += 'Sat '
 
 						if day:
-							try:
-								line2 = header + day + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7] + parts[8] + parts[9]
-							except:
-								try:
-									line2 = header + day + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7] + parts[8]
-								except:
-									try:
-										line2 = header + day + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6] + parts[7]
-									except:
-										try:
-											line2 = header + day + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5] + parts[6]
-										except:
-											line2 = header + day + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5]
+							line2 = header + day + parts[1].zfill(2) + ':' + parts[0].zfill(2) + '\t' + parts[5]
 						res = (line2, line)
 						self.list.append(res)
 			f.close()

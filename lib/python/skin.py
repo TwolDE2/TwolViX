@@ -2,17 +2,16 @@ import errno
 import xml.etree.cElementTree
 
 from enigma import addFont, eLabel, ePixmap, ePoint, eRect, eSize, eWindow, eWindowStyleManager, eWindowStyleSkinned, getDesktop, gFont, getFontFaces, gMainDC, gRGB, BT_ALPHATEST, BT_ALPHABLEND, BT_HALIGN_CENTER, BT_HALIGN_LEFT, BT_HALIGN_RIGHT, BT_KEEP_ASPECT_RATIO, BT_SCALE, BT_VALIGN_BOTTOM, BT_VALIGN_CENTER, BT_VALIGN_TOP
-from os.path import basename, dirname, isfile
+from os.path import basename, dirname, isfile, join
 
 from Components.config import ConfigSubsection, ConfigText, config
-from Components.RcModel import rc_model
 from Components.Sources.Source import ObsoleteSource
 from Components.SystemInfo import SystemInfo
 from Tools.Directories import SCOPE_CONFIG, SCOPE_CURRENT_LCDSKIN, SCOPE_CURRENT_SKIN, SCOPE_FONTS, SCOPE_SKIN, SCOPE_SKIN_IMAGE, resolveFilename
 from Tools.Import import my_import
 from Tools.LoadPixmap import LoadPixmap
 
-DEFAULT_SKIN = SystemInfo["HasFullHDSkinSupport"] and "ViX-Night-1080/skin.xml" or "ViX-Night-HD/skin.xml"
+DEFAULT_SKIN = SystemInfo["HasFullHDSkinSupport"] and "Simple_Ten_Eighty/skin.xml" or "ViX-Night-HD/skin.xml"
 EMERGENCY_SKIN = "skin_default/skin.xml"
 EMERGENCY_NAME = "Default OE-A"
 DEFAULT_DISPLAY_SKIN = "skin_default/skin_display.xml"
@@ -401,8 +400,8 @@ def loadPixmap(path, desktop, width=0, height=0):
 	option = path.find("#")
 	if option != -1:
 		path = path[:option]
-	if rc_model.rcIsDefault() is False and basename(path) in ("rc.png", "rc0.png", "rc1.png", "rc2.png", "oldrc.png"):
-		path = rc_model.getRcImg()
+	if not SystemInfo["rc_default"] and basename(path) in ("rc.png", "rc0.png", "rc1.png", "rc2.png", "oldrc.png"):
+		path = resolveFilename(SCOPE_SKIN, join("rc_models", SystemInfo["rc_model"], "rc.png"))
 	pixmap = LoadPixmap(path, desktop, None, width, height)
 	if pixmap is None:
 		raise SkinError("Pixmap file '%s' not found" % path)
@@ -437,10 +436,10 @@ def collectAttributes(skinAttributes, node, context, skinPath=None, ignore=(), f
 				skinAttributes.append((attrib, font))
 			else:
 				skinAttributes.append((attrib, value))
-	if pos != None:
+	if pos is not None:
 		pos, size = context.parse(pos, size, font)
 		skinAttributes.append(("position", pos))
-	if size != None:
+	if size is not None:
 		skinAttributes.append(("size", size))
 
 
@@ -496,10 +495,10 @@ class AttributeParser:
 			print("[Skin] Error: Invalid animationMode '%s'!  Must be one of 'disable', 'off', 'offshow', 'offhide', 'onshow' or 'onhide'." % value)
 
 	def title(self, value):
-		self.guiObject.setTitle(_(value))
+		self.guiObject.setTitle(value and _(value))
 
 	def text(self, value):
-		self.guiObject.setText(_(value))
+		self.guiObject.setText(value and _(value))
 
 	def font(self, value):
 		self.guiObject.setFont(parseFont(value, self.scaleTuple))

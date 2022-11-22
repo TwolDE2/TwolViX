@@ -1,9 +1,7 @@
 from os import listdir, path, popen
 from re import search
-
 from enigma import eTimer, getEnigmaVersionString, getDesktop
 from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
-
 from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button
@@ -15,14 +13,13 @@ from Components.NimManager import nimmanager
 from Components.Pixmap import MultiPixmap
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BoxInfo
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
-from Tools.Directories import fileExists, fileCheck, pathExists
+from Tools.Directories import fileExists, fileCheck, pathExists, isPluginInstalled
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
-
 
 class About(Screen):
 	def __init__(self, session):
@@ -56,12 +53,7 @@ class About(Screen):
 
 		AboutText += _("Model:\t%s %s\n") % (getMachineBrand(), getMachineName())
 		
-		if SystemInfo["BoxInfo"]:
-			BoxInfo = SystemInfo["BoxInfo"]
-			AboutText += _("Boot Device:\t%s\n") % BoxInfo.getItem("mtdbootfs")			
-			AboutText += _("Chipset:\t%s\n") % BoxInfo.getItem("socfamily")
-							
-		elif about.getChipSetString() != _("unavailable"):
+		if about.getChipSetString() != _("unavailable"):
 			if SystemInfo["HasHiSi"]:
 				AboutText += _("Chipset:\tHiSilicon %s\n") % about.getChipSetString().upper()
 			elif about.getIsBroadcom():
@@ -70,61 +62,8 @@ class About(Screen):
 				AboutText += _("Chipset:\t%s\n") % about.getChipSetString().upper()
 
 		AboutText += _("CPU:\t%s %s %s\n") % (about.getCPUArch(), about.getCPUSpeedString(), about.getCpuCoresString())
-		imageSubBuild = ""
-		if getImageType() != "release":
-			imageSubBuild = ".%s" % getImageDevBuild()
-		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
 
-		if SystemInfo["HasH9SD"]:
-			if "rootfstype=ext4" in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read():
-				part = "        - SD card in use for Image root \n"
-			else:
-				part = "        - eMMC slot in use for Image root \n"
-			AboutText += _("%s") % part
-
-		if SystemInfo["canMultiBoot"]:
-			slot = image = SystemInfo["MultiBootSlot"]
-			part = "eMMC slot %s" % slot
-			bootmode = ""
-			if SystemInfo["canMode12"]:
-				bootmode = "bootmode = %s" % GetCurrentImageMode()
-			print("[About] HasHiSi = %s, slot = %s" % (SystemInfo["HasHiSi"], slot))
-			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]["root"]:
-				if slot > 4:
-					image -= 4
-				else:
-					image -= 1
-				part = "SDcard slot %s (%s) " % (image, SystemInfo["canMultiBoot"][slot]["root"])
-			AboutText += _("Image Slot:\t%s") % "STARTUP_" + str(slot) + "  " + part + " " + bootmode + "\n"
-
-		if getMachineName() in ("ET8500") and path.exists("/proc/mtd"):
-			self.dualboot = self.dualBoot()
-			if self.dualboot:
-				AboutText += _("ET8500 Multiboot: Installed\n")
-
-		skinWidth = getDesktop(0).size().width()
-		skinHeight = getDesktop(0).size().height()
-
-		string = getDriverDate()
-		year = string[0:4]
-		month = string[4:6]
-		day = string[6:8]
-		driversdate = "-".join((year, month, day))
-
-		AboutText += _("Drivers:\t%s\n") % driversdate
-		AboutText += _("Kernel:\t%s\n") % about.getKernelVersionString()
-		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ", "")
-		AboutText += _("Python:\t%s\n") % about.getPythonVersionString()
-		AboutText += _("Installed:\t%s\n") % about.getFlashDateString()
-		AboutText += _("Last update:\t%s\n") % getEnigmaVersionString()
-		AboutText += _("E2 (re)starts:\t%s\n") % config.misc.startCounter.value
-		uptime = about.getBoxUptime()
-		if uptime:
-			AboutText += _("Uptime:\t%s\n") % uptime
-		e2uptime = about.getEnigmaUptime()
-		if e2uptime:
-			AboutText += _("Enigma2 uptime:\t%s\n") % e2uptime
-		AboutText += _("Skin:\t%s") % config.skin.primary_skin.value[0:-9] + _("  (%s x %s)") % (skinWidth, skinHeight) + "\n"
+		AboutText += _("SoC:\t%s\n") % BoxInfo.getItem("socfamily").upper()
 
 		tempinfo = ""
 		if path.exists("/proc/stb/sensors/temp0/value"):
@@ -157,6 +96,71 @@ class About(Screen):
 				tempinfo = ""
 		if tempinfo and int(tempinfo) > 0:
 			AboutText += _("Processor temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
+
+		imageSubBuild = ""
+		if getImageType() != "release":
+			imageSubBuild = ".%s" % getImageDevBuild()
+		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
+
+		if BoxInfo.getItem("mtdbootfs") != "" and " " not in BoxInfo.getItem("mtdbootfs"):
+			AboutText += _("Boot Device:\t%s\n") % BoxInfo.getItem("mtdbootfs")
+
+		if SystemInfo["HasH9SD"]:
+			if "rootfstype=ext4" in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read():
+				part = "        - SD card in use for Image root \n"
+			else:
+				part = "        - eMMC slot in use for Image root \n"
+			AboutText += _("%s") % part
+
+		if SystemInfo["canMultiBoot"]:
+			slot = image = SystemInfo["MultiBootSlot"]
+			part = "eMMC slot %s" % slot
+			bootmode = ""
+			if SystemInfo["canMode12"]:
+				bootmode = "bootmode = %s" % GetCurrentImageMode()
+			print("[About] HasHiSi = %s, slot = %s" % (SystemInfo["HasHiSi"], slot))
+			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]["root"]:
+				if slot > 4:
+					image -= 4
+				else:
+					image -= 1
+				part = "SDcard slot %s (%s) " % (image, SystemInfo["canMultiBoot"][slot]["root"])
+			AboutText += _("Image Slot:\t%s") % "Startup " + str(slot) + " - " + part + " " + bootmode + "\n"
+
+		if getMachineName() in ("ET8500") and path.exists("/proc/mtd"):
+			self.dualboot = self.dualBoot()
+			if self.dualboot:
+				AboutText += _("ET8500 Multiboot: Installed\n")
+
+		skinWidth = getDesktop(0).size().width()
+		skinHeight = getDesktop(0).size().height()
+
+		string = getDriverDate()
+		year = string[0:4]
+		month = string[4:6]
+		day = string[6:8]
+		driversdate = "-".join((day, month, year))
+
+		AboutText += _("Drivers:\t%s\n") % driversdate
+		AboutText += _("Kernel:\t%s\n") % about.getKernelVersionString()
+		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ", "")
+		if isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True:
+			AboutText += _("4097 iptv player:\t%s\n") % config.plugins.serviceapp.servicemp3.player.value
+		else:
+			AboutText += _("4097 iptv player:\tDefault player\n")	
+		AboutText += _("Python:\t%s\n") % about.getPythonVersionString()
+		flashDate = about.getFlashDateString()[8:]  + about.getFlashDateString()[4:8] + about.getFlashDateString()[0:4] 
+		AboutText += _("Installed:\t%s\n") % flashDate
+		lastUpdate = getEnigmaVersionString()[8:]  + getEnigmaVersionString()[4:8] + getEnigmaVersionString()[0:4] 
+		AboutText += _("Last update:\t%s\n") % lastUpdate
+		AboutText += _("E2 (re)starts:\t%s\n") % config.misc.startCounter.value
+		uptime = about.getBoxUptime()
+		if uptime:
+			AboutText += _("Uptime:\t%s\n") % uptime
+		e2uptime = about.getEnigmaUptime()
+		if e2uptime:
+			AboutText += _("Enigma2 uptime:\t%s\n") % e2uptime
+		AboutText += _("Skin:\t%s") % config.skin.primary_skin.value[0:-9] + _("  (%s x %s)") % (skinWidth, skinHeight) + "\n"
 
 		fp_version = getFPVersion()
 		if fp_version is None:
@@ -210,7 +214,7 @@ class Devices(Screen):
 		self["HDDHeader"] = StaticText(_("Detected devices:"))
 		self["MountsHeader"] = StaticText(_("Network servers:"))
 		self["nims"] = StaticText()
-		for count in (0, 1, 2, 3):
+		for count in range(4):
 			self["Tuner" + str(count)] = StaticText("")
 		self["hdd"] = StaticText()
 		self["mounts"] = StaticText()
@@ -231,7 +235,7 @@ class Devices(Screen):
 		self["actions"].setEnabled(False)
 		scanning = _("Please wait while scanning for devices...")
 		self["nims"].setText(scanning)
-		for count in (0, 1, 2, 3):
+		for count in range(4):
 			self["Tuner" + str(count)].setText(scanning)
 		self["hdd"].setText(scanning)
 		self["mounts"].setText(scanning)
@@ -250,32 +254,30 @@ class Devices(Screen):
 
 		nims = nimmanager.nimList()
 		if len(nims) <= 4:
-			for count in (0, 1, 2, 3):
+			for count in range(4):
 				if count < len(nims):
 					self["Tuner" + str(count)].setText(nims[count])
 				else:
 					self["Tuner" + str(count)].setText("")
 		else:
 			desc_list = []
-			count = 0
 			cur_idx = -1
-			while count < len(nims):
+			for count in range(len(nims)):
 				data = nims[count].split(":")
-				idx = data[0].strip("Tuner").strip()
+				idx = data[0].strip(_("Tuner")).strip()
 				desc = data[1].strip()
 				if desc_list and desc_list[cur_idx]["desc"] == desc:
 					desc_list[cur_idx]["end"] = idx
 				else:
 					desc_list.append({"desc": desc, "start": idx, "end": idx})
 					cur_idx += 1
-				count += 1
 
-			for count in (0, 1, 2, 3):
+			for count in range(4):
 				if count < len(desc_list):
 					if desc_list[count]["start"] == desc_list[count]["end"]:
-						text = "Tuner %s: %s" % (desc_list[count]["start"], desc_list[count]["desc"])
+						text = "%s %s: %s" % (_("Tuner"), desc_list[count]["start"], desc_list[count]["desc"])
 					else:
-						text = "Tuner %s-%s: %s" % (desc_list[count]["start"], desc_list[count]["end"], desc_list[count]["desc"])
+						text = "%s %s-%s: %s" % (_("Tuner"), desc_list[count]["start"], desc_list[count]["end"], desc_list[count]["desc"])
 				else:
 					text = ""
 
@@ -292,13 +294,12 @@ class Devices(Screen):
 					hddp = hddp.replace("ATA", "")
 					hddp = hddp.replace("Internal", "ATA Bus ")
 				free = hdd.Totalfree()
-				print("[About] [free] free=%s hdd=%s" % (free, hddp))
 				if (free / 1000 / 1000) >= 1:
 					freeline = _("Free: ") + str(round((free / 1000 / 1000), 2)) + _("TB")
 				elif (free / 1000) >= 1:
 					freeline = _("Free: ") + str(round((free / 1000), 2)) + _("GB")
 				elif free >= 1:
-					freeline = _("Free: ") + str(free) + _("MB")
+					freeline = _("Free: ") + str(round(free, 2)) + _("MB")
 				elif "Generic(STORAGE" in hddp:				# This is the SDA boot volume for SF8008 if "full" #
 					continue
 				else:
@@ -326,7 +327,7 @@ class Devices(Screen):
 		if pathExists("/media/autofs"):
 			for entry in sorted(listdir("/media/autofs")):
 				mountEntry = path.join("/media/autofs", entry)
-				self.mountinfo += _("\n %s is also enabled for autofs network mount" % (mountEntry))
+				self.mountinfo += _("\n %s is also enabled for autofs network mount") % (mountEntry)
 		if self.mountinfo:
 			self["mounts"].setText(self.mountinfo)
 		else:

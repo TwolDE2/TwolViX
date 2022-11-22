@@ -1,21 +1,137 @@
 from os import listdir
+from os.path import join as pathjoin
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
 from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveHDMIinFHD, getHaveHDMIinHD, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getImageType, getMachineBrand, getMachineBuild, getMachineMtdRoot, getMachineName
 from Components.About import getChipSetString
 from Components.RcModel import rc_model
-from Tools.BoxConfig import BoxConfig
-from Tools.Directories import fileCheck, fileExists, fileHas, pathExists
+from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, resolveFilename, SCOPE_LIBDIR, fileReadLines
 from Tools.HardwareInfo import HardwareInfo
 
 SystemInfo = {}
-SystemInfo["BoxInfo"] = BoxConfig()
+
+class BoxInformation:
+	def __init__(self, root=""):
+		self.immutableList = []
+		self.boxInfo = {}
+		file = root + pathjoin(resolveFilename(SCOPE_LIBDIR), "enigma.info")
+		self.boxInfo["overrideactive"] = False # not currently used by us
+		lines = fileReadLines(file)
+		if lines:
+			for line in lines:
+				if line.startswith("#") or line.strip() == "" or line.strip().lower().startswith("checksum") or "=" not in line:
+					continue
+				item, value = [x.strip() for x in line.split("=", 1)]
+				if item:
+					self.immutableList.append(item)
+					# Temporary fix: some items that look like floats are not floats and should be handled as strings, e.g. python "3.10" should not be processed as "3.1".
+					if not (value.startswith("\"") or value.startswith("'")) and item in ("python", "imageversion", "imgversion"):
+						value = '"' + value + '"' # wrap it so it is treated as a string
+					self.boxInfo[item] = self.processValue(value)
+			# print("[SystemInfo] Enigma information file data loaded into BoxInfo.")	
+		else:
+			print("[BoxInfo] ERROR: %s is not available!  The system is unlikely to boot or operate correctly." % file)
+
+	def processValue(self, value):
+		if value is None:
+			pass
+		elif (value.startswith("\"") or value.startswith("'")) and value.endswith(value[0]):
+			value = value[1:-1]
+		elif value.startswith("(") and value.endswith(")"):
+			data = []
+			for item in [x.strip() for x in value[1:-1].split(",")]:
+				data.append(self.processValue(item))
+			value = tuple(data)
+		elif value.startswith("[") and value.endswith("]"):
+			data = []
+			for item in [x.strip() for x in value[1:-1].split(",")]:
+				data.append(self.processValue(item))
+			value = list(data)
+		elif value.upper() == "NONE":
+			value = None
+		elif value.upper() in ("FALSE", "NO", "OFF", "DISABLED"):
+			value = False
+		elif value.upper() in ("TRUE", "YES", "ON", "ENABLED"):
+			value = True
+		elif value.isdigit() or ((value[0:1] == "-" or value[0:1] == "+") and value[1:].isdigit()):
+			if value[0] != "0": # if this is zero padded it must be a string, so skip
+				value = int(value)
+		elif value.startswith("0x") or value.startswith("0X"):
+			value = int(value, 16)
+		elif value.startswith("0o") or value.startswith("0O"):
+			value = int(value, 8)
+		elif value.startswith("0b") or value.startswith("0B"):
+			value = int(value, 2)
+		else:
+			try:
+				value = float(value)
+			except ValueError:
+				pass
+		return value
+
+	def getEnigmaInfoList(self):
+		return sorted(self.immutableList)
+
+	def getEnigmaConfList(self): # not used by us
+		return []
+
+	def getItemsList(self):
+		return sorted(list(self.boxInfo.keys()))
+
+	def getItem(self, item, default=None):
+		if item in self.boxInfo:
+			value = self.boxInfo[item]
+		elif item in SystemInfo:
+			value = SystemInfo[item]
+		else:
+			value = default
+		return value
+
+	def setItem(self, item, value, immutable=False, forceOverride=False):
+		if item in self.immutableList and not forceOverride:
+			print("[BoxInfo] Error: Item '%s' is immutable and can not be %s!" % (item, "changed" if item in self.boxInfo else "added"))
+			return False
+		if immutable and item not in self.immutableList:
+			self.immutableList.append(item)
+		self.boxInfo[item] = value
+		SystemInfo[item] = value
+		return True
+
+	def deleteItem(self, item):
+		if item in self.immutableList:
+			print("[BoxInfo] Error: Item '%s' is immutable and can not be deleted!" % item)
+		elif item in self.boxInfo:
+			del self.boxInfo[item]
+			return True
+		return False
+
+
+BoxInfo = BoxInformation()
+
+
+ARCHITECTURE = BoxInfo.getItem("architecture")
+BRAND = BoxInfo.getItem("brand")
+MODEL = BoxInfo.getItem("model")
+SOC_FAMILY = BoxInfo.getItem("socfamily")
+DISPLAYTYPE = BoxInfo.getItem("displaytype")
+MTDROOTFS = BoxInfo.getItem("mtdrootfs")
+DISPLAYMODEL = BoxInfo.getItem("displaymodel")
+DISPLAYBRAND = BoxInfo.getItem("displaybrand")
+MACHINEBUILD = BoxInfo.getItem("machinebuild")
+
+
+def getBoxDisplayName():  # This function returns a tuple like ("BRANDNAME", "BOXNAME")
+	return (DISPLAYBRAND, DISPLAYMODEL)
+
+
 SystemInfo["HasRootSubdir"] = False	# This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["RecoveryMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
-from Tools.Multiboot import GetCurrentImage, getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
-SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40")	# This needs to be for later checks
-SystemInfo["canMultiBoot"] = getMultibootslots()	# SystemInfo["MBbootdevice"] set on call 
-SystemInfo["MultiBootSlot"] = GetCurrentImage() if SystemInfo["canMultiBoot"] else False
+SystemInfo["HasMultibootMTD"] = False # This needs to be here so it can be reset by getMultibootslots!
+from Tools.Multiboot import getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
+SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")	# This needs to be for later checks
+SystemInfo["canMultiBoot"] = getMultibootslots()	
+# SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py 
+# SystemInfo["MultiBootSlot"] = current slot set in Tools/Multiboot.py
 
 
 def getNumVideoDecoders():
@@ -46,8 +162,10 @@ SystemInfo["MachineBrand"] = getMachineBrand()
 SystemInfo["MachineName"] = getMachineName()
 SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
 SystemInfo["rc_model"] = rc_model.getRcFolder()
+SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
 SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4") # due to button limitations of the remote control
-SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "sf8008", "sf8008m", "uniboxhde") # due to button limitations of the remote control
+SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "sf8008", "sf8008m", "uniboxhde", 'octagon3') # due to button limitations of the remote control
+SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",) # Allow multiple functions only if both buttons are present
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
@@ -69,9 +187,11 @@ SystemInfo["WakeOnLAN"] = getBoxType() not in ("et8000", "et10000") and fileChec
 SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
 #	Sat Config
 SystemInfo["Blindscan_t2_available"] = fileCheck("/proc/stb/info/vumodel") and getBoxType().startswith("vu")
-SystemInfo["FbcTunerPowerAlwaysOn"] = getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "gbquad4k", "gbue4k")
 SystemInfo["HasPhysicalLoopthrough"] = ["Vuplus DVB-S NIM(AVL2108)", "GIGA DVB-S2 NIM (Internal)"]
-SystemInfo["HasFBCtuner"] = ["Vuplus DVB-C NIM(BCM3158)", "Vuplus DVB-C NIM(BCM3148)", "Vuplus DVB-S NIM(7376 FBC)", "Vuplus DVB-S NIM(45308X FBC)", "Vuplus DVB-S NIM(45208 FBC)", "DVB-S NIM(45208 FBC)", "DVB-S2X NIM(45308X FBC)", "DVB-S2 NIM(45308 FBC)", "DVB-C NIM(3128 FBC)", "BCM45208", "BCM45308X", "BCM3158"]
+if getBoxType() in ("et7500", "et8500"):
+	SystemInfo["HasPhysicalLoopthrough"].append("AVL6211")
+SystemInfo["FbcTunerPowerAlwaysOn"] = getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse")
+SystemInfo["HasFBCtuner"] = ["Vuplus DVB-C NIM(BCM3158)", "Vuplus DVB-C NIM(BCM3148)", "Vuplus DVB-S NIM(7376 FBC)", "Vuplus DVB-S NIM(45308X FBC)", "Vuplus DVB-S NIM(45208 FBC)", "DVB-S2 NIM(45208 FBC)", "DVB-S2X NIM(45308X FBC)", "DVB-S2 NIM(45308 FBC)", "DVB-C NIM(3128 FBC)", "BCM45208", "BCM45308X", "BCM3158"]
 # 	LED/LCD
 SystemInfo["NumFrontpanelLEDs"] = countFrontpanelLEDs()
 SystemInfo["7segment"] = getDisplayType() in ("7segment")
@@ -124,12 +244,12 @@ SystemInfo["hasScartYUV"] = getHaveSCARTYUV() in ('True',)
 SystemInfo["hasYUV"] = getHaveYUV() in ('True',)
 # Videomodes
 SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
-		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "hi3798cv200", "hi3798mv200", "hi3716mv430", "3798cv200", "3798mv200", "3798mv200h"
+		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "hi3798cv200", "hi3798mv200", "hi3798mv200h", "hi3798mv200advca", "3798cv200", "3798mv200", "3798mv200h", "3798mv200advca"
 	) and (
 		["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
 		{"720p", "1080p", "2160p", "1080i"} # widescreen modes
 	) or getChipSetString() in ( # 1080p capable hardware
-		"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552"
+		"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "hi3716mv410", "hi3716mv430", "3716mv430"
 	) and (
 		["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
 		{"720p", "1080p", "1080i"} # widescreen modes
@@ -147,11 +267,11 @@ SystemInfo["havecolorimetry"] = fileCheck("/proc/stb/video/hdmi_colorimetry")
 SystemInfo["havecolorimetrychoices"] = fileCheck("/proc/stb/video/hdmi_colorimetry_choices")
 SystemInfo["havehdmicolordepth"] = fileCheck("/proc/stb/video/hdmi_colordepth")
 SystemInfo["havehdmicolordepthchoices"] = fileCheck("/proc/stb/video/hdmi_colordepth_choices")
-SystemInfo["havehdmihdrtype"] = fileExists("/proc/stb/video/hdmi_hdrtype")
+SystemInfo["havehdmihdrtype"] = fileCheck("/proc/stb/video/hdmi_hdrtype")
 SystemInfo["HDRSupport"] = fileExists("/proc/stb/hdmi/hlg_support_choices")
 #
-SystemInfo["Can3DSurround"] = fileHas("/proc/stb/audio/3d_surround_choices", "none")
-SystemInfo["Can3DSpeaker"] = fileHas("/proc/stb/audio/3d_surround_speaker_position_choices", "center")
+SystemInfo["Can3DSurround"] = fileHas("/proc/stb/audio/3d_surround_choices", "none") and fileCheck("/proc/stb/audio/3d_surround")
+SystemInfo["Can3DSpeaker"] = fileHas("/proc/stb/audio/3d_surround_speaker_position_choices", "center") and fileCheck("/proc/stb/audio/3d_surround_speaker_position")
 SystemInfo["CanAACTranscode"] = fileHas("/proc/stb/audio/aac_transcode_choices", "off")
 SystemInfo["CanAC3Transcode"] = fileHas("/proc/stb/audio/ac3plus_choices", "force_ac3")
 SystemInfo["Canaudiosource"] = fileCheck("/proc/stb/hdmi/audio_source")
@@ -169,7 +289,7 @@ SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_p
 SystemInfo["canBackupEMC"] = getMachineBuild() in ("hd51", "h7") and ("disk.img", "%s" % SystemInfo["MBbootdevice"]) or getMachineBuild() in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "%s" % SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ("usb_update.bin", "none")
 SystemInfo["canMode12"] = getMachineBuild() in ("hd51", "h7") and ("brcm_cma=440M@328M brcm_cma=192M@768M", "brcm_cma=520M@248M brcm_cma=200M@768M")
 SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
-SystemInfo["HasSDnomount"] = getMachineBuild() in ("h9", "i55plus") and (False, "none") or getMachineBuild() in ("multibox", "h9combo", "h9combose", "h9twin", "h9se") and (True, "mmcblk0")
-SystemInfo["haveboxmode"] = fileExists("/proc/stb/info/boxmode")
+SystemInfo["HasSDnomount"] = getMachineBuild() in ("h9", "i55plus") and (False, "none") or getMachineBuild() in ("multibox", "h9combo", "h9combose", "h9twin", "h9se", "pulse4kmini", "hd61", "pulse4k", "h11") and (True, "mmcblk0")
+SystemInfo["haveboxmode"] = fileCheck("/proc/stb/info/boxmode")
 SystemInfo["AndroidMode"] = SystemInfo["RecoveryMode"] and getMachineBuild() in ("multibox",)
 print("[SystemInfo] SystemInfo data initialised.")

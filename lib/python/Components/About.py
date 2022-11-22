@@ -87,7 +87,7 @@ def getCPUSpeedMHzInt():
 		print("[About] getCPUSpeedMHzInt, /proc/cpuinfo not available")
 
 	if cpu_speed == 0:
-		if getMachineBuild() in ("h7", "hd51", "sf4008"):
+		if getMachineBuild() in ("h7", "hd51", "sf4008", "osmio4k", "osmio4kplus", "osmini4k"):
 			try:
 				import binascii
 				with open("/sys/firmware/devicetree/base/cpus/cpu@0/clock-frequency", "rb") as f:
@@ -112,7 +112,7 @@ def getCPUSpeedString():
 		else:
 			cpu_speed = "%s MHz" % str(int(cpu_speed))
 		return cpu_speed
-	return _("unavailable")
+	return _("n/a GHz")
 
 
 def getCPUArch():

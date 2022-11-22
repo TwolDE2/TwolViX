@@ -1,8 +1,7 @@
-import six
-
 from os import access, listdir, mkdir, path as ospath, remove, rename, stat, W_OK
 import time
-import pickle as cPickle
+import pickle
+import shutil
 from enigma import eServiceReference, eServiceCenter, eTimer, eSize, iPlayableService, iServiceInformation, getPrevAsciiCode, eRCInput
 from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
@@ -32,11 +31,13 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.TagEditor import TagEditor
 import Screens.InfoBar
+from ServiceReference import ServiceReference
 from Tools import NumericalTextInput
 from Tools.BoundFunction import boundFunction
 from Tools.CopyFiles import copyFiles, moveFiles
 from Tools.Directories import resolveFilename, SCOPE_HDD
 from Tools.Trashcan import TrashInfo, cleanAll, createTrashFolder, getTrashFolder
+
 
 config.movielist = ConfigSubsection()
 config.movielist.curentlyplayingservice = ConfigText()
@@ -928,13 +929,13 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 
 	def keyNumberGlobal(self, number):
 		unichar = self.numericalTextInput.getKey(number)
-		charstr = six.ensure_str(unichar)
+		charstr = str(unichar)
 		if len(charstr) == 1:
 			self.list.moveToChar(charstr[0], self["chosenletter"])
 
 	def keyAsciiCode(self):
-		unichar = six.unichr(getPrevAsciiCode())
-		charstr = six.ensure_str(unichar)
+		unichar = chr(getPrevAsciiCode())
+		charstr = str(unichar)
 		if len(charstr) == 1:
 			self.list.moveToString(charstr[0], self["chosenletter"])
 
@@ -1462,7 +1463,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		try:
 			path = ospath.join(config.movielist.last_videodir.value, ".e2settings.pkl")
 			file = open(path, "wb")
-			cPickle.dump(self.settings, file)
+			pickle.dump(self.settings, file)
 			file.close()
 		except Exception as e:
 			print("[MovieSelection] Failed to save settings to %s: %s" % (path, e))
@@ -1479,7 +1480,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			try:
 				path = ospath.join(config.movielist.last_videodir.value, ".e2settings.pkl")
 				file = open(path, "rb")
-				updates = cPickle.load(file)
+				updates = pickle.load(file)
 				file.close()
 				self.applyConfigSettings(updates)
 			except IOError as e:
@@ -2332,14 +2333,12 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 				are_you_sure = _("Do you really want to permanently delete '%s'?") % singleName
 			else:
 				are_you_sure = _("Do you really want to permanently delete these %d items?") % itemCount
-		if dirCount > 0 and subItemCount > 0:
-			# deleting one or more non empty directories, so it's a good idea to get confirmation
+		if dirCount > 0 and subItemCount > 0:	# deleting one or more non empty directories, so get confirmation
 			if itemCount == 1:
 				are_you_sure += _("\nIt contains other items.")
 			else:
 				are_you_sure += ngettext("\nOne is a directory that isn't empty.", "\nThere are directories that aren't empty.", dirCount)
-		elif not inTrash and config.usage.movielist_trashcan.value:
-			# currently we don't ask for confirmation when moving just files into the trash can
+		elif not inTrash and config.usage.movielist_trashcan.value:	# No confirmation when moving just files into the trash can
 			self.__deleteListConfirmed(delList, True)
 			return
 		mbox = self.session.openWithCallback(callback, MessageBox, are_you_sure)
@@ -2415,6 +2414,10 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 				failedList.append((name, ex))
 
 		if deletedList:
+			path2 = path + ".del"
+			if offline is None and ospath.isdir(path2):		# directory not deleted by eraser and .del added to path name
+#				print("[MovieSelection][permanentDeleteListConfirmed] shutil path", path2)
+				shutil.rmtree(path2) 
 			self["list"].removeServices(deletedList)
 			deletedCount = len(deletedList)
 			self.showActionFeedback(_("Deleted '%s'") % name if deletedCount == 1 else _("Deleted %d items") % deletedCount)

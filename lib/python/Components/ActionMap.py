@@ -54,7 +54,7 @@ class ActionMap:
 
 	def action(self, context, action):
 		if action in self.actions:
-			# print("[ActionMap] Keymap '%s' -> Action = '%s'." % (context, action))
+			print("[ActionMap] Keymap '%s' -> Action = '%s'." % (context, action))
 			res = self.actions[action]()
 			if res is not None:
 				return res

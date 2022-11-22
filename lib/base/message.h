@@ -6,6 +6,7 @@
 #include <lib/python/connections.h>
 #include <lib/python/swig.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <lib/base/elock.h>
 #include <lib/base/wrappers.h>
 #ifndef HAVE_HISILICON
@@ -29,6 +30,7 @@ public:
 protected:
 	int send(const void *data, int len);
 	int recv(void *data, int len); // blockierend
+	int tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);	
 	int getInputFD() const { return fd[1]; }
 	int getOutputFD() const { return fd[0]; }
 };
@@ -38,10 +40,12 @@ class FD
 protected:
 	int m_fd;
 public:
+	int tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 	FD(int fd): m_fd(fd) {}
 	~FD()
 	{
 		::close(m_fd);
+		::close(tmp_fd);
 	}
 };
 #endif
@@ -101,10 +105,26 @@ public:
 		char byte = 0;
 		writeAll(m_pipe[1], &byte, sizeof(byte));
 	}
-	eFixedMessagePump(eMainloop *context, int mt, const char *name)
+	eFixedMessagePump(eMainloop *context, int mt)
 	{
-		pipe(m_pipe);
-		name = name;
+		int tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+		if (pipe(m_pipe) == -1)
+		{
+			eDebug("[eFixedMessagePump] failed to create pipe (%m)");
+		}
+		::close(tmp_fd);
+		sn = eSocketNotifier::create(context, m_pipe[0], eSocketNotifier::Read, false);
+		CONNECT(sn->activated, eFixedMessagePump<T>::do_recv);
+		sn->start();
+	}
+	eFixedMessagePump(eMainloop *context, int mt, const char *name) : name(name)
+	{
+		int tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+		if (pipe(m_pipe) == -1)
+		{
+			eDebug("[eFixedMessagePump<%s>] failed to create pipe (%m)", name);
+		}
+		::close(tmp_fd);
 		sn = eSocketNotifier::create(context, m_pipe[0], eSocketNotifier::Read, false);
 		CONNECT(sn->activated, eFixedMessagePump<T>::do_recv);
 		sn->start();
@@ -163,6 +183,13 @@ public:
 			m_queue.push(msg);
 		}
 		trigger_event();
+	}
+	eFixedMessagePump(eMainloop *context, int mt):
+		FD(eventfd(0, EFD_CLOEXEC)),
+		sn(eSocketNotifier::create(context, m_fd, eSocketNotifier::Read, false))
+	{
+		CONNECT(sn->activated, eFixedMessagePump<T>::do_recv);
+		sn->start();
 	}
 	eFixedMessagePump(eMainloop *context, int mt, const char *name):
 		FD(eventfd(0, EFD_CLOEXEC)),
