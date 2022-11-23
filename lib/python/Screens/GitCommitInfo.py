@@ -16,8 +16,8 @@ from Components.config import config
 from Screens.Screen import Screen
 
 # required methods: Request, urlopen, HTTPError, URLError
-from urllib.request import urlopen, Request # raises ImportError in Python 2
-from urllib.error import HTTPError, URLError # raises ImportError in Python 2
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError, URLError
 
 # following noops normal ViX code as I use alphanumeric Imageversion which causes crash
 if getImageType() == 'release':
@@ -34,7 +34,7 @@ E2Branches = {
 
 project = 0
 projects = [
-	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=5.1", "OE-A Core"),
+	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=5.2", "OE-A Core"),
 	("https://api.github.com/repos/TwolDE2/enigma2/commits?sha=%s" % getattr(E2Branches, getImageType(), "Py3D"), "Enigma2"),
 	("https://api.github.com/repos/TwolDE2/vix-core/commits", "ViX Core"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
