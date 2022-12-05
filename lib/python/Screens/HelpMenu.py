@@ -1,5 +1,4 @@
 from enigma import eActionMap
-from sys import maxint
 
 from Components.ActionMap import ActionMap
 from Components.Label import Label
@@ -9,6 +8,8 @@ from Screens.Rc import Rc
 from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 from Tools.KeyBindings import keyBindings
+
+maxint = 2147483647 # sys.maxint does not exist in python 3
 
 class HelpMenu(Screen, Rc):
 	helpText = _("""Help Screen
