@@ -1,5 +1,5 @@
 from enigma import eActionMap
-
+from sys import maxsize
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.Sources.HelpMenuList import HelpMenuList
@@ -9,7 +9,6 @@ from Screens.Screen import Screen
 from Tools.BoundFunction import boundFunction
 from Tools.KeyBindings import keyBindings
 
-maxint = 2147483647 # sys.maxint does not exist in python 3
 
 class HelpMenu(Screen, Rc):
 	helpText = "\n\n".join([
@@ -42,7 +41,7 @@ class HelpMenu(Screen, Rc):
 		# so that other wildcards can be interposed if needed.
 
 		self.onClose.append(self.doOnClose)
-		eActionMap.getInstance().bindAction('', maxint - 100, self["list"].handleButton)
+		eActionMap.getInstance().bindAction('', maxsize - 100, self["list"].handleButton)
 
 		# Ignore keypress breaks for the keys in the
 		# ListboxActions context.
