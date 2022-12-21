@@ -463,6 +463,15 @@ Screen.globalScreen = Globals()
 # Session.doClose:
 # * destroy screen
 
+
+
+# must be above skins and InputDevices
+config.misc.RCSource = ConfigSelection(default="branding", choices=[("branding", _("OE-A-Branding")), ("hardware", _("OE-A-Remotes"))])
+def RCSelectionChanged(configelement):
+	from Components.SystemInfo import setRCFile
+	setRCFile(configelement.value)
+config.misc.RCSource.addNotifier(RCSelectionChanged)
+
 profile("Standby,PowerKey")
 import Screens.Standby
 from Screens.Menu import MainMenu, mdom
@@ -704,6 +713,7 @@ def runScreenTest():
 	return 0
 
 print("[StartEnigma]  Starting User Interface.")	# first, setup a screen
+
 try:
 	runScreenTest()
 	plugins.shutdown()
