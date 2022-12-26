@@ -3226,7 +3226,7 @@ class InfoBarInstantRecord:
 	def startInstantRecording(self, limitEvent=False):
 		begin = int(time())
 		end = begin + 3600 # dummy
-		name = "instant record"
+		name = _("instant record")
 		info = {}
 
 		self.getProgramInfoAndEvent(info, name)
