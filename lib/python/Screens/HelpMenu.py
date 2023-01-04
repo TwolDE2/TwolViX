@@ -1,11 +1,13 @@
-from enigma import eActionMap
 from sys import maxsize
+
+from enigma import eActionMap
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.Sources.HelpMenuList import HelpMenuList
 from Components.Sources.StaticText import StaticText
 from Screens.Rc import Rc
 from Screens.Screen import Screen
+from Screens.TextBox import TextBox
 from Tools.BoundFunction import boundFunction
 from Tools.KeyBindings import keyBindings
 
@@ -13,7 +15,6 @@ from Tools.KeyBindings import keyBindings
 class HelpMenu(Screen, Rc):
 	def helpText(self):
 		return "\n\n".join([
-			_("Help Screen"),
 			_("Brief help information for buttons in your current context."),
 			_("Navigate up/down with UP/DOWN buttons and page up/down with LEFT/RIGHT. EXIT to return to the help screen. OK to perform the action described in the currently highlighted help."),
 			_("Other buttons will jump to the help for that button, if there is help."),
@@ -137,9 +138,7 @@ class HelpMenu(Screen, Rc):
 		return 1
 
 	def showHelp(self):
-		# Import deferred so that MessageBox's import of HelpMenu doesn't cause an import loop
-		from Screens.MessageBox import MessageBox
-		self.session.open(MessageBox, self.helpText(), type=MessageBox.TYPE_INFO)
+		self.session.open(TextBox, self.helpText(), _("Help Screen"))
 
 
 class HelpableScreen:
