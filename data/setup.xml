@@ -150,7 +150,7 @@
 			<item level="2" text="EPG event name prefixes to remove" description="| separated list of prefixes you'd like to be removed from event names, separated with |, e.g. New:|Live:">config.epg.eventNamePrefixes</item>
 		</if>
 	</setup>
-	<setup key="FlashExpander" title="FlashExpander">
+	<setup key="FlashExpander" title="Flash Expander">
 		<item level="0" text="Target Device" description="Choose the target device for the /usr directory.">self.selection</item>
 	</setup>	
 	<setup key="subtitlesetup" title="Subtitles">
