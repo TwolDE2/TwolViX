@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 from xml.etree.cElementTree import fromstring, parse
+=======
+from xml.etree.cElementTree import fromstring
+
+>>>>>>> fa6a6e3... [Setup] remove debug that doesn't seem to serve any purpose
 from gettext import dgettext
 from os.path import getmtime, join as pathjoin
 from skin import setups, findSkinScreen # findSkinScreen used in eval
@@ -11,7 +16,7 @@ from Components.SystemInfo import SystemInfo
 from Components.Sources.StaticText import StaticText
 from Screens.HelpMenu import HelpableScreen
 from Screens.Screen import Screen, ScreenSummary
-from Tools.Directories import SCOPE_CURRENT_SKIN, SCOPE_PLUGINS, SCOPE_SKIN, resolveFilename
+from Tools.Directories import SCOPE_CURRENT_SKIN, SCOPE_PLUGINS, SCOPE_SKIN, fileReadXML, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
 
 domSetups = {}
@@ -290,7 +295,7 @@ def setupDom(setup=None, plugin=None):
 			elif element.tag == "elif":
 				pass
 
-	setupFileDom = fromstring("<setupxml></setupxml>")
+	setupFileDom = fromstring("<setupxml />")
 	setupFile = resolveFilename(SCOPE_PLUGINS, pathjoin(plugin, "setup.xml")) if plugin else resolveFilename(SCOPE_SKIN, "setup.xml")
 	global domSetups, setupModTimes
 	try:
@@ -301,7 +306,7 @@ def setupDom(setup=None, plugin=None):
 			del domSetups[setupFile]
 		if setupFile in setupModTimes:
 			del setupModTimes[setupFile]
-		return setupFileDom
+		return setupFileDom # we can't access setup.xml so return an empty dom 
 	cached = setupFile in domSetups and setupFile in setupModTimes and setupModTimes[setupFile] == modTime
 	print("[Setup] XML%s setup file '%s', using element '%s'%s." % (" cached" if cached else "", setupFile, setup, " from plugin '%s'" % plugin if plugin else ""))
 	if cached:
@@ -310,23 +315,12 @@ def setupDom(setup=None, plugin=None):
 		del domSetups[setupFile]
 	if setupFile in setupModTimes:
 		del setupModTimes[setupFile]
-	try:
-		with open(setupFile, "r") as fd:  # This open gets around a possible file handle leak in Python's XML parser.
-			fileDom = parse(fd).getroot()
-			checkItems(fileDom, None)
-			setupFileDom = fileDom
-			domSetups[setupFile] = setupFileDom
-			setupModTimes[setupFile] = modTime
-			for setup in setupFileDom.findall("setup"):
-				key = setup.get("key")
-				if key:  # If there is no key then this element is useless and can be skipped!
-					title = setup.get("title", "")
-#					if title == "":
-#						print("[Setup] Error: Setup key '%s' title is missing or blank!" % key)
-#						title = "** Setup error: '%s' title is missing or blank!" % key
-	except:
-		import traceback
-		traceback.print_exc()
+	fileDom = fileReadXML(setupFile)
+	if fileDom:
+		checkItems(fileDom, None)
+		setupFileDom = fileDom
+		domSetups[setupFile] = setupFileDom
+		setupModTimes[setupFile] = modTime
 	return setupFileDom
 
 # Temporary legacy interface.
