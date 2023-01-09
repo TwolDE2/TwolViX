@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-from xml.etree.cElementTree import fromstring, parse
-=======
 from xml.etree.cElementTree import fromstring
-
->>>>>>> fa6a6e3... [Setup] remove debug that doesn't seem to serve any purpose
 from gettext import dgettext
 from os.path import getmtime, join as pathjoin
 from skin import setups, findSkinScreen # findSkinScreen used in eval
