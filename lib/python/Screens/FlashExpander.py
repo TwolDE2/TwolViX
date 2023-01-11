@@ -7,8 +7,8 @@ from enigma import quitMainloop
 from Components.config import ConfigSelection
 from Components.Console import Console
 from Components.Harddisk import harddiskmanager, Harddisk
-from Screens.Setup import Setup
 from Screens.MessageBox import MessageBox
+from Screens.Setup import Setup
 from Tools.Directories import createDir, fileReadLines
 from Tools.BoundFunction import boundFunction
 
@@ -20,8 +20,9 @@ class FlashExpander(Setup):
 		self.devicelist = []
 		if self.ismounted("", "/usr"):
 			self.found = True
-			self["footnote"].setText((_("... is used, %dMB free") % self.getFreeSize("/usr")))
-			choices.append(("", _("Activated")))
+			isFree = self.getFreeSize("/usr")
+			isFreepr = str(isFree) + "MB" if len(str(isFree)) < 4	else str(isFree/1000) + "GB"		
+			choices.append(("", _("Activated, memory free %s" % isFreepr)))
 		else:
 			# Read block devices
 			for x in listdir("/sys/block"):
@@ -49,11 +50,9 @@ class FlashExpander(Setup):
 				print("[FlashExpander] Error <getMountPoints>: %s" % str(error))
 
 			if len(self.devicelist) == 0:
-				self["footnote"].setText(_("No HDD-, SSD- or USB-Device found. Please first initialized."))
-				choices.append(("", _("No drive available")))
+				choices.append(("", _("No drive available - initialise ext device")))
 			else:
-				self["footnote"].setText(_("FlashExpander is not installed, create?"))
-				choices.append(("", _("No drive available")))
+				choices.append(("", _("FlashExpander,  create drive?")))
 				for index, device in enumerate(self.devicelist):
 					choices.append((str(index), device[0]))
 
