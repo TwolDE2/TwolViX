@@ -9,6 +9,8 @@ from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation
 
+MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mmcblk0p7", "/dev/mmcblk0p9", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
+MbootList2 = ("%s" % getMachineMtdRoot())
 
 class tmp:
 	dir = None
@@ -20,11 +22,12 @@ def getMultibootslots():
 	BoxInfo = BoxInfoRunningInstance
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
-	for device in ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mmcblk0p7", "/dev/mmcblk0p9", "/dev/mtdblock2", "/dev/block/by-name/bootoptions"):
+	MbootList = MbootList2 if SystemInfo["HasKexecMultiboot"] else MbootList1
+		for device in MbootList:
 		print("[multiboot*****][getMultibootslots]00 device, bootslots", device, "   ", bootslots)
 		if len(bootslots) != 0:
 			break
-#		print("[multiboot*****][getMultibootslots]0 device = ", device)
+		print("[multiboot*****][getMultibootslots]0 device = ", device)
 		if path.exists(device):
 			Console(binary=True).ePopen("mount %s %s" % (device, tmpname))
 			if path.isfile(path.join(tmpname, "STARTUP")):
@@ -33,7 +36,7 @@ def getMultibootslots():
 				print("[Multiboot][[getMultibootslots]1 Bootdevice found: %s" % device2)
 				BoxInfo.setItem("mtdbootfs", device2, forceOverride=True)				
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
-#					print("[multiboot*****] [getMultibootslots]2 tmpname = %s" % (tmpname))
+					print("[multiboot*****] [getMultibootslots]2 tmpname = %s" % (tmpname))
 					if "STARTUP_ANDROID" in file:
 						SystemInfo["AndroidMode"] = True
 					if "STARTUP_RECOVERY" in file:
