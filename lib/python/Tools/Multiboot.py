@@ -23,7 +23,7 @@ def getMultibootslots():
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
 	MbootList = MbootList2 if SystemInfo["HasKexecMultiboot"] else MbootList1
-		for device in MbootList:
+	for device in MbootList:
 		print("[multiboot*****][getMultibootslots]00 device, bootslots", device, "   ", bootslots)
 		if len(bootslots) != 0:
 			break
