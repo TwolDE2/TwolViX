@@ -8,6 +8,7 @@ from os import mkdir, path, rmdir, rename, remove, sep, stat
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation
+from Tools.Directories import fileHas
 
 MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mmcblk0p7", "/dev/mmcblk0p9", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
 MbootList2 = ("/dev/%s" % getMachineMtdRoot())
@@ -22,7 +23,7 @@ def getMultibootslots():
 	BoxInfo = BoxInfoRunningInstance
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
-	MbootList = MbootList2 if SystemInfo["HasKexecMultiboot"] else MbootList1
+	MbootList = MbootList2 if fileHas("/proc/cmdline", "kexec=1") else MbootList1
 	for device in MbootList:
 		print("[multiboot*****][getMultibootslots]00 device, bootslots", device, "   ", bootslots)
 		if len(bootslots) != 0:
