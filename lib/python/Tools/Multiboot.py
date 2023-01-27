@@ -10,8 +10,8 @@ from Components.Console import Console
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation
 from Tools.Directories import fileHas
 
-MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mmcblk0p7", "/dev/mmcblk0p9", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
-MbootList2 = ("/dev/%s" % getMachineMtdRoot())
+MbootList1 = ("MbootList2 = ("/dev/%s" % getMachineMtdRoot(), "/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions))
+MbootList2 = ("/dev/%s" % getMachineMtdRoot(), "/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions)
 
 class tmp:
 	dir = None
@@ -70,12 +70,12 @@ def getMultibootslots():
 						else:
 							continue
 						bootslots[int(slotnumber)] = slot
-#			print("[multiboot] [getMultibootslots] Finished bootslots = %s" % bootslots)
+			print("[multiboot] [getMultibootslots] Finished bootslots = %s" % bootslots)
 			Console(binary=True).ePopen("umount %s" % tmpname)
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	if bootslots:
-#		print("[Multiboot] Bootslots found:", bootslots)
+		print("[Multiboot] Bootslots found:", bootslots)
 		bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 		if SystemInfo["HasRootSubdir"] and "root=/dev/sda" not in bootArgs:
 			slot = [x[-1] for x in bootArgs.split() if x.startswith("rootsubdir")]
