@@ -108,6 +108,9 @@ class About(AboutBase):
 		if BoxInfo.getItem("mtdbootfs") != "" and " " not in BoxInfo.getItem("mtdbootfs"):
 			AboutText += _("Boot Device:\t%s\n") % BoxInfo.getItem("mtdbootfs")
 
+		if SystemInfo["HasKexecMultiboot"]:
+			AboutText += _("VuPlus Multiboot with Kexec\n")	
+
 		if SystemInfo["HasH9SD"]:
 			if "rootfstype=ext4" in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read():
 				part = "        - SD card in use for Image root \n"
