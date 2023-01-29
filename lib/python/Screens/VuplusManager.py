@@ -40,7 +40,7 @@ class VuplusManager(Screen):
 	</screen>
 	"""
 
-	def __init__(self, session):
+	def __init__(self, session, *args, **kwargs):
 		Screen.__init__(self, session)
 		self.skinName = "VuplusManager"
 		self.setTitle(_("Vu+ MultiBoot Manager"))
@@ -95,5 +95,4 @@ class VuplusManager(Screen):
 		if getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse"):	
 			self.TITLE = _("MultiBoot Init Vu+ USB/SDA1 - please reboot after use.")
 			cmdlist = []
-
-			self.session.open(Console, title=self.TITLE, cmdlist=cmdlist, closeOnSuccess=True)
+			self.Console.eBatch(cmdlist, self.RootInitEnd, debug=True)
