@@ -63,7 +63,7 @@ class VuplusManager(Screen):
 
 	def RootInit(self):
 		self.Console = Console()	
-		if getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse"):
+		if SystemInfo["CanKexecVu"]:
 			self.TITLE = _("MultiBoot Init Vu+  - please reboot after use.")
 			with open("/STARTUP", 'w') as f:
 				f.write(STARTUP)
