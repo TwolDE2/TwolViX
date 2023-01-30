@@ -47,7 +47,7 @@ class VuplusManager(Screen):
 		self["labe14"] = StaticText(_("Press appropiate key to create Vu+ MultiBoot setup to root device or USB."))
 		self["key_red"] = StaticText(_("Reboot"))
 		self["key_green"] = StaticText(_("Init Vu+ MultiBoot"))
-		self["key_yellow"] = StaticText(_(" ))
+		self["key_yellow"] = StaticText(" ")
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
 		{
 			"red": self.reboot,
