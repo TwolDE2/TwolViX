@@ -7,6 +7,7 @@ from enigma import getDesktop
 from Components.ActionMap import HelpableActionMap
 from Components.ChoiceList import ChoiceEntryComponent, ChoiceList
 from Components.Console import Console
+import Components.Harddisk
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from Screens.HelpMenu import HelpableScreen
@@ -17,6 +18,7 @@ from Tools.BoundFunction import boundFunction
 from Tools.Directories import copyfile, pathExists
 from Tools.Multiboot import emptySlot, GetImagelist, GetCurrentImageMode, restoreSlots
 
+STARTUP_SDA = "kernel=/linuxrootfs%s/zImage root=/dev/%s rootsubdir=linuxrootfs%s" % (slotno, SDA, slotno 	# /STARTUP_slotno
 
 class MultiBootSelector(Screen, HelpableScreen):
 	def __init__(self, session, *args):
@@ -27,23 +29,39 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.tmp_dir = None
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent("", ((_("Retrieving image slots - Please wait...")), "Queued"))])
 		self["description"] = StaticText(_("Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."))
-		self["key_red"] = StaticText(_("Cancel"))
+		self["key_red"] = StaticText(_("Vu Kexec - Add USB slot requires Ext4 device")) if SystemInfo["HasKexecMultiboot"] else StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Reboot"))
 		self["key_yellow"] = StaticText(_("Delete"))
 		self["key_blue"] = StaticText(_("Restore"))
-		self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
-			"red": (boundFunction(self.cancel, None), _("Cancel the image selection and exit")),
-			"green": (self.reboot, _("Select the highlighted image and reboot")),
-			"yellow": (self.deleteImage, _("Select the highlighted image and delete")),
-			"blue": (self.restoreImages, _("Select to restore all deleted images")),
-			"ok": (self.reboot, _("Select the highlighted image and reboot")),
-			"cancel": (boundFunction(self.cancel, None), _("Cancel the image selection and exit")),
-			"up": (self.keyUp, _("Move up a line")),
-			"down": (self.keyDown, _("Move down a line")),
-			"left": (self.keyUp, _("Move up a line")),
-			"right": (self.keyDown, _("Move down a line")),
-			"menu": (boundFunction(self.cancel, True), _("Cancel the image selection and exit all menus"))
-		}, -1, description=_("MultiBootSelector Actions"))
+		if not SystemInfo["HasKexecMultiboot"]:
+			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
+				"red": (boundFunction(self.cancel, None), _("Cancel the image selection and exit")),
+				"green": (self.reboot, _("Select the highlighted image and reboot")),
+				"yellow": (self.deleteImage, _("Select the highlighted image and delete")),
+				"blue": (self.restoreImages, _("Select to restore all deleted images")),
+				"ok": (self.reboot, _("Select the highlighted image and reboot")),
+				"cancel": (boundFunction(self.cancel, None), _("Cancel the image selection and exit")),
+				"up": (self.keyUp, _("Move up a line")),
+				"down": (self.keyDown, _("Move down a line")),
+				"left": (self.keyUp, _("Move up a line")),
+				"right": (self.keyDown, _("Move down a line")),
+				"menu": (boundFunction(self.cancel, True), _("Cancel the image selection and exit all menus"))
+			}, -1, description=_("MultiBootSelector Actions"))
+		else:
+			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
+				"red": (boundFunction(self.addKexecMount, None), _("Select usb device for Kexec multiboot")),
+				"green": (self.reboot, _("Select the highlighted image and reboot")),
+				"yellow": (self.deleteImage, _("Select the highlighted image and delete")),
+				"blue": (self.restoreImages, _("Select to restore all deleted images")),
+				"ok": (self.reboot, _("Select the highlighted image and reboot")),
+				"cancel": (boundFunction(self.cancel, None), _("Cancel the image selection and exit")),
+				"up": (self.keyUp, _("Move up a line")),
+				"down": (self.keyDown, _("Move down a line")),
+				"left": (self.keyUp, _("Move up a line")),
+				"right": (self.keyDown, _("Move down a line")),
+				"menu": (boundFunction(self.cancel, True), _("Cancel the image selection and exit all menus"))
+			}, -1, description=_("MultiBootSelector Actions"))		
+		
 		self.imagedict = []
 		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector")
 		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
@@ -129,6 +147,24 @@ class MultiBootSelector(Screen, HelpableScreen):
 		if self.deletedImagesExists:
 			restoreSlots()
 		self.getImagelist()
+
+#create file /STARTUP_5
+#kernel=/linuxrootfs5/zImage root=/dev/sdb1 rootsubdir=linuxrootfs5" > /STARTUP_5
+
+	def addKexecMount(self)
+		
+
+	def isValidPartition(self, path):
+		if path is not None:
+			supported_filesystems = ('ext4', 'ext3', 'ext2', 'nfs', 'cifs', 'ntfs')
+			valid_partitions = []
+			for partition in Components.Harddisk.harddiskmanager.getMountedPartitions():
+				if partition.filesystem() in supported_filesystems:
+					valid_partitions.append(partition.mountpoint)
+			print("[" + self.__class__.__name__ + "] valid partitions", valid_partitions)
+			if valid_partitions:
+				return Components.Harddisk.findMountPoint(realpath(path))+'/' in valid_partitions or Components.Harddisk.findMountPoint(realpath(path)) in valid_partitions
+		return False
 
 	def cancel(self, value=None):
 		Console().ePopen("umount %s" % self.tmp_dir)
