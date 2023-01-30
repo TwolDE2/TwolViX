@@ -176,6 +176,7 @@ def hasInitCam():
 	return False
 
 SystemInfo["CanKexecVu"] = getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse") and not SystemInfo["HasKexecMultiboot"]
+SystemInfo["HasUsbhdd"] = {}
 SystemInfo["HasInitCam"] = hasInitCam()
 SystemInfo["MachineBrand"] = getMachineBrand()
 SystemInfo["MachineName"] = getMachineName()
