@@ -11,7 +11,7 @@ from Components.SystemInfo import SystemInfo
 # from Screens.Console import Console
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
-from Screens.Standby import TryQuitMainloop
+from Screens.Standby import QUIT_REBOOT, TryQuitMainloop
 from Tools.BoundFunction import boundFunction
 
 
@@ -44,15 +44,15 @@ class VuplusManager(Screen):
 		Screen.__init__(self, session)
 		self.skinName = "VuplusManager"
 		self.setTitle(_("Vu+ MultiBoot Manager"))
-		self["labe14"] = StaticText(_("Press appropiate key to create MultiBoot setup to root device or USB."))
+		self["labe14"] = StaticText(_("Press appropiate key to create Vu+ MultiBoot setup to root device or USB."))
 		self["key_red"] = StaticText(_("Reboot"))
-		self["key_green"] = StaticText(_("Init Root"))
-		self["key_yellow"] = StaticText(_("Init USB/SDA1"))
+		self["key_green"] = StaticText(_("Init Vu+ MultiBoot"))
+		self["key_yellow"] = StaticText(_(" ))
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
 		{
 			"red": self.reboot,
 			"green": self.RootInit,
-			"yellow": self.USBInit,
+			"yellow": boundFunction(self.close, None),
 			"ok": boundFunction(self.close, None),
 			"cancel": boundFunction(self.close, None),
 		}, -1)
@@ -86,7 +86,7 @@ class VuplusManager(Screen):
 			self.close()
 
 	def RootInitEnd(self, *args, **kwargs):
-		self.close()
+		self.session.open(TryQuitMainloop, 2)
 
 	def reboot(self):
 		self.session.open(TryQuitMainloop, 2)
