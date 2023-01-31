@@ -768,7 +768,8 @@ class HarddiskManager:
 						for partition in partitions:
 							description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 							print("[Harddisk] Found partition '%s', description='%s', device='%s'." % (partition, description, physicalDevice))
-							part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)
+#							part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)
+							part = Partition(mountpoint=self.getMountpoint(partition, skiproot = True), description=description, force_mounted=True, device=partition)
 							self.partitions.append(part)
 							# print("[Harddisk] DEBUG: Partition(mountpoint = %s, description = %s, force_mounted = True, device = %s)" % (self.getMountpoint(partition), description, partition))
 							self.on_partition_list_change("add", part)
@@ -833,10 +834,10 @@ class HarddiskManager:
 			return ospath.join("/media", device)
 		return mnt
 
-	def getMountpoint(self, device):
+	def getMountpoint(self, device, skiproot = None):
 		dev = ospath.join("/dev", device)
 		for item in getProcMounts():
-			if item[0] == dev:
+			if (item[0] == dev and skiproot == None) or (item[0] == dev and skiproot == True and item[1] != "/"):
 				return ospath.join(item[1], "")
 		return None
 
