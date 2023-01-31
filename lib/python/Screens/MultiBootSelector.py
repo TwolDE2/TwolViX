@@ -7,7 +7,7 @@ from enigma import getDesktop
 from Components.ActionMap import HelpableActionMap
 from Components.ChoiceList import ChoiceEntryComponent, ChoiceList
 from Components.Console import Console
-import Components.Harddisk
+from Components.Harddisk import Harddisk
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from Screens.HelpMenu import HelpableScreen
@@ -17,8 +17,6 @@ from Screens.Standby import QUIT_REBOOT, TryQuitMainloop
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import copyfile, pathExists
 from Tools.Multiboot import emptySlot, GetImagelist, GetCurrentImageMode, restoreSlots
-
-STARTUP_SDA = "kernel=/linuxrootfs%s/zImage root=/dev/%s rootsubdir=linuxrootfs%s" % (slotno, SDA, slotno 	# /STARTUP_slotno
 
 class MultiBootSelector(Screen, HelpableScreen):
 	def __init__(self, session, *args):
@@ -49,7 +47,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 			}, -1, description=_("MultiBootSelector Actions"))
 		else:
 			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
-				"red": (boundFunction(self.addKexecMount, None), _("Select usb device for Kexec multiboot")),
+				"red": (boundFunction(self.addKexecMount), _("Initialise a Kexec usb EXT4 slot")),
 				"green": (self.reboot, _("Select the highlighted image and reboot")),
 				"yellow": (self.deleteImage, _("Select the highlighted image and delete")),
 				"blue": (self.restoreImages, _("Select to restore all deleted images")),
@@ -148,24 +146,55 @@ class MultiBootSelector(Screen, HelpableScreen):
 			restoreSlots()
 		self.getImagelist()
 
-#create file /STARTUP_5
-#kernel=/linuxrootfs5/zImage root=/dev/sdb1 rootsubdir=linuxrootfs5" > /STARTUP_5
 
-	def addKexecMount(self)
-		
+	def addKexecMount(self):
+		hdd = []
+		usblist = list(SystemInfo["HasUsbhdd"].keys())
+		print("[MultiBootSelector] usblist=", usblist)
+		with open("/proc/mounts", "r") as fd:
+			xlines = fd.readlines()
+#			print("[MultiBootSelector] xlines", xlines)			
+			for hddkey in range(len(usblist)):
+				for xline in xlines:
+					if xline.find(usblist[hddkey]) != -1 and "ext4" in xline:
+						index = xline.find(usblist[hddkey])
+						print("[MultiBootSelector] key, line ", usblist[hddkey], "   ", xline)		
+						hdd.append(xline[index:index+4])
+					else:
+						continue
+#						print("[MultiBootSelector] key, not in line ", usblist[hddkey], "   ", xline)											 
+		print("[MultiBootSelector] hdd available ", hdd) 
+		if not hdd:
+				self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - The USB (%s) must be at least 10MB." % usb), MessageBox.TYPE_INFO, timeout=10)		
+				self.cancel()
+		else:
+			usb = hdd[0][0:3]
+			size = Harddisk(usb).diskSize()
 
-	def isValidPartition(self, path):
-		if path is not None:
-			supported_filesystems = ('ext4', 'ext3', 'ext2', 'nfs', 'cifs', 'ntfs')
-			valid_partitions = []
-			for partition in Components.Harddisk.harddiskmanager.getMountedPartitions():
-				if partition.filesystem() in supported_filesystems:
-					valid_partitions.append(partition.mountpoint)
-			print("[" + self.__class__.__name__ + "] valid partitions", valid_partitions)
-			if valid_partitions:
-				return Components.Harddisk.findMountPoint(realpath(path))+'/' in valid_partitions or Components.Harddisk.findMountPoint(realpath(path)) in valid_partitions
-		return False
+			if ((float(size) / 1024) / 1024) >= 1:
+				des = _("Size: ") + str(round(((float(size) / 1024) / 1024), 2)) + _("TB")
+			elif (size / 1024) >= 1:
+				des = _("Size: ") + str(round((float(size) / 1024), 2)) + _("GB")
+			if "GB" in des:
+				print("[MultiBootSelector][Kexec USB add slot]", des, "%s" %des[6], size)
+				if size/1024 < 10:
+					print("[MultiBootSelector][Kexec USB add slot]", des, "%s" % des[6], size/1024) 
+					self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - The USB (%s) must be at least 10MB." % usb), MessageBox.TYPE_INFO, timeout=10)
+					self.cancel()
+			STARTUP_4 = "kernel=/linuxrootfs4/zImage root=/dev/%s rootsubdir=linuxrootfs4" % usb 	# /STARTUP_4
+			STARTUP_5 = "kernel=/linuxrootfs5/zImage root=/dev/%s rootsubdir=linuxrootfs5" % usb 	# /STARTUP_5
+			STARTUP_6 = "kernel=/linuxrootfs6/zImage root=/dev/%s rootsubdir=linuxrootfs6" % usb 	# /STARTUP_6
+			print("[MultiBootSelector] STARTUP_4 , self.tmp_dir ", STARTUP_4, "    ", self.tmp_dir)											
+			with open("/%s/STARTUP_4" % self.tmp_dir, 'w') as f:
+				f.write(STARTUP_4)
+			with open("/%s/STARTUP_5" % self.tmp_dir, 'w') as f:
+				f.write(STARTUP_5)
+			with open("/%s/STARTUP_6" % self.tmp_dir, 'w') as f:
+				f.write(STARTUP_6)
+			self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - created Vu+ Kexec STARTUP slots for %s." % usb), MessageBox.TYPE_INFO, timeout=10)												
+			self.cancel(QUIT_REBOOT)
 
+				
 	def cancel(self, value=None):
 		Console().ePopen("umount %s" % self.tmp_dir)
 		if not path.ismount(self.tmp_dir):
