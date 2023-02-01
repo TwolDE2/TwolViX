@@ -1,4 +1,4 @@
-from os import mkdir, path, rmdir
+from os import mkdir, path, rmdir, system
 import tempfile
 import struct
 
@@ -15,8 +15,9 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Standby import QUIT_REBOOT, TryQuitMainloop
 from Tools.BoundFunction import boundFunction
-from Tools.Directories import copyfile, pathExists
+from Tools.Directories import copyfile, fileExists, pathExists
 from Tools.Multiboot import emptySlot, GetImagelist, GetCurrentImageMode, restoreSlots
+
 
 class MultiBootSelector(Screen, HelpableScreen):
 	def __init__(self, session, *args):
@@ -31,7 +32,21 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self["key_green"] = StaticText(_("Reboot"))
 		self["key_yellow"] = StaticText(_("Delete"))
 		self["key_blue"] = StaticText(_("Restore"))
-		if not SystemInfo["HasKexecMultiboot"]:
+		if SystemInfo["HasKexecMultiboot"] and not fileExists("/boot/STARTUP_6":		
+			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
+				"red": (boundFunction(self.KexecMount), _("Initialise a Kexec usb EXT4 slot")),
+				"green": (self.reboot, _("Select the highlighted image and reboot")),
+				"yellow": (self.deleteImage, _("Select the highlighted image and delete")),
+				"blue": (self.restoreImages, _("Select to restore all deleted images")),
+				"ok": (self.reboot, _("Select the highlighted image and reboot")),
+				"cancel": (boundFunction(self.cancel, None), _("Cancel the image selection and exit")),
+				"up": (self.keyUp, _("Move up a line")),
+				"down": (self.keyDown, _("Move down a line")),
+				"left": (self.keyUp, _("Move up a line")),
+				"right": (self.keyDown, _("Move down a line")),
+				"menu": (boundFunction(self.cancel, True), _("Cancel the image selection and exit all menus"))
+			}, -1, description=_("MultiBootSelector Actions"))		
+		else:
 			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
 				"red": (boundFunction(self.cancel, None), _("Cancel the image selection and exit")),
 				"green": (self.reboot, _("Select the highlighted image and reboot")),
@@ -45,21 +60,6 @@ class MultiBootSelector(Screen, HelpableScreen):
 				"right": (self.keyDown, _("Move down a line")),
 				"menu": (boundFunction(self.cancel, True), _("Cancel the image selection and exit all menus"))
 			}, -1, description=_("MultiBootSelector Actions"))
-		else:
-			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
-				"red": (boundFunction(self.addKexecMount), _("Initialise a Kexec usb EXT4 slot")),
-				"green": (self.reboot, _("Select the highlighted image and reboot")),
-				"yellow": (self.deleteImage, _("Select the highlighted image and delete")),
-				"blue": (self.restoreImages, _("Select to restore all deleted images")),
-				"ok": (self.reboot, _("Select the highlighted image and reboot")),
-				"cancel": (boundFunction(self.cancel, None), _("Cancel the image selection and exit")),
-				"up": (self.keyUp, _("Move up a line")),
-				"down": (self.keyDown, _("Move down a line")),
-				"left": (self.keyUp, _("Move up a line")),
-				"right": (self.keyDown, _("Move down a line")),
-				"menu": (boundFunction(self.cancel, True), _("Cancel the image selection and exit all menus"))
-			}, -1, description=_("MultiBootSelector Actions"))		
-		
 		self.imagedict = []
 		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector")
 		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
@@ -147,7 +147,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.getImagelist()
 
 
-	def addKexecMount(self):
+	def KexecMount(self):
 		hdd = []
 		usblist = list(SystemInfo["HasUsbhdd"].keys())
 		print("[MultiBootSelector] usblist=", usblist)
@@ -181,10 +181,19 @@ class MultiBootSelector(Screen, HelpableScreen):
 					print("[MultiBootSelector][Kexec USB add slot]", des, "%s" % des[6], size/1024) 
 					self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - The USB (%s) must be at least 10MB." % usb), MessageBox.TYPE_INFO, timeout=10)
 					self.cancel()
-			STARTUP_4 = "kernel=/linuxrootfs4/zImage root=/dev/%s rootsubdir=linuxrootfs4" % hdd[0] 	# /STARTUP_4
-			STARTUP_5 = "kernel=/linuxrootfs5/zImage root=/dev/%s rootsubdir=linuxrootfs5" % hdd[0] 	# /STARTUP_5
-			STARTUP_6 = "kernel=/linuxrootfs6/zImage root=/dev/%s rootsubdir=linuxrootfs6" % hdd[0] 	# /STARTUP_6
-			STARTUP_7 = "kernel=/linuxrootfs7/zImage root=/dev/%s rootsubdir=linuxrootfs7" % hdd[0] 	# /STARTUP_6
+			self.Console = Console()
+			self.Console.ePopen("/sbin/blkid | grep " + "/dev/" + hdd[0], self.KexecMountRet)			
+	
+
+	def KexecMountRet(self, result=None, retval=None, extra_args=None):
+		self.device_uuid = "UUID=" + result.split("UUID=")[1].split(" ")[0].replace('"', '')
+#		print("[MultiBootSelector] RESULT, retval", result, "   ", retval)	
+#		print("[MultiBootSelector] uuidPath ", self.device_uuid)
+# 						 kernel=/linuxrootfs1/boot/STARTUP_1.kernel root=UUID="12c2025e-2969-4bd1-9e0c-da08b97d40ce" rootsubdir=linuxrootfs1
+			STARTUP_4 = "kernel=/linuxrootfs4/boot/STARTUP_4.kernel root=%s rootsubdir=linuxrootfs4" % self.device_uuid 	# /STARTUP_4
+			STARTUP_5 = "kernel=/linuxrootfs5//boot/STARTUP_5.kernel root=%s rootsubdir=linuxrootfs5" % self.device_uuid 	# /STARTUP_5
+			STARTUP_6 = "kernel=/linuxrootfs6//boot/STARTUP_6.kernel root=%s rootsubdir=linuxrootfs6" % self.device_uuid 	# /STARTUP_6
+			STARTUP_7 = "kernel=/linuxrootfs7//boot/STARTUP_7.kernel root=%s rootsubdir=linuxrootfs7" % self.device_uuid 	# /STARTUP_7
 			print("[MultiBootSelector] STARTUP_4 , self.tmp_dir ", STARTUP_4, "    ", self.tmp_dir)											
 			with open("/%s/STARTUP_4" % self.tmp_dir, 'w') as f:
 				f.write(STARTUP_4)
@@ -195,9 +204,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 			with open("/%s/STARTUP_7" % self.tmp_dir, 'w') as f:
 				f.write(STARTUP_7)				
 			self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB STARTUP] - created Vu+ Kexec STARTUP slots for %s." % usb), MessageBox.TYPE_INFO, timeout=10)												
-			self.cancel(QUIT_REBOOT)
-
-				
+			self.cancel(QUIT_REBOOT)					
+						
 	def cancel(self, value=None):
 		Console().ePopen("umount %s" % self.tmp_dir)
 		if not path.ismount(self.tmp_dir):
