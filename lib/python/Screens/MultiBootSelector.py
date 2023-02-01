@@ -32,7 +32,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self["key_green"] = StaticText(_("Reboot"))
 		self["key_yellow"] = StaticText(_("Delete"))
 		self["key_blue"] = StaticText(_("Restore"))
-		if SystemInfo["HasKexecMultiboot"] and not fileExists("/boot/STARTUP_6":		
+		if SystemInfo["HasKexecMultiboot"] and not fileExists("/boot/STARTUP_6)":		
 			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
 				"red": (boundFunction(self.KexecMount), _("Initialise a Kexec usb EXT4 slot")),
 				"green": (self.reboot, _("Select the highlighted image and reboot")),
