@@ -181,19 +181,22 @@ class MultiBootSelector(Screen, HelpableScreen):
 					print("[MultiBootSelector][Kexec USB add slot]", des, "%s" % des[6], size/1024) 
 					self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - The USB (%s) must be at least 10MB." % usb), MessageBox.TYPE_INFO, timeout=10)
 					self.cancel()
-			self.Console = Console()
-			self.Console.ePopen("/sbin/blkid | grep " + "/dev/" + hdd[0], self.KexecMountRet)			
+			Console.ePopen("/sbin/blkid | grep " + "/dev/" + hdd[0], self.KexecMountRet)			
 	
 
 	def KexecMountRet(self, result=None, retval=None, extra_args=None):
 		self.device_uuid = "UUID=" + result.split("UUID=")[1].split(" ")[0].replace('"', '')
 #		print("[MultiBootSelector] RESULT, retval", result, "   ", retval)	
 #		print("[MultiBootSelector] uuidPath ", self.device_uuid)
-# 						 kernel=/linuxrootfs1/boot/STARTUP_1.kernel root=UUID="12c2025e-2969-4bd1-9e0c-da08b97d40ce" rootsubdir=linuxrootfs1
+# 			UUID		 kernel=/linuxrootfs1/boot/STARTUP_1.kernel root=UUID="12c2025e-2969-4bd1-9e0c-da08b97d40ce" rootsubdir=linuxrootfs1
+#			STARTUP_4 = "kernel=/linuxrootfs4/zImage root=/dev/%s rootsubdir=linuxrootfs4" % hdd[0] 	# /STARTUP_4
+#			STARTUP_5 = "kernel=/linuxrootfs5/zImage root=/dev/%s rootsubdir=linuxrootfs5" % hdd[0] 	# /STARTUP_5
+#			STARTUP_6 = "kernel=/linuxrootfs6/zImage root=/dev/%s rootsubdir=linuxrootfs6" % hdd[0] 	# /STARTUP_6
+#			STARTUP_7 = "kernel=/linuxrootfs7/zImage root=/dev/%s rootsubdir=linuxrootfs7" % hdd[0] 	# /STARTUP_7
 			STARTUP_4 = "kernel=/linuxrootfs4/boot/STARTUP_4.kernel root=%s rootsubdir=linuxrootfs4" % self.device_uuid 	# /STARTUP_4
-			STARTUP_5 = "kernel=/linuxrootfs5//boot/STARTUP_5.kernel root=%s rootsubdir=linuxrootfs5" % self.device_uuid 	# /STARTUP_5
-			STARTUP_6 = "kernel=/linuxrootfs6//boot/STARTUP_6.kernel root=%s rootsubdir=linuxrootfs6" % self.device_uuid 	# /STARTUP_6
-			STARTUP_7 = "kernel=/linuxrootfs7//boot/STARTUP_7.kernel root=%s rootsubdir=linuxrootfs7" % self.device_uuid 	# /STARTUP_7
+			STARTUP_5 = "kernel=/linuxrootfs5/boot/STARTUP_5.kernel root=%s rootsubdir=linuxrootfs5" % self.device_uuid 	# /STARTUP_5
+			STARTUP_6 = "kernel=/linuxrootfs6/boot/STARTUP_6.kernel root=%s rootsubdir=linuxrootfs6" % self.device_uuid 	# /STARTUP_6
+			STARTUP_7 = "kernel=/linuxrootfs7/boot/STARTUP_7.kernel root=%s rootsubdir=linuxrootfs7" % self.device_uuid 	# /STARTUP_7
 			print("[MultiBootSelector] STARTUP_4 , self.tmp_dir ", STARTUP_4, "    ", self.tmp_dir)											
 			with open("/%s/STARTUP_4" % self.tmp_dir, 'w') as f:
 				f.write(STARTUP_4)
