@@ -55,7 +55,10 @@ def getMultibootslots():
 
 #						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
-						print("[Multiboot][getMultibootslots]6a slot", slot)							
+						print("[Multiboot][getMultibootslots]6a slot", slot)
+						if 	"UUID=" in (slot["root"]):
+							(slot["root"]) = getUUIDtoSD()
+							(slot["root"]) = "/linuxrootfs%s/zImage" %slotnumber												
 						if path.exists(slot["root"]) or slot["root"] == "ubi0:ubifs":
 							slot["startupfile"] = path.basename(file)
 							slot["slotname"] = slotname
@@ -96,6 +99,14 @@ def getMultibootslots():
 	return bootslots
 
 
+def getUUIDtoSD(UUID):
+	UUID = UUID.split("=")[1]
+	Console.ePopen("/sbin/blkid | grep " + " -U " + UUID, getUUIDret)
+
+def getUUIDret(result=None, retval=None, extra_args=None)
+	return result
+	
+		
 def GetCurrentImageMode():
 	return bool(SystemInfo["canMultiBoot"]) and SystemInfo["canMode12"] and int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read().replace("\0", "").split("=")[-1])
 
