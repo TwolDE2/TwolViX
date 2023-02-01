@@ -60,10 +60,11 @@ def getMultibootslots():
 							slot["startupfile"] = path.basename(file)
 							slot["slotname"] = slotname
 							SystemInfo["HasMultibootMTD"] = slot.get("mtd")
-							if "sda" not in slot["root"]:
-								SystemInfo["HasRootSubdir"] = slot.get("rootsubdir")											# sf8008 type receiver with sd card, don't reset value
+							if not fileHas("/proc/cmdline", "kexec=1") and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
+								slot["rootsubdir"] = None														
 							else:
-								slot["rootsubdir"] = None																		# sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir 
+								SystemInfo["HasRootSubdir"] = slot.get("rootsubdir")
+																		 
 							if "kernel" not in slot.keys():
 								slot["kernel"] = "%sp%s" % (slot["root"].split("p")[0], int(slot["root"].split("p")[1]) - 1)	# oldstyle MB kernel = root-1								
 #							print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel, root, SystemInfo['HasRootSubdir'] ", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"], "   ", slot["root"], "   ", SystemInfo["HasRootSubdir"])
@@ -77,13 +78,17 @@ def getMultibootslots():
 	if bootslots:
 		print("[Multiboot] Bootslots found:", bootslots)
 		bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
-		print("[Multiboot][MultiBootSlot] bootArgs:", bootArgs)		
-		if SystemInfo["HasRootSubdir"] and "root=/dev/sda" not in bootArgs:
+		print("[Multiboot][MultiBootSlot] bootArgs:", bootArgs)
+		if fileHas("/proc/cmdline", "kexec=1") and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
+			slot = [x[-1] for x in bootArgs.split() if x.startswith("rootsubdir")]
+			SystemInfo["MultiBootSlot"] = int(slot[0])
+			print("[Multiboot][MultiBootSlot]0 current slot used:", SystemInfo["MultiBootSlot"])				
+		elif SystemInfo["HasRootSubdir"] and "root=/dev/sda" not in bootArgs:							# RootSubdir receiver or sf8008 receiver with root in eMMC slot 
 			slot = [x[-1] for x in bootArgs.split() if x.startswith("rootsubdir")]
 			SystemInfo["MultiBootSlot"] = int(slot[0])
 			print("[Multiboot][MultiBootSlot]1 current slot used:", SystemInfo["MultiBootSlot"])			
 		else:
-			root = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in bootArgs.strip().split(" ") if "=" in x])["root"]
+			root = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in bootArgs.strip().split(" ") if "=" in x])["root"]	# Broadband receiver (e.g. gbue4k) or sf8008 with sd card as root/kernel pair
 			for slot in bootslots.keys():
 				if bootslots[slot]["root"] == root:
 					SystemInfo["MultiBootSlot"] = slot		
