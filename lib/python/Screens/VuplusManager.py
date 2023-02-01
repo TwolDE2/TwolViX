@@ -50,11 +50,11 @@ class VuplusManager(Screen):
 		self["key_yellow"] = StaticText(" ")
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"],
 		{
-			"red": self.reboot,
+			"red": self.Reboot,
 			"green": self.RootInit,
-			"yellow": boundFunction(self.close, None),
-			"ok": boundFunction(self.close, None),
-			"cancel": boundFunction(self.close, None),
+			"yellow": self.close,
+			"ok": self.close,
+			"cancel": self.close,
 		}, -1)
 		self.onLayoutFinish.append(self.layoutFinished)
 
@@ -88,11 +88,6 @@ class VuplusManager(Screen):
 	def RootInitEnd(self, *args, **kwargs):
 		self.session.open(TryQuitMainloop, 2)
 
-	def reboot(self):
+	def Reboot(self):
 		self.session.open(TryQuitMainloop, 2)
 
-	def USBInit(self):
-		if getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse"):	
-			self.TITLE = _("MultiBoot Init Vu+ USB/SDA1 - please reboot after use.")
-			cmdlist = []
-			self.Console.eBatch(cmdlist, self.RootInitEnd, debug=True)
