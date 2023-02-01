@@ -103,7 +103,7 @@ def getUUIDtoSD(UUID):
 	UUID = UUID.split("=")[1]
 	Console.ePopen("/sbin/blkid | grep " + " -U " + UUID, getUUIDret)
 
-def getUUIDret(result=None, retval=None, extra_args=None)
+def getUUIDret(result=None, retval=None, extra_args=None):
 	return result
 	
 		
