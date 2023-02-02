@@ -181,13 +181,13 @@ class MultiBootSelector(Screen, HelpableScreen):
 					print("[MultiBootSelector][Kexec USB add slot]", des, "%s" % des[6], size/1024) 
 					self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - The USB (%s) must be at least 10MB." % usb), MessageBox.TYPE_INFO, timeout=10)
 					self.cancel()
-			Console.ePopen("/sbin/blkid | grep " + "/dev/" + hdd[0], self.KexecMountRet)			
+			Console().ePopen("/sbin/blkid | grep " + "/dev/" + hdd[0], self.KexecMountRet)			
 	
 
 	def KexecMountRet(self, result=None, retval=None, extra_args=None):
 		self.device_uuid = "UUID=" + result.split("UUID=")[1].split(" ")[0].replace('"', '')
-#		print("[MultiBootSelector] RESULT, retval", result, "   ", retval)	
-#		print("[MultiBootSelector] uuidPath ", self.device_uuid)
+		print("[MultiBootSelector] RESULT, retval", result, "   ", retval)	
+		print("[MultiBootSelector] uuidPath ", self.device_uuid)
 # 			UUID		 kernel=/linuxrootfs1/boot/STARTUP_1.kernel root=UUID="12c2025e-2969-4bd1-9e0c-da08b97d40ce" rootsubdir=linuxrootfs1
 #			STARTUP_4 = "kernel=/linuxrootfs4/zImage root=/dev/%s rootsubdir=linuxrootfs4" % hdd[0] 	# /STARTUP_4
 #			STARTUP_5 = "kernel=/linuxrootfs5/zImage root=/dev/%s rootsubdir=linuxrootfs5" % hdd[0] 	# /STARTUP_5
