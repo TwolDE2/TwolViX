@@ -52,13 +52,16 @@ def getMultibootslots():
 #					print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 					if slotnumber.isdigit() and slotnumber not in bootslots:
 						line = open(file).read().replace("'", "").replace('"', "").replace("\n", " ").replace("ubi.mtd", "mtd").replace("bootargs=", "")						
-
 #						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
 						print("[Multiboot][getMultibootslots]6a slot", slot)
-						if 	"UUID=" in (slot["root"]):
-							(slot["root"]) = getUUIDtoSD()
-							(slot["root"]) = "/linuxrootfs%s/zImage" %slotnumber												
+						if 	"UUID=" in slot["root"]:
+							slotx = getUUIDtoSD(slot["root"])
+							print("[Multiboot][getMultibootslots]6a UUID length", len(slot["root"]))
+							if slotx is not None:
+								slot["root"] = slotx
+							slot["root"] = "/dev/sdb1"								
+							slot["kernel"] = "/linuxrootfs%s/zImage" %slotnumber												
 						if path.exists(slot["root"]) or slot["root"] == "ubi0:ubifs":
 							slot["startupfile"] = path.basename(file)
 							slot["slotname"] = slotname
@@ -100,10 +103,13 @@ def getMultibootslots():
 
 
 def getUUIDtoSD(UUID):
-	UUID = UUID.split("=")[1]
-	Console.ePopen("/sbin/blkid | grep " + " -U " + UUID, getUUIDret)
+	UUID = UUID.split("=")[1]. replace(" ", "")
+	print("[Multiboot][getUUIDtoSD]6a UUID length", len(UUID))	
+	print("[multiboot][getUUIDtoSD] UUID = ", UUID)	
+	Console().ePopen("/sbin/blkid | grep" + " -U " + UUID, getUUIDret)
 
 def getUUIDret(result=None, retval=None, extra_args=None):
+	print("[multiboot][getUUIDret] result = ", result)
 	return result
 	
 		
