@@ -50,7 +50,7 @@ class VuplusManager(Screen):
 			cmdlist.append("dd if=/usr/bin/kernel_auto.bin of=/dev/%s" % getMachineMtdKernel())	# create new kernel
 			cmdlist.append("mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz")						# copy userroot routine
 			cmdlist.append("sync; sleep 1; sync; sleep 1; sync") 			 
-			Console.eBatch(cmdlist, self.RootInitEnd, debug=True)
+			Console().eBatch(cmdlist, self.RootInitEnd, debug=True)
 		else:
 			self.close()
 
