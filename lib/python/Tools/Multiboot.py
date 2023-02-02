@@ -57,7 +57,7 @@ def getMultibootslots():
 						print("[Multiboot][getMultibootslots]6a slot", slot)
 						if 	"UUID=" in slot["root"]:
 							slotx = getUUIDtoSD(slot["root"])
-							print("[Multiboot][getMultibootslots]6a UUID length", len(slot["root"]))
+							print("[Multiboot][getMultibootslots]6a slotx.  UUID length", slotx, len(slot["root"]))
 							if slotx is not None:
 								slot["root"] = slotx
 							slot["root"] = "/dev/sdb1"								
