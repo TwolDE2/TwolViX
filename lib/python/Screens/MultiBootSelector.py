@@ -165,7 +165,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 #						print("[MultiBootSelector] key, not in line ", usblist[hddkey], "   ", xline)											 
 		print("[MultiBootSelector] hdd available ", hdd) 
 		if not hdd:
-				self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - The USB (%s) must be at least 10MB." % usb), MessageBox.TYPE_INFO, timeout=10)		
+				self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - No EXT4 USB attached."), MessageBox.TYPE_INFO, timeout=10)		
 				self.cancel()
 		else:
 			usb = hdd[0][0:3]
