@@ -8,7 +8,7 @@ from os import mkdir, path, rmdir, rename, remove, sep, stat
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation
-from Tools.Directories import fileHas
+from Tools.Directories import fileHas, fileExists
 
 MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
 MbootList2 = ("/dev/%s" % getMachineMtdRoot(), )	# kexec kernel Vu+ multiboot
@@ -57,10 +57,10 @@ def getMultibootslots():
 						print("[Multiboot][getMultibootslots]6a slot", slot)
 						if 	"UUID=" in slot["root"]:
 							slotx = getUUIDtoSD(slot["root"])
-							print("[Multiboot][getMultibootslots]6a slotx.  UUID length", slotx, len(slot["root"]))
+							print("[Multiboot][getMultibootslots]6a slotx slot['root']", slotx, slot["root"])							
+							SystemInfo["HasKexecUSB"] = True
 							if slotx is not None:
 								slot["root"] = slotx
-							slot["root"] = "/dev/sdb1"								
 							slot["kernel"] = "/linuxrootfs%s/zImage" %slotnumber												
 						if path.exists(slot["root"]) or slot["root"] == "ubi0:ubifs":
 							slot["startupfile"] = path.basename(file)
@@ -101,18 +101,19 @@ def getMultibootslots():
 					print("[Multiboot][MultiBootSlot]2 current slot used:", SystemInfo["MultiBootSlot"]) 		
 	return bootslots
 
+def getUUIDtoSD(UUID): # returns None on failure
+#	print("[multiboot][getUUIDtoSD2] UUID = ", UUID)	
+	check = "/sbin/blkid"
+	if fileExists(check):
+		lines = subprocess.check_output([check]).decode(encoding="utf8", errors="ignore").split("\n")
+		for line in lines:
+#			print("[Multiboot][getUUIDtoSD2] line", line)		
+			if UUID in line.replace('"', ''):
+				return line.split(":")[0].strip()
+	else:
+		return None
 
-def getUUIDtoSD(UUID):
-	UUID = UUID.split("=")[1]. replace(" ", "")
-	print("[Multiboot][getUUIDtoSD]6a UUID length", len(UUID))	
-	print("[multiboot][getUUIDtoSD] UUID = ", UUID)	
-	Console().ePopen("/sbin/blkid | grep" + " -U " + UUID, getUUIDret)
-
-def getUUIDret(result=None, retval=None, extra_args=None):
-	print("[multiboot][getUUIDret] result = ", result)
-	return result
-	
-		
+				
 def GetCurrentImageMode():
 	return bool(SystemInfo["canMultiBoot"]) and SystemInfo["canMode12"] and int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read().replace("\0", "").split("=")[-1])
 
