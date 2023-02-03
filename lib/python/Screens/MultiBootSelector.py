@@ -28,11 +28,11 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.tmp_dir = None
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent("", ((_("Retrieving image slots - Please wait...")), "Queued"))])
 		self["description"] = StaticText(_("Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."))
-		self["key_red"] = StaticText(_("Vu Kexec - Add USB slot requires Ext4 device")) if SystemInfo["HasKexecMultiboot"] else StaticText(_("Cancel"))
+		self["key_red"] = StaticText(_("Cancel")) if SystemInfo["HasKexecUSB"] else StaticText(_("Vu Kexec add USB slot"))  
 		self["key_green"] = StaticText(_("Reboot"))
 		self["key_yellow"] = StaticText(_("Delete"))
 		self["key_blue"] = StaticText(_("Restore"))
-		if SystemInfo["HasKexecMultiboot"] and not fileExists("/boot/STARTUP_6"):		
+		if SystemInfo["HasKexecMultiboot"] and not SystemInfo["HasKexecUSB"]:		
 			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
 				"red": (boundFunction(self.KexecMount), _("Initialise a Kexec usb EXT4 slot")),
 				"green": (self.reboot, _("Select the highlighted image and reboot")),
@@ -188,7 +188,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.device_uuid = "UUID=" + result.split("UUID=")[1].split(" ")[0].replace('"', '')
 		print("[MultiBootSelector] RESULT, retval", result, "   ", retval)	
 		print("[MultiBootSelector] uuidPath ", self.device_uuid)
-# 			UUID		 kernel=/linuxrootfs1/boot/STARTUP_1.kernel root=UUID="12c2025e-2969-4bd1-9e0c-da08b97d40ce" rootsubdir=linuxrootfs1
+# 			using UUID	 kernel=/linuxrootfs1/boot/STARTUP_1.kernel root=UUID="12c2025e-2969-4bd1-9e0c-da08b97d40ce" rootsubdir=linuxrootfs1
 #			STARTUP_4 = "kernel=/linuxrootfs4/zImage root=/dev/%s rootsubdir=linuxrootfs4" % hdd[0] 	# /STARTUP_4
 #			STARTUP_5 = "kernel=/linuxrootfs5/zImage root=/dev/%s rootsubdir=linuxrootfs5" % hdd[0] 	# /STARTUP_5
 #			STARTUP_6 = "kernel=/linuxrootfs6/zImage root=/dev/%s rootsubdir=linuxrootfs6" % hdd[0] 	# /STARTUP_6
@@ -205,7 +205,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 		with open("/%s/STARTUP_6" % self.tmp_dir, 'w') as f:
 			f.write(STARTUP_6)
 		with open("/%s/STARTUP_7" % self.tmp_dir, 'w') as f:
-			f.write(STARTUP_7)				
+			f.write(STARTUP_7)
+		SystemInfo["HasKexecUSB"] = True							
 		self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB STARTUP] - created Vu+ Kexec STARTUP slots for %s." % usb), MessageBox.TYPE_INFO, timeout=10)												
 		self.cancel(QUIT_REBOOT)					
 						
