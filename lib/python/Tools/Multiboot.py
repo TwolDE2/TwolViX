@@ -50,10 +50,10 @@ def getMultibootslots():
 					slotname = file.rsplit("/", 1)[1]
 					slotname = slotname if len(slotname) > 1 else ""
 					slotname = ""	# nullify for current moment
-					if fileHas("/proc/cmdline", "kexec=1") and int(slotnumber) > 3:
-						SystemInfo["HasKexecUSB"] = True
-#					print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
+					print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 					if slotnumber.isdigit() and slotnumber not in bootslots:
+						if fileHas("/proc/cmdline", "kexec=1") and int(slotnumber) > 3:
+							SystemInfo["HasKexecUSB"] = True					
 						line = open(file).read().replace("'", "").replace('"', "").replace("\n", " ").replace("ubi.mtd", "mtd").replace("bootargs=", "")						
 #						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
