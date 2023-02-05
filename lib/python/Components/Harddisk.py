@@ -749,7 +749,7 @@ class HarddiskManager:
 			if not isCdrom and ospath.exists(devicePath):
 				partitions = [partition for partition in sorted(listdir(devicePath)) if partition.startswith(device)]  # Add HDD check for partitions.
 				if len(partitions) == 0:  # Add HDD check for HDD with no partitions (unformatted).
-					print("[Harddisk] Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions)))
+					print("[Harddisk]1 Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions)))
 					self.hdd.append(Harddisk(device, removable))
 					SystemInfo["Harddisk"] = True
 				else:
@@ -757,9 +757,8 @@ class HarddiskManager:
 						partitions = [] if len(partitions) > 6 else partitions[4:]
 					print("[Harddisk] len partitions = %s, device = %s" % (len(partitions), device))
 					if len(partitions) != 0:
-#						SystemInfo["HasUsbhdd"] = SystemInfo["HasUsbhdd"].update({"%s" % device : "%s" % len(partitions)})	
-						SystemInfo["HasUsbhdd"]["%s" % device] = len(partitions)				
-						print("[Harddisk] Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions)))			# [Harddisk] Found storage device 'sdb' (Removable=True) NoPartitions = 1.
+						SystemInfo["HasUsbhdd"]["%s" % device] = len(partitions)
+						print("[Harddisk]2 Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions)))			# [Harddisk] Found storage device 'sdb' (Removable=True) NoPartitions = 1.
 						print("[Harddisk] SystemInfo['HasUsbhdd']= %s" % SystemInfo["HasUsbhdd"])
 						self.hdd.append(Harddisk(device, removable))
 						SystemInfo["Harddisk"] = True
@@ -881,8 +880,8 @@ class HarddiskManager:
 				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
 					partitions = partitions[4:]
 				if HDDin is False and len(partitions) != 0:
-					SystemInfo["HasUsbhdd"] = SystemInfo["HasUsbhdd"].update({"%s" % hddDev : "%s" % len(partitions)})				
-					print("[Harddisk] Found storage device '%s' (Removable = %s)." % (device, removable))
+					SystemInfo["HasUsbhdd"]["%s" % device] = len(partitions)
+SystemInfo["HasUsbhdd"]
 					self.hdd.append(Harddisk(hddDev, removable))
 					# print("[Harddisk] DEBUG: Add hotplug HDD device in hddlist. (device = '%s', hdd.device = '%s', hddDev = '%s')" % (device, hdd.device, hddDev))
 					self.hdd.sort()

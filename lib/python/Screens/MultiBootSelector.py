@@ -28,7 +28,10 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.tmp_dir = None
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent("", ((_("Retrieving image slots - Please wait...")), "Queued"))])
 		self["description"] = StaticText(_("Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."))
-		self["key_red"] = StaticText(_("Cancel")) if SystemInfo["HasKexecUSB"] else StaticText(_("Vu Kexec add USB"))  
+		if SystemInfo["HasKexecMultiboot"] and SystemInfo["HasKexecUSB"]:
+			self["key_red"] = StaticText(_("Vu Kexec add USB")) 
+		else:		
+			self["key_red"] = StaticText(_("Cancel"))  
 		self["key_green"] = StaticText(_("Reboot"))
 		self["key_yellow"] = StaticText(_("Delete"))
 		self["key_blue"] = StaticText(_("Restore"))

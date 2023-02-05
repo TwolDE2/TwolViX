@@ -113,7 +113,6 @@ def getUUIDtoSD(UUID): # returns None on failure
 	else:
 		return None
 
-				
 def GetCurrentImageMode():
 	return bool(SystemInfo["canMultiBoot"]) and SystemInfo["canMode12"] and int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read().replace("\0", "").split("=")[-1])
 
