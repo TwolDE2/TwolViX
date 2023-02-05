@@ -29,7 +29,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent("", ((_("Retrieving image slots - Please wait...")), "Queued"))])
 		self["description"] = StaticText(_("Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."))
 		if SystemInfo["HasKexecMultiboot"] and not SystemInfo["HasKexecUSB"]:
-			self["key_red"] = StaticText(_("Vu Kexec add USB")) 
+			self["key_red"] = StaticText(_("add Multiboot USB")) 
 		else:		
 			self["key_red"] = StaticText(_("Cancel"))  
 		self["key_green"] = StaticText(_("Reboot"))
@@ -156,9 +156,11 @@ class MultiBootSelector(Screen, HelpableScreen):
 		print("[MultiBootSelector] usblist=", usblist)
 		with open("/proc/mounts", "r") as fd:
 			xlines = fd.readlines()
-#			print("[MultiBootSelector] xlines", xlines)			
+			print("[MultiBootSelector] xlines", xlines)			
 			for hddkey in range(len(usblist)):
+				print("[MultiBootSelector] hddkey", hddkey)			
 				for xline in xlines:
+					print("[MultiBootSelector] xline, usblist", xline, "   ", usblist[hddkey])			
 					if xline.find(usblist[hddkey]) != -1 and "ext4" in xline:
 						index = xline.find(usblist[hddkey])
 						print("[MultiBootSelector] key, line ", usblist[hddkey], "   ", xline)		
