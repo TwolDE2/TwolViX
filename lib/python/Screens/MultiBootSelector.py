@@ -37,7 +37,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self["key_blue"] = StaticText(_("Restore"))
 		if SystemInfo["HasKexecMultiboot"] and not SystemInfo["HasKexecUSB"]:		
 			self["actions"] = HelpableActionMap(self, ["OkCancelActions", "ColorActions", "DirectionActions", "KeyboardInputActions", "MenuActions"], {
-				"red": (boundFunction(self.KexecMount), _("Initialise a Kexec usb EXT4 slot")),
+				"red": (boundFunction(self.KexecMount), _("Create USB Multiboot")),
 				"green": (self.reboot, _("Select the highlighted image and reboot")),
 				"yellow": (self.deleteImage, _("Select the highlighted image and delete")),
 				"blue": (self.restoreImages, _("Select to restore all deleted images")),
@@ -168,7 +168,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 #						print("[MultiBootSelector] key, not in line ", usblist[hddkey], "   ", xline)											 
 		print("[MultiBootSelector] hdd available ", hdd) 
 		if not hdd:
-				self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - No EXT4 USB attached."), MessageBox.TYPE_INFO, timeout=10)		
+				self.session.open(MessageBox, _("[MultiBootSelector][add USB STARTUP slots] - No EXT4 USB attached."), MessageBox.TYPE_INFO, timeout=10)		
 				self.cancel()
 		else:
 			usb = hdd[0][0:3]
@@ -182,7 +182,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 				print("[MultiBootSelector][Kexec USB add slot]", des, "%s" %des[6], size)
 				if size/1024 < 10:
 					print("[MultiBootSelector][Kexec USB add slot]", des, "%s" % des[6], size/1024) 
-					self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB add slot] - The USB (%s) must be at least 10MB." % usb), MessageBox.TYPE_INFO, timeout=10)
+					self.session.open(MessageBox, _("[MultiBootSelector][add USB STARTUP slots] - The USB (%s) must be at least 10MB." % usb), MessageBox.TYPE_INFO, timeout=10)
 					self.cancel()
 			Console().ePopen("/sbin/blkid | grep " + "/dev/" + hdd[0], self.KexecMountRet)			
 	
@@ -211,7 +211,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		with open("/%s/STARTUP_7" % self.tmp_dir, 'w') as f:
 			f.write(STARTUP_7)
 		SystemInfo["HasKexecUSB"] = True							
-		self.session.open(MessageBox, _("[MultiBootSelector][Kexec USB STARTUP] - created Vu+ Kexec STARTUP slots for %s." % usb), MessageBox.TYPE_INFO, timeout=10)												
+		self.session.open(MessageBox, _("[MultiBootSelector][Vu USB STARTUP] - created STARTUP slots for %s." % usb), MessageBox.TYPE_INFO, timeout=10)												
 		self.cancel(QUIT_REBOOT)					
 						
 	def cancel(self, value=None):
