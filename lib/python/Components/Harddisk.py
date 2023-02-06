@@ -881,7 +881,7 @@ class HarddiskManager:
 				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
 					partitions = partitions[4:]
 				if HDDin is False and len(partitions) != 0:
-					SystemInfo["HasUsbhdd"]["%s" % device] = len(partitions)
+					SystemInfo["HasUsbhdd"][device] = len(partitions)
 					print("[Harddisk]2 SystemInfo['HasUsbhdd']= %s" % SystemInfo["HasUsbhdd"])
 					self.hdd.append(Harddisk(hddDev, removable))
 					# print("[Harddisk] DEBUG: Add hotplug HDD device in hddlist. (device = '%s', hdd.device = '%s', hddDev = '%s')" % (device, hdd.device, hddDev))
