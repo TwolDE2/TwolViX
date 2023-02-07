@@ -133,7 +133,7 @@ def GetImagelist():
 		BuildType = " "  # release etc
 		Imagelist[slot] = {"imagename": _("Empty slot")}
 		imagedir = "/"
-		if SystemInfo["MultiBootSlot"] != slot or SystemInfo["HasHiSi"]):
+		if SystemInfo["MultiBootSlot"] != slot or SystemInfo["HasHiSi"]:
 #		if SystemInfo["MultiBootSlot"] != slot or SystemInfo["HasHiSi"] or fileHas("/proc/cmdline", "kexec=1"):
 			if SystemInfo["HasMultibootMTD"]:
 				Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))
