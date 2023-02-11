@@ -39,23 +39,26 @@ def getMultibootslots():
 				BoxInfo.setItem("mtdbootfs", device2, forceOverride=True)
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
 					print("[multiboot*****] [getMultibootslots]2 tmpname = %s" % (tmpname))
-					if "STARTUP_ANDROID" in file:
-						SystemInfo["AndroidMode"] = True
-					if "STARTUP_RECOVERY" in file:
-						SystemInfo["RecoveryMode"] = True
-#						print("[multiboot] [getMultibootslots]3 RecoveryMode is set to:%s" % SystemInfo["RecoveryMode"])
-#					print("[multiboot] [getMultibootslots]4 file = ", file)
+
+					print("[multiboot] [getMultibootslots]4 file = ", file)
 					slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 					slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[0]
 					slotname = file.rsplit("/", 1)[1]
 					slotname = slotname if len(slotname) > 1 else ""
 					slotname = ""	# nullify for current moment
+					if "STARTUP_ANDROID" in file:
+						SystemInfo["AndroidMode"] = True
+						continue
+					if "STARTUP_RECOVERY" in file:
+						SystemInfo["RecoveryMode"] = True
+						if fileHas("/proc/cmdline", "kexec=1"):
+							slotnumber = "0"											
 					print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 					if slotnumber.isdigit() and slotnumber not in bootslots:
 						line = open(file).read().replace("'", "").replace('"', "").replace("\n", " ").replace("ubi.mtd", "mtd").replace("bootargs=", "")						
 #						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
-						slot["slotType"] = "eMMC"
+						slot["slotType"] = "eMMC" if "mmc" in slot["root"] else "USB   "
 						if fileHas("/proc/cmdline", "kexec=1") and int(slotnumber) > 3:
 							SystemInfo["HasKexecUSB"] = True						
 						print("[Multiboot][getMultibootslots]6a slot", slot)
@@ -63,7 +66,6 @@ def getMultibootslots():
 							slotx = getUUIDtoSD(slot["root"])
 							print("[Multiboot][getMultibootslots]6a slotx slot['root']", slotx, slot["root"])
 							if slotx is not None:
-								slot["slotType"] = "USB   "
 								slot["root"] = slotx
 							slot["kernel"] = "/linuxrootfs%s/zImage" %slotnumber
 						if path.exists(slot["root"]) or slot["root"] == "ubi0:ubifs":
@@ -127,8 +129,10 @@ def GetImagelist():
 	Imagelist = {}
 	tmp.dir = tempfile.mkdtemp(prefix="GetImagelist")
 	tmpname = tmp.dir
-#	print("[multiboot] [GetImagelist] tmpname = %s" % (tmpname))
 	for slot in sorted(list(SystemInfo["canMultiBoot"].keys())):
+		if fileHas("/proc/cmdline", "kexec=1") and slot == 0:
+			continue			
+		print("[multiboot] [GetImagelist] slot = ", slot)	
 		BuildVersion = "  "
 		Build = " "  # ViX Build No.
 		Dev = " "  # ViX Dev No.
@@ -144,11 +148,11 @@ def GetImagelist():
 			else:
 				Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))
 			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
-#		print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))
+		print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
-#			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))
+			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
-#				print("[multiboot] [BoxInfo] using BoxInfo")
+				print("[multiboot] [BoxInfo] using BoxInfo")
 				BoxInfo = BoxInformation(root=imagedir) if SystemInfo["MultiBootSlot"] != slot else BoxInfoRunningInstance
 				Creator = BoxInfo.getItem("distro")
 				BuildImgVersion = BoxInfo.getItem("imgversion")
