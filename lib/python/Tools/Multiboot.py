@@ -178,7 +178,12 @@ def GetImagelist():
 					date = VerDate(imagedir)
 					BuildVersion = "%s %s %s %s %s" % (Creator, BuildType[0:3], Build, Dev, date)
 #					print("[BootInfo]6 slot = %s BuildVersion = %s" % (slot, BuildVersion))
-				else:
+				elif path.isfile(path.join(imagedir, "etc/vtiversion.info")):
+					Vti = open(path.join(imagedir, "etc/vtiversion.info")).read()
+					date = VerDate(imagedir)							
+					Creator = "Vti"
+					BuildImgVersion = Vti[0][-7:]
+				else:	
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
 					BuildVersion = "%s Image Date: %s" % (Creator, date)
