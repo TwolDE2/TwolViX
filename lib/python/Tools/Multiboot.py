@@ -58,7 +58,7 @@ def getMultibootslots():
 						line = open(file).read().replace("'", "").replace('"', "").replace("\n", " ").replace("ubi.mtd", "mtd").replace("bootargs=", "")						
 #						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
-						slot["slotType"] = "eMMC" if "mmc" in slot["root"] else "USB   "
+						slot["slotType"] = "eMMC" if "mmc" in slot["root"] else "USB"
 						if fileHas("/proc/cmdline", "kexec=1") and int(slotnumber) > 3:
 							SystemInfo["HasKexecUSB"] = True						
 						print("[Multiboot][getMultibootslots]6a slot", slot)
@@ -148,9 +148,9 @@ def GetImagelist():
 			else:
 				Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))
 			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
-		print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))
+#		print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
-			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))
+#			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
 				print("[multiboot] [BoxInfo] using BoxInfo")
 				BoxInfo = BoxInformation(root=imagedir) if SystemInfo["MultiBootSlot"] != slot else BoxInfoRunningInstance
@@ -177,16 +177,19 @@ def GetImagelist():
 					Dev = BuildType != "release" and " %s" % reader.getImageDevBuild() or ""
 					date = VerDate(imagedir)
 					BuildVersion = "%s %s %s %s %s" % (Creator, BuildType[0:3], Build, Dev, date)
-#					print("[BootInfo]6 slot = %s BuildVersion = %s" % (slot, BuildVersion))
-				elif path.isfile(path.join(imagedir, "etc/vtiversion.info")):
+				elif fileHas("/proc/cmdline", "kexec=1") and path.isfile(path.join(imagedir, "etc/vtiversion.info")):
 					Vti = open(path.join(imagedir, "etc/vtiversion.info")).read()
+#					print("[BootInfo]6 vti = ", Vti)					
 					date = VerDate(imagedir)							
-					Creator = "Vti"
-					BuildImgVersion = Vti[0][-7:]
+					Creator = Vti[0:3]
+					Build = Vti[-7:-1]
+					print("[BootInfo]7 len(date), date", len(date), "   ", date)					
+					BuildVersion  = "%s %s %s " % (Creator, Build, date)	
+#					print("[BootInfo]8 BuildVersion  = ", BuildVersion )									
 				else:	
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
-					BuildVersion = "%s Image Date: %s" % (Creator, date)
+					BuildVersion = "%s %s" % (Creator, date)
 			Imagelist[slot] = {"imagename": "%s" % BuildVersion}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):
 			Imagelist[slot] = {"imagename": _("Deleted image")}
@@ -202,8 +205,6 @@ def GetImagelist():
 def VerDate(imagedir):
 	try:
 		date = datetime.fromtimestamp(stat(path.join(imagedir, "var/lib/opkg/status")).st_mtime).strftime("%Y-%m-%d")
-		if date.startswith("1970"):
-			date = datetime.fromtimestamp(stat(path.join(imagedir, "usr/share/bootlogo.mvi")).st_mtime).strftime("%Y-%m-%d")
 		date = max(date, datetime.fromtimestamp(stat(path.join(imagedir, "usr/bin/enigma2")).st_mtime).strftime("%Y-%m-%d"))
 #		print("[multiboot] date = %s" % date)
 	except Exception:
