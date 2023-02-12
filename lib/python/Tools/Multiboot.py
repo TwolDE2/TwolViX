@@ -28,7 +28,7 @@ def getMultibootslots():
 		print("[multiboot*****][getMultibootslots]00 device, bootslots", device, "   ", bootslots)
 		if len(bootslots) != 0:
 			break
-		print("[multiboot*****][getMultibootslots]0 device = ", device)
+#		print("[multiboot*****][getMultibootslots]0 device = ", device)
 		if path.exists(device):
 			print("[multiboot*****][getMultibootslots]path found for device = ", device)
 			Console(binary=True).ePopen("mount %s %s" % (device, tmpname))
@@ -39,7 +39,6 @@ def getMultibootslots():
 				BoxInfo.setItem("mtdbootfs", device2, forceOverride=True)
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
 					print("[multiboot*****] [getMultibootslots]2 tmpname = %s" % (tmpname))
-
 					print("[multiboot] [getMultibootslots]4 file = ", file)
 					slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 					slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[0]
@@ -89,7 +88,7 @@ def getMultibootslots():
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	if bootslots:
-		print("[Multiboot] Bootslots found:", bootslots)
+#		print("[Multiboot] Bootslots found:", bootslots)
 		bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 		print("[Multiboot][MultiBootSlot] bootArgs:", bootArgs)
 		if fileHas("/proc/cmdline", "kexec=1") and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
@@ -152,7 +151,7 @@ def GetImagelist():
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
 #			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
-				print("[multiboot] [BoxInfo] using BoxInfo")
+#				print("[multiboot] [BoxInfo] using BoxInfo")
 				BoxInfo = BoxInformation(root=imagedir) if SystemInfo["MultiBootSlot"] != slot else BoxInfoRunningInstance
 				Creator = BoxInfo.getItem("distro")
 				BuildImgVersion = BoxInfo.getItem("imgversion")
