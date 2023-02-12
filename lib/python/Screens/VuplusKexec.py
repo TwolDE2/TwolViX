@@ -69,9 +69,9 @@ class VuplusKexec(Screen):
 		else:
 			self.close()
 
-	def RootInitEnd(self, ret, result, *args, **kwargs):
+	def RootInitEnd(self, ret, *args, **kwargs):
 		if ret == 0:	
 			print("[VuplusKexec][RootInitEnd] rebooting")
 			self.session.open(TryQuitMainloop, QUIT_REBOOT)
 		else:
-			self.session.open(MessageBox, _("[VuplusKexec][create Vu Multiboot environment] - Failed, Debug output:-", result), MessageBox.TYPE_INFO, timeout=30)	
+			self.session.open(MessageBox, _("[VuplusKexec][create Vu Multiboot environment] - Failed, check Debug log output:-"), MessageBox.TYPE_INFO, timeout=30)	
