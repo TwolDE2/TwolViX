@@ -105,9 +105,9 @@ class About(AboutBase):
 			imageSubBuild = ".%s" % getImageDevBuild()
 		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
 
-		VuPlustxt = " - VuPlus Multiboot with Kexec" if SystemInfo["HasKexecMultiboot"] else " "
+		VuPlustxt = ":\tVu+ Multiboot - " if SystemInfo["HasKexecMultiboot"] else ""		
 		if BoxInfo.getItem("mtdbootfs") != "" and " " not in BoxInfo.getItem("mtdbootfs"):
-			AboutText += _("Boot Device%s:\t%s\n") % (VuPlustxt, BoxInfo.getItem("mtdbootfs"))
+			AboutText += _("Boot Device%s%s\n") % (VuPlustxt, BoxInfo.getItem("mtdbootfs"))
 
 		if SystemInfo["HasH9SD"]:
 			if "rootfstype=ext4" in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read():
