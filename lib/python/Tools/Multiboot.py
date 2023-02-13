@@ -158,7 +158,7 @@ def GetImagelist():
 				BuildType = BoxInfo.getItem("imagetype")[0:3]
 				BuildVer = BoxInfo.getItem("imagebuild")
 				BuildDate = str(BoxInfo.getItem("compiledate"))
-				BuildDate = datetime.strptime(BuildDate, '%Y%m%d').strftime("(%d-%m-%Y)")				
+				BuildDate = datetime.strptime(BuildDate, '%Y%m%d').strftime("(%d-%m-%Y)")
 				BuildDev = str(BoxInfo.getItem("imagedevbuild")).zfill(3) if BuildType != "rel" else ""
 				BuildVersion = "%s %s %s %s %s %s" % (Creator, BuildImgVersion, BuildType, BuildVer, BuildDev, BuildDate)
 #				print("[multiboot] [BoxInfo]  slot=%s, Creator=%s, BuildType=%s, BuildImgVersion=%s, BuildDate=%s, BuildDev=%s" % (slot, Creator, BuildType, BuildImgVersion, BuildDate, BuildDev))
