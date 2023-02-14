@@ -92,6 +92,9 @@ class Element:
 		self.cache = None
 
 	def setSuspend(self, suspended):
+		if not hasattr(self, "__suspended"):
+			print("[Element-setSuspend] self.__suspended not set", suspended)
+			self.__suspended = not suspended
 		changed = self.__suspended != suspended
 		if not self.__suspended and suspended:
 			self.doSuspend(1)
