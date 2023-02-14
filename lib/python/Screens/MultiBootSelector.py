@@ -201,6 +201,11 @@ class MultiBootSelector(Screen, HelpableScreen):
 			print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
 			with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
 				f.write(STARTUP_usbslot)
+		for usbslot in range(8,12:				
+			STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (getBoxType(), usbslot, self.device_uuid, getBoxType(), usbslot) # /STARTUP_<n>
+			print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
+			with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
+					f.write(STARTUP_usbslot)
 
 		SystemInfo["HasKexecUSB"] = True							
 		self.session.open(MessageBox, _("[MultiBootSelector][Vu USB STARTUP] - created STARTUP slots for %s." % usb), MessageBox.TYPE_INFO, timeout=10)												
