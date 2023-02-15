@@ -198,18 +198,13 @@ class MultiBootSelector(Screen, HelpableScreen):
 #			STARTUP_6 = "kernel=/linuxrootfs6/zImage root=/dev/%s rootsubdir=linuxrootfs6" % hdd[0] 	# /STARTUP_6
 #			STARTUP_7 = "kernel=/linuxrootfs7/zImage root=/dev/%s rootsubdir=linuxrootfs7" % hdd[0] 	# /STARTUP_7
 
-		for usbslot in range(4,8):
+		for usbslot in range(4,12):
 			STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, self.device_uuid, boxmodel, usbslot) # /STARTUP_<n>
 			if boxmodel in ("duo4k", "duo4kse"):
 				STARTUP_usbslot += " rootwait=35"
 			print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
 			with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
 				f.write(STARTUP_usbslot)
-		for usbslot in range(8,12):				
-			STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (getBoxType(), usbslot, self.device_uuid, getBoxType(), usbslot) # /STARTUP_<n>
-			print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
-			with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
-					f.write(STARTUP_usbslot)
 
 		SystemInfo["HasKexecUSB"] = True
 		self.session.open(MessageBox, _("[MultiBootSelector][Vu+ USB STARTUP] - created STARTUP slots for %s." % usb), MessageBox.TYPE_INFO, timeout=10)
