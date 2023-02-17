@@ -195,16 +195,17 @@ class MultiBootSelector(Screen, HelpableScreen):
 		hiUUIDkey = SystemInfo["VuUUIDSlot"][1]
 		print("[MultiBootSelector]1 answer, hiKey,  hiUUIDkey", answer, "   ", hiKey, "   ", hiUUIDkey)	
 		if answer is False:
-			self.close()	
-		boxmodel = getBoxType()[2:]		
-		for usbslot in range(hiKey+1, hiKey+9):
-			STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, SystemInfo["VuUUIDSlot"][0], boxmodel, usbslot) # /STARTUP_<n>
-			if boxmodel in ("duo4k", "duo4kse"):
-				STARTUP_usbslot += " rootwait=35"
-			with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
-				f.write(STARTUP_usbslot)
-			print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))				
-		self.session.open(TryQuitMainloop, QUIT_RESTART)		
+			self.close()
+		else:		
+			boxmodel = getBoxType()[2:]		
+			for usbslot in range(hiKey+1, hiKey+9):
+				STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, SystemInfo["VuUUIDSlot"][0], boxmodel, usbslot) # /STARTUP_<n>
+				if boxmodel in ("duo4k", "duo4kse"):
+					STARTUP_usbslot += " rootwait=35"
+				with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
+					f.write(STARTUP_usbslot)
+				print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))				
+			self.session.open(TryQuitMainloop, QUIT_RESTART)		
 		
 		
 	def KexecMountRet(self, result=None, retval=None, extra_args=None):
