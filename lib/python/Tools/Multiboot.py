@@ -19,7 +19,10 @@ class tmp:
 def getMultibootslots():
 	bootslots = {}
 	slotname = ""
-	SystemInfo["MultiBootSlot"] = False	
+	SystemInfo["MultiBootSlot"] = False
+	SystemInfo["VuUUIDSlot"] = ""
+	UUID =	""
+	UUIDnum = 0
 	BoxInfo = BoxInfoRunningInstance
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
@@ -51,18 +54,20 @@ def getMultibootslots():
 					if "STARTUP_RECOVERY" in file:
 						SystemInfo["RecoveryMode"] = True
 						if fileHas("/proc/cmdline", "kexec=1"):
-							slotnumber = "0"											
+							slotnumber = "0"
 					print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 					if slotnumber.isdigit() and slotnumber not in bootslots:
-						line = open(file).read().replace("'", "").replace('"', "").replace("\n", " ").replace("ubi.mtd", "mtd").replace("bootargs=", "")						
+						line = open(file).read().replace("'", "").replace('"', "").replace("\n", " ").replace("ubi.mtd", "mtd").replace("bootargs=", "")
 #						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
 						slot["slotType"] = "eMMC" if "mmc" in slot["root"] else "USB"
 						if fileHas("/proc/cmdline", "kexec=1") and int(slotnumber) > 3:
-							SystemInfo["HasKexecUSB"] = True						
+							SystemInfo["HasKexecUSB"] = True
 						print("[Multiboot][getMultibootslots]6a slot", slot)
 						if 	"UUID=" in slot["root"]:
 							slotx = getUUIDtoSD(slot["root"])
+							UUID = slot["root"]
+							UUIDnum +=1 
 							print("[Multiboot][getMultibootslots]6a slotx slot['root']", slotx, slot["root"])
 							if slotx is not None:
 								slot["root"] = slotx
@@ -95,7 +100,9 @@ def getMultibootslots():
 			rootsubdir = [x for x in bootArgs.split() if x.startswith("rootsubdir")]
 			char = "/" if "/" in rootsubdir[0] else "="
 			SystemInfo["MultiBootSlot"] = int(rootsubdir[0].rsplit(char, 1)[1][11:])
-			print("[Multiboot][MultiBootSlot]0 current slot used:", SystemInfo["MultiBootSlot"])				
+			SystemInfo["VuUUIDSlot"] = (UUID, UUIDnum) if UUIDnum !=0 else ""
+			print("[Multiboot][MultiBootSlot]0 current slot used:", SystemInfo["MultiBootSlot"])
+#			print("[Multiboot][MultiBootSlot]0 UID, UUIDnum:", SystemInfo["VuUUIDSlot"], "   ", SystemInfo["VuUUIDSlot"][0], "   ", SystemInfo["VuUUIDSlot"][1])				
 		elif SystemInfo["HasRootSubdir"] and "root=/dev/sda" not in bootArgs:							# RootSubdir receiver or sf8008 receiver with root in eMMC slot 
 			slot = [x[-1] for x in bootArgs.split() if x.startswith("rootsubdir")]
 			SystemInfo["MultiBootSlot"] = int(slot[0])
@@ -131,7 +138,7 @@ def GetImagelist():
 	for slot in sorted(list(SystemInfo["canMultiBoot"].keys())):
 		if fileHas("/proc/cmdline", "kexec=1") and slot == 0:
 			continue			
-		print("[multiboot] [GetImagelist] slot = ", slot)	
+		print("[multiboot] [GetImagelist] slot = ", slot)
 		BuildVersion = "  "
 		Build = " "  # ViX Build No.
 		Dev = " "  # ViX Dev No.
@@ -178,12 +185,12 @@ def GetImagelist():
 					BuildVersion = "%s %s %s %s (%s)" % (Creator, BuildType[0:3], Build, Dev, date)
 				elif fileHas("/proc/cmdline", "kexec=1") and path.isfile(path.join(imagedir, "etc/vtiversion.info")):
 					Vti = open(path.join(imagedir, "etc/vtiversion.info")).read()
-#					print("[BootInfo]6 vti = ", Vti)					
-					date = VerDate(imagedir)							
+#					print("[BootInfo]6 vti = ", Vti)
+					date = VerDate(imagedir)
 					Creator = Vti[0:3]
 					Build = Vti[-8:-1]
-					BuildVersion  = "%s %s (%s) " % (Creator, Build, date)	
-#					print("[BootInfo]8 BuildVersion  = ", BuildVersion )									
+					BuildVersion  = "%s %s (%s) " % (Creator, Build, date)
+#					print("[BootInfo]8 BuildVersion  = ", BuildVersion )
 				else:	
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
@@ -203,6 +210,8 @@ def GetImagelist():
 def VerDate(imagedir):
 	try:
 		date = datetime.fromtimestamp(stat(path.join(imagedir, "var/lib/opkg/status")).st_mtime).strftime("%Y-%m-%d")
+		if date.startswith("1970") and fileExists(path.join(imagedir, "usr/share/bootlogo.mvi")):
+			date = datetime.fromtimestamp(stat(path.join(imagedir, "usr/share/bootlogo.mvi")).st_mtime).strftime("%Y-%m-%d")
 		date = max(date, datetime.fromtimestamp(stat(path.join(imagedir, "usr/bin/enigma2")).st_mtime).strftime("%Y-%m-%d"))
 #		print("[multiboot]1 date = %s" % date)
 		date = datetime.strptime(date, '%Y-%m-%d').strftime("%d-%m-%Y")
