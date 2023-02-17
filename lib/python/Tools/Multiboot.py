@@ -67,7 +67,7 @@ def getMultibootslots():
 						if 	"UUID=" in slot["root"]:
 							slotx = getUUIDtoSD(slot["root"])
 							UUID = slot["root"]
-							UUIDnum +=1 
+							UUIDnum +=1
 							print("[Multiboot][getMultibootslots]6a slotx slot['root']", slotx, slot["root"])
 							if slotx is not None:
 								slot["root"] = slotx
@@ -81,9 +81,9 @@ def getMultibootslots():
 								slot["slotType"] = "SDCARD"
 							else:
 								SystemInfo["HasRootSubdir"] = slot.get("rootsubdir")
-																		 
+
 							if "kernel" not in slot.keys():
-								slot["kernel"] = "%sp%s" % (slot["root"].split("p")[0], int(slot["root"].split("p")[1]) - 1)	# oldstyle MB kernel = root-1								
+								slot["kernel"] = "%sp%s" % (slot["root"].split("p")[0], int(slot["root"].split("p")[1]) - 1)	# oldstyle MB kernel = root-1
 #							print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel, root, SystemInfo['HasRootSubdir'] ", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"], "   ", slot["root"], "   ", SystemInfo["HasRootSubdir"])
 						else:
 							continue
@@ -102,11 +102,11 @@ def getMultibootslots():
 			SystemInfo["MultiBootSlot"] = int(rootsubdir[0].rsplit(char, 1)[1][11:])
 			SystemInfo["VuUUIDSlot"] = (UUID, UUIDnum) if UUIDnum !=0 else ""
 			print("[Multiboot][MultiBootSlot]0 current slot used:", SystemInfo["MultiBootSlot"])
-#			print("[Multiboot][MultiBootSlot]0 UID, UUIDnum:", SystemInfo["VuUUIDSlot"], "   ", SystemInfo["VuUUIDSlot"][0], "   ", SystemInfo["VuUUIDSlot"][1])				
-		elif SystemInfo["HasRootSubdir"] and "root=/dev/sda" not in bootArgs:							# RootSubdir receiver or sf8008 receiver with root in eMMC slot 
+#			print("[Multiboot][MultiBootSlot]0 UID, UUIDnum:", SystemInfo["VuUUIDSlot"], "   ", SystemInfo["VuUUIDSlot"][0], "   ", SystemInfo["VuUUIDSlot"][1])
+		elif SystemInfo["HasRootSubdir"] and "root=/dev/sda" not in bootArgs:							# RootSubdir receiver or sf8008 receiver with root in eMMC slot
 			slot = [x[-1] for x in bootArgs.split() if x.startswith("rootsubdir")]
 			SystemInfo["MultiBootSlot"] = int(slot[0])
-			print("[Multiboot][MultiBootSlot]1 current slot used:", SystemInfo["MultiBootSlot"])			
+			print("[Multiboot][MultiBootSlot]1 current slot used:", SystemInfo["MultiBootSlot"])
 		else:
 			root = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in bootArgs.strip().split(" ") if "=" in x])["root"]	# Broadband receiver (e.g. gbue4k) or sf8008 with sd card as root/kernel pair
 			for slot in bootslots.keys():
@@ -137,7 +137,7 @@ def GetImagelist():
 	tmpname = tmp.dir
 	for slot in sorted(list(SystemInfo["canMultiBoot"].keys())):
 		if fileHas("/proc/cmdline", "kexec=1") and slot == 0:
-			continue			
+			continue
 		print("[multiboot] [GetImagelist] slot = ", slot)
 		BuildVersion = "  "
 		Build = " "  # ViX Build No.
@@ -164,16 +164,15 @@ def GetImagelist():
 				BuildImgVersion = BoxInfo.getItem("imgversion")
 				BuildType = BoxInfo.getItem("imagetype")[0:3]
 				BuildVer = BoxInfo.getItem("imagebuild")
-				BuildDate = str(BoxInfo.getItem("compiledate"))
-				BuildDate = datetime.strptime(BuildDate, '%Y%m%d').strftime("(%d-%m-%Y)")
+				BuildDate = VerDate(imagedir)
 				BuildDev = str(BoxInfo.getItem("imagedevbuild")).zfill(3) if BuildType != "rel" else ""
-				BuildVersion = "%s %s %s %s %s %s" % (Creator, BuildImgVersion, BuildType, BuildVer, BuildDev, BuildDate)
+				BuildVersion = "%s %s %s %s %s (%s)" % (Creator, BuildImgVersion, BuildType, BuildVer, BuildDev, BuildDate)
 #				print("[multiboot] [BoxInfo]  slot=%s, Creator=%s, BuildType=%s, BuildImgVersion=%s, BuildDate=%s, BuildDev=%s" % (slot, Creator, BuildType, BuildImgVersion, BuildDate, BuildDev))
 			else:
 #				print("[multiboot] [BoxInfo] using BoxBranding")
-#				print("[multiboot] [GetImagelist] 2 slot = %s imagedir = %s" % (slot, imagedir))
+				print("[multiboot] [GetImagelist] 2 slot = %s imagedir = %s" % (slot, imagedir))
 				Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
-#				print("[multiboot] [GetImagelist] Creator = %s imagedir = %s" % (Creator, imagedir))
+				print("[multiboot] [GetImagelist] Creator = %s imagedir = %s" % (Creator, imagedir))
 				if Creator.startswith("Openvix"):
 					reader = boxbranding_reader(imagedir)
 					BuildType = reader.getImageType()
@@ -191,7 +190,7 @@ def GetImagelist():
 					Build = Vti[-8:-1]
 					BuildVersion  = "%s %s (%s) " % (Creator, Build, date)
 #					print("[BootInfo]8 BuildVersion  = ", BuildVersion )
-				else:	
+				else:
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
 					BuildVersion = "%s (%s)" % (Creator, date)
@@ -208,15 +207,16 @@ def GetImagelist():
 
 
 def VerDate(imagedir):
-	try:
-		date = datetime.fromtimestamp(stat(path.join(imagedir, "var/lib/opkg/status")).st_mtime).strftime("%Y-%m-%d")
-		if date.startswith("1970") and fileExists(path.join(imagedir, "usr/share/bootlogo.mvi")):
-			date = datetime.fromtimestamp(stat(path.join(imagedir, "usr/share/bootlogo.mvi")).st_mtime).strftime("%Y-%m-%d")
-		date = max(date, datetime.fromtimestamp(stat(path.join(imagedir, "usr/bin/enigma2")).st_mtime).strftime("%Y-%m-%d"))
-#		print("[multiboot]1 date = %s" % date)
-		date = datetime.strptime(date, '%Y-%m-%d').strftime("%d-%m-%Y")
-	except Exception:
-		date = _("Unknown")
+	date3 = "00000000"
+	date1 = datetime.fromtimestamp(stat(path.join(imagedir, "var/lib/opkg/status")).st_mtime).strftime("%Y-%m-%d")
+	date2 = datetime.fromtimestamp(stat(path.join(imagedir, "usr/bin/enigma2")).st_mtime).strftime("%Y-%m-%d")
+	if fileExists(path.join(imagedir, "usr/share/bootlogo.mvi")):
+		date3 = datetime.fromtimestamp(stat(path.join(imagedir, "usr/share/bootlogo.mvi")).st_mtime).strftime("%Y-%m-%d")
+	print("[multiboot][VerDate]1 date1, date2, date3", date1, "   ", date2, "   ", date3)
+	date = max(date1, date2, date3)
+	print("[multiboot][VerDate]2 date = %s" % date)
+	date = datetime.strptime(date, '%Y-%m-%d').strftime("%d-%m-%Y")
+
 	return date
 
 
