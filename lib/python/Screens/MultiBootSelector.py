@@ -46,7 +46,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.skinName = ["MultiBootSelector", "Setup"]
 		self.tmp_dir = None
 		usbIn = True if SystemInfo["HasUsbhdd"] != {} and SystemInfo["HasKexecMultiboot"] else False
-		print("[MultiBootSelector] usbIn, SystemInfo['HasUsbhdd'], SystemInfo['HasKexecMultiboot'], SystemInfo['HasKexecUSB']", usbIn, "   ", SystemInfo["HasUsbhdd"], "   ", SystemInfo["HasKexecMultiboot"], "   ", SystemInfo["HasKexecUSB"])
+#		print("[MultiBootSelector] usbIn, SystemInfo['HasUsbhdd'], SystemInfo['HasKexecMultiboot'], SystemInfo['HasKexecUSB']", usbIn, "   ", SystemInfo["HasUsbhdd"], "   ", SystemInfo["HasKexecMultiboot"], "   ", SystemInfo["HasKexecUSB"])
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent("", ((_("Retrieving image slots - Please wait...")), "Queued"))])
 		self["description"] = StaticText(_("Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."))
 		self["key_red"] = StaticText(_("Add Extra USB slots") if usbIn else _("Cancel"))
@@ -111,9 +111,6 @@ class MultiBootSelector(Screen, HelpableScreen):
 		elif self.currentSelected[0][1] != "Queued":
 			slot = self.currentSelected[0][1][0]
 			boxmode = self.currentSelected[0][1][1]
-			# print("[MultiBootSelector] reboot1 reboot slot = %s, " % slot)
-			# print("[MultiBootSelector] reboot2 reboot boxmode = %s, " % boxmode)
-			# print("[MultiBootSelector] reboot3 slotinfo = %s" % SystemInfo["canMultiBoot"])
 			if SystemInfo["canMode12"]:
 				if "BOXMODE" in SystemInfo["canMultiBoot"][slot]['startupfile']:
 					startupfile = path.join(self.tmp_dir, "%s_%s" % (SystemInfo["canMultiBoot"][slot]['startupfile'].rsplit('_', 1)[0], boxmode))
@@ -199,7 +196,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 			self.close()
 		else:
 			boxmodel = getBoxType()[2:]
-			for usbslot in range(hiKey+1, hiKey+5):
+			for usbslot in range(hiKey+1, hiKey+9):
 				STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, SystemInfo["VuUUIDSlot"][0], boxmodel, usbslot) # /STARTUP_<n>
 				if boxmodel in ("duo4k", "duo4kse"):
 					STARTUP_usbslot += " rootwait=35"
