@@ -94,7 +94,10 @@ class MultiBootSelector(Screen, HelpableScreen):
 						list.append(ChoiceEntryComponent("", (slotMulti % (x, SystemInfo["canMultiBoot"][x]["slotType"], SystemInfo["canMultiBoot"][x]["slotname"], self.imagedict[x]["imagename"], "PiP", current if x == currentimageslot and mode == 12 else ""), (x, 12))))
 					indextot = index + 1
 				elif self.imagedict[x]["imagename"] != _("Empty slot"):
-					list.append(ChoiceEntryComponent("", (slotSingle % (x, SystemInfo["canMultiBoot"][x]["slotType"], SystemInfo["canMultiBoot"][x]["slotname"], self.imagedict[x]["imagename"], current if x == currentimageslot else ""), (x, 1))))
+					if self.imagedict[x]["imagename"] == _("Recovery System"):
+						list.append(ChoiceEntryComponent("", (self.imagedict[x]["imagename"], current if x == currentimageslot else "")))
+					else:
+						list.append(ChoiceEntryComponent("", (slotSingle % (x, SystemInfo["canMultiBoot"][x]["slotType"], SystemInfo["canMultiBoot"][x]["slotname"], self.imagedict[x]["imagename"], current if x == currentimageslot else ""), (x, 1))))
 			if SystemInfo["canMode12"]:
 				list.insert(indextot, " ")
 		else:
