@@ -72,7 +72,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.callLater(self.getImagelist)
 
 	def getImagelist(self):
-		self.imagedict = GetImagelist()
+		self.imagedict = GetImagelist(Recovery=SystemInfo["RecoveryMode"])
 		list = []
 		self.deletedImagesExists = False
 		currentimageslot = SystemInfo["MultiBootSlot"]
