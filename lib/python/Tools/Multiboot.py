@@ -145,7 +145,7 @@ def GetImagelist(Recovery=None):
 			if not Recovery:		# called by ImageManager
 				continue
 			else:					# called by MultiBootSelector
-				Imagelist[slot] = {"imagename": _("Recovery System")}
+				Imagelist[slot] = {"imagename": _("Recovery Mode")}
 				continue	
 		print("[multiboot] [GetImagelist] slot = ", slot)
 		BuildVersion = "  "

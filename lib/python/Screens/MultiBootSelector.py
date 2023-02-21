@@ -79,6 +79,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		mode = GetCurrentImageMode() or 0
 		print("[MultiBootSelector] reboot0 slot:", currentimageslot)
 		current = "  %s" % _("(Current)")
+		slotRecov = _("%s%s - Select to access recovery options")		
 		slotSingle = _("Slot%s %s %s: %s%s")
 		slotMulti = _("Slot%s %s %s: %s - %s mode%s")
 		if self.imagedict:
@@ -94,8 +95,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 						list.append(ChoiceEntryComponent("", (slotMulti % (x, SystemInfo["canMultiBoot"][x]["slotType"], SystemInfo["canMultiBoot"][x]["slotname"], self.imagedict[x]["imagename"], "PiP", current if x == currentimageslot and mode == 12 else ""), (x, 12))))
 					indextot = index + 1
 				elif self.imagedict[x]["imagename"] != _("Empty slot"):
-					if self.imagedict[x]["imagename"] == _("Recovery System"):
-						list.append(ChoiceEntryComponent("", (self.imagedict[x]["imagename"], current if x == currentimageslot else "")))
+					if self.imagedict[x]["imagename"] == _("Recovery Mode"):
+						list.append(ChoiceEntryComponent("", (slotRecov % (self.imagedict[x]["imagename"], current if x == currentimageslot else ""), (x, 1))))
 					else:
 						list.append(ChoiceEntryComponent("", (slotSingle % (x, SystemInfo["canMultiBoot"][x]["slotType"], SystemInfo["canMultiBoot"][x]["slotname"], self.imagedict[x]["imagename"], current if x == currentimageslot else ""), (x, 1))))
 			if SystemInfo["canMode12"]:
