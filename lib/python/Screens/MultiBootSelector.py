@@ -83,6 +83,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self["deleteActions"].setEnabled(False)
 		self.imagedict = []
 		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector")
+		self.tmp_dir2 = tempfile.mkdtemp(prefix="isVuKexecCopyimage")
 		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
 		self.callLater(self.getImagelist)
 
@@ -220,11 +221,11 @@ class MultiBootSelector(Screen, HelpableScreen):
 
 
 	def KexecMountRet(self, result=None, retval=None, extra_args=None):
+# 		using UUID	 kernel=/linuxrootfs1/boot/zImage root=UUID="12c2025e-2969-4bd1-9e0c-da08b97d40ce" rootsubdir=linuxrootfs1
+#		using dev = "kernel=/linuxrootfs4/zImage root=/dev/%s rootsubdir=linuxrootfs4" % hdd[0] 	# /STARTUP_4
 		self.device_uuid = "UUID=" + result.split("UUID=")[1].split(" ")[0].replace('"', '')
 		usb = result.split(":")[0]
 		boxmodel = getBoxType()[2:]
-# 		using UUID	 kernel=/linuxrootfs1/boot/zImage root=UUID="12c2025e-2969-4bd1-9e0c-da08b97d40ce" rootsubdir=linuxrootfs1
-#		using dev = "kernel=/linuxrootfs4/zImage root=/dev/%s rootsubdir=linuxrootfs4" % hdd[0] 	# /STARTUP_4
 
 		for usbslot in range(4,8):
 			STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, self.device_uuid, boxmodel, usbslot) # /STARTUP_<n>
@@ -236,7 +237,18 @@ class MultiBootSelector(Screen, HelpableScreen):
 			with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
 				f.write(STARTUP_usbslot)
 
+		Console().ePopen("mount %s %s" % (usb, self.tmp_dir2))
+		print("[ImageManager][isVuKexecCopyimage] usb", usb)
+		for usbslot in range(1,4):		
+			if pathExists("self.tmp_dir2/linuxrootfs%s" % usbslot):
+				Console().ePopen("cp -R /self.tmp_dir2/linuxrootfs%s . /boot/" % usbslot)				
 		SystemInfo["HasKexecUSB"] = True
+		Console().ePopen("umount %s" % self.tmp_dir)
+		if not path.ismount(self.tmp_dir):
+			rmdir(self.tmp_dir)		
+		Console().ePopen("umount %s" % self.tmp_dir2)
+		if not path.ismount(self.tmp_dir2):
+			rmdir(self.tmp_dir2)
 		self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 	def cancel(self, value=None):
