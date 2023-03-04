@@ -65,7 +65,6 @@ class VuplusKexec(Screen):
 			cmdlist.append("dd if=/dev/%s of=/zImage" % getMachineMtdKernel())						# backup old kernel
 			cmdlist.append("dd if=/usr/bin/kernel_auto.bin of=/dev/%s" % getMachineMtdKernel())	# create new kernel
 			cmdlist.append("mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz")						# copy userroot routine
-			cmdlist.append("sync; sleep 1; sync; sleep 1; sync")
 			Console().eBatch(cmdlist, self.RootInitEnd, debug=True)
 		else:
 			self.session.open(MessageBox, _("[VuplusKexec][create Vu Multiboot environment] - Unable to complete, Vu+ Multiboot files missing"), MessageBox.TYPE_INFO, timeout=30)
