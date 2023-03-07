@@ -34,7 +34,7 @@ class VuplusKexec(Screen):
 	def __init__(self, session, *args, **kwargs):
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Manager")
-		self["description"] = StaticText(_("Press Green key to enable MultiBoot."))
+		self["description"] = StaticText(_("Press Green key to enable MultiBoot\n\nWill reboot within 10 seconds,\nunless you have eMMC slots to restore.\nRestoring eMMC slots can take from 1 -> 5 minutes per slot."))		
 #		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Init Vu+ MultiBoot"))
 		self["actions"] = ActionMap(["SetupActions"],
@@ -49,7 +49,7 @@ class VuplusKexec(Screen):
 		self["actions"].setEnabled(False) # This function takes time so disable the ActionMap to avoid responding to multiple button presses
 		if fileExists("/usr/bin/kernel_auto.bin") and fileExists("/usr/bin/STARTUP.cpio.gz"):
 			self.title = _("Vu+ MultiBoot Initialisation - will reboot after 10 seconds.")
-			self["description"].text = _("Vu+ MultiBoot Inititialisation - will reboot after 10 seconds.")
+			self["description"].text = _("Vu+ MultiBoot Initialisation in progress\n\nWill reboot after restoring any eMMC slots\nThis can take from 1 -> 5 minutes per slot.")
 			with open("/STARTUP", 'w') as f:
 				f.write(STARTUP)
 			with open("/STARTUP_RECOVERY", 'w') as f:
