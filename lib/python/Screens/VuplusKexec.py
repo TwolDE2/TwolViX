@@ -34,7 +34,7 @@ class VuplusKexec(Screen):
 	def __init__(self, session, *args, **kwargs):
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Manager")
-		self["description"] = StaticText(_("Press Green key to enable MultiBoot\n\nWill reboot within 10 seconds,\nunless you have eMMC slots to restore.\nRestoring eMMC slots can take from 1 -> 5 minutes per slot."))		
+		self["description"] = StaticText(_("Press Green key to enable MultiBoot\n\nWill reboot within 10 seconds,\nunless you have eMMC slots to restore.\nRestoring eMMC slots can take from 1 -> 5 minutes per slot."))
 #		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Init Vu+ MultiBoot"))
 		self["actions"] = ActionMap(["SetupActions"],
@@ -73,7 +73,6 @@ class VuplusKexec(Screen):
 	def RootInitEnd(self, *args, **kwargs):
 		print("[VuplusKexec][RootInitEnd] rebooting")
 		for usbslot in range(1,4):		
-			print("[VuplusKexec][RootInitEnd] usbslot", usbslot)
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), usbslot)):
 				Console().ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), usbslot))		
 		self.session.open(TryQuitMainloop, QUIT_REBOOT)
