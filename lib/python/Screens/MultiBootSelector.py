@@ -236,19 +236,10 @@ class MultiBootSelector(Screen, HelpableScreen):
 			print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
 			with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
 				f.write(STARTUP_usbslot)
-
-		Console().ePopen("mount %s %s" % (usb, self.tmp_dir2))
-		print("[ImageManager][isVuKexecCopyimage] usb", usb)
-		for usbslot in range(1,4):		
-			if pathExists("self.tmp_dir2/linuxrootfs%s" % usbslot):
-				Console().ePopen("cp -R /self.tmp_dir2/linuxrootfs%s . /boot/" % usbslot)				
 		SystemInfo["HasKexecUSB"] = True
 		Console().ePopen("umount %s" % self.tmp_dir)
 		if not path.ismount(self.tmp_dir):
 			rmdir(self.tmp_dir)		
-		Console().ePopen("umount %s" % self.tmp_dir2)
-		if not path.ismount(self.tmp_dir2):
-			rmdir(self.tmp_dir2)
 		self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 	def cancel(self, value=None):
