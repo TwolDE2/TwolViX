@@ -1,4 +1,4 @@
-from boxbranding import getMachineMtdKernel, getMachineMtdRoot
+from boxbranding import getBoxType, getMachineMtdKernel, getMachineMtdRoot
 from Components.ActionMap import ActionMap
 from Components.Console import Console
 from Components.Label import Label
@@ -7,7 +7,7 @@ from Components.SystemInfo import SystemInfo
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Standby import QUIT_REBOOT, TryQuitMainloop
-from Tools.Directories import fileExists
+from Tools.Directories import fileExists, pathExists
 
 STARTUP = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot()					# /STARTUP
 STARTUP_RECOVERY = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot() 			# /STARTUP_RECOVERY
@@ -72,4 +72,8 @@ class VuplusKexec(Screen):
 
 	def RootInitEnd(self, *args, **kwargs):
 		print("[VuplusKexec][RootInitEnd] rebooting")
+		for usbslot in range(1,4):		
+			print("[VuplusKexec][RootInitEnd] usbslot", usbslot)
+			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), usbslot)):
+				Console().ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), usbslot))		
 		self.session.open(TryQuitMainloop, QUIT_REBOOT)
