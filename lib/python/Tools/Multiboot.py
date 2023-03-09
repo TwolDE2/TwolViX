@@ -101,7 +101,7 @@ def getMultibootslots():
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	if bootslots:
-		print("[Multiboot] Bootslots found:", bootslots)
+#		print("[Multiboot] Bootslots found:", bootslots)
 		bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 		print("[Multiboot][MultiBootSlot] bootArgs:", bootArgs)
 		if fileHas("/proc/cmdline", "kexec=1") and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
@@ -163,7 +163,6 @@ def GetImagelist(Recovery=None):
 		Imagelist[slot] = {"imagename": _("Empty slot")}
 		imagedir = "/"
 		if SystemInfo["MultiBootSlot"] != slot or SystemInfo["HasHiSi"]:
-#		if SystemInfo["MultiBootSlot"] != slot or SystemInfo["HasHiSi"] or fileHas("/proc/cmdline", "kexec=1"):
 			if SystemInfo["HasMultibootMTD"]:
 				Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))
 			else:
@@ -175,9 +174,9 @@ def GetImagelist(Recovery=None):
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
 				print("[multiboot] [BoxInfo] using BoxInfo")
 				BoxInfo = BoxInformation(root=imagedir) if SystemInfo["MultiBootSlot"] != slot else BoxInfoRunningInstance
-				Creator = BoxInfo.getItem("distro").capitalize()
+				Creator = " " if  BoxInfo.getItem("distro") is None else  BoxInfo.getItem("distro").capitalize()
 				BuildImgVersion = BoxInfo.getItem("imgversion")
-				BuildType = BoxInfo.getItem("imagetype")[0:3]
+				BuildType = " " if BoxInfo.getItem("imagetype") is None else BoxInfo.getItem("imagetype")[0:3]
 				BuildVer = BoxInfo.getItem("imagebuild")
 				BuildDate = VerDate(imagedir)
 				BuildDev = str(BoxInfo.getItem("imagedevbuild")).zfill(3) if BuildType != "rel" else ""
