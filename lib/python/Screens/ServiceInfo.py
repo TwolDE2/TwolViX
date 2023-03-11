@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from enigma import ePoint, eTimer, iPlayableService
 
 from enigma import eListboxPythonMultiContent, eListbox, gFont, iServiceInformation, eServiceCenter, RT_VALIGN_CENTER, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, eDVBFrontendParametersSatellite
@@ -6,6 +7,7 @@ from Components.ActionMap import ActionMap
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components.Label import Label
+from Components.MenuList import MenuList
 from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 from ServiceReference import ServiceReference
@@ -65,12 +67,9 @@ def ServiceInfoListEntry(a, b="", valueType=TYPE_TEXT, param=4, altColor=False):
 	return res
 
 
-class ServiceInfoList(GUIComponent):
-	def __init__(self, source):
-		GUIComponent.__init__(self)
-		self.l = eListboxPythonMultiContent()
-		self.list = source
-		self.l.setList(self.list)
+class ServiceInfoList(MenuList):
+	def __init__(self, list):
+		MenuList.__init__(self, list, content=eListboxPythonMultiContent)
 		self.fontName = "Regular"
 		self.fontSize = 23
 		self.ItemHeight = 25
@@ -93,23 +92,13 @@ class ServiceInfoList(GUIComponent):
 		self.l.setItemHeight(self.ItemHeight)
 		return rc
 
-	GUI_WIDGET = eListbox
-
 	def setFontsize(self):
 		self.l.setFont(0, gFont(self.fontName, self.fontSize))
 		self.l.setFont(1, gFont(self.fontName, self.fontSize + 5))
 
 	def postWidgetCreate(self, instance):
-		self.instance.setContent(self.l)
+		MenuList.postWidgetCreate(self, instance)
 		self.setFontsize()
-
-	def pageUp(self):
-		if self.instance is not None:
-			self.instance.moveSelection(self.instance.pageUp)
-
-	def pageDown(self):
-		if self.instance is not None:
-			self.instance.moveSelection(self.instance.pageDown)
 
 
 TYPE_SERVICE_INFO = 1
@@ -390,7 +379,7 @@ class ServiceInfo(Screen):
 					tlist.append(ServiceInfoListEntry(item[0] + ":", value, item[2]))
 				else:
 					tlist.append(ServiceInfoListEntry(item[0] + ":", value, item[2], item[3]))
-		self["infolist"].l.setList(tlist)
+		self["infolist"].setList(tlist)
 
 	def getServiceInfoValue(self, what):
 		if self.info:
@@ -437,4 +426,4 @@ class ServiceInfo(Screen):
 				tlist.append(ServiceInfoListEntry(formatstring % (caid[1], caid[1], caid[0], CaIdDescription, extra_info), altColor=altColor))
 			if not tlist:
 				tlist.append(ServiceInfoListEntry(_("No ECMPids available (FTA Service)")))
-			self["infolist"].l.setList(tlist)
+			self["infolist"].setList(tlist)
