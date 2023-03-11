@@ -1,17 +1,11 @@
-<<<<<<< HEAD
-from enigma import ePoint, eTimer, iPlayableService
+from enigma import eListboxPythonMultiContent, gFont, iServiceInformation, eServiceCenter, eDVBFrontendParametersSatellite, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER
 
-from enigma import eListboxPythonMultiContent, eListbox, gFont, iServiceInformation, eServiceCenter, RT_VALIGN_CENTER, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, eDVBFrontendParametersSatellite
-
-from Components.ActionMap import ActionMap
-from Components.config import config
+from Components.ActionMap import ActionMap 
 from Components.GUIComponent import GUIComponent
 from Components.Label import Label
 from Components.MenuList import MenuList
-from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 from ServiceReference import ServiceReference
-from Tools.Hex2strColor import Hex2strColor
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 from skin import applySkinFactor, parameters, parseFont, parseScale
 
@@ -57,13 +51,13 @@ def ServiceInfoListEntry(a, b="", valueType=TYPE_TEXT, param=4, altColor=False):
 	alignment = {"RT_HALIGN_LEFT": RT_HALIGN_LEFT, "RT_HALIGN_RIGHT": RT_HALIGN_RIGHT}
 	leftColumnAlignment = alignment.get(parameters.get("ServiceInfoLeftColumnAlignment"), RT_HALIGN_LEFT)
 	rightColumnAlignment = alignment.get(parameters.get("ServiceInfoRightColumnAlignment"), RT_HALIGN_LEFT)
-	color = parameters.get("ServiceInfoAltColor", (0x00FFBF00)) # alternative foreground color
+	color = parameters.get("ServiceInfoAltColor", (0x00FFBF00))  # alternative foreground color
 	res = [True]
 	if b:
 		res.append((eListboxPythonMultiContent.TYPE_TEXT, xa, ya, wa, ha, 0, leftColumnAlignment | RT_VALIGN_CENTER, a))
 		res.append((eListboxPythonMultiContent.TYPE_TEXT, xb, yb, wb, hb, 0, rightColumnAlignment | RT_VALIGN_CENTER, b))
 	else:
-		res.append((eListboxPythonMultiContent.TYPE_TEXT, xa, ya, wa + wb, ha, 0, RT_HALIGN_LEFT | RT_VALIGN_CENTER, a, color if altColor else None)) # spread horizontally
+		res.append((eListboxPythonMultiContent.TYPE_TEXT, xa, ya, wa + wb, ha, 0, RT_HALIGN_LEFT | RT_VALIGN_CENTER, a, color if altColor else None))  # spread horizontally
 	return res
 
 
@@ -168,11 +162,9 @@ class ServiceInfo(Screen):
 			if self.session.nav.getCurrentlyPlayingServiceOrGroup():
 				name = ServiceReference(self.play_service).getServiceName()
 				refstr = self.play_service.toString()
-				reftype = self.play_service.type
 			else:
 				name = _("N/A")
 				refstr = _("N/A")
-				reftype = 0
 			resolution = "-"
 			if self.info:
 				from Components.Converter.PliExtraInfo import codec_data
@@ -274,7 +266,7 @@ class ServiceInfo(Screen):
 
 	def toggle_pid_button(self):
 		if self.number_of_tracks > 1 or self.sub_list:
-			if self.show_all == True:
+			if self.show_all is True:
 				self.show_all = False
 				self["key_yellow"].text = self["yellow"].text = _("Extended PID info")
 				self["Title"].text = _("Service info - service & Basic PID Info")
@@ -300,11 +292,11 @@ class ServiceInfo(Screen):
 					subNumber = "%04X" % (x[1])
 					subList += [(_("DVB Subtitles PID & lang"), "%04X (%d) - %s" % (to_unsigned(subPID), subPID, subLang), TYPE_TEXT)]
 
-				elif x[0] == 1: # Teletext
+				elif x[0] == 1:  # Teletext
 					subNumber = "%x%02x" % (x[3] and x[3] or 8, x[2])
 					subList += [(_("TXT Subtitles page & lang"), "%s - %s" % (subNumber, subLang), TYPE_TEXT)]
 
-				elif x[0] == 2: # File
+				elif x[0] == 2:  # File
 					types = (_("unknown"), _("embedded"), _("SSA file"), _("ASS file"),
 							_("SRT file"), _("VOB file"), _("PGS file"))
 					try:
@@ -344,7 +336,10 @@ class ServiceInfo(Screen):
 				tuner = (_("NIM & Type"), chr(ord('A') + frontendData["tuner_number"]) + " - " + frontendData["tuner_type"], TYPE_TEXT)
 			if frontendDataOrg["tuner_type"] == "DVB-S":
 				isMultistream = frontendData.get("is_id", eDVBFrontendParametersSatellite.No_Stream_Id_Filter) > eDVBFrontendParametersSatellite.No_Stream_Id_Filter
-				t2mi = lambda x: None if x == -1 else str(x)
+
+				def t2mi(x):
+					return None if x == -1 else str(x)
+
 				return (tuner,
 					(_("System & Modulation"), "%s %s" % (frontendData["system"], frontendData["modulation"]), TYPE_TEXT),
 					(_("Orbital position"), "%s" % frontendData["orbital_position"], TYPE_TEXT),
