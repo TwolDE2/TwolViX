@@ -8,6 +8,7 @@ from urllib.error import HTTPError, URLError
 
 from enigma import eTimer, RT_HALIGN_LEFT, eListboxPythonMultiContent, gFont, getDesktop, eSize, ePoint
 
+from Components.About import about
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.config import config, configfile, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
@@ -132,21 +133,23 @@ class OscamInfo:
 				# If we have a config file, we need to investigate it further
 				with open(conf, 'r') as data:
 					for i in data:
+#						print("[OscamInfo][getUserData] i", i)					
 						if "httpuser" in i.lower():
 							user = i.split("=")[1].strip()
 						elif "httppwd" in i.lower():
 							pwd = i.split("=")[1].strip()
 						elif "httpport" in i.lower():
 							port = i.split("=")[1].strip()
-						elif "httpallowed" in i.lower():
+# 127.0.0.1 gets 403 in oscam webif so ignore
+#						elif "httpallowed" in i.lower():
 							# Once we encounter a httpallowed statement, we have to assume oscam/ncam webif is blocking us ...
-							blocked = True
-							allowed = i.split("=")[1].strip()
-							if "::1" in allowed or "127.0.0.1" in allowed or "0.0.0.0-255.255.255.255" in allowed:
+#							blocked = True
+#							allowed = i.split("=")[1].strip()
+#							if "::1" in allowed or "127.0.0.1" in allowed or "0.0.0.0-255.255.255.255" in allowed:
 								# ... until we find either 127.0.0.1 or ::1 in allowed list
-								blocked = False
-							if "::1" not in allowed:
-								ipconfigured = False
+#								blocked = False
+#							if "::1" not in allowed:
+#								ipconfigured = False
 
 			if not blocked:
 				ret = [user, pwd, port, ipconfigured]
@@ -156,8 +159,10 @@ class OscamInfo:
 	def openWebIF(self, part=None, reader=None):
 		NAMEBIN = check_NAMEBIN()
 		self.proto = "http"
+#		print("[OscamInfo][openWebIF] NAMEBIN part", NAMEBIN, "   ", part)		
 		if config.oscaminfo.userdatafromconf.value:
 			udata = self.getUserData()
+#			print("[OscamInfo][openWebIF] udata, config.oscaminfo.userdatafromconf.value: ", udata, "   ", config.oscaminfo.userdatafromconf.value)			
 			if isinstance(udata, str):
 				return False, udata
 			else:
@@ -170,16 +175,23 @@ class OscamInfo:
 				self.ip = "::1"
 			else:
 				self.ip = "127.0.0.1"
+# self.ip = local address 127.0.0.1 gets 403 in Oscam webif so try to pick up box IP address.
+			eth0 = about.getIfConfig("eth0")
+			wlan0 = about.getIfConfig("wlan0")
+			if "addr" in eth0:
+				self.ip = eth0["addr"]
+			if "addr" in wlan0:
+				self.ip = wlan0["addr"]
+#				print("[OscamInfo][openWebIF]1 self.ip self.port  self.username self.password self.ipaccess", self.ip, "   ", self.port, "   ", self.username, "   ",  self.password, "   ", self.ipaccess)
 		else:
 			self.ip = ".".join("%d" % d for d in config.oscaminfo.ip.value)
 			self.port = str(config.oscaminfo.port.value)
 			self.username = str(config.oscaminfo.username.value)
 			self.password = str(config.oscaminfo.password.value)
-
+#			print("[OscamInfo][openWebIF]2 self.ip self.port  self.username self.password", self.ip, "   ", self.port, "   ", self.username, "   ",  self.password)
 		if self.port.startswith('+'):
 			self.proto = "https"
 			self.port.replace("+", "")
-
 		if part is None:
 			self.url = "%s://%s:%s/%sapi.html?part=status" % (self.proto, self.ip, self.port, NAMEBIN)
 		else:
@@ -199,6 +211,7 @@ class OscamInfo:
 			data = urlopen(request).read()
 			print("[OscamInfo][openWebIF] data=", data)
 		except URLError as e:
+			print("[OscamInfo][openWebIF] error: %s" % e)		
 			if hasattr(e, "reason"):
 				err = str(e.reason)
 			elif hasattr(e, "code"):
