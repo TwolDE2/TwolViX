@@ -1,5 +1,4 @@
 from boxbranding import getBoxType, getMachineMtdKernel, getMachineMtdRoot
-from Components.config import config, configfile
 from Components.Console import Console
 from Tools.Directories import fileExists, pathExists
 
@@ -42,5 +41,4 @@ class RestoreMboot(WizardLanguage, Rc):
 		for eMMCslot in range(1,4):		
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 				self.Console().ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
-		config.misc.restorewizardrun.value = True						
 		self.Console.ePopen("killall -9 enigma2 && init 6")

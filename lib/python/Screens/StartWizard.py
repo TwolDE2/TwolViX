@@ -8,15 +8,15 @@ from Screens.WizardLanguage import WizardLanguage
 from Screens.WizardUserInterfacePositioner import UserInterfacePositionerWizard
 from Screens.VideoWizard import VideoWizard
 from Screens.Wizard import wizardManager
-from Tools.Directories import fileHas
+from Tools.Directories import fileExists, fileHas
 
 config.misc.firstrun = ConfigBoolean(default=True)
 config.misc.languageselected = ConfigBoolean(default=True)
 config.misc.videowizardenabled = ConfigBoolean(default=True)
 config.misc.networkenabled = ConfigBoolean(default=False)
-config.misc.Vuwizardenabled = ConfigBoolean(default=True)
-if fileHas("/proc/cmdline", "kexec=1"):
-	config.misc.Vuwizardenabled.value = False
+config.misc.Vuwizardenabled = ConfigBoolean(default=False)
+if fileExists("/usr/bin/kernel_auto.bin") and fileExists("/usr/bin/STARTUP.cpio.gz") and not fileHas("/proc/cmdline", "kexec=1"):
+	config.misc.Vuwizardenabled.value = True
 	
 class StartWizard(WizardLanguage, Rc):
 	def __init__(self, session, silent=True, showSteps=False, neededTag=None):
