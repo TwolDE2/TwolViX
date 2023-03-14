@@ -34,7 +34,7 @@ class VuWizard():
 
 	def RootInitEnd(self, *args, **kwargs):
 		print("[VuplusKexec][RootInitEnd] rebooting")
-				self.session.Console.ePopen("killall -9 enigma2 && init 6")		
+		self.session.Console.ePopen("killall -9 enigma2 && init 6")		
 #		for eMMCslot in range(1,4):		
 #			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 #				self.session.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
