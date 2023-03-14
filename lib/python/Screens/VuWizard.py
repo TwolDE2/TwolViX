@@ -30,11 +30,11 @@ class VuWizard():
 			cmdlist.append("dd if=/dev/%s of=/zImage" % getMachineMtdKernel())					# backup old kernel
 			cmdlist.append("dd if=/usr/bin/kernel_auto.bin of=/dev/%s" % getMachineMtdKernel())	# create new kernel
 			cmdlist.append("mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz")						# copy userroot routine
-			cmdlist.append("killall -9 enigma2 && init 6")										# reboot
 			self.session.Console.eBatch(cmdlist, self.RootInitEnd, debug=False)
 
 	def RootInitEnd(self, *args, **kwargs):
 		print("[VuplusKexec][RootInitEnd] rebooting")
+				self.session.Console.ePopen("killall -9 enigma2 && init 6")		
 #		for eMMCslot in range(1,4):		
 #			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
-#				self.session.Console().ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
+#				self.session.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
