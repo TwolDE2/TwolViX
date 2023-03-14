@@ -31,7 +31,7 @@ class VuWizard():
 			cmdlist.append("dd if=/usr/bin/kernel_auto.bin of=/dev/%s" % getMachineMtdKernel())	# create new kernel
 			cmdlist.append("mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz")						# copy userroot routine
 			cmdlist.append("killall -9 enigma2 && init 6")										# reboot
-			self.session.Console().eBatch(cmdlist, self.RootInitEnd, debug=False)
+			self.session.Console.eBatch(cmdlist, self.RootInitEnd, debug=False)
 
 	def RootInitEnd(self, *args, **kwargs):
 		print("[VuplusKexec][RootInitEnd] rebooting")
