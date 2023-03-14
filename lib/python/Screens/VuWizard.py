@@ -8,13 +8,9 @@ STARTUP_1 = "kernel=/linuxrootfs1/zImage root=/dev/%s rootsubdir=linuxrootfs1" %
 STARTUP_2 = "kernel=/linuxrootfs2/zImage root=/dev/%s rootsubdir=linuxrootfs2" % getMachineMtdRoot() 	# /STARTUP_2
 STARTUP_3 = "kernel=/linuxrootfs3/zImage root=/dev/%s rootsubdir=linuxrootfs3" % getMachineMtdRoot() 	# /STARTUP_3
 
-class RestoreMboot(WizardLanguage, Rc):
+class VuWizard():
 	def __init__(self, session):
-		Rc.__init__(self)
-		self.session = session
-		self.skinName = "StartWizard"
-		self.skin = "StartWizard.skin"
-		self["wizard"] = Pixmap()
+#		self.session = session
 		if fileExists("/STARTUP_RECOVERY") or fileExists("/boot/STARTUP_RECOVERY"):
 			return	
 		else:
