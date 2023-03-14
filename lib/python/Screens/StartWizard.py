@@ -14,9 +14,10 @@ config.misc.firstrun = ConfigBoolean(default=True)
 config.misc.languageselected = ConfigBoolean(default=True)
 config.misc.videowizardenabled = ConfigBoolean(default=True)
 config.misc.networkenabled = ConfigBoolean(default=False)
-config.misc.Vu+wizardenabled = ConfigBoolean(default=True)
+config.misc.Vuwizardenabled = ConfigBoolean(default=True)
 if fileHas("/proc/cmdline", "kexec=1"):
-	config.misc.Vu+wizardenabled.value = False
+	config.misc.Vuwizardenabled.value = False
+	
 class StartWizard(WizardLanguage, Rc):
 	def __init__(self, session, silent=True, showSteps=False, neededTag=None):
 		self.xmlfile = ["startwizard.xml"]
@@ -32,7 +33,7 @@ class StartWizard(WizardLanguage, Rc):
 		config.misc.firstrun.save()
 		configfile.save()
 
-wizardManager.registerWizard(Vu+Wizard, config.misc.Vu+wizardenabled.value, priority=0)
+wizardManager.registerWizard(Vu+Wizard, config.misc.Vuwizardenabled.value, priority=0)
 wizardManager.registerWizard(VideoWizard, config.misc.videowizardenabled.value, priority=5)
 wizardManager.registerWizard(LanguageWizard, config.misc.languageselected.value, priority=10)
 wizardManager.registerWizard(UserInterfacePositionerWizard, config.misc.firstrun.value, priority=15)
