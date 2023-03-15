@@ -24,16 +24,16 @@ class VuWizard(Screen):
 #		<eLabel name="line2" position="1,250" size="748,4" backgroundColor="#00ffffff" zPosition="1" />
 		<widget source="description" render="Label" position="2,80" size="730,300" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 		<!-- widget source="key_red" render="Label" position="30,200" size="150,30" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" / -->
-		<widget source="key_green" render="Button" position="250,300" size="350,150" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
+		<widget source="key_green" render="Label" position="250,300" size="350,150" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 	</screen>
 	"""
 
 	def __init__(self, session):
 		self.session = session
 		Screen.__init__(self, session)
-		self.title = _("Vu+ MultiBoot Manager")
+		self.title = _("Vu+ MultiBoot Initialisation")
 		self["description"] = Label(_("Enabling MultiBoot - restoring an eMMC slot takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise image(slot0), or exit and \n - select restored eMMC image with MultiBootSelector   \n - flash new image into multiboot slot via ImageManager."))
-		self["key_green"] = Button("Enabling MultiBoot")
+		self["key_green"] = Label("Enabling MultiBoot")
 		self["actions"] = ActionMap(["SetupActions"],
 		{
 			"save": self.close,
