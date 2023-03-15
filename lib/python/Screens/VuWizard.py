@@ -33,7 +33,7 @@ class VuWizard(Screen):
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Initialisation")
 		self["description"] = Label(_("Enabling MultiBoot - restoring an eMMC slot takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise image(slot0), or exit and \n - select restored eMMC image with MultiBootSelector   \n - flash new image into multiboot slot via ImageManager."))
-		self["key_green"] = Label("Enabling MultiBoot")
+		self["key_green"] = StaticText("Enabling MultiBoot")
 		self["actions"] = ActionMap(["SetupActions"],
 		{
 			"save": self.close,
@@ -68,6 +68,5 @@ class VuWizard(Screen):
 		for eMMCslot in range(1,4):		
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 				self["key_green"].setText(_("Restoring MultiBoot Slot%d." % eMMCslot))
-				self["key_green"].show				
 				self.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 		self.Console.ePopen("killall -9 enigma2 && init 6")
