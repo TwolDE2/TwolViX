@@ -1,5 +1,6 @@
 from boxbranding import getBoxType, getMachineMtdKernel, getMachineMtdRoot
 from Components.ActionMap import ActionMap
+from Components.Button import Button
 from Components.Console import Console
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
@@ -32,7 +33,7 @@ class VuWizard(Screen):
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Manager")
 		self["description"] = Label(_("Enabling MultiBoot - restoring an eMMC slot takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise image(slot0), or exit and either \n Select restored eMMC image with MultiBootSelector\n or flash new image into multiboot slot via ImageManager."))
-		self["key_green"] = StaticText(_(" "))
+		self["key_green"] = Button("Enabling MultiBoot")
 		self["actions"] = ActionMap(["SetupActions"],
 		{
 			"save": self.close,
@@ -66,7 +67,7 @@ class VuWizard(Screen):
 		print("[VuplusKexec][RootInitEnd] rebooting")
 		for eMMCslot in range(1,4):		
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
-				self["description"].setText(_("Restoring MultiBoot Slot%d." %eMMCslot))
-				self["description"].show				
+				self["key_green"].setText(_("Restoring MultiBoot Slot%d." %eMMCslot))
+				self["key_green"].show				
 				self.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 		self.Console.ePopen("killall -9 enigma2 && init 6")
