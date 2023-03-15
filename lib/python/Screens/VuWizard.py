@@ -31,7 +31,7 @@ class VuWizard(Screen):
 		self.session = session
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Manager")
-		self["description"] = StaticText(_("Enabling MultiBoot."))
+		self["description"] = StaticText(_("Enabling MultiBoot - restoring slots can take upto 5 minutes per eMMC slot."))
 #		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_(" "))
 		self["actions"] = ActionMap(["SetupActions"],
@@ -65,7 +65,8 @@ class VuWizard(Screen):
 
 	def RootInitEnd(self, *args, **kwargs):
 		print("[VuplusKexec][RootInitEnd] rebooting")
-		self.Console.ePopen("killall -9 enigma2 && init 6")		
-#		for eMMCslot in range(1,4):		
-#			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
-#				self.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
+		for eMMCslot in range(1,4):		
+			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
+				self["description"] = StaticText(_("Enabling MultiBoot Slot%d." %eMMCslot))
+				self.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
+		self.Console.ePopen("killall -9 enigma2 && init 6")
