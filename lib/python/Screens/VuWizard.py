@@ -31,7 +31,7 @@ class VuWizard(Screen):
 		self.session = session
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Manager")
-		self["description"] = Label(_("Enabling MultiBoot - restoring eMMC slots can take upto 5 minutes per image.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise image(slot0), or exit and either \n Select restored eMMC image with MultiBootSelector\n or flash new image into multiboot slot via ImageManager."))
+		self["description"] = Label(_("Enabling MultiBoot - restoring an eMMC slot takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise image(slot0), or exit and either \n Select restored eMMC image with MultiBootSelector\n or flash new image into multiboot slot via ImageManager."))
 		self["key_green"] = StaticText(_(" "))
 		self["actions"] = ActionMap(["SetupActions"],
 		{
