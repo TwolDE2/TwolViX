@@ -63,6 +63,7 @@ class VuWizard(Screen):
 		if cmdlist:
 			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
 		else:
+			sleep(5)
 			self.reBoot()					
 
 	def reBoot(self, *args, **kwargs):
