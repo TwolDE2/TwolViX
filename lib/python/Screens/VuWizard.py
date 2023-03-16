@@ -1,7 +1,5 @@
 from time import sleep
 from boxbranding import getBoxType, getMachineMtdKernel, getMachineMtdRoot
-from Components.ActionMap import ActionMap
-from Components.Button import Button
 from Components.Console import Console
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
@@ -23,8 +21,7 @@ class VuWizard(Screen):
 		<widget source="Title" render="Label" position="center,14" foregroundColor="#00ffffff" size="e-10%,35" halign="left" valign="center" font="Regular; 28" backgroundColor="#00000000" />
 		<eLabel name="line" position="1,60" size="748,1" backgroundColor="#00ffffff" zPosition="1" />
 		<widget source="description" render="Label" position="2,80" size="730,300" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00ffffff" />
-		<!-- widget source="key_red" render="Label" position="30,200" size="150,30" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" / -->
-		<widget source="key_green" render="Label" position="250,300" size="350,150" noWrap="1" zPosition="1" valign="center" font="Regular; 20" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
+		<widget source="action" render="Label" position="250,300" size="350,150" noWrap="1" zPosition="1" valign="center" font="Regular; 24" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 	</screen>
 	"""
 
@@ -32,15 +29,8 @@ class VuWizard(Screen):
 		self.session = session
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Initialisation")
-		self["description"] = Label(_("Enabling MultiBoot - restoring eMMC slots takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image, or exit and \n - select restored eMMC image with MultiBootSelector.   \n or \n - flash new image into multiboot slot via ImageManager."))
-		self["key_green"] = StaticText("Enabling MultiBoot")
-		self["actions"] = ActionMap(["SetupActions"],
-		{
-			"save": self.close,
-			"ok": self.close,
-			"cancel": self.close,
-			"menu": self.close,
-		}, -1)	
+		self["description"] = Label(_("Enabling MultiBoot. Note:- restoring eMMC slots takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image, or exit and \n - select restored eMMC image with MultiBootSelector.   \n or \n - flash new image into multiboot slot via ImageManager."))
+		self["action"] = StaticText("Enabling MultiBoot")
 					
 		if fileExists("/STARTUP_RECOVERY") or fileExists("/boot/STARTUP_RECOVERY"):
 			self.close	
@@ -63,10 +53,12 @@ class VuWizard(Screen):
 			self.Console.eBatch(cmdlist, self.RootInitEnd, debug=False)
 
 	def RootInitEnd(self, *args, **kwargs):
-		cmdlist = []	
+		cmdlist = []
+		slotlist = []	
 		for eMMCslot in range(1,4):		
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
-				self["key_green"].setText(_("Restoring MultiBoot Slot%d." % eMMCslot))
+				slotlist.append(eMMCslot)		
+				self["action"].setText(_("Restoring MultiBoot Slots %s." % slotlist))
 				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 		if cmdlist:
 			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
@@ -74,7 +66,7 @@ class VuWizard(Screen):
 			self.reBoot()					
 #				self.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 	def reBoot(self, *args, **kwargs):
-		self["key_green"].setText(_("Rebooting in 2 seconds"))
-		sleep(2)	
+		self["action"].setText(_("Rebooting in 2 seconds"))
+		sleep(5)	
 		self.Console.ePopen("killall -9 enigma2 && init 6")
 
