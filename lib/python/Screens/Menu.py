@@ -261,11 +261,8 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		self["key_blue"] = StaticText("")
 		HelpableScreen.__init__(self)
 		self.menulength = 0
-		if not self.menuHorizontal:
-			self["menu"] = List([])
-			self["menu"].enableWrapAround = True
+		self["menu"] = List([])
 		self.createMenuList()
-
 		# for the skin: first try a menu_<menuID>, then Menu
 		self.skinName = []
 		if self.menuHorizontal:
@@ -312,8 +309,6 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		self.nextNumberTimer.callback.append(self.okbuttonClick)
 		if len(self.list) == 1:
 			self.onExecBegin.append(self.__onExecBegin)
-		if self.menuHorizontal:
-			self.initMenuHorizontal()
 
 	def __onExecBegin(self):
 		self.onExecBegin.remove(self.__onExecBegin)
@@ -407,10 +402,8 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 
 		if self.menulength != len(self.list): # updateList must only be used on a list of the same length. If length is different we call setList.
 			self.menulength = len(self.list)
-			if not self.menuHorizontal:
-				self["menu"].setList(self.list)
-		if not self.menuHorizontal:
-			self["menu"].updateList(self.list)
+			self["menu"].setList(self.list)
+		self["menu"].updateList(self.list)
 
 	def keyNumberGlobal(self, number):
 		self.number = self.number * 10 + number
@@ -435,8 +428,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		self.close(True)
 
 	def createSummary(self):
-		if not self.menuHorizontal:
-			return MenuSummary
+		return MenuSummary
 
 	def isProtected(self):
 		if config.ParentalControl.setuppinactive.value:
@@ -467,41 +459,6 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		if not self.list:
 			self.list.append(('', None, 'dummy', '10', 10))
 		self.list.sort(key=lambda listweight: int(listweight[4]))
-
-	# for horizontal menu
-	
-	def updateMenuHorz(self):
-		i = self.horzIndex
-		L = self.menulength
-		self["label1"].setText(self.list[(i-2)%L][0] if L > 3 else "")
-		self["label2"].setText(self.list[(i-1)%L][0] if L > 1 else "")
-		self["label3"].setText(self.list[i][0])
-		self["label4"].setText(self.list[(i+1)%L][0] if L > 1 else "")
-		self["label5"].setText(self.list[(i+2)%L][0] if L > 3 else "")
-		
-	def keyLeftHorz(self):
-		self.horzIndex = (self.horzIndex - 1) % self.menulength
-		self.updateMenuHorz()
-
-	def keyRightHorz(self):
-		self.horzIndex = (self.horzIndex + 1) % self.menulength
-		self.updateMenuHorz()
-
-	def initMenuHorizontal(self):
-		self["label1"] = StaticText()
-		self["label2"] = StaticText()
-		self["label3"] = StaticText()
-		self["label4"] = StaticText()
-		self["label5"] = StaticText()
-		self["menuActions3"] = HelpableActionMap(self, ["OkCancelActions", "DirectionActions"],
-		{
-			"left": (self.keyLeftHorz, _("Scroll menu")),
-			"right": (self.keyRightHorz, _("Scroll menu")),
-		}, prio=0, description=_("Common Menu Actions"))
-		self["menuActions3"].setEnabled(bool(self.menulength))
-		if self.menulength:
-			self.horzIndex = 0
-			self.updateMenuHorz()
 
 
 class MenuSort(Menu):
