@@ -1,3 +1,4 @@
+from time import sleep
 from boxbranding import getBoxType, getMachineMtdKernel, getMachineMtdRoot
 from Components.ActionMap import ActionMap
 from Components.Button import Button
@@ -31,7 +32,7 @@ class VuWizard(Screen):
 		self.session = session
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Initialisation")
-		self["description"] = Label(_("Enabling MultiBoot - restoring an eMMC slot takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise image(slot0), or exit and \n - select restored eMMC image with MultiBootSelector   \n - flash new image into multiboot slot via ImageManager."))
+		self["description"] = Label(_("Enabling MultiBoot - restoring an eMMC slot takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image, or exit and \n - select restored eMMC image with MultiBootSelector.   \n or \n - flash new image into multiboot slot via ImageManager."))
 		self["key_green"] = StaticText("Enabling MultiBoot")
 		self["actions"] = ActionMap(["SetupActions"],
 		{
@@ -55,7 +56,6 @@ class VuWizard(Screen):
 				f.write(STARTUP_2)
 			with open("/STARTUP_3", 'w') as f:
 				f.write(STARTUP_3)
-			print("[VuplusKexec][RootInit] Kernel Root", getMachineMtdKernel(), "   ", getMachineMtdRoot())
 			cmdlist = []
 			cmdlist.append("dd if=/dev/%s of=/zImage" % getMachineMtdKernel())					# backup old kernel
 			cmdlist.append("dd if=/usr/bin/kernel_auto.bin of=/dev/%s" % getMachineMtdKernel())	# create new kernel
@@ -63,12 +63,18 @@ class VuWizard(Screen):
 			self.Console.eBatch(cmdlist, self.RootInitEnd, debug=False)
 
 	def RootInitEnd(self, *args, **kwargs):
-		print("[VuplusKexec][RootInitEnd] rebooting")
+		cmdlist = []	
 		for eMMCslot in range(1,4):		
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
-				self.updateGreenText(_("Restoring MultiBoot Slot%d." % eMMCslot))
-				self.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
+				self["key_green"].setText(_("Restoring MultiBoot Slot%d." % eMMCslot))
+				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
+		if cmdlist:
+			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
+		else:
+			self.reBoot()					
+#				self.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
+	def reBoot(self, *args, **kwargs):
+		self["key_green"].setText(_("Rebooting in 2 seconds"))
+		sleep(2)	
 		self.Console.ePopen("killall -9 enigma2 && init 6")
-		
-	def updateGreenText(self, text):
-		self["key_green"].setText(text)		
+
