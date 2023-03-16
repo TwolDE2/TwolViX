@@ -21,7 +21,7 @@ class VuWizard(Screen):
 		<widget source="Title" render="Label" position="center,14" foregroundColor="#00ffffff" size="e-10%,35" halign="left" valign="center" font="Regular; 28" backgroundColor="#00000000" />
 		<eLabel name="line" position="1,60" size="748,1" backgroundColor="#00ffffff" zPosition="1" />
 		<widget source="description" render="Label" position="2,80" size="730,300" halign="center" font="Regular; 22" backgroundColor="#00000000" foregroundColor="#00ffffff" />
-		<widget source="action" render="Label" position="250,300" size="350,150" noWrap="1" zPosition="1" valign="center" font="Regular; 24" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
+		<widget source="action" render="Label" position="200,300" size="400,150" noWrap="1" zPosition="1" valign="center" font="Regular; 24" halign="left" backgroundColor="#00000000" foregroundColor="#00ffffff" />
 	</screen>
 	"""
 
@@ -29,7 +29,7 @@ class VuWizard(Screen):
 		self.session = session
 		Screen.__init__(self, session)
 		self.title = _("Vu+ MultiBoot Initialisation")
-		self["description"] = Label(_("Enabling MultiBoot. Note:- restoring eMMC slots takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image, or exit and \n - select restored eMMC image with MultiBootSelector.   \n or \n - flash new image into multiboot slot via ImageManager."))
+		self["description"] = Label(_("Enabling MultiBoot.\nNote:- restoring eMMC slots takes upto 5 minutes per slot.\n Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image, or exit and \n - select restored eMMC image with MultiBootSelector.   \n or \n - flash new image into multiboot slot via ImageManager."))
 		self["action"] = StaticText("Enabling MultiBoot")
 					
 		if fileExists("/STARTUP_RECOVERY") or fileExists("/boot/STARTUP_RECOVERY"):
@@ -64,9 +64,7 @@ class VuWizard(Screen):
 			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
 		else:
 			self.reBoot()					
-#				self.Console.ePopen("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
+
 	def reBoot(self, *args, **kwargs):
-		self["action"].setText(_("Rebooting in 2 seconds"))
-		sleep(5)	
 		self.Console.ePopen("killall -9 enigma2 && init 6")
 
