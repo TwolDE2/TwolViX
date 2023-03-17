@@ -202,6 +202,8 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 
 				if screen is None:
 					screen = module
+
+				# print module, screen
 				if module:
 					module = "Screens." + module
 				else:
@@ -255,6 +257,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		Screen.__init__(self, session)
 		self.menuHorizontalSkinName = "MenuHorizontal"
 		self.menuHorizontal = self.__class__.__name__ != "MenuSort" and config.usage.menu_style.value == "horizontal" and findSkinScreen(self.menuHorizontalSkinName)
+		self.onHorizontalSelectionChanged = []
 		self["key_blue"] = StaticText("")
 		HelpableScreen.__init__(self)
 		self.menulength = 0
