@@ -146,7 +146,9 @@ self.session.open(SABnzbdSetupScreen)
 		<!-- Menu / Setup / Common Interface -->
 		<menu entryID="cicam_setup" level="0" text="Common Interface" requires="CommonInterface" weight="7">
 			<id val="cicam" />
-			<item entryID="ci_setup" level="1" text="Common Interface" weight="10"><screen module="Ci" screen="CiSelection" /></item>
+			<item entryID="ci_setup" level="1" text="CI Helper Settings" weight="90" requires="CIHelper"><screen module="Ci" screen="CIHelper" /></item>
+			<item entryID="ci_settings" level="1" text="CI Basic Settings" weight="80" requires="CommonInterface"><setup setupKey="CISettings" /></item> 
+			<item entryID="ci_selection" level="1" text="Common Interface" weight="100" requires="CommonInterface"><screen module="Ci" screen="CiSelection" /></item>			
 		</menu>
 
 		<!-- Menu / Setup / SoftcamManager -->
@@ -166,7 +168,7 @@ self.session.open(SABnzbdSetupScreen)
 			<item entryID="harddisk_setup" level="1" text="Settings"><setup id="harddisk" /></item>
 			<item entryID="harddisk_init" level="0" text="Initialize Devices"><screen module="HarddiskSetup" screen="HarddiskSelection" /></item>
 			<item entryID="harddisk_check" level="0" text="Filesystem Check"><screen module="HarddiskSetup" screen="HarddiskFsckSelection" /></item>
-			<item key="flash_expander" level="0" text="Flash Expander" weight="40"><screen module="FlashExpander" screen="FlashExpander" /></item>			
+			<item entryID="flash_expander" level="0" text="Flash Expander" weight="40"><screen module="FlashExpander" screen="FlashExpander" /></item>			
 		</menu>
 
 		<!-- Menu / Setup / Recordings, Playback & Timeshift -->
