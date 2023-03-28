@@ -1,9 +1,7 @@
-from os import mkdir, path, rmdir, system
+from os import mkdir, path, rmdir
 import tempfile
 import struct
-
 from enigma import getDesktop
-
 from boxbranding import getBoxType
 from Components.ActionMap import HelpableActionMap
 from Components.ChoiceList import ChoiceEntryComponent, ChoiceList
@@ -17,7 +15,7 @@ from Screens.Screen import Screen, ScreenSummary
 from Screens.Standby import QUIT_REBOOT, QUIT_RESTART, TryQuitMainloop
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import copyfile, fileExists, pathExists
-from Tools.Multiboot import emptySlot, GetImagelist, GetCurrentImageMode, restoreSlots
+from Tools.Multiboot import bootmviSlot, emptySlot, GetImagelist, GetCurrentImageMode, restoreSlots
 
 
 class MultiBootSelector(Screen, HelpableScreen):
@@ -129,6 +127,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 		currentSelected = self["config"].getCurrent()
 		slot = currentSelected[0][1][0]
 		boxmode = currentSelected[0][1][1]
+		slotText = currentSelected[0][0]
+		bootmviSlot(slot, slotText)
 		if SystemInfo["canMode12"]:
 			if "BOXMODE" in SystemInfo["canMultiBoot"][slot]['startupfile']:
 				startupfile = path.join(self.tmp_dir, "%s_%s" % (SystemInfo["canMultiBoot"][slot]['startupfile'].rsplit('_', 1)[0], boxmode))
