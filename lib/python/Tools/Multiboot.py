@@ -214,6 +214,8 @@ def GetImagelist(Recovery=None):
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
 					BuildVersion = "%s (%s)" % (Creator, date)
+			if fileHas("/proc/cmdline", "kexec=1"):
+				bootmviSlot(imagedir=imagedir, text=BuildVersion, slot=slot)		
 			Imagelist[slot] = {"imagename": "%s" % BuildVersion}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):
 			Imagelist[slot] = {"imagename": _("Deleted image")}
@@ -258,15 +260,11 @@ def emptySlot(slot):
 		rmdir(tmp.dir)
 	return ret
 
-def bootmviSlot(slot, text):
-	tmp.dir = tempfile.mkdtemp(prefix="bootmviSlot")
-	if SystemInfo["HasMultibootMTD"]:
-		Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
-	else:
-		Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
-	imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
+def bootmviSlot(imagedir="/", text=" ", slot=0):
 	inmviPath = path.join(imagedir, "usr/share/bootlogo.mvi")
 	outmviPath = path.join(imagedir, "etc/enigma2/bootlogo.mvi")
+#	if path.exists(outmviPath):
+#		inmviPath = outmviPath
 	print("[multiboot][bootmviSlot] inPath, outpath ", inmviPath, "   ", outmviPath)
 	if path.exists(inmviPath):
 		print ("[multiboot][bootmviSlot] Copy /usr/share/bootlogo.mvi to /tmp/bootlogo.m1v")
@@ -285,16 +283,13 @@ def bootmviSlot(slot, text):
 		I1 = ImageDraw.Draw(img)									# Call draw Method to add 2D graphics in an image
 		myFont = ImageFont.truetype("/usr/share/fonts/OpenSans-Regular.ttf", 65)		# Custom font style and font size
 		print("[multiboot][bootmviSlot] Write text to png")
-		text = "booting " + text
+		text = "booting slot %s %s" % (slot, text)
 		I1.text((12, 12), text, font=myFont, fill =(255, 0, 0))		# Add Text to an image
 		I1.text((10, 10), text, font=myFont, fill =(255, 255, 255))
 		img.save("/tmp/out1.png")									# Save the edited image
 		print ("[multiboot][bootmviSlot] Repack bootlogo")
 		Console(binary=True).ePopen("ffmpeg -i /tmp/out1.png -r 25 -b 20000 -y /tmp/mypicture.m1v  2>/dev/null")
 		Console(binary=True).ePopen("cp /tmp/mypicture.m1v %s" % outmviPath)
-	Console(binary=True).ePopen("umount %s" % tmp.dir)
-	if not path.ismount(tmp.dir):
-		rmdir(tmp.dir)
 
 def restoreSlots():
 	for slot in SystemInfo["canMultiBoot"]:
