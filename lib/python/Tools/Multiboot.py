@@ -214,7 +214,7 @@ def GetImagelist(Recovery=None):
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
 					BuildVersion = "%s (%s)" % (Creator, date)
-			if fileHas("/proc/cmdline", "kexec=1"):
+			if fileHas("/proc/cmdline", "kexec=1") and Recovery:
 				bootmviSlot(imagedir=imagedir, text=BuildVersion, slot=slot)		
 			Imagelist[slot] = {"imagename": "%s" % BuildVersion}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):
@@ -276,9 +276,6 @@ def bootmviSlot(imagedir="/", text=" ", slot=0):
 			img = Image.open("/tmp/out1.png")						# Open an Image
 		else:
 			print ("[multiboot][bootmviSlot] unable to create new bootlogo cannot open out1.png")
-			Console(binary=True).ePopen("umount %s" % tmp.dir)
-			if not path.ismount(tmp.dir):
-				rmdir(tmp.dir)
 			return
 		I1 = ImageDraw.Draw(img)									# Call draw Method to add 2D graphics in an image
 		myFont = ImageFont.truetype("/usr/share/fonts/OpenSans-Regular.ttf", 65)		# Custom font style and font size

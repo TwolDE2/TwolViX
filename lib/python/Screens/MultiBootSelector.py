@@ -127,7 +127,6 @@ class MultiBootSelector(Screen, HelpableScreen):
 		currentSelected = self["config"].getCurrent()
 		slot = currentSelected[0][1][0]
 		boxmode = currentSelected[0][1][1]
-		slotText = currentSelected[0][0]
 		if SystemInfo["canMode12"]:
 			if "BOXMODE" in SystemInfo["canMultiBoot"][slot]['startupfile']:
 				startupfile = path.join(self.tmp_dir, "%s_%s" % (SystemInfo["canMultiBoot"][slot]['startupfile'].rsplit('_', 1)[0], boxmode))
