@@ -10,9 +10,6 @@ from Components.Console import Console
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation
 from Tools.Directories import fileHas, fileExists
 
-#if fileHas("/proc/cmdline", "kexec=1") and not path.exists("/usr/bin/ffmpeg"):
-#		system('opkg update')
-#		system('opkg install ffmpeg')
 if fileHas("/proc/cmdline", "kexec=1"):		
 	from PIL import Image
 	from PIL import ImageDraw
