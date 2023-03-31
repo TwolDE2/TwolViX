@@ -3,7 +3,7 @@ import glob
 import shutil
 import subprocess
 import tempfile
-from os import mkdir, path, rmdir, rename, remove, sep, stat, system
+from os import mkdir, path, rmdir, rename, remove, sep, stat
 
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
@@ -262,8 +262,6 @@ def emptySlot(slot):
 def bootmviSlot(imagedir="/", text=" ", slot=0):
 	inmviPath = path.join(imagedir, "usr/share/bootlogo.mvi")
 	outmviPath = path.join(imagedir, "etc/enigma2/bootlogo.mvi")
-#	if path.exists(outmviPath):
-#		inmviPath = outmviPath
 	print("[multiboot][bootmviSlot] inPath, outpath ", inmviPath, "   ", outmviPath)
 	if path.exists(inmviPath):
 		print ("[multiboot][bootmviSlot] Copy /usr/share/bootlogo.mvi to /tmp/bootlogo.m1v")
