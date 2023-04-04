@@ -88,7 +88,7 @@ def getProcMounts():
 		with open("/proc/mounts", "r") as fd:
 			lines = fd.readlines()
 	except (IOError, OSError) as err:
-		print("[Harddisk] Error: Failed to open '/proc/mounts':", err)
+		print("[Harddisk][getProcMounts] Error: Failed to open '/proc/mounts':", err)
 		return []
 	result = [line.strip().split(" ") for line in lines]
 	for item in result:
@@ -100,8 +100,9 @@ def getProcMounts():
 			import subprocess
 			res = subprocess.run(['blkid', '-sTYPE', '-ovalue', item[0]], capture_output=True)
 			if res.returncode == 0:
-				print("[Harddisk] fuseblk", res.stdout)			
+				print("[Harddisk][getProcMounts] fuseblk", res.stdout)
 				item[2] = res.stdout.strip().decode()
+	print("[Harddisk][getProcMounts] ProcMounts", result)
 	return result
 
 
@@ -279,6 +280,7 @@ class Harddisk:
 	def free(self, dev=None):
 		if dev is None:
 			dev = self.findMount()
+		print("[Harddisk][free]dev:", dev)
 		if dev:
 			try:
 				stat = statvfs(dev)
@@ -290,10 +292,15 @@ class Harddisk:
 	def totalFree(self):
 		mediapath = []
 		freetot = 0
+		print("[Harddisk][totalFree]self.dev_path:", self.dev_path)
 		for parts in getProcMounts():
 			if ospath.realpath(parts[0]).startswith(self.dev_path):
 				mediapath.append(parts[1])
+		print("[Harddisk][totalFree]mediapath:", mediapath)
 		for mpath in mediapath:
+			print("[Harddisk][totalFree]mpath:", mpath)
+			if mpath == "/" and SystemInfo["HasKexecMultiboot"]:
+				continue		
 			free = self.free(mpath)
 			if free > 0:
 				freetot += free
@@ -327,6 +334,7 @@ class Harddisk:
 			if ospath.realpath(parts[0]).startswith(self.dev_path):
 				self.mount_device = parts[0]
 				self.mount_path = parts[1]
+				print("[Harddisk][mountDevice]device, path", parts[0], "   ", parts[1])
 				return parts[1]
 		return None
 
