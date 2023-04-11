@@ -1,14 +1,15 @@
-from os import chmod, path as ospath
-import sys
-import enigma
-from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
+from os.path import exists as osexists
+from sys import stderr, stdout
 from time import localtime, strftime, time
+from datetime import datetime
 from traceback import print_exc
 
+from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
 from Tools.Profile import profile, profile_final
 import Tools.RedirectOutput  # Don't remove this line. It may seem to do nothing, but if removed it will break output redirection for crash logs.
 import eConsoleImpl
 import eBaseImpl
+import enigma
 enigma.eTimer = eBaseImpl.eTimer
 enigma.eSocketNotifier = eBaseImpl.eSocketNotifier
 enigma.eConsoleAppContainer = eConsoleImpl.eConsoleAppContainer
@@ -180,10 +181,10 @@ class Session:
 		reloadNotification.show()
 
 		# empty any cached resolve lists remaining in Directories.py as these may not relate to the skin being loaded
-		import Tools.Directories
-		Tools.Directories.skinResolveList = []
-		Tools.Directories.lcdskinResolveList = []
-		Tools.Directories.fontsResolveList = []
+		from Tools.Directories import fontsResolveList, lcdskinResolveList, skinResolveList
+		skinResolveList = []
+		lcdskinResolveList = []
+		fontsResolveList = []
 
 		# close all open dialogs by emptying the dialog stack
 		# remove any return values and callbacks for a swift exit
@@ -218,7 +219,7 @@ class PowerKey:
 		if not recordings:
 			next_rec_time = self.session.nav.RecordTimer.getNextRecordingTime()
 		if recordings or (next_rec_time > 0 and (next_rec_time - time()) < 360):
-			if ospath.exists("/tmp/was_rectimer_wakeup") and not self.session.nav.RecordTimer.isRecTimerWakeup():
+			if osexists("/tmp/was_rectimer_wakeup") and not self.session.nav.RecordTimer.isRecTimerWakeup():
 				f = open("/tmp/was_rectimer_wakeup", "r")
 				file = f.read()
 				f.close()
@@ -293,13 +294,12 @@ class AutoScartControl:
 				
 profile("SetupDevices")
 print("[StartEnigma]  Initialising SetupDevices.")
-import Components.SetupDevices
-Components.SetupDevices.InitSetupDevices()
+from Components.SetupDevices import InitSetupDevices
+InitSetupDevices()
 
 if getImageArch() in ("aarch64"):
-	import usb.core
-	import usb.backend.libusb1
-	usb.backend.libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")				
+	from usb.backend import libusb1
+	libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")				
 
 profile("PYTHON_START")
 print("[StartEnigma]  Starting Python Level Initialisation.")
@@ -311,8 +311,8 @@ if getImageType() != "release":
 
 profile("ClientMode")
 print("[StartEnigma]  Initialising ClientMode.")
-import Components.ClientMode
-Components.ClientMode.InitClientMode()
+from Components.ClientMode import InitClientMode
+InitClientMode()
 
 profile("InfoBar")
 print("[StartEnigma]  Initialising InfoBar.")
@@ -320,7 +320,7 @@ from Screens import InfoBar
 
 profile("Bouquets")
 print("[StartEnigma]  Initialising Bouquets.")
-from Components.config import config, configfile, ConfigText, ConfigYesNo, ConfigInteger, NoSave
+from Components.config import config, configfile, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, NoSave
 config.misc.load_unlinked_userbouquets = ConfigYesNo(default=False)
 
 
@@ -334,8 +334,8 @@ if config.clientmode.enabled.value == False:
 
 profile("ParentalControl")
 print("[StartEnigma]  Initialising ParentalControl.")
-import Components.ParentalControl
-Components.ParentalControl.InitParentalControl()
+from Components.ParentalControl import InitParentalControl
+InitParentalControl()
 
 profile("LOAD:Navigation")
 print("[StartEnigma]  Initialising Navigation.")
@@ -347,7 +347,7 @@ from skin import readSkin
 
 profile("LOAD:Tools")
 print("[StartEnigma]  Initialising FallbackFiles.")
-from Components.config import config, configfile, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, NoSave
+
 from Tools.Directories import InitFallbackFiles, resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_SKIN, SCOPE_CONFIG
 InitFallbackFiles()
 
@@ -369,7 +369,7 @@ config.misc.DeepStandby = NoSave(ConfigYesNo(default=False))  # detect deepstand
 
 
 profile("Twisted")
-print("[StartEnigma] Initialising Twisted.")
+print("[StartEnigma]  Initialising Twisted.")
 try:
 	import twisted.python.runtime
 	twisted.python.runtime.platform.supportsThreads = lambda: True
@@ -400,14 +400,14 @@ try:
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
 	# backup stdout and stderr redirections
-	backup_stdout = sys.stdout
-	backup_stderr = sys.stderr
-	logger = log.FileLogObserver(sys.stdout)		# do not change or no crashlog
+	backup_stdout = stdout
+	backup_stderr = stderr
+	logger = log.FileLogObserver(stdout)		# do not change or no crashlog
 	log.FileLogObserver.emit = quietEmit
 	log.startLoggingWithObserver(logger.emit)
 	# restore stdout and stderr redirections because of twisted redirections
-	sys.stdout = backup_stdout
-	sys.stderr = backup_stderr
+	stdout = backup_stdout
+	stderr = backup_stderr
 except ImportError:
 	print("[StartEnigma] Error: Twisted not available!")
 
@@ -423,12 +423,15 @@ import Screens.Rc
 from Tools.BoundFunction import boundFunction
 from Plugins.Plugin import PluginDescriptor
 
-from Tools.FlashInstall import FlashInstallTime
-FlashInstallTime()
+if config.misc.firstrun.value and not osexists('/etc/install'):
+	with open("/etc/install", "w") as f:
+		now = datetime.now()
+		flashdate = now.strftime("%Y-%m-%d")
+		print("[Setting Flash date]", flashdate)
+		f.write(flashdate)
 
 profile("misc")
 had = dict()
-
 
 profile("LOAD:ScreenGlobals")
 print("[StartEnigma]  Initialising ScreenGlobals.")
@@ -494,109 +497,107 @@ from Tools.StbHardware import setFPWakeuptime, setRTCtime
 
 profile("Init:NTPSync")
 print("[StartEnigma]  Initialising NTPSync.")
-import Components.NetworkTime
-Components.NetworkTime.AutoNTPSync()
+from Components.NetworkTime import AutoNTPSync
+AutoNTPSync()
 
 profile("Init:skin")
-print("[StartEnigma] Initialising Skins.")
-import skin
-skin.InitSkins()
-print("[StartEnigma] Initialisation of Skins complete.")
+print("[StartEnigma]  Initialising Skins.")
+from skin import InitSkins
+InitSkins()
+print("[StartEnigma]  Initialisation of Skins complete.")
 
 profile("InputDevice")
 print("[StartEnigma]  Initialising InputDevice.")
-import Components.InputDevice
-Components.InputDevice.InitInputDevices()
+from Components.InputDevice import InitInputDevices
+InitInputDevices()
 import Components.InputHotplug
 
 profile("UserInterface")
 print("[StartEnigma]  Initialising UserInterface.")
-import Screens.UserInterfacePositioner
-Screens.UserInterfacePositioner.InitOsd()
+from Screens.UserInterfacePositioner import InitOsd
+InitOsd()
 
 profile("AVSwitch")
 print("[StartEnigma]  Initialising AVSwitch.")
-import Components.AVSwitch
-Components.AVSwitch.InitAVSwitch()
-Components.AVSwitch.InitiVideomodeHotplug()
+from Components.AVSwitch import InitAVSwitch, InitiVideomodeHotplug
+InitAVSwitch()
+InitiVideomodeHotplug()
 
 profile("EpgConfig")
-import Components.EpgConfig
-Components.EpgConfig.InitEPGConfig()
+from Components.EpgConfig import InitEPGConfig
+InitEPGConfig()
 
 profile("RecordingConfig")
 print("[StartEnigma]  Initialising RecordingConfig.")
-import Components.RecordingConfig
-Components.RecordingConfig.InitRecordingConfig()
+from Components.RecordingConfig import InitRecordingConfig
+InitRecordingConfig()
 
 profile("UsageConfig")
 print("[StartEnigma]  Initialising UsageConfig.")
-import Components.UsageConfig
-Components.UsageConfig.InitUsageConfig()
+from Components.UsageConfig import InitUsageConfig
+InitUsageConfig()
 
 profile("TimeZones")
 print("[StartEnigma]  Initialising Timezones.")
-import Components.Timezones
-Components.Timezones.InitTimeZones()
+from Components.Timezones import InitTimeZones
+InitTimeZones()
 
 profile("Init:DebugLogCheck")
 print("[StartEnigma]  Initialising DebugLogCheck.")
-import Screens.LogManager
-Screens.LogManager.AutoLogManager()
+from Screens.LogManager import AutoLogManager
+AutoLogManager()
 
 profile("Init:OnlineCheckState")
 print("[StartEnigma]  Initialising OnlineCheckState.")
-import Components.OnlineUpdateCheck
-Components.OnlineUpdateCheck.OnlineUpdateCheck()
+from Components.OnlineUpdateCheck import OnlineUpdateCheck
+OnlineUpdateCheck()
 
 profile("keymapparser")
 print("[StartEnigma]  Initialising KeymapParser.")
-import keymapparser
-keymapparser.readKeymap(config.usage.keymap.value)
-keymapparser.readKeymap(config.usage.keytrans.value)
+from keymapparser import readKeymap
+readKeymap(config.usage.keymap.value)
+readKeymap(config.usage.keytrans.value)
 
 profile("Network")
 print("[StartEnigma]  Initialising Network.")
-import Components.Network
-Components.Network.InitNetwork()
+from Components.Network import InitNetwork
+InitNetwork()
 
 profile("HdmiCec")
 print("[StartEnigma]  Initialising hdmiCEC.")
-import Components.HdmiCec
-Components.HdmiCec.HdmiCec()
+from Components.HdmiCec import HdmiCec
+HdmiCec()
 
 profile("LCD")
 print("[StartEnigma]  Initialising LCD / FrontPanel.")
-import Components.Lcd
-Components.Lcd.InitLcd()
-# ------------------>Components.Lcd.IconCheck()
+from Components.Lcd import InitLcd
+InitLcd()
 
 profile("UserInterface")
 print("[StartEnigma]  Initialising UserInterface.")
-import Screens.UserInterfacePositioner
-Screens.UserInterfacePositioner.InitOsdPosition()
+from Screens.UserInterfacePositioner import InitOsdPosition
+InitOsdPosition()
 
 profile("EpgCacheSched")
 print("[StartEnigma]  Initialising EPGCacheScheduler.")
-import Components.EpgLoadSave
-Components.EpgLoadSave.EpgCacheSaveCheck()
-Components.EpgLoadSave.EpgCacheLoadCheck()
+from Components.EpgLoadSave import EpgCacheLoadCheck, EpgCacheSaveCheck
+EpgCacheSaveCheck()
+EpgCacheLoadCheck()
 
 profile("RFMod")
 print("[StartEnigma]  Initialising RFMod.")
-import Components.RFmod
-Components.RFmod.InitRFmod()
+from Components.RFmod import InitRFmod
+InitRFmod()
 
 profile("Init:CI")
 print("[StartEnigma]  Initialising CommonInterface.")
-import Screens.Ci
-Screens.Ci.InitCiConfig()
+from Screens.Ci import InitCiConfig
+InitCiConfig()
 
 
 if config.clientmode.enabled.value:
 	import Components.ChannelsImporter
 	Components.ChannelsImporter.autostart()
-
 
 
 def runScreenTest():
@@ -628,7 +629,7 @@ def runScreenTest():
 	def runNextScreen(session, screensToRun, *result):
 		if result:
 			if result[0] == "reloadskin":
-				skin.InitSkins(False)
+				InitSkins(False)
 				session.openWithCallback(boundFunction(runNextScreen, session, []), InfoBar.InfoBar)
 				if result[1]:
 					session.deleteDialog(result[1])
@@ -730,6 +731,6 @@ try:
 except Exception:
 	print("[StartEnigma] EXCEPTION IN PYTHON STARTUP CODE:")
 	print("-" * 60)
-	print_exc(file=sys.stdout)
+	print_exc(file=stdout)
 	enigma.quitMainloop(5)
 	print("-" * 60)

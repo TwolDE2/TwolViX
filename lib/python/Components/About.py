@@ -5,18 +5,18 @@ import fcntl
 import struct
 
 from boxbranding import getImageVersion, getMachineBuild, getBoxType
-
+from Tools.Directories import fileExists
 
 def getVersionString():
 	return getImageVersion()
 
 
 def getFlashDateString():
-	try:
+	if fileExists('/etc/install'):
 		with open("/etc/install", "r") as f:
 			flashdate = f.read()
-			return flashdate
-	except:
+			return flashdate[8:]  + flashdate[4:8] + flashdate[0:4]
+	else:
 		return _("unknown")
 
 
