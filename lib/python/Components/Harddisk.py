@@ -100,9 +100,9 @@ def getProcMounts():
 			import subprocess
 			res = subprocess.run(['blkid', '-sTYPE', '-ovalue', item[0]], capture_output=True)
 			if res.returncode == 0:
-				print("[Harddisk][getProcMounts] fuseblk", res.stdout)
+				# print("[Harddisk][getProcMounts] fuseblk", res.stdout)
 				item[2] = res.stdout.strip().decode()
-	print("[Harddisk][getProcMounts] ProcMounts", result)
+#	print("[Harddisk][getProcMounts] ProcMounts", result)
 	return result
 
 
@@ -165,31 +165,11 @@ class Harddisk:
 		data = readFile(ospath.join("/sys/block", device, "queue/rotational"))
 		self.rotational = True if data is None else int(data)  # Rotational if 0 --> SSD or MMC, 1 --> HDD.
 		(self.internal, self.busType) = self.deviceState(device)
-		if SystemInfo["Udev"]:
-			self.dev_path = ospath.join("/dev", self.device)
-			self.disk_path = self.dev_path
-			self.sdmmc = "MMC" in self.busType
-			# print("[Harddisk] self.sdmmc1", self.sdmmc)			
-		else:
-			tmp = readFile(self.sysfsPath("dev"))
-			if tmp is None:
-				self.sdmmc = None
-			else:
-				tmp = tmp.split(":")
-				s_major = int(tmp[0])
-				s_minor = int(tmp[1])
-				for disc in listdir("/dev/discs"):
-					dev_path = ospath.realpath(ospath.join("/dev/discs", disc))
-					disk_path = ospath.join(dev_path, "disc")
-					try:
-						rdev = stat(disk_path).st_rdev
-					except (IOError, OSError):
-						continue
-					if s_major == major(rdev) and s_minor == minor(rdev):
-						self.dev_path = dev_path
-						self.disk_path = disk_path
-						break
-				self.sdmmc = self.device[:2] == "hd" and "host0" not in self.dev_path
+		self.dev_path = ospath.join("/dev", self.device)
+		self.disk_path = self.dev_path
+		self.sdmmc = "MMC" in self.busType
+		# print("[Harddisk] self.sdmmc1", self.sdmmc)			
+
 		if (self.internal or not removable) and not self.sdmmc:
 			msg = " (Start Idle)"
 			self.startIdle()
@@ -207,13 +187,10 @@ class Harddisk:
 		return ospath.join("/sys/block", self.device, filename)
 
 	def partitionPath(self, n):
-		if SystemInfo["Udev"]:
-			if self.dev_path.startswith("/dev/mmcblk"):
-				return "%sp%s" % (self.dev_path, n)
-			else:
-				return "%s%s" % (self.dev_path, n)
+		if self.dev_path.startswith("/dev/mmcblk"):
+			return "%sp%s" % (self.dev_path, n)
 		else:
-			return ospath.join(self.dev_path, "part%s" % n)
+			return "%s%s" % (self.dev_path, n)
 
 	def stop(self):
 		if self.timer:
@@ -311,22 +288,12 @@ class Harddisk:
 
 	def numPartitions(self):
 		numPart = -1
-		if SystemInfo["Udev"]:
-			try:
-				for filename in listdir("/dev"):
-					if filename.startswith(self.device):
-						numPart += 1
-			except (IOError, OSError):
-				return -1
-		else:
-			try:
-				for filename in listdir(self.dev_path):
-					if filename.startswith("disc"):
-						numPart += 1
-					if filename.startswith("part"):
-						numPart += 1
-			except (IOError, OSError):
-				return -1
+		try:
+			for filename in listdir("/dev"):
+				if filename.startswith(self.device):
+					numPart += 1
+		except (IOError, OSError):
+			return -1
 		return numPart
 
 	def mountDevice(self):
@@ -375,9 +342,8 @@ class Harddisk:
 		except (IOError, OSError):
 			return -1
 		exitCode = -1  # Device is not in fstab.
-		if SystemInfo["Udev"]:
-			exitCode = runCommand("hdparm -z %s" % self.disk_path)  # We can let udev do the job, re-read the partition table.
-			sleep(3)  # Give udev some time to make the mount, which it will do asynchronously.
+		exitCode = runCommand("hdparm -z %s" % self.disk_path)  # We can let udev do the job, re-read the partition table.
+		sleep(3)  # Give udev some time to make the mount, which it will do asynchronously.
 		return exitCode
 
 	def fsck(self):
@@ -1046,12 +1012,12 @@ class MountTask(Components.Task.LoggingTask):
 						return
 		except (IOError, OSError) as err:
 			print("[Harddisk] MountTask - Error: Failed to read '/etc/fstab' file:", err)
-		if SystemInfo["Udev"]:  # Device is not in fstab.
-			# We can let udev do the job, re-read the partition table.
-			# Sorry for the sleep 2 hack...
-			print("[Harddisk] MountTask - let udev complete the job")
-			self.setCmdline("sleep 2; hdparm -z %s" % self.hdd.disk_path)
-			self.postconditions.append(Components.Task.ReturncodePostcondition())
+		# Device is not in fstab.
+		# We can let udev do the job, re-read the partition table.
+		# Sorry for the sleep 2 hack...
+		print("[Harddisk] MountTask - let udev complete the job")
+		self.setCmdline("sleep 2; hdparm -z %s" % self.hdd.disk_path)
+		self.postconditions.append(Components.Task.ReturncodePostcondition())
 
 
 class MkfsTask(Components.Task.LoggingTask):
