@@ -170,7 +170,7 @@ class Language:
 		self.callbacks.append(callback)
 
 	def delLanguage(self, delLang=None):
-		from Components.config import config, configfile
+		from Components.config import config
 
 		if delLang:
 			lang = config.osd.language.value

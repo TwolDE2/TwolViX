@@ -168,7 +168,7 @@ class Harddisk:
 		self.dev_path = ospath.join("/dev", self.device)
 		self.disk_path = self.dev_path
 		self.sdmmc = "MMC" in self.busType
-		# print("[Harddisk] self.sdmmc1", self.sdmmc)			
+		# print("[Harddisk] self.sdmmc1", self.sdmmc)
 
 		if (self.internal or not removable) and not self.sdmmc:
 			msg = " (Start Idle)"
