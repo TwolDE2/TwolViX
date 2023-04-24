@@ -1,5 +1,6 @@
 from time import sleep
 from boxbranding import getBoxType, getMachineMtdKernel, getMachineMtdRoot
+from Components.config import config, configfile
 from Components.Console import Console
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
@@ -33,8 +34,16 @@ class VuWizard(Screen):
 		self["action"] = StaticText("Enabling MultiBoot")
 					
 		if fileExists("/STARTUP_RECOVERY") or fileExists("/boot/STARTUP_RECOVERY"):
-			self.close	
-		else:
+			self.close
+
+		message = (_("Do you want to install Multiboot?\nIf Yes, and eMMC slots are restored use MultiBootSelector after reboot.") + "\n" + _("or use ViX ImageMannager to flash multiboot image.")) 
+		ybox = self.session.openWithCallback(self.VuWizard0, MessageBox, message, default=False) 
+		ybox.setTitle(_("Restore confirmation"))		
+		
+
+	def VuWizard0(self, retval):
+		print("[VuWizard0] retval", retval)	
+		if retval:
 			self.Console = Console()
 			with open("/STARTUP", 'w') as f:
 				f.write(STARTUP)
@@ -51,6 +60,8 @@ class VuWizard(Screen):
 			cmdlist.append("dd if=/usr/bin/kernel_auto.bin of=/dev/%s" % getMachineMtdKernel())	# create new kernel
 			cmdlist.append("mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz")						# copy userroot routine
 			self.Console.eBatch(cmdlist, self.RootInitEnd, debug=False)
+		else:
+			self.close()
 
 	def RootInitEnd(self, *args, **kwargs):
 		cmdlist = []
@@ -67,5 +78,8 @@ class VuWizard(Screen):
 			self.reBoot()					
 
 	def reBoot(self, *args, **kwargs):
+		config.misc.restorewizardrun = True
+		config.misc.restorewizardrun.save()
+		configfile.save()					
 		self.Console.ePopen("killall -9 enigma2 && init 6")
 
