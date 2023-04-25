@@ -67,7 +67,7 @@ class VuplusKexec(Screen):
 			cmdlist.append("dd if=/usr/bin/kernel_auto.bin of=/dev/%s" % getMachineMtdKernel())	# create new kernel
 			cmdlist.append("mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz")						# copy userroot routine
 			for file in glob.glob("/media/*/vuplus/*/force.update", recursive=True):
-				cmdlist.append("mv %s %s" % (file, file.replace("force.update", "noforce.update")))						# remove Vu force update(Vu+ Zero4k)						
+				cmdlist.append("mv %s %s" % (file, file.replace("force.update", "noforce.update")))						# remove Vu force update(currently Vu+ Zero4k)						
 			Console().eBatch(cmdlist, self.RootInitEnd, debug=True)
 		else:
 			self.session.open(MessageBox, _("[VuplusKexec][create Vu Multiboot environment] - Unable to complete, Vu+ Multiboot files missing"), MessageBox.TYPE_INFO, timeout=30)

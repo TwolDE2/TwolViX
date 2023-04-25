@@ -36,15 +36,7 @@ class VuWizard(Screen):
 					
 		if fileExists("/STARTUP_RECOVERY") or fileExists("/boot/STARTUP_RECOVERY"):
 			self.close
-
-		message = (_("Do you want to install Multiboot?\nIf Yes, and eMMC slots are restored use MultiBootSelector after reboot.") + "\n" + _("or use ViX ImageMannager to flash multiboot image.")) 
-		ybox = self.session.openWithCallback(self.VuWizard0, MessageBox, message, default=False) 
-		ybox.setTitle(_("Restore confirmation"))		
-		
-
-	def VuWizard0(self, retval):
-		print("[VuWizard0] retval", retval)	
-		if retval:
+		else:
 			self.Console = Console()
 			with open("/STARTUP", 'w') as f:
 				f.write(STARTUP)
@@ -63,8 +55,6 @@ class VuWizard(Screen):
 			for file in glob.glob("/media/*/vuplus/*/force.update", recursive=True):
 				cmdlist.append("mv %s %s" % (file, file.replace("force.update", "noforce.update")))						# remove Vu force update(Vu+ Zero4k)			
 			self.Console.eBatch(cmdlist, self.RootInitEnd, debug=False)
-		else:
-			self.close()
 
 	def RootInitEnd(self, *args, **kwargs):
 		cmdlist = []
@@ -83,6 +73,8 @@ class VuWizard(Screen):
 	def reBoot(self, *args, **kwargs):
 		config.misc.restorewizardrun = True
 		config.misc.restorewizardrun.save()
+		config.misc.firstrun.value = 0
+		config.misc.firstrun.save()		
 		configfile.save()					
 		self.Console.ePopen("killall -9 enigma2 && init 6")
 

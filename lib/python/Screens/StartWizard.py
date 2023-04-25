@@ -10,14 +10,15 @@ from Screens.WizardUserInterfacePositioner import UserInterfacePositionerWizard
 from Screens.Wizard import wizardManager
 from Screens.VideoWizard import VideoWizard
 from Screens.VuWizard import VuWizard
-from Tools.Directories import fileExists, fileHas
+from Tools.Directories import fileExists
 
 config.misc.firstrun = ConfigBoolean(default=True)
 config.misc.languageselected = ConfigBoolean(default=True)
 config.misc.videowizardenabled = ConfigBoolean(default=True)
 config.misc.networkenabled = ConfigBoolean(default=False)
 config.misc.Vuwizardenabled = ConfigBoolean(default=False)
-if SystemInfo["CanKexecVu"] and fileExists("/usr/bin/kernel_auto.bin") and fileExists("/usr/bin/STARTUP.cpio.gz"):
+
+if SystemInfo["CanKexecVu"] and fileExists("/usr/bin/kernel_auto.bin") and fileExists("/usr/bin/STARTUP.cpio.gz"):	
 	config.misc.Vuwizardenabled.value = True
 
 class StartWizard(WizardLanguage, Rc):
@@ -39,6 +40,4 @@ wizardManager.registerWizard(VuWizard, config.misc.Vuwizardenabled.value, priori
 wizardManager.registerWizard(VideoWizard, config.misc.videowizardenabled.value, priority=5)
 wizardManager.registerWizard(LanguageWizard, config.misc.languageselected.value, priority=10)
 wizardManager.registerWizard(UserInterfacePositionerWizard, config.misc.firstrun.value, priority=15)
-if SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0: 
-	wizardManager.registerWizard(VuWizard2, config.misc.firstrun.value, priority=18)
 wizardManager.registerWizard(StartWizard, config.misc.firstrun.value, priority=20)
