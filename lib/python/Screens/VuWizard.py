@@ -77,4 +77,3 @@ class VuWizard(Screen):
 		config.misc.firstrun.save()		
 		configfile.save()					
 		self.Console.ePopen("killall -9 enigma2 && init 6")
-
