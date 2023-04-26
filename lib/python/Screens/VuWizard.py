@@ -1,6 +1,7 @@
 import glob
 from time import sleep
 from boxbranding import getBoxType, getMachineMtdKernel, getMachineMtdRoot
+from Components.config import config, configfile
 from Components.Console import Console
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
@@ -70,4 +71,9 @@ class VuWizard(Screen):
 			self.reBoot()					
 
 	def reBoot(self, *args, **kwargs):
+		config.misc.restorewizardrun.value = True
+		config.misc.restorewizardrun.save()
+		config.misc.firstrun.value = 0
+		config.misc.firstrun.save()		
+		configfile.save()		
 		self.Console.ePopen("killall -9 enigma2 && init 6")
