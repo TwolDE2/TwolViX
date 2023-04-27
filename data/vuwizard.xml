@@ -3,7 +3,7 @@
 	<step id="start" nextstep="end">
 		<text value="Please setup your Vu+ 4K receiver - options are normal or multiboot installation." />
 		<displaytext value="Configure interface" />
-		<config screen="Vu" module="Vu" type="ConfigList" />
+		<config screen="VuWizard" module="VuWizard" type="ConfigList" />
 		<code>
 self.clearSelectedKeys()
 self.selectKey("OK")
