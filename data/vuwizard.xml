@@ -1,20 +1,3 @@
 <!--suppress XmlUnboundNsPrefix -->
 <wizard>
-	<step id="start" nextstep="end">
-		<text value="Please setup your Vu+ 4K receiver - options are normal or multiboot installation." />
-		<displaytext value="Configure interface" />
-		<config screen="VuWizard" module="VuWizard" type="ConfigList" />
-		<code>
-self.clearSelectedKeys()
-self.selectKey("OK")
-self.selectKey("UP")
-self.selectKey("DOWN")
-self.selectKey("LEFT")
-self.selectKey("RIGHT")
-		</code>
-		<code pos="after" async="yes">
-self.markDone()
-self.close()
-		</code>
-	</step>
 </wizard>
