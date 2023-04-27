@@ -41,12 +41,16 @@ class VuWizard(WizardLanguage, Rc):
 	def welcomeWarning(self):
 		if self.welcomeWarning in self.onShow:
 			self.onShow.remove(self.welcomeWarning)
+		slotlist = []	
+		for eMMCslot in range(1,4):
+			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
+				slotlist.append(eMMCslot)			
 		popup = self.session.openWithCallback(self.welcomeAction, MessageBox, _("Welcome to OpenViX!\n\n"
 			"Your Vu4K receiver is capable of Multiboot or Vu Standalone options\n"
 			"If you wish to use the Standard Vu image setup, hit enter or No.\n\n"
-			"Select Yes to continue with Vu Multiboot initialisation "
-			"Note:- restoring eMMC slots takes upto 5 minutes per slot.\n\n" 
-			"Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image, or exit and \n - select restored eMMC image with MultiBootSelector.   \n or \n - flash new image into multiboot slot via ImageManager."
+			"Select Yes to continue with Vu Multiboot initialisation.\n\n "
+			"Note:- restoring eMMC slots %s takes upto 5 minutes per slot.\n\n" % slotlist 
+			"Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image, or exit and \n - select restored eMMC image with MultiBootSelector.   \n     or \n - flash new image into multiboot slot via ImageManager.\n\n"
 			"Select Yes to install or No to skip this step."), type=MessageBox.TYPE_YESNO, timeout=-1, default=False)
 		popup.setTitle(_("Start Wizard - Vu+ 4K install options"))
 
@@ -83,7 +87,6 @@ class VuWizard(WizardLanguage, Rc):
 		for eMMCslot in range(1,4):
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 				slotlist.append(eMMCslot)		
-#				self["action"].setText(_("Restoring MultiBoot Slots %s." % slotlist))
 				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 		if cmdlist:
 			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
