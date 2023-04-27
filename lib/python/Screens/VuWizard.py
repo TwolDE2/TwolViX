@@ -42,7 +42,7 @@ class VuWizard(WizardLanguage, Rc):
 		if self.welcomeWarning in self.onShow:
 			self.onShow.remove(self.welcomeWarning)
 		popup = self.session.openWithCallback(self.welcomeAction, MessageBox, _("Welcome to OpenViX!\n\n"
-			"Your Vu4K receiver is capable of Multiboot or Vu Standalone options"
+			"Your Vu4K receiver is capable of Multiboot or Vu Standalone options\n"
 			"If you wish to use the Standard Vu image setup, hit enter or No.\n\n"
 			"Select Yes to continue with Vu Multiboot initialisation "
 			"Note:- restoring eMMC slots takes upto 5 minutes per slot.\n\n" 
@@ -51,7 +51,9 @@ class VuWizard(WizardLanguage, Rc):
 		popup.setTitle(_("Start Wizard - Vu+ 4K install options"))
 
 	def welcomeAction(self, answer):
+		print("[VuWizard][welcomeAction] answer", answer) 		
 		if answer:
+			print("[VuWizard][welcomeAction] arrived") 		
 			if fileExists("/STARTUP_RECOVERY") or fileExists("/boot/STARTUP_RECOVERY"):
 				self.close
 			else:
@@ -78,7 +80,7 @@ class VuWizard(WizardLanguage, Rc):
 	def RootInitEnd(self, *args, **kwargs):
 		cmdlist = []
 		slotlist = []	
-		for eMMCslot in range(1,4):		
+		for eMMCslot in range(1,4):
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 				slotlist.append(eMMCslot)		
 #				self["action"].setText(_("Restoring MultiBoot Slots %s." % slotlist))
@@ -103,6 +105,9 @@ class VuWizard(WizardLanguage, Rc):
 			self.close()
 
 	def markDone(self):
+		pass
+
+	def run(self):
 		pass
 
 	def back(self):
