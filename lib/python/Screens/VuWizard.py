@@ -21,10 +21,10 @@ STARTUP_3 = "kernel=/linuxrootfs3/zImage root=/dev/%s rootsubdir=linuxrootfs3" %
 
 class VuWizard(WizardLanguage, Rc):
 	def __init__(self, session, interface=None):
-		self.xmlfile = resolveFilename(SCOPE_SKIN, "Vuwizard.xml")
+		self.xmlfile = resolveFilename(SCOPE_SKIN, "vuwizard.xml")
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
 		Rc.__init__(self)
-		self.skinName = [VuWizard", "StartWizard"]
+		self.skinName = ["VuWizard", "StartWizard"]
 		self.session = session
 		self.Console = Console(binary=True)
 		self["wizard"] = Pixmap()
