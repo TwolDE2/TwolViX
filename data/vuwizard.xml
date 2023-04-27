@@ -1,3 +1,19 @@
 <!--suppress XmlUnboundNsPrefix -->
 <wizard>
+	<step id="start" nextstep="end">
+		<text value="Vu+ 4K multiboot  - PLEASE WAIT! - receiver will reboot after installation - restoring slots can take upto 5 minutes per slot." />
+		<displaytext value="Configure interface" />
+		<config screen="VuWizard" module="VuWizard" type="ConfigList" />
+		<code>
+self.clearSelectedKeys()
+self.selectKey("UP")
+self.selectKey("DOWN")
+self.selectKey("LEFT")
+self.selectKey("RIGHT")
+		</code>
+		<code pos="after" async="yes">
+self.markDone()
+self.close()
+		</code>
+	</step>
 </wizard>
