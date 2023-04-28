@@ -12,7 +12,7 @@ from Screens.VuWizard import VuWizard
 from Tools.Directories import fileExists, fileHas
 
 config.misc.firstrun = ConfigBoolean(default=True)
-# config.misc.languageselected = ConfigBoolean(default=True)
+config.misc.languageselected = ConfigBoolean(default=True)
 config.misc.videowizardenabled = ConfigBoolean(default=True)
 config.misc.networkenabled = ConfigBoolean(default=False)
 config.misc.Vuwizardenabled = ConfigBoolean(default=False)
@@ -34,8 +34,9 @@ class StartWizard(WizardLanguage, Rc):
 		config.misc.firstrun.save()
 		configfile.save()
 
-wizardManager.registerWizard(LanguageWizard, config.misc.languageselected.value, priority=1)
-wizardManager.registerWizard(VuWizard, config.misc.Vuwizardenabled.value, priority=2)
+
+wizardManager.registerWizard(VuWizard, config.misc.Vuwizardenabled.value, priority=1)
 wizardManager.registerWizard(VideoWizard, config.misc.videowizardenabled.value, priority=10)
-wizardManager.registerWizard(UserInterfacePositionerWizard, config.misc.firstrun.value, priority=15)
-wizardManager.registerWizard(StartWizard, config.misc.firstrun.value, priority=20)
+wizardManager.registerWizard(LanguageWizard, config.misc.languageselected.value, priority=15)
+wizardManager.registerWizard(UserInterfacePositionerWizard, config.misc.firstrun.value, priority=20)
+wizardManager.registerWizard(StartWizard, config.misc.firstrun.value, priority=25)
