@@ -47,10 +47,10 @@ class VuWizard(WizardLanguage, Rc):
 				slotlist.append(eMMCslot)			
 		popup = self.session.openWithCallback(self.welcomeAction, MessageBox, _("Welcome to OpenViX!\n\n"
 			"Your Vu4K receiver is capable of Multiboot or Vu Standalone options\n"
-			"If you wish to use the Standard Vu image setup, hit enter or No.\n\n"
+			"If you wish to use the Standard Vu image setup, enter No.\n\n"
 			"Select Yes to continue with Vu Multiboot initialisation.\n\n "
 			"Note:- restoring eMMC slots %s takes upto 5 minutes per slot.\n\n" 
-			"Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image, or exit and \n - select restored eMMC image with MultiBootSelector.   \n     or \n - flash new image into multiboot slot via ImageManager.\n\n"
+			"Receiver will then reboot to setup Wizard.\n In Wizard finalise Recovery image \n - from Menu select Standby & Restart/MultiBootSelector to choose restoredeMMC image\n     or \n - Exit, Blue button & flash image into multiboot slot via ImageManager.\n\n"			
 			"Select Yes to install or No to skip this step." % slotlist), type=MessageBox.TYPE_YESNO, timeout=-1, default=False)
 		popup.setTitle(_("Start Wizard - Vu+ 4K install options"))
 

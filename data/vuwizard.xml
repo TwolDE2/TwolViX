@@ -1,7 +1,7 @@
 <!--suppress XmlUnboundNsPrefix -->
 <wizard>
 	<step id="start" nextstep="end">
-		<text value="Vu+ 4K multiboot  - PLEASE WAIT! - receiver will reboot after installation - restoring slots can take upto 5 minutes per slot." />
+		<text value="Vu+ 4K multiboot  - PLEASE WAIT!\n  - receiver will reboot after installation\n  - restoring slots can take upto 5 minutes per slot." />
 		<displaytext value="Configure interface" />
 		<config screen="VuWizard" module="VuWizard" type="ConfigList" />
 		<code pos="after" async="yes">
