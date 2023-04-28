@@ -2,7 +2,7 @@
 <wizard>
 	<step id="start" nextstep="end">
 		<text value="Vu+ 4K multiboot  - PLEASE WAIT!\n  - receiver will reboot after installation\n  - restoring slots can take upto 5 minutes per slot." />
-		<displaytext value="Configure interface" />
+		<displaytext value="Configure Vu Multiboot interface" />
 		<config screen="VuWizard" module="VuWizard" type="ConfigList" />
 		<code pos="after" async="yes">
 self.markDone()
