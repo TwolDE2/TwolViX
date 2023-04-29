@@ -94,7 +94,7 @@ class LanguageSelection(Screen):
 	def save(self):
 		self.run()
 		global inWizzard
-#		print("[LanguageSelection] save function inWizzard is %s", %inWizzard)
+		print("[LanguageSelection] save function inWizzard is ", inWizzard)
 		if inWizzard:
 			inWizzard = False
 			#self.session.openWithCallback(self.deletelanguagesCB, MessageBox, _("Do you want to delete all other languages?"), default = False)
@@ -102,6 +102,8 @@ class LanguageSelection(Screen):
 				self.session.open(TryQuitMainloop, 3)
 			self.close()
 		else:
+			print("[LanguageSelection] save function self.oldActiveLanguage is ", self.oldActiveLanguage)
+			print("[LanguageSelection] save function config.osd.language.value is ", config.osd.language.value)					
 			if self.oldActiveLanguage != config.osd.language.value:
 				self.session.openWithCallback(self.restartGUI, MessageBox, _("GUI needs a restart to apply a new language\nDo you want to restart the GUI now?"), MessageBox.TYPE_YESNO)
 			else:
@@ -109,6 +111,7 @@ class LanguageSelection(Screen):
 
 	def restartGUI(self, answer=True):
 		if answer is True:
+			config.save()
 			self.session.open(TryQuitMainloop, 3)
 		else:
 			self.close()
@@ -159,17 +162,17 @@ class LanguageSelection(Screen):
 #		self.close()
 
 	def run(self, justlocal=False):
-#		print("[LanguageSelection] updating language...")
+		print("[LanguageSelection][run] updating language...justlocal", justlocal)
 		lang = self["languages"].getCurrent()[0]
 
 		if lang == 'update cache':
 			self.setTitle(_("Updating Cache"))
 			self["summarylangname"].setText(_("Updating cache"))
 			return
-
-		if lang != config.osd.language.value:
-			config.osd.language.setValue(lang)
-			config.osd.language.save()
+		print("[LanguageSelection][run] lang, config.osd.language.value", lang, "   ", config.osd.language.value)
+#		if lang != config.osd.language.value:
+		config.osd.language.setValue(lang)
+		config.osd.language.save()
 
 		self.setTitle(_cached("T2"))
 		self["summarylangname"].setText(_cached("T2"))
@@ -179,8 +182,13 @@ class LanguageSelection(Screen):
 
 		if justlocal:
 			return
-
+		print("[LanguageSelection] updating language...config.misc.languageselected lang", lang)
 		language.activateLanguage(lang)
+
+		if lang != config.osd.language.value:
+			config.osd.language.setValue(lang)
+			config.osd.language.save()
+		print("[Language] Activating language config.osd.language.value", config.osd.language.value)		
 		config.misc.languageselected.value = 0
 		config.misc.languageselected.save()
 

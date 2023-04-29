@@ -94,6 +94,7 @@ class Language:
 		self.catalog = gettext.translation('enigma2', resolveFilename(SCOPE_LANGUAGE, ""), languages=[index], fallback=True)
 		self.catalog.install(names=("ngettext", "pgettext"))
 		self.activeLanguage = index
+		print("[Language] Activating language self.activeLanguage", self.activeLanguage)
 		self.gotLanguage = self.getLanguage()
 		for x in self.callbacks:
 			if x:
