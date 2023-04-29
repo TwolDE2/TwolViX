@@ -34,7 +34,8 @@ class VuWizard(WizardLanguage, Rc):
 
 		self.NextStep = None
 		self.Text = None
-
+		config.misc.Vuwizardenabled.value = False
+		config.misc.Vuwizardenabled.save()
 		if self.welcomeWarning not in self.onShow:
 			self.onShow.append(self.welcomeWarning)
 
@@ -50,9 +51,9 @@ class VuWizard(WizardLanguage, Rc):
 			"If you wish to use the Standard Vu image setup, enter No.\n\n"
 			"Select Yes to continue with Vu Multiboot initialisation.\n\n "
 			"Note:- restoring eMMC slots %s takes upto 5 minutes per slot.\n\n" 
-			"Receiver will then reboot to finalise Recovery image \n" 
-			"Menu, Standby & Restart, MultiBootSelector to choose restored eMMC image.\n"
-			"Exit, Blue button, ImageManager to flash multiboot slot.\n" % slotlist), type=MessageBox.TYPE_YESNO, timeout=-1, default=False)			
+			"Receiver will then reboot to finalise Recovery image.\n" 
+			"- to boot restored slot, from Menu, select Standby & Restart, MultiBootSelector, slot.\n"
+			"- to flash multiboot slot, press Exit & Blue button, select ImageManager, flash downloaded image.\n" % slotlist), type=MessageBox.TYPE_YESNO, timeout=-1, default=False)			
 		popup.setTitle(_("Start Wizard - Vu+ 4K install options"))
 
 	def welcomeAction(self, answer):
