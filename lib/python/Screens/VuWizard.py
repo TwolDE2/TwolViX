@@ -85,10 +85,8 @@ class VuWizard(WizardLanguage, Rc):
 
 	def RootInitEnd(self, *args, **kwargs):
 		cmdlist = []
-		slotlist = []	
 		for eMMCslot in range(1,4):
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
-				slotlist.append(eMMCslot)		
 				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 		if cmdlist:
 			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
