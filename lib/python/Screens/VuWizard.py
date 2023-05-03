@@ -76,14 +76,39 @@ class VuWizard(WizardLanguage, Rc):
 				cmdlist = []
 				cmdlist.append("dd if=/dev/%s of=/zImage" % getMachineMtdKernel())					# backup old kernel
 				cmdlist.append("dd if=/usr/bin/kernel_auto.bin of=/dev/%s" % getMachineMtdKernel())	# create new kernel
+				if pathExists("/media/hdd"):
+					with open("/STARTUP", 'w') as f:
+						f.write(STARTUP_1)				
+					if not pathExists("/media/hdd/%s" % getBoxType()):
+						cmdlist.append("mkdir /media/hdd/%s" % getBoxType())			
+					if  pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
+						cmdlist.append("rm -rf /media/hdd/%s/linuxrootfs1" % getBoxType())			
+					cmdlist.append("mkdir /tmp/mmc")
+					cmdlist.append("mount /dev/%s /tmp/mmc" % getMachineMtdRoot())
+					cmdlist.append("rsync -aAXHS /tmp/mmc/ /media/hdd/%s/linuxrootfs1" % getBoxType())
+					cmdlist.append("umount /tmp/mmc")
+					cmdlist.append("cp /zImage /media/hdd/%s/linuxrootfs1/" % getBoxType())				
 				cmdlist.append("mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz")						# copy userroot routine
 				for file in glob.glob("/media/*/vuplus/*/force.update", recursive=True):
 					cmdlist.append("mv %s %s" % (file, file.replace("force.update", "noforce.update")))						# remove Vu force update(Vu+ Zero4k)			
-				self.Console.eBatch(cmdlist, self.RootInitEnd, debug=False)
+				self.Console.eBatch(cmdlist, self.eMMCload, debug=True)
 		else:
 			self.close()
 
 	def RootInitEnd(self, *args, **kwargs):
+		cmdlist = []
+		if pathExists("/media/hdd"):
+			if not pathExists("/media/hdd/%s" % getBoxType()):
+				cmdlist.append("mkdir /media/hdd/%s" % getBoxType())			
+			if  pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
+				cmdlist.append("rm -rf /media/hdd/%s/linuxrootfs1" % getBoxType())			
+			cmdlist.append("mkdir /tmp/mmc")
+			cmdlist.append("mount /dev/%s /tmp/mmc" % getMachineMtdRoot())
+			cmdlist.append("rsync -avAXHS /tmp/mmc/ /media/hdd/%s/linuxrootfs1" % getBoxType())
+			cmdlist.append("umount /tmp/mmc")
+			cmdlist.append("cp /zimage /media/hdd/%s/linuxrootfs1/" % getBoxType())
+				
+	def eMMCload(self, *args, **kwargs):
 		cmdlist = []
 		for eMMCslot in range(1,4):
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
