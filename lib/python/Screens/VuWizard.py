@@ -80,9 +80,9 @@ class VuWizard(WizardLanguage, Rc):
 					with open("/STARTUP", 'w') as f:
 						f.write(STARTUP_1)				
 					if not pathExists("/media/hdd/%s" % getBoxType()):
-						cmdlist.append("mkdir /media/hdd/%s" % getBoxType())			
+						cmdlist.append("mkdir /media/hdd/%s" % getBoxType())
 					if  pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
-						cmdlist.append("rm -rf /media/hdd/%s/linuxrootfs1" % getBoxType())			
+						cmdlist.append("rm -rf /media/hdd/%s/linuxrootfs1" % getBoxType())
 					cmdlist.append("mkdir /tmp/mmc")
 					cmdlist.append("mount /dev/%s /tmp/mmc" % getMachineMtdRoot())
 					cmdlist.append("rsync -aAXHS /tmp/mmc/ /media/hdd/%s/linuxrootfs1" % getBoxType())
@@ -116,7 +116,6 @@ class VuWizard(WizardLanguage, Rc):
 		if cmdlist:
 			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
 		else:
-#			sleep(5)
 			self.reBoot()					
 
 	def reBoot(self, *args, **kwargs):
