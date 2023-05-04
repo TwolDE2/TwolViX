@@ -63,7 +63,6 @@ class VuWizard(WizardLanguage, Rc):
 			if fileExists("/STARTUP_RECOVERY") or fileExists("/boot/STARTUP_RECOVERY"):
 				self.close
 			else:
-				self.slotStart=1
 				with open("/STARTUP", 'w') as f:
 					f.write(STARTUP)
 				with open("/STARTUP_RECOVERY", 'w') as f:
@@ -98,7 +97,6 @@ class VuWizard(WizardLanguage, Rc):
 					cmdlist.append("rsync -aAXHS /tmp/mmc/ /media/hdd/%s/linuxrootfs1" % getBoxType())
 					cmdlist.append("umount /tmp/mmc")
 					cmdlist.append("cp /zImage /media/hdd/%s/linuxrootfs1/" % getBoxType())
-					self.slotStart=2
 					self.Console.eBatch(cmdlist, self.eMMCload, debug=True)
 				else:
 					cmdlist.append("mkdir /tmp/mmc")
@@ -115,7 +113,7 @@ class VuWizard(WizardLanguage, Rc):
 				
 	def eMMCload(self, *args, **kwargs):
 		cmdlist = []
-		for eMMCslot in range(self.slotStart,4):
+		for eMMCslot in range(1,4):
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 		if cmdlist:
