@@ -116,6 +116,7 @@ class VuWizard(WizardLanguage, Rc):
 		for eMMCslot in range(1,4):
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
+				cmdlist.append("rm -r /media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot))				
 		if cmdlist:
 			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
 		else:
