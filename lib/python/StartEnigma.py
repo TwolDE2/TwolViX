@@ -618,6 +618,7 @@ def runScreenTest():
 	Tools.Trashcan.init(session)
 
 	CiHandler.setSession(session)
+	
 	screensToRun = [p.fnc for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
 	profile("wizards")
 	screensToRun += wizardManager.getWizards()
