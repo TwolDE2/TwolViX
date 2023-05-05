@@ -7,7 +7,8 @@ def InitSetupDevices():
 	def languageNotifier(configElement):
 		language.InitLang()	
 		language.activateLanguage(configElement.value)
-
+		print("[InitSetupDevices] activate language")
+		
 	config.osd = ConfigSubsection()
 	config.osd.language = ConfigText(default="en_GB")
 	config.osd.language.addNotifier(languageNotifier)
