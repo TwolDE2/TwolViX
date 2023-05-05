@@ -47,13 +47,10 @@ class VuWizard(WizardLanguage, Rc):
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 				slotlist.append(eMMCslot)			
 		popup = self.session.openWithCallback(self.welcomeAction, MessageBox, _("Welcome to OpenViX!\n\n"
-			"Your Vu4K receiver is capable of Multiboot or Vu Standalone options\n"
-			"If you wish to use the Standard Vu image setup, enter No.\n\n"
-			"Select Yes to continue with Vu Multiboot initialisation.\n\n "
-			"Note:- restoring eMMC slots %s takes upto 5 minutes per slot.\n\n" 
-			"Receiver will then reboot to finalise Recovery image.\n" 
-			"- to boot restored slot, from Menu, select Standby & Restart, MultiBootSelector, slot.\n"
-			"- to flash multiboot slot, press Exit & Blue button, select ImageManager, flash downloaded image.\n" % slotlist), type=MessageBox.TYPE_YESNO, timeout=-1, default=False)			
+			"Select No to use the Standard Vu image setup.\n\n"
+			"Select Yes to setup a Multiboot image on your Vu+.\n\n "
+			"Note:- restoring backups of any eMMC slots (%s) takes upto 5 minutes per slot.\n\n" 
+			"Receiver will finalise Recovery image, install an image in multiboot slot 1 and reboot.\n" % slotlist), type=MessageBox.TYPE_YESNO, timeout=-1, default=False) 
 		popup.setTitle(_("Start Wizard - Vu+ 4K install options"))
 
 	def welcomeAction(self, answer):
