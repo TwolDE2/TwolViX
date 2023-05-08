@@ -102,8 +102,6 @@ class LanguageSelection(Screen):
 				self.session.open(TryQuitMainloop, 3)
 			self.close()
 		else:
-			print("[LanguageSelection] save function self.oldActiveLanguage is ", self.oldActiveLanguage)
-			print("[LanguageSelection] save function config.osd.language.value is ", config.osd.language.value)					
 			if self.oldActiveLanguage != config.osd.language.value:
 				self.session.openWithCallback(self.restartGUI, MessageBox, _("GUI needs a restart to apply a new language\nDo you want to restart the GUI now?"), MessageBox.TYPE_YESNO)
 			else:
@@ -111,7 +109,6 @@ class LanguageSelection(Screen):
 
 	def restartGUI(self, answer=True):
 		if answer is True:
-			config.save()
 			self.session.open(TryQuitMainloop, 3)
 		else:
 			self.close()
@@ -169,10 +166,10 @@ class LanguageSelection(Screen):
 			self.setTitle(_("Updating Cache"))
 			self["summarylangname"].setText(_("Updating cache"))
 			return
-		print("[LanguageSelection][run] lang, config.osd.language.value", lang, "   ", config.osd.language.value)
-#		if lang != config.osd.language.value:
-		config.osd.language.setValue(lang)
-		config.osd.language.save()
+
+		if lang != config.osd.language.value:
+			config.osd.language.setValue(lang)
+			config.osd.language.save()
 
 		self.setTitle(_cached("T2"))
 		self["summarylangname"].setText(_cached("T2"))
