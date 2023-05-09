@@ -49,8 +49,8 @@ class VuWizard(WizardLanguage, Rc):
 		popup = self.session.openWithCallback(self.welcomeAction, MessageBox, _("Welcome to OpenViX!\n\n"
 			"Select No to use the Standard Vu image setup.\n\n"
 			"Select Yes to setup a Multiboot image on your Vu+.\n\n "
-			"Note:- restoring backups of %s eMMC slots takes upto 5 minutes per slot.\n\n" 
-			"Receiver will finalise Recovery image, install an image in multiboot slot 1 and reboot.\n" % slotlist), type=MessageBox.TYPE_YESNO, timeout=-1, default=False) 
+			"Note:- restoring %s eMMC slots takes upto 5 minutes per slot.\n\n" 
+			"Wizard will finalise Recovery image, install an image in multiboot slot 1 and reboot.\n" % eMMCslot), type=MessageBox.TYPE_YESNO, timeout=-1, default=False) 
 		popup.setTitle(_("Start Wizard - Vu+ 4K install options"))
 
 	def welcomeAction(self, answer):
