@@ -40,6 +40,5 @@ class StartWizard(WizardLanguage, Rc):
 wizardManager.registerWizard(VideoWizard, config.misc.Vuwizardenabled.value, priority=2)
 wizardManager.registerWizard(VuWizard, config.misc.Vuwizardenabled.value, priority=3)
 wizardManager.registerWizard(VideoWizard, config.misc.videowizardenabled.value, priority=10)
-wizardManager.registerWizard(LanguageWizard, config.misc.languageselected.value, priority=15)
 wizardManager.registerWizard(UserInterfacePositionerWizard, config.misc.firstrun.value, priority=20)
 wizardManager.registerWizard(StartWizard, config.misc.firstrun.value, priority=25)
