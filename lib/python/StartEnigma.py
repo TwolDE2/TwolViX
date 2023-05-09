@@ -411,6 +411,13 @@ try:
 except ImportError:
 	print("[StartEnigma] Error: Twisted not available!")
 
+
+profile("Init:NTPSync")
+print("[StartEnigma]  Initialising NTPSync.")
+from Components.NetworkTime import AutoNTPSync
+AutoNTPSync()
+
+
 profile("LOAD:Plugin")
 print("[StartEnigma]  Initialising Plugins.")
 # initialize autorun plugins and plugin menu entries
@@ -427,7 +434,7 @@ if config.misc.firstrun.value and not osexists('/etc/install'):
 	with open("/etc/install", "w") as f:
 		now = datetime.now()
 		flashdate = now.strftime("%Y-%m-%d")
-		print("[Setting Flash date]", flashdate)
+		print("[StartEnigma][Setting Flash date]", flashdate)
 		f.write(flashdate)
 
 profile("misc")
@@ -494,11 +501,6 @@ profile("Load:VolumeControl")
 print("[StartEnigma]  Initialising VolumeControl.")
 from Components.VolumeControl import VolumeControl
 from Tools.StbHardware import setFPWakeuptime, setRTCtime
-
-profile("Init:NTPSync")
-print("[StartEnigma]  Initialising NTPSync.")
-from Components.NetworkTime import AutoNTPSync
-AutoNTPSync()
 
 profile("Init:skin")
 print("[StartEnigma]  Initialising Skins.")
