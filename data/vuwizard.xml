@@ -1,7 +1,7 @@
 <!--suppress XmlUnboundNsPrefix -->
 <wizard>
 	<step id="start" nextstep="end">
-		<text value="Vu+ multiboot initialisation - PLEASE WAIT!\n  - will take upto 5 minutes plus 5 minutes per restored eMMC slot.\n  After finalising Recovery and image in slot 1, receiver will reboot to slot 1 setup wizard." />
+		<text value="Vu+ multiboot initialisation - PLEASE WAIT!\n  - will take upto 5 minutes plus 5 minutes per restored eMMC slot.\n  - after finalising Recovery and slot1 image, receiver will reboot to slot 1 setup wizard." />
 		<displaytext value="Configure Vu Multiboot interface" />
 		<config screen="VuWizard" module="VuWizard" type="ConfigList" />
 		<code pos="after" async="yes">
