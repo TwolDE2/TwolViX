@@ -42,15 +42,9 @@ class VuWizard(WizardLanguage, Rc):
 	def welcomeWarning(self):
 		if self.welcomeWarning in self.onShow:
 			self.onShow.remove(self.welcomeWarning)
-		slotlist = []	
-		for eMMCslot in range(1,4):
-			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
-				slotlist.append(eMMCslot)			
 		popup = self.session.openWithCallback(self.welcomeAction, MessageBox, _("Welcome to OpenViX!\n\n"
-			"Select No to use the Standard Vu image setup.\n\n"
-			"Select Yes to setup a Multiboot image on your Vu+.\n\n "
-			"Note:- restoring %s eMMC slots takes upto 5 minutes per slot.\n\n" 
-			"Wizard will finalise Recovery image, install image in slot 1 and reboot to slot1 install wizard.\n" % len(eMMCslot)), type=MessageBox.TYPE_YESNO, timeout=-1, default=False) 
+			"Select No to setup Standard Vu image.\n\n"
+			"Select Yes to setup Multiboot."), type=MessageBox.TYPE_YESNO, timeout=-1, default=False)
 		popup.setTitle(_("Start Wizard - Vu+ 4K install options"))
 
 	def welcomeAction(self, answer):
