@@ -261,7 +261,7 @@ class TryQuitMainloop(MessageBox):
 		if recordings or (next_rec_time > 0 and (next_rec_time - time()) < 360):
 			default_yes = False
 			reason = _("Recording(s) are in progress or coming up in few seconds!") + '\n'
-		if eStreamServer.getInstance().getConnectedClients() or StreamServiceList:
+		if [stream for stream in eStreamServer.getInstance().getConnectedClients() if stream[0] != '127.0.0.1'] or StreamServiceList:
 			reason += _("A client is streaming from this box!") + '\n'
 
 		if reason and inStandby:
