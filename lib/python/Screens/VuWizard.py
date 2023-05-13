@@ -109,7 +109,7 @@ class VuWizard(WizardLanguage, Rc):
 				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 				cmdlist.append("rm -r /media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot))
 		if cmdlist:
-			cmdlist.append("rm -rf /media/hdd/%s" % getBoxType())		
+			cmdlist.append("rm -rf /media/hdd/%s" % getBoxType())
 			self.Console.eBatch(cmdlist, self.reBoot, debug=True)
 		else:
 			self.reBoot()
