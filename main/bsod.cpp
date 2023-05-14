@@ -266,7 +266,26 @@ void bsodFatal(const char *component)
 	 * We'd risk destroying things with every additional instruction we're
 	 * executing here.
 	 */
+<<<<<<< HEAD
 	if (component) raise(SIGKILL);
+=======
+
+	if (bsodpython)
+	{
+		bsodrestart = false;
+		bsodhandled = false;
+		p.setBackgroundColor(gRGB(0,0,0,0xFF));
+		p.clear();
+		return;
+	}
+	if (component) {
+		/*
+		 *  We need to use a signal that generate core dump.
+		 */
+		if (eConfigManager::getConfigBoolValue("config.crash.coredump", false)) raise(SIGTRAP);
+		raise(SIGKILL);
+	}
+>>>>>>> b2f1137289 ([Debug] Provide ability to create core dump)
 }
 
 void oops(const mcontext_t &context)

@@ -907,6 +907,7 @@ def InitUsageConfig():
 		raw_stderr_print("\nCHANGE config.crash.debugloglimit=%d\n" % config.crash.debugloglimit.value)
 	config.crash.debugloglimit.addNotifier(report_debugloglimit_change, immediate_feedback=False)
 	config.crash.daysloglimit = ConfigSelectionNumber(min=1, max=30, stepwidth=1, default=8, wraparound=True)
+<<<<<<< HEAD
 	config.crash.sizeloglimit = ConfigSelectionNumber(min=1, max=20, stepwidth=1, default=10, wraparound=True)
 	# config.crash.logtimeformat sets ENIGMA_DEBUG_TIME environmental variable on enigma2 start from enigma2.sh
 	config.crash.logtimeformat = ConfigSelection(default="1", choices=[
@@ -915,6 +916,10 @@ def InitUsageConfig():
 		("2", _("local time")),
 		("3", _("boot time and local time"))])
 	config.crash.logtimeformat.save_forced = True
+=======
+	config.crash.sizeloglimit = ConfigSelectionNumber(min=1, max=250, stepwidth=1, default=10, wraparound=True)
+	config.crash.lastfulljobtrashtime = ConfigInteger(default=-1)
+>>>>>>> b2f1137289 ([Debug] Provide ability to create core dump)
 
 	debugpath = [('/home/root/logs/', '/home/root/')]
 	for p in harddiskmanager.getMountedPartitions():
@@ -931,10 +936,36 @@ def InitUsageConfig():
 		raw_stderr_print("\nCHANGE config.crash.debug_path=%s\n" % config.crash.debug_path.value)
 	config.crash.debug_path.addNotifier(report_debugpath_change, immediate_feedback=False)
 
+<<<<<<< HEAD
 	def updatedebug_path(configElement):
 		if not path.exists(config.crash.debug_path.value):
 			mkdir(config.crash.debug_path.value, 0o755)
 	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback=False)
+=======
+	config.crash.coredump = ConfigYesNo(default=False)
+
+	def updateDebugPath(configElement):
+		debugPath = config.crash.debug_path.value
+		try:
+			makedirs(debugPath, 0o755, exist_ok=True)
+		except OSError as err:
+			print("[UsageConfig] Error %d: Unable to create log directory '%s'!  (%s)" % (err.errno, debugPath, err.strerror))
+
+	choiceList = [("/home/root/logs/", "/home/root/")]
+	for partition in harddiskmanager.getMountedPartitions():
+		if exists(partition.mountpoint) and partition.mountpoint != "/":
+			choiceList.append((pathjoin(partition.mountpoint, "logs", ""), normpath(partition.mountpoint)))
+	config.crash.debug_path = ConfigSelection(default="/home/root/logs/", choices=choiceList)
+	config.crash.debug_path.addNotifier(updateDebugPath, immediate_feedback=False)
+
+	crashlogheader = _("We are really sorry. Your receiver encountered "
+		"a software problem, and needs to be restarted.\n"
+		"Please send the logfile %senigma2_crash_xxxxxx.log to www.opena.tv.\n"
+		"Your receiver restarts in 10 seconds!\n"
+		"Component: enigma2") % config.crash.debug_path.value
+	config.crash.debug_text = ConfigText(default=crashlogheader, fixed_size=False)
+	config.crash.skin_error_crash = ConfigYesNo(default=True)
+>>>>>>> b2f1137289 ([Debug] Provide ability to create core dump)
 
 	def updateStackTracePrinter(configElement):
 		from Components.StackTrace import StackTracePrinter
