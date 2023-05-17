@@ -181,10 +181,8 @@ class Session:
 		reloadNotification.show()
 
 		# empty any cached resolve lists remaining in Directories.py as these may not relate to the skin being loaded
-		from Tools.Directories import fontsResolveList, lcdskinResolveList, skinResolveList
-		skinResolveList = []
-		lcdskinResolveList = []
-		fontsResolveList = []
+		from Tools.Directories import clearResolveLists
+		clearResolveLists()
 
 		# close all open dialogs by emptying the dialog stack
 		# remove any return values and callbacks for a swift exit
