@@ -14,10 +14,6 @@ enigma.eTimer = eBaseImpl.eTimer
 enigma.eSocketNotifier = eBaseImpl.eSocketNotifier
 enigma.eConsoleAppContainer = eConsoleImpl.eConsoleAppContainer
 
-# This includes initializing the translation engine.
-# Moving this further down will break translation.
-# Moving further up will break imports in config.py
-
 
 class Session:
 	def __init__(self, desktop=None, summary_desktop=None, navigation=None):
@@ -289,7 +285,10 @@ class AutoScartControl:
 				self.scartDialog.showMessageBox()
 			else:
 				self.scartDialog.switchToTV()
-				
+
+# SetupDevices includes initializing the translation engine.
+# Moving this further down will break translation.
+# Moving further up will break imports in config.py				
 profile("SetupDevices")
 print("[StartEnigma]  Initialising SetupDevices.")
 from Components.SetupDevices import InitSetupDevices
