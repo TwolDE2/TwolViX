@@ -312,8 +312,18 @@ class AutoScartControl:
 			else:
 				self.scartDialog.switchToTV()
 
-# SetupDevices includes initializing the translation engine.
-# Moving this further down will break translation.
+
+profile("PYTHON_START")
+print("[StartEnigma]  Starting Python Level Initialisation.")
+print("[StartEnigma]  Image Type -> '%s'" % getImageType())
+print("[StartEnigma]  Image Version -> '%s'" % getImageVersion())
+print("[StartEnigma]  Image Build -> '%s'" % getImageBuild())
+if getImageType() != "release":
+	print("[StartEnigma]  Image DevBuild -> '%s'" % getImageDevBuild())
+
+
+# SetupDevices sets up defaults:- language, keyboard, parental & expert config.
+# Moving further down will break translation.
 # Moving further up will break imports in config.py				
 profile("SetupDevices")
 print("[StartEnigma]  Initialising SetupDevices.")
@@ -324,13 +334,6 @@ if getImageArch() in ("aarch64"):
 	from usb.backend import libusb1
 	libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")				
 
-profile("PYTHON_START")
-print("[StartEnigma]  Starting Python Level Initialisation.")
-print("[StartEnigma]  Image Type -> '%s'" % getImageType())
-print("[StartEnigma]  Image Version -> '%s'" % getImageVersion())
-print("[StartEnigma]  Image Build -> '%s'" % getImageBuild())
-if getImageType() != "release":
-	print("[StartEnigma]  Image DevBuild -> '%s'" % getImageDevBuild())
 
 profile("ClientMode")
 print("[StartEnigma]  Initialising ClientMode.")
@@ -357,8 +360,8 @@ if config.clientmode.enabled.value == False:
 
 profile("ParentalControl")
 print("[StartEnigma]  Initialising ParentalControl.")
-from Components.ParentalControl import InitParentalControl
-InitParentalControl()
+import Components.ParentalControl
+Components.ParentalControl.InitParentalControl()
 
 profile("LOAD:Navigation")
 print("[StartEnigma]  Initialising Navigation.")
@@ -509,7 +512,6 @@ profile("InputDevice")
 print("[StartEnigma]  Initialising InputDevice.")
 from Components.InputDevice import InitInputDevices
 InitInputDevices()
-import Components.InputHotplug
 
 profile("UserInterface")
 print("[StartEnigma]  Initialising UserInterface.")
