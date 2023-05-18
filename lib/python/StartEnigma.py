@@ -346,7 +346,7 @@ from skin import readSkin
 profile("LOAD:Tools")
 print("[StartEnigma]  Initialising FallbackFiles.")
 
-from Tools.Directories import InitFallbackFiles, resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_SKIN, SCOPE_CONFIG
+from Tools.Directories import InitFallbackFiles, resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_SKIN
 InitFallbackFiles()
 
 profile("config.misc")
