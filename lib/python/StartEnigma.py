@@ -16,6 +16,32 @@ enigma.eConsoleAppContainer = eConsoleImpl.eConsoleAppContainer
 
 
 class Session:
+
+# Session.open:
+#	 * push current active dialog ("current_dialog") onto stack
+#	 * call execEnd for this dialog
+#	   * clear in_exec flag
+#	   * hide screen
+#	 * instantiate new dialog into "current_dialog"
+#	   * create screens, components
+#	   * read, apply skin
+#	   * create GUI for screen
+#	 * call execBegin for new dialog
+#	   * set in_exec
+#	   * show gui screen
+#	   * call components' / screen's onExecBegin
+# ... screen is active, until it calls "close"...
+# Session.close:
+#	 * assert in_exec
+#	 * save return value
+#	 * start deferred close handler ("onClose")
+#	 * execEnd
+#	   * clear in_exec
+#	   * hide screen
+# .. a moment later:
+# Session.doClose:
+#	 * destroy screen
+
 	def __init__(self, desktop=None, summary_desktop=None, navigation=None):
 		self.desktop = desktop
 		self.summary_desktop = summary_desktop
@@ -383,6 +409,8 @@ except ImportError:
 	def runReactor():
 		enigma.runMainloop()
 
+profile("Twisted Log")
+print("[StartEnigma]  Initialising Twisted Log.")
 try:
 	from twisted.python import log, util
 
@@ -396,14 +424,12 @@ try:
 		msg = log._safeFormat("%(text)s\n", formatDict)
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
-	# backup stdout and stderr redirections
-	backup_stdout = stdout
+	backup_stdout = stdout		# backup stdout and stderr redirections
 	backup_stderr = stderr
 	logger = log.FileLogObserver(stdout)		# do not change or no crashlog
 	log.FileLogObserver.emit = quietEmit
 	log.startLoggingWithObserver(logger.emit)
-	# restore stdout and stderr redirections because of twisted redirections
-	stdout = backup_stdout
+	stdout = backup_stdout		# restore stdout and stderr redirections because of twisted redirections
 	stderr = backup_stderr
 except ImportError:
 	print("[StartEnigma] Error: Twisted not available!")
@@ -445,32 +471,6 @@ from Screens.Screen import Screen, ScreenSummary
 
 profile("Screen")
 Screen.globalScreen = Globals()
-
-# Session.open:
-# * push current active dialog ("current_dialog") onto stack
-# * call execEnd for this dialog
-#   * clear in_exec flag
-#   * hide screen
-# * instantiate new dialog into "current_dialog"
-#   * create screens, components
-#   * read, apply skin
-#   * create GUI for screen
-# * call execBegin for new dialog
-#   * set in_exec
-#   * show gui screen
-#   * call components' / screen's onExecBegin
-# ... screen is active, until it calls "close"...
-# Session.close:
-# * assert in_exec
-# * save return value
-# * start deferred close handler ("onClose")
-# * execEnd
-#   * clear in_exec
-#   * hide screen
-# .. a moment later:
-# Session.doClose:
-# * destroy screen
-
 
 
 # must be above skins and InputDevices
