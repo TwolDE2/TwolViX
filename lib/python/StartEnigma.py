@@ -502,6 +502,10 @@ print("[StartEnigma]  Initialising VolumeControl.")
 from Components.VolumeControl import VolumeControl
 from Tools.StbHardware import setFPWakeuptime, setRTCtime
 
+profile("Load:StackTracePrinter")
+from Components.StackTrace import StackTracePrinter
+StackTracePrinterInst = StackTracePrinter()
+
 profile("Init:skin")
 print("[StartEnigma]  Initialising Skins.")
 from skin import InitSkins
