@@ -292,6 +292,12 @@ def InitUsageConfig():
 	config.misc.disable_background_scan = ConfigYesNo(default=False)
 	config.misc.use_ci_assignment = ConfigYesNo(default=False)
 
+	choicelist = [("0", _("Disabled"))]
+	for i in (10, 50, 100, 500, 1000, 2000):
+		choicelist.append(("%d" % i, _("%d ms") % i))
+
+	config.usage.http_startdelay = ConfigSelection(default="0", choices=choicelist)
+
 	preferredTunerChoicesUpdate()
 
 	config.usage.servicenum_fontsize = ConfigSelectionNumber(default=0, stepwidth=1, min=-8, max=10, wraparound=True)
@@ -935,7 +941,6 @@ def InitUsageConfig():
 		if not path.exists(config.crash.debug_path.value):
 			mkdir(config.crash.debug_path.value, 0o755)
 	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback=False)
-	config.crash.coredump = ConfigYesNo(default=False)
 
 	def updateStackTracePrinter(configElement):
 		from Components.StackTrace import StackTracePrinter
@@ -954,7 +959,7 @@ def InitUsageConfig():
 	config.crash.gstdebugcategory = ConfigSelection(default="*", choices=[("*", _("All")), ("*audio*", _("Audio")), ("*video*", _("Video"))])
 	config.crash.gstdebuglevel = ConfigSelection(default="INFO", choices=["none", "ERROR", "WARNING", "FIXME", "INFO", "DEBUG", "LOG", "TRACE", "MEMDUMP"])
 	config.crash.gstdot = ConfigYesNo(default=False)
-
+	config.crash.coredump = ConfigYesNo(default=False)
 	config.usage.timerlist_showpicons = ConfigYesNo(default=True)
 	config.usage.timerlist_finished_timer_position = ConfigSelection(default="end", choices=[("beginning", _("at beginning")), ("end", _("at end")), ("hide", _("hide"))])
 
