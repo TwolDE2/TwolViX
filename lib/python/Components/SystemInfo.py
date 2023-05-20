@@ -186,7 +186,7 @@ SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
 SystemInfo["rc_model"] = rc_model.getRcFolder()
 SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
 SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4") # due to button limitations of the remote control
-SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "sf8008", "sf8008m", "uniboxhde", 'octagon3') # due to button limitations of the remote control
+SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "octagon1", "octagon3", "sf8008", "sf8008m", "uniboxhde") # due to button limitations of the remote control
 SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",) # Allow multiple functions only if both buttons are present
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
