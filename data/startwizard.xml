@@ -12,13 +12,31 @@ self.selectKey("OK")
 			<text value="Use the up/down keys on your remote control to select an option. After that, press OK." />
 			<displaytext value="Use the up/down keys on your remote control to select an option. After that, press OK." />
 			<list>
-				<listentry caption="Use the wizard to set up basic features" step="nima" />
+				<listentry caption="Use the wizard to set up basic features" step="flashexpander" />
 				<listentry caption="Exit the wizard" step="end" />
 			</list>
 			<code>
 self.clearSelectedKeys()
 self.selectKey("UP")
 self.selectKey("DOWN")
+self["key_yellow"].text = ""
+			</code>
+		</step>
+
+		<step id="flashexpander" nextstep="network">
+			<condition>
+from os import statvfs
+flashSize = statvfs('/')
+flashSize = (flashSize.f_frsize * flashSize.f_blocks) // 2**20
+from Components.SystemInfo import BoxInfo
+self.condition = BoxInfo.getItem("SmallFlash") and flashSize &lt; 511
+			</condition>
+			<text value="Your Box has a small flash size and you need to use FlashExpander to increase your available space. Otherwise your Box will have only a very limited features."/>
+			<displaytext value="Your Box has a small flash size and you need to use FlashExpander to increase your available space. Otherwise your Box will have only a very limited features." />
+			<config screen="InstallWizard" module="InstallWizard" args="2" type="ConfigList" />
+			<code>
+self.clearSelectedKeys()
+self.selectKey("OK")
 			</code>
 		</step>
 		<step id="network" >
@@ -35,6 +53,13 @@ self.selectKey("DOWN")
 			</code>
 		</step>
 		<step id="update">
+			<condition>
+from os import statvfs
+flashSize = statvfs('/')
+flashSize = (flashSize.f_frsize * flashSize.f_blocks) // 2**20
+from Components.SystemInfo import BoxInfo
+self.condition = BoxInfo.getItem("SmallFlash") and (flashSize &gt; 512 or config.flashExpander.device.value != "")
+			</condition>
 			<text value="Checking the internet connection" />
 			<displaytext value="Checking the internet connection" />
 			<config screen="InstallWizard" module="InstallWizard" args="0" type="ConfigList" />
@@ -45,7 +70,8 @@ self.selectKey("OK")
 		</step>
 		<step id="networkfailed" >
 			<condition>
-self.condition = not config.misc.installwizard.ipkgloaded.value
+from Components.SystemInfo import BoxInfo
+self.condition = BoxInfo.getItem("SmallFlash") and not config.misc.installwizard.ipkgloaded.value
 			</condition>
 			<text value="Your receiver does not have an internet connection" />
 			<displaytext value="Your receiver is not connected to the internet" />
@@ -396,7 +422,19 @@ self.clearSelectedKeys()
 self.selectKey("OK")
 			</code>
 		</step>
-
+		<step id="reboot" nextstep="end">
+			<condition>
+from Components.SystemInfo import BoxInfo
+self.condition = BoxInfo.getItem("SmallFlash")
+			</condition>
+			<text value="Thank you for using the wizard. Your receiver needs to restart.\nPlease press OK to restart your receiver." />
+			<displaytext value="Thank you for using the wizard. Your receiver needs to restart.\nPlease press OK to restart your receiver." />
+			<code>
+self.markDone()
+from enigma import quitMainloop
+quitMainloop(3)
+			</code>
+		</step>
 		<step id="end" laststep="true">
 			<condition>
 self.condition = self.isLastWizard

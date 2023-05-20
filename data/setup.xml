@@ -151,8 +151,8 @@
 		</if>
 	</setup>
 	<setup key="FlashExpander" title="Flash Expander">
-		<item level="0" text="Target Device" description="Choose the target device for the /usr directory.">self.selection</item>
-	</setup>	
+		<item level="0" text="Target location" description="Choose the target location for the expanded '/usr' directory.">config.flashExpander.location</item>
+	</setup>
 	<setup key="subtitlesetup" title="Subtitles">
 		<item level="2" text="Teletext subtitle color" description="Configure the color of the teletext subtitles.">config.subtitles.ttx_subtitle_colors</item>
 		<item level="2" text="Use original teletext position" description="When enabled, teletext subtitles will be displayed at their original position.">config.subtitles.ttx_subtitle_original_position</item>
