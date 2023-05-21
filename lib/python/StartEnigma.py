@@ -459,7 +459,7 @@ from Plugins.Plugin import PluginDescriptor
 if config.misc.firstrun.value and not osexists('/etc/install'):
 	with open("/etc/install", "w") as f:
 		now = datetime.now()
-		flashdate = now.strftime("%Y-%m-%d")
+		flashdate = now.strftime("%Y%m%d")
 		print("[StartEnigma][Setting Flash date]", flashdate)
 		f.write(flashdate)
 
