@@ -151,7 +151,7 @@ class VuWizard(WizardLanguage, Rc):
 			self.bootSlot()
 
 
-	def bootSlot((self, *args, **kwargs):		
+	def bootSlot(self, *args, **kwargs):		
 		self.Console.ePopen("killall -9 enigma2 && init 6")
 
 	def exitWizardQuestion(self, ret=False):
