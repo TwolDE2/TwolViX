@@ -176,7 +176,6 @@ class VuWizard(WizardLanguage, Rc):
 			print("[VuWizard] cmdlist", cmdlist)						
 			if cmdlist:	
 				cmdlist.append("rm -f /usr/share/fonts/wqy-microhei.ttc")
-				cmdlist.append("rm -f /usr/lib/libdvb_base.so")					
 				self.Console.eBatch(cmdlist, self.bootSlot, debug=True)			
 		else:
 			self.bootSlot()
