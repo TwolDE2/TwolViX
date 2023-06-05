@@ -148,16 +148,15 @@ class VuWizard(WizardLanguage, Rc):
 	def readOPKG(self, result, retval, extra_args):
 		print("[VuWizard] retval, result", retval, "   ", result)	
 		if result:
-			cmdlist = []		
-			opkg_installed_list = result.split("\n")
-			for opkg_status in opkg_sinstalled_list:
-				opkg_installed_split = opkg_installed.split("\n")
-				for line in opkg_installed_split:
-					print("[VuWizard][Installed ....] line", line)				
-#					if line.__contains__("plugin-systemplugins") or line.__contains__("plugin-extensions") or line.__contains__("webkit-gtk") or line.__contains__("wpa-supplicant") or line.__contains__("glibc") or line.__contains__("tzdata") or line.__contains__("gnome-themes") or line.__contains__("firmware")  or line.__contains__("kernel-module"):					
-					if bool([x for x in patterns if x in line]):
-						parts = line.strip().split()
-						print("[VuWizard] parts, parts0", parts, "   ", parts[0])							
+			cmdlist = []
+			opkg_modules_list = result.split("\n")
+			for opkg_modules in opkg_modules_list:
+				opkg_modules_split = opkg_modules.split("\n")
+				for module in opkg_modules_split:			
+#					print("[VuWizard][Installed ....] module", module)				
+					if bool([x for x in patterns if x in module]):
+						parts = module.strip().split()
+#						print("[VuWizard] parts, parts0", parts, "   ", parts[0])							
 						cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends") 
 						continue
 			print("[VuWizard] cmdlist", cmdlist)						
@@ -167,5 +166,5 @@ class VuWizard(WizardLanguage, Rc):
 			self.bootSlot()
 
 
-	def bootSlot(self, *args, **kwargs):		
+	def bootSlot(self, *args, **kwargs):
 		self.Console.ePopen("killall -9 enigma2 && init 6")
