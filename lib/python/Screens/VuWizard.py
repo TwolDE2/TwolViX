@@ -23,7 +23,8 @@ patterns = [
 	"firmware",
 	"kernel-module",
 	"lib-samba",
-	"lib-smb",	
+	"lib-smb",
+	"samba4",		
 ]
 
 STARTUP = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot()					# /STARTUP
