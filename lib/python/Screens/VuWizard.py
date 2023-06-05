@@ -15,18 +15,32 @@ from Tools.Directories import fileExists, pathExists, resolveFilename, SCOPE_SKI
 patterns = [
 	"plugin-systemplugins",
 	"plugin-extensions",
-	"webkit",
-	"wpa-supplicant",
+	"packagegroup-base-alsa",
+	"packagegroup-base-bluetooth",
+	"packagegroup-base-smbfs",
+	"packagegroup-base-smbfs-client",
+	"packagegroup-base-smbfs-server",
+	"python3-pyasn1",
+	"python3-pyasn1-modules",
+	"python3-cryptography",
+	"python3-future",
+	"python3-mime",
+	"alsa",
+	"firmware",	
 	"glibc",
-	"tzdata",
 	"gnome-themes",
-	"firmware",
 	"kernel-module",
 	"lib-samba",
-	"lib-smb",
-	"samba4",		
+	"lib-smb",			
+	"mime",
+	"samba4",	
+	"tzdata",
+	"webkit",
+	"wpa-supplicant",	
+	"skins-openvix-youvix",
+	"skins-openvix-vix",
+	"skins-openvix-magic",		
 ]
-
 STARTUP = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot()					# /STARTUP
 STARTUP_RECOVERY = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot() 			# /STARTUP_RECOVERY
 STARTUP_1 = "kernel=/linuxrootfs1/zImage root=/dev/%s rootsubdir=linuxrootfs1" % getMachineMtdRoot() 	# /STARTUP_1
@@ -160,7 +174,9 @@ class VuWizard(WizardLanguage, Rc):
 						cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends") 
 						continue
 			print("[VuWizard] cmdlist", cmdlist)						
-			if cmdlist:			
+			if cmdlist:	
+				cmdlist.append("rm -f /usr/share/fonts/wqy-microhei.ttc")
+				cmdlist.append("rm -f /usr/lib/libdvb_base.so")					
 				self.Console.eBatch(cmdlist, self.bootSlot, debug=True)			
 		else:
 			self.bootSlot()
