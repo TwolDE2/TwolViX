@@ -15,13 +15,15 @@ from Tools.Directories import fileExists, pathExists, resolveFilename, SCOPE_SKI
 patterns = [
 	"plugin-systemplugins",
 	"plugin-extensions",
-	"webkit-gtk",
+	"webkit",
 	"wpa-supplicant",
 	"glibc",
 	"tzdata",
 	"gnome-themes",
 	"firmware",
 	"kernel-module",
+	"lib-samba",
+	"lib-smb",	
 ]
 
 STARTUP = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot()					# /STARTUP
