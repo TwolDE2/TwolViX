@@ -12,6 +12,18 @@ from Screens.WizardLanguage import WizardLanguage
 from Tools.Directories import fileExists, pathExists, resolveFilename, SCOPE_SKIN
 
 
+patterns = [
+	"plugin-systemplugins",
+	"plugin-extensions",
+	"webkit-gtk",
+	"wpa-supplicant",
+	"glibc",
+	"tzdata",
+	"gnome-themes",
+	"firmware",
+	"kernel-module",
+]
+
 STARTUP = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot()					# /STARTUP
 STARTUP_RECOVERY = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot() 			# /STARTUP_RECOVERY
 STARTUP_1 = "kernel=/linuxrootfs1/zImage root=/dev/%s rootsubdir=linuxrootfs1" % getMachineMtdRoot() 	# /STARTUP_1
@@ -129,6 +141,7 @@ class VuWizard(WizardLanguage, Rc):
 		self.ConsoleS.ePopen("/usr/bin/opkg list_installed", self.readOPKG)
 		
 
+
 	def readOPKG(self, result, retval, extra_args):
 		print("[VuWizard] retval, result", retval, "   ", result)	
 		if result:
@@ -138,8 +151,8 @@ class VuWizard(WizardLanguage, Rc):
 				opkg_installed_split = opkg_installed.split("\n")
 				for line in opkg_installed_split:
 					print("[VuWizard][Installed ....] line", line)				
-					if line.__contains__("plugin-systemplugins") or line.__contains__("plugin-extensions") or line.__contains__("webkit-gtk") or line.__contains__("wpa-supplicant") or line.__contains__("glibc") or line.__contains__("tzdata") or line.__contains__("gnome-themes") or line.__contains__("firmware")  or line.__contains__("kernel-module"):					
-#					if line.__contains__("plugin-systemplugins", "plugin-extensions", "webkit-gtk", "wpa-supplicant", "glibc", "tzdata", "gnome-themes", "firmware", "kernel-module"):
+#					if line.__contains__("plugin-systemplugins") or line.__contains__("plugin-extensions") or line.__contains__("webkit-gtk") or line.__contains__("wpa-supplicant") or line.__contains__("glibc") or line.__contains__("tzdata") or line.__contains__("gnome-themes") or line.__contains__("firmware")  or line.__contains__("kernel-module"):					
+					if bool([x for x in patterns if x in line]):
 						parts = line.strip().split()
 						print("[VuWizard] parts, parts0", parts, "   ", parts[0])							
 						cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends") 
@@ -153,17 +166,3 @@ class VuWizard(WizardLanguage, Rc):
 
 	def bootSlot(self, *args, **kwargs):		
 		self.Console.ePopen("killall -9 enigma2 && init 6")
-
-	def exitWizardQuestion(self, ret=False):
-		if ret:
-			self.markDone()
-			self.close()
-
-	def markDone(self):
-		pass
-
-	def run(self):
-		pass
-
-	def back(self):
-		WizardLanguage.back(self)
