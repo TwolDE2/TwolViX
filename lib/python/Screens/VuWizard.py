@@ -34,13 +34,18 @@ patterns = [
 	"lib-smb",			
 	"mime",
 	"samba4",	
-	"tzdata",
+#	"tzdata",
 	"webkit",
 	"wpa-supplicant",	
 	"skins-openvix-youvix",
 	"skins-openvix-vix",
 	"skins-openvix-magic",		
 ]
+
+patterns_locale = [
+	"enigma2-locale",
+]
+
 STARTUP = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot()					# /STARTUP
 STARTUP_RECOVERY = "kernel=/zImage root=/dev/%s rootsubdir=linuxrootfs0" % getMachineMtdRoot() 			# /STARTUP_RECOVERY
 STARTUP_1 = "kernel=/linuxrootfs1/zImage root=/dev/%s rootsubdir=linuxrootfs1" % getMachineMtdRoot() 	# /STARTUP_1
@@ -141,7 +146,7 @@ class VuWizard(WizardLanguage, Rc):
 				cmdlist.append("rm -r /media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot))
 		if cmdlist:
 			cmdlist.append("rm -rf /media/hdd/%s" % getBoxType())
-			self.Console.eBatch(cmdlist, self.reBoot, debug=True)
+			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
 		else:
 			self.reBoot()
 
@@ -155,28 +160,33 @@ class VuWizard(WizardLanguage, Rc):
 		config.misc.firstrun.value = 0
 		config.misc.firstrun.save()
 		configfile.save()
-		self.ConsoleS.ePopen("/usr/bin/opkg list_installed", self.readOPKG)
+		self.ConsoleS.ePopen("/usr/bin/opkg list_installed", self.readOpkg)
 		
 
 
-	def readOPKG(self, result, retval, extra_args):
-		print("[VuWizard] retval, result", retval, "   ", result)	
+	def readOpkg(self, result, retval, extra_args):
+#		print("[VuWizard] retval, result", retval, "   ", result)
 		if result:
 			cmdlist = []
-			opkg_modules_list = result.split("\n")
-			for opkg_modules in opkg_modules_list:
-				opkg_modules_split = opkg_modules.split("\n")
-				for module in opkg_modules_split:			
-#					print("[VuWizard][Installed ....] module", module)				
-					if bool([x for x in patterns if x in module]):
-						parts = module.strip().split()
-#						print("[VuWizard] parts, parts0", parts, "   ", parts[0])							
-						cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends") 
+			opkg_installed_list = result.split("\n")										# python list installed elements
+#			print("[AboutUserInstalledPlugins] opkg_installed_list", opkg_installed_list)
+			for opkg_element in opkg_installed_list:										# element e.g. opkg_status aio-grab - 1.0+git116+30847a1-r0
+				if bool([x for x in patterns if x in opkg_element]):
+					parts = opkg_element.strip().split()
+#					print("[AboutUserInstalledPlugins]1 parts, parts0", parts, "   ", parts[0])
+					cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends") 
+					continue
+				if bool([x for x in patterns_locale if x in opkg_element]):
+					if "en-gb" in opkg_element or "meta" in opkg_element:
 						continue
-			print("[VuWizard] cmdlist", cmdlist)						
+					parts = opkg_element.strip().split()
+#					print("[AboutUserInstalledPlugins]2 parts, parts0", parts, "   ", parts[0])
+					cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends") 
+					continue
+#			print("[VuWizard] cmdlist", cmdlist)
 			if cmdlist:	
 				cmdlist.append("rm -f /usr/share/fonts/wqy-microhei.ttc")
-				self.Console.eBatch(cmdlist, self.bootSlot, debug=True)			
+				self.Console.eBatch(cmdlist, self.bootSlot, debug=False)
 		else:
 			self.bootSlot()
 
