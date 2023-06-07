@@ -266,6 +266,14 @@ void bsodFatal(const char *component)
 	 * We'd risk destroying things with every additional instruction we're
 	 * executing here.
 	 */
+	if (bsodpython)
+	{
+		bsodrestart = false;
+		bsodhandled = false;
+		p.setBackgroundColor(gRGB(0,0,0,0xFF));
+		p.clear();
+		return;
+	}
 	if (component) {
 		/*
 		 *  We need to use a signal that generate core dump.
