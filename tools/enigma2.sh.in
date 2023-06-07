@@ -400,7 +400,6 @@ case $ret in
 		fi
 		/sbin/reboot
 		;;
-		
 	16)
 		if [ -e /dev/block/by-name/flag ]; then
 			echo -n "0" > /dev/block/by-name/flag
