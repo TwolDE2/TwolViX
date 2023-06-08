@@ -31,15 +31,14 @@ patterns = [
 	"gnome-themes",
 	"kernel-module",
 	"lib-samba",
-	"lib-smb",			
+	"lib-smb",
 	"mime",
-	"samba4",	
-#	"tzdata",
+	"samba4",
 	"webkit",
-	"wpa-supplicant",	
+	"wpa-supplicant",
 	"skins-openvix-youvix",
 	"skins-openvix-vix",
-	"skins-openvix-magic",		
+	"skins-openvix-magic",
 ]
 
 patterns_locale = [
@@ -61,7 +60,7 @@ class VuWizard(WizardLanguage, Rc):
 		self.skinName = ["VuWizard", "StartWizard"]
 		self.session = session
 		self.Console = Console(binary=True)
-		self.ConsoleS = Console()		
+		self.ConsoleS = Console()
 		self["wizard"] = Pixmap()
 		self["HelpWindow"] = Pixmap()
 		self["HelpWindow"].hide()
@@ -79,7 +78,7 @@ class VuWizard(WizardLanguage, Rc):
 			self.onShow.remove(self.welcomeWarning)
 		popup = self.session.openWithCallback(self.welcomeAction, MessageBox, _("Welcome to OpenViX!\n\n"
 			"Select 'Standard' to setup Standard Vu+ image.\n\n"
-			"Select 'Multiboot' to setup Vu+ Multiboot."), type=MessageBox.TYPE_YESNO, timeout=-1, 
+			"Select 'Multiboot' to setup Vu+ Multiboot."), type=MessageBox.TYPE_YESNO, timeout=-1,
 			default=False, list=[(_("Standard"), False), (_("Multiboot"), True)])
 		popup.setTitle(_("Vu+ 4K image install options"))
 
@@ -117,7 +116,7 @@ class VuWizard(WizardLanguage, Rc):
 				if hddExt4:
 					if not pathExists("/media/hdd/%s" % getBoxType()):
 						cmdlist.append("mkdir /media/hdd/%s" % getBoxType())
-					if  pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
+					if pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
 						cmdlist.append("rm -rf /media/hdd/%s/linuxrootfs1" % getBoxType())
 					cmdlist.append("mkdir /tmp/mmc")
 					cmdlist.append("mount /dev/%s /tmp/mmc" % getMachineMtdRoot())
@@ -137,10 +136,9 @@ class VuWizard(WizardLanguage, Rc):
 		else:
 			self.close()
 
-
 	def eMMCload(self, *args, **kwargs):
 		cmdlist = []
-		for eMMCslot in range(1,4):
+		for eMMCslot in range(1, 4):
 			if pathExists("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot)):
 				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 				cmdlist.append("rm -r /media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot))
@@ -161,8 +159,6 @@ class VuWizard(WizardLanguage, Rc):
 		config.misc.firstrun.save()
 		configfile.save()
 		self.ConsoleS.ePopen("/usr/bin/opkg list_installed", self.readOpkg)
-		
-
 
 	def readOpkg(self, result, retval, extra_args):
 #		print("[VuWizard] retval, result", retval, "   ", result)
@@ -174,14 +170,14 @@ class VuWizard(WizardLanguage, Rc):
 				if bool([x for x in patterns if x in opkg_element]):
 					parts = opkg_element.strip().split()
 #					print("[AboutUserInstalledPlugins]1 parts, parts0", parts, "   ", parts[0])
-					cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends") 
+					cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends")
 					continue
 				if bool([x for x in patterns_locale if x in opkg_element]):
-					if "en-gb" in opkg_element or "meta" in opkg_element:
+					if "en-gb" in opkg_element or "meta" in opkg_element:		# en-gb for OpenViX default - ensure don't clear .po
 						continue
 					parts = opkg_element.strip().split()
 #					print("[AboutUserInstalledPlugins]2 parts, parts0", parts, "   ", parts[0])
-					cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends") 
+					cmdlist.append("/usr/bin/opkg remove --autoremove --add-dest /:/ " + parts[0] + " --force-remove --force-depends")
 					continue
 #			print("[VuWizard] cmdlist", cmdlist)
 			if cmdlist:	
@@ -189,7 +185,6 @@ class VuWizard(WizardLanguage, Rc):
 				self.Console.eBatch(cmdlist, self.bootSlot, debug=False)
 		else:
 			self.bootSlot()
-
 
 	def bootSlot(self, *args, **kwargs):
 		self.Console.ePopen("killall -9 enigma2 && init 6")
