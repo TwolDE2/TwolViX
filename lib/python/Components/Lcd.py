@@ -192,7 +192,6 @@ def InitLcd():
 
 	if SystemInfo["7segment"]:
 		detected = True
-
 	ilcd = LCD()
 
 	SystemInfo["Display"] = detected

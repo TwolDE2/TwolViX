@@ -18,7 +18,7 @@ config.misc.networkenabled = ConfigBoolean(default=False)
 config.misc.Vuwizardenabled = ConfigBoolean(default=False)
 if fileExists("/usr/bin/kernel_auto.bin") and fileExists("/usr/bin/STARTUP.cpio.gz") and not fileHas("/proc/cmdline", "kexec=1") and config.misc.firstrun.value:
 	config.misc.Vuwizardenabled.value = True
-print("[StartWizard][import] import.......")	
+print("[StartWizard][import] import.......")
 
 class StartWizard(WizardLanguage, Rc):
 	def __init__(self, session, silent=True, showSteps=False, neededTag=None):
@@ -29,7 +29,7 @@ class StartWizard(WizardLanguage, Rc):
 		print("[StartWizard][Init] import.......")
 
 	def markDone(self):		# setup remote control
-		print("[StartWizard][markDone] save rcused firstrun.......")	
+		print("[StartWizard][markDone] save rcused firstrun.......")
 		config.misc.rcused.value = 1
 		config.misc.rcused.save()
 

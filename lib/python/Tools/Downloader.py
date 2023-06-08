@@ -21,10 +21,10 @@ class DownloadWithProgress:
 		self.timer = eTimer()
 		self.timer.callback.append(self.reportProgress)
 		self.requestHeader = {"User-agent": self.userAgent}
-		self.userHeader = kwargs.get('headers', None)	
+		self.userHeader = kwargs.get('headers', None)
 		if self.userHeader is not None:
 			self.requestHeader = self.requestHeader | self.userHeader
-			
+
 	def start(self):
 		try:
 			request = Request(self.url, None, self.requestHeader)

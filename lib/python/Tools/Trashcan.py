@@ -180,7 +180,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 						fn = ospath.join(root, name)
 						try:			# file may not exist, if dual delete activities.
 							st = stat(fn)
-						except FileNotFoundError:						
+						except FileNotFoundError:
 							print("[Trashcan][CleanTrashTask[work]  FileNotFoundError ", fn)
 							continue
 						if st.st_ctime < self.ctimeLimit or config.usage.movielist_trashcan_days.value == 0:
@@ -195,7 +195,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 						try:
 							rmdir(ospath.join(root, name))
 						except Exception as e:
-							print("[Trashcan][CleanTrashTask][work] unable to delete directory ", root, "/", name, "   ", e)	
+							print("[Trashcan][CleanTrashTask][work] unable to delete directory ", root, "/", name, "   ", e)
 							pass
 					candidates.sort()
 					# Now we have a list of ctime, candidates, size. Sorted by ctime (=deletion time)
@@ -208,7 +208,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 							pass
 						bytesToRemove -= st_size
 						size -= st_size
-					print("[Trashcan][CleanTrashTask][work]   " + str(trashfolder) + ": Size now:", "{:,}".format(size))
+					print("[Trashcan][CleanTrashTask][work] " + str(trashfolder) + ": Size now:", "{:,}".format(size))
 
 
 class TrashInfo(VariableText, GUIComponent):

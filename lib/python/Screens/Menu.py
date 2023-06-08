@@ -32,7 +32,7 @@ def MenuEntryPixmap(entryID, png_cache, parentMenuEntryID):
 	isMenuIcons = int(parameters.get("MenuIcons", 0)) == 1
 	if not isMenuIcons:
 		return None
-	
+
 	icoSize = int(parameters.get("MenuIconsSize", 192))
 	width = icoSize
 	height = icoSize
@@ -41,10 +41,10 @@ def MenuEntryPixmap(entryID, png_cache, parentMenuEntryID):
 		pngPath = resolveFilename(SCOPE_GUISKIN, "menu/" + entryID + ".svg")
 		pos = config.skin.primary_skin.value.rfind('/')
 		if pos > -1:
-			current_skin = config.skin.primary_skin.value[:pos+1]
+			current_skin = config.skin.primary_skin.value[:pos + 1]
 		else:
 			current_skin = ""
-		if ( current_skin in pngPath and current_skin ) or not current_skin:
+		if (current_skin in pngPath and current_skin) or not current_skin:
 			png = LoadPixmap(pngPath, cached=True, width=width, height=0 if pngPath.endswith(".svg") else height) #looking for a dedicated icon
 		if png is None: # no dedicated icon found
 			if parentMenuEntryID is not None: # check do we have parent menu item that can use for icon
@@ -147,7 +147,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 					return
 			elif not SystemInfo.get(requires, False):
 				return
-		# print("[Menu][addMenu] Menu text=", node.get("text", "??"))				
+		# print("[Menu][addMenu] Menu text=", node.get("text", "??"))
 		MenuTitle = str(_(node.get("text", "??")))
 		entryID = node.get("entryID", "undefined")
 		weight = node.get("weight", 50)
@@ -187,7 +187,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 			return
 		# print("[Menu][addItem] item text=", node.get("text", "* Undefined *"))
 		item_text = str(node.get("text", "* Undefined *"))
-		
+
 		if item_text:
 			item_text = _(item_text)
 		entryID = node.get("entryID", "undefined")
@@ -432,7 +432,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 
 	def isProtected(self):
 		if config.ParentalControl.setuppinactive.value:
-			if config.ParentalControl.config_sections.main_menu.value and not(hasattr(self.session, 'infobar') and self.session.infobar is None):
+			if config.ParentalControl.config_sections.main_menu.value and not (hasattr(self.session, 'infobar') and self.session.infobar is None):
 				return self.menuID == "mainmenu"
 			elif config.ParentalControl.config_sections.configuration.value and self.menuID == "setup":
 				return True

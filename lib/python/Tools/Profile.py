@@ -34,8 +34,7 @@ except IOError:
 def profile(id):
 	now = time.time() - profile_start
 
-
-	(dev, fmt) = dev_fmt =("/proc/progress", "%d \n")
+	(dev, fmt) = dev_fmt = ("/proc/progress", "%d \n")
 
 	if profile_file:
 		profile_file.write("%7.3f\t%s\n" % (now, id))

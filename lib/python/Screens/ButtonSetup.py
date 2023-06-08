@@ -19,7 +19,7 @@ from Tools.BoundFunction import boundFunction
 
 from time import time
 
-ButtonSetupKeys = [	(_("Red"), "red", "Infobar/openSingleServiceEPG/1"),
+ButtonSetupKeys = [(_("Red"), "red", "Infobar/openSingleServiceEPG/1"),
 	(_("Red long"), "red_long", "Infobar/activateRedButton"),
 	(_("Green"), "green", ""),
 	(_("Green long"), "green_long", "Infobar/showAutoTimerList"),
@@ -90,7 +90,7 @@ ButtonSetupKeys = [	(_("Red"), "red", "Infobar/openSingleServiceEPG/1"),
 	(_("F4"), "f4", ""),
 	(_("F4 long"), "f4_long", ""),
 	(_("WWW"), "www", ""),
-	(_("WWW long"), "www_long", "") ]
+	(_("WWW long"), "www_long", "")]
 
 config.misc.ButtonSetup = ConfigSubsection()
 config.misc.ButtonSetup.additional_keys = ConfigYesNo(default=True)
@@ -454,7 +454,6 @@ class InfoBarButtonSetup():
 			self.ButtonSetupFunctions = getButtonSetupFunctions()
 			self.ButtonSetupFunctionsCheck = t
 		return self.ButtonSetupFunctions
-			
 
 	def clearLongkeyPressed(self):
 		self.longkeyPressed = False
@@ -547,7 +546,7 @@ class InfoBarButtonSetup():
 				except Exception as e:
 					print("[ButtonSetup] error during executing module %s, screen %s, %s" % (selected[1], selected[2], e))
 					import traceback
-					traceback.print_exc()					
+					traceback.print_exc()
 			elif selected[0] == "Setup":
 				from Screens.Setup import Setup
 				exec("self.session.open(Setup, \"%s\")" % selected[1])

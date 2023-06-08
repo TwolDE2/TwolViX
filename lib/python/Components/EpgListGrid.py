@@ -251,19 +251,19 @@ class EPGListGrid(EPGListBase):
 		EPGListBase.setItemsPerPage(self, 54)
 		if not self.isInfobar and config.epgselection.grid.heightswitch.value:
 			numberOfRows = (self.listHeight // self.itemHeight) or 8
-			if ((self.listHeight // numberOfRows) // 3) >= 27:
-				tmpItemHeight = ((self.listHeight // numberOfRows) // 3)
-			elif ((self.listHeight // numberOfRows) // 2) >= 27:
-				tmpItemHeight = ((self.listHeight // numberOfRows) // 2)
+			if ((self.listHeight / numberOfRows) / 3) >= 27:
+				tmpItemHeight = int((self.listHeight / numberOfRows) / 3)
+			elif ((self.listHeight / numberOfRows) / 2) >= 27:
+				tmpItemHeight = int((self.listHeight / numberOfRows) / 2)
 			else:
 				tmpItemHeight = 27
 			if tmpItemHeight < self.itemHeight:
 				self.itemHeight = tmpItemHeight
 			else:
-				if ((self.listHeight // numberOfRows) * 3) <= 45:
-					self.itemHeight = ((self.listHeight // numberOfRows) * 3)
-				elif ((self.listHeight // numberOfRows) * 2) <= 45:
-					self.itemHeight = ((self.listHeight // numberOfRows) * 2)
+				if ((self.listHeight / numberOfRows) * 3) <= 45:
+					self.itemHeight = int((self.listHeight / numberOfRows) * 3)
+				elif ((self.listHeight / numberOfRows) * 2) <= 45:
+					self.itemHeight = int((self.listHeight / numberOfRows) * 2)
 				else:
 					self.itemHeight = 45
 			self.l.setItemHeight(self.itemHeight)
@@ -533,7 +533,7 @@ class EPGListGrid(EPGListBase):
 				if serviceTimers is not None:
 					# Code below: "+ (20 if config.recording.margin_before.value == 0 else 0)"
 					# When recording-start-margin is zero allow recordings that start up to 20 seconds
-					# after the program boundary to still produce matchType in (2, 3). This allows 
+					# after the program boundary to still produce matchType in (2, 3). This allows
 					# correct display of "epg/RecordEvent.png" when multiple recodings are programmed to
 					# start at the same instant.
 					timer, matchType = RecordTimer.isInTimerOnService(serviceTimers, stime + (20 if config.recording.margin_before.value == 0 else 0), duration)

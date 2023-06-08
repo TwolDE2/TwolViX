@@ -78,6 +78,7 @@ scopeLCDSkin = defaultPaths[SCOPE_LCDSKIN][0]
 scopeFonts = defaultPaths[SCOPE_FONTS][0]
 scopePlugins = defaultPaths[SCOPE_PLUGINS][0]
 
+
 def addInList(*paths):
 	return [path for path in paths if pathIsdir(path)]
 
@@ -85,6 +86,7 @@ def addInList(*paths):
 skinResolveList = []
 lcdskinResolveList = []
 fontsResolveList = []
+
 
 def clearResolveLists():
 	global skinResolveList, lcdskinResolveList, fontsResolveList
@@ -249,7 +251,7 @@ def resolveFilename(scope, base="", path_prefix=None):
 
 def getPrimarySkinResolution():
 	from Components.config import config # deferred import
-	resolutions = ["480", "576", "720", "1080", "2160", "4320", "8640"] 
+	resolutions = ["480", "576", "720", "1080", "2160", "4320", "8640"]
 	resolution = None
 	skin = resolveFilename(SCOPE_SKIN, config.skin.primary_skin.value)
 	if not fileExists(skin):
@@ -426,6 +428,7 @@ def fileReadXML(filename, default=None, *args, **kwargs):
 		elif isinstance(default, Element):
 			dom = default
 	return dom
+
 
 def getRecordingFilename(basename, dirname=None):
 	# Filter out non-allowed characters.
@@ -625,7 +628,7 @@ def mediafilesInUse(session):
 			filename = None
 		else:
 			filename = pathBasename(filename)
-	return set([file for file in files if not(filename and file == filename and files.count(filename) < 2)])
+	return set([file for file in files if not (filename and file == filename and files.count(filename) < 2)])
 
 # Prepare filenames for use in external shell processing. Filenames may
 # contain spaces or other special characters.  This method adjusts the

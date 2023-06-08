@@ -17,7 +17,6 @@ from Screens.Standby import TryQuitMainloop
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
 
-
 inWizzard = False
 
 
@@ -179,13 +178,8 @@ class LanguageSelection(Screen):
 
 		if justlocal:
 			return
-		print("[LanguageSelection] updating language...config.misc.languageselected lang", lang)
-		language.activateLanguage(lang)
 
-		if lang != config.osd.language.value:
-			config.osd.language.setValue(lang)
-			config.osd.language.save()
-		print("[Language] Activating language config.osd.language.value", config.osd.language.value)		
+		language.activateLanguage(lang)
 		config.misc.languageselected.value = 0
 		config.misc.languageselected.save()
 
