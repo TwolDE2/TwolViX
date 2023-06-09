@@ -128,8 +128,7 @@ class VuWizard(WizardLanguage, Rc):
 					cmdlist.append("mkdir /tmp/mmc")
 					cmdlist.append("mkdir /linuxrootfs1")
 					cmdlist.append("mount /dev/%s /tmp/mmc" % getMachineMtdRoot())
-					cmdlist.append("/bin/tar -jcf /tmp/linuxrootfs1.tar.bz2 -C /tmp/mmc --exclude ./var/nmbd --exclude ./.resizerootfs --exclude ./linuxrootfs* --exclude ./.resize-rootfs --exclude ./.resize-linuxrootfs --exclude ./.resize-userdata --exclude ./var/lib/samba/private/msg.sock .")
-					cmdlist.append("/bin/tar -jxf /tmp/linuxrootfs1.tar.bz2 -C /linuxrootfs1 .")
+					cmdlist.append("/bin/tar -cf - -C ./tmp/mmc --exclude ./var/nmbd --exclude ./.resizerootfs --exclude ./linuxrootfs* --exclude ./.resize-rootfs --exclude ./.resize-linuxrootfs --exclude ./.resize-userdata --exclude ./var/lib/samba/private/msg.sock . | /bin/tar -xf - -C /linuxrootfs1 .")
 					cmdlist.append("cp /zimage /linuxrootfs1/")
 					cmdlist.append("umount /tmp/mmc")
 					self.Console.eBatch(cmdlist, self.reBoot, debug=True)
@@ -182,8 +181,6 @@ class VuWizard(WizardLanguage, Rc):
 #			print("[VuWizard] cmdlist", cmdlist)
 			if cmdlist:	
 				cmdlist.append("rm -f /usr/share/fonts/wqy-microhei.ttc")
-				cmdlist.append("rm -f /usr/share/enigma2/menu.xml")
-				cmdlist.append("mv -f /usr/share/enigma2/recovery.xml /usr/share/enigma2/menu.xml")
 				self.Console.eBatch(cmdlist, self.bootSlot, debug=False)
 		else:
 			self.bootSlot()
