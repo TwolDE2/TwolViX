@@ -1,5 +1,4 @@
 import glob
-from os import remove, rename
 from time import sleep
 from boxbranding import getBoxType, getMachineMtdKernel, getMachineMtdRoot
 from Components.config import config, configfile
@@ -183,11 +182,12 @@ class VuWizard(WizardLanguage, Rc):
 #			print("[VuWizard] cmdlist", cmdlist)
 			if cmdlist:	
 				cmdlist.append("rm -f /usr/share/fonts/wqy-microhei.ttc")
+				cmdlist.append("rm -f /usr/share/enigma2/menu.xml")
+				cmdlist.append("mv -f /usr/share/enigma2/recovery.xml /usr/share/enigma2/menu.xml")
 				self.Console.eBatch(cmdlist, self.bootSlot, debug=False)
 		else:
 			self.bootSlot()
 
 	def bootSlot(self, *args, **kwargs):
-		remove ("/usr/share/enigma2/menu.xml")
-		rename ("/usr/share/enigma2/recovery.xml", "/usr/share/enigma2/menu.xml")
+
 		self.Console.ePopen("killall -9 enigma2 && init 6")
