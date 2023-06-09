@@ -6,13 +6,12 @@ dist_pkgdata_DATA = \
 	menu.xml \
 	black.mvi \
 	rcpositions.xml \
-	recovery.xml \
 	setup.xml \
 	skin_subtitles.xml \
 	startwizard.xml \
 	userinterfacepositionerwizard.xml \
 	videowizard.xml \
-	vuwizard.xml \
+	vuwizard.xml \	
 	freesat.t1 \
 	freesat.t2 \
 	unicable.xml \
