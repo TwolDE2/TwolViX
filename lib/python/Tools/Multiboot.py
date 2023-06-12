@@ -210,7 +210,7 @@ def GetImagelist(Recovery=None):
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
 					BuildVersion = "%s (%s)" % (Creator, date)
-			if fileHas("/proc/cmdline", "kexec=1") and Recovery:
+			if fileHas("/proc/cmdline", "kexec=1") and Recovery and config.usage.bootlogo_identify.value:
 				bootmviSlot(imagedir=imagedir, text=BuildVersion, slot=slot)
 			Imagelist[slot] = {"imagename": "%s" % BuildVersion}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):
