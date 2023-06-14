@@ -3,7 +3,7 @@ import glob
 import shutil
 import subprocess
 import tempfile
-from os import mkdir, path, rmdir, rename, remove, sep, stat
+from os import path, rmdir, rename, sep, stat
 
 from boxbranding import getMachineBuild, getMachineMtdRoot
 from Components.Console import Console
