@@ -144,18 +144,15 @@ class MultiBootSelector(Screen, HelpableScreen):
 
 	def deleteImage(self):
 		currentSelected = self["config"].getCurrent()
-		
-		if SystemInfo["MultiBootSlot"] == currentSelected[0][1][0]:
-			self.session.open(MessageBox, _("[MultiBootSelector][delete Image slot] - cannot delete active image."), MessageBox.TYPE_INFO, timeout=10)
-			self.getImagelist()			
-		else:	
-			self.session.openWithCallback(self.deleteImageCallback, MessageBox, "%s:\n%s" % (_("Are you sure you want to delete image:"), currentSelected[0][0]), simple=True)
+		self.session.openWithCallback(self.deleteImageCallback, MessageBox, "%s:\n%s" % (_("Are you sure you want to delete image:"), currentSelected[0][0]), simple=True)
 
 	def deleteImageCallback(self, answer):
 		if answer:
 			currentSelected = self["config"].getCurrent()
-			print("[MultiBootSelector] delete slot = %s" % slot)			
+			slot = currentSelected[0][1][0]
+#			print("[MultiBootSelector] delete slot = %s" % slot)			
 			if SystemInfo["HasKexecMultiboot"] and int(slot) < 4:
+#					print("[MultiBootSelector] rm -rf delete slot = %s" % slot)
 					Console().ePopen("rm -rf /boot/linuxrootfs%s" % slot)
 			else:	 			
 				emptySlot(slot)
