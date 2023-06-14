@@ -1,4 +1,4 @@
-from os import path, remove, rmdir
+from os import path, rmdir
 import tempfile
 import struct
 from enigma import getDesktop
@@ -150,11 +150,11 @@ class MultiBootSelector(Screen, HelpableScreen):
 		if answer:
 			currentSelected = self["config"].getCurrent()
 			slot = currentSelected[0][1][0]
-#			print("[MultiBootSelector] delete slot = %s" % slot)			
+#			print("[MultiBootSelector] delete slot = %s" % slot)
 			if SystemInfo["HasKexecMultiboot"] and int(slot) < 4:
 #					print("[MultiBootSelector] rm -rf delete slot = %s" % slot)
 					Console().ePopen("rm -rf /boot/linuxrootfs%s" % slot)
-			else:	 			
+			else:
 				emptySlot(slot)
 			self.getImagelist()
 

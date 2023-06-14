@@ -114,7 +114,7 @@ class VuWizard(WizardLanguage, Rc):
 								hddExt4 = True
 								break
 				if hddExt4 and pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
-					self.Console.eBatch(cmdlist, self.eMMCload, debug=True)							
+					self.Console.eBatch(cmdlist, self.eMMCload, debug=True)
 				elif hddExt4:
 					if not pathExists("/media/hdd/%s" % getBoxType()):
 						cmdlist.append("mkdir /media/hdd/%s" % getBoxType())
@@ -142,7 +142,7 @@ class VuWizard(WizardLanguage, Rc):
 				cmdlist.append("cp -R /media/hdd/%s/linuxrootfs%s . /" % (getBoxType(), eMMCslot))
 				cmdlist.append("rm -r /media/hdd/%s/linuxrootfs%s" % (getBoxType(), eMMCslot))
 		if cmdlist:
-			print("[VuWizard][eMMCload] cmdlist", cmdlist)		
+			print("[VuWizard][eMMCload] cmdlist", cmdlist)
 			cmdlist.append("rm -rf /media/hdd/%s" % getBoxType())
 			self.Console.eBatch(cmdlist, self.reBoot, debug=False)
 		else:
