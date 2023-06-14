@@ -113,11 +113,13 @@ class VuWizard(WizardLanguage, Rc):
 							if xline.find("/media/hdd") != -1 and "ext4" in xline:
 								hddExt4 = True
 								break
+				if hddExt4 and pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
+					self.eMMCload()								
 				if hddExt4:
 					if not pathExists("/media/hdd/%s" % getBoxType()):
 						cmdlist.append("mkdir /media/hdd/%s" % getBoxType())
-					if pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
-						cmdlist.append("rm -rf /media/hdd/%s/linuxrootfs1" % getBoxType())
+#					if pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
+#						cmdlist.append("rm -rf /media/hdd/%s/linuxrootfs1" % getBoxType())
 					cmdlist.append("mkdir /tmp/mmc")
 					cmdlist.append("mount /dev/%s /tmp/mmc" % getMachineMtdRoot())
 					cmdlist.append("rsync -aAXHS /tmp/mmc/ /media/hdd/%s/linuxrootfs1" % getBoxType())
