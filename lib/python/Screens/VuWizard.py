@@ -115,7 +115,7 @@ class VuWizard(WizardLanguage, Rc):
 								break
 				if hddExt4 and pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
 					self.eMMCload()								
-				if hddExt4:
+				elif hddExt4:
 					if not pathExists("/media/hdd/%s" % getBoxType()):
 						cmdlist.append("mkdir /media/hdd/%s" % getBoxType())
 #					if pathExists("/media/hdd/%s/linuxrootfs1" % getBoxType()):
