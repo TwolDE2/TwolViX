@@ -590,7 +590,6 @@ class HdmiCec:
 		if config.hdmicec.enabled.value and config.hdmicec.handle_deepstandby_events.value:
 			self.standbyMessages()
 
-
 	def standbyMessages(self):
 		if config.hdmicec.enabled.value:
 			if config.hdmicec.next_boxes_detect.value:
@@ -598,7 +597,6 @@ class HdmiCec:
 				self.delay.start(1000, True)
 			else:
 				self.sendStandbyMessages()
-
 
 	def sendStandbyMessages(self):
 			messages = []
@@ -620,24 +618,20 @@ class HdmiCec:
 				self.sendMessage(5, "keypoweroff")
 				self.sendMessage(5, "standby")
 
-
 	def standby(self):			# Standby initiated from TV
 		if not Screens.Standby.inStandby:
 			Notifications.AddNotification(Screens.Standby.Standby)
-
 
 	def onLeaveStandby(self):
 		self.sendWakeupMessages()
 		if int(config.hdmicec.repeat_wakeup_timer.value):
 			self.repeat.startLongTimer(int(config.hdmicec.repeat_wakeup_timer.value))
 
-
 	def wakeup(self):
 		self.wakeup_from_tv = True
 		if Screens.Standby.inStandby:
 			Screens.Standby.inStandby.Power()
 
-			
 	def sendWakeupMessages(self):
 		if config.hdmicec.enabled.value:
 			messages = []
@@ -689,7 +683,7 @@ class HdmiCec:
 							self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 					else:
 						print("[HdmiCec][keyEvent3]: forwarding dest=%s, cmd=%X, data=%s" % (self.volumeForwardingDestination, cmd, data))
-						# print("[HdmiCec][keyEvent4: config.hdmicec.force_volume_forwarding.value" % config.hdmicec.force_volume_forwarding.value)
+#						print("[HdmiCec][keyEvent4: config.hdmicec.force_volume_forwarding.value" % config.hdmicec.force_volume_forwarding.value)
 						if config.hdmicec.force_volume_forwarding.value:
 							eHdmiCEC.getInstance().sendMessage(0, cmd, data, len(data))
 							eHdmiCEC.getInstance().sendMessage(5, cmd, data, len(data))

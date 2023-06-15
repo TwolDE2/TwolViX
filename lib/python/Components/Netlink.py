@@ -14,7 +14,7 @@ class NetlinkSocket(socket.socket):
 		data = self.recv(512)
 		event = {}
 		for item in data.split(b'\x00'):
-			# print("[netlink][parse] item=%s" % item)
+#			print("[netlink][parse] item=%s" % item)
 			if not item:
 				# terminator
 				yield event

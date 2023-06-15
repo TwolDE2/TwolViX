@@ -208,8 +208,7 @@ def scanDevice(mountpoint):
 				for s in scanner:
 					s.handleFile(res, sfile)
 
-			# if we really don't want to scan subdirs, stop here.
-			if len(p.path) == 0 and ("net" in mountpoint or "autofs" in mountpoint):
+			if len(p.path) == 0 and ("net" in mountpoint or "autofs" in mountpoint): # if we really don't want to scan subdirs, stop here.
 				continue
 			else:
 				del dirs[:]
