@@ -955,8 +955,9 @@ def InitUsageConfig():
 		else:
 			StackTracePrinter.getInstance().deactivate()
 
-	config.crash.pystackonspinner = ConfigYesNo(default = False)
-	config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback = False, initial_call = True)
+	if SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] != 0:
+		config.crash.pystackonspinner = ConfigYesNo(default = False)
+		config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback = False, initial_call = True)
 
 	config.crash.gstdebug = ConfigYesNo(default=False)
 	config.crash.gstdebugcategory = ConfigSelection(default="*", choices=[("*", _("All")), ("*audio*", _("Audio")), ("*video*", _("Video"))])
@@ -1124,6 +1125,7 @@ def InitUsageConfig():
 	config.logmanager.path = ConfigText(default="/")
 	config.logmanager.sentfiles = ConfigLocations(default='')
 
+	print("[UsageConfig] config.vixsettings enabled")
 	config.vixsettings = ConfigSubsection()
 	config.vixsettings.Subservice = ConfigYesNo(default=False)
 	config.vixsettings.ColouredButtons = ConfigYesNo(default=True)
@@ -1136,6 +1138,7 @@ def InitUsageConfig():
 	if not path.exists('/usr/softcams/'):
 		mkdir('/usr/softcams/', 0o755)
 	softcams = listdir('/usr/softcams/')
+	
 	config.oscaminfo = ConfigSubsection()
 	config.oscaminfo.showInExtensions = ConfigYesNo(default=False)
 	config.oscaminfo.userdatafromconf = ConfigYesNo(default=True)
@@ -1146,6 +1149,8 @@ def InitUsageConfig():
 	config.oscaminfo.port = ConfigInteger(default=16002, limits=(0, 65536))
 	config.oscaminfo.intervall = ConfigSelectionNumber(min=1, max=600, stepwidth=1, default=10, wraparound=True)
 	config.misc.enableCamscript = ConfigYesNo(default=False)
+	
+	print("[UsageConfig] config.misc.softcams enabled")	
 	config.misc.softcams = ConfigSelection(default="None", choices=[(x, _(x)) for x in CamControl("softcam").getList()])
 	config.misc.softcamrestarts = ConfigSelection(default="", choices=[
 					("", _("Don't restart")),
