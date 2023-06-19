@@ -19,10 +19,8 @@ self.selectKey("OK")
 self.clearSelectedKeys()
 self.selectKey("UP")
 self.selectKey("DOWN")
-self["key_yellow"].text = ""
 			</code>
 		</step>
-
 		<step id="flashexpander" nextstep="network">
 			<condition>
 from os import statvfs
