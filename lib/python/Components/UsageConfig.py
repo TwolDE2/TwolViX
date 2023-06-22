@@ -955,9 +955,8 @@ def InitUsageConfig():
 		else:
 			StackTracePrinter.getInstance().deactivate()
 
-	if SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] != 0:
-		config.crash.pystackonspinner = ConfigYesNo(default = False)
-		config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback = False, initial_call = True)
+	config.crash.pystackonspinner = ConfigYesNo(default = False)
+	config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback = False, initial_call = True)
 
 	config.crash.gstdebug = ConfigYesNo(default=False)
 	config.crash.gstdebugcategory = ConfigSelection(default="*", choices=[("*", _("All")), ("*audio*", _("Audio")), ("*video*", _("Video"))])
