@@ -351,7 +351,6 @@ print("[StartEnigma]  Is this VuRecovery?. Recovery = ", VuRecovery)
 from Components.config import config, configfile, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, NoSave
 if VuRecovery:
 	config.clientmode.enabled.value == True
-	print("[StartEnigma] 1 HasKexec and Slot = 0?.", SystemInfo["HasKexecMultiboot"], "   ", SystemInfo["MultiBootSlot"])
 else:
 	profile("Bouquets")
 	print("[StartEnigma]  Initialising Bouquets.")
@@ -501,8 +500,12 @@ if enigma.eAVSwitch.getInstance().haveScartSwitch():
 	print("[StartEnigma]  Initialising Scart.")
 	from Screens.Scart import Scart
 
+profile("Load:StackTracePrinter")
+from Components.StackTrace import StackTracePrinter
+StackTracePrinterInst = StackTracePrinter()
+
 if VuRecovery:
-	print("[StartEnigma] 2 VuRecovery", VuRecovery)
+	pass
 else:
 	profile("Load:CI")
 	print("[StartEnigma]  Initialising CommonInterface.")
@@ -512,10 +515,6 @@ else:
 	print("[StartEnigma]  Initialising VolumeControl.")
 	from Components.VolumeControl import VolumeControl
 	from Tools.StbHardware import setFPWakeuptime, setRTCtime
-
-	profile("Load:StackTracePrinter")
-	from Components.StackTrace import StackTracePrinter
-	StackTracePrinterInst = StackTracePrinter()
 
 profile("Init:skin")
 print("[StartEnigma]  Initialising Skins.")
@@ -544,7 +543,7 @@ from Components.EpgConfig import InitEPGConfig
 InitEPGConfig()
 
 if VuRecovery:
-	print("[StartEnigma] 3 VuRecovery", VuRecovery)
+	pass
 else:
 
 	profile("RecordingConfig")
@@ -574,7 +573,7 @@ readKeymap(config.usage.keymap.value)
 readKeymap(config.usage.keytrans.value)
 
 if VuRecovery:
-	print("[StartEnigma] 4 VuRecovery", VuRecovery)
+	pass
 else:
 	profile("Init:OnlineCheckState")
 	print("[StartEnigma]  Initialising OnlineCheckState.")
@@ -640,7 +639,7 @@ def runScreenTest():
 	import Tools.Trashcan
 	Tools.Trashcan.init(session)
 	if VuRecovery:
-		print("[StartEnigma] 5 VuRecovery", VuRecovery)
+		pass
 	else:
 		CiHandler.setSession(session)
 	
@@ -669,7 +668,7 @@ def runScreenTest():
 	runNextScreen(session, screensToRun)
 
 	if VuRecovery:
-		print("[StartEnigma] 7 VuRecovery", VuRecovery)
+		pass
 	else:
 		profile("Init:VolumeControl")
 		vol = VolumeControl(session)
@@ -690,7 +689,7 @@ def runScreenTest():
 	runReactor()
 
 	if VuRecovery:
-		print("[StartEnigma] 8 VuRecovery", VuRecovery)
+		pass
 	else:
 		profile("wakeup")
 		# get currentTime
@@ -750,7 +749,7 @@ def runScreenTest():
 	profile("configfile.save")
 	configfile.save()
 	if VuRecovery:
-		print("[StartEnigma] 9 VuRecovery", VuRecovery)
+		pass
 	else:
 		from Screens import InfoBarGenerics
 		InfoBarGenerics.saveResumePoints()
@@ -762,7 +761,7 @@ try:
 	runScreenTest()
 	plugins.shutdown()
 	if VuRecovery:
-		print("[StartEnigma] 10 VuRecovery", VuRecovery)
+		pass
 	else:
 		Components.ParentalControl.parentalControl.save()
 except Exception:
