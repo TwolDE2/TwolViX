@@ -1,12 +1,11 @@
 from os import listdir
 from os.path import dirname, exists, isdir, join as pathjoin
-import mmap
 import re
 
 from enigma import ePicLoad
 
-from Components.ActionMap import HelpableActionMap
 from Components.config import config
+from Components.ActionMap import HelpableActionMap
 from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
