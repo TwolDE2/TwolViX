@@ -302,7 +302,6 @@ private:
 	bool m_is_live;
 	bool m_use_prefillbuffer;
 	bool m_paused;
-	bool m_first_paused;
 	bool m_seek_paused;
 	/* cuesheet load check */
 	bool m_cuesheet_loaded;

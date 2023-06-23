@@ -76,30 +76,9 @@ if grep -q 'config\.crash\.logtimeformat' @sysconfdir@/enigma2/settings; then
 	export ENIGMA_DEBUG_TIME=`grep "config\.crash\.logtimeformat" @sysconfdir@/enigma2/settings | sed -E "s/^.*=(.*)$/\1/" -`
 fi
 
+# Enable generation of core dumps
 debug_dir=$(sed -n 's/config.crash.debug_path=//p' @sysconfdir@/enigma2/settings)
 	[ -n "${debug_dir}" -a -d "${debug_dir}" ] || debug_dir=/home/root/logs/
-
-# Enable and configure gstreamer debug log of category and level without color
-if [ "$(grep -i config.crash.gstdebug=true /etc/enigma2/settings)" != "" ]; then
-	GSTDEBUGCATEGORY="*"
-	GSTDEBUGLEVEL="INFO"
-	if [ "$(grep config.crash.gstdebugcategory= /etc/enigma2/settings | sed 's/config.crash.gstdebugcategory=//g')" != "" ]; then
-		GSTDEBUGCATEGORY=$(grep config.crash.gstdebugcategory= /etc/enigma2/settings | sed 's/config.crash.gstdebugcategory=//g')
-	fi
-	if [ "$(grep config.crash.gstdebuglevel= /etc/enigma2/settings | sed 's/config.crash.gstdebuglevel=//g')" != "" ]; then
-		GSTDEBUGLEVEL=$(grep config.crash.gstdebuglevel= /etc/enigma2/settings | sed 's/config.crash.gstdebuglevel=//g')
-	fi
-	export GST_DEBUG_FILE="${debug_dir}GStreamer-debug-$(date +%Y%m%d_%H-%M-%S)${RANDOMIZE1970}.log"
-	export GST_DEBUG="${GSTDEBUGCATEGORY}:${GSTDEBUGLEVEL}"
-	export GST_DEBUG_NO_COLOR="1"
-fi
-
-# Enable and set gstreamer directory for pipeline graphs that are not created if directory is not set
-if [ "$(grep -i config.crash.gstdot=true /etc/enigma2/settings)" != "" ]; then
-	export GST_DEBUG_DUMP_DOT_DIR=${debug_dir}
-fi
-
-# Enable generation of core dumps
 # It would be best to have this at system startup because this way we may not
 # catch core dumps that happen early to enigma2.
 # The kernel.core_pattern could be set via /etc/sysctl.conf.

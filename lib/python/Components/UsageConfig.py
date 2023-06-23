@@ -944,11 +944,6 @@ def InitUsageConfig():
 		if not path.exists(config.crash.debug_path.value):
 			mkdir(config.crash.debug_path.value, 0o755)
 	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback=False)
-
-	config.crash.gstdebug = ConfigYesNo(default=False)
-	config.crash.gstdebugcategory = ConfigSelection(default="*", choices=[("*", _("All")), ("*audio*", _("Audio")), ("*video*", _("Video"))])
-	config.crash.gstdebuglevel = ConfigSelection(default="INFO", choices=["none", "ERROR", "WARNING", "FIXME", "INFO", "DEBUG", "LOG", "TRACE", "MEMDUMP"])
-	config.crash.gstdot = ConfigYesNo(default=False)
 	config.crash.coredump = ConfigYesNo(default=False)
 	config.usage.timerlist_showpicons = ConfigYesNo(default=True)
 	config.usage.timerlist_finished_timer_position = ConfigSelection(default="end", choices=[("beginning", _("at beginning")), ("end", _("at end")), ("hide", _("hide"))])

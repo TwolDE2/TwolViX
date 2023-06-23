@@ -437,7 +437,6 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_is_live = false;
 	m_use_prefillbuffer = false;
 	m_paused = false;
-	m_first_paused = false;
 	m_seek_paused = false;
 	m_cuesheet_loaded = false; /* cuesheet CVR */
 	m_use_chapter_entries = false; /* TOC chapter support CVR */
@@ -1726,7 +1725,6 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 				case GST_STATE_CHANGE_READY_TO_PAUSED:
 				{
 					m_state = stRunning;
-					m_first_paused = true;
 					m_event(this, evStart);
 					GValue result = { 0, };
 					GstIterator *children;
@@ -1845,15 +1843,6 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 							selectTrack(autoaudio);
 					}
 					m_event((iPlayableService*)this, evGstreamerPlayStarted);
-					if (!m_first_paused)
-					{
-						if (eConfigManager::getConfigBoolValue("config.crash.gstdot"))
-						{
-							GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN_CAST(m_gst_playbin), GST_DEBUG_GRAPH_SHOW_ALL, "GStreamer-enigma2");
-						}
-						m_event((iPlayableService*)this, evGstreamerPlayStarted);
-					}
-					m_first_paused = false;
 				}	break;
 				case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
 				{
@@ -2194,7 +2183,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 					{
 						GstState state;
 						gst_element_get_state(m_gst_playbin, &state, NULL, 0LL);
-						if (state != GST_STATE_PLAYING && !m_first_paused)
+						if (state != GST_STATE_PLAYING)
 						{
 							eDebug("[eServiceMP3] start playing");
 							gst_element_set_state (m_gst_playbin, GST_STATE_PLAYING);
@@ -2208,7 +2197,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 						 */
 						m_ignore_buffering_messages = 5;
 					}
-					else if (m_bufferInfo.bufferPercent == 0 && !m_first_paused)
+					else if (m_bufferInfo.bufferPercent == 0)
 					{
 						eDebug("[eServiceMP3] start pause");
 						gst_element_set_state (m_gst_playbin, GST_STATE_PAUSED);
