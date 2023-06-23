@@ -500,10 +500,6 @@ if enigma.eAVSwitch.getInstance().haveScartSwitch():
 	print("[StartEnigma]  Initialising Scart.")
 	from Screens.Scart import Scart
 
-profile("Load:StackTracePrinter")
-from Components.StackTrace import StackTracePrinter
-StackTracePrinterInst = StackTracePrinter()
-
 if VuRecovery:
 	pass
 else:

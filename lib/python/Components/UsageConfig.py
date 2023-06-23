@@ -945,19 +945,6 @@ def InitUsageConfig():
 			mkdir(config.crash.debug_path.value, 0o755)
 	config.crash.debug_path.addNotifier(updatedebug_path, immediate_feedback=False)
 
-	def updateStackTracePrinter(configElement):
-		from Components.StackTrace import StackTracePrinter
-		if configElement.value:
-			if (path.isfile("/tmp/doPythonStackTrace")):
-				remove("/tmp/doPythonStackTrace")
-			from threading import current_thread
-			StackTracePrinter.getInstance().activate(current_thread().ident)
-		else:
-			StackTracePrinter.getInstance().deactivate()
-
-	config.crash.pystackonspinner = ConfigYesNo(default = False)
-	config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback = False, initial_call = True)
-
 	config.crash.gstdebug = ConfigYesNo(default=False)
 	config.crash.gstdebugcategory = ConfigSelection(default="*", choices=[("*", _("All")), ("*audio*", _("Audio")), ("*video*", _("Video"))])
 	config.crash.gstdebuglevel = ConfigSelection(default="INFO", choices=["none", "ERROR", "WARNING", "FIXME", "INFO", "DEBUG", "LOG", "TRACE", "MEMDUMP"])
