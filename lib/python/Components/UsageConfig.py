@@ -1118,7 +1118,7 @@ def InitUsageConfig():
 	if not path.exists('/usr/softcams/'):
 		mkdir('/usr/softcams/', 0o755)
 	softcams = listdir('/usr/softcams/')
-	
+
 	config.oscaminfo = ConfigSubsection()
 	config.oscaminfo.showInExtensions = ConfigYesNo(default=False)
 	config.oscaminfo.userdatafromconf = ConfigYesNo(default=True)
