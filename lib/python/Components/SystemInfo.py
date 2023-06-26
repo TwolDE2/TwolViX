@@ -265,20 +265,20 @@ SystemInfo["hasScart"] = getHaveSCART() in ('True',)
 SystemInfo["hasScartYUV"] = getHaveSCARTYUV() in ('True',)
 SystemInfo["hasYUV"] = getHaveYUV() in ('True',)
 # Videomodes
-SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
-		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "hi3798cv200", "hi3798mv200", "hi3798mv200h", "hi3798mv200advca", "3798cv200", "3798mv200", "3798mv200h", "3798mv200advca"
-	) and (
-		["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080p", "2160p", "1080i"} # widescreen modes
-	) or getChipSetString() in ( # 1080p capable hardware
-		"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "hi3716mv410", "hi3716mv430", "3716mv430"
-	) and (
-		["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080p", "1080i"} # widescreen modes
-	) or ( # default modes (neither 2160p nor 1080p capable hardware)
-		["720p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080i"} # widescreen modes
-	)
+SystemInfo["VideoModes"] = getChipSetString() in (  # 2160p and 1080p capable hardware...
+	"5272s", "7251", "7251s", "7252", "7252s", "7278", "7366", "7376", "7444s", "72604", "3798mv200", "3798cv200", "3798mv200h", "3798mv300", "hi3798mv200", "hi3798mv200h", "hi3798mv200advca", "hi3798cv200", "hi3798mv300"
+) and (
+	["720p", "1080p", "2160p", "2160p30", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
+	{"720p", "1080p", "2160p", "2160p30", "1080i"}  # Widescreen modes.
+) or getChipSetString() in (  # 1080p capable hardware...
+	"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "3716mv410", "3716mv430", "hi3716mv430"
+) and (
+	["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
+	{"720p", "1080p", "1080i"}  # Widescreen modes.
+) or (  # Default modes (neither 2160p nor 1080p capable hardware)...
+	["720p", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
+	{"720p", "1080i"}  # Widescreen modes.
+)
 # VideoAudioOptions
 SystemInfo["CanProc"] = SystemInfo["HasMMC"] and getBrandOEM() != "vuplus"
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
