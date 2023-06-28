@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <execinfo.h>
+#include <features.h>
 #include <dlfcn.h>
 #include <lib/base/eenv.h>
 #include <lib/base/eerror.h>
