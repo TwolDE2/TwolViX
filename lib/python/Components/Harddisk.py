@@ -341,21 +341,26 @@ class Harddisk:
 	def mount(self):
 		if self.mount_device is None:  # Try mounting through fstab first.
 			dev = self.partitionPath("1")
+			print("[Harddisk] mounting1:in fstab", dev)
 		else:
 			dev = self.mount_device  # If previously mounted, use the same spot.
+			print("[Harddisk] mounting2: not in fstab", dev)
 		try:
 			with open("/etc/fstab", "r") as fd:
 				for line in fd.readlines():
 					parts = line.strip().split(" ")
 					fspath = ospath.realpath(parts[0])
 					if fspath == dev:
-						return runCommand("mount -t auto %s" % fspath)
+						print("[Harddisk] mounting3:dev, fspath", dev, "   ", fspath)
+						exitCode = runCommand("mount -t auto %s" % fspath)
+						return exitCode >> 8
 		except (IOError, OSError):
 			return -1
+		print("[Harddisk] mounting4: not in fstab", dev)
 		exitCode = -1  # Device is not in fstab.
 		exitCode = runCommand("hdparm -z %s" % self.disk_path)  # We can let udev do the job, re-read the partition table.
-		sleep(3)  # Give udev some time to make the mount, which it will do asynchronously.
-		return exitCode
+		sleep(10)  # Give udev some time to make the mount, which it will do asynchronously.
+		return exitCode >> 8
 
 	def fsck(self):
 		return 1  # No longer supported, use createCheckJob instead.
@@ -447,7 +452,7 @@ class Harddisk:
 		task = MountTask(job, self)
 		task.weighting = 3
 		print("[Harddisk] Mounting storage device.")
-		task = Components.Task.ConditionTask(job, _("Waiting for mount."), timeoutCount=20)
+		task = Components.Task.ConditionTask(job, _("Waiting for mount"), timeoutCount=30)
 		task.check = self.mountDevice
 		task.weighting = 1
 		print("[Harddisk] Initialization complete.")
@@ -1002,31 +1007,34 @@ class MountTask(Components.Task.LoggingTask):
 		self.hdd = hdd
 
 	def prepare(self):
-		print("[Harddisk] MountTask - prepare")
+		print("[Harddisk][ MountTask][prepare] - prepare")
 		try:
 			dev = self.hdd.disk_path.split(ossep)[-1]
 			unlink("/dev/nomount.%s" % dev)
 		except (IOError, OSError) as err:
-			print("[Harddisk] MountTask - Error: Failed to remove '/dev/nomount' file:", err)
+			print("[Harddisk][MountTask][prepare] - Error: Failed to remove '/dev/nomount' file:", err)
 		if self.hdd.mount_device is None:
 			dev = self.hdd.partitionPath("1")  # Try mounting through fstab first.
+			print("[Harddisk][MountTask][prepare] mounting1:in fstab", dev)
 		else:
 			dev = self.hdd.mount_device  # If previously mounted, use the same spot.
+			print("[Harddisk][MountTask][prepare] mounting2: not in fstab", dev)
 		try:
 			with open("/etc/fstab", "r") as fd:
 				for line in fd.readlines():
 					parts = line.strip().split(" ")
 					fspath = ospath.realpath(parts[0])
-					if ospath.realpath(fspath) == dev:
+					print("[Harddisk][MountTask][prepare] mounting3:dev, fspath", dev, "   ", fspath)
+					if fspath == dev:
 						self.setCmdline("mount -t auto %s" % fspath)
 						self.postconditions.append(Components.Task.ReturncodePostcondition())
 						return
 		except (IOError, OSError) as err:
-			print("[Harddisk] MountTask - Error: Failed to read '/etc/fstab' file:", err)
+			print("[Harddisk][prepa MountTask - Error: Failed to read '/etc/fstab' file:", err)
 		# Device is not in fstab.
 		# We can let udev do the job, re-read the partition table.
 		# Sorry for the sleep 2 hack...
-		print("[Harddisk] MountTask - let udev complete the job")
+		print("[Harddisk][MountTask][prepare] - let udev complete the job")
 		self.setCmdline("sleep 2; hdparm -z %s" % self.hdd.disk_path)
 		self.postconditions.append(Components.Task.ReturncodePostcondition())
 
