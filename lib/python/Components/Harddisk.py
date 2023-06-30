@@ -335,16 +335,13 @@ class Harddisk:
 	def createPartition(self):
 		return runCommand("printf \"8,\n;0,0\n;0,0\n;0,0\ny\n\" | sfdisk -f -uS %s" % self.disk_path)
 
-	def mkfs(self):
-		return 1  # No longer supported, use createInitializeJob instead.
-
 	def mount(self):
 		if self.mount_device is None:  # Try mounting through fstab first.
 			dev = self.partitionPath("1")
-			print("[Harddisk] mounting1:in fstab", dev)
+			print("[Harddisk][mount] mounting1:in fstab", dev)
 		else:
 			dev = self.mount_device  # If previously mounted, use the same spot.
-			print("[Harddisk] mounting2: not in fstab", dev)
+			print("[Harddisk][mount] mounting2: not in fstab", dev)
 		try:
 			with open("/etc/fstab", "r") as fd:
 				for line in fd.readlines():
@@ -356,14 +353,11 @@ class Harddisk:
 						return exitCode >> 8
 		except (IOError, OSError):
 			return -1
-		print("[Harddisk] mounting4: not in fstab", dev)
+		print("[Harddisk][mount] mounting4: not in fstab", dev)
 		exitCode = -1  # Device is not in fstab.
 		exitCode = runCommand("hdparm -z %s" % self.disk_path)  # We can let udev do the job, re-read the partition table.
-		sleep(10)  # Give udev some time to make the mount, which it will do asynchronously.
+		sleep(10)  												# Give udev some time to make the mount, which it will do asynchronously.
 		return exitCode >> 8
-
-	def fsck(self):
-		return 1  # No longer supported, use createCheckJob instead.
 
 	def killPartitionTable(self):
 		zero = 512 * b"\0"
@@ -372,7 +366,7 @@ class Harddisk:
 				for i in range(9):  # Delete first 9 sectors, which will likely kill the first partition too.
 					fd.write(zero)
 		except (IOError, OSError) as err:
-			print("[Harddisk] Error: Failed to wipe partition table on '%s':" % self.dev_path, err)
+			print("[Harddisk][killPartitionTable] Error: Failed to wipe partition table on '%s':" % self.dev_path, err)
 
 	def killPartition(self, n):
 		zero = 512 * b"\0"
@@ -382,10 +376,10 @@ class Harddisk:
 				for i in range(3):
 					fd.write(zero)
 		except (IOError, OSError) as err:
-			print("[Harddisk] Error: Failed to wipe partition on '%s':" % partition, err)
+			print("[Harddisk][killPartition] Error: Failed to wipe partition on '%s':" % partition, err)
 
 	def createInitializeJob(self):
-		print("[Harddisk] Initializing storage device...")
+		print("[Harddisk][createInitializeJob] Initializing storage device...")
 		job = Components.Task.Job(_("Initializing storage device..."))
 		size = self.diskSize()
 		print("[Harddisk] Disk size: %s MB." % size)
@@ -413,13 +407,10 @@ class Harddisk:
 		task.check = lambda: ospath.exists(self.partitionPath("1"))
 		task.weighting = 1
 		task = UnmountTask(job, self)
-		print("[Harddisk] Creating filesystem.")
+		print("[Harddisk][createInitializeJob] Creating filesystem.")
 		task = MkfsTask(job, _("Creating filesystem."))
 		big_o_options = ["dir_index"]
-		if SystemInfo["ext4"]:
-			task.setTool("mkfs.ext4")
-		else:
-			task.setTool("mkfs.ext3")
+		task.setTool("mkfs.ext4")
 		if size > 250000:
 			task.args += ["-T", "largefile", "-N", "262144"]  # No more than 256k i-nodes (prevent problems with fsck memory requirements).
 			big_o_options.append("sparse_super")
@@ -431,21 +422,15 @@ class Harddisk:
 		task.args += ["-F", "-F", "-m0", "-O ^metadata_csum", "-O", ",".join(big_o_options), self.partitionPath("1")]
 		task = MountTask(job, self)
 		task.weighting = 3
-		print("[Harddisk] Mounting storage device.")
+		print("[Harddisk][createInitializeJob] Mounting storage device.")
 		task = Components.Task.ConditionTask(job, _("Waiting for mount"), timeoutCount=30)
 		task.check = self.mountDevice
 		task.weighting = 1
-		print("[Harddisk] Initialization complete.")
+		print("[Harddisk][createInitializeJob] Initialization complete.")
 		return job
 
-	def initialize(self):
-		return -5  # No longer supported.
-
-	def check(self):
-		return -5  # No longer supported.
-
 	def createCheckJob(self):
-		print("[Harddisk] Checking filesystem...")
+		print("[Harddisk][createCheckJob] Checking filesystem...")
 		job = Components.Task.Job(_("Checking filesystem..."))
 		if self.findMount():
 			task = UnmountTask(job, self)  # Create unmount task if it was not mounted.
@@ -457,7 +442,7 @@ class Harddisk:
 				partType = parts[2]
 		if partType not in ("ext3", "ext4", "vfat", "nfs"):
 			partType = "ext4"
-		print("[Harddisk] Filesystem type is '%s'." % partType)
+		print("[Harddisk][createCheckJob] Filesystem type is '%s'." % partType)
 		task = Components.Task.LoggingTask(job, _("Checking disk."))  # "fsck"
 		task.setTool("fsck.%s" % partType)
 		task.args.append("-f")
@@ -468,7 +453,7 @@ class Harddisk:
 		task = Components.Task.ConditionTask(job, _("Waiting for mount."))
 		task.check = self.mountDevice
 		task.weighting = 1
-		print("[Harddisk] Check complete.")
+		print("[Harddisk][createCheckJob] Check complete.")
 		return job
 
 	def getDeviceDir(self):
