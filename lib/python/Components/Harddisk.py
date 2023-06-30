@@ -106,17 +106,6 @@ def getProcMounts():
 	return result
 
 
-def isFileSystemSupported(filesystem):
-	try:
-		with open("/proc/filesystems", "r") as fd:
-			for line in fd.readlines():
-				if line.strip().endswith(filesystem):
-					return True
-	except (IOError, OSError) as err:
-		print("[Harddisk] Error: Failed to read '/proc/filesystems':", err)
-	return False
-
-
 def findMountPoint(path):
 	'Example: findMountPoint("/media/hdd/some/file") returns "/media/hdd"'
 	path = ospath.abspath(path)
@@ -153,9 +142,6 @@ def bytesToHumanReadable(size_bytes, binary=False):
 		size_bytes /= base
 		i += 1
 	return ("%.2f %s" if i != 0 and size_bytes < 10 else "%.0f %s") % (size_bytes, size_units[i])
-
-
-SystemInfo["ext4"] = isFileSystemSupported("ext4")
 
 
 class Harddisk:
