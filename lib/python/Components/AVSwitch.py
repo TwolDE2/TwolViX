@@ -238,7 +238,8 @@ class AVSwitch:
 	def setConfiguredMode(self):
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
-			print("[AVSwitch] current port not available, not setting videomode")
+			print("[AVSwitch] current port (%s) not available, not setting videomode" % port)
+			print("[AVSwitch] current port not available, config.av.videomode", config.av.videomode)			
 			return
 		mode = config.av.videomode[port].value
 		if mode not in config.av.videorate:
@@ -276,7 +277,8 @@ class AVSwitch:
 		ret = (16, 9)
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
-			print("[AVSwitch] current port not available in getOutputAspect!!! force 16:9")
+			print("[AVSwitch] current port (%s) not available in getOutputAspect!!! force 16:9" % port)
+			print("[AVSwitch] current port not available config.av.videomode", config.av.videomode)			
 		else:
 			mode = config.av.videomode[port].value
 			force_widescreen = self.isWidescreenMode(port, mode)
