@@ -297,6 +297,14 @@ class AutoVideoMode(Screen):
 
 	def VideoChangeDetect(self):
 		global resolutionlabel
+		print("[VideoMode][VideoChangeDetect] config.av.videoport.value", config.av.videoport.value)		
+		config_port = config.av.videoport.value
+		print("[VideoMode][VideoChangeDetect] config.av.videomode[config_port].value", config.av.videomode[config_port].value)		
+		config_mode = str(config.av.videomode[config_port].value).replace("\n", "")
+		config_res = str(config.av.videomode[config_port].value[:-1]).replace("\n", "")
+		config_pol = str(config.av.videomode[config_port].value[-1:]).replace("\n", "")
+		print("[VideoMode][VideoChangeDetect] config.av.videorate[config_mode].value", config.av.videomode[config_port].value)		
+		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")		
 		with open("/proc/stb/video/videomode", "r") as fd:
 			current_mode = fd.read()[:-1].replace("\n", "")
 		if current_mode.upper() in ("PAL", "NTSC"):
