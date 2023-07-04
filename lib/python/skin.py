@@ -143,10 +143,10 @@ def loadSkinData(desktop):
 def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screenID=GUI_SKIN_ID):
 	global windowStyles
 	filename = resolveFilename(scope, filename)
-	print("[Skin] Loading skin file '%s'." % filename)
+#	print("[Skin] Loading skin file '%s'." % filename)
 	domSkin = fileReadXML(filename)
 	if domSkin:
-		print("[Skin] DEBUG: Extracting non screen blocks from '%s'.  (scope='%s')" % (filename, scope))
+#		print("[Skin] DEBUG: Extracting non screen blocks from '%s'.  (scope='%s')" % (filename, scope))
 		# For loadSingleSkinData colors, bordersets etc. are applied one after
 		# the other in order of ascending priority.
 		loadSingleSkinData(desktop, screenID, domSkin, filename, scope=scope)
@@ -168,7 +168,7 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 					windowStyles[scrnID] = (desktop, screenID, domStyle.getroot(), filename, scope)
 			# Element is not a screen or windowstyle element so no need for it any longer.
 		reloadWindowStyles()  # Reload the window style to ensure all skin changes are taken into account.
-		print("[Skin] Loading skin file '%s' complete." % filename)
+#		print("[Skin] Loading skin file '%s' complete." % filename)
 		return True
 	return False
 
