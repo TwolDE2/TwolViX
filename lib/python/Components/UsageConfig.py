@@ -905,7 +905,7 @@ def InitUsageConfig():
 		("last", _("Last speed"))])
 
 	config.crash = ConfigSubsection()
-	config.crash.enabledebug = ConfigYesNo(default=False)
+	config.crash.enabledebug = ConfigYesNo(default=True)
 	config.crash.e2_debug_level = ConfigSelection(default=4, choices=[(3, _("No Logs")), (4, _("Debug Logs")), (5, _("Debug+ Logs"))])
 	config.crash.debugloglimit = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=4, wraparound=True)
 
@@ -918,7 +918,7 @@ def InitUsageConfig():
 	config.crash.daysloglimit = ConfigSelectionNumber(min=1, max=30, stepwidth=1, default=8, wraparound=True)
 	config.crash.sizeloglimit = ConfigSelectionNumber(min=1, max=20, stepwidth=1, default=10, wraparound=True)
 	# config.crash.logtimeformat sets ENIGMA_DEBUG_TIME environmental variable on enigma2 start from enigma2.sh
-	config.crash.logtimeformat = ConfigSelection(default="1", choices=[
+	config.crash.logtimeformat = ConfigSelection(default="2", choices=[
 		("0", _("none")),
 		("1", _("boot time")),
 		("2", _("local time")),
