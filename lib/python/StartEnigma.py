@@ -1,5 +1,5 @@
 from os.path import exists as osexists
-from sys import stderr, stdout
+import sys
 from time import localtime, strftime, time
 from datetime import datetime
 from traceback import print_exc
@@ -312,6 +312,138 @@ class AutoScartControl:
 			else:
 				self.scartDialog.switchToTV()
 
+def runScreenTest():
+	config.misc.startCounter.value += 1
+	config.misc.startCounter.save()
+
+	profile("readPluginList")
+	enigma.pauseInit()
+	plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
+	enigma.resumeInit()
+
+	profile("Init:Session")
+	nav = Navigation(config.misc.isNextRecordTimerAfterEventActionAuto.value, config.misc.isNextPowerTimerAfterEventActionAuto.value)
+	session = Session(desktop=enigma.getDesktop(0), summary_desktop=enigma.getDesktop(1), navigation=nav)
+
+	profile("Init:Trashcan")
+	import Tools.Trashcan
+	Tools.Trashcan.init(session)
+	if VuRecovery:
+		pass
+	else:
+		CiHandler.setSession(session)
+	
+	screensToRun = [p.fnc for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
+	profile("wizards")
+	screensToRun += wizardManager.getWizards()
+	screensToRun.append((100, InfoBar.InfoBar))
+	screensToRun.sort()
+
+	enigma.ePythonConfigQuery.setQueryFunc(configfile.getResolvedKey)
+
+	def runNextScreen(session, screensToRun, *result):
+		if result:
+			if result[0] == "reloadskin":
+				InitSkins(False)
+				session.openWithCallback(boundFunction(runNextScreen, session, []), InfoBar.InfoBar)
+				if result[1]:
+					session.deleteDialog(result[1])
+			else:
+				enigma.quitMainloop(*result)
+		else:
+			screen = screensToRun[0][1]
+			args = screensToRun[0][2:]
+			session.openWithCallback(boundFunction(runNextScreen, session, screensToRun[1:]), screen, *args)
+
+	runNextScreen(session, screensToRun)
+
+	if VuRecovery:
+		pass
+	else:
+		profile("Init:VolumeControl")
+		vol = VolumeControl(session)
+		profile("Init:PowerKey")
+		power = PowerKey(session)
+		
+		if enigma.eAVSwitch.getInstance().haveScartSwitch():
+			# we need session.scart to access it from within menu.xml
+			session.scart = AutoScartControl(session)
+
+
+		profile("Init:AutoVideoMode")
+		import Screens.VideoMode
+		Screens.VideoMode.autostart(session)
+
+	profile("RunReactor")
+	profile_final()
+	runReactor()
+
+	if VuRecovery:
+		pass
+	else:
+		profile("wakeup")
+		# get currentTime
+		nowTime = time()
+		wakeupList = [x for x in (
+			(session.nav.RecordTimer.getNextRecordingTime(), 0, session.nav.RecordTimer.isNextRecordAfterEventActionAuto()),
+			(session.nav.RecordTimer.getNextZapTime(), 1),
+			(plugins.getNextWakeupTime(), 2, plugins.getNextWakeupName()),
+			(session.nav.PowerTimer.getNextPowerManagerTime(), 3, session.nav.PowerTimer.isNextPowerManagerAfterEventActionAuto())
+		) if x[0] != -1]
+		wakeupList.sort()
+		recordTimerWakeupAuto = False
+		if wakeupList and wakeupList[0][1] != 3:
+			startTime = wakeupList[0]
+			if (startTime[0] - nowTime) < 270:  # no time to switch box back on
+				wptime = nowTime + 30  # so switch back on in 30 seconds
+			else:
+				wptime = startTime[0] - 240
+			if wakeupList[0][1] == 2 and wakeupList[0][2] is not None:
+				config.misc.pluginWakeupName.value = wakeupList[0][2]
+				print("[StartEnigma] next wakeup will be plugin", wakeupList[0][2])
+			else:
+				config.misc.pluginWakeupName.value = "" # next wakeup not a plugin
+			config.misc.pluginWakeupName.save()
+			if not config.misc.SyncTimeUsing.value == "dvb":
+				print("[StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
+				setRTCtime(nowTime)
+			print("[StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime)))
+			setFPWakeuptime(wptime)
+			recordTimerWakeupAuto = startTime[1] == 0 and startTime[2]
+			print("[StartEnigma] recordTimerWakeupAuto", recordTimerWakeupAuto)
+		config.misc.isNextRecordTimerAfterEventActionAuto.value = recordTimerWakeupAuto
+		config.misc.isNextRecordTimerAfterEventActionAuto.save()
+
+		PowerTimerWakeupAuto = False
+		if wakeupList and wakeupList[0][1] == 3:
+			startTime = wakeupList[0]
+			if (startTime[0] - nowTime) < 60:  # no time to switch box back on
+				wptime = nowTime + 30  # so switch back on in 30 seconds
+			else:
+				wptime = startTime[0]
+			if not config.misc.SyncTimeUsing.value == "dvb":
+				print("[StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
+				setRTCtime(nowTime)
+			print("[StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime + 60)))
+			setFPWakeuptime(wptime)
+			PowerTimerWakeupAuto = startTime[1] == 3 and startTime[2]
+			print("[StartEnigma] PowerTimerWakeupAuto", PowerTimerWakeupAuto)
+			config.misc.pluginWakeupName.value = "" # next wakeup not a plugin
+			config.misc.pluginWakeupName.save()
+		config.misc.isNextPowerTimerAfterEventActionAuto.value = PowerTimerWakeupAuto
+		config.misc.isNextPowerTimerAfterEventActionAuto.save()
+	profile("stopService")
+	session.nav.stopService()
+	profile("nav shutdown")
+	session.nav.shutdown()
+	profile("configfile.save")
+	configfile.save()
+	if VuRecovery:
+		pass
+	else:
+		from Screens import InfoBarGenerics
+		InfoBarGenerics.saveResumePoints()
+	return 0
 
 profile("PYTHON_START")
 print("[StartEnigma]  Starting Python Level Initialisation.")
@@ -428,19 +560,22 @@ try:
 		text = log.textFromEventDict(eventDict)
 		if text is None:
 			return
+		if "/api/statusinfo" in text:  # Do not log OpenWebif status info.
+			return			
 		formatDict = {
 			"text": text.replace("\n", "\n\t")
 		}
 		msg = log._safeFormat("%(text)s\n", formatDict)
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
-	backup_stdout = stdout		# backup stdout and stderr redirections
-	backup_stderr = stderr
-	logger = log.FileLogObserver(stdout)		# do not change or no crashlog
+
+	logger = log.FileLogObserver(sys.stdout)		# do not change or no crashlog
 	log.FileLogObserver.emit = quietEmit
+	backup_stdout = sys.stdout		# backup stdout and stderr redirections
+	backup_stderr = sys.stderr	
 	log.startLoggingWithObserver(logger.emit)
-	stdout = backup_stdout		# restore stdout and stderr redirections because of twisted redirections
-	stderr = backup_stderr
+	sys.stdout = backup_stdout		# restore stdout and stderr redirections because of twisted redirections
+	sys.stderr = backup_stderr
 except ImportError:
 	print("[StartEnigma] Error: Twisted not available!")
 
@@ -618,139 +753,6 @@ else:
 		Components.ChannelsImporter.autostart()
 
 
-def runScreenTest():
-	config.misc.startCounter.value += 1
-	config.misc.startCounter.save()
-
-	profile("readPluginList")
-	enigma.pauseInit()
-	plugins.readPluginList(resolveFilename(SCOPE_PLUGINS))
-	enigma.resumeInit()
-
-	profile("Init:Session")
-	nav = Navigation(config.misc.isNextRecordTimerAfterEventActionAuto.value, config.misc.isNextPowerTimerAfterEventActionAuto.value)
-	session = Session(desktop=enigma.getDesktop(0), summary_desktop=enigma.getDesktop(1), navigation=nav)
-
-	profile("Init:Trashcan")
-	import Tools.Trashcan
-	Tools.Trashcan.init(session)
-	if VuRecovery:
-		pass
-	else:
-		CiHandler.setSession(session)
-	
-	screensToRun = [p.fnc for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
-	profile("wizards")
-	screensToRun += wizardManager.getWizards()
-	screensToRun.append((100, InfoBar.InfoBar))
-	screensToRun.sort()
-
-	enigma.ePythonConfigQuery.setQueryFunc(configfile.getResolvedKey)
-
-	def runNextScreen(session, screensToRun, *result):
-		if result:
-			if result[0] == "reloadskin":
-				InitSkins(False)
-				session.openWithCallback(boundFunction(runNextScreen, session, []), InfoBar.InfoBar)
-				if result[1]:
-					session.deleteDialog(result[1])
-			else:
-				enigma.quitMainloop(*result)
-		else:
-			screen = screensToRun[0][1]
-			args = screensToRun[0][2:]
-			session.openWithCallback(boundFunction(runNextScreen, session, screensToRun[1:]), screen, *args)
-
-	runNextScreen(session, screensToRun)
-
-	if VuRecovery:
-		pass
-	else:
-		profile("Init:VolumeControl")
-		vol = VolumeControl(session)
-		profile("Init:PowerKey")
-		power = PowerKey(session)
-		
-		if enigma.eAVSwitch.getInstance().haveScartSwitch():
-			# we need session.scart to access it from within menu.xml
-			session.scart = AutoScartControl(session)
-
-
-		profile("Init:AutoVideoMode")
-		import Screens.VideoMode
-		Screens.VideoMode.autostart(session)
-
-	profile("RunReactor")
-	profile_final()
-	runReactor()
-
-	if VuRecovery:
-		pass
-	else:
-		profile("wakeup")
-		# get currentTime
-		nowTime = time()
-		wakeupList = [x for x in (
-			(session.nav.RecordTimer.getNextRecordingTime(), 0, session.nav.RecordTimer.isNextRecordAfterEventActionAuto()),
-			(session.nav.RecordTimer.getNextZapTime(), 1),
-			(plugins.getNextWakeupTime(), 2, plugins.getNextWakeupName()),
-			(session.nav.PowerTimer.getNextPowerManagerTime(), 3, session.nav.PowerTimer.isNextPowerManagerAfterEventActionAuto())
-		) if x[0] != -1]
-		wakeupList.sort()
-		recordTimerWakeupAuto = False
-		if wakeupList and wakeupList[0][1] != 3:
-			startTime = wakeupList[0]
-			if (startTime[0] - nowTime) < 270:  # no time to switch box back on
-				wptime = nowTime + 30  # so switch back on in 30 seconds
-			else:
-				wptime = startTime[0] - 240
-			if wakeupList[0][1] == 2 and wakeupList[0][2] is not None:
-				config.misc.pluginWakeupName.value = wakeupList[0][2]
-				print("[StartEnigma] next wakeup will be plugin", wakeupList[0][2])
-			else:
-				config.misc.pluginWakeupName.value = "" # next wakeup not a plugin
-			config.misc.pluginWakeupName.save()
-			if not config.misc.SyncTimeUsing.value == "dvb":
-				print("[StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
-				setRTCtime(nowTime)
-			print("[StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime)))
-			setFPWakeuptime(wptime)
-			recordTimerWakeupAuto = startTime[1] == 0 and startTime[2]
-			print("[StartEnigma] recordTimerWakeupAuto", recordTimerWakeupAuto)
-		config.misc.isNextRecordTimerAfterEventActionAuto.value = recordTimerWakeupAuto
-		config.misc.isNextRecordTimerAfterEventActionAuto.save()
-
-		PowerTimerWakeupAuto = False
-		if wakeupList and wakeupList[0][1] == 3:
-			startTime = wakeupList[0]
-			if (startTime[0] - nowTime) < 60:  # no time to switch box back on
-				wptime = nowTime + 30  # so switch back on in 30 seconds
-			else:
-				wptime = startTime[0]
-			if not config.misc.SyncTimeUsing.value == "dvb":
-				print("[StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
-				setRTCtime(nowTime)
-			print("[StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime + 60)))
-			setFPWakeuptime(wptime)
-			PowerTimerWakeupAuto = startTime[1] == 3 and startTime[2]
-			print("[StartEnigma] PowerTimerWakeupAuto", PowerTimerWakeupAuto)
-			config.misc.pluginWakeupName.value = "" # next wakeup not a plugin
-			config.misc.pluginWakeupName.save()
-		config.misc.isNextPowerTimerAfterEventActionAuto.value = PowerTimerWakeupAuto
-		config.misc.isNextPowerTimerAfterEventActionAuto.save()
-	profile("stopService")
-	session.nav.stopService()
-	profile("nav shutdown")
-	session.nav.shutdown()
-	profile("configfile.save")
-	configfile.save()
-	if VuRecovery:
-		pass
-	else:
-		from Screens import InfoBarGenerics
-		InfoBarGenerics.saveResumePoints()
-	return 0
-
 print("[StartEnigma]  Starting User Interface.")	# first, setup a screen
 
 try:
@@ -763,6 +765,6 @@ try:
 except Exception:
 	print("[StartEnigma] EXCEPTION IN PYTHON STARTUP CODE:")
 	print("-" * 60)
-	print_exc(file=stdout)
+	print_exc(file=sys.stdout)
 	enigma.quitMainloop(5)
 	print("-" * 60)
