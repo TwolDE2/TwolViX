@@ -1,5 +1,5 @@
 from os.path import exists as osexists
-import sys
+import sys				#	don't change import 
 from time import localtime, strftime, time
 from datetime import datetime
 from traceback import print_exc
@@ -476,7 +476,7 @@ profile("InfoBar")
 print("[StartEnigma]  Initialising InfoBar.")
 from Screens import InfoBar
 
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo	#	don't move this import
 VuRecovery = True if SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0 else False
 print("[StartEnigma]  Is this VuRecovery?. Recovery = ", VuRecovery)
 
