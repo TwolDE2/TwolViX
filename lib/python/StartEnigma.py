@@ -704,7 +704,7 @@ readKeymap(config.usage.keymap.value)
 readKeymap(config.usage.keytrans.value)
 
 if VuRecovery:
-	pass
+	SystemInfo["Display"] = False
 else:
 	profile("Init:OnlineCheckState")
 	print("[StartEnigma]  Initialising OnlineCheckState.")
