@@ -4,9 +4,6 @@ from time import localtime, mktime
 from itertools import chain
 import xml.etree.cElementTree
 
-
-
-
 from enigma import eDVBFrontendParametersSatellite, eDVBSatelliteEquipmentControl as secClass, eDVBSatelliteDiseqcParameters as diseqcParam, eDVBSatelliteSwitchParameters as switchParam, eDVBSatelliteRotorParameters as rotorParam, eDVBResourceManager, eDVBDB, eEnv
 
 from Components.About import about
