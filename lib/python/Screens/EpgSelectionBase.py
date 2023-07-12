@@ -19,6 +19,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.TimeDateInput import TimeDateInput
 from Screens.TimerEntry import TimerEntry, addTimerFromEvent, addTimerFromEventSilent
+from Tools.Directories import isPluginInstalled
 
 
 epgActions = [
@@ -205,7 +206,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 
 	def openIMDb(self):
 		self.closeEventViewDialog()
-		try:
+		if isPluginInstalled("IMDb"):		
 			from Plugins.Extensions.IMDb.plugin import IMDB
 			try:
 				event = self["list"].getCurrent()[0]
@@ -216,12 +217,12 @@ class EPGSelectionBase(Screen, HelpableScreen):
 				name = ""
 
 			self.session.open(IMDB, name, False)
-		except ImportError:
+		else:
 			self.session.open(MessageBox, self.noIMDb, type=MessageBox.TYPE_INFO, timeout=10)
 
 	def openEPGSearch(self):
 		self.closeEventViewDialog()
-		try:
+		if isPluginInstalled("EPGSearch"):
 			from Plugins.Extensions.EPGSearch.EPGSearch import EPGSearch
 			try:
 				event = self["list"].getCurrent()[0]
@@ -231,7 +232,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 			except Exception:
 				name = ""
 			self.session.open(EPGSearch, name, False)
-		except ImportError:
+		else:
 			self.session.open(MessageBox, self.noEPGSearch, type=MessageBox.TYPE_INFO, timeout=10)
 
 	def addEditAutoTimer(self):
