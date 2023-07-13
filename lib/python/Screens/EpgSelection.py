@@ -5,6 +5,7 @@ from Screens.EpgSelectionChannel import EPGSelectionChannel
 from Screens.EpgSelectionBase import EPGServiceZap
 from Screens.InfoBar import InfoBar
 from Screens.TimerEntry import addTimerFromEventSilent
+from Tools.Directories import isPluginInstalled
 
 
 # Keep for backwards compatibility with plugins, including the parameter naming.
@@ -27,7 +28,7 @@ class EPGSelection(EPGSelectionChannel, EPGServiceZap):
 			"menu": (self.createSetup, _("Setup menu"))
 		}, prio=-1, description=helpDescription)
 		self["colouractions"] = HelpableActionMap(self, "ColorActions", {
-			"red": (self.redButtonPressed, _("IMDB search for current event")),
+			"red": (self.redButtonPressed, self.redButtonText()),
 			"redlong": (self.redButtonPressedLong, _("Sort EPG list")),
 			"green": (self.greenButtonPressed, _("Add/Remove timer for current event")),
 			"greenlong": (self.greenButtonPressedLong, _("Show timer list")),
@@ -53,8 +54,19 @@ class EPGSelection(EPGSelectionChannel, EPGServiceZap):
 
 	# Backwards compatibility functions for plugins.
 	# Button names.
+
 	def redButtonPressed(self):
-		self.openIMDb()
+		if isPluginInstalled("tmdb"):
+			self.openTMDb()
+		elif isPluginInstalled("IMDb"):		
+			self.openIMDb()
+
+	def redButtonText(self):
+		if isPluginInstalled("tmdb"):
+			return _("tmdb search for current event")
+		elif isPluginInstalled("IMDb"):
+			return _("IMDb search for current event")
+		return ""
 
 	def redButtonPressedLong(self):
 		self.sortEpg()
