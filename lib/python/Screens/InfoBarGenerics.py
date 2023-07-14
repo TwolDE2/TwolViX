@@ -58,7 +58,7 @@ from Screens.TimerEntry import TimerEntry, addTimerFromEvent
 from Screens.UnhandledKey import UnhandledKey
 from ServiceReference import ServiceReference, isPlayableForCur
 from Tools import Notifications
-from Tools.Directories import pathExists, fileExists
+from Tools.Directories import pathExists, fileExists, isPluginInstalled
 from Tools.KeyBindings import getKeyDescription, getKeyBindingKeys
 
 
@@ -2872,7 +2872,18 @@ class InfoBarExtensions:
 			self.session.open(EPGSearch)
 
 	def showIMDB(self):
-		try:
+		if isPluginInstalled("tmdb"):
+			print("[InfoBarGenerics] [showIMDB] isPluginInstalled('tmdb')")		
+			from Plugins.Extensions.tmdb.tmdb import tmdbScreen
+			self.session.open(MessageBox, _("TMDB plugin installed!\n - using TMDB for searches."), type=MessageBox.TYPE_INFO, timeout=10, simple=True)			
+			s = self.session.nav.getCurrentService()
+			if s:
+				info = s.info()
+				event = info.getEvent(0) # 0 = now, 1 = next
+				name = event and event.getEventName() or ''
+				self.session.open(tmdbScreen, name, 2)
+		elif isPluginInstalled("IMDb"):	
+			print("[InfoBarGenerics] [showIMDB] isPluginInstalled('IMDb')")				
 			from Plugins.Extensions.IMDb.plugin import IMDB
 			s = self.session.nav.getCurrentService()
 			if s:
@@ -2880,8 +2891,8 @@ class InfoBarExtensions:
 				event = info.getEvent(0) # 0 = now, 1 = next
 				name = event and event.getEventName() or ''
 				self.session.open(IMDB, name)
-		except ImportError:
-			self.session.open(MessageBox, _("The IMDb plugin is not installed!\nPlease install it."), type=MessageBox.TYPE_INFO, timeout=10, simple=True)
+		else:
+			self.session.open(MessageBox, _("Neither IMDb or TMDB plugin installed!\nPlease install either IMDb or TMDB."), type=MessageBox.TYPE_INFO, timeout=10, simple=True)
 
 	def showDreamPlex(self):
 		try:
