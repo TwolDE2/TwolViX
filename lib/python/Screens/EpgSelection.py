@@ -28,7 +28,7 @@ class EPGSelection(EPGSelectionChannel, EPGServiceZap):
 			"menu": (self.createSetup, _("Setup menu"))
 		}, prio=-1, description=helpDescription)
 		self["colouractions"] = HelpableActionMap(self, "ColorActions", {
-			"red": (self.redButtonPressed, self.redButtonText()),
+			"red": (self.redButtonPressed, self.redButtonDescription()),
 			"redlong": (self.redButtonPressedLong, _("Sort EPG list")),
 			"green": (self.greenButtonPressed, _("Add/Remove timer for current event")),
 			"greenlong": (self.greenButtonPressedLong, _("Show timer list")),
@@ -63,9 +63,16 @@ class EPGSelection(EPGSelectionChannel, EPGServiceZap):
 
 	def redButtonText(self):
 		if isPluginInstalled("tmdb"):
-			return _("tmdb search for current event")
+			return _("TMDb search")
 		elif isPluginInstalled("IMDb"):
-			return _("IMDb search for current event")
+			return _("IMDb search")
+		return ""
+
+	def redButtonDescription(self):
+		if isPluginInstalled("tmdb"):
+			return _("TMDb search for highlighted event")
+		elif isPluginInstalled("IMDb"):
+			return _("IMDb search for highlighted event")
 		return ""
 
 	def redButtonPressedLong(self):
