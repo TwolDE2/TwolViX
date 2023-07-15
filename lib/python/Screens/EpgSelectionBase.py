@@ -239,7 +239,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 			try:
 				event = self["list"].getCurrent()[0]
 				if event is not None:
-					self.session.open(EPGSearch, event.getEventName(), False
+					self.session.open(EPGSearch, event.getEventName(), False)
 			except Exception:
 				return
 		else:
