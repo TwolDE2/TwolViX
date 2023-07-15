@@ -208,17 +208,14 @@ class EPGSelectionBase(Screen, HelpableScreen):
 
 	def openIMDb(self):
 		self.closeEventViewDialog()
-		if isPluginInstalled("IMDb"):		
+		if isPluginInstalled("IMDb"):
 			from Plugins.Extensions.IMDb.plugin import IMDB
 			try:
 				event = self["list"].getCurrent()[0]
-				if event is None:
-					return
-				name = event.getEventName()
+				if event is not None:
+					self.session.open(IMDB, event.getEventName(), False)
 			except Exception:
-				name = ""
-
-			self.session.open(IMDB, name, False)
+				return
 		else:
 			self.session.open(MessageBox, self.noIMDb, type=MessageBox.TYPE_INFO, timeout=10)
 
@@ -227,11 +224,10 @@ class EPGSelectionBase(Screen, HelpableScreen):
 			from Plugins.Extensions.tmdb.tmdb import tmdbScreen
 			try:
 				event = self["list"].getCurrent()[0]
-				name = event.getEventName()
+				if event is not None:
+					self.session.open(tmdbScreen, event.getEventName(), 2)
 			except:
-				name = ""
-
-			self.session.open(tmdbScreen, name, 2)
+				return
 		else:
 			self.session.open(MessageBox, self.noTMDb, type=MessageBox.TYPE_INFO, timeout=10)
 
@@ -242,12 +238,10 @@ class EPGSelectionBase(Screen, HelpableScreen):
 			from Plugins.Extensions.EPGSearch.EPGSearch import EPGSearch
 			try:
 				event = self["list"].getCurrent()[0]
-				if event is None:
-					return
-				name = event.getEventName()
+				if event is not None:
+					self.session.open(EPGSearch, event.getEventName(), False
 			except Exception:
-				name = ""
-			self.session.open(EPGSearch, name, False)
+				return
 		else:
 			self.session.open(MessageBox, self.noEPGSearch, type=MessageBox.TYPE_INFO, timeout=10)
 
