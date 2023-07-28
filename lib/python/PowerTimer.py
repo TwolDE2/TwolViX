@@ -475,6 +475,7 @@ class PowerTimer(Timer):
 		# TODO: PATH!
 		if not Directories.fileExists(self.Filename):
 			return
+<<<<<<< HEAD
 		try:
 			file = open(self.Filename, 'r')
 			doc = xml.etree.cElementTree.parse(file)
@@ -494,8 +495,10 @@ class PowerTimer(Timer):
 		except IOError:
 			print("pm_timers.xml not found!")
 			return
+=======
+>>>>>>> 2b5a0d6... [PowerTimer] simplify xml read
 
-		root = doc.getroot()
+		root = Directories.fileReadXML(self.Filename, "<timers />")
 
 		# put out a message when at least one timer overlaps
 		checkit = True
