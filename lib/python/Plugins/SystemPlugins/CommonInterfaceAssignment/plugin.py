@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 from os import path, remove, unlink
 from xml.etree.cElementTree import parse
+=======
+import six
+
+import os
+>>>>>>> 7d28132... [CommonInterfaceAssignment] simplify xml read
 
 from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter
 
@@ -22,6 +28,7 @@ from Components.Sources.StaticText import StaticText
 from Screens.Standby import TryQuitMainloop
 from Tools.BoundFunction import boundFunction
 from Tools.CIHelper import cihelper
+from Tools.Directories import fileReadXML
 from Tools.XMLTools import stringToXML
 
 
@@ -318,8 +325,8 @@ class CIconfigMenu(Screen):
 		self.read_providers = []
 		self.usingcaid = []
 		self.ci_config = []
-		try:
-			tree = parse(self.filename).getroot()
+		tree = fileReadXML(self.filename)
+		if tree is not None:
 			for slot in tree.findall("slot"):
 				read_slot = str(getValue(slot.findall("id"), False))
 				i = 0
@@ -339,12 +346,6 @@ class CIconfigMenu(Screen):
 					read_provider_dvbname = str(provider.get("dvbnamespace"))
 					self.read_providers.append((read_provider_name, read_provider_dvbname))
 				self.ci_config.append((int(read_slot), (self.read_services, self.read_providers, self.usingcaid)))
-		except:
-			print("[CI_Config_CI%d] error parsing xml..." % self.ci_slot)
-			try:
-				remove(self.filename)
-			except:
-				print("[CI_Activate_Config_CI%d] error remove damaged xml..." % self.ci_slot)
 
 		for item in self.read_services:
 			if len(item):
