@@ -2,22 +2,16 @@ from boxbranding import getMachineBrand
 
 from enigma import ePicLoad, eTimer, getDesktop, gMainDC, eSize
 
+from Components.ActionMap import ActionMap, NumberActionMap
+from Components.config import config, ConfigSubsection, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, getConfigListEntry
+from Components.ConfigList import ConfigListScreen
+from Components.FileList import FileList
+from Components.Pixmap import Pixmap, MovingPixmap
+from Components.Sources.List import List
+from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 from Tools.Directories import resolveFilename, pathExists, SCOPE_MEDIA, SCOPE_CURRENT_SKIN
-
-from Components.Pixmap import Pixmap, MovingPixmap
-from Components.ActionMap import ActionMap, NumberActionMap
-from Components.Sources.StaticText import StaticText
-from Components.FileList import FileList
-from Components.AVSwitch import AVSwitch
-from Components.Sources.List import List
-from Components.ConfigList import ConfigListScreen
-from Components.config import config, ConfigSubsection, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, getConfigListEntry
 from skin import applySkinFactor, parameters
-
-
-def getScale():
-	return AVSwitch().getFramebufferScale()
 
 
 config.pic = ConfigSubsection()
@@ -127,9 +121,8 @@ class picshow(Screen):
 
 	def setConf(self, retval=None):
 		self.setTitle(_("Picture player"))
-		sc = getScale()
 		#0=Width 1=Height 2=Aspect 3=use_cache 4=resize_type 5=Background(#AARRGGBB)
-		self.picload.setPara((self["thn"].instance.size().width(), self["thn"].instance.size().height(), sc[0], sc[1], config.pic.cache.value, int(config.pic.resize.value), "#00000000", config.pic.autoOrientation.value))
+		self.picload.setPara((self["thn"].instance.size().width(), self["thn"].instance.size().height(), 1, 1, config.pic.cache.value, int(config.pic.resize.value), "#00000000", config.pic.autoOrientation.value))
 
 	def callbackView(self, val=0):
 		if val > 0:
@@ -325,8 +318,7 @@ class Pic_Thumb(Screen):
 		self.ThumbTimer.callback.append(self.showPic)
 
 	def setPicloadConf(self):
-		sc = getScale()
-		self.picload.setPara([self["thumb0"].instance.size().width(), self["thumb0"].instance.size().height(), sc[0], sc[1], config.pic.cache.value, int(config.pic.resize.value), self.color, config.pic.autoOrientation.value])
+		self.picload.setPara([self["thumb0"].instance.size().width(), self["thumb0"].instance.size().height(), 1, 1, config.pic.cache.value, int(config.pic.resize.value), self.color, config.pic.autoOrientation.value])
 		self.paintFrame()
 
 	def paintFrame(self):
@@ -509,7 +501,7 @@ class Pic_Full_View(Screen):
 	def setConf(self, retval=None):
 		sc = getScale()
 		#0=Width 1=Height 2=Aspect 3=use_cache 4=resize_type 5=Background(#AARRGGBB)
-		self.picload.setPara([self["pic"].instance.size().width(), self["pic"].instance.size().height(), sc[0], sc[1], 0, int(config.pic.resize.value), self.bgcolor, config.pic.autoOrientation.value])
+		self.picload.setPara([self["pic"].instance.size().width(), self["pic"].instance.size().height(), 1, 1, 0, int(config.pic.resize.value), self.bgcolor, config.pic.autoOrientation.value])
 
 	def ShowPicture(self):
 		if self.shownow and len(self.currPic):

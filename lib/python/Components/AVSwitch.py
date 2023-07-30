@@ -302,9 +302,7 @@ class AVSwitch:
 		return ret
 
 	def getFramebufferScale(self):
-		aspect = self.getOutputAspect()
-		fb_size = getDesktop(0).size()
-		return (aspect[0] * fb_size.height(), aspect[1] * fb_size.width())
+		return (1, 1)
 
 	def getAspectRatioSetting(self):
 		valstr = config.av.aspectratio.value

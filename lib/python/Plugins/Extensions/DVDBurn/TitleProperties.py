@@ -1,11 +1,10 @@
 from enigma import ePicLoad
 
 from Components.ActionMap import ActionMap
-from Components.Sources.StaticText import StaticText
-from Components.Pixmap import Pixmap
 from Components.config import config, getConfigListEntry, ConfigInteger
 from Components.ConfigList import ConfigListScreen
-from Components.AVSwitch import AVSwitch
+from Components.Pixmap import Pixmap
+from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 from . import DVDTitle
 
@@ -108,8 +107,7 @@ class TitleProperties(ConfigListScreen, Screen):
 
 	def loadThumb(self):
 		thumbfile = self.project.titles[self.title_idx].inputfile.rsplit('.', 1)[0] + ".png"
-		sc = AVSwitch().getFramebufferScale()
-		self.picload.setPara((self["thumbnail"].instance.size().width(), self["thumbnail"].instance.size().height(), sc[0], sc[1], False, 1, "#00000000"))
+		self.picload.setPara((self["thumbnail"].instance.size().width(), self["thumbnail"].instance.size().height(), 1, 1, False, 1, "#00000000"))
 		self.picload.startDecode(thumbfile)
 
 	def paintThumbPixmapCB(self, picInfo=None):
