@@ -2,7 +2,6 @@ from os import fsync, path as ospath, remove, rename
 from bisect import insort
 from time import ctime, time
 from timer import Timer, TimerEntry
-import xml.etree.cElementTree
 
 from boxbranding import getMachineBrand, getMachineName
 from enigma import eActionMap, quitMainloop
