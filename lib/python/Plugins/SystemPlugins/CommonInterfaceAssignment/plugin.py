@@ -1,14 +1,6 @@
-<<<<<<< HEAD
 from os import path, remove, unlink
-from xml.etree.cElementTree import parse
-=======
-import six
-
-import os
->>>>>>> 7d28132... [CommonInterfaceAssignment] simplify xml read
 
 from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter
-
 
 from Components.ActionMap import ActionMap
 from Components.config import ConfigNothing
