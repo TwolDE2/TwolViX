@@ -1,4 +1,4 @@
-from enigma import eTimer, eDVBCI_UI, eDVBCIInterfaces
+from enigma import eTimer, eDVBCI_UI
 
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigSubList, getConfigListEntry, KEY_LEFT, KEY_RIGHT, KEY_0, ConfigNothing, ConfigPIN, ConfigYesNo, NoSave
@@ -8,13 +8,14 @@ from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from Tools.BoundFunction import boundFunction
 import Screens.Standby
+from Tools.BoundFunction import boundFunction
+
 
 forceNotShowCiMessages = False
 
 def setCIBitrate(configElement):
-	eDVBCI_UI.getInstance().setClockRate(configElement.slotid, eDVBCI_UI.rateNormal if configElement.value == "no" else eDVBCI_UI.rateHigh)
+	eDVBCI_UI.getInstance().setClockRate(configElement.slotid, configElement.value)
 
 def setCIEnabled(configElement):
 	eDVBCI_UI.getInstance().setEnabled(configElement.slotid, configElement.value)
@@ -37,14 +38,25 @@ def InitCiConfig():
 			config.ci[slot].enabled = ConfigYesNo(default=True)
 			config.ci[slot].enabled.slotid = slot
 			config.ci[slot].enabled.addNotifier(setCIEnabled)
-			config.ci[slot].canDescrambleMultipleServices = ConfigSelection(choices=[("auto", _("auto")), ("no", _("no")), ("yes", _("yes"))], default="auto")
+			config.ci[slot].canDescrambleMultipleServices = ConfigSelection(choices=[("auto", _("Auto")), ("no", _("No")), ("yes", _("Yes"))], default="auto")
 			config.ci[slot].use_static_pin = ConfigYesNo(default=True)
 			config.ci[slot].static_pin = ConfigPIN(default=0)
 			config.ci[slot].show_ci_messages = ConfigYesNo(default=True)
 			if SystemInfo["CI%dSupportsHighBitrates" % slot]:
-				config.ci[slot].canHandleHighBitrates = ConfigYesNo(default=True)
-				config.ci[slot].canHandleHighBitrates.slotid = slot
-				config.ci[slot].canHandleHighBitrates.addNotifier(setCIBitrate)
+				with open("/proc/stb/tsmux/ci%d_tsclk_choices" % slot) as fd:
+					procChoices = fd.read().strip()
+				if procChoices:
+					choiceslist = procChoices.split(" ")
+					highBitrateChoices = [(item, _(item.title())) for item in choiceslist]
+				else:
+					highBitrateChoices = [
+						("normal", _("Normal")),
+						("high", _("High")),
+					]
+				print("[CI][InitCiConfig] highBitrateChoices", highBitrateChoices)					
+				config.ci[slot].highBitrate = ConfigSelection(default="high", choices=highBitrateChoices)
+				config.ci[slot].highBitrate.slotid = slot
+				config.ci[slot].highBitrate.addNotifier(setCIBitrate)
 			if SystemInfo["CI%dRelevantPidsRoutingSupport" % slot]:
 				config.ci[slot].relevantPidsRouting = ConfigYesNo(default=False)
 				config.ci[slot].relevantPidsRouting.slotid = slot
@@ -458,7 +470,7 @@ class CiSelection(Screen):
 		self.list.append(getConfigListEntry(_("Show CI messages"), config.ci[slot].show_ci_messages, 3, slot))
 		self.list.append(getConfigListEntry(_("Multiple service support"), config.ci[slot].canDescrambleMultipleServices, 3, slot))
 		if SystemInfo["CI%dSupportsHighBitrates" % slot]:
-			self.list.append(getConfigListEntry(_("High bitrate support"), config.ci[slot].canHandleHighBitrates, 3, slot))
+			self.list.append(getConfigListEntry(_("High bitrate support"), config.ci[slot].highBitrate))
 		if SystemInfo["CI%dRelevantPidsRoutingSupport" % slot]:
 			self.list.append(getConfigListEntry(_("Relevant PIDs routing"), config.ci[slot].relevantPidsRouting, 3, slot))
 		if SystemInfo["CommonInterfaceCIDelay"]:
