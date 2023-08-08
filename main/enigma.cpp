@@ -184,11 +184,11 @@ void quitMainloop(int exitCode)
 		if (fd >= 0)
 		{
 			if (ioctl(fd, 10 /*FP_CLEAR_WAKEUP_TIMER*/) < 0)
-				eDebug("[Enigma][quitMainloop] FP_CLEAR_WAKEUP_TIMER failed: %m");
+				eDebug("[Enigma2][quitMainloop] FP_CLEAR_WAKEUP_TIMER failed: %m");
 			close(fd);
 		}
 		else
-			eDebug("[Enigma][quitMainloop] open /dev/dbox/fp0 for wakeup timer clear failed: %m");
+			eDebug("[Enigma2][quitMainloop] open /dev/dbox/fp0 for wakeup timer clear failed: %m");
 	}
 	exit_code = exitCode;
 	eApp->quit(0);
@@ -240,14 +240,14 @@ int main(int argc, char **argv)
 
 	// set pythonpath if unset
 	setenv("PYTHONPATH", eEnv::resolve("${libdir}/enigma2/python").c_str(), 0);
-	printf("[Enigma] PYTHONPATH: %s\n", getenv("PYTHONPATH"));
-	printf("[Enigma] DVB_API_VERSION %d DVB_API_VERSION_MINOR %d\n", DVB_API_VERSION, DVB_API_VERSION_MINOR);
+	printf("[Enigma2] PYTHONPATH: %s\n", getenv("PYTHONPATH"));
+	printf("[Enigma2] DVB_API_VERSION %d DVB_API_VERSION_MINOR %d\n", DVB_API_VERSION, DVB_API_VERSION_MINOR);
 
 	// get enigma2 debug level settings
 	debugLvl = getenv("ENIGMA_DEBUG_LVL") ? atoi(getenv("ENIGMA_DEBUG_LVL")) : eSimpleConfig::getInt("config.crash.e2_debug_level", 4);
 	if (debugLvl < 0)
 		debugLvl = 0;
-	printf("[Enigma]ENIGMA_DEBUG_LVL=%d\n", debugLvl);
+	printf("[Enigma2]ENIGMA_DEBUG_LVL=%d\n", debugLvl);
 	if (getenv("ENIGMA_DEBUG_TIME"))
 		setDebugTime(atoi(getenv("ENIGMA_DEBUG_TIME")));
 
@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 
 /*	if (double_buffer)
 	{
-		eDebug("[Enigma] - double buffering found, enable buffered graphics mode.");
+		eDebug("[Enigma2] - double buffering found, enable buffered graphics mode.");
 		dsk.setCompositionMode(eWidgetDesktop::cmBuffered);
 	} */
 
@@ -302,7 +302,7 @@ int main(int argc, char **argv)
 	{
 		spinnerPostionX = spinnerPostionY = 25;
 	}
-	eDebug("[Enigma] Loading spinners...");
+	eDebug("[Enigma2] Loading spinners...");
 	{
 #define MAX_SPINNER 64
 		int i = 0;
@@ -336,7 +336,7 @@ int main(int argc, char **argv)
 			}
 			i++;
 		}
-		eDebug("[Enigma] Found %d spinners.", i);
+		eDebug("[Enigma2] Found %d spinners.", i);
 		if (i==0)
 			my_dc->setSpinner(eRect(spinnerPostionX, spinnerPostionY, 0, 0), wait, 1);
 		else
@@ -347,7 +347,7 @@ int main(int argc, char **argv)
 
 	eRCInput::getInstance()->keyEvent.connect(sigc::ptr_fun(&keyEvent));
 
-	printf("[Enigma] executing main\n");
+	printf("[Enigma2] executing main\n");
 	/* comment out next 2 lines to catch sigp and cause dump */
 	bsodCatchSignals();
 	catchTermSignal();
@@ -364,7 +364,7 @@ int main(int argc, char **argv)
 
 	if (exit_code == 5) /* python crash */
 	{
-		eDebug("[Enigma] (exit code 5)");
+		eDebug("[Enigma2] (exit code 5)");
 		bsodFatal(0);
 	}
 
@@ -411,7 +411,7 @@ const char *getGStreamerVersionString()
 void dump_malloc_stats(void)
 {
 	struct mallinfo2 mi = mallinfo2();
-	eDebug("[Enigma] MALLOC: %zu total", mi.uordblks);
+	eDebug("[Enigma2 MALLOC: %zu total", mi.uordblks);
 }
 
 #ifdef USE_LIBVUGLES2
