@@ -409,7 +409,7 @@ class HdmiCec:
 					self.volumeForwardingDestination = 5 		# on: send volume keys to receiver
 				else:
 					self.volumeForwardingDestination = 0 		# off: send volume keys to tv
-				print("[HdmiCec][messageReceived4]: volume forwarding=%s, msgaddress=%s" % (self.volumeForwardingDestination, msgaddress))			
+				print("[HdmiCec][messageReceived4]: volume forwarding=%s, msgaddress=%s" % (self.volumeForwardingDestination, msgaddress))
 				if config.hdmicec.volume_forwarding.value:
 					print("[HdmiCec][messageReceived5]: volume forwarding to device %02x enabled" % self.volumeForwardingDestination)
 					self.volumeForwardingEnabled = True
@@ -566,7 +566,7 @@ class HdmiCec:
 		if devicetypeSend:
 			devicetype = eHdmiCEC.getInstance().getDeviceType()
 			return struct.pack("BBB", int(physicaladdress // 256), int(physicaladdress % 256), devicetype)
-		else:	
+		else:
 			return struct.pack("BB", int(physicaladdress // 256), int(physicaladdress % 256))
 
 	def secondBoxActive(self):
