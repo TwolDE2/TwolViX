@@ -14,11 +14,14 @@ from Tools.BoundFunction import boundFunction
 
 forceNotShowCiMessages = False
 
+
 def setCIBitrate(configElement):
 	eDVBCI_UI.getInstance().setClockRate(configElement.slotid, configElement.value)
 
+
 def setCIEnabled(configElement):
 	eDVBCI_UI.getInstance().setEnabled(configElement.slotid, configElement.value)
+
 
 def setdvbCiDelay(configElement):
 	open(SystemInfo["CommonInterfaceCIDelay"], "w").write(configElement.value)
@@ -53,7 +56,7 @@ def InitCiConfig():
 						("normal", _("Normal")),
 						("high", _("High")),
 					]
-				print("[CI][InitCiConfig] highBitrateChoices", highBitrateChoices)					
+				print("[CI][InitCiConfig] highBitrateChoices", highBitrateChoices)
 				config.ci[slot].highBitrate = ConfigSelection(default="high", choices=highBitrateChoices)
 				config.ci[slot].highBitrate.slotid = slot
 				config.ci[slot].highBitrate.addNotifier(setCIBitrate)
