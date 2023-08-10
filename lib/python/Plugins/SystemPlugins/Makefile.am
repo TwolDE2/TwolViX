@@ -6,8 +6,7 @@ SUBDIRS = PositionerSetup Satfinder \
 	ForceFbcLNBpower \
 	VideoClippingSetup \
 	VideoEnhancement WirelessLan NetworkWizard \
-	SABnzbdSetup FastScan SatelliteEquipmentControl DiseqcTester \
-	FastChannelChange
+	SABnzbdSetup FastScan SatelliteEquipmentControl DiseqcTester
 
 if VUZERO4K
 SUBDIRS += CableScan
@@ -43,6 +42,10 @@ endif
 
 if HAVE_OSDANIMATION
 SUBDIRS += AnimationSetup
+endif
+
+if HAVE_FCC
+SUBDIRS += FastChannelChange
 endif
 
 install_PYTHON = __init__.py
