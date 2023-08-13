@@ -2,7 +2,7 @@ name: Enigma2 Py3
 
 on:
   push:
-    branches: [ Py3, Py3D, Py3E, Py3F]
+    branches: [ Py3, Py3D, Py3E, Py3F, FCC2]
     paths-ignore:
       - '**/README'
       - '**/DOCS'
