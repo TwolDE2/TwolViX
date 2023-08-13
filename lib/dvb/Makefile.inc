@@ -18,6 +18,8 @@ dvb_libenigma_dvb_a_SOURCES = \
 	dvb/esection.cpp \
 	dvb/fastscan.cpp \
 	dvb/fbc.cpp \
+	dvb/fcc.cpp \
+	dvb/fccdecoder.cpp \
 	dvb/filepush.cpp \
 	dvb/frontend.cpp \
 	dvb/frontendparms.cpp \
@@ -57,6 +59,8 @@ dvbinclude_HEADERS = \
 	dvb/esection.h \
 	dvb/fastscan.h \
 	dvb/fbc.h \
+	dvb/fcc.h \
+	dvb/fccdecoder.h \
 	dvb/filepush.h \
 	dvb/frontend.h \
 	dvb/frontendparms.h \
@@ -80,13 +84,4 @@ dvbinclude_HEADERS = \
 	dvb/teletext.h \
 	dvb/tstools.h \
 	dvb/volume.h
-	
-if HAVE_FCC
-dvbinclude_HEADERS = += \
-	dvb/fcc.h \
-	dvb/fccdecoder.h	
-dvb_libenigma_dvb_a_SOURCES = \
-	dvb/fcc.cpp \
-	dvb/fccdecoder.cpp
-endif		
 	
