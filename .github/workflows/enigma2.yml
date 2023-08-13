@@ -7,7 +7,7 @@ on:
       - '**/README'
       - '**/DOCS'
   pull_request:
-    branches: [Py3, Py3D, Py3E, Py3F]
+    branches: [Py3, Py3D, Py3E, Py3F, FCC2]
     paths-ignore:
       - '**/README'
       - '**/DOCS'
