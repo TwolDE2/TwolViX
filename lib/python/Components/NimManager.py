@@ -2,16 +2,14 @@ from os import access, path, F_OK
 from datetime import datetime
 from time import localtime, mktime
 from itertools import chain
-import xml.etree.cElementTree
 
 from enigma import eDVBFrontendParametersSatellite, eDVBSatelliteEquipmentControl as secClass, eDVBSatelliteDiseqcParameters as diseqcParam, eDVBSatelliteSwitchParameters as switchParam, eDVBSatelliteRotorParameters as rotorParam, eDVBResourceManager, eDVBDB, eEnv
 
 from Components.About import about
-
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigFloat, ConfigSatlist, ConfigYesNo, ConfigInteger, ConfigSubList, ConfigNothing, ConfigSubDict, ConfigOnOff, ConfigDateTime, ConfigText
-
 from Components.SystemInfo import SystemInfo
 from Tools.BoundFunction import boundFunction
+from Tools.Directories import fileReadXML
 
 config.unicable = ConfigSubsection()
 
@@ -573,7 +571,7 @@ class NIM:
 				sattypes.remove("DVB-S")
 			if len(sattypes) > 1:
 				self.multi_type = {}
-				self.combined = not(path.exists("/proc/stb/frontend/%d/mode" % self.frontend_id) or self.isFBCTuner())
+				self.combined = not (path.exists("/proc/stb/frontend/%d/mode" % self.frontend_id) or self.isFBCTuner())
 				for sattype in sattypes:
 					self.multi_type[str(sattypes.index(sattype))] = sattype
 			elif len(self.multi_type) > 1:
@@ -882,8 +880,8 @@ class NimManager:
 		# nim_slots is an array which has exactly one entry for each slot, even for empty ones.
 		self.nim_slots = []
 
-		if config.clientmode.enabled.value:
-			print("[NimManager][enumerateNIMs] Receiver in client mode. Local NIMs will be ignored.")
+		if config.clientmode.enabled.value or (SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0):
+			print("[NimManager][enumerateNIMs] Receiver in client mode or Vu+ Recovery. Local NIMs will be ignored.")
 			return
 
 		try:
@@ -1194,7 +1192,6 @@ class NimManager:
 	def getNimListForSat(self, orb_pos):
 		return [nim.slot for nim in self.nim_slots if nim.isCompatible("DVB-S") and not nim.isFBCLink() and orb_pos in [sat[0] for sat in self.getSatListForNim(nim.slot)]]
 
-
 	def rotorLastPositionForNim(self, slotid, number=True):
 		available_slot = False
 		for slot in self.nim_slots:
@@ -1400,7 +1397,11 @@ def InitNimManager(nimmgr, update_slots=[]):
 
 				def scrListChanged(productparameters, srcfrequencylist, configEntry):
 					section.format = ConfigSelection([("unicable", _("SCR Unicable")), ("jess", _("SCR JESS"))], default=getformat(productparameters.get("format", "unicable"), configEntry.index))
-					section.scrfrequency = ConfigInteger(default=int(srcfrequencylist[configEntry.index]))
+					default_value = int(srcfrequencylist[configEntry.index])
+					section.scrfrequency = ConfigInteger(default=default_value)
+					section.scrfrequency.save_forced = True
+					section.scrfrequency.value = default_value
+					section.scrfrequency.save()
 					section.positions = ConfigInteger(default=int(productparameters.get("positions", 1)))
 					section.positions.addNotifier(positionsChanged)
 					section.positionsOffset = ConfigInteger(default=int(productparameters.get("positionsoffset", 0)))
@@ -1435,6 +1436,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 
 				def userScrListChanged(srcfrequencyList, configEntry):
 					section.scrfrequency = ConfigInteger(default=int(srcfrequencyList[configEntry.index]), limits=(0, 99999))
+					section.scrfrequency.save_forced = True
 					section.lofl = ConfigInteger(default=9750, limits=(0, 99999))
 					section.lofh = ConfigInteger(default=10600, limits=(0, 99999))
 					section.threshold = ConfigInteger(default=11700, limits=(0, 99999))
@@ -1477,7 +1479,7 @@ def InitNimManager(nimmgr, update_slots=[]):
 						section.format = ConfigSelection([("unicable", _("SCR Unicable")), ("jess", _("SCR JESS"))])
 						section.format.addNotifier(formatChanged)
 
-				unicable_xml = xml.etree.cElementTree.parse(eEnv.resolve("${datadir}/enigma2/unicable.xml")).getroot()
+				unicable_xml = fileReadXML(eEnv.resolve("${datadir}/enigma2/unicable.xml"), "<unicable />")
 				unicableList = [("unicable_lnb", _("SCR (Unicable/JESS)") + " " + _("LNB")), ("unicable_matrix", _("SCR (Unicable/JESS)") + " " + _("Switch")), ("unicable_user", _("SCR (Unicable/JESS)") + " " + _("User defined"))]
 				if not config.unicable.content.items.get("unicable", False):
 					config.unicable.unicable = ConfigSelection(unicableList)

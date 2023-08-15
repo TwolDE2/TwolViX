@@ -1,10 +1,13 @@
 from sys import modules, version_info
 from os import path as ospath
+from time import time
 import socket
 import fcntl
 import struct
 
-from boxbranding import getImageVersion, getMachineBuild, getBoxType
+from boxbranding import getDriverDate, getImageVersion, getMachineBuild, getBoxType
+
+from enigma import getEnigmaVersionString
 
 
 def getVersionString():
@@ -12,77 +15,71 @@ def getVersionString():
 
 
 def getFlashDateString():
-	try:
+	if ospath.isfile('/etc/install'):
 		with open("/etc/install", "r") as f:
-			flashdate = f.read()
-			return flashdate
-	except:
+			return _formatDate(f.read())
+	else:
 		return _("unknown")
 
 
-def getEnigmaVersionString():
-	return getImageVersion()
+def driversDate():
+	return _formatDate(getDriverDate())
+
+
+def getLastUpdate():
+	return _formatDate(getEnigmaVersionString().replace("-", ""))
+
+
+def _formatDate(Date):
+	# expected input = "YYYYMMDD"
+	if len(Date) != 8 or not Date.isnumeric():
+		return _("unknown")
+	from Components.config import config
+	return config.usage.date.dateFormatAbout.value % {"year": Date[0:4], "month": Date[4:6], "day": Date[6:8]}
 
 
 def getGStreamerVersionString():
 	try:
 		from glob import glob
 		gst = [x.split("Version: ") for x in open(glob("/var/lib/opkg/info/gstreamer[0-9].[0-9].control")[0], "r") if x.startswith("Version:")][0]
-		return "%s" % gst[1].split("+")[0].replace("\n", "")
+		return "%s" % gst[1].split("+")[0].split("-")[0].replace("\n", "")
 	except:
 		return _("unknown")
 
 
 def getKernelVersionString():
 	try:
-		with open("/proc/version", "r") as f:
-			kernelversion = f.read().split(" ", 4)[2].split("-", 2)[0]
-			return kernelversion
+		return open("/proc/version").read().split(" ", 3)[2].split("-", 1)[0]
 	except:
 		return _("unknown")
 
 
 def getIsBroadcom():
 	try:
-		with open("/proc/cpuinfo", "r") as file:
-			lines = file.readlines()
-			for x in lines:
-				splitted = x.split(": ")
-				if len(splitted) > 1:
-					splitted[1] = splitted[1].replace("\n", "")
-					if splitted[0].startswith("Hardware"):
-						system = splitted[1].split(" ")[0]
-					elif splitted[0].startswith("system type"):
-						if splitted[1].split(" ")[0].startswith("BCM"):
-							system = "Broadcom"
-		if "Broadcom" in system:
-			return True
-		else:
-			return False
+		for x in open("/proc/cpuinfo").readlines():
+			x = x.split(": ")
+			if len(x) > 1 and (x[0].startswith("Hardware") and x[1].split(" ")[0] == "Broadcom" or x[0].startswith("system type") and x[1].startswith("BCM")):
+				return True
 	except:
-		return False
+		pass
+	return False
 
 
 def getChipSetString():
 	try:
-		with open("/proc/stb/info/chipset", "r") as f:
-			return str(f.read().lower().replace("\n", "").replace("brcm", "").replace("bcm", ""))
-	except IOError:
+		return str(open("/proc/stb/info/chipset").read().lower().replace("\n", "").replace("brcm", "").replace("bcm", ""))
+	except:
 		return _("unavailable")
 
 
 def getCPUSpeedMHzInt():
 	cpu_speed = 0
 	try:
-		with open("/proc/cpuinfo", "r") as file:
-			lines = file.readlines()
-			for x in lines:
-				splitted = x.split(": ")
-				if len(splitted) > 1:
-					splitted[1] = splitted[1].replace("\n", "")
-					if splitted[0].startswith("cpu MHz"):
-						cpu_speed = float(splitted[1].split(" ")[0])
-						break
+		for x in open("/proc/cpuinfo").readlines():
+			x = x.split(": ")
+			if len(x) > 1 and x[0].startswith("cpu MHz"):
+				cpu_speed = float(x[1].split(" ")[0].strip())
+				break
 	except IOError:
 		print("[About] getCPUSpeedMHzInt, /proc/cpuinfo not available")
 
@@ -124,39 +121,17 @@ def getCPUArch():
 
 
 def getCPUString():
-	system = _("unavailable")
 	try:
-		with open("/proc/cpuinfo", "r") as file:
-			lines = file.readlines()
-			for x in lines:
-				splitted = x.split(": ")
-				if len(splitted) > 1:
-					splitted[1] = splitted[1].replace("\n", "")
-					if splitted[0].startswith("system type"):
-						system = splitted[1].split(" ")[0]
-					elif splitted[0].startswith("model name"):
-						system = splitted[1].split(" ")[0]
-					elif splitted[0].startswith("Processor"):
-						system = splitted[1].split(" ")[0]
-			return system
-	except IOError:
+		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if (x.startswith("system type") or x.startswith("model name") or x.startswith("Processor")) and len(x.split(": ")) > 1][0]
+	except:
 		return _("unavailable")
 
 
 def getCpuCoresInt():
-	cores = 0
 	try:
-		with open("/proc/cpuinfo", "r") as file:
-			lines = file.readlines()
-			for x in lines:
-				splitted = x.split(": ")
-				if len(splitted) > 1:
-					splitted[1] = splitted[1].replace("\n", "")
-					if splitted[0].startswith("processor"):
-						cores = int(splitted[1]) + 1
-	except IOError:
-		pass
-	return cores
+		return int(open("/sys/devices/system/cpu/present").read().split("-")[1]) + 1
+	except:
+		return 0
 
 
 def getCpuCoresString():
@@ -212,7 +187,6 @@ def getPythonVersionString():
 
 
 def getEnigmaUptime():
-	from time import time
 	location = "/etc/enigma2/profile"
 	try:
 		seconds = int(time() - ospath.getmtime(location))
@@ -223,9 +197,8 @@ def getEnigmaUptime():
 
 def getBoxUptime():
 	try:
-		f = open("/proc/uptime", "rb")
-		seconds = int(f.readline().split('.')[0])
-		f.close()
+		with open("/proc/uptime", "rb") as f:
+			seconds = int(f.readline().split('.')[0])
 		return formatUptime(seconds)
 	except:
 		return ''
@@ -248,20 +221,8 @@ def formatUptime(seconds):
 
 
 def getEnigmaUptime():
-	from time import time
-	location = "/etc/enigma2/profile"
 	try:
-		seconds = int(time() - ospath.getmtime(location))
-		return formatUptime(seconds)
-	except:
-		return ''
-
-
-def getBoxUptime():
-	try:
-		f = open("/proc/uptime", "rb")
-		seconds = int(f.readline().split('.')[0])
-		f.close()
+		seconds = int(time() - ospath.getmtime("/etc/enigma2/profile"))
 		return formatUptime(seconds)
 	except:
 		return ''

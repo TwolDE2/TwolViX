@@ -12,7 +12,7 @@ Lpackagename = "enigma2-locale-"
 
 class Language:
 	def __init__(self):
-		gettext.install('enigma2', resolveFilename(SCOPE_LANGUAGE, ""), codeset="utf-8")
+		gettext.install('enigma2', resolveFilename(SCOPE_LANGUAGE, ""))
 		gettext.bindtextdomain("enigma2", resolveFilename(SCOPE_LANGUAGE))
 		gettext.textdomain("enigma2")
 		self.activeLanguage = 0
@@ -94,6 +94,7 @@ class Language:
 		self.catalog = gettext.translation('enigma2', resolveFilename(SCOPE_LANGUAGE, ""), languages=[index], fallback=True)
 		self.catalog.install(names=("ngettext", "pgettext"))
 		self.activeLanguage = index
+		print("[Language] Activating language self.activeLanguage", self.activeLanguage)
 		self.gotLanguage = self.getLanguage()
 		for x in self.callbacks:
 			if x:
@@ -124,12 +125,12 @@ class Language:
 		# HACK: sometimes python 2.7 reverts to the LC_TIME environment value, so make sure it has the correct value
 		environ["LC_TIME"] = self.gotLanguage + '.UTF-8'
 		environ["LANGUAGE"] = self.gotLanguage + '.UTF-8'
-		environ["LANGUAGE2"] = self.gotLanguage		
+		environ["LANGUAGE2"] = self.gotLanguage
 		environ["GST_SUBTITLE_ENCODING"] = self.getGStreamerSubtitleEncoding()
 		return True
 
 	def activateLanguage(self, index):
-		from Screens.MessageBox import MessageBox	
+		from Screens.MessageBox import MessageBox
 		from Tools import Notifications
 		if not self.activateLanguage_TRY(index):
 			print("[Language] - retry with ", "en_US")
@@ -170,7 +171,7 @@ class Language:
 		self.callbacks.append(callback)
 
 	def delLanguage(self, delLang=None):
-		from Components.config import config, configfile
+		from Components.config import config
 
 		if delLang:
 			lang = config.osd.language.value

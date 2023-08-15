@@ -1,5 +1,5 @@
 import errno
-import xml.etree.cElementTree
+from xml.etree.cElementTree import Element, ElementTree, fromstring
 
 from enigma import addFont, eLabel, ePixmap, ePoint, eRect, eSize, eWindow, eWindowStyleManager, eWindowStyleSkinned, getDesktop, gFont, getFontFaces, gMainDC, gRGB, BT_ALPHATEST, BT_ALPHABLEND, BT_HALIGN_CENTER, BT_HALIGN_LEFT, BT_HALIGN_RIGHT, BT_KEEP_ASPECT_RATIO, BT_SCALE, BT_VALIGN_BOTTOM, BT_VALIGN_CENTER, BT_VALIGN_TOP
 from os.path import basename, dirname, isfile, join
@@ -7,7 +7,7 @@ from os.path import basename, dirname, isfile, join
 from Components.config import ConfigSubsection, ConfigText, config
 from Components.Sources.Source import ObsoleteSource
 from Components.SystemInfo import SystemInfo
-from Tools.Directories import SCOPE_CONFIG, SCOPE_CURRENT_LCDSKIN, SCOPE_CURRENT_SKIN, SCOPE_FONTS, SCOPE_SKIN, SCOPE_SKIN_IMAGE, resolveFilename
+from Tools.Directories import SCOPE_CONFIG, SCOPE_CURRENT_LCDSKIN, SCOPE_CURRENT_SKIN, SCOPE_FONTS, SCOPE_SKIN, SCOPE_SKIN_IMAGE, resolveFilename, fileReadXML, clearResolveLists
 from Tools.Import import my_import
 from Tools.LoadPixmap import LoadPixmap
 
@@ -82,14 +82,17 @@ def InitSkins(booting=True):
 	desktop = getDesktop(GUI_SKIN_ID)
 	# Add the emergency skin.  This skin should provide enough functionality
 	# to enable basic GUI functions to work.
-	loadSkin(EMERGENCY_SKIN, scope=SCOPE_CURRENT_SKIN, desktop=desktop, screenID=GUI_SKIN_ID)
+	if not loadSkin(EMERGENCY_SKIN, scope=SCOPE_CURRENT_SKIN, desktop=desktop, screenID=GUI_SKIN_ID):
+		print("[Skin] Error: Adding EMERGENCY_SKIN '%s' has failed!" % EMERGENCY_SKIN)
 	# Add the subtitle skin.
-	loadSkin(SUBTITLE_SKIN, scope=SCOPE_CURRENT_SKIN, desktop=desktop, screenID=GUI_SKIN_ID)
+	if not loadSkin(SUBTITLE_SKIN, scope=SCOPE_CURRENT_SKIN, desktop=desktop, screenID=GUI_SKIN_ID):
+		print("[Skin] Error: Adding SUBTITLE_SKIN '%s' has failed!" % SUBTITLE_SKIN)
 	# Add the front panel / display / lcd skin.
 	processed = []
 	for skin, name in [(config.skin.display_skin.value, "current"), (DEFAULT_DISPLAY_SKIN, "default")]:
 		if skin in processed:  # Don't try to add a skin that has already failed.
 			continue
+		clearResolveLists()
 		config.skin.display_skin.value = skin
 		if loadSkin(config.skin.display_skin.value, scope=SCOPE_CURRENT_LCDSKIN, desktop=getDesktop(DISPLAY_SKIN_ID), screenID=DISPLAY_SKIN_ID):
 			currentDisplaySkin = config.skin.display_skin.value
@@ -101,6 +104,7 @@ def InitSkins(booting=True):
 	for skin, name in [(config.skin.primary_skin.value, "current"), (DEFAULT_SKIN, "default")]:
 		if skin in processed:  # Don't try to add a skin that has already failed.
 			continue
+		clearResolveLists()
 		config.skin.primary_skin.value = skin
 		if loadSkin(config.skin.primary_skin.value, scope=SCOPE_CURRENT_SKIN, desktop=desktop, screenID=GUI_SKIN_ID):
 			currentPrimarySkin = config.skin.primary_skin.value
@@ -141,54 +145,34 @@ def loadSkinData(desktop):
 def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screenID=GUI_SKIN_ID):
 	global windowStyles
 	filename = resolveFilename(scope, filename)
-	#	print("[Skin] Loading skin file '%s'." % filename)
-	try:
-		with open(filename, "r") as fd:  # This open gets around a possible file handle leak in Python's XML parser.
-			try:
-				domSkin = xml.etree.cElementTree.parse(fd).getroot()
-				# print("[Skin] DEBUG: Extracting non screen blocks from '%s'.  (scope='%s')" % (filename, scope))
-				# For loadSingleSkinData colors, bordersets etc. are applied one after
-				# the other in order of ascending priority.
-				loadSingleSkinData(desktop, screenID, domSkin, filename, scope=scope)
-				for element in domSkin:
-					if element.tag == "screen":  # Process all screen elements.
-						name = element.attrib.get("name", None)
-						if name:  # Without a name, it's useless!
-							scrnID = element.attrib.get("id", None)
-							if scrnID is None or scrnID == screenID:  # If there is a screen ID is it for this display.
-								# print("[Skin] DEBUG: Extracting screen '%s' from '%s'.  (scope='%s')" % (name, filename, scope))
-								domScreens[name] = (element, "%s/" % dirname(filename))
-					elif element.tag == "windowstyle":  # Process the windowstyle element.
+	if isfile(filename):
+#		print("[Skin] Loading skin file '%s'." % filename)
+		domSkin = fileReadXML(filename)
+		if domSkin:
+#			print("[Skin] DEBUG: Extracting non screen blocks from '%s'.  (scope='%s')" % (filename, {SCOPE_CONFIG: "SCOPE_CONFIG", SCOPE_CURRENT_LCDSKIN: "SCOPE_CURRENT_LCDSKIN", SCOPE_CURRENT_SKIN: "SCOPE_CURRENT_SKIN", SCOPE_FONTS: "SCOPE_FONTS", SCOPE_SKIN: "SCOPE_SKIN", SCOPE_SKIN_IMAGE: "SCOPE_SKIN_IMAGE"}.get(scope, scope)))
+			# For loadSingleSkinData colors, bordersets etc. are applied one after
+			# the other in order of ascending priority.
+			loadSingleSkinData(desktop, screenID, domSkin, filename, scope=scope)
+			for element in domSkin:
+				if element.tag == "screen":  # Process all screen elements.
+					name = element.attrib.get("name", None)
+					if name:  # Without a name, it's useless!
 						scrnID = element.attrib.get("id", None)
-						if scrnID is not None:  # Without an scrnID, it is useless!
-							scrnID = int(scrnID)
-							# print("[Skin] DEBUG: Processing a windowstyle ID='%s'." % scrnID)
-							domStyle = xml.etree.cElementTree.ElementTree(xml.etree.cElementTree.Element("skin"))
-							domStyle.getroot().append(element)
-							windowStyles[scrnID] = (desktop, screenID, domStyle.getroot(), filename, scope)
-					# Element is not a screen or windowstyle element so no need for it any longer.
-				reloadWindowStyles()  # Reload the window style to ensure all skin changes are taken into account.
-				# print("[Skin] Loading skin file '%s' complete." % filename)
-				return True
-			except xml.etree.cElementTree.ParseError as err:
-				fd.seek(0)
-				content = fd.readlines()
-				line, column = err.position
-				print("[Skin] XML Parse Error: '%s' in '%s'!" % (err, filename))
-				data = content[line - 1].replace("\t", " ").rstrip()
-				print("[Skin] XML Parse Error: '%s'" % data)
-				print("[Skin] XML Parse Error: '%s^%s'" % ("-" * column, " " * (len(data) - column - 1)))
-			except Exception as err:
-				print("[Skin] Error: Unable to parse skin data in '%s' - %s: '%s'!" % (filename, type(err).__name__, err))
-				import traceback
-				traceback.print_exc()
-	except (IOError, OSError) as err:
-		if err.errno == errno.ENOENT:  # No such file or directory
-			print("[Skin] Warning: Skin file '%s' does not exist!" % filename)
-		else:
-			print("[Skin] Error %d: Opening skin file '%s'! (%s)" % (err.errno, filename, err.strerror))
-	except Exception as err:
-		print("[Skin] Error: Unexpected error opening skin file '%s'! (%s)" % (filename, err))
+						if scrnID is None or scrnID == screenID:  # If there is a screen ID is it for this display.
+							# print("[Skin] DEBUG: Extracting screen '%s' from '%s'.  (scope='%s')" % (name, filename, scope))
+							domScreens[name] = (element, "%s/" % dirname(filename))
+				elif element.tag == "windowstyle":  # Process the windowstyle element.
+					scrnID = element.attrib.get("id", None)
+					if scrnID is not None:  # Without an scrnID, it is useless!
+						scrnID = int(scrnID)
+						# print("[Skin] DEBUG: Processing a windowstyle ID='%s'." % scrnID)
+						domStyle = ElementTree(Element("skin"))
+						domStyle.getroot().append(element)
+						windowStyles[scrnID] = (desktop, screenID, domStyle.getroot(), filename, scope)
+				# Element is not a screen or windowstyle element so no need for it any longer.
+			reloadWindowStyles()  # Reload the window style to ensure all skin changes are taken into account.
+#			print("[Skin] Loading skin file '%s' complete." % filename)
+			return True
 	return False
 
 
@@ -400,8 +384,8 @@ def loadPixmap(path, desktop, width=0, height=0):
 	option = path.find("#")
 	if option != -1:
 		path = path[:option]
-	if not SystemInfo["rc_default"] and basename(path) in ("rc.png", "rc0.png", "rc1.png", "rc2.png", "oldrc.png"):
-		path = resolveFilename(SCOPE_SKIN, join("rc_models", SystemInfo["rc_model"], "rc.png"))
+	if not SystemInfo["rc_default"] and basename(path) == "rc.png":
+		path = SystemInfo["RCImage"]
 	pixmap = LoadPixmap(path, desktop, None, width, height)
 	if pixmap is None:
 		raise SkinError("Pixmap file '%s' not found" % path)
@@ -467,7 +451,13 @@ class AttributeParser:
 	def conditional(self, value):
 		pass
 
+	def connection(self, value):
+		pass
+
 	def objectTypes(self, value):
+		pass
+
+	def objectTypesInverted(self, value):
 		pass
 
 	def position(self, value):
@@ -511,6 +501,9 @@ class AttributeParser:
 
 	def itemHeight(self, value):
 		self.guiObject.setItemHeight(parseScale(value))
+
+	def itemWidth(self, value):
+		self.guiObject.setItemWidth(parseScale(value))
 
 	def pixmap(self, value):
 		if value.endswith(".svg"): # if grafic is svg force alphatest to "blend"
@@ -578,7 +571,7 @@ class AttributeParser:
 		except KeyError:
 			raise AttribValueError("'none', 'scale', 'scaleKeepAspect', 'scaleLeftTop', 'scaleLeftCenter', 'scaleLeftBotton', 'scaleCenterTop', 'scaleCenter', 'scaleCenterBotton', 'scaleRightTop', 'scaleRightCenter', 'scaleRightBottom', 'moveLeftTop', 'moveLeftCenter', 'moveLeftBotton', 'moveCenterTop', 'moveCenter', 'moveCenterBotton', 'moveRightTop', 'moveRightCenter', 'moveRightBottom' ('Center'/'Centre'/'Middle' are equivalent)")
 
-	def orientation(self, value):  # Used by eSlider.
+	def orientation(self, value):  # Used by eSlider and eListBox.
 		try:
 			self.guiObject.setOrientation(*{
 				"orVertical": (self.guiObject.orVertical, False),
@@ -727,6 +720,8 @@ def applyScrollbar(guiObject):
 	if scrollbarStyle is None:
 		return
 	guiObject.setScrollbarWidth(scrollbarStyle["width"])
+	if "height" in scrollbarStyle and hasattr("setScrollbarHeight", guiObject):
+		guiObject.setScrollbarHeight(scrollbarStyle["height"])
 	guiObject.setScrollbarBorderWidth(scrollbarStyle["borderWidth"])
 	guiObject.setScrollbarBorderColor(scrollbarStyle["borderColor"])
 	guiObject.setScrollbarForegroundColor(scrollbarStyle["foregroundColor"])
@@ -833,7 +828,7 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 				parameters["PartnerBoxTimerName"] = applySkinFactor(0, 30, 20)
 				parameters["PartnerBoxTimerServicename"] = applySkinFactor(0, 0, 30)
 				parameters["SelectionListDescr"] = applySkinFactor(32, 3, 650, 30) # EPG Importer expandable sources list
-				parameters["SelectionListLock"] = applySkinFactor(0, 2, 28, 24) # EPG Importer expandable sources list 
+				parameters["SelectionListLock"] = applySkinFactor(0, 2, 28, 24) # EPG Importer expandable sources list
 				parameters["SHOUTcastListItem"] = applySkinFactor(20, 18, 22, 69, 20, 23, 43, 22)
 
 	for tag in domSkin.findall("include"):
@@ -1146,7 +1141,7 @@ def readSkin(screen, skin, names, desktop):
 		print("[Skin] Parsing embedded skin '%s'." % name)
 		if isinstance(skin, tuple):
 			for s in skin:
-				candidate = xml.etree.cElementTree.fromstring(s)
+				candidate = fromstring(s)
 				if candidate.tag == "screen":
 					screenID = candidate.attrib.get("id", None)
 					if (not screenID) or (int(screenID) == DISPLAY_SKIN_ID):
@@ -1155,12 +1150,12 @@ def readSkin(screen, skin, names, desktop):
 			else:
 				print("[Skin] No suitable screen found!")
 		else:
-			myScreen = xml.etree.cElementTree.fromstring(skin)
+			myScreen = fromstring(skin)
 		if myScreen:
 			screen.parsedSkin = myScreen
 	if myScreen is None:
 		print("[Skin] No skin to read or screen to display.")
-		myScreen = screen.parsedSkin = xml.etree.cElementTree.fromstring("<screen></screen>")
+		myScreen = screen.parsedSkin = fromstring("<screen></screen>")
 	screen.skinAttributes = []
 	skinPath = getattr(screen, "skin_path", path)
 	context = SkinContextStack()
@@ -1184,13 +1179,20 @@ def readSkin(screen, skin, names, desktop):
 		# widgets (source->renderer).
 		wname = widget.attrib.get("name")
 		wsource = widget.attrib.get("source")
-		if wname is None and wsource is None:
-			raise SkinError("The widget has no name and no source")
-			return
+		wconnection = widget.attrib.get("connection")
+		wclass = widget.attrib.get("addon")
+		source = None
+		if wname is None and wsource is None and wclass is None:
+			raise SkinError("The widget has no name, no source and no addon type specified")
+
 		if wname:
 			# print("[Skin] DEBUG: Widget name='%s'." % wname)
 			usedComponents.add(wname)
 			try:  # Get corresponding "gui" object.
+				# if wclass:
+				# 	relClass = my_import(".".join(("Components", wclass))).__dict__.get(wclass)
+				# 	screen[wname] = relClass()
+				# 	screen[wname].connectRelatedElement(wconnection, screen)
 				attributes = screen[wname].skinAttributes = []
 			except Exception:
 				raise SkinError("Component with name '%s' was not found in skin of screen '%s'" % (wname, name))
@@ -1221,9 +1223,13 @@ def readSkin(screen, skin, names, desktop):
 					break  # Otherwise, use the source.
 			if source is None:
 				raise SkinError("The source '%s' was not found in screen '%s'" % (wsource, name))
+
 			wrender = widget.attrib.get("render")
 			if not wrender:
-				raise SkinError("For source '%s' a renderer must be defined with a 'render=' attribute" % wsource)
+				if wsource:
+					raise SkinError("For source '%s' a renderer must be defined with a 'render=' attribute" % wsource)
+				elif wconnection:
+					raise SkinError("For connection '%s' a renderer must be defined with a 'render=' attribute" % wconnection)
 			for converter in widget.findall("convert"):
 				ctype = converter.get("type")
 				assert ctype, "[Skin] The 'convert' tag needs a 'type' attribute!"
@@ -1250,10 +1256,32 @@ def readSkin(screen, skin, names, desktop):
 			except ImportError:
 				raise SkinError("Renderer '%s' not found" % wrender)
 			renderer = rendererClass()  # Instantiate renderer.
-			renderer.connect(source)  # Connect to source.
+			if source:
+				renderer.connect(source)  # Connect to source.
 			attributes = renderer.skinAttributes = []
 			collectAttributes(attributes, widget, context, skinPath, ignore=("render", "source"))
 			screen.renderer.append(renderer)
+		elif wclass:
+			try:
+				addonClass = my_import(".".join(("Components", "Addons", wclass))).__dict__.get(wclass)
+			except ImportError:
+				raise SkinError("GUI Addon '%s' not found" % wclass)
+
+			if not wconnection:
+				raise SkinError("The widget is from addon type: %s , but no connection is specified." % wclass)
+
+			i = 0
+			wclassname_base = name + "_" + wclass + "_" + wconnection + "_"
+			while wclassname_base + str(i) in usedComponents:
+				i += 1
+			wclassname = wclassname_base + str(i)
+
+			usedComponents.add(wclassname)
+
+			screen[wclassname] = addonClass()
+			screen[wclassname].connectRelatedElement(wconnection, screen)
+			attributes = screen[wclassname].skinAttributes = []
+			collectAttributes(attributes, widget, context, skinPath, ignore=("addon",))
 
 	def processApplet(widget, context):
 		try:
@@ -1288,6 +1316,9 @@ def readSkin(screen, skin, names, desktop):
 				continue
 			objecttypes = w.attrib.get("objectTypes", "").split(",")
 			if len(objecttypes) > 1 and (objecttypes[0] not in list(screen.keys()) or not [i for i in objecttypes[1:] if i == screen[objecttypes[0]].__class__.__name__]):
+				continue
+			objecttypesinverted = w.attrib.get("objectTypesInverted", "").split(",")
+			if len(objecttypesinverted) > 1 and (objecttypesinverted[0] not in list(screen.keys()) or [i for i in objecttypesinverted[1:] if i == screen[objecttypesinverted[0]].__class__.__name__]):
 				continue
 			p = processors.get(w.tag, processNone)
 			try:
@@ -1357,6 +1388,25 @@ def findWidgets(name):
 	recursively until all referenced widgets are captured. This code only performs
 	a simple scan of the XML and no skin processing is performed.
 	"""
+	def recurseNamelessPanel(panel):
+		widgets = panel.findall("widget")
+		if widgets is not None:
+			for widget in widgets:
+				name = widget.get("name", None)
+				if name is not None:
+					widgetSet.add(name)
+				source = widget.get("source", None)
+				if source is not None:
+					widgetSet.add(source)
+		panels = panel.findall("panel")
+		if panels is not None:
+			for childPanel in panels:
+				name = childPanel.get("name", None)
+				if name:
+					widgetSet.update(findWidgets(name))
+				else:
+					recurseNamelessPanel(childPanel)
+
 	widgetSet = set()
 	element, path = domScreens.get(name, (None, None))
 	if element is not None:
@@ -1375,6 +1425,8 @@ def findWidgets(name):
 				name = panel.get("name", None)
 				if name:
 					widgetSet.update(findWidgets(name))
+				else:
+					recurseNamelessPanel(panel)
 	return widgetSet
 
 

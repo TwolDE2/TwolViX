@@ -29,6 +29,8 @@ class EventViewContextMenu(Screen):
 		Screen.__init__(self, session)
 		self.setTitle(_("Event view menu"))
 
+		self["description"] = StaticText()
+
 		self["actions"] = ActionMap(["OkCancelActions"],
 			{
 				"ok": self.okbuttonClick,
@@ -36,6 +38,9 @@ class EventViewContextMenu(Screen):
 			})
 
 		self["menu"] = MenuList(menu)
+		if self.updateDescription not in self["menu"].onSelectionChanged:
+			self["menu"].onSelectionChanged.append(self.updateDescription)
+		self.updateDescription()
 
 	def okbuttonClick(self):
 		self["menu"].getCurrent() and self["menu"].getCurrent()[1]()
@@ -43,13 +48,17 @@ class EventViewContextMenu(Screen):
 	def cancelClick(self):
 		self.close(False)
 
+	def updateDescription(self):
+		current = self["menu"].getCurrent()
+		self["description"].text = current and len(current) > 2 and hasattr(current[2], "description") and current[2].description or ""
+
 
 class EventViewBase:
 	def __init__(self, event, ref, callback=None, similarEPGCB=None):
 		self.similarEPGCB = similarEPGCB
 		self.cbFunc = callback
 		self.currentService = ref
-		self.isRecording = (not ref.ref.flags & eServiceReference.isGroup) and ref.ref.getPath()
+		self.isRecording = not ref.ref.flags & eServiceReference.isGroup and ref.ref.getPath() and "%3a//" not in ref.ref.toString()
 		self.event = event
 		self["Service"] = ServiceEvent()
 		self["Event"] = Event()
@@ -132,9 +141,12 @@ class EventViewBase:
 			return
 		timer = self.session.nav.RecordTimer.getTimerForEvent(self.currentService, event)
 		if timer is not None:
-			if "epgactions1" in self: self["epgactions1"].setEnabled(False)
-			if "epgactions2" in self: self["epgactions2"].setEnabled(False)
-			if "epgactions3" in self: self["epgactions3"].setEnabled(False)
+			if "epgactions1" in self:
+				self["epgactions1"].setEnabled(False)
+			if "epgactions2" in self:
+				self["epgactions2"].setEnabled(False)
+			if "epgactions3" in self:
+				self["epgactions3"].setEnabled(False)
 			cb_func1 = lambda ret: self.removeTimer(timer)
 			cb_func2 = lambda ret: self.editTimer(timer)
 			menu = [(_("Delete Timer"), 'CALLFUNC', callback, cb_func1), (_("Edit Timer"), 'CALLFUNC', callback, cb_func2)]
@@ -155,11 +167,13 @@ class EventViewBase:
 		if self.ChoiceBoxDialog:
 			self.ChoiceBoxDialog["actions"].execEnd()
 			self.session.deleteDialog(self.ChoiceBoxDialog)
-		self["actions"].setEnabled(True)
-		if "epgactions1" in self: self["epgactions1"].setEnabled(True)
-		if "epgactions2" in self: self["epgactions2"].setEnabled(True)
-		if "epgactions3" in self: self["epgactions3"].setEnabled(True)
-
+		self['actions'].setEnabled(True)
+		if "epgactions1" in self:
+			self["epgactions1"].setEnabled(True)
+		if "epgactions2" in self:
+			self["epgactions2"].setEnabled(True)
+		if "epgactions3" in self:
+			self["epgactions3"].setEnabled(True)
 
 	def setService(self, service):
 		self.currentService = service
@@ -252,7 +266,7 @@ class EventViewBase:
 			for p in plugins.getPlugins(PluginDescriptor.WHERE_EVENTINFO):
 				#only list service or event specific eventinfo plugins here, no servelist plugins
 				if "servicelist" not in p.fnc.__code__.co_varnames:
-					menu.append((p.name, boundFunction(self.runPlugin, p)))
+					menu.append((p.name, boundFunction(self.runPlugin, p), p))
 			if menu:
 				self.session.open(EventViewContextMenu, menu)
 

@@ -34,6 +34,8 @@ def InitUsageConfig():
 	else:
 		config.misc.remotecontrol_text_support = ConfigYesNo(default=False)
 
+	config.misc.usegstplaybin3 = ConfigYesNo(default=False)
+
 	config.usage = ConfigSubsection()
 	config.usage.subnetwork = ConfigYesNo(default=True)
 	config.usage.subnetwork_cable = ConfigYesNo(default=True)
@@ -42,7 +44,6 @@ def InitUsageConfig():
 	showrotorpositionChoicesUpdate()
 	config.usage.multibouquet = ConfigYesNo(default=True)
 	config.usage.maxchannelnumlen = ConfigSelection(default="4", choices=[("3", _("3")), ("4", _("4")), ("5", _("5")), ("6", _("6"))])
-
 	config.usage.alternative_number_mode = ConfigYesNo(default=False)
 
 	def alternativeNumberModeChange(configElement):
@@ -245,6 +246,12 @@ def InitUsageConfig():
 		("intermediate", _("Intermediate")),
 		("expert", _("Expert"))])
 
+	config.usage.help_sortorder = ConfigSelection(default="headings+alphabetic", choices=[
+		("headings+alphabetic", _("Alphabetical under headings")),
+		("flat+alphabetic", _("Flat alphabetical")),
+		("flat+remotepos", _("Flat by position on remote")),
+		("flat+remotegroups", _("Flat by key group on remote"))])
+
 	config.usage.on_long_powerpress = ConfigSelection(default="show_menu", choices=[
 		("show_menu", _("Show shutdown menu")),
 		("shutdown", _("Immediate shutdown")),
@@ -267,6 +274,8 @@ def InitUsageConfig():
 
 	config.usage.check_timeshift = ConfigYesNo(default=True)
 
+	config.usage.bootlogo_identify = ConfigYesNo(default=True)
+
 	config.usage.alternatives_priority = ConfigSelection(default="0", choices=[
 		("0", "DVB-S/-C/-T"),
 		("1", "DVB-S/-T/-C"),
@@ -284,6 +293,12 @@ def InitUsageConfig():
 	config.usage.jobtaskextensions = ConfigYesNo(default=True)
 	config.misc.disable_background_scan = ConfigYesNo(default=False)
 	config.misc.use_ci_assignment = ConfigYesNo(default=False)
+
+	choicelist = [("0", _("Disabled"))]
+	for i in (10, 50, 100, 500, 1000, 2000):
+		choicelist.append(("%d" % i, _("%d ms") % i))
+
+	config.usage.http_startdelay = ConfigSelection(default="0", choices=choicelist)
 
 	preferredTunerChoicesUpdate()
 
@@ -406,6 +421,7 @@ def InitUsageConfig():
 	config.usage.date = ConfigSubsection()
 	config.usage.date.enabled = NoSave(ConfigBoolean(default=False))
 	config.usage.date.enabled_display = NoSave(ConfigBoolean(default=False))
+	config.usage.date.dateFormatAbout = ConfigSelection(default="%(day)s-%(month)s-%(year)s", choices=[("%(day)s-%(month)s-%(year)s", _("DD-MM-YYYY")), ("%(month)s-%(day)s-%(year)s", _("MM-DD-YYYY")), ("%(year)s-%(month)s-%(day)s", _("YYYY-MM-DD"))])
 	config.usage.time = ConfigSubsection()
 	config.usage.time.enabled = NoSave(ConfigBoolean(default=False))
 	config.usage.time.disabled = NoSave(ConfigBoolean(default=True))
@@ -725,10 +741,10 @@ def InitUsageConfig():
 	config.epg = ConfigSubsection()
 	config.epg.eit = ConfigYesNo(default=True)
 	config.epg.mhw = ConfigYesNo(default=False)
-	config.epg.freesat = ConfigYesNo(default=True)
+	config.epg.freesat = ConfigYesNo(default=False)
 	config.epg.viasat = ConfigYesNo(default=True)
 	config.epg.netmed = ConfigYesNo(default=True)
-	config.epg.virgin = ConfigYesNo(default=True)
+	config.epg.virgin = ConfigYesNo(default=False)
 	config.epg.opentv = ConfigYesNo(default=True)
 
 	def EpgSettingsChanged(configElement):
@@ -779,6 +795,16 @@ def InitUsageConfig():
 	config.epg.cachesavesched.addNotifier(EpgCacheSaveSchedChanged, immediate_feedback=False)
 	config.epg.cacheloadtimer = ConfigSelectionNumber(default=24, stepwidth=1, min=1, max=24, wraparound=True)
 	config.epg.cachesavetimer = ConfigSelectionNumber(default=24, stepwidth=1, min=1, max=24, wraparound=True)
+
+	def correctInvalidEPGDataChange(configElement):
+		eServiceEvent.setUTF8CorrectMode(int(configElement.value))
+
+	config.epg.correct_invalid_epgdata = ConfigSelection(default="1", choices=[
+		("0", _("Disabled")),
+		("1", _("Enabled")),
+		("2", _("Debug"))
+	])
+	config.epg.correct_invalid_epgdata.addNotifier(correctInvalidEPGDataChange)
 
 	hddchoices = [("/etc/enigma2/", "Internal Flash")]
 	for p in harddiskmanager.getMountedPartitions():
@@ -879,7 +905,7 @@ def InitUsageConfig():
 		("last", _("Last speed"))])
 
 	config.crash = ConfigSubsection()
-	config.crash.enabledebug = ConfigYesNo(default=False)
+	config.crash.enabledebug = ConfigYesNo(default=True)
 	config.crash.e2_debug_level = ConfigSelection(default=4, choices=[(3, _("No Logs")), (4, _("Debug Logs")), (5, _("Debug+ Logs"))])
 	config.crash.debugloglimit = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=4, wraparound=True)
 
@@ -892,7 +918,7 @@ def InitUsageConfig():
 	config.crash.daysloglimit = ConfigSelectionNumber(min=1, max=30, stepwidth=1, default=8, wraparound=True)
 	config.crash.sizeloglimit = ConfigSelectionNumber(min=1, max=20, stepwidth=1, default=10, wraparound=True)
 	# config.crash.logtimeformat sets ENIGMA_DEBUG_TIME environmental variable on enigma2 start from enigma2.sh
-	config.crash.logtimeformat = ConfigSelection(default="1", choices=[
+	config.crash.logtimeformat = ConfigSelection(default="2", choices=[
 		("0", _("none")),
 		("1", _("boot time")),
 		("2", _("local time")),
@@ -999,6 +1025,7 @@ def InitUsageConfig():
 		("25000", _("25")),
 		("29970", _("29.97")),
 		("30000", _("30"))])
+	config.subtitles.pango_subtitle_removehi = ConfigYesNo(default=False)
 	config.subtitles.pango_autoturnon = ConfigYesNo(default=True)
 
 	config.autolanguage = ConfigSubsection()
@@ -1092,6 +1119,7 @@ def InitUsageConfig():
 	if not path.exists('/usr/softcams/'):
 		mkdir('/usr/softcams/', 0o755)
 	softcams = listdir('/usr/softcams/')
+
 	config.oscaminfo = ConfigSubsection()
 	config.oscaminfo.showInExtensions = ConfigYesNo(default=False)
 	config.oscaminfo.userdatafromconf = ConfigYesNo(default=True)
@@ -1105,7 +1133,7 @@ def InitUsageConfig():
 	config.misc.softcams = ConfigSelection(default="None", choices=[(x, _(x)) for x in CamControl("softcam").getList()])
 	config.misc.softcamrestarts = ConfigSelection(default="", choices=[
 					("", _("Don't restart")),
-					("s", _("Restart softcam"))])	
+					("s", _("Restart softcam"))])
 	SystemInfo["OScamInstalled"] = False
 
 	config.cccaminfo = ConfigSubsection()
@@ -1148,7 +1176,7 @@ def InitUsageConfig():
 	config.mediaplayer = ConfigSubsection()
 	config.mediaplayer.useAlternateUserAgent = ConfigYesNo(default=False)
 	config.mediaplayer.alternateUserAgent = ConfigText(default="")
-	
+
 	config.hdmicec = ConfigSubsection()
 	config.hdmicec.enabled = ConfigYesNo(default=False)
 	config.hdmicec.control_tv_standby = ConfigYesNo(default=True)
@@ -1176,9 +1204,9 @@ def InitUsageConfig():
 		"textview": _("Text View On"),
 		},
 		default="imageview")
-	config.hdmicec.fixed_physical_address = ConfigText(default="0.0.0.0")		
+	config.hdmicec.fixed_physical_address = ConfigText(default="0.0.0.0")
 	config.hdmicec.volume_forwarding = ConfigYesNo(default=False)
-	config.hdmicec.force_volume_forwarding = ConfigYesNo(default=False)	
+	config.hdmicec.force_volume_forwarding = ConfigYesNo(default=False)
 	config.hdmicec.control_receiver_wakeup = ConfigYesNo(default=False)
 	config.hdmicec.control_receiver_standby = ConfigYesNo(default=False)
 	config.hdmicec.handle_deepstandby_events = ConfigYesNo(default=False)
@@ -1194,7 +1222,7 @@ def InitUsageConfig():
 	config.hdmicec.bookmarks = ConfigLocations(default="/hdd/")
 	config.hdmicec.log_path = ConfigDirectory("/hdd/")
 	config.hdmicec.next_boxes_detect = ConfigYesNo(default=False)	# Before switching the TV to standby, receiver tests if any devices plugged to TV are in standby. If they are not, the 'sourceinactive' command will be sent to the TV instead of the 'standby' command.
-	config.hdmicec.sourceactive_zaptimers = ConfigYesNo(default=False)				# Command the TV to switch to the correct HDMI input when zap timers activate.	
+	config.hdmicec.sourceactive_zaptimers = ConfigYesNo(default=False)				# Command the TV to switch to the correct HDMI input when zap timers activate.
 
 	upgradeConfig()
 
@@ -1358,6 +1386,7 @@ def upgradeConfig():
 				item.save()
 		config.version.value = "53023"
 		config.version.save()
+
 
 def preferredTunerChoicesUpdate(update=False):
 	dvbs_nims = [("-2", _("disabled"))]

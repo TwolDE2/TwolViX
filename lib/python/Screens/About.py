@@ -1,58 +1,63 @@
 from os import listdir, path, popen
 from re import search
-from enigma import eTimer, getEnigmaVersionString, getDesktop
-from boxbranding import getMachineBrand, getMachineBuild, getMachineName, getImageVersion, getImageType, getImageBuild, getDriverDate, getImageDevBuild
+from enigma import eTimer, getDesktop
+from boxbranding import getMachineBrand, getMachineName, getImageVersion, getImageType, getImageBuild, getImageDevBuild
 from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config
 from Components.Console import Console
-from Components.Harddisk import harddiskmanager
+from Components.Harddisk import harddiskmanager, bytesToHumanReadable
 from Components.Network import iNetwork
 from Components.NimManager import nimmanager
 from Components.Pixmap import MultiPixmap
-from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo, BoxInfo
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
-from Tools.Directories import fileExists, fileCheck, pathExists, isPluginInstalled
+from Screens.TextBox import TextBox
+from Tools.Directories import fileExists, fileHas, pathExists, isPluginInstalled
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
 
-class About(Screen):
+
+class AboutBase(TextBox):
+	def __init__(self, session, labels=None):
+		TextBox.__init__(self, session, label="AboutScrollLabel")
+		if labels:
+			self["lab1"] = StaticText(_("Virtuosso Image Xtreme"))
+			self["lab2"] = StaticText(_("By Team ViX"))
+			self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
+
+	def createSummary(self):
+		return AboutSummary
+
+
+class About(AboutBase):
 	def __init__(self, session):
-		Screen.__init__(self, session)
+		AboutBase.__init__(self, session, labels=True)
 		self.setTitle(_("About"))
 		self.skinName = "AboutOE"
 		self.populate()
 
-		self["key_red"] = Button(_("Close"))
 		self["key_green"] = Button(_("Translations"))
 		self["key_yellow"] = Button(_("Software update"))
 		self["key_blue"] = Button(_("Release notes"))
-		self["actions"] = ActionMap(["SetupActions", "ColorActions", "TimerEditActions", "DirectionActions"],
-									{
-										"cancel": self.close,
-										"ok": self.close,
-										"up": self["AboutScrollLabel"].pageUp,
-										"down": self["AboutScrollLabel"].pageDown,
-										"red": self.close,
-										"green": self.showTranslationInfo,
-										"yellow": self.showUpdatePlugin,
-										"blue": self.showAboutReleaseNotes,
-									})
+		self["key_menu"] = StaticText(_("MENU"))
+		self["actions"] = ActionMap(["ColorActions", "MenuActions"],
+		{
+			"green": self.showTranslationInfo,
+			"yellow": self.showUpdatePlugin,
+			"blue": self.showAboutReleaseNotes,
+			"menu": self.setup,
+		})
 
 	def populate(self):
-		self["lab1"] = StaticText(_("Virtuosso Image Xtreme"))
-		self["lab2"] = StaticText(_("By Team ViX"))
 		model = None
 		AboutText = ""
-		self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
-
 		AboutText += _("Model:\t%s %s\n") % (getMachineBrand(), getMachineName())
-		
+
 		if about.getChipSetString() != _("unavailable"):
 			if SystemInfo["HasHiSi"]:
 				AboutText += _("Chipset:\tHiSilicon %s\n") % about.getChipSetString().upper()
@@ -102,8 +107,12 @@ class About(Screen):
 			imageSubBuild = ".%s" % getImageDevBuild()
 		AboutText += _("Image:\t%s.%s%s (%s)\n") % (getImageVersion(), getImageBuild(), imageSubBuild, getImageType().title())
 
-		if BoxInfo.getItem("mtdbootfs") != "" and " " not in BoxInfo.getItem("mtdbootfs"):
-			AboutText += _("Boot Device:\t%s\n") % BoxInfo.getItem("mtdbootfs")
+		VuPlustxt = "Vu+ Multiboot - " if SystemInfo["HasKexecMultiboot"] else ""
+		if fileHas("/proc/cmdline", "rootsubdir=linuxrootfs0"):
+			AboutText += _("Boot Device: \tRecovery Slot\n")
+		else:
+			if BoxInfo.getItem("mtdbootfs") != "" and " " not in BoxInfo.getItem("mtdbootfs"):
+				AboutText += _("Boot Device:\t%s%s\n") % (VuPlustxt, BoxInfo.getItem("mtdbootfs"))
 
 		if SystemInfo["HasH9SD"]:
 			if "rootfstype=ext4" in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read():
@@ -114,18 +123,15 @@ class About(Screen):
 
 		if SystemInfo["canMultiBoot"]:
 			slot = image = SystemInfo["MultiBootSlot"]
-			part = "eMMC slot %s" % slot
-			bootmode = ""
-			if SystemInfo["canMode12"]:
-				bootmode = "bootmode = %s" % GetCurrentImageMode()
-			print("[About] HasHiSi = %s, slot = %s" % (SystemInfo["HasHiSi"], slot))
 			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]["root"]:
 				if slot > 4:
 					image -= 4
 				else:
 					image -= 1
-				part = "SDcard slot %s (%s) " % (image, SystemInfo["canMultiBoot"][slot]["root"])
-			AboutText += _("Image Slot:\t%s") % "Startup " + str(slot) + " - " + part + " " + bootmode + "\n"
+			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
+			part = _("slot %s (%s)") % (slot, slotType)
+			bootmode = _("bootmode = %s") % GetCurrentImageMode() if SystemInfo["canMode12"] else ""
+			AboutText += (_("Image Slot:\tStartup %s - %s %s") % (str(slot), part, bootmode)) + "\n"
 
 		if getMachineName() in ("ET8500") and path.exists("/proc/mtd"):
 			self.dualboot = self.dualBoot()
@@ -135,23 +141,17 @@ class About(Screen):
 		skinWidth = getDesktop(0).size().width()
 		skinHeight = getDesktop(0).size().height()
 
-		string = getDriverDate()
-		year = string[0:4]
-		month = string[4:6]
-		day = string[6:8]
-		driversdate = "-".join((day, month, year))
-
-		AboutText += _("Drivers:\t%s\n") % driversdate
+		AboutText += _("Drivers:\t%s\n") % about.driversDate()
 		AboutText += _("Kernel:\t%s\n") % about.getKernelVersionString()
 		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ", "")
 		if isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True:
 			AboutText += _("4097 iptv player:\t%s\n") % config.plugins.serviceapp.servicemp3.player.value
 		else:
-			AboutText += _("4097 iptv player:\tDefault player\n")	
+			AboutText += _("4097 iptv player:\tDefault player\n")
 		AboutText += _("Python:\t%s\n") % about.getPythonVersionString()
-		flashDate = about.getFlashDateString()[8:]  + about.getFlashDateString()[4:8] + about.getFlashDateString()[0:4] 
+		flashDate = about.getFlashDateString()
 		AboutText += _("Installed:\t%s\n") % flashDate
-		lastUpdate = getEnigmaVersionString()[8:]  + getEnigmaVersionString()[4:8] + getEnigmaVersionString()[0:4] 
+		lastUpdate = about.getLastUpdate()
 		AboutText += _("Last update:\t%s\n") % lastUpdate
 		AboutText += _("E2 (re)starts:\t%s\n") % config.misc.startCounter.value
 		uptime = about.getBoxUptime()
@@ -176,7 +176,7 @@ class About(Screen):
 				f.close()
 				AboutText += _("Bootloader:\t%s\n") % (bootloader)
 
-		self["AboutScrollLabel"] = ScrollLabel(AboutText)
+		self["AboutScrollLabel"].setText(AboutText)
 
 	def dualBoot(self):
 		rootfs2 = False
@@ -202,8 +202,9 @@ class About(Screen):
 	def showAboutReleaseNotes(self):
 		self.session.open(CommitInfo)
 
-	def createSummary(self):
-		return AboutSummary
+	def setup(self):
+		from Screens.Setup import Setup
+		self.session.openWithCallback(self.populate, Setup, "about")
 
 
 class Devices(Screen):
@@ -222,12 +223,11 @@ class Devices(Screen):
 		self.activityTimer = eTimer()
 		self.activityTimer.timeout.get().append(self.populate2)
 		self["key_red"] = Button(_("Close"))
-		self["actions"] = ActionMap(["SetupActions", "ColorActions", "TimerEditActions"],
-									{
-										"cancel": self.close,
-										"ok": self.close,
-										"red": self.close,
-									})
+		self["actions"] = ActionMap(["SetupActions"],
+		{
+			"cancel": self.close,
+			"ok": self.close,
+		})
 		self.onLayoutFinish.append(self.populate)
 
 	def populate(self):
@@ -294,12 +294,9 @@ class Devices(Screen):
 					hddp = hddp.replace("ATA", "")
 					hddp = hddp.replace("Internal", "ATA Bus ")
 				free = hdd.Totalfree()
-				if (free / 1000 / 1000) >= 1:
-					freeline = _("Free: ") + str(round((free / 1000 / 1000), 2)) + _("TB")
-				elif (free / 1000) >= 1:
-					freeline = _("Free: ") + str(round((free / 1000), 2)) + _("GB")
-				elif free >= 1:
-					freeline = _("Free: ") + str(round(free, 2)) + _("MB")
+				if free >= 1:
+					free *= 1000000 # convert MB to bytes
+					freeline = _("Free: ") + bytesToHumanReadable(free)
 				elif "Generic(STORAGE" in hddp:				# This is the SDA boot volume for SF8008 if "full" #
 					continue
 				else:
@@ -338,24 +335,11 @@ class Devices(Screen):
 		return AboutSummary
 
 
-class SystemMemoryInfo(Screen):
+class SystemMemoryInfo(AboutBase):
 	def __init__(self, session):
-		Screen.__init__(self, session)
+		AboutBase.__init__(self, session, labels=True)
 		self.setTitle(_("Memory"))
 		self.skinName = ["SystemMemoryInfo", "About"]
-		self["lab1"] = StaticText(_("Virtuosso Image Xtreme"))
-		self["lab2"] = StaticText(_("By Team ViX"))
-		self["lab3"] = StaticText(_("Support at %s") % "www.world-of-satellite.com")
-		self["AboutScrollLabel"] = ScrollLabel()
-
-		self["key_red"] = Button(_("Close"))
-		self["actions"] = ActionMap(["SetupActions", "ColorActions"],
-									{
-										"cancel": self.close,
-										"ok": self.close,
-										"red": self.close,
-									})
-
 		out_lines = open("/proc/meminfo").readlines()
 		self.AboutText = _("RAM") + "\n\n"
 		RamTotal = "-"
@@ -381,7 +365,7 @@ class SystemMemoryInfo(Screen):
 				SwapFree = out_lines[lidx].split()
 				self.AboutText += _("Free swap:") + "\t" + SwapFree[1] + "\n\n"
 
-		self["actions"].setEnabled(False)
+		self["textBoxActions"].setEnabled(False)
 		self.Console = Console()
 		self.Console.ePopen("df -mh / | grep -v '^Filesystem'", self.Stage1Complete)
 
@@ -396,15 +380,12 @@ class SystemMemoryInfo(Screen):
 		self.AboutText += _("Free:") + "\t" + RamFree + "\n\n"
 
 		self["AboutScrollLabel"].setText(self.AboutText)
-		self["actions"].setEnabled(True)
-
-	def createSummary(self):
-		return AboutSummary
+		self["textBoxActions"].setEnabled(True)
 
 
-class SystemNetworkInfo(Screen):
+class SystemNetworkInfo(AboutBase):
 	def __init__(self, session):
-		Screen.__init__(self, session)
+		AboutBase.__init__(self, session)
 		self.setTitle(_("Network"))
 		self.skinName = ["SystemNetworkInfo", "WlanStatus"]
 		self["LabelBSSID"] = StaticText()
@@ -428,8 +409,6 @@ class SystemNetworkInfo(Screen):
 		self["statuspic"].show()
 		self["devicepic"] = MultiPixmap()
 
-		self["AboutScrollLabel"] = ScrollLabel()
-
 		self.iface = None
 		self.createscreen()
 		self.iStatus = None
@@ -443,16 +422,6 @@ class SystemNetworkInfo(Screen):
 				pass
 			self.resetList()
 			self.onClose.append(self.cleanup)
-
-		self["key_red"] = StaticText(_("Close"))
-
-		self["actions"] = ActionMap(["SetupActions", "ColorActions", "DirectionActions"],
-									{
-										"cancel": self.close,
-										"ok": self.close,
-										"up": self["AboutScrollLabel"].pageUp,
-										"down": self["AboutScrollLabel"].pageDown
-									})
 		self.onLayoutFinish.append(self.updateStatusbar)
 
 	def createscreen(self):
@@ -504,8 +473,8 @@ class SystemNetworkInfo(Screen):
 			self.iface = "wlan3"
 
 		rx_bytes, tx_bytes = about.getIfTransferredData(self.iface)
-		self.AboutText += "\n" + _("Bytes received:") + "\t" + rx_bytes + "\n"
-		self.AboutText += _("Bytes sent:") + "\t" + tx_bytes + "\n"
+		self.AboutText += "\n" + _("Bytes received:") + "\t" + bytesToHumanReadable(int(rx_bytes)) + "\n"
+		self.AboutText += _("Bytes sent:") + "\t" + bytesToHumanReadable(int(tx_bytes)) + "\n"
 		for line in popen("ethtool %s |grep Speed" % self.iface, "r"):
 			line = line.strip().split(":")
 			line = line[1].replace(" ", "")
@@ -604,9 +573,6 @@ class SystemNetworkInfo(Screen):
 						iNetwork.checkNetworkState(self.checkNetworkCB)
 					self["AboutScrollLabel"].setText(self.AboutText)
 
-	def exit(self):
-		self.close(True)
-
 	def updateStatusbar(self):
 		self["IFtext"].setText(_("Network:"))
 		self["IF"].setText(iNetwork.getFriendlyAdapterName(self.iface))
@@ -654,28 +620,16 @@ class SystemNetworkInfo(Screen):
 		except:
 			pass
 
-	def createSummary(self):
-		return AboutSummary
-
 
 class AboutSummary(ScreenSummary):
 	def __init__(self, session, parent):
 		ScreenSummary.__init__(self, session, parent=parent)
 		self.skinName = "AboutSummary"
-		aboutText = _("Model: %s %s\n") % (getMachineBrand(), getMachineName())
-		if path.exists("/proc/stb/info/chipset"):
-			chipset = open("/proc/stb/info/chipset", "r").read()
-			aboutText += _("Chipset: %s") % chipset.replace("\n", "") + "\n"
-		aboutText += _("ViX version: %s") % getImageVersion() + "\n"
-		aboutText += _("Build: %s") % getImageBuild() + "\n"
-		aboutText += _("Kernel: %s") % about.getKernelVersionString() + "\n"
-		string = getDriverDate()
-		year = string[0:4]
-		month = string[4:6]
-		day = string[6:8]
-		driversdate = "-".join((year, month, day))
-		aboutText += _("Drivers: %s") % driversdate + "\n"
-		aboutText += _("Last update: %s") % getEnigmaVersionString() + "\n\n"
+		self.aboutText = []
+		self["AboutText"] = StaticText()
+		self.aboutText.append(_("OpenViX: %s") % getImageVersion() + "." + getImageBuild() + "\n")
+		self.aboutText.append(_("Model: %s %s\n") % (getMachineBrand(), getMachineName()))
+		self.aboutText.append(_("Updated: %s") % about.getLastUpdate() + "\n")
 		tempinfo = ""
 		if path.exists("/proc/stb/sensors/temp0/value"):
 			with open("/proc/stb/sensors/temp0/value", "r") as f:
@@ -687,44 +641,40 @@ class AboutSummary(ScreenSummary):
 			with open("/proc/stb/sensors/temp/value", "r") as f:
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			aboutText += _("System temperature: %s") % tempinfo.replace("\n", "") + "\xb0" + "C\n\n"
-		self["about"] = StaticText(aboutText)  # DEBUG: Proposed for new summary screens.
-		self["AboutText"] = StaticText(aboutText)
+			self.aboutText.append(_("System temperature: %s") % tempinfo.replace("\n", "") + "\xb0" + "C\n")
+		if path.exists("/proc/stb/info/chipset"):
+			chipset = open("/proc/stb/info/chipset", "r").read()
+			self.aboutText.append(_("Chipset: %s") % chipset.replace("\n", "") + "\n")
+		self.aboutText.append(_("Kernel: %s") % about.getKernelVersionString() + "\n")
+		self.aboutText.append(_("Drivers: %s") % about.driversDate() + "\n")
+		self["AboutText"].text = "".join(self.aboutText)
+		self.timer = eTimer()
+		self.timer.callback.append(self.update)
+		self.timer.start(3000, 1)
+
+	def update(self):
+		self.timer.stop()
+		if self.aboutText:
+			self.aboutText.append(self.aboutText.pop(0))
+			self["AboutText"].text = "".join(self.aboutText)
+			self.timer.start(2000, 1)
 
 
 class TranslationInfo(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.setTitle(_("Translations"))
-		# don't remove the string out of the _(), or it can't be "translated" anymore.
-
-		# TRANSLATORS: Add here whatever should be shown in the "translator" about screen, up to 6 lines (use \n for newline)
-		info = _("TRANSLATOR_INFO")
-
-		if info == "TRANSLATOR_INFO":
-			info = ""
-
-		infolines = _("").split("\n")
-		infomap = {}
-		for x in infolines:
-			l = x.split(": ")
-			if len(l) != 2:
-				continue
-			(type, value) = l
-			infomap[type] = value
-		print(infomap)
 
 		self["key_red"] = Button(_("Close"))
-		self["TranslationInfo"] = StaticText(info)
-
-		translator_name = infomap.get("Language-Team", "none")
-		if translator_name == "none":
-			translator_name = infomap.get("Last-Translator", "")
-
-		self["TranslatorName"] = StaticText(translator_name)
-
 		self["actions"] = ActionMap(["SetupActions"],
-									{
-										"cancel": self.close,
-										"ok": self.close,
-									})
+		{
+			"cancel": self.close,
+			"ok": self.close,
+		})
+
+		# _("") fetches the translator info from the *.po.
+		infomap = {x.split(":")[0].strip(): x.split(":")[1].strip() for x in _("").split("\n") if len(x.split(":")) == 2}
+		self["TranslatorName"] = StaticText(infomap.get("Language-Team") or infomap.get("Last-Translator", ""))
+
+		# TRANSLATORS: Add here whatever should be shown in the "translator" about screen, up to 6 lines (use \n for newline)
+		self["TranslationInfo"] = StaticText(_("TRANSLATOR_INFO") if "TRANSLATOR_INFO" != _("TRANSLATOR_INFO") else "")

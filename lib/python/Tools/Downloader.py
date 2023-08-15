@@ -10,8 +10,7 @@ class DownloadWithProgress:
 	def __init__(self, url, outputFile, *args, **kwargs):
 		self.url = url
 		self.outputFile = outputFile
-		self.userAgent = "%s %s Enigma2 HbbTV/1.1.1 (+PVR+RTSP+DL;OpenViX;;;)" % (getMachineBrand(), getMachineName())
-		# self.agent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5"
+		self.userAgent = "%s %s HbbTV/1.1.1 (+PVR+RTSP+DL; Sonic; TV44; 1.32.455; 2.002) Bee/3.5" % (getMachineBrand(), getMachineName())
 		self.totalSize = 0
 		self.progress = 0
 		self.progressCallback = None
@@ -21,17 +20,17 @@ class DownloadWithProgress:
 		self.timer = eTimer()
 		self.timer.callback.append(self.reportProgress)
 		self.requestHeader = {"User-agent": self.userAgent}
-		self.userHeader = kwargs.get('headers', None)		
+		self.userHeader = kwargs.get('headers', None)
 		if self.userHeader is not None:
 			self.requestHeader = self.requestHeader | self.userHeader
-			
+
 	def start(self):
 		try:
 			request = Request(self.url, None, self.requestHeader)
 		except OSError as err:
 			if self.errorCallback:
 				self.errorCallback(err)
-			return self			
+			return self
 		feedFile = urlopen(request)
 		metaData = feedFile.headers
 		self.totalSize = int(metaData.get("Content-Length", 0))

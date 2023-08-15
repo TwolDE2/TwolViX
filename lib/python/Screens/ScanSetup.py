@@ -310,7 +310,7 @@ class CableTransponderSearchSupport:
 			cmd = "%s --blindscan %d" % (exe_path, nim_idx)
 		else:
 			bin_name = GetCommand(nim_idx)
-			exe_path = "/usr/bin/%s" % bin_name
+			exe_path = "/usr/bin/%s" % bin_name.split()[0]
 			cmd = "%s --init --scan --verbose --wakeup --inv 2 --bus %d" % (bin_name, bus)
 
 		if not fileExists(exe_path):
@@ -898,6 +898,7 @@ class ScanSetup(ConfigListScreen, Screen, CableTransponderSearchSupport, Terrest
 				self.scan_sat.t2mi_plp_id.value = eDVBFrontendParametersSatellite.No_T2MI_PLP_Id
 				self.scan_sat.t2mi_pid.value = eDVBFrontendParametersSatellite.T2MI_Default_Pid
 			self.createSetup()
+		self.changedEntry() # force summary update immediately, not just on select/deselect
 
 	def createConfig(self, frontendData):
 		defaultSat = {
@@ -996,17 +997,17 @@ class ScanSetup(ConfigListScreen, Screen, CableTransponderSearchSupport, Terrest
 		self.nim_type_dict = {}
 		# collect all nims which are *not* set to "nothing"
 		for n in nimmanager.nim_slots:
-			if n.config_mode == "nothing":
+			if n.empty or n.config_mode == "nothing":
 				continue
-			if n.config_mode in ("simple", "equal", "advanced") and len(nimmanager.getSatListForNim(n.slot)) < 1:
-				continue
-			if n.config_mode in ("loopthrough", "satposdepends"):
-				root_id = nimmanager.sec.getRoot(n.slot_id, int(n.config.connectedTo.value))
-				if n.type == nimmanager.nim_slots[root_id].type: # check if connected from a DVB-S to DVB-S2 Nim or vice versa
-					continue
-			nim_list.append((str(n.slot), n.friendly_full_description))
-
 			modes = [x[:5] for x in n.getTunerTypesEnabled()]
+			if "DVB-S" in modes: # Only do the DVB-S tests below when DVB-S is present in modes. This avoids problems with combined tuners such as Availink AVL6862.
+				if n.config_mode in ("simple", "equal", "advanced") and len(nimmanager.getSatListForNim(n.slot)) < 1:
+					continue
+				if n.config_mode in ("loopthrough", "satposdepends"):
+					root_id = nimmanager.sec.getRoot(n.slot_id, int(n.config.connectedTo.value))
+					if n.type == nimmanager.nim_slots[root_id].type: # check if connected from a DVB-S to DVB-S2 Nim or vice versa
+						continue
+			nim_list.append((str(n.slot), n.friendly_full_description))
 			self.nim_type_dict[n.slot] = {"modes": modes,
 				"selection": ConfigSelection(choices=[(x, {"DVB-S": _("Satellite"), "DVB-T": _("Terrestrial"), "DVB-C": _("Cable"), "ATSC": _("ATSC")}.get(x, "")) for x in modes])}
 			if ttype in modes:
@@ -1756,7 +1757,10 @@ class ScanSimple(ConfigListScreen, Screen, CableTransponderSearchSupport, Terres
 			if self.t2_nim_found:
 				self.list.append(getConfigListEntry(_("Blindscan terrestrial (if possible)"), self.scan_terrestrial_binary_scan))
 
-		ConfigListScreen.__init__(self, self.list, fullUI=True)
+		ConfigListScreen.__init__(self, self.list, on_change=self.newConfig, fullUI=True)
+
+	def newConfig(self):
+		self.changedEntry() # force summary update immediately, not just on select/deselect
 
 	def getNetworksForNim(self, nim):
 		if nim.isCompatible("DVB-S"):

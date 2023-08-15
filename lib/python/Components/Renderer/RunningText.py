@@ -293,11 +293,11 @@ class RunningText(Renderer):
 						self.P = self.B
 						self.mStep = -abs(self.mStep)
 					else: # if self.halign in (CENTER, BLOCK):
-						self.P = int(self.B // 2)
+						self.P = int(self.B / 2)
 						self.mStep = (self.direction == RIGHT) and abs(self.mStep) or -abs(self.mStep)
 				else:
 					if text_width == self.W:
-						text_width += max(2, text_width // 20)
+						text_width += max(2, text_width / 20)
 					self.A = self.W - text_width
 					self.B = self.X
 					if self.halign == LEFT:

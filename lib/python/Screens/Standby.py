@@ -42,7 +42,7 @@ def setLCDMiniTVMode(value):
 
 class Standby2(Screen):
 	def Power(self):
-		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getMachineBuild() in ('gbmv200'):
+		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getBoxType() in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("on")
 				print("[Standby] open hdmi on leave standby")
@@ -119,7 +119,7 @@ class Standby2(Screen):
 			self.avswitch.setInput("SCART")
 		else:
 			self.avswitch.setInput("AUX")
-		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getMachineBuild() in ('gbmv200'):
+		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getBoxType() in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("off")
 				print("[Standby] close hdmi on enter standby")		
@@ -261,7 +261,7 @@ class TryQuitMainloop(MessageBox):
 		if recordings or (next_rec_time > 0 and (next_rec_time - time()) < 360):
 			default_yes = False
 			reason = _("Recording(s) are in progress or coming up in few seconds!") + '\n'
-		if eStreamServer.getInstance().getConnectedClients() or StreamServiceList:
+		if [stream for stream in eStreamServer.getInstance().getConnectedClients() if stream[0] != '127.0.0.1'] or StreamServiceList:
 			reason += _("A client is streaming from this box!") + '\n'
 
 		if reason and inStandby:
@@ -305,12 +305,12 @@ class TryQuitMainloop(MessageBox):
 						self.close(True) # immediate shutdown
 			elif event == iRecordableService.evStart:
 				self.stopTimer()
-				
+
 	def sendCEC(self):
-			print("[Standby][sendCEC] entered ")	
+			print("[Standby][sendCEC] entered ")
 			import struct
 			from enigma import eHdmiCEC
-			physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()				
+			physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
 			msgaddress = 0x0f # use broadcast for active source command
 			cmd0 = 0x9d	# 157 sourceinactive
 			data0 = struct.pack("BB", int(physicaladdress // 256), int(physicaladdress % 256))
@@ -323,7 +323,7 @@ class TryQuitMainloop(MessageBox):
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd0, data0, len(data0))
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd1, data1, len(data1))
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd2, data2, len(data2))
-			print("[Standby][sendCEC] departed ")								
+			print("[Standby][sendCEC] departed ")
 
 	def close(self, value):
 		if self.connected:
@@ -331,7 +331,7 @@ class TryQuitMainloop(MessageBox):
 			self.session.nav.record_event.remove(self.getRecordEvent)
 		print("[Standby][TryQuitMainloop][close] hdmicece enabled, retval", config.hdmicec.enabled.value, "   ", self.retval)
 		if config.hdmicec.enabled.value and self.retval == 1:
-			self.sendCEC()				
+			self.sendCEC()
 		if value:
 			self.hide()
 			if self.retval == 1:

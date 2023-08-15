@@ -79,7 +79,7 @@ def partitionListChanged(action, device):
 		else:
 			print("[MediaScanner][partitionListChanged] main infobar is not execing... so we ignore hotplug event!")
 	else:
-			print("[MediaScanner][partitionListChanged] hotplug event.. but no infobar")
+		print("[MediaScanner][partitionListChanged] hotplug event.. but no infobar")
 
 
 def sessionstart(reason, session):

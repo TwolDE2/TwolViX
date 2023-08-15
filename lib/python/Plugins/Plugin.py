@@ -76,6 +76,9 @@ class PluginDescriptor():
 
 	WHERE_EXTENSIONSINGLE = 21
 
+	# allow plugin to assign to hotkey only
+	WHERE_BUTTONSETUP = 22
+
 	def __init__(self, name="Plugin", where=None, description="", icon=None, fnc=None, wakeupfnc=None, needsRestart=None, internal=False, weight=0):
 		if not where:
 			where = []
@@ -110,7 +113,7 @@ class PluginDescriptor():
 			return []
 
 	# overrides the builtin object.__getattribute__(self, name).
-	# Method for old code still using the __call__ attribute expecting 
+	# Method for old code still using the __call__ attribute expecting
 	# to get the plugin's fnc, i.e. old code was "self.__call__ = fnc"
 	def __getattribute__(self, name):
 		if name == '__call__':
@@ -121,7 +124,7 @@ class PluginDescriptor():
 		self.path = path
 
 	def getWakeupTime(self):
-		return self.wakeupfnc and self.wakeupfnc() or -1
+		return callable(self.wakeupfnc) and self.wakeupfnc() or -1
 
 	@property
 	def icon(self):

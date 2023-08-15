@@ -88,7 +88,7 @@ def getProcMounts():
 		with open("/proc/mounts", "r") as fd:
 			lines = fd.readlines()
 	except (IOError, OSError) as err:
-		print("[Harddisk] Error: Failed to open '/proc/mounts':", err)
+		print("[Harddisk][getProcMounts] Error: Failed to open '/proc/mounts':", err)
 		return []
 	result = [line.strip().split(" ") for line in lines]
 	for item in result:
@@ -100,20 +100,10 @@ def getProcMounts():
 			import subprocess
 			res = subprocess.run(['blkid', '-sTYPE', '-ovalue', item[0]], capture_output=True)
 			if res.returncode == 0:
-				print("[Harddisk] fuseblk", res.stdout)			
+				# print("[Harddisk][getProcMounts] fuseblk", res.stdout)
 				item[2] = res.stdout.strip().decode()
+#	print("[Harddisk][getProcMounts] ProcMounts", result)
 	return result
-
-
-def isFileSystemSupported(filesystem):
-	try:
-		with open("/proc/filesystems", "r") as fd:
-			for line in fd.readlines():
-				if line.strip().endswith(filesystem):
-					return True
-	except (IOError, OSError) as err:
-		print("[Harddisk] Error: Failed to read '/proc/filesystems':", err)
-	return False
 
 
 def findMountPoint(path):
@@ -142,7 +132,16 @@ def addInstallTask(job, package):
 	task.args.append(package)
 
 
-SystemInfo["ext4"] = isFileSystemSupported("ext4")
+def bytesToHumanReadable(size_bytes, binary=False):
+	# input is bytes, convert from KB, MB before use.
+	size_units = ("B", "kB", "MB", "GB", "TB")
+	base = 1024 if binary else 1000
+	i = 0
+	L = len(size_units) - 1
+	while i < L and size_bytes >= base:
+		size_bytes /= base
+		i += 1
+	return ("%.2f %s" if i != 0 and size_bytes < 10 else "%.0f %s") % (size_bytes, size_units[i])
 
 
 class Harddisk:
@@ -164,31 +163,11 @@ class Harddisk:
 		data = readFile(ospath.join("/sys/block", device, "queue/rotational"))
 		self.rotational = True if data is None else int(data)  # Rotational if 0 --> SSD or MMC, 1 --> HDD.
 		(self.internal, self.busType) = self.deviceState(device)
-		if SystemInfo["Udev"]:
-			self.dev_path = ospath.join("/dev", self.device)
-			self.disk_path = self.dev_path
-			self.sdmmc = "MMC" in self.busType
-			# print("[Harddisk] self.sdmmc1", self.sdmmc)			
-		else:
-			tmp = readFile(self.sysfsPath("dev"))
-			if tmp is None:
-				self.sdmmc = None
-			else:
-				tmp = tmp.split(":")
-				s_major = int(tmp[0])
-				s_minor = int(tmp[1])
-				for disc in listdir("/dev/discs"):
-					dev_path = ospath.realpath(ospath.join("/dev/discs", disc))
-					disk_path = ospath.join(dev_path, "disc")
-					try:
-						rdev = stat(disk_path).st_rdev
-					except (IOError, OSError):
-						continue
-					if s_major == major(rdev) and s_minor == minor(rdev):
-						self.dev_path = dev_path
-						self.disk_path = disk_path
-						break
-				self.sdmmc = self.device[:2] == "hd" and "host0" not in self.dev_path
+		self.dev_path = ospath.join("/dev", self.device)
+		self.disk_path = self.dev_path
+		self.sdmmc = "MMC" in self.busType
+		# print("[Harddisk] self.sdmmc1", self.sdmmc)
+
 		if (self.internal or not removable) and not self.sdmmc:
 			msg = " (Start Idle)"
 			self.startIdle()
@@ -206,13 +185,10 @@ class Harddisk:
 		return ospath.join("/sys/block", self.device, filename)
 
 	def partitionPath(self, n):
-		if SystemInfo["Udev"]:
-			if self.dev_path.startswith("/dev/mmcblk"):
-				return "%sp%s" % (self.dev_path, n)
-			else:
-				return "%s%s" % (self.dev_path, n)
+		if self.dev_path.startswith("/dev/mmcblk"):
+			return "%sp%s" % (self.dev_path, n)
 		else:
-			return ospath.join(self.dev_path, "part%s" % n)
+			return "%s%s" % (self.dev_path, n)
 
 	def stop(self):
 		if self.timer:
@@ -232,6 +208,7 @@ class Harddisk:
 		return busName
 
 	def diskSize(self):
+		# output in MB
 		dev = self.findMount()
 		if dev:
 			try:
@@ -244,18 +221,15 @@ class Harddisk:
 		else:
 			data = readFile(self.sysfsPath("size"))
 			if data is not None:
-				cap = int(data) / 1000 * 512 / 1024
+				cap = int(int(data) / 1000 * 512 / 1024)
 			else:
 				cap = 0
 		return cap
 
 	def capacity(self):
-		cap = self.diskSize()
-		if cap == 0:
-			return ""
-		if cap < 1000:
-			return _("%02d MB") % cap
-		return _("%s GB") % (round(cap / 1000, 2))
+		cap = self.diskSize() # cap is in MB
+		cap *= 1000000 # convert to MB to bytes
+		return bytesToHumanReadable(cap)
 
 	def model(self):
 		data = None
@@ -279,6 +253,7 @@ class Harddisk:
 	def free(self, dev=None):
 		if dev is None:
 			dev = self.findMount()
+		print("[Harddisk][free]dev:", dev)
 		if dev:
 			try:
 				stat = statvfs(dev)
@@ -288,38 +263,34 @@ class Harddisk:
 		return -1
 
 	def totalFree(self):
+		# output in MB
 		mediapath = []
 		freetot = 0
+		print("[Harddisk][totalFree]self.dev_path:", self.dev_path)
 		for parts in getProcMounts():
 			if ospath.realpath(parts[0]).startswith(self.dev_path):
 				mediapath.append(parts[1])
+		print("[Harddisk][totalFree]mediapath:", mediapath)
 		for mpath in mediapath:
+			print("[Harddisk][totalFree]mpath:", mpath)
+			if mpath == "/" and SystemInfo["HasKexecMultiboot"]:
+				continue
 			free = self.free(mpath)
 			if free > 0:
 				freetot += free
-		return freetot
+		return int(freetot)
 
 	def Totalfree(self):
 		return self.totalFree()
 
 	def numPartitions(self):
 		numPart = -1
-		if SystemInfo["Udev"]:
-			try:
-				for filename in listdir("/dev"):
-					if filename.startswith(self.device):
-						numPart += 1
-			except (IOError, OSError):
-				return -1
-		else:
-			try:
-				for filename in listdir(self.dev_path):
-					if filename.startswith("disc"):
-						numPart += 1
-					if filename.startswith("part"):
-						numPart += 1
-			except (IOError, OSError):
-				return -1
+		try:
+			for filename in listdir("/dev"):
+				if filename.startswith(self.device):
+					numPart += 1
+		except (IOError, OSError):
+			return -1
 		return numPart
 
 	def mountDevice(self):
@@ -327,6 +298,7 @@ class Harddisk:
 			if ospath.realpath(parts[0]).startswith(self.dev_path):
 				self.mount_device = parts[0]
 				self.mount_path = parts[1]
+				print("[Harddisk][mountDevice]device, path", parts[0], "   ", parts[1])
 				return parts[1]
 		return None
 
@@ -349,31 +321,29 @@ class Harddisk:
 	def createPartition(self):
 		return runCommand("printf \"8,\n;0,0\n;0,0\n;0,0\ny\n\" | sfdisk -f -uS %s" % self.disk_path)
 
-	def mkfs(self):
-		return 1  # No longer supported, use createInitializeJob instead.
-
 	def mount(self):
 		if self.mount_device is None:  # Try mounting through fstab first.
 			dev = self.partitionPath("1")
+			print("[Harddisk][mount] mounting1:in fstab", dev)
 		else:
 			dev = self.mount_device  # If previously mounted, use the same spot.
+			print("[Harddisk][mount] mounting2: not in fstab", dev)
 		try:
 			with open("/etc/fstab", "r") as fd:
 				for line in fd.readlines():
 					parts = line.strip().split(" ")
 					fspath = ospath.realpath(parts[0])
 					if fspath == dev:
-						return runCommand("mount -t auto %s" % fspath)
+						print("[Harddisk] mounting3:dev, fspath", dev, "   ", fspath)
+						exitCode = runCommand("mount -t auto %s" % fspath)
+						return exitCode >> 8
 		except (IOError, OSError):
 			return -1
+		print("[Harddisk][mount] mounting4: not in fstab", dev)
 		exitCode = -1  # Device is not in fstab.
-		if SystemInfo["Udev"]:
-			exitCode = runCommand("hdparm -z %s" % self.disk_path)  # We can let udev do the job, re-read the partition table.
-			sleep(3)  # Give udev some time to make the mount, which it will do asynchronously.
-		return exitCode
-
-	def fsck(self):
-		return 1  # No longer supported, use createCheckJob instead.
+		exitCode = runCommand("hdparm -z %s" % self.disk_path)  # We can let udev do the job, re-read the partition table.
+		sleep(10)  												# Give udev some time to make the mount, which it will do asynchronously.
+		return exitCode >> 8
 
 	def killPartitionTable(self):
 		zero = 512 * b"\0"
@@ -382,7 +352,7 @@ class Harddisk:
 				for i in range(9):  # Delete first 9 sectors, which will likely kill the first partition too.
 					fd.write(zero)
 		except (IOError, OSError) as err:
-			print("[Harddisk] Error: Failed to wipe partition table on '%s':" % self.dev_path, err)
+			print("[Harddisk][killPartitionTable] Error: Failed to wipe partition table on '%s':" % self.dev_path, err)
 
 	def killPartition(self, n):
 		zero = 512 * b"\0"
@@ -392,10 +362,10 @@ class Harddisk:
 				for i in range(3):
 					fd.write(zero)
 		except (IOError, OSError) as err:
-			print("[Harddisk] Error: Failed to wipe partition on '%s':" % partition, err)
+			print("[Harddisk][killPartition] Error: Failed to wipe partition on '%s':" % partition, err)
 
 	def createInitializeJob(self):
-		print("[Harddisk] Initializing storage device...")
+		print("[Harddisk][createInitializeJob] Initializing storage device...")
 		job = Components.Task.Job(_("Initializing storage device..."))
 		size = self.diskSize()
 		print("[Harddisk] Disk size: %s MB." % size)
@@ -411,45 +381,22 @@ class Harddisk:
 		task = Components.Task.ConditionTask(job, _("Waiting for partition."), timeoutCount=20)
 		task.check = lambda: not ospath.exists(self.partitionPath("1"))
 		task.weighting = 1
-		if ospath.exists("/usr/sbin/parted"):
-			use_parted = True
-		else:
-			if size > 2097151:
-				addInstallTask(job, "parted")
-				use_parted = True
-			else:
-				use_parted = False
-		print("[Harddisk] Creating partition.")
 		task = Components.Task.LoggingTask(job, _("Creating partition."))
 		task.weighting = 5
-		if use_parted:
-			task.setTool("parted")
-			if size < 1024:
-				alignment = "min"  # On very small devices, align to block only.
-			else:
-				alignment = "opt"  # Prefer optimal alignment for performance.
-			task.args += ["-a", alignment, "-s", self.disk_path, "mklabel", "gpt", "mkpart", "primary", "0%", "100%"]
+		task.setTool("parted")
+		if size < 1024:
+			alignment = "min"  # On very small devices, align to block only.
 		else:
-			task.setTool("sfdisk")
-			task.args.append("-f")
-			task.args.append("-uS")
-			task.args.append(self.disk_path)
-			if size > 128000:
-				print("[Harddisk] Detected >128GB disk, using 4k alignment.")
-				task.initial_input = "8,\n;0,0\n;0,0\n;0,0\ny\n"  # Start at sector 8 to better support 4k aligned disks.
-			else:
-				task.initial_input = "0,\n;\n;\n;\ny\n"  # Smaller disks (CF cards, sticks etc) don't need that.
+			alignment = "opt"  # Prefer optimal alignment for performance.
+		task.args += ["-a", alignment, "-s", self.disk_path, "mklabel", "gpt", "mkpart", "primary", "0%", "100%"]
 		task = Components.Task.ConditionTask(job, _("Waiting for partition."))
 		task.check = lambda: ospath.exists(self.partitionPath("1"))
 		task.weighting = 1
 		task = UnmountTask(job, self)
-		print("[Harddisk] Creating filesystem.")
+		print("[Harddisk][createInitializeJob] Creating filesystem.")
 		task = MkfsTask(job, _("Creating filesystem."))
 		big_o_options = ["dir_index"]
-		if SystemInfo["ext4"]:
-			task.setTool("mkfs.ext4")
-		else:
-			task.setTool("mkfs.ext3")
+		task.setTool("mkfs.ext4")
 		if size > 250000:
 			task.args += ["-T", "largefile", "-N", "262144"]  # No more than 256k i-nodes (prevent problems with fsck memory requirements).
 			big_o_options.append("sparse_super")
@@ -458,24 +405,18 @@ class Harddisk:
 			big_o_options.append("sparse_super")
 		elif size > 2048:
 			task.args += ["-T", "largefile", "-N", str(int(size * 32))]  # Over 2GB: 32 i-nodes per megabyte.
-		task.args += ["-m0", "-O", ",".join(big_o_options), self.partitionPath("1")]
+		task.args += ["-F", "-F", "-m0", "-O ^metadata_csum", "-O", ",".join(big_o_options), self.partitionPath("1")]
 		task = MountTask(job, self)
 		task.weighting = 3
-		print("[Harddisk] Mounting storage device.")
-		task = Components.Task.ConditionTask(job, _("Waiting for mount."), timeoutCount=20)
+		print("[Harddisk][createInitializeJob] Mounting storage device.")
+		task = Components.Task.ConditionTask(job, _("Waiting for mount"), timeoutCount=30)
 		task.check = self.mountDevice
 		task.weighting = 1
-		print("[Harddisk] Initialization complete.")
+		print("[Harddisk][createInitializeJob] Initialization complete.")
 		return job
 
-	def initialize(self):
-		return -5  # No longer supported.
-
-	def check(self):
-		return -5  # No longer supported.
-
 	def createCheckJob(self):
-		print("[Harddisk] Checking filesystem...")
+		print("[Harddisk][createCheckJob] Checking filesystem...")
 		job = Components.Task.Job(_("Checking filesystem..."))
 		if self.findMount():
 			task = UnmountTask(job, self)  # Create unmount task if it was not mounted.
@@ -487,7 +428,7 @@ class Harddisk:
 				partType = parts[2]
 		if partType not in ("ext3", "ext4", "vfat", "nfs"):
 			partType = "ext4"
-		print("[Harddisk] Filesystem type is '%s'." % partType)
+		print("[Harddisk][createCheckJob] Filesystem type is '%s'." % partType)
 		task = Components.Task.LoggingTask(job, _("Checking disk."))  # "fsck"
 		task.setTool("fsck.%s" % partType)
 		task.args.append("-f")
@@ -498,7 +439,7 @@ class Harddisk:
 		task = Components.Task.ConditionTask(job, _("Waiting for mount."))
 		task.check = self.mountDevice
 		task.weighting = 1
-		print("[Harddisk] Check complete.")
+		print("[Harddisk][createCheckJob] Check complete.")
 		return job
 
 	def getDeviceDir(self):
@@ -749,7 +690,7 @@ class HarddiskManager:
 			if not isCdrom and ospath.exists(devicePath):
 				partitions = [partition for partition in sorted(listdir(devicePath)) if partition.startswith(device)]  # Add HDD check for partitions.
 				if len(partitions) == 0:  # Add HDD check for HDD with no partitions (unformatted).
-					print("[Harddisk] Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions)))
+					print("[Harddisk]1 Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions)))
 					self.hdd.append(Harddisk(device, removable))
 					SystemInfo["Harddisk"] = True
 				else:
@@ -757,7 +698,10 @@ class HarddiskManager:
 						partitions = [] if len(partitions) > 6 else partitions[4:]
 					print("[Harddisk] len partitions = %s, device = %s" % (len(partitions), device))
 					if len(partitions) != 0:
-						print("[Harddisk] Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions)))
+						if removable:
+							SystemInfo["HasUsbhdd"][device] = len(partitions)
+						print("[Harddisk]2 Found storage device '%s' (Removable=%s) NoPartitions = %s." % (device, removable, len(partitions)))			# [Harddisk] Found storage device 'sdb' (Removable=True) NoPartitions = 1.
+						print("[Harddisk]1 SystemInfo['HasUsbhdd']= %s" % SystemInfo["HasUsbhdd"])
 						self.hdd.append(Harddisk(device, removable))
 						SystemInfo["Harddisk"] = True
 						# self.partitions.append(Partition(mountpoint = self.getMountpoint(device), description = description, force_mounted, device = device))
@@ -765,7 +709,8 @@ class HarddiskManager:
 						for partition in partitions:
 							description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 							print("[Harddisk] Found partition '%s', description='%s', device='%s'." % (partition, description, physicalDevice))
-							part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)
+#							part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)
+							part = Partition(mountpoint=self.getMountpoint(partition, skiproot=True), description=description, force_mounted=True, device=partition)
 							self.partitions.append(part)
 							# print("[Harddisk] DEBUG: Partition(mountpoint = %s, description = %s, force_mounted = True, device = %s)" % (self.getMountpoint(partition), description, partition))
 							self.on_partition_list_change("add", part)
@@ -830,10 +775,10 @@ class HarddiskManager:
 			return ospath.join("/media", device)
 		return mnt
 
-	def getMountpoint(self, device):
+	def getMountpoint(self, device, skiproot=None):
 		dev = ospath.join("/dev", device)
 		for item in getProcMounts():
-			if item[0] == dev:
+			if (item[0] == dev and skiproot == None) or (item[0] == dev and skiproot == True and item[1] != "/"):
 				return ospath.join(item[1], "")
 		return None
 
@@ -877,7 +822,8 @@ class HarddiskManager:
 				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
 					partitions = partitions[4:]
 				if HDDin is False and len(partitions) != 0:
-					print("[Harddisk] Found storage device '%s' (Removable = %s)." % (device, removable))
+					SystemInfo["HasUsbhdd"][device] = len(partitions)
+					print("[Harddisk]2 SystemInfo['HasUsbhdd']= %s" % SystemInfo["HasUsbhdd"])
 					self.hdd.append(Harddisk(hddDev, removable))
 					# print("[Harddisk] DEBUG: Add hotplug HDD device in hddlist. (device = '%s', hdd.device = '%s', hddDev = '%s')" % (device, hdd.device, hddDev))
 					self.hdd.sort()
@@ -1012,33 +958,36 @@ class MountTask(Components.Task.LoggingTask):
 		self.hdd = hdd
 
 	def prepare(self):
-		print("[Harddisk] MountTask - prepare")
+		print("[Harddisk][ MountTask][prepare] - prepare")
 		try:
 			dev = self.hdd.disk_path.split(ossep)[-1]
 			unlink("/dev/nomount.%s" % dev)
 		except (IOError, OSError) as err:
-			print("[Harddisk] MountTask - Error: Failed to remove '/dev/nomount' file:", err)
+			print("[Harddisk][MountTask][prepare] - Error: Failed to remove '/dev/nomount' file:", err)
 		if self.hdd.mount_device is None:
 			dev = self.hdd.partitionPath("1")  # Try mounting through fstab first.
+			print("[Harddisk][MountTask][prepare] mounting1:in fstab", dev)
 		else:
 			dev = self.hdd.mount_device  # If previously mounted, use the same spot.
+			print("[Harddisk][MountTask][prepare] mounting2: not in fstab", dev)
 		try:
 			with open("/etc/fstab", "r") as fd:
 				for line in fd.readlines():
 					parts = line.strip().split(" ")
 					fspath = ospath.realpath(parts[0])
-					if ospath.realpath(fspath) == dev:
+					print("[Harddisk][MountTask][prepare] mounting3:dev, fspath", dev, "   ", fspath)
+					if fspath == dev:
 						self.setCmdline("mount -t auto %s" % fspath)
 						self.postconditions.append(Components.Task.ReturncodePostcondition())
 						return
 		except (IOError, OSError) as err:
-			print("[Harddisk] MountTask - Error: Failed to read '/etc/fstab' file:", err)
-		if SystemInfo["Udev"]:  # Device is not in fstab.
-			# We can let udev do the job, re-read the partition table.
-			# Sorry for the sleep 2 hack...
-			print("[Harddisk] MountTask - let udev complete the job")
-			self.setCmdline("sleep 2; hdparm -z %s" % self.hdd.disk_path)
-			self.postconditions.append(Components.Task.ReturncodePostcondition())
+			print("[Harddisk][prepa MountTask - Error: Failed to read '/etc/fstab' file:", err)
+		# Device is not in fstab.
+		# We can let udev do the job, re-read the partition table.
+		# Sorry for the sleep 2 hack...
+		print("[Harddisk][MountTask][prepare] - let udev complete the job")
+		self.setCmdline("sleep 2; hdparm -z %s" % self.hdd.disk_path)
+		self.postconditions.append(Components.Task.ReturncodePostcondition())
 
 
 class MkfsTask(Components.Task.LoggingTask):

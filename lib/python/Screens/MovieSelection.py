@@ -161,8 +161,8 @@ canRename = canMove
 
 
 def createMoveList(serviceref, dest):
-	#normpath is to remove the trailing "/" from directories
-	src = isinstance(serviceref, str) and serviceref + ".ts" or ospath.normpath(serviceref.getPath())
+	#normpath is to remove the trailing '/' from directories
+	src = isinstance(serviceref, str) and "%s.%s" % (serviceref, "ts" if ospath.exists("%s.ts" % serviceref) else "stream") or ospath.normpath(serviceref.getPath())
 	srcPath, srcName = ospath.split(src)
 	if ospath.normpath(srcPath) == dest:
 		# move file to itself is allowed, so we have to check it
@@ -1073,9 +1073,10 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 
 	def showEventInformation(self):
 		from Screens.EventView import EventViewSimple
+		from ServiceReference import ServiceReference
 		evt = self["list"].getCurrentEvent()
 		if evt:
-			self.session.open(EventViewSimple, evt, self.getCurrent())
+			self.session.open(EventViewSimple, evt, ServiceReference(self.getCurrent()))
 
 	def saveListsize(self):
 		listsize = self["list"].instance.size()
@@ -1686,7 +1687,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 	def setCurrentRef(self, path):
 		self.current_ref = eServiceReference.fromDirectory(path)
 		# Magic: this sets extra things to show
-		self.current_ref.setName("16384:jpg 16384:png 16384:gif 16384:bmp")
+		self.current_ref.setName('16384:jpg 16384:jpeg 16384:png 16384:gif 16384:bmp 16384:svg')
 
 	def reloadList(self, sel=None, home=False):
 		self.reload_sel = sel
@@ -2275,7 +2276,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			else:
 				fileCount += 1
 				# check if this item is currently recording
-				rec_filename = itemPath[:-3] if itemPath.endswith(".ts") else itemPath
+				rec_filename = itemPath.rsplit(".", 1)[0] # timer.Filename does not include the file ext so remove it from rec_filename before comparing
 				for timer in NavigationInstance.instance.RecordTimer.timer_list:
 					if timer.isRunning() and not timer.justplay and rec_filename == timer.Filename:
 						recList.append((item, timer))

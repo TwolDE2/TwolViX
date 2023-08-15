@@ -1,8 +1,6 @@
 from os import path, remove, unlink
-from xml.etree.cElementTree import parse
 
 from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter
-
 
 from Components.ActionMap import ActionMap
 from Components.config import ConfigNothing
@@ -22,6 +20,7 @@ from Components.Sources.StaticText import StaticText
 from Screens.Standby import TryQuitMainloop
 from Tools.BoundFunction import boundFunction
 from Tools.CIHelper import cihelper
+from Tools.Directories import fileReadXML
 from Tools.XMLTools import stringToXML
 
 
@@ -39,11 +38,9 @@ class CIselectMainMenu(Screen):
 		Screen.__init__(self, session)
 		self["key_red"] = StaticText(_("Close"))
 		self["key_green"] = StaticText(_("Edit"))
-		self["actions"] = ActionMap(["ColorActions", "SetupActions"],
+		self["actions"] = ActionMap(["CancelSaveActions"],
 			{
-				"green": self.greenPressed,
-				"red": self.close,
-				"ok": self.greenPressed,
+				"save": self.greenPressed,
 				"cancel": self.close
 			}, -1)
 
@@ -128,7 +125,7 @@ class CIconfigMenu(Screen):
 		self["ServiceList_desc"] = StaticText(_("Assigned services/provider:"))
 		self["ServiceList_info"] = StaticText()
 
-		self["actions"] = ActionMap(["ColorActions", "SetupActions", "MenuActions"],
+		self["actions"] = ActionMap(["ColorActions", "OkCancelActions", "MenuActions"],
 			{
 				"green": self.greenPressed,
 				"red": self.redPressed,
@@ -320,8 +317,8 @@ class CIconfigMenu(Screen):
 		self.read_providers = []
 		self.usingcaid = []
 		self.ci_config = []
-		try:
-			tree = parse(self.filename).getroot()
+		tree = fileReadXML(self.filename)
+		if tree is not None:
 			for slot in tree.findall("slot"):
 				read_slot = str(getValue(slot.findall("id"), False))
 				i = 0
@@ -341,12 +338,6 @@ class CIconfigMenu(Screen):
 					read_provider_dvbname = str(provider.get("dvbnamespace"))
 					self.read_providers.append((read_provider_name, read_provider_dvbname))
 				self.ci_config.append((int(read_slot), (self.read_services, self.read_providers, self.usingcaid)))
-		except:
-			print("[CI_Config_CI%d] error parsing xml..." % self.ci_slot)
-			try:
-				remove(self.filename)
-			except:
-				print("[CI_Activate_Config_CI%d] error remove damaged xml..." % self.ci_slot)
 
 		for item in self.read_services:
 			if len(item):
@@ -377,7 +368,7 @@ class easyCIconfigMenu(CIconfigMenu):
 
 	def __init__(self, session, ci_slot="9"):
 		CIconfigMenu.__init__(self, session, ci_slot)
-		self["actions"] = ActionMap(["ColorActions", "SetupActions", "MenuActions"],
+		self["actions"] = ActionMap(["ColorActions", "OkCancelActions", "MenuActions"],
 			{
 				"green": self.greenPressed,
 				"red": self.redPressed,

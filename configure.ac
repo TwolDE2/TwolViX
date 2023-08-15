@@ -1,4 +1,4 @@
-AC_INIT([enigma2],[7.1],[http://www.world-of-satellite.com])
+AC_INIT([enigma2],[7.3],[http://www.world-of-satellite.com])
 AM_INIT_AUTOMAKE([dist-bzip2 no-define tar-pax -Wno-portability])
 AC_CONFIG_HEADERS([enigma2_config.h])
 
@@ -58,110 +58,24 @@ AC_ARG_WITH(boxtype,
 AC_SUBST(BOXTYPE)
 AC_DEFINE_UNQUOTED(BOXTYPE,"$BOXTYPE",[box type])
 
-AM_CONDITIONAL(DREAMBOX, test `echo "$BOXTYPE" | cut -b 1-2` == "dm")
-AM_CONDITIONAL(EBOX, test `echo "$BOXTYPE" | cut -b 1-4` == "ebox")
 AM_CONDITIONAL(GIGABLUE, test `echo "$BOXTYPE" | cut -b 1-2` == "gb")
-AM_CONDITIONAL(INI, test `echo "$BOXTYPE" | cut -b 1-3` == "ini")
-AM_CONDITIONAL(IXUSS, test `echo "$BOXTYPE" | cut -b 1-4` == "ixus")
-AM_CONDITIONAL(ODIN, test `echo "$BOXTYPE" | cut -b 1-4` == "odin")
-AM_CONDITIONAL(SPARK, test `echo "$BOXTYPE" | cut -b 1-5` == "spark")
 AM_CONDITIONAL(VUPLUS, test `echo "$BOXTYPE" | cut -b 1-2` == "vu")
-AM_CONDITIONAL(WETEK, test `echo "$BOXTYPE" | cut -b 1-5` == "wetek")
 AM_CONDITIONAL(XTREND, test `echo "$BOXTYPE" | cut -b 1-2` == "et")
 
-AM_CONDITIONAL(AZBOXHD, test "$BOXTYPE" == "azboxhd")
-AM_CONDITIONAL(AZBOXME, test "$BOXTYPE" == "azboxme")
-AM_CONDITIONAL(AZBOXMINIME, test "$BOXTYPE" == "azboxminime")
-AM_CONDITIONAL(BLACKBOX7405, test "$BOXTYPE" == "blackbox7405")
-AM_CONDITIONAL(CUBE, test "$BOXTYPE" == "cube")
-AM_CONDITIONAL(DAGS1, test "$BOXTYPE" == "dags1")
-AM_CONDITIONAL(DAGS2, test "$BOXTYPE" == "dags2")
-AM_CONDITIONAL(DAGS3, test "$BOXTYPE" == "dags3")
-AM_CONDITIONAL(DAGS4, test "$BOXTYPE" == "dags4")
-AM_CONDITIONAL(DAGS5, test "$BOXTYPE" == "dags5")
-AM_CONDITIONAL(DAGS6, test "$BOXTYPE" == "dags6")
-AM_CONDITIONAL(DM500HD, test "$BOXTYPE" == "dm500hd")
-AM_CONDITIONAL(DM500HDV2, test "$BOXTYPE" == "dm500hdv2")
-AM_CONDITIONAL(DM7020HD, test "$BOXTYPE" == "dm7020hd")
-AM_CONDITIONAL(DM7020HDV2, test "$BOXTYPE" == "dm7020hdv2")
-AM_CONDITIONAL(DM800, test "$BOXTYPE" == "dm800")
-AM_CONDITIONAL(DM8000, test "$BOXTYPE" == "dm8000")
-AM_CONDITIONAL(DM800SE, test "$BOXTYPE" == "dm800se")
-AM_CONDITIONAL(DM800SEV2, test "$BOXTYPE" == "dm800sev2")
-AM_CONDITIONAL(E3HD, test "$BOXTYPE" == "e3hd")
-AM_CONDITIONAL(EBOX5000, test "$BOXTYPE" == "ebox5000")
-AM_CONDITIONAL(EBOX5100, test "$BOXTYPE" == "ebox5100")
-AM_CONDITIONAL(EBOX7358, test "$BOXTYPE" == "ebox7358")
-AM_CONDITIONAL(EBOXLUMI, test "$BOXTYPE" == "eboxlumi")
-AM_CONDITIONAL(ET10000, test "$BOXTYPE" == "et10000")
-AM_CONDITIONAL(ET4X00, test "$BOXTYPE" == "et4x00")
-AM_CONDITIONAL(ET5X00, test "$BOXTYPE" == "et5x00")
-AM_CONDITIONAL(ET6X00, test "$BOXTYPE" == "et6x00")
+AM_CONDITIONAL(ET7X00, test "$BOXTYPE" == et7x00)
 AM_CONDITIONAL(ET8000, test "$BOXTYPE" == "et8000")
-AM_CONDITIONAL(ET9X00, test "$BOXTYPE" == "et9x00")
-AM_CONDITIONAL(EW7356, test `echo "$BOXTYPE"` == "ew7356")
-AM_CONDITIONAL(EW7358, test `echo "$BOXTYPE"` == "ew7358")
-AM_CONDITIONAL(EW7362, test `echo "$BOXTYPE"` == "ew7362")
-AM_CONDITIONAL(FORMULER1, test "$BOXTYPE" == formuler1)
-AM_CONDITIONAL(FORMULER3, test "$BOXTYPE" == formuler3)
-AM_CONDITIONAL(GB800SE, test "$BOXTYPE" == "gb800se")
-AM_CONDITIONAL(GB800SEPLUS, test "$BOXTYPE" == "gb800seplus")
-AM_CONDITIONAL(GB800SOLO, test "$BOXTYPE" == "gb800solo")
-AM_CONDITIONAL(GB800UE, test "$BOXTYPE" == "gb800ue")
-AM_CONDITIONAL(GB800UEPLUS, test "$BOXTYPE" == "gb800ueplus")
-AM_CONDITIONAL(GBIPBOX, test "$BOXTYPE" == "gbipbox")
-AM_CONDITIONAL(GBQUAD, test "$BOXTYPE" == "gbquad")
-AM_CONDITIONAL(GBQUADPLUS, test "$BOXTYPE" == "gbquadplus")
+AM_CONDITIONAL(ET10000, test "$BOXTYPE" == "et10000")
 AM_CONDITIONAL(GB7252, test "$BOXTYPE" == gb7252)
-AM_CONDITIONAL(HD1100, test "$BOXTYPE" == "hd1100")
-AM_CONDITIONAL(HD1200, test "$BOXTYPE" == "hd1200")
-AM_CONDITIONAL(HD2400, test "$BOXTYPE" == "hd2400")
-AM_CONDITIONAL(HD500C, test "$BOXTYPE" == "hd500c")
-AM_CONDITIONAL(INIHDE, test "$BOXTYPE" == "inihde")
-AM_CONDITIONAL(INIHDE2, test `echo "$BOXTYPE" | cut -b 1-7` == inihde2)
-AM_CONDITIONAL(INIHDP, test "$BOXTYPE" == "inihdp")
-AM_CONDITIONAL(INIHDX, test "$BOXTYPE" == "inihdx")
-AM_CONDITIONAL(IXUSSONE, test "$BOXTYPE" == "ixussone")
-AM_CONDITIONAL(IXUSSZERO, test "$BOXTYPE" == "ixusszero")
-AM_CONDITIONAL(ODINM6, test "$BOXTYPE" == odinm6)
-AM_CONDITIONAL(ODINM7, test "$BOXTYPE" == odinm7)
-AM_CONDITIONAL(ODINM7C, test "$BOXTYPE" == odinm7c)
-AM_CONDITIONAL(ODINM7S, test "$BOXTYPE" == odinm7s)
-AM_CONDITIONAL(ODINM9, test "$BOXTYPE" == odinm9)
-AM_CONDITIONAL(SH1, test `echo "$BOXTYPE"` == "sh1")
-AM_CONDITIONAL(SH2, test `echo "$BOXTYPE"` == "sh2")
-AM_CONDITIONAL(SPARK, test `echo "$BOXTYPE" | cut -b 1-5` == spark)
-AM_CONDITIONAL(TM2TOE, test "$BOXTYPE" == tm2t)
-AM_CONDITIONAL(TMNANO, test "$BOXTYPE" == tmnano)
-AM_CONDITIONAL(TMNANO2T, test "$BOXTYPE" == tmnano2t)
-AM_CONDITIONAL(TMNANOSE, test "$BOXTYPE" == tmnanose)
-AM_CONDITIONAL(TMSINGLE, test "$BOXTYPE" == tmsingle)
-AM_CONDITIONAL(TMTWINOE, test "$BOXTYPE" == tmtwin)
-AM_CONDITIONAL(VG2000, test `echo "$BOXTYPE"` == "vg2000")
-AM_CONDITIONAL(VG5000, test `echo "$BOXTYPE"` == "vg5000")
-AM_CONDITIONAL(VP7358CI, test "$BOXTYPE" == "vp7358ci")
-AM_CONDITIONAL(VUDUO, test "$BOXTYPE" == vuduo)
-AM_CONDITIONAL(VUDUO2, test "$BOXTYPE" == vuduo2)
-AM_CONDITIONAL(VUDUO4K, test "$BOXTYPE" == vuduo4k)
-AM_CONDITIONAL(VUDUO4KSE, test "$BOXTYPE" == vuduo4kse)
-AM_CONDITIONAL(VUSOLO, test "$BOXTYPE" == vusolo)
-AM_CONDITIONAL(VUSOLO2, test "$BOXTYPE" == vusolo2)
-AM_CONDITIONAL(VUSOLO4K, test "$BOXTYPE" == vusolo4k)
-AM_CONDITIONAL(VUSOLOSE, test "$BOXTYPE" == vusolose)
-AM_CONDITIONAL(VUULTIMO, test "$BOXTYPE" == vuultimo)
-AM_CONDITIONAL(VUULTIMO4K, test "$BOXTYPE" == vuultimo4k)
-AM_CONDITIONAL(VUUNO, test "$BOXTYPE" == vuuno)
 AM_CONDITIONAL(VUUNO4K, test "$BOXTYPE" == vuuno4k)
 AM_CONDITIONAL(VUUNO4KSE, test "$BOXTYPE" == vuuno4kse)
-AM_CONDITIONAL(VUZERO, test "$BOXTYPE" == vuzero)
+AM_CONDITIONAL(VUSOLO4K, test "$BOXTYPE" == vusolo4k)
+AM_CONDITIONAL(VUDUO4K, test "$BOXTYPE" == vuduo4k)
+AM_CONDITIONAL(VUDUO4KSE, test "$BOXTYPE" == vuduo4kse)
+AM_CONDITIONAL(VUULTIMO4K, test "$BOXTYPE" == vuultimo4k)
 AM_CONDITIONAL(VUZERO4K, test "$BOXTYPE" == vuzero4k)
-AM_CONDITIONAL(XC7358, test "$BOXTYPE" == xc7358)
-AM_CONDITIONAL(XC7358CI, test "$BOXTYPE" == xc7358ci)
-AM_CONDITIONAL(XC7362, test "$BOXTYPE" == xc7362)
-AM_CONDITIONAL(XP1000, test "$BOXTYPE" == xp1000)
 
 AC_ARG_WITH(accelerationthreshold,
-	AC_HELP_STRING([--with-accelerationthreshold=n], [use acceleration threshold of n bytes]),
+	AS_HELP_STRING([--with-accelerationthreshold=n], [use acceleration threshold of n bytes]),
 	[[with_accelerationthreshold=$withval]],
 	[[with_accelerationthreshold=48000]]
 )
@@ -169,7 +83,7 @@ AC_ARG_WITH(accelerationthreshold,
 AC_DEFINE_UNQUOTED(GFX_SURFACE_ACCELERATION_THRESHOLD, $with_accelerationthreshold,[Configure threshold for accelerated surfaces (in bytes)])
 
 AC_ARG_WITH(fillaccelerationthreshold,
-	AC_HELP_STRING([--with-fillaccelerationthreshold=n], [use fill acceleration threshold of n bytes]),
+	AS_HELP_STRING([--with-fillaccelerationthreshold=n], [use fill acceleration threshold of n bytes]),
 	[[with_fillaccelerationthreshold=$withval]],
 	[[with_fillaccelerationthreshold=80000]]
 )
@@ -177,7 +91,7 @@ AC_ARG_WITH(fillaccelerationthreshold,
 AC_DEFINE_UNQUOTED(GFX_SURFACE_FILL_ACCELERATION_THRESHOLD, $with_fillaccelerationthreshold,[Configure threshold for accelerated fill operations (in bytes)])
 
 AC_ARG_WITH(blitaccelerationthreshold,
-	AC_HELP_STRING([--with-blitaccelerationthreshold=n], [use blit acceleration threshold of n bytes]),
+	AS_HELP_STRING([--with-blitaccelerationthreshold=n], [use blit acceleration threshold of n bytes]),
 	[[with_blitaccelerationthreshold=$withval]],
 	[[with_blitaccelerationthreshold=0]]
 )
@@ -185,7 +99,7 @@ AC_ARG_WITH(blitaccelerationthreshold,
 AC_DEFINE_UNQUOTED(GFX_SURFACE_BLIT_ACCELERATION_THRESHOLD, $with_blitaccelerationthreshold,[Configure threshold for accelerated blit operations (in bytes)])
 
 AC_ARG_WITH(alphablendingacceleration,
-	AC_HELP_STRING([--with-alphablendingacceleration=never/always/auto], [alphablending acceleration strategy: never accelerate / always accelerate / automatically decide when to accelerate (default)]),
+	AS_HELP_STRING([--with-alphablendingacceleration=never/always/auto], [alphablending acceleration strategy: never accelerate / always accelerate / automatically decide when to accelerate (default)]),
 	[[with_alphablendingacceleration=$withval]],
 	[[with_alphablendingacceleration=auto]]
 )
@@ -197,7 +111,7 @@ elif test x"$with_alphablendingacceleration" = xalways ; then
 fi
 
 AC_ARG_WITH(accelerationaccumulation,
-	AC_HELP_STRING([--with-accelerationaccumulation], [accumulate blit/fill acceleration operations]),
+	AS_HELP_STRING([--with-accelerationaccumulation], [accumulate blit/fill acceleration operations]),
 	[[with_accelerationaccumulation=$withval]],
 	[[with_accelerationaccumulation=no]]
 )
@@ -228,7 +142,7 @@ if test x"$with_libhiaccel" != xno ; then
 fi
 
 AC_ARG_WITH(osdanimation,
-	AC_HELP_STRING([--with-osdanimation], [use osd animation, yes or no]),
+	AS_HELP_STRING([--with-osdanimation], [use osd animation, yes or no]),
 	[[withosdanimation=$withval]],
 	[[withosdanimation=no]]
 )
@@ -239,13 +153,8 @@ fi
 AM_CONDITIONAL(HAVE_OSDANIMATION, test x"$withosdanimation" != xno)
 
 
-if test `echo "$BOXTYPE" | cut -b 1-2` == "dm"; then
-	AC_DEFINE(DREAMBOX, 1, [Dreambox hardware])
-	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
-fi
-
 AC_ARG_WITH(nolcd,
-	AC_HELP_STRING([--with-nolcd], [disable ascii based lcd, yes or no]),
+	AS_HELP_STRING([--with-nolcd], [disable ascii based lcd, yes or no]),
 	[[withnolcd=$withval]],
 	[[withnolcd=no]]
 )
@@ -255,7 +164,7 @@ fi
 AM_CONDITIONAL(NO_LCD, test x"$withnolcd" != xno)
 
 AC_ARG_WITH(textlcd,
-	AC_HELP_STRING([--with-textlcd], [use ascii based lcd, yes or no]),
+	AS_HELP_STRING([--with-textlcd], [use ascii based lcd, yes or no]),
 	[[withtextlcd=$withval]],
 	[[withtextlcd=no]]
 )
@@ -265,7 +174,7 @@ fi
 AM_CONDITIONAL(HAVE_TEXTLCD, test x"$withtextlcd" != xno)
 
 AC_ARG_WITH(7segment,
-	AC_HELP_STRING([--with-7segment], [use ascii based lcd, yes or no]),
+	AS_HELP_STRING([--with-7segment], [use ascii based lcd, yes or no]),
 	[[with7segment=$withval]],
 	[[with7segment=no]]
 )
@@ -275,7 +184,7 @@ fi
 AM_CONDITIONAL(HAVE_7SEGMENT, test x"$with7segment" != xno)
 
 AC_ARG_WITH(colorlcd,
-	AC_HELP_STRING([--with-colorlcd], [use 96x64 16bpp color display, yes or no]),
+	AS_HELP_STRING([--with-colorlcd], [use 96x64 16bpp color display, yes or no]),
 	[[withcolorlcd=$withval]],
 	[[withcolorlcd=no]]
 )
@@ -285,7 +194,7 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD, test x"$withcolorlcd" != xno)
 
 AC_ARG_WITH(colorlcd128,
-	AC_HELP_STRING([--with-colorlcd128], [use 128x64 16bpp color display, yes or no]),
+	AS_HELP_STRING([--with-colorlcd128], [use 128x64 16bpp color display, yes or no]),
 	[[withcolorlcd128=$withval]],
 	[[withcolorlcd128=no]]
 )
@@ -295,7 +204,7 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD128, test x"$withcolorlcd" != xno)
 
 AC_ARG_WITH(colorlcd220,
-	AC_HELP_STRING([--with-colorlcd220], [use 220x176 16bpp color display, yes or no]),
+	AS_HELP_STRING([--with-colorlcd220], [use 220x176 16bpp color display, yes or no]),
 	[[withcolorlcd220=$withval]],
 	[[withcolorlcd220=no]]
 )
@@ -305,7 +214,7 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD220, test x"$withcolorlcd220" != xno)
 
 AC_ARG_WITH(colorlcd400,
-	AC_HELP_STRING([--with-colorlcd400], [use 400x176 16bpp color display, yes or no]),
+	AS_HELP_STRING([--with-colorlcd400], [use 400x176 16bpp color display, yes or no]),
 	[[withcolorlcd400=$withval]],
 	[[withcolorlcd400=no]]
 )
@@ -315,7 +224,7 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD400, test x"$withcolorlcd400" != xno)
 
 AC_ARG_WITH(colorlcd480,
-	AC_HELP_STRING([--with-colorlcd480], [use 480x320 16bpp color display, yes or no]),
+	AS_HELP_STRING([--with-colorlcd480], [use 480x320 16bpp color display, yes or no]),
 	[[withcolorlcd480=$withval]],
 	[[withcolorlcd480=no]]
 )
@@ -325,7 +234,7 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD480, test x"$withcolorlcd480" != xno)
 
 AC_ARG_WITH(colorlcd720,
-	AC_HELP_STRING([--with-colorlcd720], [use 720x576 32bpp color display, yes or no]),
+	AS_HELP_STRING([--with-colorlcd720], [use 720x576 32bpp color display, yes or no]),
 	[[withcolorlcd720=$withval]],
 	[[withcolorlcd720=no]]
 )
@@ -336,7 +245,7 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD720, test x"$withcolorlcd720" != xno)
 
 AC_ARG_WITH(colorlcd800,
-	AC_HELP_STRING([--with-colorlcd800], [use 800x480 16bpp color display, yes or no]),
+	AS_HELP_STRING([--with-colorlcd800], [use 800x480 16bpp color display, yes or no]),
 	[[withcolorlcd800=$withval]],
 	[[withcolorlcd800=no]]
 )
@@ -347,7 +256,7 @@ fi
 AM_CONDITIONAL(HAVE_COLORLCD800, test x"$withcolorlcd800" != xno)
 
 AC_ARG_WITH(bwlcd255,
-	AC_HELP_STRING([--with-bwlcd255], [use 255x64 1bpp black and white display, yes or no]),
+	AS_HELP_STRING([--with-bwlcd255], [use 255x64 1bpp black and white display, yes or no]),
 	[[withbwlcd255=$withval]],
 	[[withbwlcd255=no]]
 )
@@ -357,7 +266,7 @@ fi
 AM_CONDITIONAL(HAVE_BWLCD255, test x"$withbwlcd255" != xno)
 
 AC_ARG_WITH(bwlcd140,
-	AC_HELP_STRING([--with-bwlcd140], [use 140x32 1bpp black and white display, yes or no]),
+	AS_HELP_STRING([--with-bwlcd140], [use 140x32 1bpp black and white display, yes or no]),
 	[[withbwlcd140=$withval]],
 	[[withbwlcd140=no]]
 )
@@ -367,7 +276,7 @@ fi
 AM_CONDITIONAL(HAVE_BWLCD140, test x"$withbwlcd140" != xno)
 
 AC_ARG_WITH(bwlcd128,
-	AC_HELP_STRING([--with-bwlcd128], [use 128x32 1bpp black and white display, yes or no]),
+	AS_HELP_STRING([--with-bwlcd128], [use 128x32 1bpp black and white display, yes or no]),
 	[[withbwlcd128=$withval]],
 	[[withbwlcd128=no]]
 )
@@ -377,7 +286,7 @@ fi
 AM_CONDITIONAL(HAVE_BWLCD128, test x"$withbwlcd128" != xno)
 
 AC_ARG_WITH(gigabluelcd,
-	AC_HELP_STRING([--with-gigabluelcd], [use fix colour map in color display, yes or no]),
+	AS_HELP_STRING([--with-gigabluelcd], [use fix colour map in color display, yes or no]),
 	[[withgigabluelcd=$withval]],
 	[[withgigabluelcd=no]]
 )
@@ -387,7 +296,7 @@ fi
 AM_CONDITIONAL(HAVE_GIGABLUELCD, test x"$withgigabluelcd" != xno)
 
 AC_ARG_WITH(oldpvr,
-	AC_HELP_STRING([--with-oldpvr], [use /dev/misc/pvr instead of /dev/dvb/adapterX/dvrX, yes or no]),
+	AS_HELP_STRING([--with-oldpvr], [use /dev/misc/pvr instead of /dev/dvb/adapterX/dvrX, yes or no]),
 	[[witholdpvr=$withval]],
 	[[witholdpvr=no]]
 )
@@ -422,55 +331,15 @@ if test "$BOXTYPE" == "osmio4k" -o "$BOXTYPE" == "osmio4kplus"; then
 	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
 fi
 
-if test "$BOXTYPE" == "sf4008"; then
-	AC_DEFINE(FORCE_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
-	AC_DEFINE(FORCE_ADVANCED_REMOTE, 1,[define to fixup the input device identification when the remote control is actually an 'advanced' remote (with play/forward/rewind keys)])
-fi
-
 if test "$BOXTYPE" == "et7x00"; then
 	AC_DEFINE(KEY_F1_TO_KEY_F2, 1,[define when rc sends a KEY_F1 event for its KEY_F2 key])
-	AC_DEFINE(FORCE_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
+	AC_DEFINE(FORCE_ALPHABLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
 fi
 
-if test "$BOXTYPE" == "sf8008" -o "$BOXTYPE" == "sf8008m" -o "$BOXTYPE" == "sx988" -o "$BOXTYPE" == "sfx6008" -o "$BOXTYPE" == "gbmv200" -o "$BOXTYPE" == "viper4k" -o "$BOXTYPE" == "beyonwizv2" -o "$BOXTYPE" == "ustym4kpro"; then
+if test "$BOXTYPE" == "sf8008" -o "$BOXTYPE" == "sf8008m" -o "$BOXTYPE" == "sx988" -o "$BOXTYPE" == "sfx6008" -o "$BOXTYPE" == "sx88v2" -o "$BOXTYPE" == "gbmv200" -o "$BOXTYPE" == "viper4k" -o "$BOXTYPE" == "beyonwizv2" -o "$BOXTYPE" == "ustym4kpro"; then
 	AC_DEFINE(HAVE_HISILICON, 1,[define add HISILICON chip])
 	AC_DEFINE(CONFIG_HISILICON_FB, 1,[define add HISILICON framebuffer blit])
-	AC_DEFINE(FORCE_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])	
-fi
-
-if test "$BOXTYPE" == "u5" -o "$BOXTYPE" == "u5pvr" -o "$BOXTYPE" == "u51" -o "$BOXTYPE" == "u52" -o "$BOXTYPE" == "u53" -o "$BOXTYPE" == "u532" -o "$BOXTYPE" == "u533" -o "$BOXTYPE" == "u54" -o "$BOXTYPE" == "u55" -o "$BOXTYPE" == "u56" -o "$BOXTYPE" == "u57" -o "$BOXTYPE" == "u571" -o "$BOXTYPE" == "u41" -o "$BOXTYPE" == "u42" -o "$BOXTYPE" == "u43"; then
-	AC_DEFINE(HAVE_HISILICON, 1,[define add HISILICON chip])
-fi
-
-if test "$BOXTYPE" == "u53"; then
-	AC_DEFINE(KEY_F6_TO_KEY_FAVORITES, 1,[define when rc FAV key sends a KEY_F6 event for its KEY_FAVORITES key])
-	AC_DEFINE(KEY_CONTEXT_MENU_TO_KEY_BACK, 1,[define when rc MOUSE key sends a KEY_CONTEXT_MENU event for its KEY_BACK key])
-	AC_DEFINE(KEY_WWW_TO_KEY_FILE, 1,[define when rc HOME key sends a KEY_WWW event for its KEY_FILE key])
-	AC_DEFINE(KEY_HELP_TO_KEY_AUDIO, 1,[define when rc SETTINGS key sends a KEY_HELP event for its KEY_AUDIO key])
-fi
-
-if test "$BOXTYPE" == "7000s"; then
-	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
-	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
-fi
-
-if test "$BOXTYPE" == "7005s"; then
-	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
-	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
-fi
-
-if test "$BOXTYPE" == "7210s"; then
-	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])
-fi
-
-if test "$BOXTYPE" == "formuler4turbo"; then
-	AC_DEFINE(FORCE_ADVANCED_REMOTE, 1,[define to fixup the input device identification when the remote control is actually an 'advanced' remote (with play/forward/rewind keys)])
-	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
-fi
-
-if test "$BOXTYPE" == "formuler1"; then
-	AC_DEFINE(KEY_BOOKMARKS_TO_KEY_MEDIA, 1,[define when rc Playlist sends a KEY_BOOKMARKS event for its KEY_MEDIA key])
-	AC_DEFINE(KEY_VIDEO_TO_KEY_FAVORITES, 1,[define when rc FAV key sends a KEY_VIDEO event for its KEY_FAVORITES key])
+	AC_DEFINE(FORCE_ALPHABLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])	
 fi
 
 AC_ARG_WITH(libsdl,
@@ -505,7 +374,7 @@ if test "$with_memcheck" = "yes"; then
 fi
 
 AC_ARG_WITH(fbdev,
-	AC_HELP_STRING([--with-fbdev=devicename], [use devicename for framebuffer device, e.g. /dev/fb0 ]),
+	AS_HELP_STRING([--with-fbdev=devicename], [use devicename for framebuffer device, e.g. /dev/fb0 ]),
 	[[with_fbdev=$withval]],
 	[[with_fbdev=no]]
 )
@@ -514,7 +383,7 @@ if test x"$with_fbdev" != xno ; then
 fi
 
 AC_ARG_WITH(lcddev,
-	AC_HELP_STRING([--with-lcddev=devicename], [use devicename for lcd framebuffer device, e.g. /dev/fb1 ]),
+	AS_HELP_STRING([--with-lcddev=devicename], [use devicename for lcd framebuffer device, e.g. /dev/fb1 ]),
 	[[with_lcddev=$withval]],
 	[[with_lcddev=no]]
 )
@@ -578,6 +447,7 @@ lib/Makefile
 lib/base/eenv.cpp
 lib/python/Makefile
 lib/python/Components/Makefile
+lib/python/Components/Addons/Makefile
 lib/python/Components/Converter/Makefile
 lib/python/Components/Renderer/Makefile
 lib/python/Components/Sources/Makefile

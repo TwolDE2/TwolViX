@@ -1,6 +1,5 @@
 from os import access, fsync, makedirs, remove, rename, path as ospath, statvfs, W_OK
 from timer import Timer, TimerEntry
-import xml.etree.cElementTree
 from bisect import insort
 from sys import maxsize
 from time import localtime, strftime, ctime, time
@@ -196,7 +195,7 @@ class RecordTimerEntry(TimerEntry):
 		assert isinstance(serviceref, eServiceReference)
 
 		if serviceref and serviceref.toString()[:4] in config.recording.setstreamto1.value: # check if to convert IPTV services (4097, etc) to "1"
-			serviceref = eServiceReference("1" + serviceref.toString()[4:])				
+			serviceref = eServiceReference("1" + serviceref.toString()[4:])
 
 		if serviceref and serviceref.isRecordable():
 			self.service_ref = serviceref
@@ -448,7 +447,7 @@ class RecordTimerEntry(TimerEntry):
 	def sendactivesource(self):
 		if SystemInfo["hasHdmiCec"] and config.hdmicec.enabled.value and config.hdmicec.sourceactive_zaptimers.value:	# Command the TV to switch to the correct HDMI input when zap timers activate
 			import struct
-			from enigma import eHdmiCEC	
+			from enigma import eHdmiCEC
 			msgaddress = 0x0f # use broadcast for active source command
 			cmd = 0x82	# 130
 			physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
@@ -457,10 +456,9 @@ class RecordTimerEntry(TimerEntry):
 				data = data.decode(("UTF-8"))
 			except:
 				data = data.decode("ISO-8859-1", "ignore")
-				print("[RecordTimer[sendactivesource] data decode failed with utf-8, trying iso-8859-1")			
-			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))			
+				print("[RecordTimer[sendactivesource] data decode failed with utf-8, trying iso-8859-1")
+			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 			print("[TIMER] sourceactive was sent")
-
 
 	def _bouquet_search(self):
 		from Screens.ChannelSelection import ChannelSelection
@@ -1004,6 +1002,7 @@ def createTimer(xml):
 
 	return entry
 
+
 class RecordTimer(Timer):
 	def __init__(self):
 		Timer.__init__(self)
@@ -1025,15 +1024,15 @@ class RecordTimer(Timer):
 			f(entry)
 
 	def doActivate(self, w, dosave=True):
-		# when activating a timer for servicetype 4097,	
+		# when activating a timer for servicetype 4097,
 		# and SystemApp has player enabled, then skip recording.
 		# Or always skip if in ("5001", "5002") as these cannot be recorded.
 		if w.service_ref.toString().startswith("4097:") and Directories.isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True or w.service_ref.toString()[:4] in ("5001", "5002"):
-			print("[RecordTimer][doActivate] found Serviceapp & player enabled - disable this timer recording")		
+			print("[RecordTimer][doActivate] found Serviceapp & player enabled - disable this timer recording")
 			w.state = RecordTimerEntry.StateEnded
 			from Tools.Notifications import AddPopup
 			from Screens.MessageBox import MessageBox
-			AddPopup(_("Recording IPTV with systemapp enabled, timer ended!\nPlease recheck it!"), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerRecordingFailed")		
+			AddPopup(_("Recording IPTV with systemapp enabled, timer ended!\nPlease recheck it!"), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerRecordingFailed")
 		# when activating a timer which has already passed,
 		# simply abort the timer. don't run trough all the stages.
 		elif w.shouldSkip():
@@ -1045,7 +1044,7 @@ class RecordTimer(Timer):
 			if w.activate():
 				w.state += 1
 			elif w.service_ref.toString()[:4] in ("4097", "5001", "5002"):
-				w.state = RecordTimerEntry.StateEnded	
+				w.state = RecordTimerEntry.StateEnded
 		try:
 			self.timer_list.remove(w)
 		except:
@@ -1094,27 +1093,7 @@ class RecordTimer(Timer):
 		return False
 
 	def loadTimer(self, justLoad=False):		# justLoad is passed on to record()
-		try:
-			file = open(self.Filename, 'r')
-			doc = xml.etree.cElementTree.parse(file)
-			file.close()
-		except SyntaxError:
-			from Tools.Notifications import AddPopup
-			from Screens.MessageBox import MessageBox
-
-			AddPopup(_("The timer file (timers.xml) is corrupt and could not be loaded."), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerLoadFailed")
-
-			print("[RecordTimer] timers.xml failed to load!")
-			try:
-				rename(self.Filename, self.Filename + "_old")
-			except (IOError, OSError):
-				print("[RecordTimer] renaming broken timer failed")
-			return
-		except IOError:
-			print("[RecordTimer] timers.xml not found!")
-			return
-
-		root = doc.getroot()
+		root = Directories.fileReadXML(self.Filename, "<timers />")
 
 		# put out a message when at least one timer overlaps
 		checkit = False

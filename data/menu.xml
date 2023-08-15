@@ -99,7 +99,7 @@ self.session.openWithCallback(msgClosed, EpgDeleteMsg)
 			<item entryID="channelselection_setup" level="0" text="Channel Selection" weight="2"><setup id="channelselection" /></item>
 			<item entryID="skin_setup" level="0" text="Skin Selection" weight="3"><screen module="SkinSelector" screen="SkinSelector" /></item>
 			<menu entryID="osd_setup" level="0" text="On Screen Display" weight="4" requires="OsdMenu">
-				<id val="osd_menu" />	
+				<id val="osd_menu" />
 				<item entryID="osd3dsetup" level="2" text="3D Setup" requires="CanChange3DOsd"><screen module="UserInterfacePositioner" screen="OSD3DSetupScreen" /></item>
 				<item entryID="osdsetup" level="2" text="OSD Position" requires="OsdSetup"><screen module="UserInterfacePositioner" screen="UserInterfacePositioner" /></item>
 			</menu>
@@ -159,13 +159,14 @@ self.session.open(SABnzbdSetupScreen)
 
 		<!-- Menu / Setup / SoftcamScript -->
 		<item entryID="softcam_initD" level="0" text="Softcam Script" weight="9" requires="HasInitCam"><screen module="SoftcamScript" screen="SoftcamScript"/></item>
-		
+
 		<!-- Menu / Setup / Storage -->
 		<menu entryID="hardisk_selection" level="0" text="Storage" weight="10" requires="Harddisk">
 			<id val="harddisk" />
 			<item entryID="harddisk_setup" level="1" text="Settings"><setup id="harddisk" /></item>
 			<item entryID="harddisk_init" level="0" text="Initialize Devices"><screen module="HarddiskSetup" screen="HarddiskSelection" /></item>
 			<item entryID="harddisk_check" level="0" text="Filesystem Check"><screen module="HarddiskSetup" screen="HarddiskFsckSelection" /></item>
+			<item key="flash_expander" level="0" text="Flash Expander" weight="40"><screen module="FlashExpander" screen="FlashExpander" /></item>			
 		</menu>
 
 		<!-- Menu / Setup / Recordings, Playback & Timeshift -->
@@ -243,7 +244,5 @@ self.session.scart.VCRSbChanged(3)
 		<item entryID="H9SDswap" level="0" text="H9SDroot" requires="HasH9SD"><screen module="H9SDswap" screen="H9SDswap">1</screen></item>
 		<item entryID="deep_standby" level="0" text="Deep Standby" requires="DeepstandbySupport"><screen module="Standby" screen="TryQuitMainloop">1</screen></item>
 		<item entryID="deep_standby" level="0" text="Shut Down" requires="!DeepstandbySupport"><screen module="Standby" screen="TryQuitMainloop">1</screen></item>
-		<item entryID="maintenance_mode" level="0" text="Recovery Mode" requires="RecoveryMode"><screen module="Standby" screen="TryQuitMainloop">16</screen></item>
-		<item entryID="android_mode" level="0" text="Android Mode" requires="AndroidMode"><screen module="Standby" screen="TryQuitMainloop">12</screen></item>
 	</menu>
 </menu>

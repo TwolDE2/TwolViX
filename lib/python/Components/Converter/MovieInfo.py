@@ -4,6 +4,15 @@ from enigma import iServiceInformation, eServiceReference
 
 from Components.Converter.Converter import Converter
 from Components.Element import cached
+from Components.Harddisk import bytesToHumanReadable
+
+# Handle any invalid utf8 in a description to avoid crash when
+# displaying it.
+#
+
+
+def force_valid_utf8(strarray):
+	return strarray.encode(errors='backslashreplace').decode(errors='ignore')
 
 
 class MovieInfo(Converter):
@@ -80,15 +89,7 @@ class MovieInfo(Converter):
 	def getFriendlyFilesize(self, filesize):
 		if filesize is None:
 			return ""
-		if filesize >= 104857600000: #100000 * 1024 * 1024
-			return _("%.0f GB") % (filesize / 1073741824.0)
-		elif filesize >= 1073741824: #1024*1024 * 1024
-			return _("%.2f GB") % (filesize / 1073741824.0)
-		elif filesize >= 1048576:
-			return _("%.0f MB") % (filesize / 1048576.0)
-		elif filesize >= 1024:
-			return _("%.0f kB") % (filesize / 1024.0)
-		return _("%d B") % filesize
+		return bytesToHumanReadable(filesize)
 
 	@cached
 	def getText(self):
@@ -102,7 +103,7 @@ class MovieInfo(Converter):
 					return service.getPath()
 				return (
 					self.__getCollectionDescription(service)
-					or info.getInfoString(service, iServiceInformation.sDescription)
+					or force_valid_utf8(info.getInfoString(service, iServiceInformation.sDescription))
 					or (event and self.trimText(event.getShortDescription()))
 					or service.getPath()
 				)
@@ -110,14 +111,14 @@ class MovieInfo(Converter):
 				return (
 					self.__getCollectionDescription(service)
 					or (event and (self.trimText(event.getExtendedDescription()) or self.trimText(event.getShortDescription())))
-					or info.getInfoString(service, iServiceInformation.sDescription)
+					or force_valid_utf8(info.getInfoString(service, iServiceInformation.sDescription))
 					or service.getPath()
 				)
 			elif self.type == self.MOVIE_FULL_DESCRIPTION:
 				return (
 					self.__getCollectionDescription(service)
 					or (event and self.formatDescription(event.getShortDescription(), event.getExtendedDescription()))
-					or info.getInfoString(service, iServiceInformation.sDescription)
+					or force_valid_utf8(info.getInfoString(service, iServiceInformation.sDescription))
 					or service.getPath()
 				)
 			elif self.type == self.MOVIE_NAME:
@@ -138,7 +139,7 @@ class MovieInfo(Converter):
 		if service.flags & eServiceReference.isGroup:
 			items = getattr(self.source.additionalInfo, "collectionItems", None)
 			if items and len(items) > 0:
-				return items[0][1].getInfoString(items[0][0], iServiceInformation.sDescription)
+				return force_valid_utf8(items[0][1].getInfoString(items[0][0], iServiceInformation.sDescription))
 		return None
 
 	def getFileSize(self, service, info):
@@ -166,6 +167,7 @@ class MovieInfo(Converter):
 
 	def __directoryScanWorker(self):
 		size = 0
+
 		def scanDirectory(path):
 			nonlocal size
 			for entry in scandir(path):

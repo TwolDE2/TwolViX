@@ -68,7 +68,7 @@ void eServiceReference::eServiceReferenceBase(const std::string &string)
 	{
 		memset(data, 0, sizeof(data));
 		ret = sscanf(c, "%d:%d:%x:%x:%x:%x:%n", &type, &flags, &data[0], &data[1], &data[2], &data[3], &pathl);
-		eDebug("[eServiceReference] find old format eServiceReference string");
+/*		eDebug("[eServiceReference] find old format eServiceReference string");  */
 		if (ret < 2)
 			type = idInvalid;
 	}

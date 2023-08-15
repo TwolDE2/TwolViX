@@ -21,7 +21,7 @@ from skin import parseColor, parseFont, parseScale, applySkinFactor
 
 AUDIO_EXTENSIONS = frozenset((".dts", ".mp3", ".wav", ".wave", ".wv", ".oga", ".ogg", ".flac", ".m4a", ".mp2", ".m2a", ".wma", ".ac3", ".mka", ".aac", ".ape", ".alac", ".amr", ".au", ".mid"))
 DVD_EXTENSIONS = frozenset((".iso", ".img", ".nrg"))
-IMAGE_EXTENSIONS = frozenset((".jpg", ".png", ".gif", ".bmp", ".jpeg", ".jpe"))
+IMAGE_EXTENSIONS = frozenset((".jpg", ".png", ".gif", ".bmp", ".jpeg", ".jpe", ".svg"))
 MOVIE_EXTENSIONS = frozenset((".mpg", ".vob", ".m4v", ".mkv", ".avi", ".divx", ".dat", ".flv", ".mp4", ".mov", ".wmv", ".asf", ".3gp", ".3g2", ".mpeg", ".mpe", ".rm", ".rmvb", ".ogm", ".ogv", ".m2ts", ".mts", ".webm", ".pva", ".wtv", ".ts"))
 KNOWN_EXTENSIONS = MOVIE_EXTENSIONS.union(IMAGE_EXTENSIONS, DVD_EXTENSIONS, AUDIO_EXTENSIONS)
 
@@ -228,6 +228,7 @@ class MovieList(GUIComponent):
 		self.pbarColour = 0x206333
 		self.pbarColourSeen = 0xffc71d
 		self.pbarColourRec = 0xff001d
+		self.pbarColourPlayRec = 0xffc71d
 		self.partIconeShift = None
 		self.spaceRight = 2
 		self.spaceIconeText = 2
@@ -306,7 +307,7 @@ class MovieList(GUIComponent):
 		result = {}
 		for timer in NavigationInstance.instance.RecordTimer.timer_list:
 			if timer.isRunning() and not timer.justplay and hasattr(timer, 'Filename'):
-				result[path.split(timer.Filename)[1] + '.ts'] = timer
+				result[path.split(timer.Filename)[1]] = timer
 		if self.runningTimers == result:
 			return
 		self.runningTimers = result
@@ -364,6 +365,9 @@ class MovieList(GUIComponent):
 
 		def pbarColourRec(value):
 			self.pbarColourRec = parseColor(value).argb()
+
+		def pbarColourPlayRec(value):
+			self.pbarColourPlayRec = parseColor(value).argb()
 
 		def partIconeShift(value):
 			self.partIconeShift = parseScale(value)
@@ -477,7 +481,7 @@ class MovieList(GUIComponent):
 			data.txt = getItemDisplayNameText(serviceref, info)
 			data.icon = None
 			data.part = 0
-			if path.split(pathName)[1] in self.runningTimers:
+			if path.split(pathName)[1].rsplit(".", 1)[0] in self.runningTimers:
 				if switch == 'i':
 					if (self.playInBackground or self.playInForeground) and serviceref == (self.playInBackground or self.playInForeground):
 						data.icon = self.iconMoviePlayRec
@@ -486,7 +490,7 @@ class MovieList(GUIComponent):
 				elif switch in ('p', 's'):
 					data.part = 100
 					if (self.playInBackground or self.playInForeground) and serviceref == (self.playInBackground or self.playInForeground):
-						data.partcol = self.pbarColourSeen
+						data.partcol = self.pbarColourPlayRec
 					else:
 						data.partcol = self.pbarColourRec
 			elif (self.playInBackground or self.playInForeground) and serviceref == (self.playInBackground or self.playInForeground):
@@ -830,7 +834,7 @@ class MovieList(GUIComponent):
 				elif len(groupedItems) > 1:
 					# more than one item, display a collection
 					# to provide a useful description field, we use the oldest recording as the source
-					# which avoids showing potential spoilers 
+					# which avoids showing potential spoilers
 					groupedItems = sorted(groupedItems, key=self.buildBeginTimeSortKey, reverse=True)
 					firstItem = groupedItems[0]
 					data = MovieListData()
@@ -1001,7 +1005,6 @@ class MovieList(GUIComponent):
 		name = x[3].txt
 		return min(self.getSortPrimaryGroup(x), 2), name and name.lower() or "", -x[2]
 
-
 	def buildBeginTimeSortKey(self, x):
 		return self.getSortPrimaryGroup(x), "", -x[2]
 
@@ -1117,7 +1120,7 @@ class MovieList(GUIComponent):
 		for service in self.markList[:]:
 			idx = self.findService(service)
 			if idx is not None:
-				if not excludeDirs or not(service.flags & eServiceReference.isDirectory):
+				if not excludeDirs or not (service.flags & eServiceReference.isDirectory):
 					marked.append(self.list[idx])
 			else:
 				self.markList.remove(service)

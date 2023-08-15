@@ -2,7 +2,6 @@ from os import fsync, path as ospath, remove, rename
 from bisect import insort
 from time import ctime, time
 from timer import Timer, TimerEntry
-import xml.etree.cElementTree
 
 from boxbranding import getMachineBrand, getMachineName
 from enigma import eActionMap, quitMainloop
@@ -409,7 +408,7 @@ def createTimer(xml):
 	for l in xml.findall("log"):
 		ltime = int(l.get("time"))
 		lcode = int(l.get("code"))
-		# print("[PowerManager]: ltext, time, code", l.text, "   ", l.get("time"), "   ", l.get("code"))		
+		# print("[PowerManager]: ltext, time, code", l.text, "   ", l.get("time"), "   ", l.get("code"))
 		msg = l.text.strip()
 		entry.log_entries.append((ltime, lcode, msg))
 	return entry
@@ -475,27 +474,7 @@ class PowerTimer(Timer):
 		# TODO: PATH!
 		if not Directories.fileExists(self.Filename):
 			return
-		try:
-			file = open(self.Filename, 'r')
-			doc = xml.etree.cElementTree.parse(file)
-			file.close()
-		except SyntaxError:
-			from Tools.Notifications import AddPopup
-			from Screens.MessageBox import MessageBox
-
-			AddPopup(_("The timer file (pm_timers.xml) is corrupt and could not be loaded."), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerLoadFailed")
-
-			print("pm_timers.xml failed to load!")
-			try:
-				rename(self.Filename, self.Filename + "_old")
-			except (IOError, OSError):
-				print("renaming broken timer failed")
-			return
-		except IOError:
-			print("pm_timers.xml not found!")
-			return
-
-		root = doc.getroot()
+		root = Directories.fileReadXML(self.Filename, "<timers />")
 
 		# put out a message when at least one timer overlaps
 		checkit = True

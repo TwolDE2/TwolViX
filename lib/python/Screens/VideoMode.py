@@ -297,11 +297,14 @@ class AutoVideoMode(Screen):
 
 	def VideoChangeDetect(self):
 		global resolutionlabel
+		print("[VideoMode][VideoChangeDetect] config.av.videoport.value", config.av.videoport.value)		
 		config_port = config.av.videoport.value
+		print("[VideoMode][VideoChangeDetect] config.av.videomode[config_port].value", config.av.videomode[config_port].value)		
 		config_mode = str(config.av.videomode[config_port].value).replace("\n", "")
 		config_res = str(config.av.videomode[config_port].value[:-1]).replace("\n", "")
 		config_pol = str(config.av.videomode[config_port].value[-1:]).replace("\n", "")
-		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
+		print("[VideoMode][VideoChangeDetect] config.av.videorate[config_mode].value", config.av.videomode[config_port].value)		
+		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")		
 		with open("/proc/stb/video/videomode", "r") as fd:
 			current_mode = fd.read()[:-1].replace("\n", "")
 		if current_mode.upper() in ("PAL", "NTSC"):
@@ -317,36 +320,28 @@ class AutoVideoMode(Screen):
 		video_width = None
 		video_pol = None
 		video_rate = None
-		if path.exists("/proc/stb/vmpeg/0/yres"):
+		try:
 			with open("/proc/stb/vmpeg/0/yres", "r") as fd:
-				try:
-					video_height = int(fd.read(), 16)
-				except Exception:
-					pass
-		if path.exists("/proc/stb/vmpeg/0/xres"):
+				video_height = int(fd.read(), 16)
+		except Exception:
+			pass
+		try:
 			with open("/proc/stb/vmpeg/0/xres", "r") as fd:
-				try:
-					video_width = int(fd.read(), 16)
-				except Exception:
-					pass
-		if path.exists("/proc/stb/vmpeg/0/progressive"):
+				video_width = int(fd.read(), 16)
+		except Exception:
+			pass
+		try:
 			with open("/proc/stb/vmpeg/0/progressive", "r") as fd:
-				try:
-					video_pol = "p" if int(fd.read(), 16) else "i"
-				except Exception:
-					pass
-		if path.exists("/proc/stb/vmpeg/0/framerate"):
+				video_pol = "p" if int(fd.read(), 16) else "i"
+		except Exception:
+			pass
+		try:
 			with open("/proc/stb/vmpeg/0/framerate", "r") as fd:
-				try:
-					video_rate = int(fd.read())
-				except Exception:
-					pass
+				video_rate = int(fd.read())
+		except Exception:
+			pass
 		if not video_height or not video_width or not video_pol or not video_rate:
-			service = self.session.nav.getCurrentService()
-			if service is not None:
-				info = service.info()
-			else:
-				info = None
+			info = None if self.session.nav.getCurrentService() is None else self.session.nav.getCurrentService().info()	
 			if info:
 				video_height = int(info.getInfo(iServiceInformation.sVideoHeight))
 				video_width = int(info.getInfo(iServiceInformation.sVideoWidth))
@@ -385,8 +380,7 @@ class AutoVideoMode(Screen):
 				new_pol = str(video_pol)
 			else:
 				new_pol = config_pol
-			write_mode = None
-			new_mode = None
+			write_mode  = new_mode = None
 			if config_mode in ("PAL", "NTSC"):
 				write_mode = config_mode
 			elif config.av.autores.value == "all" or (config.av.autores.value == "hd" and int(new_res) >= 720):
@@ -455,7 +449,7 @@ class AutoVideoMode(Screen):
 				resolutionlabel["restxt"].setText(_("Video mode: %s") % write_mode)
 				if config.av.autores.value != "disabled" and config.av.autores_label_timeout.value != "0":
 					resolutionlabel.show()
-				print("[VideoMode] setMode - port: %s, mode: %s" % (config_port, write_mode))
+				print("[VideoMode] setMode - port: %s, mode: %s" % (config.av.videoport.value, write_mode))
 				with open("/proc/stb/video/videomode", "w") as fd:
 					fd.write(write_mode)
 		iAV.setAspect(config.av.aspect)

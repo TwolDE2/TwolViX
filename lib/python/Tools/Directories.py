@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import errno
+from errno import ENOENT, EXDEV
 
 from os.path import basename as pathBasename, dirname as pathDirname, exists as pathExists, getsize as pathGetsize, isdir as pathIsdir, isfile as pathIsfile, islink as pathIslink, join as pathJoin, normpath as pathNormpath, splitext as pathSplitext
 
 from os import access, chmod, listdir, makedirs, mkdir, readlink, rename, rmdir, sep, stat as os_stat, statvfs, symlink, utime, walk, F_OK, R_OK, W_OK 
 
 from enigma import eEnv, getDesktop
-from re import compile, split
+from re import compile, split, search
 from stat import S_IMODE
 from sys import _getframe as getframe
 from unicodedata import normalize
@@ -78,6 +78,7 @@ scopeLCDSkin = defaultPaths[SCOPE_LCDSKIN][0]
 scopeFonts = defaultPaths[SCOPE_FONTS][0]
 scopePlugins = defaultPaths[SCOPE_PLUGINS][0]
 
+
 def addInList(*paths):
 	return [path for path in paths if pathIsdir(path)]
 
@@ -85,6 +86,13 @@ def addInList(*paths):
 skinResolveList = []
 lcdskinResolveList = []
 fontsResolveList = []
+
+
+def clearResolveLists():
+	global skinResolveList, lcdskinResolveList, fontsResolveList
+	skinResolveList = []
+	lcdskinResolveList = []
+	fontsResolveList = []
 
 
 def resolveFilename(scope, base="", path_prefix=None):
@@ -155,7 +163,7 @@ def resolveFilename(scope, base="", path_prefix=None):
 			if not "skin_default" in skin:
 				skinResolveList += addInList(pathJoin(scopeGUISkin, skin))
 			skinResolveList += addInList(
-				pathJoin(scopeGUISkin, "skin_fallback_%d" % getDesktop(0).size().height()),
+				pathJoin(scopeGUISkin, "skin_fallback_%d" % getPrimarySkinResolution()),
 				pathJoin(scopeGUISkin, "skin_default"),
 				scopeGUISkin
 			)
@@ -239,6 +247,25 @@ def resolveFilename(scope, base="", path_prefix=None):
 	if suffix is not None:  # If a suffix was supplied restore it.
 		path = "%s:%s" % (path, suffix)
 	return path
+
+
+def getPrimarySkinResolution():
+	from Components.config import config # deferred import
+	resolutions = ["480", "576", "720", "1080", "2160", "4320", "8640"]
+	resolution = None
+	skin = resolveFilename(SCOPE_SKIN, config.skin.primary_skin.value)
+	if not fileExists(skin):
+		from skin import DEFAULT_SKIN
+		skin = resolveFilename(SCOPE_SKIN, DEFAULT_SKIN)
+	try:
+		with open(skin, "r") as fd:
+			content = fd.read(65535)
+			skinHeight = search(r"<?resolution.*?\syres\s*=\s*\"(\d+)\"", content)
+			resolution = skinHeight and skinHeight.group(1) in resolutions and int(skinHeight.group(1)) or None
+	except Exception as err:
+		print("[Directories] getPrimarySkinResolution, Error %s: %s!" % (type(err).__name__, str(err)))
+	return resolution if resolution is not None else 720
+
 
 def fileReadLine(filename, default=None, *args, **kwargs):
 	try:
@@ -393,6 +420,7 @@ def fileReadXML(filename, default=None, *args, **kwargs):
 		with open(filename, "r") as fd:
 			dom = parse(fd).getroot()
 	except:
+		print("[fileReadXML] failed to read", filename)
 		print_exc()
 	if dom is None and default:
 		if isinstance(default, str):
@@ -400,6 +428,7 @@ def fileReadXML(filename, default=None, *args, **kwargs):
 		elif isinstance(default, Element):
 			dom = default
 	return dom
+
 
 def getRecordingFilename(basename, dirname=None):
 	# Filter out non-allowed characters.
@@ -411,10 +440,11 @@ def getRecordingFilename(basename, dirname=None):
 			c = "_"
 		filename += c
 	# Max filename length for ext4 is 255 (minus 8 characters for .ts.meta)
-	# but must not truncate in the middle of a multi-byte utf8 character!
-	# So convert the truncation to unicode and back, ignoring errors, the
-	# result will be valid utf8 and so xml parsing will be OK.
-	filename = filename[:247]
+	# but we cannot leave the byte truncate in the middle of a
+	# multi-byte utf8 character!
+	# So convert to bytes, truncate then get back to unicode, ignoring
+	# errors along the way, the result will be valid unicode.
+	filename = filename.encode(encoding='utf-8', errors='ignore')[:247].decode(encoding='utf-8', errors='ignore')
 	if dirname is not None:
 		if not dirname.startswith("/"):
 			dirname = pathJoin(defaultRecordingLocation(), dirname)
@@ -538,7 +568,7 @@ def moveFiles(fileList):
 			rename(item[0], item[1])
 			movedList.append(item)
 	except (IOError, OSError) as err:
-		if err.errno == errno.EXDEV:  # Invalid cross-device link
+		if err.errno == EXDEV:  # Invalid cross-device link
 			print("[Directories] Warning: Cannot rename across devices, trying slower move.")
 			from Tools.CopyFiles import moveFiles as extMoveFiles  # OpenViX, OpenATV, Beyonwiz
 			# from Screens.CopyFiles import moveFiles as extMoveFiles  # OpenPLi
@@ -598,7 +628,7 @@ def mediafilesInUse(session):
 			filename = None
 		else:
 			filename = pathBasename(filename)
-	return set([file for file in files if not(filename and file == filename and files.count(filename) < 2)])
+	return set([file for file in files if not (filename and file == filename and files.count(filename) < 2)])
 
 # Prepare filenames for use in external shell processing. Filenames may
 # contain spaces or other special characters.  This method adjusts the

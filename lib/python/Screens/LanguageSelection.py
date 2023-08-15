@@ -17,7 +17,6 @@ from Screens.Standby import TryQuitMainloop
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
 
-
 inWizzard = False
 
 
@@ -94,7 +93,7 @@ class LanguageSelection(Screen):
 	def save(self):
 		self.run()
 		global inWizzard
-#		print("[LanguageSelection] save function inWizzard is %s", %inWizzard)
+		print("[LanguageSelection] save function inWizzard is ", inWizzard)
 		if inWizzard:
 			inWizzard = False
 			#self.session.openWithCallback(self.deletelanguagesCB, MessageBox, _("Do you want to delete all other languages?"), default = False)
@@ -159,7 +158,7 @@ class LanguageSelection(Screen):
 #		self.close()
 
 	def run(self, justlocal=False):
-#		print("[LanguageSelection] updating language...")
+		print("[LanguageSelection][run] updating language...justlocal", justlocal)
 		lang = self["languages"].getCurrent()[0]
 
 		if lang == 'update cache':

@@ -18,6 +18,8 @@ class ScrollLabel(GUIComponent):
 		self.column = 0
 		self.split = False
 		self.splitchar = "|"
+		self.keepsplitchar = 0
+		self.onSelectionChanged = []
 
 	def applySkin(self, desktop, parent):
 		scrollbarWidth = skin.applySlider(self.scrollbar, 10, 1)
@@ -27,7 +29,13 @@ class ScrollLabel(GUIComponent):
 			scrollbar_attribs = []
 			scrollbarAttrib = ["borderColor", "borderWidth", "scrollbarSliderForegroundColor", "scrollbarSliderBorderColor"]
 			for (attrib, value) in self.skinAttributes[:]:
-				if attrib in scrollbarAttrib:
+				if attrib == "scrollbarMode":
+					if value == "showNever":
+						self.showscrollbar = False
+					else:
+						self.showscrollbar = True
+					self.skinAttributes.remove((attrib, value))
+				elif attrib in scrollbarAttrib:
 					scrollbar_attribs.append((attrib, value))
 					self.skinAttributes.remove((attrib, value))
 				elif attrib in ("scrollbarSliderPicture", "sliderPixmap"):
@@ -36,25 +44,28 @@ class ScrollLabel(GUIComponent):
 				elif attrib in ("scrollbarBackgroundPicture", "scrollbarbackgroundPixmap"):
 					self.scrollbar.setBackgroundPixmap(skin.loadPixmap(value, desktop))
 					self.skinAttributes.remove((attrib, value))
-				elif "transparent" in attrib or "backgroundColor" in attrib:
+				elif attrib in ("transparent", "backgroundColor"):
 					widget_attribs.append((attrib, value))
-				elif "scrollbarWidth" in attrib:
+				elif attrib == "scrollbarWidth":
 					scrollbarWidth = skin.parseScale(value)
 					self.skinAttributes.remove((attrib, value))
-				elif "scrollbarSliderBorderWidth" in attrib:
+				elif attrib == "scrollbarSliderBorderWidth":
 					self.scrollbar.setBorderWidth(skin.parseScale(value))
 					self.skinAttributes.remove((attrib, value))
-				elif "split" in attrib:
+				elif attrib == "split":
 					self.split = 1 if value.lower() in ("1", "enabled", "on", "split", "true", "yes") else 0
 					if self.split:
 						self.right_text = eLabel(self.instance)
 					self.skinAttributes.remove((attrib, value))
-				elif "colposition" in attrib:
+				elif attrib == "colposition":
 					self.column = skin.parseScale(value)
-				elif "dividechar" in attrib:
+					self.skinAttributes.remove((attrib, value))
+				elif attrib == "dividechar":
 					self.splitchar = value
-				elif "colposition" in attrib:
-					self.column = int(value)
+					self.skinAttributes.remove((attrib, value))
+				elif attrib == "keepdivchar":
+					self.keepsplitchar = 1 if value.lower() in ("1", "enabled", "on", "keep", "true", "yes") else 0
+					self.skinAttributes.remove((attrib, value))
 
 			if self.split:
 				skin.applyAllAttributes(self.long_text, desktop, self.skinAttributes + [("halign", "left")], parent.scale)
@@ -81,6 +92,7 @@ class ScrollLabel(GUIComponent):
 		self.curPos = max(0, min(pos, self.TotalTextHeight - self.pageHeight))
 		self.long_text.move(ePoint(0, -self.curPos))
 		self.split and self.right_text.move(ePoint(self.column, -self.curPos))
+		self.selectionChanged()
 
 	def setText(self, text, showBottom=False):
 		self.message = text
@@ -91,6 +103,8 @@ class ScrollLabel(GUIComponent):
 				right = []
 				for line in text.split("\n"):
 					line = line.split(self.splitchar, 1)
+					if self.keepsplitchar and len(line) > 1:
+						line[0] += self.splitchar
 					left.append(line[0])
 					right.append("" if len(line) < 2 else line[1].lstrip())
 				self.long_text.setText("\n".join(left))
@@ -147,3 +161,7 @@ class ScrollLabel(GUIComponent):
 
 	def getText(self):
 		return self.message
+
+	def selectionChanged(self):
+		for x in self.onSelectionChanged:
+			x()

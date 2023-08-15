@@ -1,11 +1,11 @@
 from os import listdir
-from os.path import join as pathjoin
+from os.path import isfile, join as pathjoin
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
 from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveHDMIinFHD, getHaveHDMIinHD, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getImageType, getMachineBrand, getMachineBuild, getMachineMtdRoot, getMachineName
 from Components.About import getChipSetString
 from Components.RcModel import rc_model
-from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, resolveFilename, SCOPE_LIBDIR, fileReadLines
+from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLines
 from Tools.HardwareInfo import HardwareInfo
 
 SystemInfo = {}
@@ -28,7 +28,7 @@ class BoxInformation:
 					if not (value.startswith("\"") or value.startswith("'")) and item in ("python", "imageversion", "imgversion"):
 						value = '"' + value + '"' # wrap it so it is treated as a string
 					self.boxInfo[item] = self.processValue(value)
-			# print("[SystemInfo] Enigma information file data loaded into BoxInfo.")	
+			# print("[SystemInfo] Enigma information file data loaded into BoxInfo.")
 		else:
 			print("[BoxInfo] ERROR: %s is not available!  The system is unlikely to boot or operate correctly." % file)
 
@@ -118,19 +118,39 @@ MTDROOTFS = BoxInfo.getItem("mtdrootfs")
 DISPLAYMODEL = BoxInfo.getItem("displaymodel")
 DISPLAYBRAND = BoxInfo.getItem("displaybrand")
 MACHINEBUILD = BoxInfo.getItem("machinebuild")
-
+SystemInfo["ArchIsARM"] = ARCHITECTURE.startswith(("arm", "cortex"))
+SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
 
 def getBoxDisplayName():  # This function returns a tuple like ("BRANDNAME", "BOXNAME")
 	return (DISPLAYBRAND, DISPLAYMODEL)
 
+def getRCFile(ext):
+	filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", "%s.%s" % (BoxInfo.getItem("rcname"), ext)))
+	if not isfile(filename):
+		filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", "dmm1.%s" % ext))
+	return filename
+
+def setRCFile(source):
+	if source == "hardware":
+		SystemInfo["RCImage"] = getRCFile("png")
+		SystemInfo["RCMapping"] = getRCFile("xml")
+	else:
+		SystemInfo["RCImage"] = resolveFilename(SCOPE_SKIN, pathjoin("rc_models", SystemInfo["rc_model"], "rc.png"))
+		SystemInfo["RCMapping"] = resolveFilename(SCOPE_SKIN, pathjoin("rc_models", SystemInfo["rc_model"], "rcpositions.xml"))
+	if not (isfile(SystemInfo["RCImage"]) and isfile(SystemInfo["RCMapping"])):
+		SystemInfo["rc_default"] = True
+
 
 SystemInfo["HasRootSubdir"] = False	# This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["RecoveryMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["AndroidMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["HasMultibootMTD"] = False # This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")	# This needs to be here so it can be tested by getMultibootslots!
+SystemInfo["HasKexecUSB"] = False	# This needs to be here so it can be reset by getMultibootslots!
 from Tools.Multiboot import getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
 SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")	# This needs to be for later checks
-SystemInfo["canMultiBoot"] = getMultibootslots()	
-# SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py 
+SystemInfo["canMultiBoot"] = getMultibootslots()
+# SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py
 # SystemInfo["MultiBootSlot"] = current slot set in Tools/Multiboot.py
 
 
@@ -156,7 +176,9 @@ def hasInitCam():
 			pass
 	return False
 
-
+SystemInfo["CanKexecVu"] = getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]
+SystemInfo["HasUsbhdd"] = {}
+SystemInfo["RRecoveryMode"] = SystemInfo["RecoveryMode"] and not SystemInfo["HasKexecMultiboot"]
 SystemInfo["HasInitCam"] = hasInitCam()
 SystemInfo["MachineBrand"] = getMachineBrand()
 SystemInfo["MachineName"] = getMachineName()
@@ -164,7 +186,7 @@ SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
 SystemInfo["rc_model"] = rc_model.getRcFolder()
 SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
 SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4") # due to button limitations of the remote control
-SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "sf8008", "sf8008m", "uniboxhde", 'octagon3') # due to button limitations of the remote control
+SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "octagon1", "octagon3", "sf8008", "sf8008m", "uniboxhde") # due to button limitations of the remote control
 SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",) # Allow multiple functions only if both buttons are present
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
@@ -175,7 +197,6 @@ for cislot in range(0, SystemInfo["CommonInterface"]):
 SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
 SystemInfo["PIPAvailable"] = getMachineBuild() not in ("i55plus") and SystemInfo["NumVideoDecoders"] > 1
 # General Hardware
-SystemInfo["Udev"] = not fileExists("/dev/.devfsd")
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
 SystemInfo["HasInfoButton"] = getBrandOEM() in ("airdigital", "broadmedia", "ceryon", "dags", "dinobot", "edision", "formuler", "gfutures", "gigablue", "ini", "maxytec", "octagon", "odin", "skylake", "tiviar", "xcore", "xp", "xtrend")
 SystemInfo["HasFullHDSkinSupport"] = getBoxType() not in ("vipertwin",)
@@ -195,6 +216,7 @@ SystemInfo["HasFBCtuner"] = ["Vuplus DVB-C NIM(BCM3158)", "Vuplus DVB-C NIM(BCM3
 # 	LED/LCD
 SystemInfo["NumFrontpanelLEDs"] = countFrontpanelLEDs()
 SystemInfo["7segment"] = getDisplayType() in ("7segment")
+SystemInfo["Display"] = False
 SystemInfo["OledDisplay"] = fileExists("/dev/dbox/oled0")
 SystemInfo["FrontpanelDisplay"] = fileExists("/dev/dbox/oled0") or fileExists("/dev/dbox/lcd0")
 SystemInfo["LCDsymbol_hdd"] = getBoxType() in ("mutant51",) and fileCheck("/proc/stb/lcd/symbol_hdd")
@@ -243,20 +265,20 @@ SystemInfo["hasScart"] = getHaveSCART() in ('True',)
 SystemInfo["hasScartYUV"] = getHaveSCARTYUV() in ('True',)
 SystemInfo["hasYUV"] = getHaveYUV() in ('True',)
 # Videomodes
-SystemInfo["VideoModes"] = getChipSetString() in ( # 2160p and 1080p capable hardware
-		"5272s", "7251", "7251s", "7252", "7252s", "7366", "7376", "7444s", "72604", "hi3798cv200", "hi3798mv200", "hi3798mv200h", "hi3798mv200advca", "3798cv200", "3798mv200", "3798mv200h", "3798mv200advca"
-	) and (
-		["720p", "1080p", "2160p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080p", "2160p", "1080i"} # widescreen modes
-	) or getChipSetString() in ( # 1080p capable hardware
-		"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "hi3716mv410", "hi3716mv430", "3716mv430"
-	) and (
-		["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080p", "1080i"} # widescreen modes
-	) or ( # default modes (neither 2160p nor 1080p capable hardware)
-		["720p", "1080i", "576p", "576i", "480p", "480i"], # normal modes
-		{"720p", "1080i"} # widescreen modes
-	)
+SystemInfo["VideoModes"] = getChipSetString() in (  # 2160p and 1080p capable hardware...
+	"5272s", "7251", "7251s", "7252", "7252s", "7278", "7366", "7376", "7444s", "72604", "3798mv200", "3798cv200", "3798mv200h", "3798mv300", "hi3798mv200", "hi3798mv200h", "hi3798mv200advca", "hi3798cv200", "hi3798mv300"
+) and (
+	["720p", "1080p", "2160p", "2160p30", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
+	{"720p", "1080p", "2160p", "2160p30", "1080i"}  # Widescreen modes.
+) or getChipSetString() in (  # 1080p capable hardware...
+	"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "3716mv410", "3716mv430", "hi3716mv430"
+) and (
+	["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
+	{"720p", "1080p", "1080i"}  # Widescreen modes.
+) or (  # Default modes (neither 2160p nor 1080p capable hardware)...
+	["720p", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
+	{"720p", "1080i"}  # Widescreen modes.
+)
 # VideoAudioOptions
 SystemInfo["CanProc"] = SystemInfo["HasMMC"] and getBrandOEM() != "vuplus"
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
@@ -291,5 +313,4 @@ SystemInfo["canMode12"] = getMachineBuild() in ("hd51", "h7") and ("brcm_cma=440
 SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
 SystemInfo["HasSDnomount"] = getMachineBuild() in ("h9", "i55plus") and (False, "none") or getMachineBuild() in ("multibox", "h9combo", "h9combose", "h9twin", "h9se", "pulse4kmini", "hd61", "pulse4k", "h11") and (True, "mmcblk0")
 SystemInfo["haveboxmode"] = fileCheck("/proc/stb/info/boxmode")
-SystemInfo["AndroidMode"] = SystemInfo["RecoveryMode"] and getMachineBuild() in ("multibox",)
 print("[SystemInfo] SystemInfo data initialised.")

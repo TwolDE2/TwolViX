@@ -34,7 +34,8 @@ class PluginComponent:
 			self.restartRequired = True
 
 	def removePlugin(self, plugin):
-		self.pluginList.remove(plugin)
+		if plugin in self.pluginList:
+			self.pluginList.remove(plugin)
 		for x in plugin.where:
 			self.plugins[x].remove(plugin)
 			if x == PluginDescriptor.WHERE_AUTOSTART:
@@ -143,6 +144,13 @@ class PluginComponent:
 			res += p(menuid)
 		return res
 
+	def getDescriptionForMenuEntryID(self, menuid, entryid):
+		for p in self.getPlugins(PluginDescriptor.WHERE_MENU):
+			if p(menuid) and isinstance(p(menuid), (list, tuple)):
+				if p(menuid)[0][2] == entryid:
+					return p.description
+		return None
+
 	def clearPluginList(self):
 		self.pluginList = []
 		self.plugins = {}
@@ -166,5 +174,15 @@ class PluginComponent:
 				wakeup = current
 		return int(wakeup)
 
+	def getNextWakeupName(self):
+		name = None
+		nextWakeup = self.getNextWakeupTime()
+		for p in self.pluginList:
+			# p.name comes from plugin.py in def Plugins() e.g.
+			# PluginDescriptor(name="myName", where=[PluginDescriptor.WHERE_AUTOSTART, PluginDescriptor.WHERE_SESSIONSTART], fnc=startSession, wakeupfnc=WakeupTime, needsRestart=True))
+			if nextWakeup == p.getWakeupTime() and p.name and p.name != "Plugin":  # avoid default p.name as this doesn't tell us the plugin
+				name = p.name
+				break
+		return name
 
 plugins = PluginComponent()

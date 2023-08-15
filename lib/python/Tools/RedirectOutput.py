@@ -11,11 +11,13 @@ class EnigmaLog:
 	def write(self, data):
 		if isinstance(data, bytes):
 			data = data.decode(encoding="UTF-8", errors="ignore")
-		else:
-			data = data.encode("UTF-8", "ignore").decode()			
 		self.line += data
 		if "\n" in data:
-			ePythonOutput(self.line, self.level)
+			try:
+				ePythonOutput(self.line, self.level)
+			except TypeError:
+				ePythonOutput("[RedirectOutput] The line below contains broken UTF-8\n", self.level)
+				ePythonOutput(self.line.encode(encoding="UTF-8", errors="ignore").decode(), self.level)
 			self.line = ""
 
 	def flush(self):

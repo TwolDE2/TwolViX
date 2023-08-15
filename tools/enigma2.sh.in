@@ -15,30 +15,40 @@ if [ -x @sysconfdir@/enigma2/startup.sh ]; then
 	@sysconfdir@/enigma2/startup.sh
 fi
 
+do_reader_kill=0
 if [ -e /proc/stb/info/boxtype ]; then
+# Set relevant boxtypes to 1 - missing ones are treated as 0.
+	declare -A boxtest=(
+		viper4k 1   beyonwizv2 1    sf8008 1    sf8008m 1
+		sfx6008 1   sx988 1         sx88v2 1    gbmv200 1
+	)
 	stbcheck=`cat /proc/stb/info/boxtype`
-	if [ $stbcheck == "viper4k" ] || [ $stbcheck == "sf8008" ] || [ $stbcheck == "sf8008m" ] || [ $stbcheck == "sx988" ] || [ $stbcheck == "sfx6008" ] || [ $stbcheck == "beyonwizv2" ] || [ $stbcheck == "ustym4kpro" ] || [ $stbcheck == "cc1" ] || [ $stbcheck == "gbmv200" ]; then
+	if [ ${boxtest[$stbcheck]:-0} -eq 1 ]; then
 		count=`ps -ef |grep libreader |grep -v "grep" |wc -l`
 		if [ 0 == $count ];then
 			libreader 720P_50
+			do_reader_kill=1
 		fi
 	fi
+	unset boxtest
 fi
 
 if [ -x @bindir@/showiframe ]; then
-	if [ -f @sysconfdir@/enigma2/backdrop.mvi ]; then
-		@bindir@/showiframe @sysconfdir@/enigma2/backdrop.mvi
-	else
-		skin=`sed -En 's|config\.skin\.primary_skin=(.+)/skin\.xml|\1|p' @sysconfdir@/enigma2/settings`
-		if [ -z "$skin" ]; then
-			skin="ViX-Night-1080"
-		fi
-		if [ -n "$skin" -a -f @datadir@/enigma2/$skin/backdrop.mvi ]; then
-			@bindir@/showiframe @datadir@/enigma2/$skin/backdrop.mvi
-		elif [ -f @datadir@/backdrop.mvi ]; then
-			@bindir@/showiframe @datadir@/backdrop.mvi
-		fi
+	SKIN=`sed -En 's|config\.skin\.primary_skin=(.+)/skin\.xml|\1|p' @sysconfdir@/enigma2/settings`
+	if [ -z "$SKIN" ]; then
+		SKIN=`strings -n 10 @prefix@/lib/enigma2/python/skin.pyc | egrep -o -m 1 ".+/skin.xml" | sed 's|/skin.xml.*||'`
 	fi
+	if [ -n "${SKIN}" ]; then
+		SEARCHDIRS="@sysconfdir@/enigma2/${SKIN} @sysconfdir@/enigma2/skin_common @sysconfdir@/enigma2 @datadir@/enigma2/${SKIN} @datadir@/enigma2/skin_default @datadir@/enigma2 @datadir@"
+	else
+		SEARCHDIRS="@sysconfdir@/enigma2/skin_common @sysconfdir@/enigma2 @datadir@/enigma2/skin_default @datadir@/enigma2 @datadir@"
+	fi
+	for DIR in ${SEARCHDIRS}; do
+		if [ -d "${DIR}" ] && [ -f "${DIR}/backdrop.mvi" ]; then
+			@bindir@/showiframe "${DIR}/backdrop.mvi" &
+			break
+		fi
+	done
 fi
 
 # hook to execute scripts always before enigma2 start
@@ -123,7 +133,7 @@ with open(ofile, "r+b") as f:
     while pos >= 0:
         f.seek(pos)
         buf = f.read(1024)
-        where = buf.rfind("\n")
+        where = buf.rfind(b"\n")
         if where < 0:
             pos -= 1024
             continue
@@ -134,7 +144,7 @@ with open(ofile, "r+b") as f:
         f.truncate()
 # Now add the note as to where future logging has gone
 #
-        f.write("Continued in %s\n" % nfile)
+        f.write(b"Continued in %s\n" % bytes(nfile, "UTF8"))
         break
 EOP
     }
@@ -201,7 +211,7 @@ EOP
 
         new_limit $debugloglimit
 
-# We look for config.crash.debugloglimit in settings
+# We look for config.crash.debug_path in settings
 # (default == /home/root/logs/, see Screens/LogManager.py) and use it:
 #
         raw=`awk -F= '
@@ -305,11 +315,8 @@ fi
 
 
 if [ "$ret" -ne "1" ]; then
-	if [ -e /proc/stb/info/boxtype ]; then
-		stbcheck=`cat /proc/stb/info/boxtype`
-		if [ $stbcheck == "viper4k" ] || [ $stbcheck == "sf8008" ] || [ $stbcheck == "sf8008m" ] || [ $stbcheck == "sx988" ] || [ $stbcheck == "sfx6008" ] || [ $stbcheck == "beyonwizv2" ] || [ $stbcheck == "ustym4kpro" ] || [ $stbcheck == "gbmv200" ]; then
-			killall -9 libreader; sleep 5
-		fi
+	if [ $do_reader_kill -ne 0 ]; then
+		killall -9 libreader; sleep 5
 	fi
 fi
 
@@ -346,7 +353,6 @@ case $ret in
 		fi
 		/sbin/reboot
 		;;
-		
 	16)
 		if [ -e /dev/block/by-name/flag ]; then
 			echo -n "0" > /dev/block/by-name/flag

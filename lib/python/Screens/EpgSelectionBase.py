@@ -19,12 +19,14 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.TimeDateInput import TimeDateInput
 from Screens.TimerEntry import TimerEntry, addTimerFromEvent, addTimerFromEventSilent
+from Tools.Directories import isPluginInstalled
 
 
 epgActions = [
 	# function name, button label, help text
 	("", _("Do nothing")),
 	("openIMDb", _("IMDb Search"), _("IMDB search for current event")),
+	("openTMDb", _("TMDb Search"), _("TMDB search for current event")),	
 	("sortEPG", _("Sort"), _("Sort the EPG list")),
 	("addEditTimer", _("Add Timer"), _("Add/Remove timer for current event")),
 	("openTimerList", _("Show Timer List")),
@@ -121,7 +123,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 			"yellowlong": self.helpKeyAction("yellowlong"),
 			"blue": self.helpKeyAction("blue"),
 			"bluelong": self.helpKeyAction("bluelong")
-		}, prio=-1, description="EPG Commands")
+		}, prio=-1, description=helpDescription)
 		self._updateButtonText()
 
 		self["recordingactions"] = HelpableActionMap(self, "InfobarInstantRecord", {
@@ -133,6 +135,7 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		self.noAutotimer = _("The AutoTimer plugin is not installed!\nPlease install it.")
 		self.noEPGSearch = _("The EPGSearch plugin is not installed!\nPlease install it.")
 		self.noIMDb = _("The IMDb plugin is not installed!\nPlease install it.")
+		self.noTMDb = _("The TMDb plugin is not installed!\nPlease install it.")		
 		self.refreshTimer = eTimer()
 		self.refreshTimer.timeout.get().append(self.refreshList)
 		self.onLayoutFinish.append(self.onCreate)
@@ -205,33 +208,41 @@ class EPGSelectionBase(Screen, HelpableScreen):
 
 	def openIMDb(self):
 		self.closeEventViewDialog()
-		try:
+		if isPluginInstalled("IMDb"):
 			from Plugins.Extensions.IMDb.plugin import IMDB
 			try:
 				event = self["list"].getCurrent()[0]
-				if event is None:
-					return
-				name = event.getEventName()
+				if event is not None:
+					self.session.open(IMDB, event.getEventName(), False)
 			except Exception:
-				name = ""
-
-			self.session.open(IMDB, name, False)
-		except ImportError:
+				return
+		else:
 			self.session.open(MessageBox, self.noIMDb, type=MessageBox.TYPE_INFO, timeout=10)
+
+	def openTMDb(self):
+		if isPluginInstalled("tmdb"):
+			from Plugins.Extensions.tmdb.tmdb import tmdbScreen
+			try:
+				event = self["list"].getCurrent()[0]
+				if event is not None:
+					self.session.open(tmdbScreen, event.getEventName(), 2)
+			except:
+				return
+		else:
+			self.session.open(MessageBox, self.noTMDb, type=MessageBox.TYPE_INFO, timeout=10)
+
 
 	def openEPGSearch(self):
 		self.closeEventViewDialog()
-		try:
+		if isPluginInstalled("EPGSearch"):
 			from Plugins.Extensions.EPGSearch.EPGSearch import EPGSearch
 			try:
 				event = self["list"].getCurrent()[0]
-				if event is None:
-					return
-				name = event.getEventName()
+				if event is not None:
+					self.session.open(EPGSearch, event.getEventName(), False)
 			except Exception:
-				name = ""
-			self.session.open(EPGSearch, name, False)
-		except ImportError:
+				return
+		else:
 			self.session.open(MessageBox, self.noEPGSearch, type=MessageBox.TYPE_INFO, timeout=10)
 
 	def addEditAutoTimer(self):
@@ -673,10 +684,10 @@ class EPGBouquetSelection:
 		self["bouquetlist"].moveTo(self["bouquetlist"].instance.pageDown)
 
 	def getCurrentBouquet(self):
-		return self.bouquets[self.selectedBouquetIndex][1] if self.selectedBouquetIndex >= 0 else None
+		return self.bouquets[self.selectedBouquetIndex][1] if self.bouquets and self.selectedBouquetIndex >= 0 else None
 
 	def getCurrentBouquetName(self):
-		return self.bouquets[self.selectedBouquetIndex][0] if self.selectedBouquetIndex >= 0 else None
+		return self.bouquets[self.selectedBouquetIndex][0] if self.bouquets and self.selectedBouquetIndex >= 0 else ""
 
 	def nextBouquet(self):
 		self.setBouquetIndex(self.selectedBouquetIndex + 1)

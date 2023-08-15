@@ -32,7 +32,6 @@ bool huffman_read_dictionary (char *file)
 		//eDebug("[huffman] Cannot open dictionary file");
 		return false;
 	}
-
 	while (fgets (line, sizeof(line), fd))
 	{
 		memset (value, 0, sizeof (value));
