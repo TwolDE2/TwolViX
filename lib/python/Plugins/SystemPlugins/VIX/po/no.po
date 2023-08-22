@@ -1,0 +1,1143 @@
+# Norwegian translations for plugins package.
+# Copyright (C) 2011 THE plugins'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the plugins package.
+# Automatically generated, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: enigma2-vix-core\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-18 09:16+0000\n"
+"PO-Revision-Date: 2013-10-20 17:17+0100\n"
+"Last-Translator: Andy Blackburn <andyblac@o2.co.uk>\n"
+"Language-Team: Regarto\n"
+"Language: no\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Norwegian Nynorsk\n"
+"X-Poedit-Country: NORWAY\n"
+
+msgid "%a %e %b  %-H:%M"
+msgstr "%a %e %b  %-H:%M"
+
+#, fuzzy, python-format
+msgid "%s downloads"
+msgstr "Nedlastinger"
+
+#, python-format
+msgid "%s: "
+msgstr ""
+
+msgid "- Max backups to keep (0==all)"
+msgstr ""
+
+msgid "- Query before backup starts"
+msgstr ""
+
+msgid "- Query before image backup starts"
+msgstr ""
+
+msgid "- Repeat how often"
+msgstr ""
+
+msgid "- Time of backup to start"
+msgstr ""
+
+msgid "128 Mb"
+msgstr ""
+
+msgid "16 Mb"
+msgstr "16 Mb"
+
+msgid "256 Mb"
+msgstr ""
+
+msgid "30 Days"
+msgstr ""
+
+msgid "32 Mb"
+msgstr "32 Mb"
+
+msgid "64 Mb"
+msgstr "64 Mb"
+
+msgid "8 Mb"
+msgstr "8 Mb"
+
+msgid "96 Mb"
+msgstr "96 Mb"
+
+msgid "A background update check is in progress, please try again."
+msgstr ""
+
+msgid "A backup has been detected."
+msgstr ""
+
+msgid "Activate"
+msgstr "Aktiver"
+
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "Active:"
+msgstr "Aktiv:"
+
+msgid "All"
+msgstr ""
+
+msgid "Allows the script runner to be launched from extensions."
+msgstr ""
+
+msgid "Allows the softcam manager to be launched from extensions."
+msgstr ""
+
+msgid "Allows the softcam to be checked if it stopped working, and restarted automatically if needed."
+msgstr ""
+
+msgid "Allows you to close the window automatically."
+msgstr ""
+
+msgid "Allows you to schedule your backups."
+msgstr ""
+
+msgid "Allows you to schedule your image backups."
+msgstr ""
+
+msgid "Allows you to tag your backups to a box."
+msgstr ""
+
+msgid "Allows you to tag your image backup to a box. (default is box name/type)"
+msgstr ""
+
+msgid "Are you ready to install ?"
+msgstr "Er du klar til å installere nå?"
+
+#, fuzzy, python-format
+msgid "Are you sure you want to delete image slot %s ?"
+msgstr ""
+"Er du sikker på at du vil slette denne sikkerhetskopien:\n"
+" "
+
+msgid ""
+"Are you sure you want to download this image:\n"
+" "
+msgstr ""
+
+msgid ""
+"Are you sure you want to restore this backup:\n"
+" "
+msgstr ""
+
+msgid "Automatic settings backup"
+msgstr ""
+
+msgid "Automatically created"
+msgstr ""
+
+msgid "Autostart"
+msgstr "Autostart"
+
+msgid "Backing up eMMC partitions for USB flash ..."
+msgstr ""
+
+msgid "Backing up eMMC partitions for USB flash..."
+msgstr ""
+
+msgid "Backing up files..."
+msgstr "Sikkerhetskopierer filer..."
+
+#, fuzzy
+msgid "Backing up kernel..."
+msgstr "Sikkerhetskopierer filer..."
+
+#, fuzzy
+msgid "Backing up root file system..."
+msgstr "Sikkerhetskopierer filer..."
+
+#, fuzzy
+msgid "Backup complete."
+msgstr "Sikkerhetskopiering fullført..."
+
+#, fuzzy
+msgid "Backup complete..."
+msgstr "Sikkerhetskopiering fullført..."
+
+#, fuzzy
+msgid "Backup confirmation"
+msgstr "Bekreftelse på sikkerhetskopiering"
+
+#, fuzzy
+msgid "Backup created"
+msgstr "Sikkerhetskopiering fullført"
+
+#, fuzzy
+msgid "Backup failed - e. g. wrong backup destination or no space left on backup device."
+msgstr "Sikkerhetskopiering feilet - dvs. feil målmappe for sikkerhetskopien eller ikke nok lagringskapasitet igjenn på lagringsmediumet"
+
+#, fuzzy
+msgid ""
+"Backup in progress,\n"
+"Please wait for it to finish, before trying again."
+msgstr ""
+"Sikkerhetskopiering pågår,\n"
+"Vennligst vent til den er avsluttet før du prøver igjenn"
+
+msgid "Backup location"
+msgstr ""
+
+#, fuzzy
+msgid "Backup manager"
+msgstr "Backup Manager"
+
+msgid "Backup manager settings"
+msgstr ""
+
+msgid "Backup prefix"
+msgstr ""
+
+msgid "Backup/Flash/ReBoot system image."
+msgstr ""
+
+msgid "Backups to keep"
+msgstr ""
+
+msgid "Backups to prune"
+msgstr ""
+
+msgid "CCcam can't run whilst MGcamd is running"
+msgstr "CCcam kan ikkje kjøre samtidig som MGcamd kjører"
+
+#, fuzzy
+msgid "CCcam can't run whilst MGcamd is running."
+msgstr "CCcam kan ikkje kjøre samtidig som MGcamd kjører"
+
+msgid "Cancel"
+msgstr "Avbryt"
+
+#, python-format
+msgid "Cannot unmount partition '%s'.  Make sure this partition is not in use.  (SWAP, record/timeshift, etc.)"
+msgstr ""
+
+#, fuzzy
+msgid "Change location"
+msgstr "Målmappe for sikkerhetskopi"
+
+#, fuzzy
+msgid "Checking free RAM.."
+msgstr "Checking ledig RAM.."
+
+msgid "Checking softcams..."
+msgstr "Kontrollerer softcams..."
+
+#, fuzzy
+msgid "Choose IPK folder"
+msgstr "Velg filer"
+
+#, fuzzy
+msgid "Choose files"
+msgstr "Velg filer"
+
+msgid "Choose where to mount your devices to:"
+msgstr "Velg hvor du vil koble til din enhet:"
+
+msgid "Close"
+msgstr "Lukk"
+
+msgid "Close window on success"
+msgstr ""
+
+msgid "Comparing against backup..."
+msgstr "Sammenligner mot sikkerhetskopi..."
+
+msgid "Compress"
+msgstr ""
+
+msgid "Create"
+msgstr "Opprette"
+
+msgid "Create a settings backup before updating."
+msgstr ""
+
+#, fuzzy
+msgid "Create and Manage your SWAP files."
+msgstr "Opprette og behandle dine swapfiler."
+
+#, fuzzy
+msgid "Create:"
+msgstr "Opprette"
+
+#, fuzzy
+msgid "Creating SWAP.."
+msgstr "Oppretter swap..."
+
+msgid "Creating list of installed plugins..."
+msgstr "Oppretter oversikt over installerte plugins..."
+
+msgid "Creating zip..."
+msgstr ""
+
+#, fuzzy
+msgid "Current status:"
+msgstr "Gjeldende status:"
+
+msgid "Daily"
+msgstr "Daglig"
+
+msgid "Deactivate"
+msgstr "Deaktiver"
+
+msgid "Delete"
+msgstr "Slett"
+
+msgid "Delete failure - check device available."
+msgstr ""
+
+msgid "Deselect"
+msgstr "Fjern valg"
+
+msgid "Developer password"
+msgstr ""
+
+msgid "Developer username"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Device %s"
+msgstr "Enhet:"
+
+msgid "Device: "
+msgstr "Enhet:"
+
+msgid "Device: None available"
+msgstr "Enhet: Ikke tilgjengelig"
+
+#, fuzzy
+msgid "Device: none available"
+msgstr "Enhet: Ikke tilgjengelig"
+
+#, fuzzy
+msgid "Disable startup"
+msgstr "Deaktiver oppstart"
+
+msgid ""
+"Do you want to create a full image backup?\n"
+"This can take about 6 minutes to complete."
+msgstr ""
+
+#, python-format
+msgid ""
+"Do you want to flash image\n"
+"%s"
+msgstr ""
+
+#, fuzzy
+msgid "Do you want to restart GUI now ?"
+msgstr "Ønsker du å lgjennopprette dine Enigma2 plugins?"
+
+msgid "Do you want to restore your Enigma2 plugins ?"
+msgstr "Ønsker du å lgjennopprette dine Enigma2 plugins?"
+
+msgid "Do you want to restore your Enigma2 settings ?"
+msgstr ""
+
+#, fuzzy
+msgid "Do you want to restore your enigma2 settings ?"
+msgstr "Ønsker du å lgjennopprette dine Enigma2 innstillinger?"
+
+#, fuzzy
+msgid "DownLoad"
+msgstr "Last ned"
+
+msgid "Download"
+msgstr "Last ned"
+
+#, fuzzy
+msgid "Download confirmation"
+msgstr "Bekreftelse på nedlasting"
+
+#, fuzzy
+msgid "Downloading"
+msgstr "Last ned"
+
+msgid "Downloads"
+msgstr "Nedlastinger"
+
+msgid "ET8500 Image Restore"
+msgstr ""
+
+msgid ""
+"ET8500 Multiboot: Yes to restore OS1 No to restore OS2:\n"
+" "
+msgstr ""
+
+msgid "Empty slot"
+msgstr ""
+
+#, fuzzy
+msgid "Enable SWAP at startup"
+msgstr "Aktiver swap ved oppstart"
+
+msgid "Enable frozen check"
+msgstr ""
+
+#, fuzzy
+msgid "Enable startup"
+msgstr "Aktiver oppstart"
+
+#, fuzzy
+msgid "Enough retries, delaying till next schedule."
+msgstr "Nok forsøk, utsatt til neste tidsinnstilling."
+
+msgid "Enter your OpenViX developer password."
+msgstr ""
+
+msgid "Enter your OpenViX developer username."
+msgstr ""
+
+msgid "Erase"
+msgstr ""
+
+msgid "Exit the restore wizard"
+msgstr "Avslutt veiviseren"
+
+msgid "Expand"
+msgstr ""
+
+msgid "Extra IPK's"
+msgstr ""
+
+msgid "Flash"
+msgstr ""
+
+msgid "Flash image unzip successful."
+msgstr ""
+
+#, fuzzy
+msgid "Found non-standard softcam, trying to start, this may fail."
+msgstr "Har ikke funnet noen standard softcam, prøver å starte, dette kan feile"
+
+msgid "Free space:"
+msgstr ""
+
+msgid "From which image library do you want to download?"
+msgstr ""
+
+msgid "Frozen check interval"
+msgstr ""
+
+#, fuzzy
+msgid "H9 SDcard manager"
+msgstr "Softcam Manager"
+
+#, fuzzy
+msgid "H9SDcard Manager"
+msgstr "Swap Manager"
+
+msgid "INFO"
+msgstr ""
+
+#, fuzzy
+msgid "IPK installer"
+msgstr "IPK Installer"
+
+msgid "If you are an OpenViX developer you can enter your login details to have direct access to OpenViX developer images for your receiver. This feature is only available via 'https' connections."
+msgstr ""
+
+#, fuzzy
+msgid "Image manager"
+msgstr "Image Manager"
+
+msgid "Image manager settings"
+msgstr ""
+
+msgid "Inactive"
+msgstr "Inaktiv"
+
+msgid "Include machine name in backup name"
+msgstr ""
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Init SDcard"
+msgstr ""
+
+msgid "Init USB/SDA1"
+msgstr ""
+
+msgid "Init Zgemma H9 SDCARD - please reboot after use."
+msgstr ""
+
+msgid "Init Zgemma H9 USB/SDA1 - please reboot after use."
+msgstr ""
+
+msgid "Install"
+msgstr "Installer"
+
+msgid "Install IPK's from your tmp folder."
+msgstr "Installer IPK's fra din tmp folder."
+
+#, fuzzy
+msgid "Install confirmation"
+msgstr "Bekreftelse på installering"
+
+msgid "Install extensions."
+msgstr ""
+
+msgid "Install local extension"
+msgstr "Installer utvidelser overført til boksen"
+
+msgid "Installing..."
+msgstr "Installerer..."
+
+msgid "Invert"
+msgstr ""
+
+msgid "Ipkg"
+msgstr ""
+
+msgid "It seems you have not setup an extra location. Please set it up in the Backup manager setup menu."
+msgstr ""
+
+msgid "Location of where backup should be saved."
+msgstr ""
+
+msgid "Location of where the image backup should be saved."
+msgstr ""
+
+msgid "Login as an OpenViX developer"
+msgstr ""
+
+msgid "Logs"
+msgstr ""
+
+msgid "MB"
+msgstr "MB"
+
+msgid "MENU"
+msgstr ""
+
+#, fuzzy
+msgid "MGcamd can't run whilst CCcam is running."
+msgstr "MGcamd kan ikkje kjøre samtidig som CCcam kjører"
+
+#, fuzzy
+msgid "Manage settings backup."
+msgstr "Gjennoppretter sikkerhetskopi..."
+
+#, fuzzy
+msgid "Manage your devices mount points."
+msgstr "Behandle dine enheters tilkoblingspunkt."
+
+msgid "Max image backups to keep (0==all)"
+msgstr ""
+
+msgid "Maximum number of backups to keep. Older backups are given priority for removal, so the fresher ones remain."
+msgstr ""
+
+msgid "Mount"
+msgstr ""
+
+#, python-format
+msgid "Mount failed for '%s', error code = '%s'."
+msgstr ""
+
+#, fuzzy
+msgid "Mount manager"
+msgstr "Mount Manager"
+
+msgid "Mount: "
+msgstr "Mount: "
+
+msgid "Move Nand root to SD card"
+msgstr ""
+
+#, fuzzy
+msgid "Moving to backup Location..."
+msgstr "Flytter til målmappen for sikkerhetskopi..."
+
+msgid "Multiboot ERROR! - no STARTUP in boot partition."
+msgstr ""
+
+#, fuzzy
+msgid "Multiboot image manager"
+msgstr "Image Manager"
+
+msgid "Multiboot only able to restore this backup to mmc slot1"
+msgstr ""
+
+msgid "NO, do not restore plugins"
+msgstr "Nei, ikke gjennopprett plugins"
+
+msgid "NO, do not restore settings"
+msgstr "Nei, ikke gjennopprett innstillinger"
+
+#, fuzzy
+msgid "New backup"
+msgstr "Ny sikkerhetskopi"
+
+#, fuzzy
+msgid "Next backup: "
+msgstr "Neste sikkerhetskopi:"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup CCcam first\n"
+"in /etc/CCcam.cfg."
+msgstr ""
+"Ingen konfigurasjonsfiler funnet, vennligst sett opp CCcam først\n"
+"i /etc/CCcam.cfg"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup Hypercam first\n"
+"in /etc/hypercam.cfg."
+msgstr ""
+"Ingen konfigurasjonsfiler funnet, vennligst sett opp Hypercam først\n"
+"i /etc/hypercam.cfg"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup MGcamd first\n"
+"in /usr/keys."
+msgstr ""
+"Ingen konfigurasjonsfiler funnet, vennligst sett opp MGcamd først\n"
+"i /var/keys"
+
+msgid ""
+"No config files found, please setup Ncam first\n"
+"in /etc/tuxbox/config"
+msgstr ""
+
+msgid ""
+"No config files found, please setup Ncam first\n"
+"in /etc/tuxbox/config."
+msgstr ""
+
+msgid ""
+"No config files found, please setup Oscam first\n"
+"in /etc/tuxbox/config"
+msgstr ""
+"Ingen konfigurasjonsfiler funnet, vennligst sett opp Oscam først\n"
+"i /etc/tuxbox/config"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup Oscam first\n"
+"in /etc/tuxbox/config."
+msgstr ""
+"Ingen konfigurasjonsfiler funnet, vennligst sett opp Oscam først\n"
+"i /etc/tuxbox/config"
+
+msgid "No images found on the selected download server...if password check validity"
+msgstr ""
+
+msgid "No plugins needed to be installed"
+msgstr ""
+
+msgid "None"
+msgstr "Ingen"
+
+msgid "Note: slot list does not show current image or empty slots."
+msgstr ""
+
+msgid "Now skipping restore process"
+msgstr "Avbryter gjennopprettingsprosessen nå"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "OK, to perform a restore"
+msgstr "OK, å utføre en gjennoppretting"
+
+msgid "Only scheduled"
+msgstr ""
+
+#, python-format
+msgid "Partition: %s  Mount: %s unmounted successfully; if all partitions now unmounted you can remove device."
+msgstr ""
+
+msgid "Please enter a folder that contains some packages."
+msgstr ""
+
+#, fuzzy
+msgid "Please select device to use as SWAP file location."
+msgstr "Vennligst velg en lokasjon for swapfilen"
+
+msgid "Please select the file to restore."
+msgstr ""
+
+msgid "Please wait while plugins restore completes..."
+msgstr "Vennligst vent mens gjennoppretting av plugins fullføres..."
+
+#, fuzzy
+msgid "Please wait while scanning for devices..."
+msgstr "Vennligst vent mens søking etter enheter pågår..."
+
+#, fuzzy, python-format
+msgid "Please wait while scanning your %s %s devices..."
+msgstr "Vennligst vent mens søking etter enheter pågår..."
+
+msgid "Please wait while settings restore completes..."
+msgstr "Vennligst vent mens gjennoppretting av innstillinger fullføres..."
+
+msgid "Please wait while starting\n"
+msgstr "Vennligst vent mens oppstart pågår\n"
+
+msgid "Please wait while stopping\n"
+msgstr "Vennligst vent mens avslutting pågår\n"
+
+#, fuzzy
+msgid "Please wait while the flash prepares."
+msgstr "Vennligst vent mens oppstart pågår\n"
+
+#, fuzzy
+msgid "Please wait while the system gathers information..."
+msgstr "Vennligst vent mens oppstart pågår\n"
+
+msgid "Please wait."
+msgstr ""
+
+#, fuzzy
+msgid "Plugin listing failed - e. g. wrong backup destination or no space left on backup device."
+msgstr "Opplisting av plugin feilet - dvs. feil lokasjon for sikkerhetskopi eller for lite lagringskapasitet igjenn på enheten"
+
+msgid "Preparing extra plugins..."
+msgstr ""
+
+msgid "Press 'Menu' to select a storage device"
+msgstr ""
+
+msgid "Press OK to toggle the selection."
+msgstr ""
+
+msgid "Press appropiate Init to move Nand root to SDcard or USB."
+msgstr ""
+
+msgid "Query before starting backup."
+msgstr ""
+
+msgid "Query before starting image backup."
+msgstr ""
+
+#, fuzzy
+msgid "Reboot"
+msgstr "Restarter..."
+
+msgid "Rebooting..."
+msgstr "Restarter..."
+
+#, python-format
+msgid ""
+"Recording(s) are in progress or coming up in few seconds!\n"
+"Do you still want to flash image\n"
+"%s?"
+msgstr ""
+
+#, python-format
+msgid "Removal of this slot will not show in %s Gui.  Are you sure you want to delete image slot %s ?"
+msgstr ""
+
+#, fuzzy
+msgid "Remove confirmation"
+msgstr "Avinstalleringsbekreftelse"
+
+msgid "Removing temp mounts..."
+msgstr ""
+
+msgid "Restart"
+msgstr "Restart"
+
+#, python-format
+msgid "Restart %s %s."
+msgstr ""
+
+#, fuzzy
+msgid "Restart GUI."
+msgstr "Restart"
+
+msgid "Restore"
+msgstr "Gjennopprette"
+
+msgid "Restore Confirmation"
+msgstr "Gjennopprettingsbekreftelse"
+
+#, fuzzy
+msgid "Restore wizard"
+msgstr "Gjennopprettingsveileder"
+
+msgid "Restoring backup..."
+msgstr "Gjennoppretter sikkerhetskopi..."
+
+msgid "Restoring plugins, this can take a long time..."
+msgstr ""
+
+msgid "Restoring plugins..."
+msgstr "Gjennoppretter plugins..."
+
+msgid "Retrieving image slots - Please wait..."
+msgstr ""
+
+msgid "Run"
+msgstr "Kjør"
+
+msgid "Run your shell scripts."
+msgstr "Kjør dine shell-skript."
+
+#, fuzzy
+msgid "SWAP file not found. You have to create the file before you try to activate it."
+msgstr "Swapfil ikke funnet. Du må opprette filen før du kan aktivere."
+
+#, fuzzy
+msgid "SWAP manager"
+msgstr "Swap Manager"
+
+#, fuzzy
+msgid "SWAP place:"
+msgstr "Swap Sted:"
+
+#, fuzzy
+msgid "SWAP size:"
+msgstr "Størrelse:"
+
+msgid "Save"
+msgstr "Lagre"
+
+msgid "Schedule backups"
+msgstr ""
+
+#, fuzzy
+msgid "Script runner"
+msgstr "Script Runner"
+
+msgid "Script runner settings"
+msgstr ""
+
+msgid "Select"
+msgstr "Velg"
+
+#, fuzzy
+msgid "Select a backup to restore:"
+msgstr "Velg en pakke som skal installeres:"
+
+msgid "Select a package to install:"
+msgstr "Velg en pakke som skal installeres:"
+
+#, fuzzy, python-format
+msgid "Select an image to download for %s:"
+msgstr "Velg et image som skal lastes ned:"
+
+#, fuzzy
+msgid "Select an image to flash:"
+msgstr "Velg et image som skal lastes ned:"
+
+msgid "Select extra packages folder"
+msgstr ""
+
+msgid "Select files/folders to backup"
+msgstr "Velg filer/mapper som skal sikkerhetskopieres:"
+
+msgid "Select folder that contains plugins"
+msgstr ""
+
+#, fuzzy
+msgid "Select the SWAP file size:"
+msgstr "Velg størrelsen til swap-filen:"
+
+msgid "Select:"
+msgstr "Velg:"
+
+msgid "Set the interval to be checked in mins."
+msgstr ""
+
+msgid "Set the repeat interval of backup schedule."
+msgstr ""
+
+msgid "Set the time of backup to start."
+msgstr ""
+
+#, fuzzy
+msgid "Setting up..."
+msgstr "Kobler opp..."
+
+#, fuzzy
+msgid "Setup mounts"
+msgstr "Setup Mounts"
+
+msgid "Show in extensions"
+msgstr ""
+
+msgid "Size: "
+msgstr "Størrelse:"
+
+#, fuzzy, python-format
+msgid "Size: %sGB"
+msgstr "Størrelse:"
+
+#, fuzzy, python-format
+msgid "Size: %sMB"
+msgstr "Størrelse:"
+
+#, fuzzy, python-format
+msgid "Size: %sTB"
+msgstr "Størrelse:"
+
+#, fuzzy
+msgid "Size: unavailable"
+msgstr "utilgjengelig"
+
+#, fuzzy
+msgid "Softcam manager"
+msgstr "Softcam Manager"
+
+msgid "Softcam manager settings"
+msgstr ""
+
+#, fuzzy
+msgid "Softcam starting..."
+msgstr "Softcam startes..."
+
+#, fuzzy
+msgid "Softcam stopping..."
+msgstr "Softcam stoppes..."
+
+msgid "SoftcamCheck"
+msgstr "SoftcamCheck"
+
+msgid "Sorry but that location does not exist or is not setup. Please set it up in the Backup manager setup menu."
+msgstr ""
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try again later."
+msgstr "Beklager, tilkoblingen er nede grunnet vedlikehold. Vennligst prøv igjenn senere."
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try using Backup manager to restore plugins later."
+msgstr "Beklager, tilkoblingen er nede grunnet vedlikehold. Vennligst prøv Backup Manager igjenn senere for å gjennopprette plugins."
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try using the Backup manager to restore plugins later."
+msgstr "Beklager, tilkoblingen er nede grunnet vedlikehold. Vennligst prøv Backup Manager igjenn senere for å gjennopprette plugins."
+
+msgid "Sorry, but the file is not compatible with this image version."
+msgstr ""
+
+msgid "Sorry, but the restore failed."
+msgstr ""
+
+#, fuzzy
+msgid "Sorry, no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems."
+msgstr "Beklager, ingen fysiske enheter som støtter SWAP er tilkoblet. Kan ikke opprette Swapfile på nettverk eller fat32 filsystem"
+
+#, fuzzy
+msgid "Sorry, not enough free RAM found, and no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems, unable to make backup."
+msgstr "Beklager, ikke nok ledig minne funnet og ingen fysiske enheter som støtter SWAP er tilkoblet. Kan ikke opprette Swapfile på nettverk eller fat32 filsystem. Kan ikke opprette sikkerhetskopi."
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Starting..."
+msgstr "Starter..."
+
+msgid "Status:"
+msgstr "Status:"
+
+msgid "Stop"
+msgstr "Stopp"
+
+msgid "Temp folder"
+msgstr ""
+
+#, fuzzy
+msgid "The backup location does not have enough free space."
+msgstr "Lokasjonen for sikkerhetskopien har ikke nok ledig minne."
+
+#, fuzzy
+msgid "The backup location does not have enough free space.\n"
+msgstr "Lokasjonen for sikkerhetskopien har ikke nok ledig minne."
+
+#, python-format
+msgid ""
+"The changes need a system restart to take effect.\n"
+"Restart your %s %s now?"
+msgstr ""
+
+#, fuzzy
+msgid "The chosen location does not exist, using /media/hdd."
+msgstr "Den valgte lokasjonen eksisterer ikke, ved bruk av /media/hdd"
+
+msgid "The name of the receiver can be included in the backup filename, but makes the filename lengthy."
+msgstr ""
+
+msgid "The wizard is finished now, and will reboot."
+msgstr ""
+
+msgid "The wizard is finished now."
+msgstr ""
+
+#, fuzzy
+msgid "There is a problem with this device. Please reformat it and try again."
+msgstr "det oppstod et problem med enheten, vennligst reformater og prøv igjenn."
+
+#, fuzzy
+msgid "There is no backup to restore."
+msgstr "Du har ingen sikkerhetskopier å gjennopprette."
+
+#, fuzzy
+msgid "There is no image to flash."
+msgstr "Du har ingen image å laste ned."
+
+#, fuzzy
+msgid "This device is already mounted as HDD."
+msgstr "Enheten er allerede koblet opp som HDD."
+
+msgid "Type: "
+msgstr "Type: "
+
+msgid "Types of backups to remove when stale."
+msgstr ""
+
+msgid "Un-mount"
+msgstr ""
+
+#, python-format
+msgid ""
+"Unzip error (also sent to any debug log):\n"
+"%s"
+msgstr ""
+
+#, fuzzy
+msgid "Updating mount locations..."
+msgstr "Flytter til målmappen for sikkerhetskopi..."
+
+msgid "Use as HDD"
+msgstr "Bruk som HDD"
+
+msgid "Use the cursor keys to select an installed image and then Erase button."
+msgstr ""
+
+msgid "ViX"
+msgstr "ViX"
+
+#, fuzzy
+msgid "ViX Backup manager"
+msgstr "Backup Manager"
+
+#, fuzzy
+msgid "ViX Image Management"
+msgstr "Image Manager"
+
+#, fuzzy
+msgid "ViX Image manager"
+msgstr "Image Manager"
+
+#, fuzzy
+msgid "ViX Mount manager"
+msgstr "Mount Manager"
+
+msgid "ViX SWAP manager"
+msgstr ""
+
+#, fuzzy
+msgid "ViX Script runner"
+msgstr "Script Runner"
+
+#, fuzzy
+msgid "View progress"
+msgstr "Se fremdrift"
+
+#, fuzzy
+msgid "Wait please while creating SWAP file..."
+msgstr "Vennligst vent mens swapfil opprettes..."
+
+msgid ""
+"Wait please while scanning\n"
+"for softcam's..."
+msgstr ""
+"Vennligst vent mens søking\n"
+"for softcam's pågår..."
+
+msgid "Wait please while scanning..."
+msgstr "Vennligst vent mens søking pågår..."
+
+msgid "Weekly"
+msgstr "Ukentlig"
+
+msgid ""
+"Welcome to the restore wizard.\n"
+"\n"
+"A backup has been detected.\n"
+"You can use this wizard to restore your settings and any extra plugins that were installed when the backup was created.\n"
+msgstr ""
+
+msgid "YES, to restore plugins"
+msgstr "Ja, til å gjennopprette plugins"
+
+msgid "YES, to restore settings"
+msgstr "Ja, til å gjennopprette innstillinger"
+
+msgid "You have decided not to flash image."
+msgstr ""
+
+#, fuzzy
+msgid "You have to create a SWAP file before trying to activate the autostart."
+msgstr "Du må opprette en swapfil før du kan aktivere autostart."
+
+#, fuzzy, python-format
+msgid "Your %s %s could not connect to the plugin feeds at this time. Please try using the Backup manager to restore plugins later."
+msgstr "Beklager, tilkoblingen er nede grunnet vedlikehold. Vennligst prøv Backup Manager igjenn senere for å gjennopprette plugins."
+
+#, python-format
+msgid ""
+"Your %s %s is about to create a full image backup, this can take about 6 minutes to complete.\n"
+"Do you want to allow this?"
+msgstr ""
+
+#, python-format
+msgid ""
+"Your %s %s is about to run a backup of your settings and to detect your plugins.\n"
+"Do you want to allow this?"
+msgstr ""
+
+#, python-format
+msgid "Your %s %s is not connected to a network. Please check your network settings and try again."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to a network. Please try using the Backup manager to restore plugins later when a network connection is available."
+msgstr "Beklager, tilkoblingen er nede grunnet vedlikehold. Vennligst prøv Backup Manager igjenn senere for å gjennopprette plugins."
+
+#, python-format
+msgid "Your %s %s is not connected to the Internet. Please check your network settings and try again."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to the Internet. Please try using Backup manager to restore plugins later."
+msgstr "Beklager, tilkoblingen er nede grunnet vedlikehold. Vennligst prøv Backup Manager igjenn senere for å gjennopprette plugins."
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to the Internet. Please try using the Backup manager to restore plugins later."
+msgstr "Beklager, tilkoblingen er nede grunnet vedlikehold. Vennligst prøv Backup Manager igjenn senere for å gjennopprette plugins."
+
+#, python-format
+msgid ""
+"ofgwrite error (also sent to any debug log):\n"
+"%s"
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s"
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s "
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s (current image)"
+msgstr ""
+
+msgid "unavailable"
+msgstr "utilgjengelig"

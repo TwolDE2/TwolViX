@@ -513,6 +513,10 @@ lib/python/Plugins/SystemPlugins/VideoEnhancement/Makefile
 lib/python/Plugins/SystemPlugins/VideoEnhancement/meta/Makefile
 lib/python/Plugins/SystemPlugins/VideoTune/Makefile
 lib/python/Plugins/SystemPlugins/VideoTune/meta/Makefile
+lib/python/Plugins/SystemPlugins/VIX/Makefile
+lib/python/Plugins/SystemPlugins/VIX/etc/Makefile
+lib/python/Plugins/SystemPlugins/VIX/images/Makefile
+lib/python/Plugins/SystemPlugins/VIX/po/Makefile
 lib/python/Plugins/SystemPlugins/WirelessLan/Makefile
 lib/python/Plugins/SystemPlugins/WirelessLan/meta/Makefile
 lib/python/Tools/Makefile

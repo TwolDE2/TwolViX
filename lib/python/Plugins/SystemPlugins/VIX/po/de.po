@@ -1,0 +1,1258 @@
+# German translations for plugins package.
+# Copyright (C) 2011 THE plugins'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the plugins package.
+# Automatically generated, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: enigma2-vix-core\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-20 22:57+0000\n"
+"PO-Revision-Date: 2023-03-22 14:02+0100\n"
+"Last-Translator: Ralf Biedermann <ralf.biedermann@rbsoft.de>\n"
+"Language-Team: none\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.0\n"
+
+msgid " Press 'Menu' to select a storage device - none available"
+msgstr " Drücke Menü um Laufwerk auszuwählen - kein Laufwerk verfügbar"
+
+msgid "%a %e %b  %-H:%M"
+msgstr ""
+
+#, python-format
+msgid "%s downloads"
+msgstr ""
+
+#, python-format
+msgid "%s: "
+msgstr ""
+
+msgid "- Max backups to keep (0==all)"
+msgstr "- Max. Anzahl von Backups (0 = alle)"
+
+msgid "- Query before backup starts"
+msgstr "- Frage bevor Backup startet"
+
+msgid "- Query before image backup starts"
+msgstr "- Frage bevor Image Backup startet"
+
+msgid "- Repeat how often"
+msgstr "- Wie oft wiederholen"
+
+msgid "- Time of backup to start"
+msgstr "- Zeit zum Start von Backups"
+
+msgid "1024 Mb"
+msgstr ""
+
+msgid "128 Mb"
+msgstr ""
+
+msgid "16 Mb"
+msgstr "16MB"
+
+msgid "256 Mb"
+msgstr ""
+
+msgid "30 Days"
+msgstr "30 Tage"
+
+msgid "32 Mb"
+msgstr "32MB"
+
+msgid "512 Mb"
+msgstr ""
+
+msgid "64 Mb"
+msgstr "64MB"
+
+msgid "756 Mb"
+msgstr ""
+
+msgid "8 Mb"
+msgstr "8MB"
+
+msgid "96 Mb"
+msgstr "96MB"
+
+msgid "A background update check is in progress, please try again."
+msgstr "Im Hintergrund wird auf mögliche Updates geprüft. Bitte später erneut versuchen."
+
+msgid "A backup has been detected."
+msgstr "Ein Backup wurde gefunden."
+
+msgid "A full image backup can be created at any time."
+msgstr "Ein Komplettbackup kann jeder Zeit erstellt werden."
+
+msgid "Activate"
+msgstr "Aktivieren"
+
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "Active:"
+msgstr "Aktiv:"
+
+msgid "After confirming, an automatic backup will be made and then the image will be flashed."
+msgstr "Nach Bestätigung wird ein Komplettbackup erstellt und das Image wird geflashed."
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Allows the script runner to be launched from extensions."
+msgstr "Erlaubt die Scriptausführung aus Erweiterungen."
+
+msgid "Allows the softcam manager to be launched from extensions."
+msgstr "Erlaubt die Ausführung von der Softcam-Verwaltung aus Erweiterungen."
+
+msgid "Allows the softcam to be checked if it stopped working, and restarted automatically if needed."
+msgstr "Erlaubt die Prüfung ob Softcam noch läuft und startet sie neu falls nötig."
+
+msgid "Allows you to close the window automatically."
+msgstr "Erlaubt es dir das Fenster automatisch zu schließen."
+
+msgid "Allows you to give your image filename a custom prefix."
+msgstr "Erlaubt es deinem Image einen eigenen Namen zu geben."
+
+msgid "Allows you to schedule your backups."
+msgstr "Erlaubt ein zeitgesteuertes Backup der Einstellungen."
+
+msgid "Allows you to schedule your image backups."
+msgstr "Erlaubt ein zeitgesteuertes Backup des Images."
+
+msgid "Allows you to tag your backups to a box."
+msgstr "Erlaubt es das Backuo der Einstellungen einer Box zuzuordnen."
+
+msgid "Also, instead to downloading, it is possible to send an image to the 'Backup location' by FTP."
+msgstr "Statt herunterzuladen kann das Image auch zu einem Backup-Server per FTP gesendet werden."
+
+msgid "Are you ready to install ?"
+msgstr "Jetzt installieren?"
+
+#, python-format
+msgid "Are you sure you want to delete image slot %s ?"
+msgstr "Bist Du sicher das dieser Image Slot %s gelöscht werden soll?"
+
+msgid ""
+"Are you sure you want to download this image:\n"
+" "
+msgstr ""
+"Wollen Sie dieses Image herunterladen:\n"
+" "
+
+msgid ""
+"Are you sure you want to restore this backup:\n"
+" "
+msgstr ""
+"Dieses Backup jetzt wiederherstellen:\n"
+" "
+
+msgid "Automatic settings backup"
+msgstr "Automatisch Backup der Einstellungen"
+
+msgid "Automatically created"
+msgstr "Automatisch erzeugt"
+
+msgid "Autostart"
+msgstr "Autostart"
+
+msgid "Backing up eMMC partitions for USB flash ..."
+msgstr "Sicherung der eMMC Partitionen für den USB-Stick..."
+
+msgid "Backing up eMMC partitions for USB flash..."
+msgstr "Sicherung der eMMC Partitionen für den USB-Stick..."
+
+msgid "Backing up files..."
+msgstr "Sichert Dateien..."
+
+msgid "Backing up kernel..."
+msgstr "BackUp von Kernel..."
+
+msgid "Backing up root file system..."
+msgstr "BackUp Root-Verzeichnis..."
+
+msgid "Backup complete."
+msgstr "Backup vollendet."
+
+msgid "Backup complete..."
+msgstr "BackUp beendet..."
+
+msgid "Backup confirmation"
+msgstr "BackUp bestätigung"
+
+msgid "Backup created"
+msgstr "BackUp erzeugt"
+
+msgid "Backup failed - e. g. wrong backup destination or no space left on backup device."
+msgstr "Backup fehlgeschlagen. Entweder falscher Ort oder nicht mehr genug freier Speicher auf Gerät."
+
+msgid ""
+"Backup in progress,\n"
+"Please wait for it to finish, before trying again."
+msgstr "Backup läuft. Bitte warten bis beendet vor erneutem Versuch."
+
+msgid "Backup location"
+msgstr "Zielordner für Backup"
+
+msgid "Backup manager"
+msgstr "BackUp Verwaltung"
+
+msgid "Backup manager settings"
+msgstr "Backup Verwaltung Einstellungen"
+
+msgid "Backup prefix"
+msgstr "Backup Name"
+
+msgid "Backup/Flash/ReBoot system image."
+msgstr "Backup/Flash/Neustart vom Image."
+
+msgid "Backups of the RECOVERY image will contain a copy of all the client images."
+msgstr "Backups vom RECOVERY Image enthalten eine Kopie aller Klient Images."
+
+msgid "Backups to keep"
+msgstr "Anzahl der zu haltenden Backups"
+
+msgid "Backups to prune"
+msgstr "Backups zu löschen"
+
+msgid "Before flashing an image 'Automatic settings backup' should be enabled in Image Manager setup menu."
+msgstr "Vor dem Flashen eines Images sollte 'Automatische Einstellungssicherung' in der Image Verwaltung aktiviert werden."
+
+msgid "CCcam can't run whilst MGcamd is running"
+msgstr "Während MGcamd läuft kann CCcam nicht ausgeführt werden"
+
+msgid "CCcam can't run whilst MGcamd is running."
+msgstr "CCcam kann nicht zusammen mit MGcamd laufen."
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#, python-format
+msgid "Cannot unmount partition '%s'.  Make sure this partition is not in use.  (SWAP, record/timeshift, etc.)"
+msgstr "Partition '%s' kann nicht freigegeben werden. Stelle sicher das die Partition nicht benutzt wird (swap, Aufnahme/TimeShift, usw.):"
+
+msgid "Change location"
+msgstr "Ändere Zielverzeichnis"
+
+msgid "Checking free RAM.."
+msgstr "Prüfe freien Speicher."
+
+msgid "Checking softcams..."
+msgstr "Überprüfe Softcams..."
+
+msgid "Choose IPK folder"
+msgstr "Wähle IPK Ordner"
+
+msgid "Choose files"
+msgstr "Wähle Dateien"
+
+msgid "Choose where to mount your devices to:"
+msgstr "Bitte Einhängepunkte der Geräte auswählen:"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Close window on success"
+msgstr "Schließe Fenster bei Erfolg"
+
+msgid "Comparing against backup..."
+msgstr "Vergleiche mit Backup..."
+
+msgid "Compress"
+msgstr "Packen"
+
+msgid "Copy eMMC slots confirmation"
+msgstr ""
+
+msgid "Create"
+msgstr "Erstellen"
+
+msgid "Create a settings backup before updating."
+msgstr "Erstelle ein Backup der Einstellungen vor einem Update."
+
+msgid "Create and Manage your SWAP files."
+msgstr "Erzeuge und verwalte Swap Dateien."
+
+msgid "Create:"
+msgstr "Erstellen:"
+
+msgid "Creating SWAP.."
+msgstr "Erzeuge Swap..."
+
+msgid "Creating list of installed plugins..."
+msgstr "Erstelle Liste der installierten Plugins..."
+
+msgid "Creating zip..."
+msgstr "Erstelle ZIP..."
+
+msgid "Current status:"
+msgstr "Aktueller Status:"
+
+msgid "Daily"
+msgstr "Täglich"
+
+msgid "Deactivate"
+msgstr "Deaktivieren"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Delete failure - check device available."
+msgstr "Löschen nicht erfolgreich - Prüfe ob Gerät verfügbar."
+
+msgid "Deselect"
+msgstr "Abwählen"
+
+msgid "Developer password"
+msgstr "Entwickler Passwort"
+
+msgid "Developer username"
+msgstr "Entwickler Benutzernamen"
+
+#, python-format
+msgid "Device %s"
+msgstr "Gerät %s"
+
+msgid "Device: "
+msgstr "Gerät: "
+
+msgid "Device: None available"
+msgstr "Gerät: Nicht verfügbar"
+
+msgid "Device: Press 'Menu' to select a storage device - none available"
+msgstr "Drücke Menü um Laufwerk auszuwählen - kein Laufwerk verfügbar"
+
+msgid "Disable startup"
+msgstr "Deaktiviere Startup"
+
+msgid "Do you want to backup eMMC slots? This will add from 1 -> 5 minutes per eMMC slot"
+msgstr "Sollen eMMC Slots gesichert werden? Zeit wird sich um 1..5 Minuten pro Slot erhöhen"
+
+msgid ""
+"Do you want to create a full image backup?\n"
+"This can take about 6 minutes to complete."
+msgstr ""
+"Soll ein Image Backup erstellt werden?\n"
+"Der Vorgang kann etwa 6 Minuten dauern."
+
+msgid ""
+"Do you want to flash Recovery image?\n"
+"This will change all eMMC slots."
+msgstr ""
+"Recovery Image flashen?\n"
+"Dies wird alle eMMC Slots verändern."
+
+#, python-format
+msgid ""
+"Do you want to flash image\n"
+"%s"
+msgstr ""
+"Willst Du das folgende Image flashen\n"
+"%s"
+
+msgid "Do you want to restart GUI now ?"
+msgstr "Soll die Benutzeroberfläche jetzt neu gestartet werden?"
+
+msgid "Do you want to restore your Enigma2 plugins ?"
+msgstr "Willst Du deine Enigma2 Plugins wieder herstellen?"
+
+msgid "Do you want to restore your Enigma2 settings ?"
+msgstr "Soll Backup von Einstellungen wieder hergestellt werden?"
+
+msgid "Do you want to restore your enigma2 settings ?"
+msgstr "Willst Du die Enigma2-Einstellungen wieder herstellen?"
+
+msgid "Download"
+msgstr "Herunterladen"
+
+msgid "Download confirmation"
+msgstr "Download Bestätigung"
+
+msgid "Downloading"
+msgstr "Lade herrunter"
+
+msgid "Downloads"
+msgstr "Downloads"
+
+msgid "ET8500 Image Restore"
+msgstr "ET8500 Image wieder herstellen"
+
+msgid ""
+"ET8500 Multiboot: Yes to restore OS1 No to restore OS2:\n"
+" "
+msgstr ""
+"ET8500 Multiboot: Ja zum wieder herstellen OS1, Nein zum wieder herstellen OS2:\n"
+" "
+
+msgid "Empty slot"
+msgstr "Leerer Slot"
+
+msgid "Enable SWAP at startup"
+msgstr "Swap beim Start aktivieren"
+
+msgid "Enable frozen check"
+msgstr "Aktiviere Prüfung auf einfrieren"
+
+msgid "Enable startup"
+msgstr "Aktiviere Startup"
+
+msgid "Enough retries, delaying till next schedule."
+msgstr "Genug Wiederholungen, warte bis zum nächsten Start."
+
+msgid "Enter your OpenViX developer password."
+msgstr "Gebe dein OpenViX Entwickler Passwort ein."
+
+msgid "Enter your OpenViX developer username."
+msgstr "Gebe deinen OpenViX Entwickler Benutzernamen ein."
+
+msgid "Erase"
+msgstr "Löschen"
+
+#, python-format
+msgid ""
+"Error creating backup folder:\n"
+"%s: %s"
+msgstr ""
+"Fehler beim Erstellen vom Backup Verzeichnis:\n"
+"%s %s"
+
+msgid "Exit the restore wizard"
+msgstr "Wiederherstellungsassistenten beenden"
+
+msgid "Expand"
+msgstr "Entpacken"
+
+msgid "Extensive search"
+msgstr "Gründliche Suche"
+
+msgid "Extra IPK's"
+msgstr "Extra IPK's"
+
+msgid "FLASHING"
+msgstr ""
+
+msgid "FULL IMAGE BACKUP"
+msgstr ""
+
+msgid "Flash"
+msgstr ""
+
+msgid "Flash image unzip successful."
+msgstr "Unzip vom Flash Image erfolgreich."
+
+msgid "Found non-standard softcam, trying to start, this may fail."
+msgstr "Keine Standard Softcam gefunden. Es wird ein Start versucht aber es könnte fehl schlagen."
+
+msgid "Free space:"
+msgstr "Freier Speicher:"
+
+msgid "From here the settings backup and plugins can be restored just by selecting that option."
+msgstr "Hier können Einstellungen und Plugins wiederhergestellt werden durch Wahl dieser Option."
+
+msgid "From which image library do you want to download?"
+msgstr "Aus welcher Image-Quelle willst Du runterladen?"
+
+msgid "Frozen check interval"
+msgstr "Zeitspanne zwischen Prüfung auf einfrieren"
+
+msgid "H9 SDcard manager"
+msgstr "H9 SD-Karten Verwaltung"
+
+msgid "H9SDcard Manager"
+msgstr "H9 SD-Karten Verwaltung"
+
+msgid "Homebuild URL"
+msgstr ""
+
+msgid "IMAGE DOWNLOADS"
+msgstr ""
+
+msgid "INFO"
+msgstr ""
+
+msgid "IPK installer"
+msgstr "IPK Instalieren"
+
+msgid "If you are an OpenViX developer you can enter your login details to have direct access to OpenViX developer images for your receiver. This feature is only available via 'https' connections."
+msgstr "Wenn Du ein OpenViX Entwickler bist kannst Du hier die Zugangsdaten eingeben und hast Zugriff auf die OpenViX Entwickler Images. Dieses Feature gibt es nur per 'https' Verbindung."
+
+msgid "If you are running your own build server and want to download your own images directly into ImageManager you can link to the URL of your JSON index. If you need help with implementing this please ask on the forum."
+msgstr "Wenn Du deinen eigenen Build-Server betreibst und die Images direkt in der Image Verwaltung runterladen möchtest kannst Du einen Link auf die URL deines JSON Indexes erstellen. Wenn Du Hilfe brauchst frag im Forum nach."
+
+msgid "Image Manager allows downloading images from OpenViX image server and from a range of other distros."
+msgstr "Image Verwaltung erlaubt es OpenVIX Images aber auch Images vieler anderer Distributionen herunterzuladen."
+
+msgid "Image manager"
+msgstr "Image Verwaltung"
+
+msgid "Image manager settings"
+msgstr "Image Verwaltung Einstellungen"
+
+#, python-format
+msgid "ImageManager - %s - cannot flash eMMC slot from sd card slot."
+msgstr "Image Verwaltung - %s - kann nicht von SD Card Slot auf eMMC Slot geflashed werden."
+
+msgid "ImageManager - no HDD unable to backup Vu Multiboot eMMC slots"
+msgstr "Image Verwaltung - keine Festplatte. Sicherung von eMMC Slots nicht möglich"
+
+msgid "Inactive"
+msgstr "Inaktiv"
+
+msgid "Include machine name in backup name"
+msgstr "Benutze Namen der Box im Backupnamen"
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Init SDcard"
+msgstr ""
+
+msgid "Init USB/SDA1"
+msgstr ""
+
+msgid "Init Zgemma H9 SDCARD - please reboot after use."
+msgstr "Init Zgemma H9 SDCARD - Bitte neu starten nach Benutzung."
+
+msgid "Init Zgemma H9 USB/SDA1 - please reboot after use."
+msgstr "Init Zgemma H9 USB/SDA1 - Bitte neu starten nach Benutzung."
+
+msgid "Install"
+msgstr "Installieren"
+
+msgid "Install IPK's from your tmp folder."
+msgstr "Installiere IPKs aus dem tmp Verzeichnis."
+
+msgid "Install confirmation"
+msgstr "Installation Bestätigung"
+
+msgid "Install extensions."
+msgstr "Installiere Erweiterungen."
+
+msgid "Install local extension"
+msgstr "IPK-Dateien installieren"
+
+msgid "Installing..."
+msgstr "Installiert..."
+
+msgid "Invert"
+msgstr "Invertieren"
+
+msgid "Ipkg"
+msgstr ""
+
+msgid "It allows making changes to the box with the knowledge that the box can be safely reverted back to a previous known working state."
+msgstr "Es erlaubt es Änderungen an der Box zu machen in der Gewissheit zum letzten lauffähigen Zustand zurückkehren zu können."
+
+msgid "It seems you have not setup an extra location. Please set it up in the Backup manager setup menu."
+msgstr "Es sieht so aus asl wenn noch ein Extra Ort konfiguriert wurde. Bitte dem Ort in der Backup Verwaltung konfigurieren."
+
+msgid "Location of where backup should be saved."
+msgstr "Ort wo das Backup der Einstellungen gespeichert werden soll."
+
+msgid "Location of where the image backup should be saved."
+msgstr "Ort wo das Backup des Images gespeichert werden soll."
+
+msgid "Locations searched when creating the images list. Select 'yes' to search all likely locations on your system where images may be located. Select 'no' to limit the search to just the user selected backup location."
+msgstr "Verzeichnisse die durchsucht werden wenn die Imageliste aufgebaut wird. Wähle 'Ja' wenn alle sinnvollen Verzeichnisse durchsucht werden sollen. Wähle 'Nein' wenn nur das Backupverzeichnis durchsucht werden soll."
+
+msgid "Login as an OpenViX developer"
+msgstr "Als OpenViX Entwickler anmelden"
+
+msgid "Logs"
+msgstr ""
+
+msgid "MB"
+msgstr "MB"
+
+msgid "MENU"
+msgstr ""
+
+msgid "MGcamd can't run whilst CCcam is running."
+msgstr "MGcamd kann nicht zusammen mit CCcam laufen."
+
+msgid "Manage settings backup."
+msgstr "Verwalte Backups der Einstellungen."
+
+msgid "Manage your devices mount points."
+msgstr "Verwalte die Einhängepunkte."
+
+msgid "Max image backups to keep (0==all)"
+msgstr "Max. Anzahl von Backups des Images behalten (0 = alle)"
+
+msgid "Maximum number of backups to keep. Older backups are given priority for removal, so the fresher ones remain."
+msgstr "Maximale Anzahl von Backups die gespeichert bleiben sollen. Ältere werden bei Bedarf gelöscht."
+
+msgid "Mount"
+msgstr "Einhängen"
+
+#, python-format
+msgid "Mount failed for '%s', error code = '%s'."
+msgstr "Einbinden von '%s' fehlgeschlagen, Fehler: '%s'."
+
+msgid "Mount manager"
+msgstr "Mount Verwaltung"
+
+msgid "Mount: "
+msgstr "Mount: "
+
+msgid "Move Nand root to SD card"
+msgstr "Verschiebe Nand root auf SD Karte"
+
+msgid "Moving to backup Location..."
+msgstr "Verschiebe nach Backup-Zielverzeichnis..."
+
+msgid "Multiboot ERROR! - no STARTUP in boot partition."
+msgstr "Multiboot Fehler! - kein STARTUP in Boot-Partition."
+
+msgid "Multiboot image manager"
+msgstr "Multiboot Image Verwaltung"
+
+msgid "Multiboot only able to restore this backup to mmc slot1"
+msgstr "Multiboot kann dieses Backup nur auf MMC Slot 1 wieder herstellen"
+
+msgid "NO, do not restore plugins"
+msgstr "NEIN, Plugins nicht wieder herstellen"
+
+msgid "NO, do not restore settings"
+msgstr "NEIN, Einstellungen nicht wieder herstellen"
+
+msgid "New backup"
+msgstr "Neues Backup"
+
+msgid "Next backup: "
+msgstr "Nächstes Backup: "
+
+msgid ""
+"No config files found, please setup CCcam first\n"
+"in /etc/CCcam.cfg."
+msgstr ""
+"Keine Konfigdatei gefunden. Bitte CCcam erst einrichten\n"
+"in /etc/CCcam.cfg."
+
+msgid ""
+"No config files found, please setup Hypercam first\n"
+"in /etc/hypercam.cfg."
+msgstr ""
+"Keine Konfigdatei gefunden. Bitte Hypercam erst einrichten\n"
+"in /etc/hypercam.cfg."
+
+msgid ""
+"No config files found, please setup MGcamd first\n"
+"in /usr/keys."
+msgstr ""
+"Keine Konfigdatei gefunden. Bitte MGcamd erst einrichten\n"
+"in /usr/keys."
+
+msgid ""
+"No config files found, please setup Ncam first\n"
+"in /etc/tuxbox/config"
+msgstr ""
+"Keine Konfigurationsdatei für Ncam gefunden\n"
+"bitte in  /etc/tuxbox/config erstellen"
+
+msgid ""
+"No config files found, please setup Ncam first\n"
+"in /etc/tuxbox/config."
+msgstr ""
+"Keine Konfigurationsdatei für Ncam gefunden\n"
+"bitte in  /etc/tuxbox/config erstellen."
+
+msgid ""
+"No config files found, please setup Oscam first\n"
+"in /etc/tuxbox/config"
+msgstr ""
+"Keine Konfigurationsdateien gefunden, bitte zuerst OScam einrichten\n"
+"in /etc/tuxbox/config"
+
+msgid ""
+"No config files found, please setup Oscam first\n"
+"in /etc/tuxbox/config."
+msgstr ""
+"Keine Konfigdatei gefunden. Bitte OScam erst einrichten\n"
+"in /etc/tuxbox/config."
+
+msgid "No images found on the selected download server...if password check validity"
+msgstr "Keine Images auf dem Server gefunden. Wenn Passwort nötig überprüfe es"
+
+msgid "No plugins needed to be installed"
+msgstr "Es müssen keine Plugins installiert werden"
+
+msgid "None"
+msgstr "Keine"
+
+msgid "Note: slot list does not show current image or empty slots."
+msgstr "Info:Slot Liste zeigt nicht das aktuelle Image oder leere Slots."
+
+msgid "Now skipping restore process"
+msgstr "Überspinge die Wiederherstellung"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "OK, to perform a restore"
+msgstr "OK, zum Wiederherstellen"
+
+msgid "Only scheduled"
+msgstr "Nur zeitgesteuert"
+
+#, python-format
+msgid "Partition: %s  Mount: %s unmounted successfully; if all partitions now unmounted you can remove device."
+msgstr "Partition: '%s' Einhängepunkt: '%s' erfolgreich freigegeben. Wenn alle Partition freigegeben sind kannst Du das Laufwerk jetzt entfernen."
+
+msgid "Please enter a folder that contains some packages."
+msgstr "Bitte einen Ordner wählen der Pakete enthält."
+
+msgid "Please note, images are large, generally over 100 MB so downloading over a slow or unstable connection is prohibitive."
+msgstr "Bedenke das Images in der Regel groß (>=100M) sind. Download über eine langsame oder instabile Verbindung sind nervend."
+
+msgid "Please select device to use as SWAP file location."
+msgstr "Bitte Geräte als Ort für Swap Datei wählen."
+
+msgid "Please select the file to restore."
+msgstr "Bitte wähle eine Datei zum Wiederherstellen."
+
+msgid "Please wait while plugins restore completes..."
+msgstr "Bitte warten bis Plugins wiederhergestellt sind..."
+
+msgid "Please wait while scanning for devices..."
+msgstr "Bitte warten. Suche Geräte..."
+
+#, python-format
+msgid "Please wait while scanning your %s %s devices..."
+msgstr "Bitte warten. Suche Geräte für %s %s..."
+
+msgid "Please wait while settings restore completes..."
+msgstr "Bitte warten bis Einstellungen wiederhergestellt sind..."
+
+msgid "Please wait while starting\n"
+msgstr "Startvorgang abwarten\n"
+
+msgid "Please wait while stopping\n"
+msgstr "Bitte Stoppvorgang abwarten\n"
+
+msgid "Please wait while the flash prepares."
+msgstr "Bitte warten während Flash sich vorbereitet."
+
+msgid "Please wait while the system gathers information..."
+msgstr "Bitte warten während das System Informationen sammelt..."
+
+msgid "Please wait."
+msgstr "Bitte warten."
+
+msgid "Plugin listing failed - e. g. wrong backup destination or no space left on backup device."
+msgstr "Erzeuge Plugin Liste fehlgeschlagen. Entweder falscher Ort oder nicht mehr genug freier Speicher auf dem Gerät."
+
+msgid "Preparing extra plugins..."
+msgstr "Bereite Extra Plugins vor..."
+
+msgid "Press 'Menu' to select a storage device"
+msgstr "Drücke Menü um einen Massenspeicher zu wählen"
+
+msgid "Press OK to toggle the selection."
+msgstr "Drücke OK um die Auswahl umzukehren."
+
+msgid "Press appropiate Init to move Nand root to SDcard or USB."
+msgstr "Drücke passenden Init um Nans root auf SD-Karte oder USB-Laufwerk zu verschieben."
+
+msgid "Query before starting backup."
+msgstr "Frage bevor Backup der Einstellungen startet."
+
+msgid "Query before starting image backup."
+msgstr "Frage bevor Backup des Images startet."
+
+msgid "RECOVERY MODE"
+msgstr ""
+
+msgid "Reboot"
+msgstr ""
+
+msgid "Rebooting..."
+msgstr "Neustart..."
+
+#, python-format
+msgid ""
+"Recording(s) are in progress or coming up in few seconds!\n"
+"Do you still want to flash image\n"
+"%s?"
+msgstr ""
+"Aufnahme(n) laufen oder starten in wenigen Sekunden!\n"
+"Willst Du immer noch das Image \n"
+"%s flashen?"
+
+#, python-format
+msgid "Removal of this slot will not show in %s Gui.  Are you sure you want to delete image slot %s ?"
+msgstr "Löschen von diesem Slot wird nicht in der GUI von %s angezeigt. Bist Du sicher das Du Slot %s löschen willst?"
+
+msgid "Remove confirmation"
+msgstr "Entfernen Bestätigung"
+
+msgid "Removing temp mounts..."
+msgstr "Entferne temporäre Mounts..."
+
+msgid "Restart"
+msgstr "Neustart"
+
+#, python-format
+msgid "Restart %s %s."
+msgstr "Neustart %s %s."
+
+msgid "Restart GUI."
+msgstr "Benutzeroberfläche neu starten."
+
+msgid "Restore"
+msgstr "Wiederherstellen"
+
+msgid "Restore Confirmation"
+msgstr "Wiederherstellen bestätigen"
+
+msgid "Restore confirmation"
+msgstr "Bestätige Wiederherstellung"
+
+msgid "Restore wizard"
+msgstr "Wiederherstellen Assistent"
+
+msgid "Restoring backup..."
+msgstr "Backup wiederherstellen..."
+
+msgid "Restoring plugins, this can take a long time..."
+msgstr "Plugins wiederherstellen. Dies kann sehr lange dauern..."
+
+msgid "Restoring plugins..."
+msgstr "Plugins wiederherstellen..."
+
+msgid "Retrieving image slots - Please wait..."
+msgstr "Suche Image-Slots - Bitte warten..."
+
+msgid "Run"
+msgstr "Ausführen"
+
+msgid "Run your shell scripts."
+msgstr "Führe dein Script aus."
+
+msgid "SWAP file not found. You have to create the file before you try to activate it."
+msgstr "Swap Datei nicht gefunden. Swap Datei muss erzeugt werden bevor sie aktiviert werden kann."
+
+msgid "SWAP manager"
+msgstr "Swap Verwaltung"
+
+msgid "SWAP name:"
+msgstr ""
+
+msgid "SWAP size:"
+msgstr "SWAP Größe:"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Schedule backups"
+msgstr "Plane Backups"
+
+msgid "Script runner"
+msgstr "Scipte ausführen"
+
+msgid "Script runner settings"
+msgstr "Einstellungen von Scriptausführung"
+
+msgid "Select"
+msgstr "Auswählen"
+
+msgid "Select 'no' to flash a MultiBoot slot."
+msgstr "Wähle 'Nein' um einen Multiboot Slot zu flashen."
+
+msgid "Select a backup to restore:"
+msgstr "Wähle ein Backup zum Wiederherstellen:"
+
+msgid "Select a package to install:"
+msgstr "Paket zur Installation wählen:"
+
+#, python-format
+msgid "Select an image to download for %s:"
+msgstr "Wähle ein Image zum download für %s:"
+
+msgid "Select an image to flash."
+msgstr "Wähle ein Image zum Flashen."
+
+msgid "Select extra packages folder"
+msgstr "Wähle einen Ordner der Extra-Packete enthält"
+
+msgid "Select files/folders to backup"
+msgstr "Dateien/Ordner zur Sicherung auswählen"
+
+msgid "Select folder that contains plugins"
+msgstr "Bitte Ordner mit Plugins auswählen"
+
+msgid "Select the SWAP file size:"
+msgstr "Wähle Größe von Swap-Datei:"
+
+msgid "Select:"
+msgstr "Auswählen:"
+
+msgid "Set the interval to be checked in mins."
+msgstr "Setze Zeitspanne zwischen Chcks in Minuten."
+
+msgid "Set the repeat interval of backup schedule."
+msgstr "Setze Anzahl von Wiederholungen von geplanten Backups."
+
+msgid "Set the time of backup to start."
+msgstr "Setze Zeit vom Start eines Backups."
+
+msgid "Setting up..."
+msgstr "Konfiguriere..."
+
+msgid "Setup mounts"
+msgstr "Konfigiriere Mounts"
+
+msgid "Show in extensions"
+msgstr "Zeige in Erweiterungen"
+
+msgid "Size: "
+msgstr "Größe: "
+
+#, python-format
+msgid "Size: %sGB"
+msgstr "Größe: %sGB"
+
+#, python-format
+msgid "Size: %sMB"
+msgstr "Größe: %sMB"
+
+#, python-format
+msgid "Size: %sTB"
+msgstr "Größe: %sTB"
+
+msgid "Size: unavailable"
+msgstr "Größe nicht verfügbar"
+
+msgid "Softcam manager"
+msgstr "Softcam Verwaltung"
+
+msgid "Softcam manager settings"
+msgstr "Softcam Verwaltung Einstellungen"
+
+msgid "Softcam starting..."
+msgstr "Softcam startet..."
+
+msgid "Softcam stopping..."
+msgstr "Softcam stoppt..."
+
+msgid "SoftcamCheck"
+msgstr "Softcam-Überprüfung"
+
+msgid "Sorry but that location does not exist or is not setup. Please set it up in the Backup manager setup menu."
+msgstr "Entschuldigung aber diesen Ort gibt es nicht oder ist nicht konfiguriert. Bitte in der Konfiguration der Backup Verwaltung einrichten."
+
+msgid "Sorry the feeds are down for maintenance. Please try again later."
+msgstr "Tut uns leid. Wegen Wartungsarbeiten sind die Feeds z.Z. nicht erreichbar. Bitte später erneut versuchen."
+
+msgid "Sorry the feeds are down for maintenance. Please try using Backup manager to restore plugins later."
+msgstr "Tut uns leid. Wegen Wartungsarbeiten sind die Feeds z.Z. nicht erreichbar. Bitte Backup Verwaltung später benutzen um Plugins wieder herzustellen."
+
+msgid "Sorry the feeds are down for maintenance. Please try using the Backup manager to restore plugins later."
+msgstr "Tut uns leid. Wegen Wartungsarbeiten sind die Feeds z.Z. nicht erreichbar. Bitte Backup Verwaltung später benutzen um Plugins wieder herzustellen."
+
+msgid "Sorry, but the file is not compatible with this image version."
+msgstr "Tut uns leid aber die Datei is nicht kompatibel mit dieser Image-Version."
+
+msgid "Sorry, but the restore failed."
+msgstr "Sorry, aber die Wiederherstellung ist fehlgeschlagen."
+
+msgid "Sorry, no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems."
+msgstr "Tut uns leid. Es gibt kein Laufwerk das Swap unterstützt. Swap Datei kann nicht im Netzwerk oder auf FAT32 Geräten erstellt werden."
+
+msgid "Sorry, not enough free RAM found, and no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems, unable to make backup."
+msgstr "Tut uns leid. Nicht genug freier Speicher gefunden und es gibt kein Laufwerk das Swap unterstützt. Swap Datei kann nicht im Netzwerk oder auf FAT32 Geräten erstellt werden. Backup nicht möglich."
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Starting..."
+msgstr "Starten...."
+
+msgid "Status:"
+msgstr "Status:"
+
+msgid "Stop"
+msgstr "Stopp"
+
+msgid "Temp folder"
+msgstr "Temp Verzeichnis"
+
+msgid "The backup creates a snapshot of the image exactly as it is at the current instant."
+msgstr "Ein Backup erzeugt ein Image vom gerade aktuellen Zustand."
+
+msgid "The backup location does not have enough free space."
+msgstr "Der Ort für die Backups hat nicht genug freien Speicher."
+
+msgid "The backup location does not have enough free space.\n"
+msgstr "Der Ort für die Backups hat nicht genug freien Speicher.\n"
+
+#, python-format
+msgid ""
+"The changes need a system restart to take effect.\n"
+"Restart your %s %s now?"
+msgstr ""
+"Die Änderungen erfordern einen Neustart.\n"
+"Jetzt %s %s neu starten?"
+
+msgid "The chosen location does not exist, using /media/hdd."
+msgstr "Der gewählte Ort existiert nicht. /media/hdd wird benutzt."
+
+msgid "The image will then be downloaded to the 'Backup location'."
+msgstr "Da Image wird in das Backup Verzeichnis runntergeladen."
+
+msgid "The name of the receiver can be included in the backup filename, but makes the filename lengthy."
+msgstr "Der Name der Box kann in Dateinamen für Backups benutzt werden macht die Namen natürlich länger."
+
+msgid "The new image will overwrite the previous one including any client images that were also configured, so care needs to be taken to make any full image backups (including client images) before overwriting the recovery image."
+msgstr "Das neue Image überschreibt das vorherige Image inklusive aller Klient Images die eingerichtet sind. So Obacht bevor ein volles Backup (inklusive Klient Images) gemacht wird."
+
+msgid "The wizard is finished now, and will reboot."
+msgstr "Der Assistent ist jetzt fertig und die Box wird neu starten."
+
+msgid "The wizard is finished now."
+msgstr "Der Assistent ist jetzt fertig."
+
+msgid "There is a problem with this device. Please reformat it and try again."
+msgstr "Es gibt ein Problem mit diesem Gerät. Bitte erneut formatieren und versuchen."
+
+msgid "There is no backup to restore."
+msgstr "Kein Backup zum wieder herstellen."
+
+msgid "There is no image to flash."
+msgstr "Kein Image zum flashen."
+
+msgid "This device is already mounted as HDD."
+msgstr "Dieses Gerät wurde schon als HDD gemountet."
+
+msgid "This only applies to a handful of Vu+ 4K models."
+msgstr "Das betrifft nur eine Handvoll VU+ 4K Modelle."
+
+msgid ""
+"This selection will flash the Recovery image.\n"
+"We advise flashing new image to a MultiBoot slot and restoring (default) settings backup."
+msgstr ""
+"Diese Wahl flashed das Recovery Image\n"
+"Wir empfehlen das neue Image in einen Multiboot Slot zu flashen und ein Einstellungsbackup wiederherzustellen."
+
+msgid "This will make a backup of the current settings and plugins which can be used later when setting up the new image in the First Install Wizard."
+msgstr "Dies wird Einstellungen und Plugins sichern was benutzt werden kann wenn ein neues Image geflashed wurde."
+
+msgid "To be able to download any image local storage must already be configured, HDD, USB or SD, and also be selected as the 'Backup location' in Image Manager setup menu."
+msgstr "Bevor Images runtergeladen werden können muss ein lokales Verzeichnis auf HDD, USB oder SD in der Image Verwaltung ausgewählt werden."
+
+msgid "To flash an image first select it from the list of images in the Image Manager main screen (the image will need to have already been downloaded) and then press BLUE."
+msgstr "Um ein Image zu flashen wähle es in der Hauptansicht der Image Verwaltung aus (das Image muss schon komplett runtergeladen worden sein) und drücke BLAU."
+
+msgid "To make an image backup select GREEN from Image Manager main screen."
+msgstr "Um eine Sicherung zu erstellen drücke GRÜN in der Hauptansicht der Image Verwaltung."
+
+msgid "To start a download select YELLOW from Image Manager main screen, then select the distro, and finally which image to download."
+msgstr "Um ein Image runterzuladen wähle GELB in der Hauptansicht der Image Verwaltung, dann wähle die Distribution und zum Schluss das Image das Du runterladen möchtest."
+
+msgid "Type: "
+msgstr "Typ: "
+
+msgid "Types of backups to remove when stale."
+msgstr "Art von Backups die gelöscht werden sollen wenn übefällig."
+
+msgid "Un-mount"
+msgstr ""
+
+#, python-format
+msgid ""
+"Unzip error (also sent to any debug log):\n"
+"%s"
+msgstr "Fehler bei Unzip (auch in Debug Log):%s"
+
+msgid "Updating mount locations..."
+msgstr "Erneuern der Mountpunkte..."
+
+msgid "Upon completion the receiver will reboot and display the First Install Wizard."
+msgstr "Nach Beendigung startet die Box neu und ein Einrichtungsassistent startet."
+
+msgid "Use as HDD"
+msgstr "Als HDD verwenden"
+
+msgid "Use the cursor keys to select an installed image and then Erase button."
+msgstr "Benutze die Cursortasten um ein installiertes Image zu wählen und dann den Lösche Button."
+
+msgid "ViX"
+msgstr "ViX"
+
+msgid "ViX Backup manager"
+msgstr "ViX Backup Verwaltung"
+
+msgid "ViX Image Management"
+msgstr "ViX Image Verwaltung"
+
+msgid "ViX Image manager"
+msgstr "ViX Image Verwaltung"
+
+msgid "ViX Mount manager"
+msgstr "ViX Mount Verwaltung"
+
+msgid "ViX SWAP manager"
+msgstr "ViX Swap Verwaltung"
+
+msgid "ViX Script runner"
+msgstr "ViX Script ausführen"
+
+msgid "View progress"
+msgstr "Fortschritt anzeigen"
+
+msgid "Wait please while creating SWAP file..."
+msgstr "Bitte warten. Swap Datei wird erzeugt."
+
+msgid ""
+"Wait please while scanning\n"
+"for softcam's..."
+msgstr ""
+"Bitte warten während Suchlauf \n"
+"nach Softcams..."
+
+msgid "Wait please while scanning..."
+msgstr "Während Suchlauf bitte warten..."
+
+msgid "Weekly"
+msgstr "Wöchentlich"
+
+msgid ""
+"Welcome to the restore wizard.\n"
+"\n"
+"A backup has been detected.\n"
+"You can use this wizard to restore your settings and any extra plugins that were installed when the backup was created.\n"
+msgstr ""
+"Willkommen zum Wiederherstellungsassistenten.\n"
+"\n"
+"Ein Backup wurde gefunden.\n"
+"Der Assistent kann benutzt werden um alle Einstellungen und Plugins wiederherzustellen die zum Zeitpunkt des Backups gültig waren.\n"
+
+msgid "When flashing from the recovery image it is possible to flash it to the recovery slot."
+msgstr "Wenn vom Recovery Image geflashed wird ist es möglich es in den Recovery Slot zu flashen."
+
+msgid "YES, to restore plugins"
+msgstr "JA, um Plugins wieder herzustellen"
+
+msgid "YES, to restore settings"
+msgstr "JA, um Einstellungen wieder herzustellen"
+
+msgid "You have to create a SWAP file before trying to activate the autostart."
+msgstr "Du musst eine Swap Datei erstellen bevor Autostart aktiviert werden kann."
+
+#, python-format
+msgid "Your %s %s could not connect to the plugin feeds at this time. Please try using the Backup manager to restore plugins later."
+msgstr "Deine %s %s kann sich nicht mit dem Feed verbinden. Bitte die Plugins mit der Backup Verwaltung später wieder herstellen."
+
+#, python-format
+msgid ""
+"Your %s %s is about to create a full image backup, this can take about 6 minutes to complete.\n"
+"Do you want to allow this?"
+msgstr ""
+"Deine %s %s erstellt ein Image Backup. Die dauert etwa 6 Minuten.\n"
+"Weitermachen?"
+
+#, python-format
+msgid ""
+"Your %s %s is about to run a backup of your settings and to detect your plugins.\n"
+"Do you want to allow this?"
+msgstr ""
+"Deine %s %s startet gleich ein Backup von deinen Einstellungen und deinen Plugins.\n"
+"Fortfahren?"
+
+#, python-format
+msgid "Your %s %s is not connected to a network. Please check your network settings and try again."
+msgstr "Deine %s %s ist nicht mit dem Internet verbunden. Bitte Netzwerkeinstellungen prüfen und erneut versuchen."
+
+#, python-format
+msgid "Your %s %s is not connected to a network. Please try using the Backup manager to restore plugins later when a network connection is available."
+msgstr "Deine %s %s ist nicht mit dem Internet verbunden. Bitte die Plugins mit der Backup Verwaltung später wieder herstellen wenn eine Netzwerkverbindung besteht."
+
+#, python-format
+msgid "Your %s %s is not connected to the Internet. Please check your network settings and try again."
+msgstr "Deine %s %s ist nicht mit dem Internet verbunden. Bitte Netzwerkeinstellungen prüfen und erneut versuchen."
+
+#, python-format
+msgid "Your %s %s is not connected to the Internet. Please try using Backup manager to restore plugins later."
+msgstr "Deine %s %s ist nicht mit dem Internet verbunden. Bitte die Plugins mit der Backup Verwaltung später wieder herstellen."
+
+#, python-format
+msgid "Your %s %s is not connected to the Internet. Please try using the Backup manager to restore plugins later."
+msgstr "Deine %s %s ist nicht mit dem Internet verbunden. Bitte die Plugins mit der Backup Verwaltung später wieder herstellen."
+
+msgid "info"
+msgstr ""
+
+msgid "manufacturer defined swap"
+msgstr ""
+
+msgid "manufacturer defined swap enabled at startup"
+msgstr ""
+
+#, python-format
+msgid ""
+"ofgwrite error (also sent to any debug log):\n"
+"%s"
+msgstr ""
+"ofgwrite Fehler (auch in Debug.Log):\n"
+"%s"
+
+#, python-format
+msgid "slot%s %s - %s"
+msgstr ""
+
+#, python-format
+msgid "slot%s %s - %s (current image)"
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s "
+msgstr "Slot%s - %s "
+
+msgid "unavailable"
+msgstr "nicht verfügbar"
+
+#~ msgid "Allows you to tag your image backup to a box. (default is box name/type)"
+#~ msgstr "Erlaubt es das Backuo des Images einer Box zuzuordnen. (Voreinstellung ist Name/Typ)"
+
+#~ msgid "Device: none available"
+#~ msgstr "Gerät: keines verfügbar"
+
+#~ msgid "DownLoad"
+#~ msgstr "Runterladen"
+
+#~ msgid "Max backups to keep (0==all)"
+#~ msgstr "Max. Anzahl von Backups der Einstellungen behalten (0 = alle)"
+
+#~ msgid "Query before backup starts"
+#~ msgstr "Frage bevor Backup der Einstellungen startet"
+
+#~ msgid "Query before image backup starts"
+#~ msgstr "Frage bevor Backup des Images startet"
+
+#~ msgid "Repeat how often"
+#~ msgstr "Wie oft wiederholen"
+
+#~ msgid "SWAP place:"
+#~ msgstr "SWAP Ort:"
+
+#~ msgid "Select an image to flash:"
+#~ msgstr "Wähle ein Image zum Wiederherstellen:"
+
+#~ msgid "Time of backup to start"
+#~ msgstr "Zeit wann Backup gestartet werden soll"
+
+#~ msgid "You have decided not to flash image."
+#~ msgstr "Du hast dich entschieden das Image nicht zu flashen."
+
+#, python-format
+#~ msgid "slot%s - %s"
+#~ msgstr "Slot%s - %s"
+
+#, python-format
+#~ msgid "slot%s - %s (current image)"
+#~ msgstr "Slot%s - %s (aktuelle Image)"

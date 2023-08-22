@@ -5,7 +5,7 @@ SUBDIRS = PositionerSetup Satfinder \
 	DefaultServicesScanner CommonInterfaceAssignment \
 	ForceFbcLNBpower \
 	VideoClippingSetup \
-	VideoEnhancement WirelessLan NetworkWizard \
+	VideoEnhancement WirelessLan NetworkWizard VIX\
 	SABnzbdSetup FastScan SatelliteEquipmentControl DiseqcTester
 
 if VUZERO4K

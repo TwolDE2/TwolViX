@@ -1,0 +1,1150 @@
+# Spanish translations for plugins package.
+# Copyright (C) 2011 THE plugins'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the plugins package.
+# Automatically generated, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: enigma2-vix-core\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-18 09:16+0000\n"
+"PO-Revision-Date: 2013-01-25 19:24+0100\n"
+"Last-Translator: Rob van der Does <robvddoes@gmail.com>\n"
+"Language-Team: www.CostaBlancaTranslations.com <maria@CostaBlancaTranslations.com>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.5.4\n"
+
+msgid "%a %e %b  %-H:%M"
+msgstr "%a %e %b  %-H:%M"
+
+#, fuzzy, python-format
+msgid "%s downloads"
+msgstr "Descargas"
+
+#, python-format
+msgid "%s: "
+msgstr ""
+
+msgid "- Max backups to keep (0==all)"
+msgstr ""
+
+msgid "- Query before backup starts"
+msgstr ""
+
+msgid "- Query before image backup starts"
+msgstr ""
+
+msgid "- Repeat how often"
+msgstr ""
+
+msgid "- Time of backup to start"
+msgstr ""
+
+msgid "128 Mb"
+msgstr ""
+
+msgid "16 Mb"
+msgstr "16Mb"
+
+msgid "256 Mb"
+msgstr ""
+
+msgid "30 Days"
+msgstr "30 días"
+
+msgid "32 Mb"
+msgstr "32 Mb"
+
+msgid "64 Mb"
+msgstr "64 Mb"
+
+msgid "8 Mb"
+msgstr "8 Mb"
+
+msgid "96 Mb"
+msgstr "96 Mb"
+
+#, fuzzy
+msgid "A background update check is in progress, please try again."
+msgstr "Hay una actualización en curso. Por favor espera un poco y vuelve a intentarlo."
+
+msgid "A backup has been detected."
+msgstr ""
+
+msgid "Activate"
+msgstr "Activar"
+
+msgid "Active"
+msgstr "Activo"
+
+msgid "Active:"
+msgstr "Activo:"
+
+msgid "All"
+msgstr ""
+
+msgid "Allows the script runner to be launched from extensions."
+msgstr ""
+
+msgid "Allows the softcam manager to be launched from extensions."
+msgstr ""
+
+msgid "Allows the softcam to be checked if it stopped working, and restarted automatically if needed."
+msgstr ""
+
+msgid "Allows you to close the window automatically."
+msgstr ""
+
+msgid "Allows you to schedule your backups."
+msgstr ""
+
+msgid "Allows you to schedule your image backups."
+msgstr ""
+
+msgid "Allows you to tag your backups to a box."
+msgstr ""
+
+msgid "Allows you to tag your image backup to a box. (default is box name/type)"
+msgstr ""
+
+msgid "Are you ready to install ?"
+msgstr "¿Instalar ahora?"
+
+#, fuzzy, python-format
+msgid "Are you sure you want to delete image slot %s ?"
+msgstr ""
+"¿Seguro que quieres borrar esta copia de seguridad?\n"
+" "
+
+msgid ""
+"Are you sure you want to download this image:\n"
+" "
+msgstr ""
+"¿Seguro que quieres descargar esta imagen?\n"
+" "
+
+msgid ""
+"Are you sure you want to restore this backup:\n"
+" "
+msgstr ""
+"¿Estás seguro que quieres restaurar esta copia de seguridad?\n"
+" "
+
+msgid "Automatic settings backup"
+msgstr ""
+
+msgid "Automatically created"
+msgstr ""
+
+msgid "Autostart"
+msgstr "Autoinicio"
+
+msgid "Backing up eMMC partitions for USB flash ..."
+msgstr ""
+
+msgid "Backing up eMMC partitions for USB flash..."
+msgstr ""
+
+msgid "Backing up files..."
+msgstr "Copiando archivos..."
+
+#, fuzzy
+msgid "Backing up kernel..."
+msgstr "Copiando archivos..."
+
+#, fuzzy
+msgid "Backing up root file system..."
+msgstr "Copiando archivos..."
+
+#, fuzzy
+msgid "Backup complete."
+msgstr "Copia de seguridad terminada..."
+
+#, fuzzy
+msgid "Backup complete..."
+msgstr "Copia de seguridad terminada..."
+
+#, fuzzy
+msgid "Backup confirmation"
+msgstr "Confirmación de copia de seguridad"
+
+#, fuzzy
+msgid "Backup created"
+msgstr "Copia de seguridad realizada"
+
+#, fuzzy
+msgid "Backup failed - e. g. wrong backup destination or no space left on backup device."
+msgstr "Copia fallida. Destino erróneo o no hay espacio suficiente en el dispositivo de almacenamiento"
+
+#, fuzzy
+msgid ""
+"Backup in progress,\n"
+"Please wait for it to finish, before trying again."
+msgstr ""
+"Copia en proceso,\n"
+"por favor espera hasta que termine."
+
+msgid "Backup location"
+msgstr ""
+
+#, fuzzy
+msgid "Backup manager"
+msgstr "Administrador de copias de seguridad"
+
+msgid "Backup manager settings"
+msgstr ""
+
+msgid "Backup prefix"
+msgstr ""
+
+msgid "Backup/Flash/ReBoot system image."
+msgstr ""
+
+msgid "Backups to keep"
+msgstr ""
+
+msgid "Backups to prune"
+msgstr ""
+
+msgid "CCcam can't run whilst MGcamd is running"
+msgstr "CCcam no puede funcionar mientras funciona MGcamd"
+
+#, fuzzy
+msgid "CCcam can't run whilst MGcamd is running."
+msgstr "CCcam no puede funcionar mientras funciona MGcamd"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+#, fuzzy, python-format
+msgid "Cannot unmount partition '%s'.  Make sure this partition is not in use.  (SWAP, record/timeshift, etc.)"
+msgstr "No se puede demontar la partición. Revisa que no está en uso por intercambio, grabación o Timeshift"
+
+#, fuzzy
+msgid "Change location"
+msgstr "Cambiar destino"
+
+#, fuzzy
+msgid "Checking free RAM.."
+msgstr "Comprobando RAM libre..."
+
+msgid "Checking softcams..."
+msgstr "Comprobando softcams..."
+
+#, fuzzy
+msgid "Choose IPK folder"
+msgstr "Elegir la carpeta ipk local"
+
+#, fuzzy
+msgid "Choose files"
+msgstr "Elegir archivos"
+
+msgid "Choose where to mount your devices to:"
+msgstr "Elegir dónde montar tus dispositivos:"
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Close window on success"
+msgstr ""
+
+msgid "Comparing against backup..."
+msgstr "Comparando con la copia de seguridad..."
+
+msgid "Compress"
+msgstr ""
+
+msgid "Create"
+msgstr "Crear"
+
+msgid "Create a settings backup before updating."
+msgstr ""
+
+#, fuzzy
+msgid "Create and Manage your SWAP files."
+msgstr "Crear y administrar archivos de intercambio."
+
+#, fuzzy
+msgid "Create:"
+msgstr "Crear"
+
+#, fuzzy
+msgid "Creating SWAP.."
+msgstr "Creando intercambio..."
+
+msgid "Creating list of installed plugins..."
+msgstr "Creando una lista de complementos instalados..."
+
+msgid "Creating zip..."
+msgstr ""
+
+#, fuzzy
+msgid "Current status:"
+msgstr "Estado actual:"
+
+msgid "Daily"
+msgstr "Diario"
+
+msgid "Deactivate"
+msgstr "Desactivar"
+
+msgid "Delete"
+msgstr "Borrar"
+
+msgid "Delete failure - check device available."
+msgstr ""
+
+msgid "Deselect"
+msgstr "Deseleccionar"
+
+msgid "Developer password"
+msgstr ""
+
+msgid "Developer username"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Device %s"
+msgstr "Dispositivo:"
+
+msgid "Device: "
+msgstr "Dispositivo:"
+
+msgid "Device: None available"
+msgstr "Dispositivo: ninguno disponible"
+
+#, fuzzy
+msgid "Device: none available"
+msgstr "Dispositivo: ninguno disponible"
+
+#, fuzzy
+msgid "Disable startup"
+msgstr "Desactivar puesta en marcha"
+
+msgid ""
+"Do you want to create a full image backup?\n"
+"This can take about 6 minutes to complete."
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Do you want to flash image\n"
+"%s"
+msgstr ""
+"¿Seguro que quieres descargar esta imagen?\n"
+" "
+
+#, fuzzy
+msgid "Do you want to restart GUI now ?"
+msgstr "¿Quieres restaurar tus complementos de Enigma2?"
+
+msgid "Do you want to restore your Enigma2 plugins ?"
+msgstr "¿Quieres restaurar tus complementos de Enigma2?"
+
+msgid "Do you want to restore your Enigma2 settings ?"
+msgstr ""
+
+#, fuzzy
+msgid "Do you want to restore your enigma2 settings ?"
+msgstr "¿Quieres restaurar tu configuración de Enigma2?"
+
+#, fuzzy
+msgid "DownLoad"
+msgstr "Descargar"
+
+msgid "Download"
+msgstr "Descargar"
+
+#, fuzzy
+msgid "Download confirmation"
+msgstr "Confirmación de descarga"
+
+#, fuzzy
+msgid "Downloading"
+msgstr "Descargar"
+
+msgid "Downloads"
+msgstr "Descargas"
+
+msgid "ET8500 Image Restore"
+msgstr ""
+
+msgid ""
+"ET8500 Multiboot: Yes to restore OS1 No to restore OS2:\n"
+" "
+msgstr ""
+
+msgid "Empty slot"
+msgstr ""
+
+#, fuzzy
+msgid "Enable SWAP at startup"
+msgstr "Habilitar el intercambio en inicio"
+
+msgid "Enable frozen check"
+msgstr ""
+
+#, fuzzy
+msgid "Enable startup"
+msgstr "Habilitar el inicio"
+
+#, fuzzy
+msgid "Enough retries, delaying till next schedule."
+msgstr "Suficientes reintentos. Se eperará hasta la proxima programación."
+
+msgid "Enter your OpenViX developer password."
+msgstr ""
+
+msgid "Enter your OpenViX developer username."
+msgstr ""
+
+msgid "Erase"
+msgstr ""
+
+msgid "Exit the restore wizard"
+msgstr "Salir del asistente de restauración"
+
+msgid "Expand"
+msgstr ""
+
+msgid "Extra IPK's"
+msgstr "Más IPKs"
+
+msgid "Flash"
+msgstr ""
+
+msgid "Flash image unzip successful."
+msgstr ""
+
+#, fuzzy
+msgid "Found non-standard softcam, trying to start, this may fail."
+msgstr "No se ha encontrado Softcam estándar. Intento de inicio (puede fallar)"
+
+msgid "Free space:"
+msgstr ""
+
+msgid "From which image library do you want to download?"
+msgstr ""
+
+msgid "Frozen check interval"
+msgstr ""
+
+#, fuzzy
+msgid "H9 SDcard manager"
+msgstr "Administrador de Softcams"
+
+#, fuzzy
+msgid "H9SDcard Manager"
+msgstr "Administrador de intercambio"
+
+msgid "INFO"
+msgstr ""
+
+#, fuzzy
+msgid "IPK installer"
+msgstr "Instalador de IPKs"
+
+msgid "If you are an OpenViX developer you can enter your login details to have direct access to OpenViX developer images for your receiver. This feature is only available via 'https' connections."
+msgstr ""
+
+#, fuzzy
+msgid "Image manager"
+msgstr "Administrador de Image"
+
+msgid "Image manager settings"
+msgstr ""
+
+msgid "Inactive"
+msgstr "Inactivo"
+
+msgid "Include machine name in backup name"
+msgstr ""
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Init SDcard"
+msgstr ""
+
+msgid "Init USB/SDA1"
+msgstr ""
+
+msgid "Init Zgemma H9 SDCARD - please reboot after use."
+msgstr ""
+
+msgid "Init Zgemma H9 USB/SDA1 - please reboot after use."
+msgstr ""
+
+msgid "Install"
+msgstr "Instalar"
+
+msgid "Install IPK's from your tmp folder."
+msgstr "Instalar IPKs de la carpeta /tmp."
+
+#, fuzzy
+msgid "Install confirmation"
+msgstr "Confirmación de instalación"
+
+msgid "Install extensions."
+msgstr ""
+
+msgid "Install local extension"
+msgstr "Instalar extensión local"
+
+msgid "Installing..."
+msgstr "Instalando..."
+
+msgid "Invert"
+msgstr ""
+
+msgid "Ipkg"
+msgstr ""
+
+#, fuzzy
+msgid "It seems you have not setup an extra location. Please set it up in the Backup manager setup menu."
+msgstr "No has configurado un destion adicional. Elige uno en el menú del administrador de copias"
+
+msgid "Location of where backup should be saved."
+msgstr ""
+
+msgid "Location of where the image backup should be saved."
+msgstr ""
+
+msgid "Login as an OpenViX developer"
+msgstr ""
+
+msgid "Logs"
+msgstr ""
+
+msgid "MB"
+msgstr "MB"
+
+msgid "MENU"
+msgstr ""
+
+#, fuzzy
+msgid "MGcamd can't run whilst CCcam is running."
+msgstr "MGcamd no puede funcionar mientras funciona CCcam"
+
+#, fuzzy
+msgid "Manage settings backup."
+msgstr "Restaurando copia..."
+
+#, fuzzy
+msgid "Manage your devices mount points."
+msgstr "Administrar los puntos de montaje de tus dispositivos."
+
+msgid "Max image backups to keep (0==all)"
+msgstr ""
+
+msgid "Maximum number of backups to keep. Older backups are given priority for removal, so the fresher ones remain."
+msgstr ""
+
+msgid "Mount"
+msgstr ""
+
+#, python-format
+msgid "Mount failed for '%s', error code = '%s'."
+msgstr ""
+
+#, fuzzy
+msgid "Mount manager"
+msgstr "Administrador de montajes"
+
+msgid "Mount: "
+msgstr "Montar:"
+
+msgid "Move Nand root to SD card"
+msgstr ""
+
+#, fuzzy
+msgid "Moving to backup Location..."
+msgstr "Moviendo al destino de copias"
+
+msgid "Multiboot ERROR! - no STARTUP in boot partition."
+msgstr ""
+
+#, fuzzy
+msgid "Multiboot image manager"
+msgstr "Administrador de Image"
+
+msgid "Multiboot only able to restore this backup to mmc slot1"
+msgstr ""
+
+msgid "NO, do not restore plugins"
+msgstr "No restaurar complementos"
+
+msgid "NO, do not restore settings"
+msgstr "No restaurar la configuración"
+
+#, fuzzy
+msgid "New backup"
+msgstr "Nueva copia de seguridad"
+
+#, fuzzy
+msgid "Next backup: "
+msgstr "Próxima copia de seguridad:"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup CCcam first\n"
+"in /etc/CCcam.cfg."
+msgstr ""
+"No se han encontrado archivos de configuración. Configura CCcam primero\n"
+"en /etc/CCcam.cfg  "
+
+#, fuzzy
+msgid ""
+"No config files found, please setup Hypercam first\n"
+"in /etc/hypercam.cfg."
+msgstr ""
+"No se han encontrado archivos de configuración. Configura Hypercam primero\n"
+"en /etc/hypercam.cfg"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup MGcamd first\n"
+"in /usr/keys."
+msgstr ""
+"No se han encontrado archivos de configuración. Configura MGcam primero\n"
+"en /var/keys"
+
+msgid ""
+"No config files found, please setup Ncam first\n"
+"in /etc/tuxbox/config"
+msgstr ""
+
+msgid ""
+"No config files found, please setup Ncam first\n"
+"in /etc/tuxbox/config."
+msgstr ""
+
+msgid ""
+"No config files found, please setup Oscam first\n"
+"in /etc/tuxbox/config"
+msgstr ""
+"No se han encontrado archivos de configuración. Configura Oscam primero\n"
+"en /etc/tuxbox/config"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup Oscam first\n"
+"in /etc/tuxbox/config."
+msgstr ""
+"No se han encontrado archivos de configuración. Configura Oscam primero\n"
+"en /etc/tuxbox/config"
+
+msgid "No images found on the selected download server...if password check validity"
+msgstr ""
+
+msgid "No plugins needed to be installed"
+msgstr ""
+
+msgid "None"
+msgstr "Ninguno"
+
+msgid "Note: slot list does not show current image or empty slots."
+msgstr ""
+
+msgid "Now skipping restore process"
+msgstr "Se saltará el proceso de restaurar"
+
+msgid "OK"
+msgstr "Sí"
+
+msgid "OK, to perform a restore"
+msgstr "Sí, restaurar"
+
+msgid "Only scheduled"
+msgstr ""
+
+#, python-format
+msgid "Partition: %s  Mount: %s unmounted successfully; if all partitions now unmounted you can remove device."
+msgstr ""
+
+msgid "Please enter a folder that contains some packages."
+msgstr "Por favor introduce una carpeta que contenga paquetes."
+
+#, fuzzy
+msgid "Please select device to use as SWAP file location."
+msgstr "Por favor, selecciona un dispositivo como destino de intercambio"
+
+msgid "Please select the file to restore."
+msgstr ""
+
+msgid "Please wait while plugins restore completes..."
+msgstr "Espera mientras se restauran los complementos..."
+
+#, fuzzy
+msgid "Please wait while scanning for devices..."
+msgstr "Por favor espera mientras se buscan dispositivos..."
+
+#, fuzzy, python-format
+msgid "Please wait while scanning your %s %s devices..."
+msgstr "Por favor espera mientras se buscan dispositivos..."
+
+msgid "Please wait while settings restore completes..."
+msgstr "Espera mientras se restaura la configuración..."
+
+msgid "Please wait while starting\n"
+msgstr "Espera mientras se inicia\n"
+
+msgid "Please wait while stopping\n"
+msgstr "Espera mientras se detiene\n"
+
+#, fuzzy
+msgid "Please wait while the flash prepares."
+msgstr "Espera mientras se recopila la información..."
+
+#, fuzzy
+msgid "Please wait while the system gathers information..."
+msgstr "Espera mientras se recopila la información..."
+
+msgid "Please wait."
+msgstr "Espera por favor"
+
+#, fuzzy
+msgid "Plugin listing failed - e. g. wrong backup destination or no space left on backup device."
+msgstr "Lista de complementos fallida (destino erróneo o no hay espacio suficiente en el dispositivo de almacenamiento)"
+
+msgid "Preparing extra plugins..."
+msgstr "Preparando complementos extras..."
+
+msgid "Press 'Menu' to select a storage device"
+msgstr ""
+
+msgid "Press OK to toggle the selection."
+msgstr ""
+
+msgid "Press appropiate Init to move Nand root to SDcard or USB."
+msgstr ""
+
+msgid "Query before starting backup."
+msgstr ""
+
+msgid "Query before starting image backup."
+msgstr ""
+
+#, fuzzy
+msgid "Reboot"
+msgstr "Reiniciando..."
+
+msgid "Rebooting..."
+msgstr "Reiniciando..."
+
+#, python-format
+msgid ""
+"Recording(s) are in progress or coming up in few seconds!\n"
+"Do you still want to flash image\n"
+"%s?"
+msgstr ""
+
+#, python-format
+msgid "Removal of this slot will not show in %s Gui.  Are you sure you want to delete image slot %s ?"
+msgstr ""
+
+#, fuzzy
+msgid "Remove confirmation"
+msgstr "Suprimir confirmación"
+
+msgid "Removing temp mounts..."
+msgstr "Quitando montajes temporales"
+
+msgid "Restart"
+msgstr "Reiniciar"
+
+#, python-format
+msgid "Restart %s %s."
+msgstr ""
+
+#, fuzzy
+msgid "Restart GUI."
+msgstr "Reiniciar"
+
+msgid "Restore"
+msgstr "Restaurar"
+
+msgid "Restore Confirmation"
+msgstr "Confirmación de restaurar"
+
+#, fuzzy
+msgid "Restore wizard"
+msgstr "Asistente de restauración"
+
+msgid "Restoring backup..."
+msgstr "Restaurando copia..."
+
+msgid "Restoring plugins, this can take a long time..."
+msgstr "Restaurando complementos. Puede tardar mucho..."
+
+msgid "Restoring plugins..."
+msgstr "Restaurando complementos..."
+
+msgid "Retrieving image slots - Please wait..."
+msgstr ""
+
+msgid "Run"
+msgstr "Ejecutar"
+
+msgid "Run your shell scripts."
+msgstr "Ejecutar scripts de shell."
+
+#, fuzzy
+msgid "SWAP file not found. You have to create the file before you try to activate it."
+msgstr "Archivo de intercambio no encontrado. Hay que crearlo antes de activarlo."
+
+#, fuzzy
+msgid "SWAP manager"
+msgstr "Administrador de intercambio"
+
+#, fuzzy
+msgid "SWAP place:"
+msgstr "Destino de intercambio:"
+
+#, fuzzy
+msgid "SWAP size:"
+msgstr "Tamaño:"
+
+msgid "Save"
+msgstr "Guardar"
+
+msgid "Schedule backups"
+msgstr ""
+
+#, fuzzy
+msgid "Script runner"
+msgstr "Administrador de scripts"
+
+msgid "Script runner settings"
+msgstr ""
+
+msgid "Select"
+msgstr "Seleccionar"
+
+#, fuzzy
+msgid "Select a backup to restore:"
+msgstr "Selecciona el IPK que quieres instalar:"
+
+msgid "Select a package to install:"
+msgstr "Selecciona el IPK que quieres instalar:"
+
+#, fuzzy, python-format
+msgid "Select an image to download for %s:"
+msgstr "Selecciona la imagen que quieres descargar:"
+
+#, fuzzy
+msgid "Select an image to flash:"
+msgstr "Selecciona la imagen que quieres descargar:"
+
+msgid "Select extra packages folder"
+msgstr "Elige una carpeta para paquetes adicionales"
+
+msgid "Select files/folders to backup"
+msgstr "Selecciona archivos/carpetas para copiar"
+
+msgid "Select folder that contains plugins"
+msgstr "Selecciona la carpeta que contiene los complementos"
+
+#, fuzzy
+msgid "Select the SWAP file size:"
+msgstr "Elige el tamaño del archivo de intercambio:"
+
+msgid "Select:"
+msgstr "Seleccionar:"
+
+msgid "Set the interval to be checked in mins."
+msgstr ""
+
+msgid "Set the repeat interval of backup schedule."
+msgstr ""
+
+msgid "Set the time of backup to start."
+msgstr ""
+
+#, fuzzy
+msgid "Setting up..."
+msgstr "Configurando..."
+
+#, fuzzy
+msgid "Setup mounts"
+msgstr "Configurar montajes"
+
+msgid "Show in extensions"
+msgstr ""
+
+msgid "Size: "
+msgstr "Tamaño:"
+
+#, fuzzy, python-format
+msgid "Size: %sGB"
+msgstr "Tamaño:"
+
+#, fuzzy, python-format
+msgid "Size: %sMB"
+msgstr "Tamaño:"
+
+#, fuzzy, python-format
+msgid "Size: %sTB"
+msgstr "Tamaño:"
+
+#, fuzzy
+msgid "Size: unavailable"
+msgstr "no disponible"
+
+#, fuzzy
+msgid "Softcam manager"
+msgstr "Administrador de Softcams"
+
+msgid "Softcam manager settings"
+msgstr ""
+
+#, fuzzy
+msgid "Softcam starting..."
+msgstr "Abriendo Softcam..."
+
+#, fuzzy
+msgid "Softcam stopping..."
+msgstr "Abriendo Softcam..."
+
+msgid "SoftcamCheck"
+msgstr "Prueba de Softcam"
+
+#, fuzzy
+msgid "Sorry but that location does not exist or is not setup. Please set it up in the Backup manager setup menu."
+msgstr "Ojo: el destino no existe o no está configurado. Configúralo en el menú de administrador de copias de seguridad"
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try again later."
+msgstr "Ojo: los Feeds están apagados por mantenimiento. Vuelve a intentarlo más tarde. "
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try using Backup manager to restore plugins later."
+msgstr "Ojo: los feeds están apagados por mantenimiento. Restaura los complementos más tarde usando el administrador de copias de seguridad. "
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try using the Backup manager to restore plugins later."
+msgstr "Ojo: los feeds están apagados por mantenimiento. Restaura los complementos más tarde usando el administrador de copias de seguridad. "
+
+msgid "Sorry, but the file is not compatible with this image version."
+msgstr ""
+
+msgid "Sorry, but the restore failed."
+msgstr "Ojo: la restauración ha fallado."
+
+#, fuzzy
+msgid "Sorry, no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems."
+msgstr "Ojo: no hay ningún dispositivo conectado que soporte intercambio. No se puede crear un archivo de intercambio en la red o formato FAT32"
+
+#, fuzzy
+msgid "Sorry, not enough free RAM found, and no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems, unable to make backup."
+msgstr "Ojo: no se ha encontrado suficiente RAM libre y no hay ningún dispositivo conectado que soporte intercambio."
+
+msgid "Start"
+msgstr "Iniciar"
+
+msgid "Starting..."
+msgstr "Iniciando..."
+
+msgid "Status:"
+msgstr "Estado:"
+
+msgid "Stop"
+msgstr "Detener"
+
+#, fuzzy
+msgid "Temp folder"
+msgstr "Carpeta temporal"
+
+#, fuzzy
+msgid "The backup location does not have enough free space."
+msgstr "El destino de copias de seguridad no tiene espacio suficiente."
+
+#, fuzzy
+msgid "The backup location does not have enough free space.\n"
+msgstr "El destino de copias de seguridad no tiene espacio suficiente."
+
+#, python-format
+msgid ""
+"The changes need a system restart to take effect.\n"
+"Restart your %s %s now?"
+msgstr ""
+
+#, fuzzy
+msgid "The chosen location does not exist, using /media/hdd."
+msgstr "El destino elegido no existe. Se usará /media/hdd"
+
+msgid "The name of the receiver can be included in the backup filename, but makes the filename lengthy."
+msgstr ""
+
+msgid "The wizard is finished now, and will reboot."
+msgstr ""
+
+msgid "The wizard is finished now."
+msgstr ""
+
+#, fuzzy
+msgid "There is a problem with this device. Please reformat it and try again."
+msgstr "Ha habido un problema con este dispositivo. Reformatéalo y vuelve a intentarlo."
+
+#, fuzzy
+msgid "There is no backup to restore."
+msgstr "No hay ninguna copia para restaurar."
+
+#, fuzzy
+msgid "There is no image to flash."
+msgstr "No hay ninguna imagen para descargar."
+
+#, fuzzy
+msgid "This device is already mounted as HDD."
+msgstr "Este dispositivo ya está montado como disco duro."
+
+msgid "Type: "
+msgstr "Tipo:"
+
+msgid "Types of backups to remove when stale."
+msgstr ""
+
+msgid "Un-mount"
+msgstr ""
+
+#, python-format
+msgid ""
+"Unzip error (also sent to any debug log):\n"
+"%s"
+msgstr ""
+
+#, fuzzy
+msgid "Updating mount locations..."
+msgstr "Actualizando destinos de montaje."
+
+msgid "Use as HDD"
+msgstr "Usar en lugar de disco duro"
+
+msgid "Use the cursor keys to select an installed image and then Erase button."
+msgstr ""
+
+msgid "ViX"
+msgstr "ViX"
+
+#, fuzzy
+msgid "ViX Backup manager"
+msgstr "Administrador de copias de seguridad"
+
+#, fuzzy
+msgid "ViX Image Management"
+msgstr "Administrador de Image"
+
+#, fuzzy
+msgid "ViX Image manager"
+msgstr "Administrador de Image"
+
+#, fuzzy
+msgid "ViX Mount manager"
+msgstr "Administrador de montajes"
+
+msgid "ViX SWAP manager"
+msgstr ""
+
+#, fuzzy
+msgid "ViX Script runner"
+msgstr "Administrador de scripts"
+
+#, fuzzy
+msgid "View progress"
+msgstr "Ver proceso"
+
+#, fuzzy
+msgid "Wait please while creating SWAP file..."
+msgstr "Por favor espera mientras se crea un archivo de intercambio..."
+
+msgid ""
+"Wait please while scanning\n"
+"for softcam's..."
+msgstr "Por favor espera mientras se buscan Softcams..."
+
+msgid "Wait please while scanning..."
+msgstr "Por favor espera mientras se busca..."
+
+msgid "Weekly"
+msgstr "Semanal"
+
+msgid ""
+"Welcome to the restore wizard.\n"
+"\n"
+"A backup has been detected.\n"
+"You can use this wizard to restore your settings and any extra plugins that were installed when the backup was created.\n"
+msgstr ""
+
+msgid "YES, to restore plugins"
+msgstr "Sí, restaurar complementos"
+
+msgid "YES, to restore settings"
+msgstr "Sí, restaurar configuración"
+
+msgid "You have decided not to flash image."
+msgstr ""
+
+#, fuzzy
+msgid "You have to create a SWAP file before trying to activate the autostart."
+msgstr "Hay que crear un archivo de intercambio antes de activar autoinicio."
+
+#, fuzzy, python-format
+msgid "Your %s %s could not connect to the plugin feeds at this time. Please try using the Backup manager to restore plugins later."
+msgstr "Ojo: los feeds están apagados por mantenimiento. Restaura los complementos más tarde usando el administrador de copias de seguridad. "
+
+#, python-format
+msgid ""
+"Your %s %s is about to create a full image backup, this can take about 6 minutes to complete.\n"
+"Do you want to allow this?"
+msgstr ""
+
+#, python-format
+msgid ""
+"Your %s %s is about to run a backup of your settings and to detect your plugins.\n"
+"Do you want to allow this?"
+msgstr ""
+
+#, python-format
+msgid "Your %s %s is not connected to a network. Please check your network settings and try again."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to a network. Please try using the Backup manager to restore plugins later when a network connection is available."
+msgstr "Ojo: los feeds están apagados por mantenimiento. Restaura los complementos más tarde usando el administrador de copias de seguridad. "
+
+#, python-format
+msgid "Your %s %s is not connected to the Internet. Please check your network settings and try again."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to the Internet. Please try using Backup manager to restore plugins later."
+msgstr "Ojo: los feeds están apagados por mantenimiento. Restaura los complementos más tarde usando el administrador de copias de seguridad. "
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to the Internet. Please try using the Backup manager to restore plugins later."
+msgstr "Ojo: los feeds están apagados por mantenimiento. Restaura los complementos más tarde usando el administrador de copias de seguridad. "
+
+#, python-format
+msgid ""
+"ofgwrite error (also sent to any debug log):\n"
+"%s"
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s"
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s "
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s (current image)"
+msgstr ""
+
+msgid "unavailable"
+msgstr "no disponible"

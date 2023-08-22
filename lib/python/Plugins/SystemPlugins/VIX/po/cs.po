@@ -1,0 +1,1154 @@
+# Czech translations for plugins package.
+# Copyright (C) 2011 THE plugins'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the plugins package.
+# Automatically generated, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: enigma2-vix-core\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-18 09:16+0000\n"
+"PO-Revision-Date: 2015-11-01 20:22+0100\n"
+"Last-Translator: Andy Blackburn <andyblac@o2.co.uk>\n"
+"Language-Team: jerry\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Poedit 1.8.6\n"
+
+msgid "%a %e %b  %-H:%M"
+msgstr "%a %e %b  %-H:%M"
+
+#, fuzzy, python-format
+msgid "%s downloads"
+msgstr "Stažení"
+
+#, python-format
+msgid "%s: "
+msgstr ""
+
+msgid "- Max backups to keep (0==all)"
+msgstr ""
+
+msgid "- Query before backup starts"
+msgstr ""
+
+msgid "- Query before image backup starts"
+msgstr ""
+
+msgid "- Repeat how often"
+msgstr ""
+
+msgid "- Time of backup to start"
+msgstr ""
+
+msgid "128 Mb"
+msgstr "128 Mb"
+
+msgid "16 Mb"
+msgstr "16 Mb"
+
+msgid "256 Mb"
+msgstr "256 Mb"
+
+msgid "30 Days"
+msgstr "30 dní"
+
+msgid "32 Mb"
+msgstr "32 Mb"
+
+msgid "64 Mb"
+msgstr "64 Mb"
+
+msgid "8 Mb"
+msgstr "8 Mb"
+
+msgid "96 Mb"
+msgstr "96 Mb"
+
+msgid "A background update check is in progress, please try again."
+msgstr "Běží kontrola na pozadí, prosím zkuste to znovu později."
+
+msgid "A backup has been detected."
+msgstr ""
+
+msgid "Activate"
+msgstr "Aktivovat"
+
+msgid "Active"
+msgstr "Aktivní"
+
+msgid "Active:"
+msgstr "Aktivní:"
+
+msgid "All"
+msgstr ""
+
+msgid "Allows the script runner to be launched from extensions."
+msgstr ""
+
+msgid "Allows the softcam manager to be launched from extensions."
+msgstr ""
+
+msgid "Allows the softcam to be checked if it stopped working, and restarted automatically if needed."
+msgstr ""
+
+msgid "Allows you to close the window automatically."
+msgstr ""
+
+msgid "Allows you to schedule your backups."
+msgstr ""
+
+msgid "Allows you to schedule your image backups."
+msgstr ""
+
+msgid "Allows you to tag your backups to a box."
+msgstr ""
+
+msgid "Allows you to tag your image backup to a box. (default is box name/type)"
+msgstr ""
+
+msgid "Are you ready to install ?"
+msgstr "Jste připraveni instalovat ?"
+
+#, fuzzy, python-format
+msgid "Are you sure you want to delete image slot %s ?"
+msgstr ""
+"Opravdu chcete smazat tuto zálohu:\n"
+" "
+
+msgid ""
+"Are you sure you want to download this image:\n"
+" "
+msgstr ""
+"Opravdu chcete stáhnout tento image:\n"
+" "
+
+msgid ""
+"Are you sure you want to restore this backup:\n"
+" "
+msgstr "Opravdu chcete obnovit tuto zálohu:"
+
+msgid "Automatic settings backup"
+msgstr ""
+
+msgid "Automatically created"
+msgstr ""
+
+msgid "Autostart"
+msgstr "Autostart"
+
+msgid "Backing up eMMC partitions for USB flash ..."
+msgstr ""
+
+msgid "Backing up eMMC partitions for USB flash..."
+msgstr ""
+
+msgid "Backing up files..."
+msgstr "Zálohuji soubory..."
+
+#, fuzzy
+msgid "Backing up kernel..."
+msgstr "Zálohuji kernel ..."
+
+#, fuzzy
+msgid "Backing up root file system..."
+msgstr "Zálohuji souborový systém ..."
+
+#, fuzzy
+msgid "Backup complete."
+msgstr "Záloha dokončena..."
+
+#, fuzzy
+msgid "Backup complete..."
+msgstr "Záloha dokončena..."
+
+#, fuzzy
+msgid "Backup confirmation"
+msgstr "Ověření zálohy"
+
+#, fuzzy
+msgid "Backup created"
+msgstr "Záloha vytvořena"
+
+#, fuzzy
+msgid "Backup failed - e. g. wrong backup destination or no space left on backup device."
+msgstr "Záloha selhala - třeba nesprávné umístění nebo zbývá málo místa na cílové jednotce"
+
+#, fuzzy
+msgid ""
+"Backup in progress,\n"
+"Please wait for it to finish, before trying again."
+msgstr ""
+"Záloha probíhá,\n"
+"prosím počkejte na její dokončení a zkuste to znovu."
+
+msgid "Backup location"
+msgstr ""
+
+#, fuzzy
+msgid "Backup manager"
+msgstr "Správce zálohy"
+
+msgid "Backup manager settings"
+msgstr ""
+
+msgid "Backup prefix"
+msgstr ""
+
+msgid "Backup/Flash/ReBoot system image."
+msgstr ""
+
+msgid "Backups to keep"
+msgstr ""
+
+msgid "Backups to prune"
+msgstr ""
+
+msgid "CCcam can't run whilst MGcamd is running"
+msgstr "CCcam nelze provozovat zároveň s MGcamdem"
+
+#, fuzzy
+msgid "CCcam can't run whilst MGcamd is running."
+msgstr "CCcam nelze provozovat zároveň s MGcamdem"
+
+msgid "Cancel"
+msgstr "Zrušit"
+
+#, fuzzy, python-format
+msgid "Cannot unmount partition '%s'.  Make sure this partition is not in use.  (SWAP, record/timeshift, etc.)"
+msgstr "Nelze odpojit oddíl, zkontrolujte, není-li používán pro SWAP nebo pro timeshift/záznam"
+
+#, fuzzy
+msgid "Change location"
+msgstr "Změna umístění"
+
+#, fuzzy
+msgid "Checking free RAM.."
+msgstr "Kontrola volné RAM."
+
+msgid "Checking softcams..."
+msgstr "Kontrola softcamu..."
+
+#, fuzzy
+msgid "Choose IPK folder"
+msgstr "Zvolte adresář s IPK balíčky"
+
+#, fuzzy
+msgid "Choose files"
+msgstr "Vyberte soubory"
+
+msgid "Choose where to mount your devices to:"
+msgstr "Vyberte, kam chcete připojit své zařízení:"
+
+msgid "Close"
+msgstr "Zavřít"
+
+msgid "Close window on success"
+msgstr ""
+
+msgid "Comparing against backup..."
+msgstr "Srovnávání zálohy..."
+
+msgid "Compress"
+msgstr ""
+
+msgid "Create"
+msgstr "Vytvořit"
+
+msgid "Create a settings backup before updating."
+msgstr ""
+
+#, fuzzy
+msgid "Create and Manage your SWAP files."
+msgstr "Vytvořit a spravovat swap soubory."
+
+#, fuzzy
+msgid "Create:"
+msgstr "Vytvořit"
+
+#, fuzzy
+msgid "Creating SWAP.."
+msgstr "Vytvářím swap.."
+
+msgid "Creating list of installed plugins..."
+msgstr "Vytvářím seznam nainstalovaných pluginů..."
+
+msgid "Creating zip..."
+msgstr "Zipuji ..."
+
+#, fuzzy
+msgid "Current status:"
+msgstr "Nynější stav:"
+
+msgid "Daily"
+msgstr "Denně"
+
+msgid "Deactivate"
+msgstr "Deaktivovat"
+
+msgid "Delete"
+msgstr "Smazat"
+
+msgid "Delete failure - check device available."
+msgstr ""
+
+msgid "Deselect"
+msgstr "Odznačit"
+
+msgid "Developer password"
+msgstr ""
+
+msgid "Developer username"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Device %s"
+msgstr "Zařízení: "
+
+msgid "Device: "
+msgstr "Zařízení: "
+
+msgid "Device: None available"
+msgstr "Zařízení: Nedostupné"
+
+#, fuzzy
+msgid "Device: none available"
+msgstr "Zařízení: Nedostupné"
+
+#, fuzzy
+msgid "Disable startup"
+msgstr "Nespouštět"
+
+#, fuzzy
+msgid ""
+"Do you want to create a full image backup?\n"
+"This can take about 6 minutes to complete."
+msgstr ""
+"Váš %s %s se chystá provést kompletní zálohu image, toto trvá kolem 6 minut.\n"
+"Chcete to provést?"
+
+#, fuzzy, python-format
+msgid ""
+"Do you want to flash image\n"
+"%s"
+msgstr ""
+"Opravdu chcete stáhnout tento image:\n"
+" "
+
+msgid "Do you want to restart GUI now ?"
+msgstr "Chcete nyní restartovat uživatelské rozhranní?"
+
+msgid "Do you want to restore your Enigma2 plugins ?"
+msgstr "Chcete obnovit vaše pluginy v Enigmy2 ?"
+
+msgid "Do you want to restore your Enigma2 settings ?"
+msgstr ""
+
+#, fuzzy
+msgid "Do you want to restore your enigma2 settings ?"
+msgstr "Chcete obnovit vaše nastavení Enigmy2 ?"
+
+#, fuzzy
+msgid "DownLoad"
+msgstr "Stáhnout"
+
+msgid "Download"
+msgstr "Stáhnout"
+
+#, fuzzy
+msgid "Download confirmation"
+msgstr "Potvrzení stažení"
+
+#, fuzzy
+msgid "Downloading"
+msgstr "Stáhnout"
+
+msgid "Downloads"
+msgstr "Stažení"
+
+msgid "ET8500 Image Restore"
+msgstr ""
+
+msgid ""
+"ET8500 Multiboot: Yes to restore OS1 No to restore OS2:\n"
+" "
+msgstr ""
+
+msgid "Empty slot"
+msgstr ""
+
+#, fuzzy
+msgid "Enable SWAP at startup"
+msgstr "Povolit swap po startu"
+
+msgid "Enable frozen check"
+msgstr ""
+
+#, fuzzy
+msgid "Enable startup"
+msgstr "Povolit spuštění"
+
+#, fuzzy
+msgid "Enough retries, delaying till next schedule."
+msgstr "Opakování, zpoždění do dalšího plánu."
+
+msgid "Enter your OpenViX developer password."
+msgstr ""
+
+msgid "Enter your OpenViX developer username."
+msgstr ""
+
+msgid "Erase"
+msgstr ""
+
+msgid "Exit the restore wizard"
+msgstr "Ukončit průvodce obnovou"
+
+msgid "Expand"
+msgstr ""
+
+msgid "Extra IPK's"
+msgstr "Extra IPK balíčky"
+
+msgid "Flash"
+msgstr ""
+
+msgid "Flash image unzip successful."
+msgstr ""
+
+#, fuzzy
+msgid "Found non-standard softcam, trying to start, this may fail."
+msgstr "Nalezen nestandardní softcam, snažící se spustit, může to selhat"
+
+msgid "Free space:"
+msgstr "Volné místo:"
+
+msgid "From which image library do you want to download?"
+msgstr ""
+
+msgid "Frozen check interval"
+msgstr ""
+
+#, fuzzy
+msgid "H9 SDcard manager"
+msgstr "Správce Softcamu"
+
+#, fuzzy
+msgid "H9SDcard Manager"
+msgstr "Správce odkládání"
+
+msgid "INFO"
+msgstr ""
+
+#, fuzzy
+msgid "IPK installer"
+msgstr "Instalátor IPK"
+
+msgid "If you are an OpenViX developer you can enter your login details to have direct access to OpenViX developer images for your receiver. This feature is only available via 'https' connections."
+msgstr ""
+
+#, fuzzy
+msgid "Image manager"
+msgstr "Správce image"
+
+msgid "Image manager settings"
+msgstr ""
+
+msgid "Inactive"
+msgstr "Neaktivní"
+
+msgid "Include machine name in backup name"
+msgstr ""
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Init SDcard"
+msgstr ""
+
+msgid "Init USB/SDA1"
+msgstr ""
+
+msgid "Init Zgemma H9 SDCARD - please reboot after use."
+msgstr ""
+
+msgid "Init Zgemma H9 USB/SDA1 - please reboot after use."
+msgstr ""
+
+msgid "Install"
+msgstr "Instalovat"
+
+msgid "Install IPK's from your tmp folder."
+msgstr "Instalace IPK ze složky tmp."
+
+#, fuzzy
+msgid "Install confirmation"
+msgstr "Potvrzení instalace"
+
+msgid "Install extensions."
+msgstr "Instaluje rozšíření."
+
+msgid "Install local extension"
+msgstr "Instalovat místní balíčky"
+
+msgid "Installing..."
+msgstr "Instaluji..."
+
+msgid "Invert"
+msgstr "Invertovat"
+
+msgid "Ipkg"
+msgstr "Ipkg"
+
+#, fuzzy
+msgid "It seems you have not setup an extra location. Please set it up in the Backup manager setup menu."
+msgstr "Vypadá to, že nemáte nastaveno další umístění, nastavte jej prosím ve Správci zálohování."
+
+msgid "Location of where backup should be saved."
+msgstr ""
+
+msgid "Location of where the image backup should be saved."
+msgstr ""
+
+msgid "Login as an OpenViX developer"
+msgstr ""
+
+msgid "Logs"
+msgstr ""
+
+msgid "MB"
+msgstr "MB"
+
+msgid "MENU"
+msgstr ""
+
+#, fuzzy
+msgid "MGcamd can't run whilst CCcam is running."
+msgstr "MGcamd nelze provozovat zároveň s CCcamem"
+
+#, fuzzy
+msgid "Manage settings backup."
+msgstr "Obnova zálohy..."
+
+msgid "Manage your devices mount points."
+msgstr "Spravovat připojovací body."
+
+msgid "Max image backups to keep (0==all)"
+msgstr ""
+
+msgid "Maximum number of backups to keep. Older backups are given priority for removal, so the fresher ones remain."
+msgstr ""
+
+msgid "Mount"
+msgstr "Připojit"
+
+#, python-format
+msgid "Mount failed for '%s', error code = '%s'."
+msgstr ""
+
+#, fuzzy
+msgid "Mount manager"
+msgstr "Správce připojení"
+
+msgid "Mount: "
+msgstr "Připojeno: "
+
+msgid "Move Nand root to SD card"
+msgstr ""
+
+#, fuzzy
+msgid "Moving to backup Location..."
+msgstr "Přesun do místa zálohy..."
+
+msgid "Multiboot ERROR! - no STARTUP in boot partition."
+msgstr ""
+
+#, fuzzy
+msgid "Multiboot image manager"
+msgstr "ViX Správce Image"
+
+msgid "Multiboot only able to restore this backup to mmc slot1"
+msgstr ""
+
+msgid "NO, do not restore plugins"
+msgstr "NE, neobnovovat pluginy"
+
+msgid "NO, do not restore settings"
+msgstr "NE, neobnovovat nastavení "
+
+#, fuzzy
+msgid "New backup"
+msgstr "Nová záloha"
+
+#, fuzzy
+msgid "Next backup: "
+msgstr "Další záloha: "
+
+#, fuzzy
+msgid ""
+"No config files found, please setup CCcam first\n"
+"in /etc/CCcam.cfg."
+msgstr ""
+"Nenalezen config, nastavte nejdříve CCcam\n"
+"v /etc/CCcam.cfg"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup Hypercam first\n"
+"in /etc/hypercam.cfg."
+msgstr ""
+"Nenalezen config, nastavte nejdříve Hypercam\n"
+"v /etc/hypercam.cfg"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup MGcamd first\n"
+"in /usr/keys."
+msgstr ""
+"Nenalezen config, nastavte nejdříve MGcamd\n"
+"v /var/keys"
+
+msgid ""
+"No config files found, please setup Ncam first\n"
+"in /etc/tuxbox/config"
+msgstr ""
+
+msgid ""
+"No config files found, please setup Ncam first\n"
+"in /etc/tuxbox/config."
+msgstr ""
+
+msgid ""
+"No config files found, please setup Oscam first\n"
+"in /etc/tuxbox/config"
+msgstr ""
+"Nenalezen config, nastavte nejdříve Oscam\n"
+"v /etc/tuxbox/config"
+
+#, fuzzy
+msgid ""
+"No config files found, please setup Oscam first\n"
+"in /etc/tuxbox/config."
+msgstr ""
+"Nenalezen config, nastavte nejdříve Oscam\n"
+"v /etc/tuxbox/config"
+
+msgid "No images found on the selected download server...if password check validity"
+msgstr ""
+
+msgid "No plugins needed to be installed"
+msgstr ""
+
+msgid "None"
+msgstr "Nic"
+
+msgid "Note: slot list does not show current image or empty slots."
+msgstr ""
+
+msgid "Now skipping restore process"
+msgstr "Vynechání procesu obnovy"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "OK, to perform a restore"
+msgstr "OK, provedete obnovu"
+
+msgid "Only scheduled"
+msgstr ""
+
+#, python-format
+msgid "Partition: %s  Mount: %s unmounted successfully; if all partitions now unmounted you can remove device."
+msgstr ""
+
+msgid "Please enter a folder that contains some packages."
+msgstr "Zadejte složku, která obsahuje nějaké balíčky."
+
+#, fuzzy
+msgid "Please select device to use as SWAP file location."
+msgstr "Vyberte zařízení pro odkládání"
+
+msgid "Please select the file to restore."
+msgstr ""
+
+msgid "Please wait while plugins restore completes..."
+msgstr "Počkejte prosím na obnovení pluginů..."
+
+msgid "Please wait while scanning for devices..."
+msgstr "Počkejte prosím na prohledání zařízení..."
+
+#, python-format
+msgid "Please wait while scanning your %s %s devices..."
+msgstr "Počkejte prosím na prohledání zařízení %s %s ..."
+
+msgid "Please wait while settings restore completes..."
+msgstr "Počkejte prosím na obnovení nastavení ..."
+
+msgid "Please wait while starting\n"
+msgstr "Čekejte, spouští se\n"
+
+msgid "Please wait while stopping\n"
+msgstr "Čekejte, zastavuje se\n"
+
+#, fuzzy
+msgid "Please wait while the flash prepares."
+msgstr "Počkejte, než se připraví obnovení"
+
+msgid "Please wait while the system gathers information..."
+msgstr "Prosím počkejte, systém shromažďuje potřebné informace..."
+
+msgid "Please wait."
+msgstr "Prosím čekejte."
+
+#, fuzzy
+msgid "Plugin listing failed - e. g. wrong backup destination or no space left on backup device."
+msgstr "Soupis pluginů selhal - např. chybné umístění cíle nebo málo místa v úložišti."
+
+msgid "Preparing extra plugins..."
+msgstr "Připravuji extra pluginy..."
+
+msgid "Press 'Menu' to select a storage device"
+msgstr ""
+
+msgid "Press OK to toggle the selection."
+msgstr "Zvol OK pro výběr."
+
+msgid "Press appropiate Init to move Nand root to SDcard or USB."
+msgstr ""
+
+msgid "Query before starting backup."
+msgstr ""
+
+msgid "Query before starting image backup."
+msgstr ""
+
+#, fuzzy
+msgid "Reboot"
+msgstr "Restartuje se..."
+
+msgid "Rebooting..."
+msgstr "Restartuje se..."
+
+#, python-format
+msgid ""
+"Recording(s) are in progress or coming up in few seconds!\n"
+"Do you still want to flash image\n"
+"%s?"
+msgstr ""
+
+#, python-format
+msgid "Removal of this slot will not show in %s Gui.  Are you sure you want to delete image slot %s ?"
+msgstr ""
+
+#, fuzzy
+msgid "Remove confirmation"
+msgstr "Odebrat konfiguraci"
+
+msgid "Removing temp mounts..."
+msgstr "Odstraňuji dočasná připojení..."
+
+msgid "Restart"
+msgstr "Restart"
+
+#, python-format
+msgid "Restart %s %s."
+msgstr "Restart %s %s."
+
+#, fuzzy
+msgid "Restart GUI."
+msgstr "Restart"
+
+msgid "Restore"
+msgstr "Obnova"
+
+msgid "Restore Confirmation"
+msgstr "Obnova konfigurace"
+
+#, fuzzy
+msgid "Restore wizard"
+msgstr "Průvodce obnovou"
+
+msgid "Restoring backup..."
+msgstr "Obnova zálohy..."
+
+msgid "Restoring plugins, this can take a long time..."
+msgstr "Obnovuji pluginy, může to chvilku trvat..."
+
+msgid "Restoring plugins..."
+msgstr "Obnova pluginů..."
+
+msgid "Retrieving image slots - Please wait..."
+msgstr ""
+
+msgid "Run"
+msgstr "Spustit"
+
+msgid "Run your shell scripts."
+msgstr "Spustit shell skripty."
+
+#, fuzzy
+msgid "SWAP file not found. You have to create the file before you try to activate it."
+msgstr "Odkládací soubor nebyl nalezen. Musíte soubor před aktivací vytvořit."
+
+#, fuzzy
+msgid "SWAP manager"
+msgstr "Správce odkládání"
+
+#, fuzzy
+msgid "SWAP place:"
+msgstr "Místo Swapu:"
+
+#, fuzzy
+msgid "SWAP size:"
+msgstr "Vel.: "
+
+msgid "Save"
+msgstr "Ulož"
+
+msgid "Schedule backups"
+msgstr ""
+
+#, fuzzy
+msgid "Script runner"
+msgstr "Spouštěč skriptu"
+
+msgid "Script runner settings"
+msgstr ""
+
+msgid "Select"
+msgstr "Vyber"
+
+#, fuzzy
+msgid "Select a backup to restore:"
+msgstr "Vyberte zálohu k obnově:"
+
+msgid "Select a package to install:"
+msgstr "Vyberte balíček k instalaci:"
+
+#, fuzzy, python-format
+msgid "Select an image to download for %s:"
+msgstr "Vyberte image ke stažení:"
+
+#, fuzzy
+msgid "Select an image to flash:"
+msgstr "Vyberte image ke stažení:"
+
+msgid "Select extra packages folder"
+msgstr "Vyberte extra adresář s balíčky"
+
+msgid "Select files/folders to backup"
+msgstr "Vyberte soubory/složky na zálohování"
+
+msgid "Select folder that contains plugins"
+msgstr "Vyberte adresář, který obsahuje pluginy."
+
+#, fuzzy
+msgid "Select the SWAP file size:"
+msgstr "Velikost odkl. souboru:"
+
+msgid "Select:"
+msgstr "Vybrat:"
+
+msgid "Set the interval to be checked in mins."
+msgstr ""
+
+msgid "Set the repeat interval of backup schedule."
+msgstr ""
+
+msgid "Set the time of backup to start."
+msgstr ""
+
+#, fuzzy
+msgid "Setting up..."
+msgstr "Nastavuji..."
+
+#, fuzzy
+msgid "Setup mounts"
+msgstr "Připojování"
+
+msgid "Show in extensions"
+msgstr ""
+
+msgid "Size: "
+msgstr "Vel.: "
+
+#, fuzzy, python-format
+msgid "Size: %sGB"
+msgstr "Vel.: "
+
+#, fuzzy, python-format
+msgid "Size: %sMB"
+msgstr "Vel.: "
+
+#, fuzzy, python-format
+msgid "Size: %sTB"
+msgstr "Vel.: "
+
+#, fuzzy
+msgid "Size: unavailable"
+msgstr "nedostupné"
+
+#, fuzzy
+msgid "Softcam manager"
+msgstr "Správce Softcamu"
+
+msgid "Softcam manager settings"
+msgstr ""
+
+#, fuzzy
+msgid "Softcam starting..."
+msgstr "Spouštím Softcam..."
+
+#, fuzzy
+msgid "Softcam stopping..."
+msgstr "Zastavuji Softcam..."
+
+msgid "SoftcamCheck"
+msgstr "KontrolaSoftcamu"
+
+#, fuzzy
+msgid "Sorry but that location does not exist or is not setup. Please set it up in the Backup manager setup menu."
+msgstr "Toto umístění není nastaveno nebo neexistuje. Nastavte správné umístění ve správci zálohování."
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try again later."
+msgstr "Aktualizační servery jsou mimo provoz kvůli údržbě. Zkuste to prosím později."
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try using Backup manager to restore plugins later."
+msgstr "Aktualizační servery jsou mimo provoz kvůli údržbě. Zkuste obnovit pluginy později."
+
+#, fuzzy
+msgid "Sorry the feeds are down for maintenance. Please try using the Backup manager to restore plugins later."
+msgstr "Aktualizační servery jsou mimo provoz kvůli údržbě. Zkuste to prosím později."
+
+msgid "Sorry, but the file is not compatible with this image version."
+msgstr "Soubor není kompatibilní s touto verzí image."
+
+msgid "Sorry, but the restore failed."
+msgstr "Obnova selhala."
+
+#, fuzzy
+msgid "Sorry, no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems."
+msgstr "Soráč, nepřipojeno zařízení,podporující odkládání. Nelze vytvořit odkládací soubor na síti nebo fat32 jednotce"
+
+#, fuzzy
+msgid "Sorry, not enough free RAM found, and no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems, unable to make backup."
+msgstr "Soráč,nedostatek volné RAM, a není připojeno žádné zařízení, podporující "
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Starting..."
+msgstr "Spouštím..."
+
+msgid "Status:"
+msgstr "Stav:"
+
+msgid "Stop"
+msgstr "Stop"
+
+#, fuzzy
+msgid "Temp folder"
+msgstr "dočasné soubory"
+
+msgid "The backup location does not have enough free space."
+msgstr "Málo místa v úložišti záloh."
+
+msgid "The backup location does not have enough free space.\n"
+msgstr "Málo místa v úložišti záloh.\n"
+
+#, python-format
+msgid ""
+"The changes need a system restart to take effect.\n"
+"Restart your %s %s now?"
+msgstr ""
+"Změny vyžadují restart systému.\n"
+"Restartovat %s %s nyní?"
+
+#, fuzzy
+msgid "The chosen location does not exist, using /media/hdd."
+msgstr "Vybrané umístění neexistuje, použijte /media/hdd"
+
+msgid "The name of the receiver can be included in the backup filename, but makes the filename lengthy."
+msgstr ""
+
+msgid "The wizard is finished now, and will reboot."
+msgstr ""
+
+msgid "The wizard is finished now."
+msgstr ""
+
+#, fuzzy
+msgid "There is a problem with this device. Please reformat it and try again."
+msgstr "S tímto zařízením jsou problémy, prosím zkontrolujte a spusťte znovu."
+
+#, fuzzy
+msgid "There is no backup to restore."
+msgstr "Nemáte žádnou zálohu k obnovení."
+
+#, fuzzy
+msgid "There is no image to flash."
+msgstr "Nemáte žádný image ke stažení."
+
+#, fuzzy
+msgid "This device is already mounted as HDD."
+msgstr "Toto zařízení je již připojeno jako HDD."
+
+msgid "Type: "
+msgstr "Typ: "
+
+msgid "Types of backups to remove when stale."
+msgstr ""
+
+#, fuzzy
+msgid "Un-mount"
+msgstr "Odpojit"
+
+#, python-format
+msgid ""
+"Unzip error (also sent to any debug log):\n"
+"%s"
+msgstr ""
+
+#, fuzzy
+msgid "Updating mount locations..."
+msgstr "Aktualizuji přípojné body."
+
+msgid "Use as HDD"
+msgstr "Užít jako HDD"
+
+msgid "Use the cursor keys to select an installed image and then Erase button."
+msgstr ""
+
+msgid "ViX"
+msgstr "ViX"
+
+#, fuzzy
+msgid "ViX Backup manager"
+msgstr "ViX Správce zálohy"
+
+#, fuzzy
+msgid "ViX Image Management"
+msgstr "ViX Správce Image"
+
+#, fuzzy
+msgid "ViX Image manager"
+msgstr "ViX Správce Image"
+
+#, fuzzy
+msgid "ViX Mount manager"
+msgstr "ViX Správce připojovacích bodů"
+
+#, fuzzy
+msgid "ViX SWAP manager"
+msgstr "ViX Správce odkládání"
+
+#, fuzzy
+msgid "ViX Script runner"
+msgstr "ViX Správce skriptů"
+
+#, fuzzy
+msgid "View progress"
+msgstr "Průběh"
+
+#, fuzzy
+msgid "Wait please while creating SWAP file..."
+msgstr "Čekejte při vytváření odkl. souboru..."
+
+msgid ""
+"Wait please while scanning\n"
+"for softcam's..."
+msgstr ""
+"Čekejte prosím na\n"
+"prohledání softcamů."
+
+msgid "Wait please while scanning..."
+msgstr "Čekejte na dokončení skenování..."
+
+msgid "Weekly"
+msgstr "Týdně"
+
+msgid ""
+"Welcome to the restore wizard.\n"
+"\n"
+"A backup has been detected.\n"
+"You can use this wizard to restore your settings and any extra plugins that were installed when the backup was created.\n"
+msgstr ""
+
+msgid "YES, to restore plugins"
+msgstr "ANO, obnovíte pluginy"
+
+msgid "YES, to restore settings"
+msgstr "ANO, obnovíte nastavení"
+
+msgid "You have decided not to flash image."
+msgstr ""
+
+#, fuzzy
+msgid "You have to create a SWAP file before trying to activate the autostart."
+msgstr "Musíte vytvořit odkládací soubor, než se aktivuje automatické spuštění."
+
+#, fuzzy, python-format
+msgid "Your %s %s could not connect to the plugin feeds at this time. Please try using the Backup manager to restore plugins later."
+msgstr "Váš %s %s není připojen k internetu, zkontrolujte nastavení připojení a zkuste znovu prostřednictvím Správce zálohování."
+
+#, fuzzy, python-format
+msgid ""
+"Your %s %s is about to create a full image backup, this can take about 6 minutes to complete.\n"
+"Do you want to allow this?"
+msgstr ""
+"Váš %s %s se chystá provést kompletní zálohu image, toto trvá kolem 6 minut.\n"
+"Chcete to provést?"
+
+#, fuzzy, python-format
+msgid ""
+"Your %s %s is about to run a backup of your settings and to detect your plugins.\n"
+"Do you want to allow this?"
+msgstr ""
+"Váš %s %s se chystá provést zálohu nastavení a zjištění pluginů.\n"
+"Chcete to provést?"
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to a network. Please check your network settings and try again."
+msgstr "Váš %s %s není připojen k internetu, zkontrolujte nastavení připojení a zkuste znovu."
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to a network. Please try using the Backup manager to restore plugins later when a network connection is available."
+msgstr "Váš %s %s není připojen k internetu, zkontrolujte nastavení připojení a zkuste znovu prostřednictvím Správce zálohování."
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to the Internet. Please check your network settings and try again."
+msgstr "Váš %s %s není připojen k internetu, zkontrolujte nastavení připojení a zkuste znovu."
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to the Internet. Please try using Backup manager to restore plugins later."
+msgstr "Váš %s %s není připojen k internetu, zkontrolujte nastavení připojení a zkuste znovu prostřednictvím Správce zálohování."
+
+#, fuzzy, python-format
+msgid "Your %s %s is not connected to the Internet. Please try using the Backup manager to restore plugins later."
+msgstr "Váš %s %s není připojen k internetu, zkontrolujte nastavení připojení a zkuste znovu prostřednictvím Správce zálohování."
+
+#, python-format
+msgid ""
+"ofgwrite error (also sent to any debug log):\n"
+"%s"
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s"
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s "
+msgstr ""
+
+#, python-format
+msgid "slot%s - %s (current image)"
+msgstr ""
+
+msgid "unavailable"
+msgstr "nedostupné"
