@@ -1,1 +1,0 @@
-installdir = ${sysconfdir}/cron/crontabs
