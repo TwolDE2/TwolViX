@@ -1,6 +1,5 @@
 from os import listdir, path, stat
 
-from . import _
 from Plugins.Plugin import PluginDescriptor
 from Components.config import config, ConfigBoolean, configfile
 from Components.SystemInfo import SystemInfo

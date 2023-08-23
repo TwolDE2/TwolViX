@@ -9,7 +9,6 @@ from os import path, stat, system, mkdir, makedirs, listdir, remove, rename, rmd
 from shutil import copy, copyfile, move, rmtree
 from time import localtime, time, strftime, mktime
 
-from . import _, PluginLanguageDomain
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
@@ -59,7 +58,7 @@ def __onPartitionChange(*args, **kwargs):
 	choices = getMountChoices()
 	config.imagemanager.backuplocation.setChoices(choices=choices, default=getMountDefault(choices))
 
-
+PluginLanguageDomain = None
 defaultprefix = getImageDistro()
 config.imagemanager = ConfigSubsection()
 config.imagemanager.autosettingsbackup = ConfigYesNo(default=True)
@@ -455,7 +454,7 @@ class VIXImageManager(Screen):
 		return imagesFound
 
 	def doSettingsBackup(self):
-		from Plugins.SystemPlugins.ViX.BackupManager import BackupFiles
+		from Plugins.SystemPlugins.VIX.BackupManager import BackupFiles
 		self.BackupFiles = BackupFiles(self.session, backuptype=BackupFiles.TYPE_IMAGEMANAGER)
 		Components.Task.job_manager.AddJob(self.BackupFiles.createBackupJob())
 		Components.Task.job_manager.in_background = False
@@ -1784,7 +1783,7 @@ class ImageManagerDownload(Screen):
 
 class ImageManagerSetup(Setup):
 	def __init__(self, session):
-		Setup.__init__(self, session=session, setup="viximagemanager", plugin="SystemPlugins/ViX", PluginLanguageDomain=PluginLanguageDomain)
+		Setup.__init__(self, session=session, setup="viximagemanager", plugin="SystemPlugins/VIX", PluginLanguageDomain=PluginLanguageDomain)
 
 	def keySave(self):
 		if config.imagemanager.folderprefix.value == "":

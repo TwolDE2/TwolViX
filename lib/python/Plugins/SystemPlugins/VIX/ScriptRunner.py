@@ -1,6 +1,5 @@
 from os import path, mkdir, listdir, rename
 
-from . import _, PluginLanguageDomain
 from Components.ActionMap import ActionMap
 from Components.config import config, ConfigSubsection, ConfigYesNo
 from Components.PluginComponent import plugins
@@ -22,7 +21,7 @@ def updateExtensions(configElement):
 
 
 config.scriptrunner.showinextensions.addNotifier(updateExtensions, initial_call=False)
-
+PluginLanguageDomain = None
 
 def ScriptRunnerAutostart(reason, session=None, **kwargs):
 	"""called with reason=1 to during /sbin/shutdown.sysvinit, with reason=0 at startup?"""

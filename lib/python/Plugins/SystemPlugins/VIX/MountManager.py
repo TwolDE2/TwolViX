@@ -6,8 +6,6 @@ from time import sleep
 from boxbranding import getMachineBrand, getMachineName, getMachineBuild
 from enigma import eTimer, getDesktop
 
-from . import _
-
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.ConfigList import ConfigListScreen
@@ -114,7 +112,7 @@ def buildPartitionInfo(partition, partitionList):
 	if path.exists(resolveFilename(SCOPE_CURRENT_SKIN, "vixcore/dev_%s.png" % pngType)):
 		mypixmap = resolveFilename(SCOPE_CURRENT_SKIN, "vixcore/dev_%s.png" % pngType)
 	else:
-		mypixmap = "/usr/lib/enigma2/python/Plugins/SystemPlugins/ViX/images/dev_%s.png" % pngType
+		mypixmap = "/usr/lib/enigma2/python/Plugins/SystemPlugins/VIX/images/dev_%s.png" % pngType
 
 	description = ""
 	mediamount = _("None")
