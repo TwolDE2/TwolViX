@@ -17,7 +17,7 @@ from Tools.Multiboot import bootmviSlot, createInfo
 
 class RestoreWizard(WizardLanguage, Rc):
 	def __init__(self, session):
-		self.xmlfile = resolveFilename(SCOPE_PLUGINS, "SystemPlugins/ViX/restorewizard.xml")
+		self.xmlfile = resolveFilename(SCOPE_PLUGINS, "SystemPlugins/VIX/restorewizard.xml")
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
 		Rc.__init__(self)
 		self.session = session
