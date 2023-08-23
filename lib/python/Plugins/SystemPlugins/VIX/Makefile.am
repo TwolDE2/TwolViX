@@ -1,6 +1,6 @@
 installdir = $(pkglibdir)/python/Plugins/SystemPlugins/VIX
 
-SUBDIRS = images etc po
+SUBDIRS = images po
 
 install_PYTHON =	\
 	__init__.py \
