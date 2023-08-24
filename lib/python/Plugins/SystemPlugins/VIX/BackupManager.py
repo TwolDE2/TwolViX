@@ -29,7 +29,8 @@ SETTINGSRESTOREQUESTIONID = "RestoreSettingsNotification"
 PLUGINRESTOREQUESTIONID = "RestorePluginsNotification"
 NOPLUGINS = "NoPluginsNotification"
 defaultprefix = getImageDistro()[4:]
-PluginLanguageDomain = None
+
+
 def getMountChoices():
 	choices = []
 	for p in harddiskmanager.getMountedPartitions():
@@ -292,7 +293,7 @@ class VIXBackupManager(Screen):
 				self["lab1"].setText(_("Device: ") + config.backupmanager.backuplocation.value + "\n" + _("There is a problem with this device. Please reformat it and try again."))
 
 	def createSetup(self):
-		self.session.openWithCallback(self.setupDone, VIXBackupManagerMenu, 'vixbackupmanager', 'SystemPlugins/VIX', PluginLanguageDomain)
+		self.session.openWithCallback(self.setupDone, VIXBackupManagerMenu, 'vixbackupmanager', 'SystemPlugins/VIX')
 
 	def showLog(self):
 		self.sel = self["list"].getCurrent()

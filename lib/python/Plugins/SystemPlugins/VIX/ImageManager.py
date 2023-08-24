@@ -58,7 +58,7 @@ def __onPartitionChange(*args, **kwargs):
 	choices = getMountChoices()
 	config.imagemanager.backuplocation.setChoices(choices=choices, default=getMountDefault(choices))
 
-PluginLanguageDomain = None
+
 defaultprefix = getImageDistro()
 config.imagemanager = ConfigSubsection()
 config.imagemanager.autosettingsbackup = ConfigYesNo(default=True)
@@ -1783,7 +1783,7 @@ class ImageManagerDownload(Screen):
 
 class ImageManagerSetup(Setup):
 	def __init__(self, session):
-		Setup.__init__(self, session=session, setup="viximagemanager", plugin="SystemPlugins/VIX", PluginLanguageDomain=PluginLanguageDomain)
+		Setup.__init__(self, session=session, setup="viximagemanager", plugin="SystemPlugins/VIX")
 
 	def keySave(self):
 		if config.imagemanager.folderprefix.value == "":

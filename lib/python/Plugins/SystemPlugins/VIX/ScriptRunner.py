@@ -21,10 +21,9 @@ def updateExtensions(configElement):
 
 
 config.scriptrunner.showinextensions.addNotifier(updateExtensions, initial_call=False)
-PluginLanguageDomain = None
 
 def ScriptRunnerAutostart(reason, session=None, **kwargs):
-	"""called with reason=1 to during /sbin/shutdown.sysvinit, with reason=0 at startup?"""
+	"""called with reason=1 during /sbin/shutdown.sysvinit, with reason=0 at startup"""
 	pass
 
 
@@ -54,7 +53,7 @@ class VIXScriptRunner(IpkgInstaller):
 									  }, -1)
 
 	def createSetup(self):
-		self.session.open(Setup, "vixscriptrunner", "SystemPlugins/ViX", PluginLanguageDomain)
+		self.session.open(Setup, "vixscriptrunner", "SystemPlugins/VIX")
 
 	def install(self):
 		list = self.list.getSelectionsList()
