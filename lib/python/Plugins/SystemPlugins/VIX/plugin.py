@@ -12,7 +12,7 @@ from .SoftcamManager import SoftcamAutostart
 from .SwapManager import SwapAutostart
 from .IPKInstaller import IpkgInstaller
 
-config.misc.restorewizardrun = ConfigBoolean(default=False)
+# config.misc.restorewizardrun = ConfigBoolean(default=False)
 
 #	On plugin initialisation (called by StartEnigma). language will be assigned as follows if config.misc.firstrun.value:
 #	Default language en_GB (OpenViX) is set by SetupDevices called by StartEnigma
