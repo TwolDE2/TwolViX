@@ -12,7 +12,6 @@ from .SoftcamManager import SoftcamAutostart
 from .SwapManager import SwapAutostart
 from .IPKInstaller import IpkgInstaller
 
-# config.misc.restorewizardrun = ConfigBoolean(default=False)
 
 #	On plugin initialisation (called by StartEnigma). language will be assigned as follows if config.misc.firstrun.value:
 #	Default language en_GB (OpenViX) is set by SetupDevices called by StartEnigma
@@ -204,7 +203,7 @@ def Plugins(**kwargs):
 	plist.append(PluginDescriptor(where=PluginDescriptor.WHERE_SESSIONSTART, fnc=BackupManagerautostart))
 	plist.append(PluginDescriptor(where=PluginDescriptor.WHERE_SESSIONSTART, fnc=ScriptRunnerAutostart))
 	if config.misc.firstrun.value and not config.misc.restorewizardrun.value:
-		if backupAvailable:
+		if backupAvailable:  # skip language wizard as it was set from the backup
 			plist.append(PluginDescriptor(name=_("Restore wizard"), where=PluginDescriptor.WHERE_WIZARD, needsRestart=False, fnc=(4, RestoreWizard)))
 		else:
 			plist.append(PluginDescriptor(name=_("Language Wizard"), where=PluginDescriptor.WHERE_WIZARD, needsRestart=False, fnc=(1, LanguageWizard)))
