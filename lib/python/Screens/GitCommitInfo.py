@@ -36,7 +36,6 @@ project = 0
 projects = [
 	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=5.3", "OE-A Core"),
 	("https://api.github.com/repos/TwolDE2/enigma2/commits?sha=%s" % getattr(E2Branches, getImageType(), "Py3D"), "Enigma2"),
-	("https://api.github.com/repos/TwolDE2/vix-core/commits", "ViX Core"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
 	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
 	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),

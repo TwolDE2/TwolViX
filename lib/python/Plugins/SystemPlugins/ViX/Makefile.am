@@ -1,4 +1,4 @@
-installdir = $(pkglibdir)/python/Plugins/SystemPlugins/VIX
+installdir = $(pkglibdir)/python/Plugins/SystemPlugins/ViX
 
 SUBDIRS = images
 

@@ -53,7 +53,7 @@ class VIXScriptRunner(IpkgInstaller):
 									  }, -1)
 
 	def createSetup(self):
-		self.session.open(Setup, "vixscriptrunner", "SystemPlugins/VIX")
+		self.session.open(Setup, "vixscriptrunner", "SystemPlugins/ViX")
 
 	def install(self):
 		list = self.list.getSelectionsList()

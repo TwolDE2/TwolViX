@@ -112,7 +112,7 @@ def buildPartitionInfo(partition, partitionList):
 	if path.exists(resolveFilename(SCOPE_CURRENT_SKIN, "vixcore/dev_%s.png" % pngType)):
 		mypixmap = resolveFilename(SCOPE_CURRENT_SKIN, "vixcore/dev_%s.png" % pngType)
 	else:
-		mypixmap = "/usr/lib/enigma2/python/Plugins/SystemPlugins/VIX/images/dev_%s.png" % pngType
+		mypixmap = "/usr/lib/enigma2/python/Plugins/SystemPlugins/ViX/images/dev_%s.png" % pngType
 
 	description = ""
 	mediamount = _("None")

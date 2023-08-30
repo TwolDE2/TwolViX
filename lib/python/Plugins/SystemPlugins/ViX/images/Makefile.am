@@ -1,3 +1,3 @@
-installdir = $(pkglibdir)/python/Plugins/SystemPlugins/VIX/images
+installdir = $(pkglibdir)/python/Plugins/SystemPlugins/ViX/images
 
 install_DATA = *.png
