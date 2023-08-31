@@ -342,7 +342,7 @@ class Harddisk:
 		print("[Harddisk][mount] mounting4: not in fstab", dev)
 		exitCode = -1  # Device is not in fstab.
 		exitCode = runCommand("hdparm -z %s" % self.disk_path)  # We can let udev do the job, re-read the partition table.
-		sleep(10)  												# Give udev some time to make the mount, which it will do asynchronously.
+		sleep(3)  												# Give udev some time to make the mount, which it will do asynchronously.
 		return exitCode >> 8
 
 	def killPartitionTable(self):

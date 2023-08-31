@@ -231,7 +231,6 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		else:
 			self.session.open(MessageBox, self.noTMDb, type=MessageBox.TYPE_INFO, timeout=10)
 
-
 	def openEPGSearch(self):
 		self.closeEventViewDialog()
 		if isPluginInstalled("EPGSearch"):
