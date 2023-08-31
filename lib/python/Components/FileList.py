@@ -215,7 +215,7 @@ class FileList(MenuList):
 		directories = []
 		files = []
 
-		if directory is None and self.showMountpoints: # present available mountpoints
+		if directory is None and self.showMountpoints:  # present available mountpoints
 			for p in harddiskmanager.getMountedPartitions():
 				mountPath = path.join(p.mountpoint, "")
 				if mountPath not in self.inhibitMounts and not self.inParentDirs(mountPath, self.inhibitDirs):
@@ -439,7 +439,7 @@ class MultiFileSelectList(FileList):
 		directories = []
 		files = []
 
-		if directory is None and self.showMountpoints: # present available mountpoints
+		if directory is None and self.showMountpoints:  # present available mountpoints
 			for p in harddiskmanager.getMountedPartitions():
 				mountPath = path.join(p.mountpoint, "")
 				if mountPath not in self.inhibitMounts and not self.inParentDirs(mountPath, self.inhibitDirs):

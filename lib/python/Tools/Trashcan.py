@@ -120,7 +120,7 @@ def cleanAll(path=None):
 	if not ospath.isdir(trash):
 		print("[Trashcan] No trash.", trash)
 		return 0
-	for root, dirs, files in walk(trash.encode(), topdown=False):
+	for root, dirs, files in walk(trash.encode(), topdown=False):  # handle non utf-8 filenames
 		for name in files:
 			fn = ospath.join(root, name)
 			enigma.eBackgroundFileEraser.getInstance().erase(fn)
@@ -173,7 +173,6 @@ class CleanTrashTask(Components.Task.PythonTask):
 				candidates = []
 				size = 0
 				for root, dirs, files in walk(trashfolder.encode(), topdown=False):	# handle non utf-8 files
-#					print("[Trashcan][CleanTrashTask][work] lets look at files")
 					for name in files:	# Don't delete any per-directory config files from .Trash
 						if (config.movielist.settings_per_directory.value and name == b".e2settings.pkl"):
 							continue
@@ -202,7 +201,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 					for st_ctime, fn, st_size in candidates:
 						if bytesToRemove < 0:
 							break
-						try:	# file may not exist if simultaneously a network trashcan and main box emptying trash
+						try:  # file may not exist if simultaneously a network trashcan and main box emptying trash
 							enigma.eBackgroundFileEraser.getInstance().erase(fn)
 						except:
 							pass

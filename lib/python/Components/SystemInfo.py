@@ -15,7 +15,7 @@ class BoxInformation:
 		self.immutableList = []
 		self.boxInfo = {}
 		file = root + pathjoin(resolveFilename(SCOPE_LIBDIR), "enigma.info")
-		self.boxInfo["overrideactive"] = False # not currently used by us
+		self.boxInfo["overrideactive"] = False  # not currently used by us
 		lines = fileReadLines(file)
 		if lines:
 			for line in lines:
@@ -26,7 +26,7 @@ class BoxInformation:
 					self.immutableList.append(item)
 					# Temporary fix: some items that look like floats are not floats and should be handled as strings, e.g. python "3.10" should not be processed as "3.1".
 					if not (value.startswith("\"") or value.startswith("'")) and item in ("python", "imageversion", "imgversion"):
-						value = '"' + value + '"' # wrap it so it is treated as a string
+						value = '"' + value + '"'  # wrap it so it is treated as a string
 					self.boxInfo[item] = self.processValue(value)
 			# print("[SystemInfo] Enigma information file data loaded into BoxInfo.")
 		else:
@@ -54,7 +54,7 @@ class BoxInformation:
 		elif value.upper() in ("TRUE", "YES", "ON", "ENABLED"):
 			value = True
 		elif value.isdigit() or ((value[0:1] == "-" or value[0:1] == "+") and value[1:].isdigit()):
-			if value[0] != "0": # if this is zero padded it must be a string, so skip
+			if value[0] != "0":  # if this is zero padded it must be a string, so skip
 				value = int(value)
 		elif value.startswith("0x") or value.startswith("0X"):
 			value = int(value, 16)
@@ -72,7 +72,7 @@ class BoxInformation:
 	def getEnigmaInfoList(self):
 		return sorted(self.immutableList)
 
-	def getEnigmaConfList(self): # not used by us
+	def getEnigmaConfList(self):  # not used by us
 		return []
 
 	def getItemsList(self):
@@ -148,7 +148,7 @@ SystemInfo["HasMultibootMTD"] = False # This needs to be here so it can be reset
 SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")	# This needs to be here so it can be tested by getMultibootslots!
 SystemInfo["HasKexecUSB"] = False	# This needs to be here so it can be reset by getMultibootslots!
 from Tools.Multiboot import getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
-SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")	# This needs to be for later checks
+SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")  # This needs to be for later checks
 SystemInfo["canMultiBoot"] = getMultibootslots()
 # SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py
 # SystemInfo["MultiBootSlot"] = current slot set in Tools/Multiboot.py

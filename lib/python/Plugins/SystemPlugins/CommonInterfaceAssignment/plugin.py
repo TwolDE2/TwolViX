@@ -85,7 +85,7 @@ class CIselectMainMenu(Screen):
 				print("[CI_Wizzard] there is no CI Slot in your receiver")
 			else:
 				print("[CI_Wizzard] selected CI Slot : %d" % slot)
-				if config.usage.setup_level.index > 1: # advanced
+				if config.usage.setup_level.index > 1:  # advanced
 					self.session.open(CIconfigMenu, slot)
 				else:
 					self.session.open(easyCIconfigMenu, slot)
@@ -156,7 +156,7 @@ class CIconfigMenu(Screen):
 
 		self.loadXML()
 		# if config mode !=advanced autoselect any caid
-		if config.usage.setup_level.index <= 1: # advanced
+		if config.usage.setup_level.index <= 1:  # advanced
 			self.selectedcaid = self.caidlist
 			self.finishedCAidSelection(self.selectedcaid)
 		self.onShown.append(self.setWindowTitle)
@@ -476,7 +476,7 @@ class myProviderSelection(ChannelSelectionBase):
 		self.showSatellites()
 		self.setTitle(_("Select provider to add..."))
 
-	def channelSelected(self): # just return selected service
+	def channelSelected(self):  # just return selected service
 		ref = self.getCurrentSelection()
 		if ref is None:
 			return
@@ -534,7 +534,7 @@ class myProviderSelection(ChannelSelectionBase):
 					if not servicelist is None:
 						while True:
 							service = servicelist.getNext()
-							if not service.valid(): #check if end of list
+							if not service.valid():  # check if end of list
 								break
 							unsigned_orbpos = service.getUnsignedData(4) >> 16
 							orbpos = service.getData(4) >> 16
@@ -546,12 +546,12 @@ class myProviderSelection(ChannelSelectionBase):
 									# why we need this cast?
 									service_name = str(nimmanager.getSatDescription(orbpos))
 								except:
-									if unsigned_orbpos == 0xFFFF: #Cable
+									if unsigned_orbpos == 0xFFFF:  # Cable
 										service_name = _("Cable")
-									elif unsigned_orbpos == 0xEEEE: #Terrestrial
+									elif unsigned_orbpos == 0xEEEE:  # Terrestrial
 										service_name = _("Terrestrial")
 									else:
-										if orbpos > 1800: # west
+										if orbpos > 1800:  # west
 											orbpos = 3600 - orbpos
 											h = _("W")
 										else:
@@ -653,7 +653,7 @@ class myChannelSelection(ChannelSelectionBase):
 		if changeMode:
 			self.close(None)
 
-	def channelSelected(self): # just return selected service
+	def channelSelected(self):  # just return selected service
 		ref = self.getCurrentSelection()
 		if (ref.flags & 7) == 7:
 			self.enterPath(ref)
