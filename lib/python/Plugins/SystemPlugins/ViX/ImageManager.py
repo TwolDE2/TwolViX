@@ -64,13 +64,8 @@ config.imagemanager = ConfigSubsection()
 config.imagemanager.autosettingsbackup = ConfigYesNo(default=True)
 choices = getMountChoices()
 config.imagemanager.backuplocation = ConfigSelection(choices=choices, default=getMountDefault(choices))
-<<<<<<< HEAD
 config.imagemanager.extensive_location_search = ConfigYesNo(default=False)
-harddiskmanager.on_partition_list_change.append(__onPartitionChange) # to update backuplocation choices on mountpoint change
-=======
-config.imagemanager.extensive_location_search = ConfigYesNo(default=True)
 harddiskmanager.on_partition_list_change.append(__onPartitionChange)  # to update backuplocation choices on mountpoint change
->>>>>>> 3028777... PEP8 double aggressive E225 ~ E228 and E231
 config.imagemanager.backupretry = ConfigNumber(default=30)
 config.imagemanager.backupretrycount = NoSave(ConfigNumber(default=0))
 config.imagemanager.folderprefix = ConfigText(default=defaultprefix, fixed_size=False)
@@ -681,12 +676,8 @@ class VIXImageManager(Screen):
 			retval = True
 		else:
 			name_split = name.split("-")
-<<<<<<< HEAD
 			print("[ImageManager][isVuKexecCompatibleImage] name_split", name_split)
-			if len(name_split) > 1 and name_split[0] in ("openbh", "openvix", "openpli") and name[-8:] == "_usb.zip": # "_usb.zip" only in build server images
-=======
-			if len(name_split) > 1 and name_split[0] in ("openbh", "openvix") and name[-8:] == "_usb.zip":  # "_usb.zip" only in build server images
->>>>>>> 3028777... PEP8 double aggressive E225 ~ E228 and E231
+			if len(name_split) > 1 and name_split[0] in ("openbh", "openvix", "openpli") and name[-8:] == "_usb.zip":  # "_usb.zip" only in build server images
 				parts = name_split[1].split(".")
 				if name_split[0] == "openpli" and name_split[1] == "develop":
 					retval = True
