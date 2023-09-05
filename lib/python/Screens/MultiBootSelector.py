@@ -1,7 +1,7 @@
 from os import path, rmdir
 import tempfile
 import struct
-from enigma import getDesktop
+
 from boxbranding import getBoxType
 from Components.ActionMap import HelpableActionMap
 from Components.ChoiceList import ChoiceEntryComponent, ChoiceList
