@@ -305,7 +305,7 @@ class VIXSwap(Screen):
 		if config.swapmanager.swapautostart.value or self.swap_name == _("manufacturer defined swap"):
 			self["autostart_off"].hide()
 			self["autostart_on"].show()
-			self["key_yellow"].setText("Disable Autostart")
+			self["key_yellow"].setText(_("Disable Autostart"))
 			print("[SwapManager][updateSwap2] self['autostartactions'].setEnabled(False/True)")
 			self["autostartactions"].setEnabled(True)	# this is set True for the moment to allow Yellow button to be displayed		
 		else:
@@ -314,7 +314,7 @@ class VIXSwap(Screen):
 			configfile.save()
 			self["autostart_on"].hide()
 			self["autostart_off"].show()
-			self["key_yellow"].setText("Enable Autostart")
+			self["key_yellow"].setText(_("Enable Autostart"))
 			print("[SwapManager][updateSwap2] self['autostartactions'].setEnabled(True)")
 			self["autostartactions"].setEnabled(True)
 		self["lab1"].setText(scanning)
