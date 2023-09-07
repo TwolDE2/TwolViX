@@ -146,7 +146,7 @@ class VIXSwap(Screen):
 		self["active"] = Label(_("Active"))
 		self["key_red"] = Label(_("Close"))
 		self["key_green"] = Label(_("Activate"))
-		self["key_yellow"] = Label(_("Autostart"))
+		self["key_yellow"] = Label(_("Enable Autostart"))
 		self["key_blue"] = Label(_("Create"))
 		self["swapname_summary"] = StaticText()
 		self["swapactive_summary"] = StaticText()
@@ -155,21 +155,25 @@ class VIXSwap(Screen):
 		self.new_name = ""
 		self.creatingswap = False
 		self.swap_active = False
-		self["actions"] = ActionMap(["WizardActions", "ColorActions", "MenuActions"],
+		self["mainactions"] = ActionMap(["WizardActions", "ColorActions", "MenuActions"],
 		{
 			"back": self.close,
 			"red": self.close,
 			"green": self.actDeact,
-			"yellow": self.autoSsWap,
 			"blue": self.createDel,
 			"menu": self.close,
 		})
+		self["autostartactions"] = ActionMap(["ColorActions"], {
+			"yellow": self.autoSsWap,
+		}, -1)
+		self["autostartactions"].setEnabled(False)				
 		self.activityTimer = eTimer()
 		self.activityTimer.timeout.get().append(self.getSwapDevice)
 		self.updateSwap()
 
 	def updateSwap(self, result=None, retval=None, extra_args=None):
-		self["actions"].setEnabled(False)
+		self["mainactions"].setEnabled(False)
+		self["autostartactions"].setEnabled(False)
 		self.swap_active = False
 		self.swap_name = None
 		self["autostart_on"].hide()
@@ -297,21 +301,25 @@ class VIXSwap(Screen):
 			scanning = _("manufacturer defined swap enabled at startup")
 		else:
 			scanning = _("Enable SWAP at startup")
-
+		print("[SwapManager][updateSwap2] config.swapmanager.swapautostart,  self.swap_name", config.swapmanager.swapautostart,  "   ", self.swap_Fname)
 		if config.swapmanager.swapautostart.value or self.swap_name == _("manufacturer defined swap"):
-#		if config.swapmanager.swapautostart.value:
 			self["autostart_off"].hide()
 			self["autostart_on"].show()
-			self["key_yellow"].setText("")
+			self["key_yellow"].setText("Disable Autostart")
+			print("[SwapManager][updateSwap2] self['autostartactions'].setEnabled(False/True)")
+			self["autostartactions"].setEnabled(True)	# this is set True for the moment to allow Yellow button to be displayed		
 		else:
 			config.swapmanager.swapautostart.setValue(False)
 			config.swapmanager.swapautostart.save()
 			configfile.save()
 			self["autostart_on"].hide()
 			self["autostart_off"].show()
+			self["key_yellow"].setText("Enable Autostart")
+			print("[SwapManager][updateSwap2] self['autostartactions'].setEnabled(True)")
+			self["autostartactions"].setEnabled(True)
 		self["lab1"].setText(scanning)
 		self["lab1"].show()
-		self["actions"].setEnabled(True)
+		self["mainactions"].setEnabled(True)
 
 		name = self["labplace"].text
 		self["swapname_summary"].setText(name)
