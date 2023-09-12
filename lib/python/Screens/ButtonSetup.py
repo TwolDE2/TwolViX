@@ -569,8 +569,7 @@ class InfoBarButtonSetup():
 				from Screens.Menu import MainMenu, mdom
 				root = mdom.getroot()
 				for x in root.findall("menu"):
-					id = x.get("key")
-					if id and id == selected[1]:
+					if x.get("key") == selected[1]:
 						menu_screen = self.session.open(MainMenu, x)
 						break
 
