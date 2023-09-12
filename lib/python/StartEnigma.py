@@ -268,14 +268,12 @@ class PowerKey:
 			print("[StartEnigma] Show shutdown Menu")
 			root = mdom.getroot()
 			for x in root.findall("menu"):
-				y = x.find("id")
-				if y is not None:
-					id = y.get("val")
-					if id and id == "shutdown":
-						self.session.infobar = self
-						menu_screen = self.session.openWithCallback(self.MenuClosed, MainMenu, x)
-						menu_screen.setTitle(_("Standby / restart"))
-						return
+				id = x.get("key")
+				if id and id == "shutdown":
+					self.session.infobar = self
+					menu_screen = self.session.openWithCallback(self.MenuClosed, MainMenu, x)
+					menu_screen.setTitle(_("Standby / restart"))
+					return
 		elif action == "standby":
 			self.standby()
 
@@ -620,8 +618,9 @@ def RCSelectionChanged(configelement):
 
 config.misc.RCSource.addNotifier(RCSelectionChanged, immediate_feedback=False)
 
-profile("Standby,PowerKey")
+profile("Standby")
 import Screens.Standby
+
 from Screens.Menu import MainMenu, mdom
 from GlobalActions import globalActionMap
 
