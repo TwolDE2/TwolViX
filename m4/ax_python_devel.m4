@@ -192,7 +192,6 @@ variable to configure. See ``configure --help'' for reference.
 	   #
 	   AC_MSG_CHECKING([for the sysconfig Python package])
 	   ac_sysconfig_result=`$PYTHON -c "import sysconfig" 2>&1`
-	   SYSCONFIG="sysconfig"
 	   if test $? -eq 0; then
 		AC_MSG_RESULT([yes])
 		IMPORT_SYSCONFIG="import sysconfig"
@@ -276,9 +275,10 @@ EOD`
 		if test -n "$ac_python_libdir" -a -n "$ac_python_library"
 		then
 			# use the official shared library
-			# ac_python_libdir = builds/openvix/release/vuuno4kse/tmp/work/vuuno4kse-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+XXXXXXXXX-r0/recipe-sysroot/usr/lib
-			# ac_python_library = python3.11
-			ac_python_libdir2=`echo "$ac_python_libdir" | sed "s_/usr/lib__"`			
+			# Cross compile ac_python_libdir = builds/openvix/release/boxtype/tmp/work/boxtype-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+XXXXXXXXX-r0/recipe-sysroot/usr/lib
+			# Build PC ac_python_library = python3.11
+			# so pick up ac_python_libdir from previous search for Python library path for Cross compile
+			ac_python_libdir_XCompile=`echo "$ac_python_libdir" | sed "s_/usr/lib__"`			
 			ac_python_library=`echo "$ac_python_library" | sed "s/^lib//"`
 			AC_MSG_RESULT([$ac_python_libdir])
 			AC_MSG_RESULT([$ac_python_library])						
@@ -304,11 +304,13 @@ EOD`
 			PYTHON_VERSION=""
 		fi
 	   fi
+	   AC_MSG_RESULT([$PYTHON_LIBS])
+	   AC_SUBST([PYTHON_LIBS])
 	   #
 	   # Check for Python include path
 	   #
 	   # checking for Python include path... should have -I/media/twol/TwolHome1/5.3/builds/openvix/release/vuuno4kse/tmp/work/vuuno4kse-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+84579bb7a4-r0/recipe-sysroot/usr/include/python3.11
-	   # have result: -I/usr/include/python3.11
+	   # so pick up ac_python_libdir_XCompile from previous search for Python library path for Cross compile and front include...
 
 
 	   AC_MSG_CHECKING([for Python include path])
@@ -330,7 +332,7 @@ EOD`
 			if test "${plat_python_path}" != "${python_path}"; then
 				python_path="-I$python_path -I$plat_python_path"
 			else
-				python_path="-I$ac_python_libdir2$python_path"
+				python_path="-I$ac_python_libdir_XCompile$python_path"
 			fi
 		fi
 		PYTHON_CPPFLAGS=$python_path
@@ -340,9 +342,6 @@ EOD`
 	fi
 
 	if test $ax_python_devel_found = yes; then
-	   AC_MSG_RESULT([$PYTHON_LIBS])	   
-	   AC_SUBST([PYTHON_LIBS])
-
 	   #
 	   # Check for site packages
 	   #
@@ -369,7 +368,7 @@ print(sitedir)"`
 				print (sysconfig.get_python_lib(0,0));"`
 		fi
 	   fi
-	   PYTHON_SITE_PKG="$ac_python_libdir2$PYTHON_SITE_PKG2"	   
+	   PYTHON_SITE_PKG="$ac_python_libdir_XCompile$PYTHON_SITE_PKG2"	   
 	   AC_MSG_RESULT([$PYTHON_SITE_PKG])
 	   AC_SUBST([PYTHON_SITE_PKG])
 
