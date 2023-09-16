@@ -275,10 +275,14 @@ EOD`
 		if test -n "$ac_python_libdir" -a -n "$ac_python_library"
 		then
 			# use the official shared library
-			# Cross compile ac_python_libdir = builds/openvix/release/boxtype/tmp/work/boxtype-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+XXXXXXXXX-r0/recipe-sysroot/usr/lib
-			# Build PC ac_python_library = python3.11
-			# so pick up ac_python_libdir from previous search for Python library path for Cross compile
-			ac_python_libdir_XCompile=`echo "$ac_python_libdir" | sed "s_/usr/lib__"`			
+			# if not Github workflow, cross compile ac_python_libdir = builds/openvix/release/boxtype/tmp/work/boxtype-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+XXXXXXXXX-r0/recipe-sysroot/usr/lib
+			# so then pick up ac_python_libdir from previous search for Python library path for Cross compile
+			if 'hosted' in $ac_python_libdir:
+			then
+				ac_python_libdir_XCompile=''
+			else
+				ac_python_libdir_XCompile=`echo "$ac_python_libdir" | sed "s_/usr/lib__"`			
+			fi
 			ac_python_library=`echo "$ac_python_library" | sed "s/^lib//"`
 			AC_MSG_RESULT([$ac_python_libdir])
 			AC_MSG_RESULT([$ac_python_library])						
