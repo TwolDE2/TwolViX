@@ -277,8 +277,9 @@ EOD`
 			# use the official shared library
 			# if not Github workflow, cross compile ac_python_libdir = builds/openvix/release/boxtype/tmp/work/boxtype-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+XXXXXXXXX-r0/recipe-sysroot/usr/lib
 			# so then pick up ac_python_libdir from previous search for Python library path for Cross compile
-			substr="hosted"
-			if [[ "$ac_python_libdir" == *"$substr"* ]];			
+			hosted="hosted"
+			# if [[ "$ac_python_libdir" == *"$substr"* ]];
+			if grep -q "${hosted}" <<< "$ac_python_libdir"						
 			then
 				ac_python_libdir_XCompile=''
 			else
