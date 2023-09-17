@@ -72,7 +72,7 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 36
+#serial 36 --------------Updated to cross compile for OE-Alliance Enigma2 git builds
 
 AU_ALIAS([AC_PYTHON_DEVEL], [AX_PYTHON_DEVEL])
 AC_DEFUN([AX_PYTHON_DEVEL],[
@@ -275,11 +275,11 @@ EOD`
 		if test -n "$ac_python_libdir" -a -n "$ac_python_library"
 		then
 			# use the official shared library
-			# if not Github workflow, cross compile ac_python_libdir = builds/openvix/release/boxtype/tmp/work/boxtype-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+XXXXXXXXX-r0/recipe-sysroot/usr/lib
+			# if not Github workflow, cross compile ac_python_libdir = builds/distro/release/boxtype/tmp/work/boxtype-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+XXXXXXXXX-rx/recipe-sysroot/usr/lib
 			# so then pick up ac_python_libdir from previous search for Python library path for Cross compile
 			hosted="hosted"
-			# if [[ "$ac_python_libdir" == *"$substr"* ]];
-			if grep -q "${hosted}" <<< "$ac_python_libdir"						
+			# first check for git workflows via hosted
+			if grep -q "${hosted}" <<< "$ac_python_libdir"
 			then
 				ac_python_libdir_XCompile=''
 			else
