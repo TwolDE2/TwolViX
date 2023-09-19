@@ -344,7 +344,7 @@ EOD`
 				python_path="-I$python_path -I$plat_python_path"
 			else
 				plat_python_path=`echo "$plat_python_path" | sed "s_-native__"`				
-				python_path="-I$plat_python_path -I$ac_python_libdir_XCompile$python_path"
+				python_path="-I$ac_python_libdir_XCompile$python_path -I$plat_python_path "
 			fi
 		fi
 		PYTHON_CPPFLAGS=$python_path
