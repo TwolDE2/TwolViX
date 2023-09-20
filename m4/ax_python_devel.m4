@@ -315,38 +315,29 @@ EOD`
 	   #
 	   # Check for Python include path
 	   #
-	   # checking for Python include path... should have -I/build_directory/5.3/builds/distro/release/machine/tmp/work/machine-oe-linux-gnueabi/enigma2/enigma2-7.3+gitAUTOINC+84579bb7a4-r0/recipe-sysroot/usr/include/python3.11
 	   # so pick up ac_python_libdir_XCompile from previous search for Python library path for Cross compile and front include...
 
-		Inew="include via new way"
-		Iold="include old distutils way" 
 	   AC_MSG_CHECKING([for Python include path])
 	   if test -z "$PYTHON_CPPFLAGS"; then
 		if test "$IMPORT_SYSCONFIG" = "import sysconfig"; then
 			# sysconfig module has different functions
-	   		AC_MSG_RESULT([$Inew])			
 			python_path=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_path ('include'));"`
 			plat_python_path=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_path ('platinclude'));"`
 		else
 			# old distutils way
-			AC_MSG_RESULT([$Iold])
 			python_path=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_python_inc ());"`
 			plat_python_path=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_python_inc (plat_specific=1));"`
 		fi
 		if test -n "${python_path}"; then
-			AC_MSG_RESULT([$python_path])
-			AC_MSG_RESULT([$plat_python_path])
 			if test "${plat_python_path}" != "${python_path}"; then
 				python_path="-I$python_path -I$plat_python_path"
 			else
-			# check for OpenPli 3.9 build returns full path
-				length=${#python_path}
-				AC_MSG_RESULT([$length])
-				if [[ $length -gt 24 ]]
+				# check for OpenPli 3.9 build, returns full path but native lib
+				if [[ "${#python_path}" -gt 24 ]]
 				then
 					plat_python_path=`echo "$plat_python_path" | sed "s_-native__"`
 					python_path="-I$plat_python_path"
