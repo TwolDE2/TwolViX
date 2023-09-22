@@ -277,7 +277,7 @@ EOD`
 		then
 			# OE-A build, the original devel.m4 finds host python not build python
 			# Github worklflow obtains correct libs
-			# if not Github workflow, use modified ac_python_libdir (see above) for Cross compile
+			# if not Github workflow, use modified ac_python_libdir (see above) for cross compile
 			# first check for git workflows via hosted
 			hosted="hosted"
 			if grep -q "${hosted}" <<< "$ac_python_libdir"
@@ -315,8 +315,8 @@ EOD`
 	   AC_SUBST([PYTHON_LIBS])
 	   #
 	   # Check for Python include path
+	   # for OE-A builds, include path is ac_python_libdir_XCompile(see above) plus found(host) python lib path
 	   #
-	   # so pick up ac_python_libdir_XCompile from previous search for Python library path for Cross compile and front include...
 	   AC_MSG_CHECKING([for Python include path])
 	   if test -z "$PYTHON_CPPFLAGS"; then
 		if test "$IMPORT_SYSCONFIG" = "import sysconfig"; then
@@ -337,7 +337,7 @@ EOD`
 				python_path="-I$python_path -I$plat_python_path"
 			else
 				# OpenPli 3.9 build finds python native, so needs sed to create correct python 3.9 path
-				# check OpenPli 3.9 path length vs OE-A path length(host lib)
+				# check OpenPli 3.9 path length(build lib) vs OE-A path length(host lib)
 				if [[ "${#python_path}" -gt 24 ]]
 				then
 					plat_python_path=`echo "$plat_python_path" | sed "s/-native//"`
@@ -376,7 +376,7 @@ sitedir = sysconfig.get_path('purelib', scheme, vars={'base': prefix})
 print(sitedir)"`
 		else
 			# distutils.sysconfig way
-			PYTHON_SITE_PKG2=`$PYTHON -c "$IMPORT_SYSCONFIG; \
+			PYTHON_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_python_lib(0,0));"`
 		fi
 	   fi
