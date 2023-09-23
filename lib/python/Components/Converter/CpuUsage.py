@@ -73,7 +73,7 @@ class CpuUsage(Converter):
 			value = self.percentlist[i]
 		except IndexError:
 			value = 0
-return value
+		return value
 
 	text = property(getText)
 	value = property(getValue)
