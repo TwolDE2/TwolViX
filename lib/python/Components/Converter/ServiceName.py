@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceReference, eEPGCache, eServiceCenter
+from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, eServiceReference, eEPGCache
 
 from Components.config import config
 from Components.Converter.Converter import Converter
