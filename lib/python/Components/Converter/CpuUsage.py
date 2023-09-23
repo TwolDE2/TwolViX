@@ -93,7 +93,7 @@ class CpuUsageMonitor(Poll):
 
 	def getCpusInfo(self):
 		res = []
-        file = "/proc/stat"
+		file = "/proc/stat"
 		if isfile(file):
 			with open("/proc/stat", "r") as fd:
 				while line := fd.readline():
