@@ -63,7 +63,7 @@ class CpuUsage(Converter):
 		res = res.replace("$?", "%d" % (len(self.percentlist) - 1))
 		return res
 
-@cached
+	@cached
 	def getValue(self):
 		if self.type in range(len(self.percentlist)):
 			i = self.type
