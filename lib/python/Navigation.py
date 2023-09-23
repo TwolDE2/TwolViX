@@ -7,14 +7,13 @@ from Components.config import config
 from Components.ParentalControl import parentalControl
 from Components.Sources.StreamService import StreamServiceList
 from Components.SystemInfo import SystemInfo
-from Screens.InfoBar import InfoBar, MoviePlayer
+from Screens.InfoBar import InfoBar
 from Tools.BoundFunction import boundFunction
 from Tools.StbHardware import getFPWasTimerWakeup
 import NavigationInstance
 import PowerTimer
 import RecordTimer
 import Screens.Standby
-import ServiceReference
 
 # TODO: remove pNavgation, eNavigation and rewrite this stuff in python.
 
@@ -103,7 +102,11 @@ class Navigation:
 			self.currentlyPlayingService = None
 
 	def dispatchRecordEvent(self, rec_service, event):
+<<<<<<< HEAD
 #		print("record_event", rec_service, event)
+=======
+		# print "record_event", rec_service, event
+>>>>>>> c27da8e... [Navigation] unused imports
 		for x in self.record_event:
 			try:
 				x(rec_service, event)
@@ -210,7 +213,7 @@ class Navigation:
 									setPriorityFrontend = True
 				self.skipServRefReset = True
 				if self.pnav.playService(playref):
-				#	print("[Navigation] Failed to start", playref)
+					# print("[Navigation] Failed to start", playref)
 					self.currentlyPlayingServiceReference = None
 					self.currentlyPlayingServiceOrGroup = None
 					if oldref and "://" in oldref.getPath():
