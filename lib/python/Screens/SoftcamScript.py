@@ -2,7 +2,7 @@ from enigma import eTimer
 
 
 from Components.ActionMap import HelpableActionMap
-from Components.config import config, ConfigSelection
+from Components.config import config
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Screens.MessageBox import MessageBox
