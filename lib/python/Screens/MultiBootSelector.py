@@ -216,7 +216,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		SystemInfo["HasKexecUSB"] = True
 		Console().ePopen("umount %s" % self.tmp_dir)
 		if not path.ismount(self.tmp_dir):
-			rmdir(self.tmp_dir)		
+			rmdir(self.tmp_dir)
 		self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 	def cancel(self, value=None):
