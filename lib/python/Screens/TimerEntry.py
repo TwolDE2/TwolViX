@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from time import localtime, time, strftime
+from time import time
 
 from enigma import eEPGCache
 
@@ -12,7 +12,6 @@ import Screens.ChannelSelection
 from Screens.ChoiceBox import ChoiceBox
 from Screens.LocationBox import MovieLocationBox
 from Screens.MessageBox import MessageBox
-from Screens.Screen import Screen
 from Screens.TagEditor import TagEditor
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 from Screens.VirtualKeyBoard import VirtualKeyBoard
