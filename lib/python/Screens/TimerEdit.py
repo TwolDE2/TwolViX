@@ -15,7 +15,6 @@ from Screens.Screen import Screen
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.ParentalControlSetup import ProtectedScreen
-from Screens.InputBox import PinInput
 from ServiceReference import ServiceReference
 from Screens.TimerEntry import TimerEntry, TimerLog
 from Screens.Setup import Setup
@@ -215,7 +214,7 @@ class TimerEditList(Screen, ProtectedScreen):
 
 		showCleanup = True
 		for x in self.list:
-			if (not x[0].disabled) and (x[1] == True):
+			if (not x[0].disabled) and (x[1] is True):
 				break
 		else:
 			showCleanup = False
