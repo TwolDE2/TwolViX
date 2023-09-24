@@ -1,4 +1,3 @@
-from enigma import eServiceCenter, eTimer, eServiceReference
 from operator import itemgetter
 
 from Components.config import config, getConfigListEntry, ConfigNothing, NoSave, ConfigPIN, configfile
