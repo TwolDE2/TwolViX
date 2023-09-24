@@ -1,10 +1,9 @@
 from enigma import eTimer, eDVBDB
 
-from boxbranding import getImageVersion, getImageBuild, getImageDevBuild, getImageType, getImageDistro, getMachineBrand, getMachineName, getMachineBuild
-from Components.ActionMap import ActionMap, NumberActionMap
+from boxbranding import getImageType, getMachineBrand, getMachineName
+from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config
-from Components.Console import Console
 from Components.Ipkg import IpkgComponent
 from Components.Pixmap import Pixmap
 from Components.Label import Label
