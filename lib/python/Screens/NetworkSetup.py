@@ -1,7 +1,6 @@
-from os import system, path as os_path, remove, unlink, rename, chmod, access, X_OK
+from os import system, path as os_path, unlink, rename
 import netifaces as ni
 from random import Random
-from shutil import move
 import string
 import time
 
@@ -21,9 +20,7 @@ from Components.Pixmap import Pixmap, MultiPixmap
 from Components.PluginComponent import plugins
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
-from Components.Sources.Boolean import Boolean
 from Components.Sources.List import List
-from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
