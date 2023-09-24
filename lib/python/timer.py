@@ -116,7 +116,7 @@ class TimerEntry:
 	# check if a timer entry must be skipped
 	def shouldSkip(self):
 		if self.disabled:
-			if self.end <= time() and not "PowerTimerEntry" in repr(self):
+			if self.end <= time() and "PowerTimerEntry" not in repr(self):
 				self.disabled = False
 			return True
 		if "PowerTimerEntry" in repr(self):
