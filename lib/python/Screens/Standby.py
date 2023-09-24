@@ -1,16 +1,15 @@
 from os import path
-from time import localtime, time
+from time import time
 
 from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer
 
-from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM, getMachineBuild
+from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM 
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config
 from Components.Console import Console
 import Components.ParentalControl
 from Components.SystemInfo import SystemInfo
-from Components.Sources.StaticText import StaticText
 from Components.Sources.StreamService import StreamServiceList
 from GlobalActions import globalActionMap
 import Screens.InfoBar
@@ -121,7 +120,7 @@ class Standby2(Screen):
 		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getBoxType() in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("off")
-				print("[Standby] close hdmi on enter standby")		
+				print("[Standby] close hdmi on enter standby")
 			except:
 				pass
 		print("[Standby] enter standby")
@@ -136,7 +135,6 @@ class Standby2(Screen):
 		if self.paused_service:
 			self.paused_action and self.paused_service.unPauseService()
 		elif self.prev_running_service:
-			service = self.prev_running_service.toString()
 			if config.servicelist.startupservice_onstandby.value:
 				self.session.nav.playService(eServiceReference(config.servicelist.startupservice.value))
 				from Screens.InfoBar import InfoBar
