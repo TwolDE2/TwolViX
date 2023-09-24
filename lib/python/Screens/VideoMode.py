@@ -2,7 +2,6 @@ from os import path
 
 from enigma import iPlayableService, iServiceInformation, eTimer, eServiceCenter, eServiceReference, eDVBDB
 
-from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import iAVSwitch as iAV
 from Components.config import config, configfile, getConfigListEntry
