@@ -102,11 +102,7 @@ class Navigation:
 			self.currentlyPlayingService = None
 
 	def dispatchRecordEvent(self, rec_service, event):
-<<<<<<< HEAD
-#		print("record_event", rec_service, event)
-=======
 		# print "record_event", rec_service, event
->>>>>>> c27da8e... [Navigation] unused imports
 		for x in self.record_event:
 			try:
 				x(rec_service, event)
