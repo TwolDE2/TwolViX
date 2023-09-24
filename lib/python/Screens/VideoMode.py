@@ -38,7 +38,6 @@ class VideoSetup(ConfigListScreen, Screen):
 		self.list = []
 		ConfigListScreen.__init__(self, self.list, session=session, on_change=self.changedEntry, fullUI=True)
 
-		from Components.ActionMap import ActionMap
 		self["actions"] = ActionMap(["SetupActions"],
 			{
 				"save": self.apply,
