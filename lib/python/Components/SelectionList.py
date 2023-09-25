@@ -1,4 +1,4 @@
-from enigma import eListboxPythonMultiContent, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER
+from enigma import eListboxPythonMultiContent, gFont, RT_HALIGN_LEFT
 from Components.MenuList import MenuList
 from skin import applySkinFactor, fonts, parameters
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
