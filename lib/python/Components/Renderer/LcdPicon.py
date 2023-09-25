@@ -1,6 +1,4 @@
 from os import path as ospath
-import re
-import unicodedata
 
 from enigma import ePixmap, ePicLoad
 from boxbranding import getDisplayType
