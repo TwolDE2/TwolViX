@@ -1,4 +1,4 @@
-from time import localtime, mktime, strftime
+from time import localtime, mktime, strftime, time
 from datetime import datetime
 from Components.ActionMap import HelpableActionMap
 from Components.Button import Button
