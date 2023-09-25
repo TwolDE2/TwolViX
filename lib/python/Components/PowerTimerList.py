@@ -1,6 +1,6 @@
 from timer import TimerEntry
 from enigma import eListboxPythonMultiContent, eListbox, gFont, getDesktop, \
-	RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_TOP, RT_VALIGN_BOTTOM
+	RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_BOTTOM
 
 from Components.GUIComponent import GUIComponent
 from PowerTimer import AFTEREVENT, TIMERTYPE
@@ -11,10 +11,10 @@ from Tools.LoadPixmap import LoadPixmap
 
 
 class PowerTimerList(GUIComponent):
-#
-#  | <Service>     <Name of the Timer>  |
-#  | <start, end>              <state>  |
-#
+	#
+	#  | <Service>     <Name of the Timer>  |
+	#  | <start, end>              <state>  |
+	#
 	def buildTimerEntry(self, timer, processed):
 		screenwidth = getDesktop(0).size().width()
 		timertype = {
