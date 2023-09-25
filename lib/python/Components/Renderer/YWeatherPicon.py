@@ -2,9 +2,8 @@
 
 from enigma import ePixmap, eTimer
 
-from Components.Pixmap import Pixmap
 from Components.Renderer.Renderer import Renderer
-from Components.config import *
+from Components.config import *  # This needs fixing. We need to know what we are importing.
 from Tools.Directories import fileExists, SCOPE_SKIN_IMAGE, SCOPE_CURRENT_SKIN, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
 
