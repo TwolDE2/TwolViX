@@ -6,7 +6,7 @@ from boxbranding import getImageType
 
 from Components.ActionMap import ActionMap
 from Components.Button import Button
-from Components.config import getConfigListEntry, config, ConfigNothing, ConfigBoolean, configfile, NoSave, ConfigSelection
+from Components.config import getConfigListEntry, config, ConfigNothing, ConfigBoolean, configfile, ConfigSelection
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.NimManager import nimmanager
