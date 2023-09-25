@@ -189,7 +189,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 							size += st.st_size
 #					print("[Trashcan][CleanTrashTask][work] lets look at directories")
 					for name in dirs:		# Remove empty directories if possible
-#						print("[Trashcan][CleanTrashTask][work] dir name", dirs, "   ", name)					
+#						print("[Trashcan][CleanTrashTask][work] dir name", dirs, "   ", name)
 						try:
 							rmdir(ospath.join(root, name))
 						except Exception as e:
