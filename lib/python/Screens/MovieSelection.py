@@ -7,7 +7,6 @@ from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigLocations, ConfigSet, ConfigYesNo, ConfigSelection, ConfigSelectionNumber
-from Components.ConfigList import ConfigListScreen
 from Components.DiskInfo import DiskInfo
 from Components.Label import Label
 from Components.MovieList import MovieList, expandCollections, getItemDisplayName, resetMoviePlayState, AUDIO_EXTENSIONS, DVD_EXTENSIONS, IMAGE_EXTENSIONS
@@ -28,6 +27,7 @@ from Screens.HelpMenu import HelpableScreen
 from Screens.InputBox import PinInput
 from Screens.LocationBox import MovieLocationBox
 from Screens.MessageBox import MessageBox
+from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.Screen import Screen
 from Screens.TagEditor import TagEditor
 import Screens.InfoBar
@@ -187,7 +187,6 @@ def createMoveList(serviceref, dest):
 def moveServiceFiles(serviceref, dest, name=None, allowCopy=True):
 	moveList = createMoveList(serviceref, dest)
 	# Try to "atomically" move these files
-	movedList = []
 	try:
 		# print("[MovieSelection] Moving in background...")
 		# start with the smaller files, do the big one later.
@@ -205,7 +204,6 @@ def copyServiceFiles(serviceref, dest, name=None):
 	# current should be "ref" type, dest a simple path string
 	moveList = createMoveList(serviceref, dest)
 	# Try to "atomically" move these files
-	movedList = []
 	try:
 		# print("[MovieSelection] Copying in background...")
 		# start with the smaller files, do the big one later.
@@ -380,9 +378,6 @@ class MovieContextMenuSummary(Screen):
 
 	def selectionChanged(self):
 		self["selected"].text = self.parent["config"].getCurrent()[0][0]
-
-
-from Screens.ParentalControlSetup import ProtectedScreen
 
 
 class MovieContextMenu(Screen, ProtectedScreen):
