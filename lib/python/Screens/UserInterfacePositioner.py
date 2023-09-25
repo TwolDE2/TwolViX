@@ -160,7 +160,7 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 			if self.restoreService not in self.onClose:
 				self.onClose.append(self.restoreService)
 			self.ConsoleB.ePopen('/usr/bin/showiframe /usr/share/enigma2/hd-testcard.mvi')
-#			config.osd.alpha.setValue(155)
+			# config.osd.alpha.setValue(155)
 		else:
 			self.close()
 
@@ -210,7 +210,6 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 		print('[UserInterfacePositioner] Setting OSD position: %s %s %s %s' % (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value))
 
 	def __onClose(self):
-#		config.osd.alpha.setValue(self.alpha)	
 		self.ConsoleB.ePopen('/usr/bin/showiframe /usr/share/backdrop.mvi')
 
 # This is called by the Wizard...
