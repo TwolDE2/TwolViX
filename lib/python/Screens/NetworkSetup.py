@@ -387,7 +387,8 @@ class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 
 	def createSetup(self):
 		self["config"].list = [getConfigListEntry(_("Nameserver %d") % (i+1), x) for i, x in enumerate(self.nameserverEntries)]
-		
+
+
 	def keySave(self):
 		iNetwork.clearNameservers()
 		for nameserver in self.nameserverEntries:
@@ -703,7 +704,7 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 			self.keyCancel()
 
 	def secondIfaceFoundCB(self, data):
-		if data == False:
+		if data is False:
 			self.applyConfig(True)
 		else:
 			configuredInterfaces = iNetwork.getConfiguredAdapters()
@@ -1147,7 +1148,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 
 	def checkNetworkCB(self, data):
 		if iNetwork.getAdapterAttribute(self.iface, "up") is True:
-			if self.LinkState == True:
+			if self.LinkState is True:
 				if data <= 2:
 					self["statuspic"].setPixmapNum(0)
 				else:
@@ -2734,7 +2735,7 @@ class uShareSelection(Screen):
 
 	def selectionChanged(self):
 		current = self["checkList"].getCurrent()[0]
-		if current[2] == True:
+		if current[2] is True:
 			self["key_yellow"].setText(_("Deselect"))
 		else:
 			self["key_yellow"].setText(_("Select"))
