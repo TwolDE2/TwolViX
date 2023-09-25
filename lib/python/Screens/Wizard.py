@@ -357,8 +357,8 @@ class Wizard(Screen):
 				if self.updateValues in self.onShown:
 					self.onShown.remove(self.updateValues)
 
-# 		if print_now:
-# 			print "Now: " + str(self.currStep)
+		# if print_now:
+		#		print "Now: " + str(self.currStep)
 
 	def ok(self):
 		print("[Wizard][OK] currstep, self.wizard", self.currStep, "   ", self.wizard)
@@ -480,7 +480,7 @@ class Wizard(Screen):
 		# calling a step which doesn't exist can only happen if the condition in the last step is not fulfilled
 		# if a non-existing step is called, end the wizard
 		if self.currStep > len(self.wizard):
-			print("[wizard]non existinbg step Updating values in step " + str(self.currStep))		
+			print("[wizard]non existinbg step Updating values in step " + str(self.currStep))
 			self.markDone()
 			self.exit()
 			return
@@ -541,7 +541,7 @@ class Wizard(Screen):
 				self.afterAsyncCode()
 
 	def afterAsyncCode(self):
-		if not self.updateValues in self.onShown:
+		if self.updateValues not in self.onShown:
 			self.onShown.append(self.updateValues)
 
 		if self.codeafter:
@@ -566,9 +566,9 @@ class Wizard(Screen):
 				#self["list"].instance.setZPosition(1)
 				self.list = []
 				if "dynamiclist" in self.wizard[self.currStep]:
-# 					print "dynamic list, calling",  self.wizard[self.currStep]["dynamiclist"]
-					#self.wizard[self.currStep]["evaluatedlist"] = []
-					#del self.wizard[self.currStep]["dynamiclist"]
+					# print "dynamic list, calling",  self.wizard[self.currStep]["dynamiclist"]
+					# self.wizard[self.currStep]["evaluatedlist"] = []
+					# del self.wizard[self.currStep]["dynamiclist"]
 					self.list += getattr(self, self.wizard[self.currStep]["dynamiclist"])()
 
 				self.list += [(self.getTranslation(x[0]), x[1]) for x in self.wizard[self.currStep]["list"]]
@@ -581,7 +581,6 @@ class Wizard(Screen):
 
 			if self.showConfig:
 				print("[Wizard][show config]  showing config")
-# 				self["config"].instance.setZPosition(1)
 				if self.wizard[self.currStep]["config"]["type"] == "dynamic":
 					print("[Wizard][show config]  config type is dynamic")
 					self["config"].instance.setZPosition(2)
