@@ -5,9 +5,7 @@ import math
 
 from enigma import eCanvas, eSize, gRGB, eRect
 
-from Components.config import config
 from Components.Renderer.Renderer import Renderer
-from Components.VariableText import VariableText
 from skin import parseColor
 
 
@@ -105,7 +103,7 @@ class AnalogClockLCD(Renderer):
 			sopt = int(opt[0])
 			if len(opt) < 2:
 				opt.append('')
-		except Exception as e:
+		except:
 			return
 
 		if (what[0] == self.CHANGED_CLEAR):
