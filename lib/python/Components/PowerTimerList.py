@@ -1,5 +1,5 @@
 from timer import TimerEntry
-from enigma import eListboxPythonMultiContent, eListbox, gFont, getDesktop, \
+from enigma import eListboxPythonMultiContent, eListbox, gFont, \
 	RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_BOTTOM
 
 from Components.GUIComponent import GUIComponent
@@ -16,7 +16,6 @@ class PowerTimerList(GUIComponent):
 	#  | <start, end>              <state>  |
 	#
 	def buildTimerEntry(self, timer, processed):
-		screenwidth = getDesktop(0).size().width()
 		timertype = {
 			TIMERTYPE.WAKEUP: _("Wake Up"),
 			TIMERTYPE.WAKEUPTOSTANDBY: _("Wake Up To Standby"),
