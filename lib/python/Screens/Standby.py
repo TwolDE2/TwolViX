@@ -3,7 +3,7 @@ from time import time
 
 from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer
 
-from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM 
+from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config
@@ -339,7 +339,6 @@ class TryQuitMainloop(MessageBox):
 			self.quitScreen = self.session.instantiateDialog(QuitMainloopScreen, retvalue=self.retval)
 			self.quitScreen.show()
 			print("[Standby] quitMainloop #1")
-			quitMainloopCode = self.retval
 			if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 				# set LCDminiTV off / fix a deep-standby-crash on some boxes / gb4k
 				print("[Standby] LCDminiTV off")
