@@ -1,4 +1,6 @@
 from os import chmod as oschmod
+from time import time
+
 from enigma import eTimer, eDVBLocalTimeHandler, eEPGCache
 from Components.config import config
 from Components.Console import Console
