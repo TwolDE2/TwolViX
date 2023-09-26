@@ -30,7 +30,6 @@ class CamControl:
 		print("[CamControl][getList] configs=%s" % configs)
 		return configs
 
-
 	def current(self):
 		try:
 			l = readlink(self.link)
@@ -49,7 +48,7 @@ class CamControl:
 	def select(self, cam):
 		print("[CamControl]Selecting CAM:%s" % cam)
 		if not cam:
-			cam= "None"
+			cam = "None"
 		dst = "%s.%s" % (self.name, cam)
 		print("[CamControl][select] dst:%s" % dst)
 		if not path.exists("/etc/init.d/%s" % dst):
