@@ -228,27 +228,28 @@ class Timer:
 			if not noRecalc:
 				self.calcNextActivation(dosave)
 
-''' Small piece of example code to understand how to use record simulation
-		if NavigationInstance.instance:
-			lst = [ ]
-			cnt = 0
-			for timer in self.timer_list:
-				print "timer", cnt
-				cnt += 1
-				if timer.state == 0: #waiting
-					lst.append(NavigationInstance.instance.recordService(timer.service_ref))
-				else:
-					print "STATE: ", timer.state
+	''' Small piece of example code to understand how to use record simulation
+			if NavigationInstance.instance:
+				lst = [ ]
+				cnt = 0
+				for timer in self.timer_list:
+					print "timer", cnt
+					cnt += 1
+					if timer.state == 0: #waiting
+						lst.append(NavigationInstance.instance.recordService(timer.service_ref))
+					else:
+						print("STATE: ", timer.state)
 
-			for rec in lst:
-				if rec.start(True): #simulate
-					print "FAILED!!!!!!!!!!!!"
-				else:
-					print "OK!!!!!!!!!!!!!!"
-				NavigationInstance.instance.stopRecordService(rec)
-		else:
-			print "no NAV" .'''
-
+				for rec in lst:
+					if rec.start(True): #simulate
+						print("FAILED!!!!!!!!!!!!")
+					else:
+						print("OK!!!!!!!!!!!!!!")
+					NavigationInstance.instance.stopRecordService(rec)
+			else:
+				print "no NAV" . 
+	'''
+	
 	def setNextActivation(self, now, when):
 		delay = int((when - now) * 1000)
 		self.timer.start(delay, 1)
