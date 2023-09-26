@@ -2,7 +2,6 @@ import chardet
 import datetime
 from os import path, uname
 import struct
-import time
 from sys import maxsize
 
 from enigma import eActionMap, eHdmiCEC, eTimer
