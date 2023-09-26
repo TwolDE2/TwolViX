@@ -22,6 +22,8 @@ from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
 from Plugins.Plugin import PluginDescriptor
+from Plugins.SystemPlugins.NetworkWizard.NetworkWizard import NetworkWizard
+from Plugins.SystemPlugins.WirelessLan.Wlan import brcmWLConfig, iStatus, wpaSupplicant, WlanScan, WlanStatus
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
@@ -294,8 +296,7 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 				active_int = False
 			self.list.append(self.buildInterfaceList(x[1], _(x[0]), default_int, active_int))
 
-		if isPluginInstalled("NetworkWizard"):
-			self["key_blue"].setText(_("Network wizard"))
+		self["key_blue"].setText(_("Network wizard"))
 		self["list"].list = self.list
 
 	def setDefaultInterface(self):
@@ -350,15 +351,9 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 			self.session.open(MessageBox, _("Finished configuring your network"), type=MessageBox.TYPE_INFO, timeout=10, default=False)
 
 	def openNetworkWizard(self):
-		if isPluginInstalled("NetworkWizard"):
-			try:
-				from Plugins.SystemPlugins.NetworkWizard.NetworkWizard import NetworkWizard
-			except ImportError:
-				self.session.open(MessageBox, _("The network wizard extension is not installed!\nPlease install it."), type=MessageBox.TYPE_INFO, timeout=10)
-			else:
-				selection = self["list"].getCurrent()
-				if selection is not None:
-					self.session.openWithCallback(self.AdapterSetupClosed, NetworkWizard, selection[0])
+		selection = self["list"].getCurrent()
+		if selection is not None:
+			self.session.openWithCallback(self.AdapterSetupClosed, NetworkWizard, selection[0])
 
 
 class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
@@ -579,10 +574,8 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 		if iNetwork.isWirelessInterface(self.iface):
 			driver = iNetwork.detectWlanModule(self.iface)
 			if driver in ("brcm-wl", ):
-				from Plugins.SystemPlugins.WirelessLan.Wlan import brcmWLConfig
 				self.ws = brcmWLConfig()
 			else:
-				from Plugins.SystemPlugins.WirelessLan.Wlan import wpaSupplicant
 				self.ws = wpaSupplicant()
 			self.encryptionlist = []
 			self.encryptionlist.append(("Unencrypted", _("Unencrypted")))
@@ -909,15 +902,10 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		self.cleanup()
 		if self["menulist"].getCurrent()[1] == "edit":
 			if iNetwork.isWirelessInterface(self.iface):
-				try:
-					from Plugins.SystemPlugins.WirelessLan.plugin import WlanScan
-				except ImportError:
-					self.session.open(MessageBox, self.missingwlanplugintxt, type=MessageBox.TYPE_INFO, timeout=10)
+				if self.queryWirelessDevice(self.iface):
+					self.session.openWithCallback(self.AdapterSetupClosed, AdapterSetup, self.iface)
 				else:
-					if self.queryWirelessDevice(self.iface):
-						self.session.openWithCallback(self.AdapterSetupClosed, AdapterSetup, self.iface)
-					else:
-						self.showErrorMessage()  # Display Wlan not available Message
+					self.showErrorMessage()  # Display Wlan not available Message
 			else:
 				self.session.openWithCallback(self.AdapterSetupClosed, AdapterSetup, self.iface)
 		if self["menulist"].getCurrent()[1] == "test":
@@ -927,29 +915,18 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		if self["menulist"].getCurrent()[1] == 'mac':
 			self.session.open(NetworkMacSetup)
 		if self["menulist"].getCurrent()[1] == "scanwlan":
-			try:
-				from Plugins.SystemPlugins.WirelessLan.plugin import WlanScan
-			except ImportError:
-				self.session.open(MessageBox, self.missingwlanplugintxt, type=MessageBox.TYPE_INFO, timeout=10)
+			if self.queryWirelessDevice(self.iface):
+				self.session.openWithCallback(self.WlanScanClosed, WlanScan, self.iface)
 			else:
-				if self.queryWirelessDevice(self.iface):
-					self.session.openWithCallback(self.WlanScanClosed, WlanScan, self.iface)
-				else:
-					self.showErrorMessage()  # Display Wlan not available Message
+				self.showErrorMessage()  # Display Wlan not available Message
 		if self["menulist"].getCurrent()[1] == "wlanstatus":
-			try:
-				from Plugins.SystemPlugins.WirelessLan.plugin import WlanStatus
-			except ImportError:
-				self.session.open(MessageBox, self.missingwlanplugintxt, type=MessageBox.TYPE_INFO, timeout=10)
+			if self.queryWirelessDevice(self.iface):
+				self.session.openWithCallback(self.WlanStatusClosed, WlanStatus, self.iface)
 			else:
-				if self.queryWirelessDevice(self.iface):
-					self.session.openWithCallback(self.WlanStatusClosed, WlanStatus, self.iface)
-				else:
-					self.showErrorMessage()  # Display Wlan not available Message
+				self.showErrorMessage()  # Display Wlan not available Message
 		if self["menulist"].getCurrent()[1] == "lanrestart":
 			self.session.openWithCallback(self.restartLan, MessageBox, (_("Are you sure you want to restart your network interfaces?\n\n") + self.oktext))
 		if self["menulist"].getCurrent()[1] == "openwizard":
-			from Plugins.SystemPlugins.NetworkWizard.NetworkWizard import NetworkWizard
 			self.session.openWithCallback(self.AdapterSetupClosed, NetworkWizard, self.iface)
 		if self["menulist"].getCurrent()[1][0] == "extendedSetup":
 			self.extended = self["menulist"].getCurrent()[1][2]
@@ -1009,13 +986,9 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 
 		if iNetwork.isWirelessInterface(self.iface):
 			self["devicepic"].setPixmapNum(1)
-			try:
-				from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus
-			except:
-				self["statuspic"].setPixmapNum(1)
-				self["statuspic"].show()
-			else:
-				iStatus.getDataForInterface(self.iface, self.getInfoCB)
+			self["statuspic"].setPixmapNum(1)
+			self["statuspic"].show()
+			iStatus.getDataForInterface(self.iface, self.getInfoCB)
 		else:
 			iNetwork.getLinkState(self.iface, self.dataAvail)
 			self["devicepic"].setPixmapNum(0)
@@ -1049,23 +1022,17 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 					self.extendedSetup = ("extendedSetup", menuEntryDescription, self.extended)
 					menu.append((menuEntryName, self.extendedSetup))
 
-		if isPluginInstalled("NetworkWizard"):
-			menu.append((_("Network wizard"), "openwizard"))
+		menu.append((_("Network wizard"), "openwizard"))
 		menu.append((_("Network MAC settings"), "mac"))
 		return menu
 
 	def AdapterSetupClosed(self, *ret):
 		if ret is not None and len(ret):
 			if ret[0] == "ok" and (iNetwork.isWirelessInterface(self.iface) and iNetwork.getAdapterAttribute(self.iface, "up") is True):
-				try:
-					from Plugins.SystemPlugins.WirelessLan.plugin import WlanStatus
-				except ImportError:
-					self.session.open(MessageBox, self.missingwlanplugintxt, type=MessageBox.TYPE_INFO, timeout=10)
+				if self.queryWirelessDevice(self.iface):
+					self.session.openWithCallback(self.WlanStatusClosed, WlanStatus, self.iface)
 				else:
-					if self.queryWirelessDevice(self.iface):
-						self.session.openWithCallback(self.WlanStatusClosed, WlanStatus, self.iface)
-					else:
-						self.showErrorMessage()  # Display Wlan not available Message
+					self.showErrorMessage()  # Display Wlan not available Message
 			else:
 				self.updateStatusbar()
 		else:
@@ -1073,7 +1040,6 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 
 	def WlanStatusClosed(self, *ret):
 		if ret is not None and len(ret):
-			from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus
 			iStatus.stopWlanConsole()
 			self.updateStatusbar()
 
@@ -1081,7 +1047,6 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		if ret[0] is not None:
 			self.session.openWithCallback(self.AdapterSetupClosed, AdapterSetup, self.iface, ret[0])
 		else:
-			from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus
 			iStatus.stopWlanConsole()
 			self.updateStatusbar()
 
@@ -1126,12 +1091,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		iNetwork.stopDeactivateInterfaceConsole()
 		iNetwork.stopActivateInterfaceConsole()
 		iNetwork.stopPingConsole()
-		try:
-			from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus
-		except ImportError:
-			pass
-		else:
-			iStatus.stopWlanConsole()
+		iStatus.stopWlanConsole()
 
 	def getInfoCB(self, data, status):
 		self.LinkState = None
@@ -1493,15 +1453,11 @@ class NetworkAdapterTest(Screen):
 
 	def getLinkState(self, iface):
 		if iface in iNetwork.wlan_interfaces:
-			try:
-				from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus
-			except:
-				self["Network"].setForegroundColorNum(1)
-				self["Network"].setText(_("disconnected"))
-				self["NetworkInfo_Check"].setPixmapNum(1)
-				self["NetworkInfo_Check"].show()
-			else:
-				iStatus.getDataForInterface(self.iface, self.getInfoCB)
+			self["Network"].setForegroundColorNum(1)
+			self["Network"].setText(_("disconnected"))
+			self["NetworkInfo_Check"].setPixmapNum(1)
+			self["NetworkInfo_Check"].show()
+			iStatus.getDataForInterface(self.iface, self.getInfoCB)
 		else:
 			iNetwork.getLinkState(iface, self.LinkStatedataAvail)
 
@@ -1576,12 +1532,7 @@ class NetworkAdapterTest(Screen):
 	def cleanup(self):
 		iNetwork.stopLinkStateConsole()
 		iNetwork.stopDNSConsole()
-		try:
-			from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus
-		except ImportError:
-			pass
-		else:
-			iStatus.stopWlanConsole()
+		iStatus.stopWlanConsole()
 
 
 class NetworkMountsMenu(Screen, HelpableScreen):
