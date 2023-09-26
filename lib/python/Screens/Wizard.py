@@ -480,7 +480,7 @@ class Wizard(Screen):
 		# calling a step which doesn't exist can only happen if the condition in the last step is not fulfilled
 		# if a non-existing step is called, end the wizard
 		if self.currStep > len(self.wizard):
-			print("[wizard]non existinbg step Updating values in step " + str(self.currStep))
+			print("[wizard]non existing step Updating values in step " + str(self.currStep))
 			self.markDone()
 			self.exit()
 			return
