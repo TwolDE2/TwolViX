@@ -155,7 +155,7 @@ class VIXSoftcamManager(Screen):
 		self.activityTimer.timeout.get().append(self.getActivecam)
 		self.Console = Console()
 		self.showActivecam()
-		if not self.selectionChanged in self["list"].onSelectionChanged:
+		if self.selectionChanged not in self["list"].onSelectionChanged:
 			self["list"].onSelectionChanged.append(self.selectionChanged)
 
 	def createSummary(self):
@@ -328,28 +328,28 @@ class VIXSoftcamManager(Screen):
 				sleep(4)
 			else:
 				print("[SoftcamManager] RESULT FAILED: " + result)
-			if selectedcam.lower().startswith("cccam") and path.exists("/etc/CCcam.cfg") == True:
+			if selectedcam.lower().startswith("cccam") and path.exists("/etc/CCcam.cfg") is True:
 				if self.currentactivecam.lower().find("mgcam") < 0:
 					self.session.openWithCallback(self.showActivecam, VIXStartCam, self.sel[0])
 				else:
 					self.session.open(MessageBox, _("CCcam can't run whilst MGcamd is running."), MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
-			elif selectedcam.lower().startswith("cccam") and path.exists("/etc/CCcam.cfg") == False:
+			elif selectedcam.lower().startswith("cccam") and path.exists("/etc/CCcam.cfg") is False:
 				self.session.open(MessageBox, _("No config files found, please setup CCcam first\nin /etc/CCcam.cfg."), MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
-			elif selectedcam.lower().startswith("oscam") and path.exists("/etc/tuxbox/config/oscam.conf") == True:
+			elif selectedcam.lower().startswith("oscam") and path.exists("/etc/tuxbox/config/oscam.conf") is True:
 				self.session.openWithCallback(self.showActivecam, VIXStartCam, self.sel[0])
-			elif selectedcam.lower().startswith("oscam") and path.exists("/etc/tuxbox/config/oscam.conf") == False:
+			elif selectedcam.lower().startswith("oscam") and path.exists("/etc/tuxbox/config/oscam.conf") is False:
 				if not path.exists("/etc/tuxbox/config"):
 					makedirs("/etc/tuxbox/config")
 				self.session.open(MessageBox, _("No config files found, please setup Oscam first\nin /etc/tuxbox/config."), MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
-			elif selectedcam.lower().startswith("ncam") and path.exists("/etc/tuxbox/config/ncam.conf") == True:
+			elif selectedcam.lower().startswith("ncam") and path.exists("/etc/tuxbox/config/ncam.conf") is True:
 				self.session.openWithCallback(self.showActivecam, VIXStartCam, self.sel[0])
-			elif selectedcam.lower().startswith("ncam") and path.exists("/etc/tuxbox/config/ncam.conf") == False:
+			elif selectedcam.lower().startswith("ncam") and path.exists("/etc/tuxbox/config/ncam.conf") is False:
 				if not path.exists("/etc/tuxbox/config"):
 					makedirs("/etc/tuxbox/config")
 				self.session.open(MessageBox, _("No config files found, please setup Ncam first\nin /etc/tuxbox/config."), MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
-			elif selectedcam.lower().startswith("mgcam") and path.exists("/var/keys/mg_cfg") == True:
+			elif selectedcam.lower().startswith("mgcam") and path.exists("/var/keys/mg_cfg") is True:
 				self.session.openWithCallback(self.showActivecam, VIXStartCam, self.sel[0])
-			elif selectedcam.lower().startswith("mgcam") and path.exists("/var/keys/mg_cfg") == False:
+			elif selectedcam.lower().startswith("mgcam") and path.exists("/var/keys/mg_cfg") is False:
 				if self.currentactivecam.lower().find("cccam") < 0:
 					self.session.open(MessageBox, _("No config files found, please setup MGcamd first\nin /usr/keys."), MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 				else:
@@ -505,7 +505,6 @@ class VIXStopCam(Screen):
 				file = open("/etc/SoftcamsAutostart")
 				data = file.read()
 				file.close()
-				finddata = data.find(stopselectedcam)
 				if data.find(stopselectedcam) >= 0:
 					print("[SoftcamManager] Temporarily disabled timed check for " + stopselectedcam)
 					output = open("/tmp/cam.check.log", "a")
@@ -531,7 +530,6 @@ class VIXStopCam(Screen):
 				file = open("/etc/SoftcamsAutostart")
 				data = file.read()
 				file.close()
-				finddata = data.find(stopselectedcam)
 				if data.find(stopselectedcam) >= 0:
 					print("[SoftcamManager] Temporarily disabled timed check for " + stopselectedcam)
 					output = open("/tmp/cam.check.log", "a")
