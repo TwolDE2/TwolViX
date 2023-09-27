@@ -12,8 +12,7 @@ from enigma import setAnimation_current, setAnimation_speed
 from boxbranding import getBrandOEM
 
 # default = disabled
-g_default = 
-	{
+g_default = {
 	"current": 0,
 	"speed": 20,
 	}
