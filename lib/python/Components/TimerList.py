@@ -147,7 +147,7 @@ class TimerList(GUIComponent):
 		self.iconMargin = 4
 		self.satPosLeft = 160
 		self.iconWait = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/timer_wait.png"))
-		#currently intended that all icons have the same size
+		# currently intended that all icons have the same size
 		self.iconWidth = self.iconWait.size().width()
 		self.iconHeight = self.iconWait.size().height()
 		self.iconRecording = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/timer_rec.png"))
