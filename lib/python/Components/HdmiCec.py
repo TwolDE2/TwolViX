@@ -379,7 +379,6 @@ class HdmiCec:
 		if config.hdmicec.enabled.value:
 			data = 16 * "\x00"
 			cmd = message.getCommand()
-			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			length = message.getData(data, len(data))
 			ctrl0 = message.getControl0()
 			ctrl1 = message.getControl1()
@@ -387,7 +386,8 @@ class HdmiCec:
 			msgaddress = message.getAddress()			# 0 = TV, 5 = receiver 15 = broadcast
 			if cmd == 0x87:					# LG OLED TV/Sonos
 				return
-			# print("[HdmiCec][messageReceived0]: msgaddress=%s  CECcmd=%s, cmd=%X, ctrl0=%s, length=%s" % (msgaddress, CECcmd, cmd, ctrl0, length))
+			# CECcmd = cmdList.get(cmd, "<Polling Message>")				
+			# print("[HdmiCec][messageReceived0]: msgaddress=%s  CEC=%s, cmd=%X, ctrl0=%s, length=%s" % (msgaddress, CECcmd, cmd, ctrl0, length))
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, ctrl0)
 			if msgaddress > 15:  # workaround for wrong address from driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
@@ -512,11 +512,11 @@ class HdmiCec:
 			cmd = 0x9E  # 158
 			data = struct.pack("B", 0x04)  # v1.3a
 		if data:				# keep cmd+data calls above this line so binary data converted
-			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			if data:
 				encoder = chardet.detect(data)["encoding"]
 				data = data.decode(encoding=encoder, errors="ignore")
-				# print("[HdmiCec][sendMessage]: CECcmd=%s  cmd=%X, data=struct.pack" % (CECcmd, cmd))
+				CECcmd = cmdList.get(cmd, "<Polling Message>")				
+				# print("[HdmiCec][sendMessage]: CEC=%s  cmd=%X, data=struct.pack" % (CECcmd, cmd))
 		elif message == "wakeup":
 			if config.hdmicec.tv_wakeup_command.value == "textview":
 				cmd = 0x0d
@@ -539,8 +539,8 @@ class HdmiCec:
 			cmd = 0x8f
 			msgaddress = 0x0f  # use broadcast msgaddress => boxes will send info
 		if cmd != 0:
-			CECcmd = cmdList.get(cmd, "<Polling Message>")
-			# print("[HdmiCec][sendMessage3]: CECcmd=%s cmd=%X, msgaddress=%s data=%s" % (CECcmd, cmd, msgaddress, data))
+			# CECcmd = cmdList.get(cmd, "<Polling Message>")
+			# print("[HdmiCec][sendMessage3]: CEC=%s cmd=%X, msgaddress=%s data=%s" % (CECcmd, cmd, msgaddress, data))
 			if config.hdmicec.minimum_send_interval.value != "0":
 				self.queue.append((msgaddress, cmd, data))
 				if not self.wait.isActive():
@@ -554,7 +554,7 @@ class HdmiCec:
 		if len(self.queue):
 			(msgaddress, cmd, data) = self.queue.pop(0)
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
-			print("[HdmiCec][sendMsgQ1]: msgaddress=%s, CECcmd=%s cmd=%X,data=%s \n" % (msgaddress, CECcmd, cmd, data))
+			print("[HdmiCec][sendMsgQ1]: msgaddress=%s, CEC=%s cmd=%X,data=%s \n" % (msgaddress, CECcmd, cmd, data))
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
@@ -583,7 +583,7 @@ class HdmiCec:
 		self.standbyMessages()
 
 	def onEnterDeepStandby(self, configElement):
-		# print("[HdmiCec][onEnterDeepStandby: config.hdmicec.enabled, config.hdmicec.handle_deepstandby_events=", config.hdmicec.enabled.value, "   ", config.hdmicec.handle_deepstandby_events.value)	
+		# print("[HdmiCec][onEnterDeepStandby: config.hdmicec.enabled, config.hdmicec.handle_deepstandby_events=", config.hdmicec.enabled.value, "   ", config.hdmicec.handle_deepstandby_events.value)
 		if config.hdmicec.enabled.value and config.hdmicec.handle_deepstandby_events.value:
 			self.standbyMessages()
 
