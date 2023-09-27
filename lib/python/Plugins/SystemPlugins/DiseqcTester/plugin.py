@@ -173,11 +173,11 @@ class DiseqcTester(Screen, TuneTest, ResultParser):
 		<widget source="progress_list" render="Listbox" position="0,0" size="510,150" scrollbarMode="showOnDemand">
 			<convert type="TemplatedMultiContent">
 				{"template": [
-						MultiContentEntryText(pos = (10, 0), size = (330, 25), flags = RT_HALIGN_LEFT, text = 1), # index 1 is the index name,
-						MultiContentEntryText(pos = (330, 0), size = (150, 25), flags = RT_HALIGN_RIGHT, text = 2) # index 2 is the status,
+					MultiContentEntryText(pos = (10, 0), size = (330, 25), flags = RT_HALIGN_LEFT, text = 1), # index 1 is the index name,
+					MultiContentEntryText(pos = (330, 0), size = (150, 25), flags = RT_HALIGN_RIGHT, text = 2) # index 2 is the status,
 					],
-				 "fonts": [gFont("Regular", 20)],
-				 "itemHeight": 25
+				"fonts": [gFont("Regular", 20)],
+				"itemHeight": 25
 				}
 			</convert>
 		</widget>
@@ -220,7 +220,7 @@ class DiseqcTester(Screen, TuneTest, ResultParser):
 		}, -2)
 
 		TuneTest.__init__(self, feid, stopOnSuccess=self.loopssuccessful, stopOnError=self.loopsfailed)
-		#self["Frontend"] = FrontendStatus(frontend_source = lambda : self.frontend, update_interval = 100)
+		# self["Frontend"] = FrontendStatus(frontend_source = lambda : self.frontend, update_interval = 100)
 		self["overall_progress"] = Progress()
 		self["sub_progress"] = Progress()
 
