@@ -136,7 +136,7 @@ def getCpuCoresInt():
 
 def getCpuCoresString():
 	cores = getCpuCoresInt()
-	return {
+	return	{
 			0: _("unavailable"),
 			1: _("Single core"),
 			2: _("Dual core"),
