@@ -461,9 +461,9 @@ class LamedbWriter():
 								eDVBFrontendParametersSatellite.No_Stream_Id_Filter,
 								eDVBFrontendParametersSatellite.PLS_Gold,
 								eDVBFrontendParametersSatellite.PLS_Default_Gold_Code)
-						except AttributeError as err:
-							pass  # print("[%s-BouquetsWriter] some images are still not multistream aware after all this time" % (debug_name),  err)
-					lamedblist.append("\ts %d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d%s%s\n" %
+						except AttributeError:
+							pass
+						lamedblist.append("\ts %d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d%s%s\n" %
 						(transponder["frequency"],
 						transponder["symbol_rate"],
 						transponder["polarization"],
@@ -603,8 +603,8 @@ class LamedbWriter():
 									transponder["is_id"],
 									transponder["pls_code"],
 									transponder["pls_mode"])
-						except AttributeError as err:
-							pass  # print("[%s-BouquetsWriter] some images are still not multistream aware after all this time" % (debug_name), err)
+						except AttributeError:
+							pass
 					if "t2mi_plp_id" in transponder and "t2mi_pid" in transponder:
 						t2mi = ',T2MI:%d:%d' % (
 						transponder["t2mi_plp_id"],

@@ -13,8 +13,8 @@ from Screens.WizardLanguage import WizardLanguage
 from Tools.Directories import isPluginInstalled, resolveFilename, SCOPE_PLUGINS
 if isPluginInstalled("WirelessLan"):
 	from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus, iWlan
-	
-	
+
+
 class NetworkWizard(WizardLanguage, Rc):
 	skin = """
 		<screen position="0,0" size="720,576" title="Welcome..." flags="wfNoBorder" >
@@ -317,7 +317,6 @@ class NetworkWizard(WizardLanguage, Rc):
 					self["list"].setIndex(newListIndex)
 				self["list"].updateList(self.newAPlist)
 
-
 	def listAccessPoints(self):
 		self.APList = []
 		if self.WlanPluginInstalled is False:
@@ -349,16 +348,13 @@ class NetworkWizard(WizardLanguage, Rc):
 		self.rescanTimer.start(4000)
 		return self.APList
 
-
 	def AccessPointsSelectionMoved(self):
 		self.ap = self.selection
 		self.NextStep = 'wlanconfig'
 
-
 	def checkWlanSelection(self):
 		self.stopScan()
 		self.currStep = self.getStepWithID(self.NextStep)
-
 
 	def listChoices(self):
 		self.stopScan()
@@ -369,10 +365,8 @@ class NetworkWizard(WizardLanguage, Rc):
 		list.append((_("Exit network wizard"), "end"))
 		return list
 
-
 	def ChoicesSelectionMade(self, index):
 		self.ChoicesSelect(index)
-
 
 	def ChoicesSelect(self, index):
 		if index == 'end':
@@ -382,7 +376,6 @@ class NetworkWizard(WizardLanguage, Rc):
 			self.NextStep = 'nwconfig'
 		else:
 			self.NextStep = 'asknetworktype'
-
 
 	def ChoicesSelectionMoved(self):
 		pass
