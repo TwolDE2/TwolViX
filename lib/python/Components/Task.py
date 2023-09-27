@@ -1,6 +1,6 @@
 # A Job consists of many "Tasks".
 # A task is the run of an external tool, with proper methods for failure handling
-from os import access, environ, path as ospath, pathsep, statvfs, F_OK, X_OK, W_OK
+from os import access, environ, path as ospath, pathsep, statvfs, X_OK, W_OK
 
 from Tools.CList import CList
 
@@ -431,6 +431,7 @@ class JobManager:
 		list += self.active_jobs
 		return list
 
+
 '''
 	some examples:
 	class PartitionExistsPostcondition:
@@ -466,6 +467,7 @@ class JobManager:
 			self.args += ["-t", filesystem]
 		self.args.append(device + "part%d" % partition)
 '''
+
 
 class Condition:
 	def __init__(self):
@@ -564,6 +566,7 @@ class FailedPostcondition(Condition):
 			else:
 				return _("Error code") + " %s" % self.exception
 		return str(self.exception)
+
 
 	def check(self, task):
 		return (self.exception is None) or (self.exception == 0)
