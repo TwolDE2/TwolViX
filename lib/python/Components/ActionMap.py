@@ -84,7 +84,7 @@ class HelpableActionMap(ActionMap):
 	'''
 		An Actionmap which automatically puts the actions into the helpList.
 		A context list is allowed, and for backward compatibility, a single
-		string context name also is allowed.	
+		string context name also is allowed.
 		Sorry for this complicated code.  It's not more than converting a
 		"documented" actionmap (where the values are possibly (function,
 		help)-tuples) into a "classic" actionmap, where values are just
