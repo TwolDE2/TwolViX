@@ -42,7 +42,7 @@ def processHotplugData(self, eventData):
 		# remains in if no other media was played.
 		try:
 			with open("/etc/enigma2/playlist.e2pls", "r") as fd:
-				file = f.readline().strip()
+				file = fd.readline().strip()
 		except (IOError, OSError):
 			file = None
 		if file and ".cda" in file:
