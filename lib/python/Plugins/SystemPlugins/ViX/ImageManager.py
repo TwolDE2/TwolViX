@@ -6,7 +6,7 @@ import tempfile
 from boxbranding import getBoxType, getImageType, getImageDistro, getImageVersion, getImageBuild, getImageDevBuild, getImageFolder, getImageFileSystem, getBrandOEM, getMachineBrand, getMachineName, getMachineBuild, getMachineMake, getMachineMtdRoot, getMachineRootFile, getMachineMtdKernel, getMachineKernelFile, getMachineMKUBIFS, getMachineUBINIZE
 from enigma import eTimer, fbClass
 from os import path, stat, system, mkdir, makedirs, listdir, remove, rename, rmdir, sep as ossep, statvfs, chmod, walk
-from shutil import copy, copyfile, move, rmtree
+from shutil import copyfile, move, rmtree
 from time import localtime, time, strftime, mktime
 
 from Components.ActionMap import ActionMap
@@ -26,7 +26,6 @@ from Screens.Setup import Setup
 from Screens.Standby import TryQuitMainloop
 from Screens.TaskView import JobView
 from Screens.TextBox import TextBox
-from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileExists, pathExists, fileHas
 import Tools.CopyFiles
 from Tools.HardwareInfo import HardwareInfo
@@ -698,11 +697,10 @@ class VIXImageManager(Screen):
 			if '/media/hdd' in item[1] and "/dev/sd" in item[0]:
 				installedHDD = True
 				break
-#		print("[ImageManager][VuKexecCopyimage] installedHDD", installedHDD, "   ", item[1], "   ", item[2])
 		if installedHDD and pathExists("/media/hdd"):
 			if not pathExists("/media/hdd/%s" % getBoxType()):
 				mkdir("/media/hdd/%s" % getBoxType())
-			for slotnum in range(2,4):
+			for slotnum in range(2, 4):
 				if pathExists("/linuxrootfs%s" % slotnum):
 					if pathExists("/media/hdd/%s/linuxrootfs%s/" % (getBoxType(), slotnum)):
 						rmtree("/media/hdd/%s/linuxrootfs%s" % (getBoxType(), slotnum), ignore_errors=True)
