@@ -107,7 +107,6 @@ EXTENSIONS = {
 }
 
 
-
 def FileEntryComponent(name, absolute=None, isDir=False):
 	res = [(absolute, isDir)]
 	x, y, w, h = parameters.get("FileListName", applySkinFactor(35, 1, 470, 20))
