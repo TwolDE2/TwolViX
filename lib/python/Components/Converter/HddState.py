@@ -20,6 +20,7 @@ from enigma import eTimer
 	***************************************************************
 '''
 
+
 class HddState(Converter):
 	ALL = 0
 	INTERNAL_ALL = 1
