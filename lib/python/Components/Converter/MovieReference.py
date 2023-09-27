@@ -1,12 +1,12 @@
 '''
-  Movie Selection:
- <widget source="Service" render="Picon" position="1120,95" zPosition="14" size="100,60" transparent="12" alphatest="blend">
+	Movie Selection:
+	<widget source="Service" render="Picon" position="1120,95" zPosition="14" size="100,60" transparent="12" alphatest="blend">
 	<convert type="MovieReference"/>
- </widget>
-  Movie Player Infobar:
- <widget source="session.CurrentService" render="Picon" position="1120,95" zPosition="14" size="100,60" transparent="12" alphatest="blend">
-	<convert type="MovieReference"/>
- </widget>
+		</widget>
+	Movie Player Infobar:
+	<widget source="session.CurrentService" render="Picon" position="1120,95" zPosition="14" size="100,60" transparent="12" alphatest="blend">
+		<convert type="MovieReference"/>
+		</widget>
 '''
 
 from enigma import iServiceInformation, eServiceReference, iPlayableServicePtr
@@ -32,7 +32,6 @@ class MovieReference(Converter):
 			info = None
 		if info is None:
 			return ""
-
 		if service is None:
 			refstr = info.getInfoString(iServiceInformation.sServiceref)
 			path = refstr and eServiceReference(refstr).getPath()
@@ -46,5 +45,4 @@ class MovieReference(Converter):
 			return refstr
 		else:
 			return info.getInfoString(service, iServiceInformation.sServiceref)
-
 	text = property(getText)
