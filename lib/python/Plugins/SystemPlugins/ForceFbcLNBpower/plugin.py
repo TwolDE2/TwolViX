@@ -6,13 +6,12 @@ from Components.config import config, getConfigListEntry, ConfigSubsection, Conf
 from Components.ConfigList import ConfigListScreen
 from Components.NimManager import nimmanager
 from Components.Sources.StaticText import StaticText
+from Components.Sources.TunerInfo import TunerInfo
 from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 
-
-# HasFBCDVBStuner = ["Vuplus DVB-S NIM(7376 FBC)", "Vuplus DVB-S NIM(45308X FBC)", "Vuplus DVB-S NIM(45208 FBC)", "DVB-S NIM(45208 FBC)", "DVB-S2X NIM(45308X FBC)", "DVB-S2 NIM(45308 FBC)", "BCM45208", "BCM45308X"]
 
 config.plugins.miscControl = ConfigSubsection()
 config.plugins.miscControl.forceLnbPower = ConfigSelection(default="off", choices=[("on", _("Yes")), ("off", _("No")), ("auto", _("Auto"))])
@@ -24,14 +23,16 @@ PROC_FORCE_TONEBURST = "/proc/stb/frontend/fbc/force_toneburst"
 IS_PROC_FORCE_LNBPOWER = ospath.exists(PROC_FORCE_LNBPOWER)
 IS_PROC_FORCE_TONEBURST = ospath.exists(PROC_FORCE_TONEBURST)
 
+
 def setProcValueOnOff(value, procPath):
 	try:
 		fd = open(procPath,'w')
 		fd.write(value)
 		fd.close()
 		return 0
-	except Exception as e:
+	except Exception:
 		return -1
+
 
 class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 	skin = 	"""
@@ -62,17 +63,21 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 		self.dispErrorTimer.callback.append(self.dispErrorMsg)
 		self.onLayoutFinish.append(self.procCheck)
 
+
 	def procCheck(self):
 		if not IS_PROC_FORCE_LNBPOWER and not IS_PROC_FORCE_TONEBURST:
 			self.dispErrorTimer.start(500, True)
 		else:
 			self.createSetup()
 
+
 	def dispErrorMsg(self):
 		self.session.openWithCallback(self.closeCallback, MessageBox, _("Driver is not supported!"), MessageBox.TYPE_ERROR)
 
+
 	def closeCallback(self, answer):
 		self.close()
+
 
 	def createSetup(self):
 		self.list = []
@@ -84,6 +89,7 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 			self.list.append(self.toneBurstEntry)
 		self["config"].list = self.list
 		self["config"].l.setList(self.list)
+
 
 	def keySave(self):
 		global tunerStateChanged
@@ -105,12 +111,13 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 		config.plugins.miscControl.save()
 		self.close()
 
+
 	def resetConfig(self):
 		for x in self["config"].list:
 			x[1].cancel()
 
 global_set_on = False
-from Components.Sources.TunerInfo import TunerInfo
+
 
 class FBCtunerChanged(TunerInfo):
 	def tunerUseMaskChanged(self, mask):
