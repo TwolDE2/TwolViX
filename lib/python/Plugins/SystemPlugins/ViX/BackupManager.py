@@ -805,7 +805,7 @@ class BackupSelection(Screen):
 				"up": self.up,
 				"menu": self.exit,
 			}, -1)
-		if not self.selectionChanged in self["checkList"].onSelectionChanged:
+		if self.selectionChanged not in self["checkList"].onSelectionChanged:
 			self["checkList"].onSelectionChanged.append(self.selectionChanged)
 		self.onLayoutFinish.append(self.layoutFinished)
 
