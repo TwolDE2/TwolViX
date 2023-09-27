@@ -35,7 +35,7 @@ def setProcValueOnOff(value, procPath):
 
 
 class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
-	skin = 	"""
+	skin = """
 		<screen position="center,center" size="620,150" title="Force LNB power - FBC tuners" >
 			<ePixmap pixmap="skin_default/buttons/red.png" position="140,10" size="140,40" alphatest="on" />
 			<ePixmap pixmap="skin_default/buttons/green.png" position="370,10" size="140,40" alphatest="on" />
@@ -63,21 +63,17 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 		self.dispErrorTimer.callback.append(self.dispErrorMsg)
 		self.onLayoutFinish.append(self.procCheck)
 
-
 	def procCheck(self):
 		if not IS_PROC_FORCE_LNBPOWER and not IS_PROC_FORCE_TONEBURST:
 			self.dispErrorTimer.start(500, True)
 		else:
 			self.createSetup()
 
-
 	def dispErrorMsg(self):
 		self.session.openWithCallback(self.closeCallback, MessageBox, _("Driver is not supported!"), MessageBox.TYPE_ERROR)
 
-
 	def closeCallback(self, answer):
 		self.close()
-
 
 	def createSetup(self):
 		self.list = []
@@ -89,7 +85,6 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 			self.list.append(self.toneBurstEntry)
 		self["config"].list = self.list
 		self["config"].l.setList(self.list)
-
 
 	def keySave(self):
 		global tunerStateChanged
@@ -111,7 +106,6 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 		config.plugins.miscControl.save()
 		self.close()
 
-
 	def resetConfig(self):
 		for x in self["config"].list:
 			x[1].cancel()
@@ -120,6 +114,7 @@ global_set_on = False
 
 
 class FBCtunerChanged(TunerInfo):
+
 	def tunerUseMaskChanged(self, mask):
 		global global_set_on
 		if config.plugins.miscControl.forceLnbPower.value == "auto":
@@ -137,7 +132,6 @@ class FBCtunerChanged(TunerInfo):
 				if global_set_on:
 					setProcValueOnOff("off", PROC_FORCE_LNBPOWER)
 				global_set_on = False
-
 
 def startSetup(menuid):
 	if menuid == "scan":
