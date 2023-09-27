@@ -959,7 +959,6 @@ class TimelineText(GUIComponent):
 			bgpng = self.timelineDate
 			if bgpng is not None and self.graphic:
 				backColor = None
-				backColorSel = None
 				res.append(MultiContentEntryPixmapAlphaBlend(
 					pos=(0, 0),
 					size=(serviceRect.width(), self.listHeight),
@@ -985,7 +984,6 @@ class TimelineText(GUIComponent):
 			xpos = 0
 			if bgpng is not None and self.graphic:
 				backColor = None
-				backColorSel = None
 				res.append(MultiContentEntryPixmapAlphaBlend(
 					pos=(serviceRect.width(), 0),
 					size=(eventRect.width(), self.listHeight),
