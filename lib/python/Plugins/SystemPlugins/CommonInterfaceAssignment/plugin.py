@@ -14,7 +14,6 @@ from Screens.ChannelSelection import ChannelSelectionBase, EDIT_BOUQUET, OFF
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Screens.Standby import TryQuitMainloop
 from Tools.BoundFunction import boundFunction
@@ -328,7 +327,7 @@ class CIconfigMenu(Screen):
 					i += 1
 
 				for service in slot.findall("service"):
-					read_service_name = str(service.get("name"))
+					# read_service_name = str(service.get("name"))
 					read_service_ref = str(service.get("ref"))
 					self.read_services.append(read_service_ref)
 
