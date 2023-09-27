@@ -10,9 +10,11 @@ from Components.Sources.Boolean import Boolean
 from Screens.MessageBox import MessageBox
 from Screens.Rc import Rc
 from Screens.WizardLanguage import WizardLanguage
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS
-
-
+from Tools.Directories import isPluginInstalled, resolveFilename, SCOPE_PLUGINS
+if isPluginInstalled("WirelessLan"):
+	from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus, iWlan
+	
+	
 class NetworkWizard(WizardLanguage, Rc):
 	skin = """
 		<screen position="0,0" size="720,576" title="Welcome..." flags="wfNoBorder" >
@@ -70,7 +72,8 @@ class NetworkWizard(WizardLanguage, Rc):
 		self.rescanTimer = eTimer()
 		self.rescanTimer.callback.append(self.rescanTimerFired)
 		self.getInstalledInterfaceCount()
-		self.isWlanPluginInstalled()
+		if isPluginInstalled("WirelessLan"):
+			self.WlanPluginInstalled = True
 
 	def exitWizardQuestion(self, ret=False):
 		if ret:
@@ -91,7 +94,6 @@ class NetworkWizard(WizardLanguage, Rc):
 	def stopScan(self):
 		self.rescanTimer.stop()
 		if self.w is not None:
-			from Plugins.SystemPlugins.WirelessLan.Wlan import iWlan
 			iWlan.stopGetNetworkList()
 			self.w = None
 
@@ -164,7 +166,7 @@ class NetworkWizard(WizardLanguage, Rc):
 			self.Adapterlist = iNetwork.getAdapterList()
 		if self.NextStep != 'end':
 			if len(self.Adapterlist) == 0:
-				#Reset Network to defaults if network broken
+				# Reset Network to defaults if network broken
 				iNetwork.resetNetworkConfig('lan', self.resetNetworkConfigCB)
 				self.resetRef = self.session.openWithCallback(self.resetNetworkConfigFinished, MessageBox, _("Please wait while we prepare your network interfaces..."), type=MessageBox.TYPE_INFO, enable_input=False)
 			if iface in iNetwork.getInstalledAdapters():
@@ -224,7 +226,6 @@ class NetworkWizard(WizardLanguage, Rc):
 		if data is True:
 			if iNetwork.isWirelessInterface(self.selectedInterface):
 				if self.WlanPluginInstalled:
-					from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus
 					iStatus.getDataForInterface(self.selectedInterface, self.checkWlanStateCB)
 				else:
 					self.currStep = self.getStepWithID("checklanstatusend")
@@ -252,7 +253,7 @@ class NetworkWizard(WizardLanguage, Rc):
 					text6 = _('Bitrate:') + "\t" + str(status[self.selectedInterface]["bitrate"]) + "\n"
 					text7 = _('Encryption:') + " " + str(status[self.selectedInterface]["encryption"]) + "\n"
 					text8 = _("Please press OK to continue.")
-					infotext = text1 + text2 + text3 + text4 + text5 + text7 + "\n" + text8
+					infotext = text1 + text2 + text3 + text4 + text5 + text6 + text7 + "\n" + text8
 					self.currStep = self.getStepWithID("checkWlanstatusend")
 					self.Text = infotext
 					if str(status[self.selectedInterface]["accesspoint"]) == "Not-Associated":
@@ -267,7 +268,6 @@ class NetworkWizard(WizardLanguage, Rc):
 		if data is True:
 			if iNetwork.isWirelessInterface(self.selectedInterface):
 				if self.WlanPluginInstalled:
-					from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus
 					iStatus.getDataForInterface(self.selectedInterface, self.checkWlanStateCB)
 				else:
 					self.currStep = self.getStepWithID("checklanstatusend")
@@ -317,12 +317,12 @@ class NetworkWizard(WizardLanguage, Rc):
 					self["list"].setIndex(newListIndex)
 				self["list"].updateList(self.newAPlist)
 
+
 	def listAccessPoints(self):
 		self.APList = []
 		if self.WlanPluginInstalled is False:
 			self.APList.append((_("No networks found"), None))
 		else:
-			from Plugins.SystemPlugins.WirelessLan.Wlan import iWlan
 			iWlan.setInterface(self.selectedInterface)
 			self.w = iWlan.getInterface()
 			aps = iWlan.getNetworkList()
@@ -349,21 +349,16 @@ class NetworkWizard(WizardLanguage, Rc):
 		self.rescanTimer.start(4000)
 		return self.APList
 
+
 	def AccessPointsSelectionMoved(self):
 		self.ap = self.selection
 		self.NextStep = 'wlanconfig'
+
 
 	def checkWlanSelection(self):
 		self.stopScan()
 		self.currStep = self.getStepWithID(self.NextStep)
 
-	def isWlanPluginInstalled(self):
-		try:
-			from Plugins.SystemPlugins.WirelessLan.Wlan import iWlan
-		except ImportError:
-			self.WlanPluginInstalled = False
-		else:
-			self.WlanPluginInstalled = True
 
 	def listChoices(self):
 		self.stopScan()
@@ -374,8 +369,10 @@ class NetworkWizard(WizardLanguage, Rc):
 		list.append((_("Exit network wizard"), "end"))
 		return list
 
+
 	def ChoicesSelectionMade(self, index):
 		self.ChoicesSelect(index)
+
 
 	def ChoicesSelect(self, index):
 		if index == 'end':
@@ -385,6 +382,7 @@ class NetworkWizard(WizardLanguage, Rc):
 			self.NextStep = 'nwconfig'
 		else:
 			self.NextStep = 'asknetworktype'
+
 
 	def ChoicesSelectionMoved(self):
 		pass
