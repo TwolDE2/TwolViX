@@ -27,7 +27,7 @@ config.misc.window_animation_speed = ConfigSelectionNumber(15, g_max_speed, 1, d
 
 
 class AnimationSetupConfig(ConfigListScreen, Screen):
-	skin =	"""
+	skin = """
 		<screen position="center,center" size="600,140" title="Animation Settings">
 			<widget name="config" position="0,0" size="600,100" scrollbarMode="showOnDemand" />
 			<ePixmap pixmap="skin_default/buttons/red.png" position="0,100" size="140,40" alphatest="on" />
@@ -44,7 +44,7 @@ class AnimationSetupConfig(ConfigListScreen, Screen):
 		self.entrylist = []
 		Screen.__init__(self, session)
 		ConfigListScreen.__init__(self, self.entrylist)
-		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", ], 
+		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", ],
 			{
 			"ok": self.keyGreen,
 			"green": self.keyGreen,
@@ -121,7 +121,7 @@ class AnimationSetupScreen(Screen):
 			{"idx": 8, "name": _("Stripes")},
 		]
 
-	skin = 	"""
+	skin = """
 		<screen name="AnimationSetup" position="center,center" size="680,400" title="Animation Setup">
 			<ePixmap pixmap="skin_default/buttons/red.png" position="0,0" size="140,40" zPosition="1" alphatest="on" />
 			<ePixmap pixmap="skin_default/buttons/green.png" position="140,0" size="140,40" zPosition="1" alphatest="on" />
