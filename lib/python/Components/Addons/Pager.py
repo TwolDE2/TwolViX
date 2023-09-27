@@ -61,17 +61,17 @@ class Pager(GUIAddon):
 				if self.picDotPage and self.picDotCurPage:
 					if self.orientation == eListbox.orHorizontal:
 						res.append(MultiContentEntryPixmapAlphaBlend(
-									pos=(xPos, 0),
-									size=(pixd_width, pixd_height),
-									png=self.picDotCurPage if x == currentPage else self.picDotPage,
-									backcolor=None, backcolor_sel=None, flags=BT_ALIGN_CENTER))
+							pos=(xPos, 0),
+							size=(pixd_width, pixd_height),
+							png=self.picDotCurPage if x == currentPage else self.picDotPage,
+							backcolor=None, backcolor_sel=None, flags=BT_ALIGN_CENTER))
 						xPos += pixd_width + self.spacing
 					else:
 						res.append(MultiContentEntryPixmapAlphaBlend(
-									pos=(0, yPos),
-									size=(pixd_width, pixd_height),
-									png=self.picDotCurPage if x == currentPage else self.picDotPage,
-									backcolor=None, backcolor_sel=None, flags=BT_ALIGN_CENTER | BT_VALIGN_CENTER))
+							pos=(0, yPos),
+							size=(pixd_width, pixd_height),
+							png=self.picDotCurPage if x == currentPage else self.picDotPage,
+							backcolor=None, backcolor_sel=None, flags=BT_ALIGN_CENTER | BT_VALIGN_CENTER))
 						yPos += pixd_height + self.spacing
 
 		return res
