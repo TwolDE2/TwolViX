@@ -26,7 +26,7 @@ IS_PROC_FORCE_TONEBURST = ospath.exists(PROC_FORCE_TONEBURST)
 
 def setProcValueOnOff(value, procPath):
 	try:
-		fd = open(procPath,'w')
+		fd = open(procPath, 'w')
 		fd.write(value)
 		fd.close()
 		return 0
@@ -56,7 +56,7 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 			"green": self.keySave,
 		}, -2)
 		self.list = []
-		ConfigListScreen.__init__(self, self.list,session=session)
+		ConfigListScreen.__init__(self, self.list, session=session)
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
 		self.dispErrorTimer = eTimer()
@@ -89,7 +89,7 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 	def keySave(self):
 		global tunerStateChanged
 		if IS_PROC_FORCE_LNBPOWER:
-			if config.plugins.miscControl.forceLnbPower.value == "auto" and tunerStateChanged == None:
+			if config.plugins.miscControl.forceLnbPower.value == "auto" and tunerStateChanged is None:
 				tunerStateChanged = FBCtunerChanged()
 			val = config.plugins.miscControl.forceLnbPower.value == "on" and "on" or "off"
 			res = setProcValueOnOff(val, PROC_FORCE_LNBPOWER)
@@ -133,18 +133,21 @@ class FBCtunerChanged(TunerInfo):
 					setProcValueOnOff("off", PROC_FORCE_LNBPOWER)
 				global_set_on = False
 
+
 def startSetup(menuid):
 	if menuid == "scan":
 		for slot in nimmanager.nim_slots:
 			if slot.isCompatible("DVB-S") and slot.description in SystemInfo["HasFBCtuner"]:
 				return [(_("FBC force LNB power"), main, "lnb_power_on", 100)]
 	return []
-	
+
+
 def main(session, **kwargs):
 	session.open(FBCtunerLNBstandbyPower)
 
 OnStart = False
 tunerStateChanged = None
+
 
 def OnSessionStart(session, **kwargs):
 	global OnStart, tunerStateChanged
@@ -157,6 +160,7 @@ def OnSessionStart(session, **kwargs):
 			setProcValueOnOff(val, PROC_FORCE_LNBPOWER)
 		if IS_PROC_FORCE_TONEBURST:
 			setProcValueOnOff(config.plugins.miscControl.forceToneBurst.value, PROC_FORCE_TONEBURST)
+
 
 def Plugins(**kwargs):
 	pList = []

@@ -11,6 +11,7 @@ gettext.bindtextdomain("enigma2", resolveFilename(SCOPE_LANGUAGE))
 gettext.textdomain("enigma2")
 gettext.bindtextdomain("ForceFbcLNBpower", "%s%s" % (resolveFilename(SCOPE_PLUGINS), "SystemPlugins/ForceFbcLNBpower/locale/"))
 
+
 def _(txt):
 	t = gettext.dgettext("ForceFbcLNBpower", txt)
 	if t == txt:
