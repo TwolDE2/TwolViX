@@ -3,7 +3,7 @@ from os import path, remove, unlink
 from enigma import eDVBCI_UI, eDVBCIInterfaces, eEnv, eServiceCenter, eServiceReference
 
 from Components.ActionMap import ActionMap
-from Components.config import ConfigNothing
+from Components.config import config, ConfigNothing
 from Components.ConfigList import ConfigList
 from Components.NimManager import nimmanager
 from Components.SelectionList import SelectionList
