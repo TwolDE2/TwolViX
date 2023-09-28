@@ -131,16 +131,16 @@ class VIXSoftcamManager(Screen):
 		self["list"] = self.emlist
 
 		self["myactions"] = ActionMap(["ColorActions", "OkCancelActions", "DirectionActions", "TimerEditActions", "MenuActions"],
-									  {
-									  "ok": self.keyStart,
-									  "cancel": self.close,
-									  "red": self.close,
-									  "green": self.keyStart,
-									  "yellow": self.getRestartPID,
-									  "blue": self.changeSelectionState,
-									  "log": self.showLog,  # KEY_INFO
-									  "menu": self.createSetup,
-									  }, -1)
+							{
+							"ok": self.keyStart,
+							"cancel": self.close,
+							"red": self.close,
+							"green": self.keyStart,
+							"yellow": self.getRestartPID,
+							"blue": self.changeSelectionState,
+							"log": self.showLog,  # KEY_INFO
+							"menu": self.createSetup,
+							}, -1)
 
 		self["key_red"] = Button(_("Close"))
 		self["key_green"] = Button("")
@@ -584,12 +584,12 @@ class VIXSoftcamLog(Screen):
 			softcamlog = ""
 		self["list"] = ScrollLabel(str(softcamlog))
 		self["setupActions"] = ActionMap(["SetupActions", "ColorActions", "DirectionActions"],
-										 {
-										 "cancel": self.cancel,
-										 "ok": self.cancel,
-										 "up": self["list"].pageUp,
-										 "down": self["list"].pageDown
-										 }, -2)
+								{
+								"cancel": self.cancel,
+								"ok": self.cancel,
+								"up": self["list"].pageUp,
+								"down": self["list"].pageDown
+								}, -2)
 
 	def cancel(self):
 		self.close()
