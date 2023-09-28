@@ -61,9 +61,7 @@ class StartSwap:
 		devicelist = []
 		for p in harddiskmanager.getMountedPartitions():
 			d = path.normpath(p.mountpoint)
-			if (path.exists(p.mountpoint) and p.mountpoint != "/"
-				 and not p.mountpoint.startswith("/media/net/")
-				 and not p.mountpoint.startswith("/media/autofs/")):
+			if (path.exists(p.mountpoint) and p.mountpoint != "/" and not p.mountpoint.startswith("/media/net/") and not p.mountpoint.startswith("/media/autofs/")):
 				devicelist.append((p.description, d))
 		if len(devicelist):
 			for device in devicelist:
@@ -306,7 +304,7 @@ class VIXSwap(Screen):
 			self["autostart_on"].show()
 			self["key_yellow"].setText(_("Disable Autostart"))
 			print("[SwapManager][updateSwap2] self['autostartactions'].setEnabled(False/True)")
-			self["autostartactions"].setEnabled(True)	#  this is set True for the moment to allow Yellow button to be displayed
+			self["autostartactions"].setEnabled(True)  # this is set True for the moment to allow Yellow button to be displayed
 		else:
 			config.swapmanager.swapautostart.setValue(False)
 			config.swapmanager.swapautostart.save()
