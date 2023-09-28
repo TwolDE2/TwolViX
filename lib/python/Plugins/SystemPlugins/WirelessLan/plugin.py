@@ -324,7 +324,6 @@ class WlanScan(Screen):
 		newList = self.getAccessPoints(refresh=True)
 		self.newAPList = []
 		tmpList = []
-		newListIndex = None
 		currentListEntry = None
 		currentListIndex = None
 
@@ -342,11 +341,11 @@ class WlanScan(Screen):
 				idx = 0
 				for entry in self.newAPList:
 					if entry[0] == currentListEntry[0]:
-						newListIndex = idx
+						currentListIndex = idx
 					idx += 1
 			self['list'].setList(self.newAPList)
-			if newListIndex is not None:
-				self["list"].setIndex(newListIndex)
+			if currentListIndex is not None:
+				self["list"].setIndex(currentListIndex)
 			self["list"].updateList(self.newAPList)
 			self.listLength = len(self.newAPList)
 			self.buildWlanList()
