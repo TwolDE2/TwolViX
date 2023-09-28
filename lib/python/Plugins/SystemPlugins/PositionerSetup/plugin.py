@@ -1463,9 +1463,9 @@ class TunerScreen(ConfigListScreen, Screen):
 		orb_pos = self.fe_data.get("orbital_position", None)
 		self.tuning = ConfigSubsection()
 		self.tuning.type = ConfigSelection(
-				default="manual_transponder",
-				choices={"manual_transponder": _("Manual transponder"),
-							"predefined_transponder": _("Predefined transponder")})
+			default="manual_transponder",
+			choices={"manual_transponder": _("Manual transponder"),
+						"predefined_transponder": _("Predefined transponder")})
 		self.tuning.sat = ConfigSatlist(list=satlist)
 		if orb_pos is not None:
 			orb_pos_str = str(orb_pos)
