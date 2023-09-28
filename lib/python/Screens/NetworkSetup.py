@@ -22,8 +22,7 @@ from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
 from Plugins.Plugin import PluginDescriptor
-from Plugins.SystemPlugins.NetworkWizard.NetworkWizard import NetworkWizard
-from Plugins.SystemPlugins.WirelessLan.Wlan import brcmWLConfig, iStatus, wpaSupplicant, WlanScan, WlanStatus
+
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
@@ -31,9 +30,22 @@ from Screens.Setup import Setup
 from Screens.Standby import TryQuitMainloop
 from Screens.TextBox import TextBox
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-from Tools.Directories import fileExists, isPluginInstalled, resolveFilename, SCOPE_CURRENT_SKIN
+from Tools.Directories import fileExists, isPluginInstalled, resolveFilename, SCOPE_CURRENT_SKIN, SCOPE_PLUGINS
 from Tools.LoadPixmap import LoadPixmap
 
+networkWizard = False
+XML_networkWizard = False
+wirelessLan = False
+
+if os_path.exists(resolveFilename(SCOPE_PLUGINS, "SystemPlugins/NetworkWizard/networkwizard.xml")):
+	XML_networkWizard = True
+if isPluginInstalled("NetworkWizard"):
+	networkWizard = True
+	from Plugins.SystemPlugins.NetworkWizard.NetworkWizard import NetworkWizard
+if isPluginInstalled("WirelessLan"):
+	wirelessLan = True
+	from Plugins.SystemPlugins.WirelessLan.Wlan import brcmWLConfig, iStatus, wpaSupplicant 
+	from Plugins.SystemPlugins.WirelessLan.plugin import WlanScan, WlanStatus	
 
 # Define a function to determine whether a service is configured to
 # start at boot time.
@@ -296,7 +308,8 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 				active_int = False
 			self.list.append(self.buildInterfaceList(x[1], _(x[0]), default_int, active_int))
 
-		self["key_blue"].setText(_("Network wizard"))
+		if os_path.exists(resolveFilename(SCOPE_PLUGINS, "SystemPlugins/NetworkWizard/networkwizard.xml")):
+			self["key_blue"].setText(_("Network wizard"))
 		self["list"].list = self.list
 
 	def setDefaultInterface(self):
@@ -351,9 +364,12 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 			self.session.open(MessageBox, _("Finished configuring your network"), type=MessageBox.TYPE_INFO, timeout=10, default=False)
 
 	def openNetworkWizard(self):
-		selection = self["list"].getCurrent()
-		if selection is not None:
-			self.session.openWithCallback(self.AdapterSetupClosed, NetworkWizard, selection[0])
+		if not XML_networkWizard:
+			self.session.open(MessageBox, _("The network wizard extension is not installed!\nPlease install it."), type=MessageBox.TYPE_INFO, timeout=10)
+		else:
+			selection = self["list"].getCurrent()
+			if selection is not None:
+				self.session.openWithCallback(self.AdapterSetupClosed, NetworkWizard, selection[0])
 
 
 class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
@@ -1021,17 +1037,23 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 					self.extendedSetup = ("extendedSetup", menuEntryDescription, self.extended)
 					menu.append((menuEntryName, self.extendedSetup))
 
-		menu.append((_("Network wizard"), "openwizard"))
+		if not XML_networkWizard:
+			menu.append((_("Network wizard"), "openwizard"))
+#		kernel_ver = about.getKernelVersionString()
+#		if kernel_ver <= "3.5.0":
 		menu.append((_("Network MAC settings"), "mac"))
 		return menu
 
 	def AdapterSetupClosed(self, *ret):
 		if ret is not None and len(ret):
 			if ret[0] == "ok" and (iNetwork.isWirelessInterface(self.iface) and iNetwork.getAdapterAttribute(self.iface, "up") is True):
-				if self.queryWirelessDevice(self.iface):
-					self.session.openWithCallback(self.WlanStatusClosed, WlanStatus, self.iface)
+				if not wirelessLan:
+					self.session.open(MessageBox, self.missingwlanplugintxt, type=MessageBox.TYPE_INFO, timeout=10)
 				else:
-					self.showErrorMessage()  # Display Wlan not available Message
+					if self.queryWirelessDevice(self.iface):
+						self.session.openWithCallback(self.WlanStatusClosed, WlanStatus, self.iface)
+					else:
+						self.showErrorMessage()  # Display Wlan not available Message
 			else:
 				self.updateStatusbar()
 		else:
@@ -1452,11 +1474,12 @@ class NetworkAdapterTest(Screen):
 
 	def getLinkState(self, iface):
 		if iface in iNetwork.wlan_interfaces:
-			self["Network"].setForegroundColorNum(1)
-			self["Network"].setText(_("disconnected"))
-			self["NetworkInfo_Check"].setPixmapNum(1)
-			self["NetworkInfo_Check"].show()
-			iStatus.getDataForInterface(self.iface, self.getInfoCB)
+			if not wirelessLan:
+				self["Network"].setForegroundColorNum(1)
+				self["Network"].setText(_("disconnected"))
+				self["NetworkInfo_Check"].setPixmapNum(1)
+				self["NetworkInfo_Check"].show()
+				iStatus.getDataForInterface(self.iface, self.getInfoCB)
 		else:
 			iNetwork.getLinkState(iface, self.LinkStatedataAvail)
 
@@ -1531,7 +1554,8 @@ class NetworkAdapterTest(Screen):
 	def cleanup(self):
 		iNetwork.stopLinkStateConsole()
 		iNetwork.stopDNSConsole()
-		iStatus.stopWlanConsole()
+		if wirelessLan:
+			iStatus.stopWlanConsole()
 
 
 class NetworkMountsMenu(Screen, HelpableScreen):
