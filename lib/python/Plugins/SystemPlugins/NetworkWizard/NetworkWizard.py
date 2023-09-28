@@ -10,8 +10,11 @@ from Components.Sources.Boolean import Boolean
 from Screens.MessageBox import MessageBox
 from Screens.Rc import Rc
 from Screens.WizardLanguage import WizardLanguage
+
 from Tools.Directories import isPluginInstalled, resolveFilename, SCOPE_PLUGINS
+WirelessLan = False
 if isPluginInstalled("WirelessLan"):
+	WirelessLan = True
 	from Plugins.SystemPlugins.WirelessLan.Wlan import iStatus, iWlan
 
 
@@ -72,8 +75,6 @@ class NetworkWizard(WizardLanguage, Rc):
 		self.rescanTimer = eTimer()
 		self.rescanTimer.callback.append(self.rescanTimerFired)
 		self.getInstalledInterfaceCount()
-		if isPluginInstalled("WirelessLan"):
-			self.WlanPluginInstalled = True
 
 	def exitWizardQuestion(self, ret=False):
 		if ret:
@@ -225,7 +226,7 @@ class NetworkWizard(WizardLanguage, Rc):
 	def AdapterSetupEndCB(self, data):
 		if data is True:
 			if iNetwork.isWirelessInterface(self.selectedInterface):
-				if self.WlanPluginInstalled:
+				if WirelessLan:
 					iStatus.getDataForInterface(self.selectedInterface, self.checkWlanStateCB)
 				else:
 					self.currStep = self.getStepWithID("checklanstatusend")
@@ -267,7 +268,7 @@ class NetworkWizard(WizardLanguage, Rc):
 	def checkNetworkCB(self, data):
 		if data is True:
 			if iNetwork.isWirelessInterface(self.selectedInterface):
-				if self.WlanPluginInstalled:
+				if WirelessLan:
 					iStatus.getDataForInterface(self.selectedInterface, self.checkWlanStateCB)
 				else:
 					self.currStep = self.getStepWithID("checklanstatusend")
@@ -319,7 +320,7 @@ class NetworkWizard(WizardLanguage, Rc):
 
 	def listAccessPoints(self):
 		self.APList = []
-		if self.WlanPluginInstalled is False:
+		if WirelessLan is False:
 			self.APList.append((_("No networks found"), None))
 		else:
 			iWlan.setInterface(self.selectedInterface)
