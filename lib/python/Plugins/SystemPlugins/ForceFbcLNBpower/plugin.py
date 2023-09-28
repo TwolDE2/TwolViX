@@ -110,6 +110,7 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 		for x in self["config"].list:
 			x[1].cancel()
 
+
 global_set_on = False
 
 
@@ -144,6 +145,7 @@ def startSetup(menuid):
 
 def main(session, **kwargs):
 	session.open(FBCtunerLNBstandbyPower)
+
 
 OnStart = False
 tunerStateChanged = None
