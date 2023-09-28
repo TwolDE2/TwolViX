@@ -48,7 +48,7 @@ def getMountChoices():
 def getMountDefault(choices):
 	choices = {x[1]: x[0] for x in choices}
 	default = choices.get("/media/hdd") or choices.get("/media/usb")
-	print("[ImageManager][getMountDefault] default, choices", default, "   ", choices)	
+	print("[ImageManager][getMountDefault] default, choices", default, "   ", choices)
 	return default
 
 
