@@ -1421,38 +1421,22 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 		self.mode = MODE_TV
 		self.servicePath = self.servicePathTV
 		self.recallBouquetMode()
-<<<<<<< HEAD
-#		title = self.maintitle
-#		pos = title.find(" (")
-#		if pos != -1:
-#			title = title[:pos]
-		title = " " + _("(TV)")
-=======
 		# title = self.maintitle
 		# pos = title.find(" (")
 		# if pos != -1:
 		# 	title = title[:pos]
 		title = ' ' + _('(TV)')
->>>>>>> fcbe71e... [ChannelSelection] reduce pep warnings
 		self.setTitle(title)
 
 	def setRadioMode(self):
 		self.mode = MODE_RADIO
 		self.servicePath = self.servicePathRadio
 		self.recallBouquetMode()
-<<<<<<< HEAD
-#		title = self.maintitle
-#		pos = title.find(" (")
-#		if pos != -1:
-#			title = title[:pos]
-		title = " " + _("(Radio)")
-=======
 		# title = self.maintitle
 		# pos = title.find(" (")
 		# if pos != -1:
 		# 	title = title[:pos]
 		title = ' ' + _('(Radio)')
->>>>>>> fcbe71e... [ChannelSelection] reduce pep warnings
 		self.setTitle(title)
 
 	def setRoot(self, root, justSet=False):
@@ -1531,13 +1515,13 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 			end_ref = self.servicePath[-1]
 			titleStr = ""
 
-# 			Show both the base and current bouquet if there
-# 			is more than one bouqiet in the service path
-# 			spLen = len(self.servicePath)
-# 			if spLen > 1:
-#  				base_ref = self.servicePath[0]
-# 				titleStr += self.getServiceName(base_ref)
-# 				titleStr += spLen > 2 and "/../" or "/"
+			# Show both the base and current bouquet if there
+			# is more than one bouqiet in the service path
+			# 	spLen = len(self.servicePath)
+			# 	if spLen > 1:
+			# 		base_ref = self.servicePath[0]
+			# 		titleStr += self.getServiceName(base_ref)
+			# 		titleStr += spLen > 2 and "/../" or "/"
 
 			self.nameStr = self.getServiceName(end_ref)
 			titleStr += self.nameStr
@@ -2754,7 +2738,7 @@ class ChannelSelectionRadio(ChannelSelectionEdit, ChannelSelectionBase, ChannelS
 				iPlayableService.evEnd: self.__evServiceEnd
 			})
 
-########## RDS Radiotext / Rass Support BEGIN
+		# RDS Radiotext / Rass Support BEGIN
 		self.infobar = infobar  # reference to real infobar (the one and only)
 		self["RdsDecoder"] = self.info["RdsDecoder"]
 		self["RdsActions"] = HelpableActionMap(self, "InfobarRdsActions",
