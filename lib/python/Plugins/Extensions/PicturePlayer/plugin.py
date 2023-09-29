@@ -2,6 +2,7 @@ from os import path as ospath
 from enigma import getDesktop
 from Plugins.Plugin import PluginDescriptor
 
+
 def Pic_Thumb(*args, **kwa):
 	from . import ui
 	return ui.Pic_Thumb(*args, **kwa)
@@ -36,9 +37,9 @@ def filescan(**kwargs):
 	return \
 		LocalScanner(mimetypes=["image/jpeg", "image/png", "image/gif", "image/bmp"],
 			paths_to_scan=[
-					ScanPath(path="DCIM", with_subdirs=True),
-					ScanPath(path="", with_subdirs=False),
-				],
+				ScanPath(path="DCIM", with_subdirs=True),
+				ScanPath(path="", with_subdirs=False),
+			],
 			name="Pictures",
 			description=_("View photos..."),
 			openfnc=filescan_open,
@@ -50,7 +51,7 @@ def Plugins(**kwargs):
 	if screenwidth and screenwidth == 1920:
 		return \
 			[PluginDescriptor(name=_("Picture player"), description=_("fileformats (BMP, PNG, JPG, GIF)"), icon="pictureplayerhd.png", where=PluginDescriptor.WHERE_PLUGINMENU, needsRestart=False, fnc=main),
-			 PluginDescriptor(name=_("Picture player"), where=PluginDescriptor.WHERE_FILESCAN, needsRestart=False, fnc=filescan)]
+			PluginDescriptor(name=_("Picture player"), where=PluginDescriptor.WHERE_FILESCAN, needsRestart=False, fnc=filescan)]
 	else:
 		return \
 		[PluginDescriptor(name=_("Picture player"), description=_("fileformats (BMP, PNG, JPG, GIF)"), icon="pictureplayer.png", where=PluginDescriptor.WHERE_PLUGINMENU, needsRestart=False, fnc=main),

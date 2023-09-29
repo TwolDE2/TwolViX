@@ -136,13 +136,10 @@ class brcmWLConfig:
 	def writeConfig(self, iface):
 		essid = config.plugins.wlan.essid.value
 		encryption = config.plugins.wlan.encryption.value
-		psk = config.plugins.wlan.psk.value		
+		psk = config.plugins.wlan.psk.value
 		# hiddenessid = config.plugins.wlan.hiddenessid.value
 		# wepkeytype = config.plugins.wlan.wepkeytype.value
-
-
 		fp = open(getWlanConfigName(iface), 'w')
-
 		fp.write('ssid=' + essid + '\n')
 		if encryption in ('WPA', 'WPA2', 'WPA/WPA2', 'WEP'):
 			if encryption == "WPA/WPA2":
@@ -380,12 +377,12 @@ class wpaSupplicant:
 		except:
 			print("[Wlan.py] Error parsing ", configfile)
 			wsconfig = {
-					'hiddenessid': False,
-					'ssid': "",
-					'encryption': "WPA2",
-					'wepkeytype': "ASCII",
-					'key': "",
-				}
+				'hiddenessid': False,
+				'ssid': "",
+				'encryption': "WPA2",
+				'wepkeytype': "ASCII",
+				'key': "",
+			}
 		# print "[Wlan.py] WS-CONFIG-->",wsconfig
 		return wsconfig
 
