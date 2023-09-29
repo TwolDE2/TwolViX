@@ -101,7 +101,7 @@ class picshow(Screen):
 			self["key_yellow"].setText("")
 
 	def KeyGreen(self):
-		#if not self.filelist.canDescent():
+		# if not self.filelist.canDescent():
 		self.session.openWithCallback(self.callbackView, Pic_Thumb, self.filelist.getFileList(), self.filelist.getSelectionIndex(), self.filelist.getCurrentDirectory())
 
 	def KeyYellow(self):
@@ -138,6 +138,7 @@ class picshow(Screen):
 		self.close()
 
 class Pic_Setup(ConfigListScreen, Screen):
+
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -210,6 +211,7 @@ class Pic_Exif(Screen):
 
 	def layoutFinished(self):
 		self.setTitle(_("Info"))
+
 
 T_INDEX = 0
 T_FRAME_POS = 1
