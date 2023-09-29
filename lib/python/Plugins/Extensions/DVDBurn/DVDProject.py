@@ -141,18 +141,18 @@ class DVDProject:
 						self.settings.dict()[key].setValue(val)
 						continue
 				self.error += "\n%s '%s' not found" % (key, val)
-		# except AttributeError:
-		# print "loadProject AttributeError", self.error
-		# self.error += (" in project '%s'") % (filename)
-		# return False
+		# 	except AttributeError:
+		# 		print "loadProject AttributeError", self.error
+		# 		self.error += (" in project '%s'") % (filename)
+		# 		return False
 		return True
 
 	def xmlAttributesToConfig(self, node, config):
 		try:
 			i = 0
-				# if node.attributes.length < len(config.dict())-1:
-				# self.error = "project attributes missing"
-				# raise AttributeError
+			#	if node.attributes.length < len(config.dict())-1:
+			#	 	self.error = "project attributes missing"
+			#	 	raise AttributeError
 			while i < node.attributes.length:
 				item = node.attributes.item(i)
 				key = str(item.name)
