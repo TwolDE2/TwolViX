@@ -6,6 +6,7 @@ from Components.ConfigList import ConfigListScreen
 from Components.Pixmap import Pixmap
 from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
+from Tools.ISO639 import LanguageCodes
 from . import DVDTitle
 
 
@@ -133,16 +134,13 @@ class TitleProperties(ConfigListScreen, Screen):
 			self.project.titles.insert(new_pos - 1, swaptitle)
 
 	def ok(self):
-		#key = self.keydict[self["config"].getCurrent()[1]]
-		#if key in self.project.filekeys:
-			#self.session.openWithCallback(self.FileBrowserClosed, FileBrowser, key, self.settings)
+		# key = self.keydict[self["config"].getCurrent()[1]]
+		# if key in self.project.filekeys:
+		# 	self.session.openWithCallback(self.FileBrowserClosed, FileBrowser, key, self.settings)
 		pass
 
 	def cancel(self):
 		self.close()
-
-
-from Tools.ISO639 import LanguageCodes
 
 
 class LanguageChoices:
