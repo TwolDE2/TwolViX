@@ -121,7 +121,7 @@ class DemuxTask(Task):
 
 	def processOutputLine(self, line):
 		line = line[:-1]
-		#print "[DemuxTask]", line
+		# print "[DemuxTask]", line
 		MSG_NEW_FILE = "---> new File: "
 		MSG_PROGRESS = "[PROGRESS] "
 		MSG_NEW_MP2 = "++> Mpg Audio: PID 0x"
@@ -150,7 +150,7 @@ class DemuxTask(Task):
 			self.mplex_videofile = file
 
 	def haveProgress(self, progress):
-		#print "PROGRESS [%s]" % progress
+		# print "PROGRESS [%s]" % progress
 		MSG_CHECK = "check & synchronize audio file"
 		MSG_DONE = "done..."
 		if progress == "preparing collection(s)...":
@@ -461,7 +461,7 @@ class PreviewTask(Task):
 		self.finish(aborted=True)
 
 	def previewCB(self, answer):
-		if answer == True:
+		if answer is True:
 			self.previewProject()
 		else:
 			self.closedCB(True)
@@ -551,7 +551,7 @@ class MenuImageTask(Task):
 
 	def run(self, callback):
 		self.callback = callback
-		#try:
+		# try:
 		import ImageDraw
 		import Image
 
@@ -586,7 +586,7 @@ class MenuImageTask(Task):
 	transparent="%02x%02x%02x"
 	start="00:00:00.00"
 	force="yes" >""" % (self.highlightpngfilename, self.Menus.spu_palette[0], self.Menus.spu_palette[1], self.Menus.spu_palette[2])
-		#rowheight = (self.Menus.fontsizes[1]+self.Menus.fontsizes[2]+thumb_size[1]+s_rows)
+		# rowheight = (self.Menus.fontsizes[1]+self.Menus.fontsizes[2]+thumb_size[1]+s_rows)
 		menu_start_title = (self.menu_count - 1) * self.job.titles_per_menu + 1
 		menu_end_title = self.menu_count * self.job.titles_per_menu + 1
 		nr_titles = len(self.job.project.titles)
@@ -607,7 +607,7 @@ class MenuImageTask(Task):
 
 			if bottom > s_height:
 				bottom = s_height
-			#draw_bg.rectangle((left, top, right, bottom), outline=(255,0,0))
+			# draw_bg.rectangle((left, top, right, bottom), outline=(255,0,0))
 			im_cell_bg = Image.new("RGBA", (width, height), (0, 0, 0, 0))
 			draw_cell_bg = ImageDraw.Draw(im_cell_bg)
 			im_cell_high = Image.new("P", (width, height), 0)
@@ -684,8 +684,8 @@ class MenuImageTask(Task):
 		f.write(spuxml)
 		f.close()
 		Task.processFinished(self, 0)
-		#except:
-			#Task.processFinished(self, 1)
+		#	except:
+		#		Task.processFinished(self, 1)
 
 	def getPosition(self, offset, left, top, right, bottom, size):
 		pos = [left, top]
@@ -719,7 +719,7 @@ class Menus:
 
 		job.nr_menus = ((nr_titles + job.titles_per_menu - 1) / job.titles_per_menu)
 
-		#a new menu_count every 4 titles (1,2,3,4->1 ; 5,6,7,8->2 etc.)
+		# a new menu_count every 4 titles (1,2,3,4->1 ; 5,6,7,8->2 etc.)
 		for menu_count in range(1, job.nr_menus + 1):
 			num = str(menu_count)
 			spuxmlfilename = job.workspace + "/spumux" + num + ".xml"
@@ -740,11 +740,11 @@ def CreateAuthoringXML_singleset(job):
 	nr_titles = len(job.project.titles)
 	mode = job.project.settings.authormode.value
 	authorxml = ['<?xml version="1.0" encoding="utf-8"?>\n',
-				 ' <dvdauthor dest="' + (job.workspace + "/dvd") + '">\n',
-				 '  <vmgm>\n',
-				 '   <menus lang="' + job.project.menutemplate.settings.menulang.value + '">\n',
-				 '    <pgc>\n',
-				 '     <vob file="' + job.project.settings.vmgm.value + '" />\n']
+				' <dvdauthor dest="' + (job.workspace + "/dvd") + '">\n',
+				'  <vmgm>\n',
+				'   <menus lang="' + job.project.menutemplate.settings.menulang.value + '">\n',
+				'    <pgc>\n',
+				'     <vob file="' + job.project.settings.vmgm.value + '" />\n']
 	if mode.startswith("menu"):
 		authorxml.append('     <post> jump titleset 1 menu; </post>\n')
 	else:
@@ -809,10 +809,10 @@ def CreateAuthoringXML_multiset(job):
 	nr_titles = len(job.project.titles)
 	mode = job.project.settings.authormode.value
 	authorxml = ['<?xml version="1.0" encoding="utf-8"?>\n',
-				 ' <dvdauthor dest="' + (job.workspace + "/dvd") + '" jumppad="yes">\n',
-				 '  <vmgm>\n',
-				 '   <menus lang="' + job.project.menutemplate.settings.menulang.value + '">\n',
-				 '    <video aspect="4:3"/>\n']
+				' <dvdauthor dest="' + (job.workspace + "/dvd") + '" jumppad="yes">\n',
+				'  <vmgm>\n',
+				'   <menus lang="' + job.project.menutemplate.settings.menulang.value + '">\n',
+				'    <video aspect="4:3"/>\n']
 	if mode.startswith("menu"):
 		for menu_count in range(1, job.nr_menus + 1):
 			if menu_count == 1:
