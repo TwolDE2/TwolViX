@@ -18,18 +18,15 @@ from Components.Network import iNetwork
 from Components.OnlineUpdateCheck import feedsstatuscheck
 from Components.Pixmap import Pixmap, MultiPixmap
 from Components.PluginComponent import plugins
-from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
 from Plugins.Plugin import PluginDescriptor
-
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Setup import Setup
 from Screens.Standby import TryQuitMainloop
 from Screens.TextBox import TextBox
-from Screens.VirtualKeyBoard import VirtualKeyBoard
 from Tools.Directories import fileExists, isPluginInstalled, resolveFilename, SCOPE_CURRENT_SKIN, SCOPE_PLUGINS
 from Tools.LoadPixmap import LoadPixmap
 
@@ -44,9 +41,9 @@ if isPluginInstalled("NetworkWizard"):
 	from Plugins.SystemPlugins.NetworkWizard.NetworkWizard import NetworkWizard
 if isPluginInstalled("WirelessLan"):
 	wirelessLan = True
-	from Plugins.SystemPlugins.WirelessLan.Wlan import brcmWLConfig, iStatus, wpaSupplicant 
-	from Plugins.SystemPlugins.WirelessLan.plugin import WlanScan, WlanStatus	
-
+	from Plugins.SystemPlugins.WirelessLan.Wlan import brcmWLConfig, iStatus, wpaSupplicant
+	from Plugins.SystemPlugins.WirelessLan.plugin import WlanScan, WlanStatus
+	
 # Define a function to determine whether a service is configured to
 # start at boot time.
 # This checks for a start file in rc2.d (rc4.d might be more
@@ -314,7 +311,6 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 
 	def setDefaultInterface(self):
 		selection = self["list"].getCurrent()
-		num_if = len(self.list)
 		old_default_gw = None
 		num_configured_if = len(iNetwork.getConfiguredAdapters())
 		if os_path.exists("/etc/default_gw"):
@@ -1039,8 +1035,8 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 
 		if not XML_networkWizard:
 			menu.append((_("Network wizard"), "openwizard"))
-#		kernel_ver = about.getKernelVersionString()
-#		if kernel_ver <= "3.5.0":
+			# kernel_ver = about.getKernelVersionString()
+			# if kernel_ver <= "3.5.0":
 		menu.append((_("Network MAC settings"), "mac"))
 		return menu
 
@@ -2238,7 +2234,7 @@ class NetworkInadyn(NSCommon, Screen):
 			self["key_green"].setText(_("Start"))
 			status_summary = self["status"].text + " " + self["labstop"].text
 
-		#self.my_nabina_state = False
+		# self.my_nabina_state = False
 		if fileExists("/etc/inadyn.conf"):
 			f = open("/etc/inadyn.conf", "r")
 			for line in f.readlines():
@@ -2562,7 +2558,7 @@ class NetworkuShareSetup(ConfigListScreen, HelpableScreen, Screen):
 		self.ushare_xbox = NoSave(ConfigYesNo(default=True))
 		self.ushare_ps3 = NoSave(ConfigYesNo(default=True))
 		# looks like dead code
-		#self.ushare_system = NoSave(ConfigSelection(default = "dyndns@dyndns.org", choices = [("dyndns@dyndns.org", "dyndns@dyndns.org"), ("statdns@dyndns.org", "statdns@dyndns.org"), ("custom@dyndns.org", "custom@dyndns.org")]))
+		# self.ushare_system = NoSave(ConfigSelection(default = "dyndns@dyndns.org", choices = [("dyndns@dyndns.org", "dyndns@dyndns.org"), ("statdns@dyndns.org", "statdns@dyndns.org"), ("custom@dyndns.org", "custom@dyndns.org")]))
 
 		if fileExists("/etc/ushare.conf"):
 			f = open("/etc/ushare.conf", "r")
