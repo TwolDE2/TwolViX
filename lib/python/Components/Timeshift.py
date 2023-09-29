@@ -459,19 +459,19 @@ class InfoBarTimeshift:
 					# print("[Timeshift]TEST3")
 					message = _("You have chosen to save the current timeshift event, but the event has not yet finished\nWhat do you want to do ?")
 					choice = [
-                        (_("Save timeshift as movie and stop recording"), "savetimeshift"),
-                        (_("Save timeshift as movie and continue recording"), "savetimeshiftandrecord"),
-                        (_("Cancel save timeshift as movie"), "noSave"),
-                        (_("Nothing, just leave this menu"), "no")]
+						(_("Save timeshift as movie and stop recording"), "savetimeshift"),
+						(_("Save timeshift as movie and continue recording"), "savetimeshiftandrecord"),
+						(_("Cancel save timeshift as movie"), "noSave"),
+						(_("Nothing, just leave this menu"), "no")]
 					self.session.openWithCallback(boundFunction(self.checkTimeshiftRunningCallback, returnFunction), MessageBox, message, simple=True, list=choice)
 				else:
 					# print("[Timeshift]TEST4")
 					message = _("You seem to be in timeshift, Do you want to leave timeshift? Streams & IPTV not fully supported!")
 					choice = [
-                        (_("Yes, but save timeshift as movie and stop recording"), "savetimeshift"),
-                        (_("Yes, but save timeshift as movie and continue recording"), "savetimeshiftandrecord"),
-                        (_("Yes, but don't save timeshift as movie"), "noSave"),
-                        (_("No"), "no")]
+						(_("Yes, but save timeshift as movie and stop recording"), "savetimeshift"),
+						(_("Yes, but save timeshift as movie and continue recording"), "savetimeshiftandrecord"),
+						(_("Yes, but don't save timeshift as movie"), "noSave"),
+						(_("No"), "no")]
 					self.session.openWithCallback(boundFunction(self.checkTimeshiftRunningCallback, returnFunction), MessageBox, message, simple=True, list=choice)
 			else:
 				# print("[Timeshift]TEST5")
@@ -807,7 +807,7 @@ class InfoBarTimeshift:
 				# print("[Timeshift]filename:", filename)
 				statinfo = osstat("%s%s" % (config.usage.timeshift_path.value, filename))  # if no write for 3 sec = stranded timeshift
 				if statinfo.st_mtime < (time() - 3.0):
-				# try:
+					# try:
 					# print("[Timeshift][TimeShift] Erasing stranded timeshift %s" % filename)
 					self.BgFileEraser.erase("%s%s" % (config.usage.timeshift_path.value, filename))
 
@@ -815,8 +815,8 @@ class InfoBarTimeshift:
 					# if filename.startswith("pts_livebuffer_") is True:
 					# 	self.BgFileEraser.erase("%s%s.meta" % (config.usage.timeshift_path.value, filename))
 					# 	self.BgFileEraser.erase("%s%s.eit" % (config.usage.timeshift_path.value, filename))
-				# except:
-				# 	print("[Timeshift][TimeShift] IO-Error while cleaning Timeshift Folder ...")
+					# except:
+					# 	print("[Timeshift][TimeShift] IO-Error while cleaning Timeshift Folder ...")
 
 	def ptsGetEventInfo(self):
 		event = None

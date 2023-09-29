@@ -45,7 +45,7 @@ class inputDevices:
 				try:
 					name = ioctl(fd, EVIOCGNAME(512), buffer)
 				except (IOError, OSError) as err:
-#					print("[InputDevice] Error: evdev='%s' getInputDevices <ERROR: ioctl(EVIOCGNAME): '%s'>" % (evdev, str(err)))
+					# print("[InputDevice] Error: evdev='%s' getInputDevices <ERROR: ioctl(EVIOCGNAME): '%s'>" % (evdev, str(err)))
 					continue
 			deviceName = name[:name.find(b'\0')].decode()
 			if deviceName:
@@ -75,7 +75,7 @@ class inputDevices:
 		return sorted(iter(self.Devices.keys()))
 
 	def setDeviceAttribute(self, device, attribute, value):
-		#print("[InputDevice] setting for device", device, "attribute", attribute, " to value", value)
+		# print("[InputDevice] setting for device", device, "attribute", attribute, " to value", value)
 		if device in self.Devices:
 			self.Devices[device][attribute] = value
 
@@ -96,12 +96,12 @@ class inputDevices:
 		#print("[InputDevice] setName for device %s to %s" % (device,value))
 		self.setDeviceAttribute(device, 'configuredName', value)
 
-	#struct input_event {
-	#	struct timeval time;    -> ignored
-	#	__u16 type;             -> EV_REP (0x14)
-	#	__u16 code;             -> REP_DELAY (0x00) or REP_PERIOD (0x01)
-	#	__s32 value;            -> DEFAULTS: 700(REP_DELAY) or 100(REP_PERIOD)
-	#}; -> size = 16
+	# struct input_event {
+	# 	struct timeval time;    -> ignored
+	# 	__u16 type;             -> EV_REP (0x14)
+	# 	__u16 code;             -> REP_DELAY (0x00) or REP_PERIOD (0x01)
+	# 	__s32 value;            -> DEFAULTS: 700(REP_DELAY) or 100(REP_PERIOD)
+	# }; -> size = 16
 
 	def setDefaults(self, device):
 		print("[InputDevice] setDefaults for device %s" % device)
@@ -141,7 +141,7 @@ class InitInputDevices:
 		for device in sorted(iter(iInputDevices.Devices.keys())):
 			# print("[InputDevice][createConfig]", sorted(iter(iInputDevices.Devices.keys())))
 			self.currentDevice = device
-			#print("[InputDevice] creating config entry for device: %s -> %s  " % (self.currentDevice, iInputDevices.Devices[device]["name"]))
+			# print("[InputDevice] creating config entry for device: %s -> %s  " % (self.currentDevice, iInputDevices.Devices[device]["name"]))
 			self.setupConfigEntries(self.currentDevice)
 			self.remapRemoteControl(self.currentDevice)
 			self.currentDevice = ""

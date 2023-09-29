@@ -9,8 +9,10 @@ from mimetypes import types_map
 
 types_map_dict = dict(types_map)
 
+
 def add_type(type, ext, strict=True):
 	types_map_dict[ext] = type
+
 
 def guess_type(url, strict=True):
 	p = url.rfind('.')
@@ -109,7 +111,7 @@ class Scanner:
 		return True
 
 	def handleFile(self, res, file):
-#		print("[Scanner] self.mimetypes file.mimetype checkfile", self.mimetypes, "   ", file.mimetype, "   ", self.checkFile(file))
+		# print("[Scanner] self.mimetypes file.mimetype checkfile", self.mimetypes, "   ", file.mimetype, "   ", self.checkFile(file))
 		if file.mimetype and file.mimetype.lower() in list(map(lambda x: x.lower(), self.mimetypes)) and self.checkFile(file):
 			res.setdefault(self, []).append(file)
 
@@ -146,10 +148,10 @@ class ScanPath:
 class ScanFile:
 	def __init__(self, path, mimetype=None, size=None, autodetect=True):
 		self.path = path
-#		print("[Scanner][ScanFile] path=%s, mimetype=%s, autodetect=%s" % (path, mimetype, autodetect))
+		# print("[Scanner][ScanFile] path=%s, mimetype=%s, autodetect=%s" % (path, mimetype, autodetect))
 		if mimetype is None and autodetect:
 			self.mimetype = getType(path)
-#			print("[Scanner][ScanFile] getType(path)", getType(path))
+			# print("[Scanner][ScanFile] getType(path)", getType(path))
 		else:
 			self.mimetype = mimetype
 		self.size = size
@@ -175,8 +177,8 @@ def scanDevice(mountpoint):
 		if not isinstance(l, list):
 			l = [l]
 		scanner += l
-#	print("[Scanner][scanDevice] mountpoint ", mountpoint)
-#	print("[Scanner][scanDevice] scanner", scanner)
+	# print("[Scanner][scanDevice] mountpoint ", mountpoint)
+	# print("[Scanner][scanDevice] scanner", scanner)
 
 	res = {}
 
@@ -184,7 +186,7 @@ def scanDevice(mountpoint):
 	# with_subdirs.
 
 	paths_to_scan = set()
-#	print("[Scanner][scanDevice] paths_to_scan", paths_to_scan)
+	# print("[Scanner][scanDevice] paths_to_scan", paths_to_scan)
 	# first merge them all...
 	for s in scanner:
 		paths_to_scan.update(set(s.paths_to_scan))
@@ -204,7 +206,7 @@ def scanDevice(mountpoint):
 					sfile = ScanFile(filePath, "audio/x-cda")
 				else:
 					sfile = ScanFile(filePath)
-#				print("[Scanner][scanDevice] sfile=%s" % sfile)
+				# print("[Scanner][scanDevice] sfile=%s" % sfile)
 				for s in scanner:
 					s.handleFile(res, sfile)
 

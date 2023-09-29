@@ -571,4 +571,5 @@ class FailedPostcondition(Condition):
 	def check(self, task):
 		return (self.exception is None) or (self.exception == 0)
 
+
 job_manager = JobManager()
