@@ -18,11 +18,9 @@ class ActionMap:
 				if queryKeyBinding(context, action):
 					unknown.remove(action)
 					break
-		'''
-			if unknown:
-				print("")
-				print("[ActionMap] Keymap(s) '%s' -> Undefined action(s) '%s'." % (", ".join(contexts), ", ".join(unknown)))
-		'''
+		# if unknown:
+		#	print("")
+		#	print("[ActionMap] Keymap(s) '%s' -> Undefined action(s) '%s'." % (", ".join(contexts), ", ".join(unknown)))
 
 	def setEnabled(self, enabled):
 		self.enabled = enabled
@@ -81,21 +79,19 @@ class NumberActionMap(ActionMap):
 
 
 class HelpableActionMap(ActionMap):
-	'''
-		An Actionmap which automatically puts the actions into the helpList.
-		A context list is allowed, and for backward compatibility, a single
-		string context name also is allowed.
-		Sorry for this complicated code.  It's not more than converting a
-		"documented" actionmap (where the values are possibly (function,
-		help)-tuples) into a "classic" actionmap, where values are just
-		functions.  The classic actionmap is then passed to the
-		ActionMapconstructor,	the collected helpstrings (with correct
-		context, action) is added to the screen's "helpList", which will
-		be picked up by the "HelpableScreen".
-
-		do not change this code that has been modified for python 3 use!
-	'''
-
+	# An Actionmap which automatically puts the actions into the helpList.
+	#
+	# A context list is allowed, and for backward compatibility, a single
+	# string context name also is allowed.
+	#
+	# Sorry for this complicated code.  It's not more than converting a
+	# "documented" actionmap (where the values are possibly (function,
+	# help)-tuples) into a "classic" actionmap, where values are just
+	# functions.  The classic actionmap is then passed to the
+	# ActionMapconstructor,	the collected helpstrings (with correct
+	# context, action) is added to the screen's "helpList", which will
+	# be picked up by the "HelpableScreen".
+	######### do not change this code that has been modified for python 3 use!#########
 	def __init__(self, parent, contexts, actions=None, prio=0, description=None):
 		def exists(record):
 			for context in parent.helpList:
