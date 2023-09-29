@@ -684,8 +684,8 @@ class MenuImageTask(Task):
 		f.write(spuxml)
 		f.close()
 		Task.processFinished(self, 0)
-		#	except:
-		#		Task.processFinished(self, 1)
+		# 	except:
+		# 		Task.processFinished(self, 1)
 
 	def getPosition(self, offset, left, top, right, bottom, size):
 		pos = [left, top]

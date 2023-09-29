@@ -63,7 +63,7 @@ class DVDProject:
 				'<DreamDVDBurnerProject>\n',
 				'\t<settings ']
 		for key, val in self.settings.dict().items():
-				list.append(key + '="' + str(val.value) + '" ')
+			list.append(key + '="' + str(val.value) + '" ')
 		list.append('/>\n')
 		list.append('\t<titles>\n')
 		for title in self.titles:
@@ -150,9 +150,9 @@ class DVDProject:
 	def xmlAttributesToConfig(self, node, config):
 		try:
 			i = 0
-			#	if node.attributes.length < len(config.dict())-1:
-			#	 	self.error = "project attributes missing"
-			#	 	raise AttributeError
+			# 	if node.attributes.length < len(config.dict())-1:
+			# 	 	self.error = "project attributes missing"
+			# 	 	raise AttributeError
 			while i < node.attributes.length:
 				item = node.attributes.item(i)
 				key = str(item.name)
