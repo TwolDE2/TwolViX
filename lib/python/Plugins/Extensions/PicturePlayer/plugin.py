@@ -2,9 +2,6 @@ from os import path as ospath
 from enigma import getDesktop
 from Plugins.Plugin import PluginDescriptor
 
-#------------------------------------------------------------------------------------------
-
-
 def Pic_Thumb(*args, **kwa):
 	from . import ui
 	return ui.Pic_Thumb(*args, **kwa)
@@ -57,4 +54,4 @@ def Plugins(**kwargs):
 	else:
 		return \
 		[PluginDescriptor(name=_("Picture player"), description=_("fileformats (BMP, PNG, JPG, GIF)"), icon="pictureplayer.png", where=PluginDescriptor.WHERE_PLUGINMENU, needsRestart=False, fnc=main),
-			 PluginDescriptor(name=_("Picture player"), where=PluginDescriptor.WHERE_FILESCAN, needsRestart=False, fnc=filescan)]
+			PluginDescriptor(name=_("Picture player"), where=PluginDescriptor.WHERE_FILESCAN, needsRestart=False, fnc=filescan)]
