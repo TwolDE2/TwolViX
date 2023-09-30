@@ -1,14 +1,10 @@
 from Components.ActionMap import ActionMap
-from Components.config import config
 from Components.Harddisk import harddiskmanager
 from Components.Label import Label
 from Components.MenuList import MenuList
-from Components.Pixmap import Pixmap
 from Components.Task import job_manager
-from Components.Sources.StaticText import StaticText
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from Tools.BoundFunction import boundFunction
 import Screens.InfoBar
 
 
