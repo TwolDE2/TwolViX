@@ -905,7 +905,7 @@ def InitUsageConfig():
 		("last", _("Last speed"))])
 
 	config.crash = ConfigSubsection()
-	config.crash.enabledebug = ConfigYesNo(default=True)
+	config.crash.enabledebug = ConfigYesNo(default=False)
 	config.crash.e2_debug_level = ConfigSelection(default=4, choices=[(3, _("No Logs")), (4, _("Debug Logs")), (5, _("Debug+ Logs"))])
 	config.crash.debugloglimit = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=4, wraparound=True)
 
