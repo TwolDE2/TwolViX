@@ -567,19 +567,19 @@ def Plugins(**kwargs):
 			PluginDescriptor(name="FCCSupport",
 			description="Fast Channel Change support",
 			where=[PluginDescriptor.WHERE_SESSIONSTART],
-			fnc=FCCSupportInit))
+		fnc=FCCSupportInit))
 
 		list.append(
 			PluginDescriptor(name="FCCExtensionMenu",
 			description="Fast Channel Change menu",
 			where=[PluginDescriptor.WHERE_EXTENSIONSINGLE],
-			fnc=addExtentions))
+		fnc=addExtentions))
 
 		list.append(
 			PluginDescriptor(name=_("FCCSetup"),
 			description=_("Fast Channel Change setup"),
 			where=[PluginDescriptor.WHERE_MENU],
 			needsRestart=False,
-			fnc=main))
+		fnc=main))
 
 	return list

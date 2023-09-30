@@ -152,7 +152,7 @@ class DemuxTask(Task):
 	def haveProgress(self, progress):
 		# print "PROGRESS [%s]" % progress
 		MSG_CHECK = "check & synchronize audio file"
-		MSG_DONE = "done..."
+		# MSG_DONE = "done..."
 		if progress == "preparing collection(s)...":
 			self.prog_state = 0
 		elif progress[:len(MSG_CHECK)] == MSG_CHECK:

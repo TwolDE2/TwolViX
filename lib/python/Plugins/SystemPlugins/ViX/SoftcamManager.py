@@ -44,12 +44,12 @@ def SoftcamAutostart(reason, session=None, **kwargs):
 		link = "/etc/init.d/softcam"
 		print("[SoftcamAutostart] config.misc.softcams.value=%s" % (config.misc.softcams.value))
 		if path.exists(link) and config.misc.softcams.value != "None":
-				scr = "softcam.%s" % config.misc.softcams.value
-				unlink(link)
-				symlink(scr, link)
-				cmd = "%s %s" % (link, "start")
-				print("[SoftcamAutostart][command]Executing %s" % cmd)
-				eConsoleAppContainer().execute(cmd)
+			scr = "softcam.%s" % config.misc.softcams.value
+			unlink(link)
+			symlink(scr, link)
+			cmd = "%s %s" % (link, "start")
+			print("[SoftcamAutostart][command]Executing %s" % cmd)
+			eConsoleAppContainer().execute(cmd)
 		else:
 			print("[SoftcamManager] AutoStart Enabled")
 			if path.exists("/tmp/SoftcamsDisableCheck"):

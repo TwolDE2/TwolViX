@@ -1492,14 +1492,14 @@ class ImageBackup(Screen):
 					fileout.write(line)
 				self.session.open(MessageBox, _("Multiboot only able to restore this backup to mmc slot1"), MessageBox.TYPE_INFO, timeout=20)
 		elif SystemInfo["HasRootSubdir"]:
-				with open(self.MAINDEST + "/force_%s_READ.ME" % self.MCBUILD, "w") as fileout:
-					line1 = "Rename the unforce_%s.txt to force_%s.txt and move it to the root of your usb-stick" % (self.MCBUILD, self.MCBUILD)
-					line2 = "When you enter the recovery menu then it will force the image to be installed in the linux selection"
-					fileout.write(line1)
-					fileout.write(line2)
-				with open(self.MAINDEST2 + "/unforce_%s.txt" % self.MCBUILD, "w") as fileout:
-					line1 = "rename this unforce_%s.txt to force_%s.txt to force an update without confirmation" % (self.MCBUILD, self.MCBUILD)
-					fileout.write(line1)
+			with open(self.MAINDEST + "/force_%s_READ.ME" % self.MCBUILD, "w") as fileout:
+				line1 = "Rename the unforce_%s.txt to force_%s.txt and move it to the root of your usb-stick" % (self.MCBUILD, self.MCBUILD)
+				line2 = "When you enter the recovery menu then it will force the image to be installed in the linux selection"
+				fileout.write(line1)
+				fileout.write(line2)
+			with open(self.MAINDEST2 + "/unforce_%s.txt" % self.MCBUILD, "w") as fileout:
+				line1 = "rename this unforce_%s.txt to force_%s.txt to force an update without confirmation" % (self.MCBUILD, self.MCBUILD)
+				fileout.write(line1)
 
 		print("[ImageManager] Stage5: Removing Swap.")
 		if path.exists(self.swapdevice + config.imagemanager.folderprefix.value + "-" + getMachineMake() + "-" + getImageType() + "-swapfile_backup"):

@@ -113,10 +113,10 @@ class DVDTitle:
 		CUT_TYPE_IN = 0
 		CUT_TYPE_OUT = 1
 		CUT_TYPE_MARK = 2
-		CUT_TYPE_LAST = 3
+		# CUT_TYPE_LAST = 3
 
 		accumulated_in = 0
-		accumulated_at = 0
+		# accumulated_at = 0
 		last_in = 0
 
 		self.cutlist = []
