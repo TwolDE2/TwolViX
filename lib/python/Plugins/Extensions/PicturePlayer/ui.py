@@ -12,6 +12,10 @@ from Tools.Directories import resolveFilename, pathExists, SCOPE_MEDIA, SCOPE_CU
 from skin import applySkinFactor, parameters
 
 
+def getScale():
+	return AVSwitch().getFramebufferScale()
+
+
 config.pic = ConfigSubsection()
 config.pic.framesize = ConfigInteger(default=30, limits=(5, 99))
 config.pic.slidetime = ConfigInteger(default=10, limits=(1, 60))
@@ -101,7 +105,6 @@ class picshow(Screen):
 			self["key_yellow"].setText("")
 
 	def KeyGreen(self):
-		# if not self.filelist.canDescent():
 		self.session.openWithCallback(self.callbackView, Pic_Thumb, self.filelist.getFileList(), self.filelist.getSelectionIndex(), self.filelist.getCurrentDirectory())
 
 	def KeyYellow(self):

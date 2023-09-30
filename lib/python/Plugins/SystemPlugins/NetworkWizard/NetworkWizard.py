@@ -10,7 +10,6 @@ from Components.Sources.Boolean import Boolean
 from Screens.MessageBox import MessageBox
 from Screens.Rc import Rc
 from Screens.WizardLanguage import WizardLanguage
-
 from Tools.Directories import isPluginInstalled, resolveFilename, SCOPE_PLUGINS
 
 WlanPluginInstalled = False
