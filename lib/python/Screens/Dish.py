@@ -304,9 +304,9 @@ class Dishpip(Dish, Screen):
 			self.close_timeout -= 1
 			if self.close_timeout <= 3:
 				self.__toHide()
-			#elif not self.getRotorMovingState():
-			#	self.turnTimer.stop()
-			#	self.timeoutTimer.start(10000, True)
+			# elif not self.getRotorMovingState():
+			# 	self.turnTimer.stop()
+			# 	self.timeoutTimer.start(10000, True)
 		else:
 			if not self.getRotorMovingState():
 				self.turnTimer.stop()
