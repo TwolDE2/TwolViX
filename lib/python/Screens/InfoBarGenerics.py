@@ -1,4 +1,5 @@
 from bisect import insort
+from gettext import dgettext
 import itertools
 import datetime
 from os import listdir, path
@@ -48,6 +49,7 @@ from Screens.InputBox import InputBox
 from Screens.MessageBox import MessageBox
 from Screens.MinuteInput import MinuteInput
 from Screens.PictureInPicture import PictureInPicture
+from Screens.PiPSetup import PiPSetup
 from Screens.PVRState import PVRState, TimeshiftState
 from Screens.SubtitleDisplay import SubtitleDisplay
 from Screens.RdsDisplay import RdsInfoDisplay, RassInteractive
@@ -535,9 +537,6 @@ class SecondInfoBar(Screen, HelpableScreen):
 			description += '\n'
 		text = description + extended
 		self.setTitle(event.getEventName())
-<<<<<<< HEAD
-		self["epg_description"].setText(text)
-=======
 		try:
 			self["epg_description"].setText(text)
 		except TypeError:
@@ -547,8 +546,6 @@ class SecondInfoBar(Screen, HelpableScreen):
 			print("[InfoBarGenerics] setEvent text:", ' '.join('{:02X}'.format(ord(c)) for c in text))
 			text = text.encode(encoding="utf8", errors="replace").decode()  # attempt to replace bad chars with '?'
 			self["epg_description"].setText(text)
-
->>>>>>> 341bfa7... [InfoBarGenerics] PEP noise
 		serviceref = self.currentService
 		eventid = self.event.getEventId()
 		refstr = serviceref.ref.toString()
@@ -2654,12 +2651,6 @@ class InfoBarShowMovies:
 			}, description=_("Open the movie list"))
 
 
-<<<<<<< HEAD
-=======
-from Screens.PiPSetup import PiPSetup  # noqa: E402
->>>>>>> 341bfa7... [InfoBarGenerics] PEP noise
-
-
 class InfoBarExtensions:
 	EXTENSION_SINGLE = 0
 	EXTENSION_LIST = 1
@@ -2844,6 +2835,7 @@ class InfoBarExtensions:
 			# problem that the maybe it is translated in enigma.po 
 =======
 		for p in plugins.getPlugins(PluginDescriptor.WHERE_MENU):
+<<<<<<< HEAD
 			# p.name is the translated version from the *.po in the
 			# AutoTimer plugin, whereas with _("Auto Timers") the
 			# translated version comes from enigma2 *.po. This means
@@ -2854,6 +2846,9 @@ class InfoBarExtensions:
 			# but in plugin.po it is still in the untranslated form.
 			# For that case we also test against the untranslated form.
 			if p.name in (_("Auto Timers"), "Auto Timers"):
+=======
+			if p.name == dgettext("AutoTimer", "Auto Timers"):
+>>>>>>> e2ed7c8... [InfoBarGenerics] improve AutoTimer function detection
 				menuEntry = p("timermenu")
 				if menuEntry and len(menuEntry[0]) > 1 and callable(menuEntry[0][1]):
 					return menuEntry[0][1]
@@ -2981,9 +2976,6 @@ class InfoBarJobman:
 
 	def JobViewCB(self, in_background):
 		job_manager.in_background = in_background
-
-# depends on InfoBarExtensions
-from Screens.PiPSetup import PiPSetup
 
 
 class InfoBarPiP:
