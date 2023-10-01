@@ -386,7 +386,7 @@ class HdmiCec:
 			msgaddress = message.getAddress()			# 0 = TV, 5 = receiver 15 = broadcast
 			if cmd == 0x87:					# LG OLED TV/Sonos
 				return
-			# CECcmd = cmdList.get(cmd, "<Polling Message>")				
+			# CECcmd = cmdList.get(cmd, "<Polling Message>")
 			# print("[HdmiCec][messageReceived0]: msgaddress=%s  CEC=%s, cmd=%X, ctrl0=%s, length=%s" % (msgaddress, CECcmd, cmd, ctrl0, length))
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, ctrl0)
@@ -515,7 +515,7 @@ class HdmiCec:
 			if data:
 				encoder = chardet.detect(data)["encoding"]
 				data = data.decode(encoding=encoder, errors="ignore")
-				CECcmd = cmdList.get(cmd, "<Polling Message>")				
+				# CECcmd = cmdList.get(cmd, "<Polling Message>")
 				# print("[HdmiCec][sendMessage]: CEC=%s  cmd=%X, data=struct.pack" % (CECcmd, cmd))
 		elif message == "wakeup":
 			if config.hdmicec.tv_wakeup_command.value == "textview":
