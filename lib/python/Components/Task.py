@@ -567,7 +567,6 @@ class FailedPostcondition(Condition):
 				return _("Error code") + " %s" % self.exception
 		return str(self.exception)
 
-
 	def check(self, task):
 		return (self.exception is None) or (self.exception == 0)
 
