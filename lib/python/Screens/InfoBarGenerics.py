@@ -2825,30 +2825,8 @@ class InfoBarExtensions:
 		# AutoTimer plugin descriptor that opens the AutoTimer
 		# overview and is always present.
 
-<<<<<<< HEAD
-		for l in plugins.getPlugins(PluginDescriptor.WHERE_MENU):
-			# l.name is the translated version from the *.po in the 
-			# AutoTimer plugin, whereas with _("Auto Timers") the 
-			# translated version comes from enigma2 *.po. This means 
-			# for this to work the translation in plugin.po must 
-			# match the translation in enigma.po. We also have the 
-			# problem that the maybe it is translated in enigma.po 
-=======
 		for p in plugins.getPlugins(PluginDescriptor.WHERE_MENU):
-<<<<<<< HEAD
-			# p.name is the translated version from the *.po in the
-			# AutoTimer plugin, whereas with _("Auto Timers") the
-			# translated version comes from enigma2 *.po. This means
-			# for this to work the translation in plugin.po must
-			# match the translation in enigma.po. We also have the
-			# problem that the maybe it is translated in enigma.po
->>>>>>> 341bfa7... [InfoBarGenerics] PEP noise
-			# but in plugin.po it is still in the untranslated form.
-			# For that case we also test against the untranslated form.
-			if p.name in (_("Auto Timers"), "Auto Timers"):
-=======
 			if p.name == dgettext("AutoTimer", "Auto Timers"):
->>>>>>> e2ed7c8... [InfoBarGenerics] improve AutoTimer function detection
 				menuEntry = p("timermenu")
 				if menuEntry and len(menuEntry[0]) > 1 and callable(menuEntry[0][1]):
 					return menuEntry[0][1]
