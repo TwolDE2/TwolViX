@@ -87,13 +87,13 @@ class inputDevices:
 
 	def setEnabled(self, device, value):
 		oldval = self.getDeviceAttribute(device, 'enabled')
-		#print("[InputDevice] setEnabled for device %s to %s from %s" % (device,value,oldval))
+		# print("[InputDevice] setEnabled for device %s to %s from %s" % (device,value,oldval))
 		self.setDeviceAttribute(device, 'enabled', value)
 		if oldval is True and value is False:
 			self.setDefaults(device)
 
 	def setName(self, device, value):
-		#print("[InputDevice] setName for device %s to %s" % (device,value))
+		# print("[InputDevice] setName for device %s to %s" % (device,value))
 		self.setDeviceAttribute(device, 'configuredName', value)
 
 	# struct input_event {
