@@ -1,6 +1,7 @@
 from enigma import ePicLoad, eTimer, getDesktop, gMainDC, eSize
 
 from Components.ActionMap import ActionMap
+from Components.AVSwitch import AVSwitch
 from Components.config import config, ConfigSubsection, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
 from Components.FileList import FileList
@@ -68,7 +69,7 @@ class picshow(Screen):
 		if not pathExists(currDir):
 			currDir = "/"
 
-		self.filelist = FileList(currDir, matchingPattern="(?i)^.*\.(jpeg|jpg|jpe|png|bmp|gif|svg)")
+		self.filelist = FileList(currDir, matchingPattern=r"(?i)^.*\.(jpeg|jpg|jpe|png|bmp|gif|svg)")
 		self["filelist"] = self.filelist
 		self["filelist"].onSelectionChanged.append(self.selectionChanged)
 
@@ -139,6 +140,7 @@ class picshow(Screen):
 
 		config.pic.save()
 		self.close()
+
 
 class Pic_Setup(ConfigListScreen, Screen):
 
