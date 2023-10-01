@@ -830,7 +830,7 @@ class ConfigIP(ConfigSequence):
 			self.changed()
 			if callable(callback):
 				callback()
-		
+
 	def execHandleKey(self, key):
 		if key == ACTIONKEY_LEFT:
 			if self.marked_block > 0:
