@@ -2,7 +2,7 @@ from time import time
 import socket
 import sys
 # required methods: Request, urlopen, HTTPError, URLError
-from urllib.request import urlopen, Request 
+from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
 
 from boxbranding import getImageVersion, getImageBuild, getMachineBrand, getMachineName, getMachineBuild, getImageType, getBoxType, getFeedsUrl
