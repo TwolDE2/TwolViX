@@ -73,7 +73,7 @@ def spinnerSkin(skinName):
 	</screen>""",
 		484, 150,
 		460, 60, 20,
-	]
+			]
 
 
 class VIXSoftcamManager(Screen):
@@ -113,7 +113,7 @@ class VIXSoftcamManager(Screen):
 		40, 215, 170, 30, 22,  # lab2
 		225, 216, 240, 100, 20,  # activecam
 		25,
-	]
+			]
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -131,16 +131,16 @@ class VIXSoftcamManager(Screen):
 		self["list"] = self.emlist
 
 		self["myactions"] = ActionMap(["ColorActions", "OkCancelActions", "DirectionActions", "TimerEditActions", "MenuActions"],
-							{
-							"ok": self.keyStart,
-							"cancel": self.close,
-							"red": self.close,
-							"green": self.keyStart,
-							"yellow": self.getRestartPID,
-							"blue": self.changeSelectionState,
-							"log": self.showLog,  # KEY_INFO
-							"menu": self.createSetup,
-							}, -1)
+			{
+			"ok": self.keyStart,
+			"cancel": self.close,
+			"red": self.close,
+			"green": self.keyStart,
+			"yellow": self.getRestartPID,
+			"blue": self.changeSelectionState,
+			"log": self.showLog,  # KEY_INFO
+			"menu": self.createSetup,
+			}, -1)
 
 		self["key_red"] = Button(_("Close"))
 		self["key_green"] = Button("")
@@ -569,7 +569,7 @@ class VIXSoftcamLog(Screen):
 </screen>""",
 	560, 400,
 	0, 0, 560, 400, 14,
-	]
+			]
 
 	def __init__(self, session):
 		self.session = session
@@ -584,12 +584,12 @@ class VIXSoftcamLog(Screen):
 			softcamlog = ""
 		self["list"] = ScrollLabel(str(softcamlog))
 		self["setupActions"] = ActionMap(["SetupActions", "ColorActions", "DirectionActions"],
-								{
-								"cancel": self.cancel,
-								"ok": self.cancel,
-								"up": self["list"].pageUp,
-								"down": self["list"].pageDown
-								}, -2)
+			{
+			"cancel": self.cancel,
+			"ok": self.cancel,
+			"up": self["list"].pageUp,
+			"down": self["list"].pageDown
+			}, -2)
 
 	def cancel(self):
 		self.close()
@@ -766,7 +766,7 @@ class SoftcamAutoPoller:
 							f = open(camconf, "r")
 							for line in f.readlines():
 								if line.find("httpport") != -1:
-									port = re.sub("\D", "", line)
+									port = re.sub(r"\D", "", line)
 							f.close()
 							print("[SoftcamManager] Checking if " + softcamcheck + " is frozen")
 							if port == "":
@@ -840,7 +840,7 @@ class SoftcamAutoPoller:
 										if parts[0].startswith("yes"):
 											allow = parts[0]
 								if line.find("WEBINFO LISTEN PORT") != -1:
-									port = re.sub("\D", "", line)
+									port = re.sub(r"\D", "", line)
 							f.close()
 							if allow.lower().find("yes") != -1:
 								print("[SoftcamManager] Checking if " + softcamcheck + " is frozen")
