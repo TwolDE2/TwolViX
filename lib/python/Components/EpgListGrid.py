@@ -375,19 +375,19 @@ class EPGListGrid(EPGListBase):
 		if bgpng is not None and self.graphic:
 			serviceBackColor = None
 			res.append(MultiContentEntryPixmapAlphaBlend(
-					pos=(r1.left() + self.serviceBorderWidth, r1.top() + self.serviceBorderWidth),
-					size=(r1.width() - 2 * self.serviceBorderWidth, r1.height() - 2 * self.serviceBorderWidth),
-					png=bgpng,
-					flags=BT_SCALE))
+				pos=(r1.left() + self.serviceBorderWidth, r1.top() + self.serviceBorderWidth),
+				size=(r1.width() - 2 * self.serviceBorderWidth, r1.height() - 2 * self.serviceBorderWidth),
+				png=bgpng,
+				flags=BT_SCALE))
 		else:
 			res.append(MultiContentEntryText(
-					pos=(r1.left(), r1.top()),
-					size=(r1.width(), r1.height()),
-					font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
-					text="",
-					color=serviceForeColor, color_sel=serviceForeColor,
-					backcolor=serviceBackColor, backcolor_sel=serviceBackColor,
-					border_width=self.serviceBorderWidth, border_color=self.borderColorService))
+				pos=(r1.left(), r1.top()),
+				size=(r1.width(), r1.height()),
+				font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
+				text="",
+				color=serviceForeColor, color_sel=serviceForeColor,
+				backcolor=serviceBackColor, backcolor_sel=serviceBackColor,
+				border_width=self.serviceBorderWidth, border_color=self.borderColorService))
 
 		colX = r1.left() + self.serviceBorderWidth
 		for titleItem in self.serviceTitleMode:
@@ -457,48 +457,48 @@ class EPGListGrid(EPGListBase):
 			# Service Borders
 			if self.borderTopPix is not None:
 				res.append(MultiContentEntryPixmapAlphaBlend(
-						pos=(r1.left(), r1.top()),
-						size=(r1.width(), self.serviceBorderWidth),
-						png=self.borderTopPix,
-						flags=BT_SCALE))
+					pos=(r1.left(), r1.top()),
+					size=(r1.width(), self.serviceBorderWidth),
+					png=self.borderTopPix,
+					flags=BT_SCALE))
 				res.append(MultiContentEntryPixmapAlphaBlend(
-						pos=(left, top),
-						size=(width, self.eventBorderWidth),
-						png=self.borderTopPix,
-						flags=BT_SCALE))
+					pos=(left, top),
+					size=(width, self.eventBorderWidth),
+					png=self.borderTopPix,
+					flags=BT_SCALE))
 			if self.borderBottomPix is not None:
 				res.append(MultiContentEntryPixmapAlphaBlend(
-						pos=(r1.left(), r1.height() - self.serviceBorderWidth),
-						size=(r1.width(), self.serviceBorderWidth),
-						png=self.borderBottomPix,
-						flags=BT_SCALE))
+					pos=(r1.left(), r1.height() - self.serviceBorderWidth),
+					size=(r1.width(), self.serviceBorderWidth),
+					png=self.borderBottomPix,
+					flags=BT_SCALE))
 				res.append(MultiContentEntryPixmapAlphaBlend(
-						pos=(left, height - self.eventBorderWidth),
-						size=(width, self.eventBorderWidth),
-						png=self.borderBottomPix,
-						flags=BT_SCALE))
+					pos=(left, height - self.eventBorderWidth),
+					size=(width, self.eventBorderWidth),
+					png=self.borderBottomPix,
+					flags=BT_SCALE))
 			if self.borderLeftPix is not None:
 				res.append(MultiContentEntryPixmapAlphaBlend(
-						pos=(r1.left(), r1.top()),
-						size=(self.serviceBorderWidth, r1.height()),
-						png=self.borderLeftPix,
-						flags=BT_SCALE))
+					pos=(r1.left(), r1.top()),
+					size=(self.serviceBorderWidth, r1.height()),
+					png=self.borderLeftPix,
+					flags=BT_SCALE))
 				res.append(MultiContentEntryPixmapAlphaBlend(
-						pos=(left, top),
-						size=(self.eventBorderWidth, height),
-						png=self.borderLeftPix,
-						flags=BT_SCALE))
+					pos=(left, top),
+					size=(self.eventBorderWidth, height),
+					png=self.borderLeftPix,
+					flags=BT_SCALE))
 			if self.borderRightPix is not None:
 				res.append(MultiContentEntryPixmapAlphaBlend(
-						pos=(r1.width() - self.serviceBorderWidth, r1.left()),
-						size=(self.serviceBorderWidth, r1.height()),
-						png=self.borderRightPix,
-						flags=BT_SCALE))
+					pos=(r1.width() - self.serviceBorderWidth, r1.left()),
+					size=(self.serviceBorderWidth, r1.height()),
+					png=self.borderRightPix,
+					flags=BT_SCALE))
 				res.append(MultiContentEntryPixmapAlphaBlend(
-						pos=(left + width - self.eventBorderWidth, top),
-						size=(self.eventBorderWidth, height),
-						png=self.borderRightPix,
-						flags=BT_SCALE))
+					pos=(left + width - self.eventBorderWidth, top),
+					size=(self.eventBorderWidth, height),
+					png=self.borderRightPix,
+					flags=BT_SCALE))
 
 			# Only draw the selected graphic if there are no events to fill
 			# the prevents issues with lingering selection highlights.
@@ -625,28 +625,28 @@ class EPGListGrid(EPGListBase):
 				if self.graphic:
 					if borderTopPix is not None:
 						res.append(MultiContentEntryPixmapAlphaBlend(
-								pos=(left + xpos, top),
-								size=(ewidth, self.eventBorderWidth),
-								png=borderTopPix,
-								flags=BT_SCALE))
+							pos=(left + xpos, top),
+							size=(ewidth, self.eventBorderWidth),
+							png=borderTopPix,
+							flags=BT_SCALE))
 					if borderBottomPix is not None:
 						res.append(MultiContentEntryPixmapAlphaBlend(
-								pos=(left + xpos, height - self.eventBorderWidth),
-								size=(ewidth, self.eventBorderWidth),
-								png=borderBottomPix,
-								flags=BT_SCALE))
+							pos=(left + xpos, height - self.eventBorderWidth),
+							size=(ewidth, self.eventBorderWidth),
+							png=borderBottomPix,
+							flags=BT_SCALE))
 					if borderLeftPix is not None:
 						res.append(MultiContentEntryPixmapAlphaBlend(
-								pos=(left + xpos, top),
-								size=(self.eventBorderWidth, height),
-								png=borderLeftPix,
-								flags=BT_SCALE))
+							pos=(left + xpos, top),
+							size=(self.eventBorderWidth, height),
+							png=borderLeftPix,
+							flags=BT_SCALE))
 					if borderRightPix is not None:
 						res.append(MultiContentEntryPixmapAlphaBlend(
-								pos=(left + xpos + ewidth - self.eventBorderWidth, top),
-								size=(self.eventBorderWidth, height),
-								png=borderRightPix,
-								flags=BT_SCALE))
+							pos=(left + xpos + ewidth - self.eventBorderWidth, top),
+							size=(self.eventBorderWidth, height),
+							png=borderRightPix,
+							flags=BT_SCALE))
 
 				# Recording icons.
 				if timerIcon is not None and ewidth > 23:
