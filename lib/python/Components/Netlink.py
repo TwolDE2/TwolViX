@@ -12,9 +12,13 @@ class NetlinkSocket(socket.socket):
 
 	def parse(self):
 		data = self.recv(512)
+		# print("[netlink][parse] data", data)
+		if isinstance(data, bytes):
+			data = data.decode()
 		data = [x for x in data.split('\x00') if x] + [""]  # avoid empty strings in the output except the final one
+
 		event = {}
-		for item in data.split(b'\x00'):
+		for item in data:
 			# print("[netlink][parse] item=%s" % item)
 			if not item:
 				# terminator
@@ -22,7 +26,7 @@ class NetlinkSocket(socket.socket):
 				event = {}
 			else:
 				try:
-					k, v = item.decode().split('=', 1)
+					k, v = item.split('=', 1)
 					# print("[netlink][parse] k=%s, v=%s" % (k,v))
 					event[k] = v
 				except:
