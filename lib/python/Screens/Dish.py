@@ -3,10 +3,8 @@ from enigma import eDVBSatelliteEquipmentControl, eTimer, iPlayableService, eSer
 
 from Components.BlinkingPixmap import BlinkingPixmapConditional
 from Components.config import config, ConfigInteger
-from Components.Sources.Boolean import Boolean
 from Components.Label import Label
 from Components.NimManager import nimmanager
-from Components.Pixmap import Pixmap
 from Components.ServiceEventTracker import ServiceEventTracker
 from Components.Sources.Boolean import Boolean
 from Components.Sources.FrontendStatus import FrontendStatus
