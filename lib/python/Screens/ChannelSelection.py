@@ -280,12 +280,13 @@ class ChannelContextMenu(Screen):
 							_append_when_current_valid(current, menu, actions, (_("Enable favourite edit"), self.bouquetMarkStart), level=0, key="yellow")
 					if SystemInfo["PIPAvailable"]:
 						if not self.parentalControlEnabled or self.parentalControl.getProtectionLevel(current.toCompareString()) == -1:
-#							if self.csel.dopipzap:
-#								_append_when_current_valid(current, menu, actions, (_("Play in main window"), self.playMain), level=0, key="red")
-#								else:
-									_append_when_current_valid(current, menu, actions, (_("Play as picture in picture"), self.showServiceInPiP), level=0, key="blue")
-#					_append_when_current_valid(current, menu, actions, (_("Find currently played service"), self.findCurrentlyPlayed), level=0, key="4")
-#				else:
+							_append_when_current_valid(current, menu, actions, (_("Play as picture in picture"), self.showServiceInPiP), level=0, key="blue")						
+# 							if self.csel.dopipzap:
+# 								_append_when_current_valid(current, menu, actions, (_("Play in main window"), self.playMain), level=0, key="red")
+# 								else:
+# 									_append_when_current_valid(current, menu, actions, (_("Play as picture in picture"), self.showServiceInPiP), level=0, key="blue")
+# 					_append_when_current_valid(current, menu, actions, (_("Find currently played service"), self.findCurrentlyPlayed), level=0, key="4")
+# 				else:
 					if self.parentalControlEnabled:
 						if self.parentalControl.getProtectionLevel(csel.getCurrentSelection().toCompareString()) == -1:
 							_append_when_current_valid(current, menu, actions, (_("Add to parental protection"), boundFunction(self.addParentalProtection, current)), level=0, key="bullet")
@@ -1979,7 +1980,7 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 
 HISTORYSIZE = 20
 
-#config for lastservice
+# config for lastservice
 config.tv = ConfigSubsection()
 config.tv.lastservice = ConfigText()
 config.tv.lastroot = ConfigText()
@@ -2734,9 +2735,9 @@ class ChannelSelectionRadio(ChannelSelectionEdit, ChannelSelectionBase, ChannelS
 			})
 
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
-				iPlayableService.evStart: self.__evServiceStart,
-				iPlayableService.evEnd: self.__evServiceEnd
-			})
+			iPlayableService.evStart: self.__evServiceStart,
+			iPlayableService.evEnd: self.__evServiceEnd
+		})
 
 		# RDS Radiotext / Rass Support BEGIN
 		self.infobar = infobar  # reference to real infobar (the one and only)
