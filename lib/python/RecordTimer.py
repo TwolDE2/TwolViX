@@ -731,8 +731,7 @@ class RecordTimerEntry(TimerEntry):
 			from Components.Converter.ClientsStreaming import ClientsStreaming
 			if (not Screens.Standby.inStandby and NavigationInstance.instance.getCurrentlyPlayingServiceReference() and
 				("0:0:0:0:0:0:0:0:0" in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString() or
-					"4097:" in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString())
-			    ):
+					"4097:" in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString())):
 				return True
 
 			if self.afterEvent == AFTEREVENT.STANDBY or (not wasRecTimerWakeup and self.autostate and self.afterEvent == AFTEREVENT.AUTO) or self.wasInStandby:
@@ -889,7 +888,7 @@ class RecordTimerEntry(TimerEntry):
 	def failureCB(self, answer):
 		if answer:
 			self.log(13, "ok, zapped away")
-			#NavigationInstance.instance.stopUserServices()
+			# NavigationInstance.instance.stopUserServices()
 			self._bouquet_search()
 			if not self.first_try_prepare and self.InfoBarInstance and hasattr(self.InfoBarInstance.session, "pipshown") and self.InfoBarInstance.session.pipshown:
 				hasattr(self.InfoBarInstance, "showPiP") and self.InfoBarInstance.showPiP()
@@ -1025,7 +1024,7 @@ class RecordTimer(Timer):
 		# when activating a timer for servicetype 4097,
 		# and SystemApp has player enabled, then skip recording.
 		# Or always skip if in ("5001", "5002") as these cannot be recorded.
-		if w.service_ref.toString().startswith("4097:") and Directories.isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value == True or w.service_ref.toString()[:4] in ("5001", "5002"):
+		if w.service_ref.toString().startswith("4097:") and Directories.isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value is True or w.service_ref.toString()[:4] in ("5001", "5002"):
 			print("[RecordTimer][doActivate] found Serviceapp & player enabled - disable this timer recording")
 			w.state = RecordTimerEntry.StateEnded
 			from Tools.Notifications import AddPopup
@@ -1138,21 +1137,21 @@ class RecordTimer(Timer):
 				' descramble="%d"'
 				' record_ecm="%d"'
 				' isAutoTimer="%d"' % (
-				int(entry.begin),
-				int(entry.end),
-				stringToXML(str(entry.service_ref)),
-				int(entry.repeated),
-				int(entry.rename_repeat),
-				stringToXML(entry.name),
-				stringToXML(entry.description),
-				afterEvents[entry.afterEvent],
-				int(entry.justplay),
-				int(entry.always_zap),
-				int(entry.pipzap),
-				int(entry.conflict_detection),
-				int(entry.descramble),
-				int(entry.record_ecm),
-				int(entry.isAutoTimer)))
+					int(entry.begin),
+					int(entry.end),
+					stringToXML(str(entry.service_ref)),
+					int(entry.repeated),
+					int(entry.rename_repeat),
+					stringToXML(entry.name),
+					stringToXML(entry.description),
+					afterEvents[entry.afterEvent],
+					int(entry.justplay),
+					int(entry.always_zap),
+					int(entry.pipzap),
+					int(entry.conflict_detection),
+					int(entry.descramble),
+					int(entry.record_ecm),
+					int(entry.isAutoTimer)))
 			if entry.eit is not None:
 				list.append(' eit="' + str(entry.eit) + '"')
 			if entry.dirname:
@@ -1287,7 +1286,7 @@ class RecordTimer(Timer):
 						entry.begin += 1
 			entry.conflict_detection = real_cd
 		entry.timeChanged()
-#		print("[Timer] Record %s" % entry)
+		# print("[Timer] Record %s" % entry)
 		entry.Timer = self
 		self.addTimerEntry(entry)
 
