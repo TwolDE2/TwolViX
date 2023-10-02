@@ -890,7 +890,7 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 		getPage(self.url + "/providers", self.readProvidersCallback, self.readError)
 
 	def readError(self, error=None):
-#		self.session.open(MessageBox, _("Error reading webpage!"), MessageBox.TYPE_ERROR)
+		# self.session.open(MessageBox, _("Error reading webpage!"), MessageBox.TYPE_ERROR)
 		self.working = False
 
 	def readSharesCallback(self, html):
@@ -934,8 +934,8 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 									countList.append(count)
 									numberofcards = count
 									providername = self.providers.get(caidprovider, 'Multiple Providers given')
-									#if providername == 'Multiple Providers given':
-									#	print caidprovider
+									# if providername == 'Multiple Providers given':
+									# 	print caidprovider
 									numberofreshare = 0
 									if int(down) > 0:
 										resharecards += 1
@@ -1003,8 +1003,8 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 										countList.append(count)
 										numberofcards = count
 										providername = self.providers.get(caidprovider, 'Multiple Providers given')
-										#if providername == 'Multiple Providers given':
-										#	print caidprovider
+										# if providername == 'Multiple Providers given':
+										# 	print caidprovider
 
 										numberofreshare = 0
 										if int(down) > 0:
@@ -1042,11 +1042,11 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 									self.caidList.append(caidprovider)
 									totalcards += 1
 									#maxdown = list[6]
-									#while maxdown.startswith(" "):
-										#maxdown = maxdown[1:]
-										#down = maxdown
-									#if int(down)>0:
-										#resharecards +=1
+									# while maxdown.startswith(" "):
+									# 	maxdown = maxdown[1:]
+									# 	down = maxdown
+									# if int(down)>0:
+									# 	resharecards +=1
 
 		self.instance.setTitle("%s (%s %d) %s %s" % (_("Share View"), _("Total cards:"), totalcards, _("Hops:"), ulevel))
 		self["title"].setText("%s (%s %d) %s %s" % (_("Share View"), _("Total cards:"), totalcards, _("Hops:"), ulevel))
