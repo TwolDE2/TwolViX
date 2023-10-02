@@ -1,7 +1,6 @@
 from enigma import ePicLoad, eTimer, getDesktop, gMainDC, eSize
 
 from Components.ActionMap import ActionMap
-from Components.AVSwitch import AVSwitch
 from Components.config import config, ConfigSubsection, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
 from Components.FileList import FileList
@@ -11,10 +10,6 @@ from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
 from Tools.Directories import resolveFilename, pathExists, SCOPE_MEDIA, SCOPE_CURRENT_SKIN
 from skin import applySkinFactor, parameters
-
-
-def getScale():
-	return AVSwitch().getFramebufferScale()
 
 
 config.pic = ConfigSubsection()
@@ -493,7 +488,6 @@ class Pic_Full_View(Screen):
 		self.start_decode()
 
 	def setConf(self, retval=None):
-		sc = getScale()
 		# 0=Width 1=Height 2=Aspect 3=use_cache 4=resize_type 5=Background(#AARRGGBB)
 		self.picload.setPara([self["pic"].instance.size().width(), self["pic"].instance.size().height(), 1, 1, 0, int(config.pic.resize.value), self.bgcolor, config.pic.autoOrientation.value])
 
