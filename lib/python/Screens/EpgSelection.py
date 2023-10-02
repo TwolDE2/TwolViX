@@ -58,7 +58,7 @@ class EPGSelection(EPGSelectionChannel, EPGServiceZap):
 	def redButtonPressed(self):
 		if isPluginInstalled("tmdb"):
 			self.openTMDb()
-		elif isPluginInstalled("IMDb"):		
+		elif isPluginInstalled("IMDb"):
 			self.openIMDb()
 
 	def redButtonText(self):
