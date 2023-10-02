@@ -13,6 +13,7 @@ from Components.PluginComponent import plugins
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.Event import Event
+from Components.Sources.StaticText import StaticText
 from Components.UsageConfig import preferredTimerPath
 from Plugins.Plugin import PluginDescriptor
 from RecordTimer import AFTEREVENT
