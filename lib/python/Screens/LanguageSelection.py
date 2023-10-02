@@ -12,7 +12,7 @@ from Components.Pixmap import Pixmap
 from Screens.InfoBar import InfoBar
 from Screens.MessageBox import MessageBox
 from Screens.Rc import Rc
-from Screens.Screen import Screen
+from Screens.Screen import Screen, ScreenSummary
 from Screens.Standby import TryQuitMainloop
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
@@ -70,7 +70,7 @@ class LanguageSelection(Screen):
 		}, -1)
 
 	def updateCache(self):
-#		print("[LanguageSelection] updateCache")
+		# print("[LanguageSelection] updateCache")
 		self["languages"].setList([('update cache', _('Updating cache, please wait...'), None)])
 		self.updateTimer = eTimer()
 		self.updateTimer.callback.append(self.startupdateCache)
@@ -119,11 +119,11 @@ class LanguageSelection(Screen):
 		self.close()
 
 	def delLang(self):
-#		print("[LanguageSelection] deleting language")
+		# print("[LanguageSelection] deleting language")
 		curlang = config.osd.language.value
 		lang = curlang
 		languageList = language.getLanguageListSelection()
-#		print("[LanguageSelection] deleting language  lang = %s, languagelist = %s", %(lang, languageList))
+		# print("[LanguageSelection] deleting language  lang = %s, languagelist = %s", %(lang, languageList))
 		for t in languageList:
 			if curlang == t[0]:
 				lang = t[1]
@@ -140,7 +140,7 @@ class LanguageSelection(Screen):
 			curlang = config.osd.language.value
 			lang = curlang
 			languageList = language.getLanguageListSelection()
-	#		print("[LanguageSelection] deleting language  lang = %s, languagelist = %s", %(lang, languageList))
+			# print("[LanguageSelection] deleting language  lang = %s, languagelist = %s", %(lang, languageList))
 			for t in languageList:
 				if curlang == t[0]:
 					lang = t[1]
@@ -155,7 +155,7 @@ class LanguageSelection(Screen):
 			language.activateLanguage(self.oldActiveLanguage)
 			self.updateList()
 			self.selectActiveLanguage()
-#		self.close()
+		# self.close()
 
 	def run(self, justlocal=False):
 		print("[LanguageSelection][run] updating language...justlocal", justlocal)
@@ -203,6 +203,14 @@ class LanguageSelection(Screen):
 
 	def changed(self):
 		self.run(justlocal=True)
+
+	def createSummary(self):
+		return LanguageSelectionSummary
+
+
+class LanguageSelectionSummary(ScreenSummary):
+	def __init__(self, session, parent):
+		ScreenSummary.__init__(self, session, parent)
 
 
 class LanguageWizard(LanguageSelection, Rc):
