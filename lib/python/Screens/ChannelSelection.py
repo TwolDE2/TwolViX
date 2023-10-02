@@ -280,7 +280,7 @@ class ChannelContextMenu(Screen):
 							_append_when_current_valid(current, menu, actions, (_("Enable favourite edit"), self.bouquetMarkStart), level=0, key="yellow")
 					if SystemInfo["PIPAvailable"]:
 						if not self.parentalControlEnabled or self.parentalControl.getProtectionLevel(current.toCompareString()) == -1:
-							_append_when_current_valid(current, menu, actions, (_("Play as picture in picture"), self.showServiceInPiP), level=0, key="blue")						
+							_append_when_current_valid(current, menu, actions, (_("Play as picture in picture"), self.showServiceInPiP), level=0, key="blue")
 # 							if self.csel.dopipzap:
 # 								_append_when_current_valid(current, menu, actions, (_("Play in main window"), self.playMain), level=0, key="red")
 # 								else:
