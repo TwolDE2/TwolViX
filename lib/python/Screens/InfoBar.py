@@ -5,6 +5,7 @@ from Tools.Profile import profile
 profile("LOAD:enigma")
 import enigma  # noqa: E402
 
+from Components.config import ConfigSelection
 from Components.Label import Label
 from Components.Pixmap import MultiPixmap
 from Components.SystemInfo import SystemInfo
