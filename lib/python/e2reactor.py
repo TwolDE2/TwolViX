@@ -16,7 +16,7 @@ import sys
 # Twisted imports
 from twisted.python import log, failure
 from twisted.internet import main, posixbase, error
-#from twisted.internet.pollreactor import PollReactor, poller
+# from twisted.internet.pollreactor import PollReactor, poller
 
 from enigma import getApplication
 import six
@@ -153,11 +153,11 @@ class PollReactor(posixbase.PosixReactorBase):
 			timeout = int(timeout * 1000)  # convert seconds to milliseconds
 
 		try:
-			l = poller.poll(timeout)
+			l = poller.poll(timeout)  # noqa: E741
 			if l is None:
 				if self.running:
 					self.stop()
-				l = []
+				l = []  # noqa: E741
 		except OSError as e:
 			if e.errno == errno.EINTR:
 				return
@@ -178,9 +178,9 @@ class PollReactor(posixbase.PosixReactorBase):
 	def _doReadOrWrite(self, selectable, fd, event, POLLIN, POLLOUT, log, faildict=None):
 		if not faildict:
 			faildict = {
-		error.ConnectionDone: failure.Failure(error.ConnectionDone()),
-		error.ConnectionLost: failure.Failure(error.ConnectionLost())
-		}
+				error.ConnectionDone: failure.Failure(error.ConnectionDone()),
+				error.ConnectionLost: failure.Failure(error.ConnectionLost())
+			}
 		why = None
 		inRead = False
 		if event & POLL_DISCONNECTED and not (event & POLLIN):

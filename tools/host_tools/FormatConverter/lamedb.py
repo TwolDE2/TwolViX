@@ -1,6 +1,6 @@
-from __future__ import print_function
-from datasource import datasource
-
+from . import datasource
+tsid = None
+onid = None
 
 class lamedb(datasource):
 	def __init__(self, filename="lamedb"):

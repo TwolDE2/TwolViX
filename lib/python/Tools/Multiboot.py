@@ -174,33 +174,33 @@ def GetImagelist(Recovery=None):
 			else:
 				Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))
 			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
-#		print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))
+		# print("[multiboot] [GetImagelist]0 isfile = %s" % (path.join(imagedir, "usr/bin/enigma2")))
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
-#			print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))
+			# print("[multiboot] [GetImagelist]1 Slot = %s imagedir = %s" % (slot, imagedir))
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
 				print("[multiboot] [BoxInfo] using BoxInfo")
 				BuildVersion = createInfo(slot, imagedir=imagedir)
-#				print("[multiboot] [BoxInfo]  slot=%s, BuildVersion=%s" % (slot, BuildVersion))
+				# print("[multiboot] [BoxInfo]  slot=%s, BuildVersion=%s" % (slot, BuildVersion))
 			else:
-#				print("[multiboot] [BoxInfo] using BoxBranding")
+				# print("[multiboot] [BoxInfo] using BoxBranding")
 				print("[multiboot] [GetImagelist] 2 slot = %s imagedir = %s" % (slot, imagedir))
 				Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
 				print("[multiboot] [GetImagelist] Creator = %s imagedir = %s" % (Creator, imagedir))
 				if fileHas("/proc/cmdline", "kexec=1") and path.isfile(path.join(imagedir, "etc/vtiversion.info")):
 					Vti = open(path.join(imagedir, "etc/vtiversion.info")).read()
-#					print("[BootInfo]6 vti = ", Vti)
+					# print("[BootInfo]6 vti = ", Vti)
 					date = VerDate(imagedir)
 					Creator = Vti[0:3]
 					Build = Vti[-8:-1]
 					BuildVersion = "%s %s (%s) " % (Creator, Build, date)
-#					print("[BootInfo]8 BuildVersion  = ", BuildVersion )
+					# print("[BootInfo]8 BuildVersion  = ", BuildVersion )
 				else:
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
 					BuildVersion = "%s (%s)" % (Creator, date)
-#			print("[multiboot] [GetImagelist] Bootlogo call 1 = ", config.usage.bootlogo_identify.value)
+			# print("[multiboot] [GetImagelist] Bootlogo call 1 = ", config.usage.bootlogo_identify.value)
 			if fileHas("/proc/cmdline", "kexec=1") and Recovery and config.usage.bootlogo_identify.value:
-#				print("[multiboot] [GetImagelist] Bootlogo call 2 = ", config.usage.bootlogo_identify.value)
+				# print("[multiboot] [GetImagelist] Bootlogo call 2 = ", config.usage.bootlogo_identify.value)
 				bootmviSlot(imagedir=imagedir, text=BuildVersion, slot=slot)
 			Imagelist[slot] = {"imagename": "%s" % BuildVersion}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):

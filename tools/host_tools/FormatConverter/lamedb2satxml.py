@@ -1,8 +1,8 @@
 #!/usr/bin/python
 from __future__ import print_function
-from datasource import genericdatasource
-from satxml import satxml
-from lamedb import lamedb
+from . import datasource.genericdatasource
+from . import satxml
+from . import lamedb
 
 import sys
 
