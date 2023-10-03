@@ -6,6 +6,7 @@ from Components.config import config
 from Components.Label import Label
 from Components.Language import language
 from Components.Language_cache import LANG_TEXT
+from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Components.Pixmap import Pixmap
@@ -44,8 +45,7 @@ class LanguageSelection(Screen):
 		self.catalog = language.getActiveCatalog()
 
 		self.list = []
-		self["summarylangname"] = StaticText()
-		self["summarylangsel"] = StaticText()
+		self.onChangedEntry = []
 		self["languages"] = List(self.list)
 		self["languages"].onSelectionChanged.append(self.changed)
 
@@ -163,7 +163,6 @@ class LanguageSelection(Screen):
 
 		if lang == 'update cache':
 			self.setTitle(_("Updating Cache"))
-			self["summarylangname"].setText(_("Updating cache"))
 			return
 
 		if lang != config.osd.language.value:
@@ -171,10 +170,12 @@ class LanguageSelection(Screen):
 			config.osd.language.save()
 
 		self.setTitle(_cached("T2"))
-		self["summarylangname"].setText(_cached("T2"))
-		self["summarylangsel"].setText(self["languages"].getCurrent()[1])
+		self.current = self["languages"].getCurrent()
 		self["key_red"].setText(_cached("T3"))
 		self["key_green"].setText(_cached("T4"))
+		for f in self.onChangedEntry:
+			if callable(f):
+				f()
 
 		if justlocal:
 			return
@@ -211,6 +212,29 @@ class LanguageSelection(Screen):
 class LanguageSelectionSummary(ScreenSummary):
 	def __init__(self, session, parent):
 		ScreenSummary.__init__(self, session, parent)
+		self.parent = parent
+		self["flag"] = Pixmap()
+		self["summarylangsel"] = StaticText()
+		self["title"] = StaticText(parent.getTitle())
+		if self.addWatcher not in self.onShow:
+			self.onShow.append(self.addWatcher)
+		if self.removeWatcher not in self.onHide:
+			self.onHide.append(self.removeWatcher)
+
+	def addWatcher(self):
+		if self.selectionChanged not in self.parent.onChangedEntry:
+			self.parent.onChangedEntry.append(self.selectionChanged)
+		self.selectionChanged()
+
+	def removeWatcher(self):
+		if self.selectionChanged in self.parent.onChangedEntry:
+			self.parent.onChangedEntry.remove(self.selectionChanged)
+
+	def selectionChanged(self):
+		current = self.parent.current
+		self["summarylangsel"].text = current[1]
+		if current[2]:
+			self["flag"].instance.setPixmap(current[2])
 
 
 class LanguageWizard(LanguageSelection, Rc):
