@@ -323,14 +323,11 @@ print("import config")
 import Components.config  # noqa: E402
 print("done")
 
-my_config = [
-"config.skin.primary_skin=None\n"
-]
-
+my_config = ["config.skin.primary_skin=None\n"]
 Components.config.config.unpickle(my_config)
 
 # ENIGMA ACTIONS
- 
+
 
 class eActionMap:
 	def __init__(self):
