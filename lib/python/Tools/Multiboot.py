@@ -37,7 +37,7 @@ def getMultibootslots():
 		print("[multiboot*****][getMultibootslots]00 device, bootslots", device, "   ", bootslots)
 		if len(bootslots) != 0:
 			break
-#		print("[multiboot*****][getMultibootslots]0 device = ", device)
+		# print("[multiboot*****][getMultibootslots]0 device = ", device)
 		if path.exists(device):
 			print("[multiboot*****][getMultibootslots]path found for device = ", device)
 			Console(binary=True).ePopen("mount %s %s" % (device, tmpname))
@@ -63,7 +63,7 @@ def getMultibootslots():
 					print("[multiboot] [getMultibootslots3] slot = %s file = %s" % (slotnumber, slotname))
 					if slotnumber.isdigit() and slotnumber not in bootslots:
 						line = open(file).read().replace("'", "").replace('"', "").replace("\n", " ").replace("ubi.mtd", "mtd").replace("bootargs=", "")
-#						print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
+						# print("[Multiboot][getMultibootslots]6 readlines = %s " % line)
 						slot = dict([(x.split("=", 1)[0].strip(), x.split("=", 1)[1].strip()) for x in line.strip().split(" ") if "=" in x])
 						if slotnumber == "0":
 							slot["slotType"] = ""
@@ -94,7 +94,7 @@ def getMultibootslots():
 
 								if "kernel" not in slot.keys():
 									slot["kernel"] = "%sp%s" % (slot["root"].split("p")[0], int(slot["root"].split("p")[1]) - 1)  # oldstyle MB kernel = root-1
-	#							print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel, root, SystemInfo['HasRootSubdir'] ", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"], "   ", slot["root"], "   ", SystemInfo["HasRootSubdir"])
+									# print("[multiboot] [getMultibootslots]7a HasMultibootMTD, kernel, root, SystemInfo['HasRootSubdir'] ", SystemInfo["HasMultibootMTD"], "   ", slot["kernel"], "   ", slot["root"], "   ", SystemInfo["HasRootSubdir"])
 							else:
 								continue
 							bootslots[int(slotnumber)] = slot
@@ -107,7 +107,7 @@ def getMultibootslots():
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	if bootslots:
-#		print("[Multiboot] Bootslots found:", bootslots)
+		# print("[Multiboot] Bootslots found:", bootslots)
 		bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 		print("[Multiboot][MultiBootSlot] bootArgs:", bootArgs)
 		if fileHas("/proc/cmdline", "kexec=1") and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
@@ -116,7 +116,7 @@ def getMultibootslots():
 			SystemInfo["MultiBootSlot"] = int(rootsubdir[0].rsplit(char, 1)[1][11:])
 			SystemInfo["VuUUIDSlot"] = (UUID, UUIDnum) if UUIDnum != 0 else ""
 			print("[Multiboot][MultiBootSlot]0 current slot used:", SystemInfo["MultiBootSlot"])
-#			print("[Multiboot][MultiBootSlot]0 UID, UUIDnum:", SystemInfo["VuUUIDSlot"], "   ", SystemInfo["VuUUIDSlot"][0], "   ", SystemInfo["VuUUIDSlot"][1])
+			# print("[Multiboot][MultiBootSlot]0 UID, UUIDnum:", SystemInfo["VuUUIDSlot"], "   ", SystemInfo["VuUUIDSlot"][0], "   ", SystemInfo["VuUUIDSlot"][1])
 		elif SystemInfo["HasRootSubdir"] and "root=/dev/sda" not in bootArgs:							# RootSubdir receiver or sf8008 receiver with root in eMMC slot
 			slot = [x[-1] for x in bootArgs.split() if x.startswith("rootsubdir")]
 			SystemInfo["MultiBootSlot"] = int(slot[0])
@@ -134,12 +134,12 @@ def getMultibootslots():
 
 
 def getUUIDtoSD(UUID):  # returns None on failure
-#	print("[multiboot][getUUIDtoSD2] UUID = ", UUID)
+	# print("[multiboot][getUUIDtoSD2] UUID = ", UUID)
 	check = "/sbin/blkid"
 	if fileExists(check):
 		lines = subprocess.check_output([check]).decode(encoding="utf8", errors="ignore").split("\n")
 		for line in lines:
-#			print("[Multiboot][getUUIDtoSD2] line", line)
+			# print("[Multiboot][getUUIDtoSD2] line", line)
 			if UUID in line.replace('"', ''):
 				return line.split(":")[0].strip()
 	else:
