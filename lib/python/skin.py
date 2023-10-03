@@ -147,10 +147,10 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 	global windowStyles
 	filename = resolveFilename(scope, filename)
 	if isfile(filename):
-#		print("[Skin] Loading skin file '%s'." % filename)
+		# print("[Skin] Loading skin file '%s'." % filename)
 		domSkin = fileReadXML(filename)
 		if domSkin:
-#			print("[Skin] DEBUG: Extracting non screen blocks from '%s'.  (scope='%s')" % (filename, {SCOPE_CONFIG: "SCOPE_CONFIG", SCOPE_CURRENT_LCDSKIN: "SCOPE_CURRENT_LCDSKIN", SCOPE_CURRENT_SKIN: "SCOPE_CURRENT_SKIN", SCOPE_FONTS: "SCOPE_FONTS", SCOPE_SKIN: "SCOPE_SKIN", SCOPE_SKIN_IMAGE: "SCOPE_SKIN_IMAGE"}.get(scope, scope)))
+			# print("[Skin] DEBUG: Extracting non screen blocks from '%s'.  (scope='%s')" % (filename, {SCOPE_CONFIG: "SCOPE_CONFIG", SCOPE_CURRENT_LCDSKIN: "SCOPE_CURRENT_LCDSKIN", SCOPE_CURRENT_SKIN: "SCOPE_CURRENT_SKIN", SCOPE_FONTS: "SCOPE_FONTS", SCOPE_SKIN: "SCOPE_SKIN", SCOPE_SKIN_IMAGE: "SCOPE_SKIN_IMAGE"}.get(scope, scope)))
 			# For loadSingleSkinData colors, bordersets etc. are applied one after
 			# the other in order of ascending priority.
 			loadSingleSkinData(desktop, screenID, domSkin, filename, scope=scope)
@@ -172,7 +172,7 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 						windowStyles[scrnID] = (desktop, screenID, domStyle.getroot(), filename, scope)
 				# Element is not a screen or windowstyle element so no need for it any longer.
 			reloadWindowStyles()  # Reload the window style to ensure all skin changes are taken into account.
-#			print("[Skin] Loading skin file '%s' complete." % filename)
+			# print("[Skin] Loading skin file '%s' complete." % filename)
 			return True
 	return False
 
@@ -570,7 +570,7 @@ class AttributeParser:
 				"moveRightBottom": BT_HALIGN_RIGHT | BT_VALIGN_BOTTOM
 			}[value])
 		except KeyError:
-			raise AttribValueError("'none', 'scale', 'scaleKeepAspect', 'scaleLeftTop', 'scaleLeftCenter', 'scaleLeftBotton', 'scaleCenterTop', 'scaleCenter', 'scaleCenterBotton', 'scaleRightTop', 'scaleRightCenter', 'scaleRightBottom', 'moveLeftTop', 'moveLeftCenter', 'moveLeftBotton', 'moveCenterTop', 'moveCenter', 'moveCenterBotton', 'moveRightTop', 'moveRightCenter', 'moveRightBottom' ('Center'/'Centre'/'Middle' are equivalent)")
+			raise ValueError("'none', 'scale', 'scaleKeepAspect', 'scaleLeftTop', 'scaleLeftCenter', 'scaleLeftBotton', 'scaleCenterTop', 'scaleCenter', 'scaleCenterBotton', 'scaleRightTop', 'scaleRightCenter', 'scaleRightBottom', 'moveLeftTop', 'moveLeftCenter', 'moveLeftBotton', 'moveCenterTop', 'moveCenter', 'moveCenterBotton', 'moveRightTop', 'moveRightCenter', 'moveRightBottom' ('Center'/'Centre'/'Middle' are equivalent)")
 
 	def orientation(self, value):  # Used by eSlider and eListBox.
 		try:
@@ -1368,11 +1368,11 @@ def readSkin(screen, skin, names, desktop):
 	}
 
 	try:
-		msg = " from list '%s'" % ", ".join(names) if len(names) > 1 else ""
-		posX = "?" if context.x is None else str(context.x)
-		posY = "?" if context.y is None else str(context.y)
-		sizeW = "?" if context.w is None else str(context.w)
-		sizeH = "?" if context.h is None else str(context.h)
+		# msg = " from list '%s'" % ", ".join(names) if len(names) > 1 else ""
+		# posX = "?" if context.x is None else str(context.x)
+		# posY = "?" if context.y is None else str(context.y)
+		# sizeW = "?" if context.w is None else str(context.w)
+		# sizeH = "?" if context.h is None else str(context.h)
 		# print("[Skin] Processing screen '%s'%s, position=(%s, %s), size=(%s x %s) for module '%s'." % (name, msg, posX, posY, sizeW, sizeH, screen.__class__.__name__))
 		context.x = 0  # Reset offsets, all components are relative to screen coordinates.
 		context.y = 0
