@@ -212,10 +212,10 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 	def __onClose(self):
 		self.ConsoleB.ePopen('/usr/bin/showiframe /usr/share/backdrop.mvi')
 
-# This is called by the Wizard...
+	# This is called by the Wizard...
 
 	def run(self):
-#		config.osd.alpha.setValue(self.alpha)	
+		# config.osd.alpha.setValue(self.alpha)
 		config.osd.dst_left.save()
 		config.osd.dst_width.save()
 		config.osd.dst_top.save()
