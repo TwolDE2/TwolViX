@@ -434,7 +434,7 @@ class Wizard(Screen):
 			if "onselect" in self.wizard[self.currStep]:
 				print("[wizard]current:", self["list"].current)
 				# self.selection = self.wizard[self.currStep]["evaluatedlist"][self["list"].l.getCurrentSelectionIndex()][1]
-				#exec("self." + self.wizard[self.currStep]["onselect"] + "()")
+				# exec("self." + self.wizard[self.currStep]["onselect"] + "()")
 				self.selection = self["list"].current[-1]
 				# self.selection = self.wizard[self.currStep]["evaluatedlist"][self["list"].l.getCurrentSelectionIndex()][1]
 				getattr(self, self.wizard[self.currStep]["onselect"])()
