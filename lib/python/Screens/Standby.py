@@ -1,7 +1,7 @@
 from os import path
 from time import time
 
-from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer
+from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer, iRecordableService, quitMainloop
 
 from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM
 from Components.ActionMap import ActionMap
@@ -11,9 +11,11 @@ from Components.Console import Console
 import Components.ParentalControl
 from Components.SystemInfo import SystemInfo
 from Components.Sources.StreamService import StreamServiceList
+from Components.Task import job_manager
 from GlobalActions import globalActionMap
 import Screens.InfoBar
 from Screens.Screen import Screen, ScreenSummary
+from Screens.MessageBox import MessageBox
 import Tools.Notifications
 
 inStandby = None
@@ -197,12 +199,6 @@ class StandbySummary(ScreenSummary):
 			<convert type="ConditionalShowHide">Blink</convert>
 		</widget>
 	</screen>"""
-
-
-from enigma import quitMainloop, iRecordableService
-from Screens.MessageBox import MessageBox
-from time import time
-from Components.Task import job_manager
 
 
 class QuitMainloopScreen(Screen):

@@ -27,7 +27,7 @@ class StreamingClientsInfo(Screen):
 				"blue": self.stopStreams,
 				"up": self["ScrollLabel"].pageUp,
 				"down": self["ScrollLabel"].pageDown
-			})
+			})  # noqa: E123
 
 		self.onLayoutFinish.append(self.start)
 
