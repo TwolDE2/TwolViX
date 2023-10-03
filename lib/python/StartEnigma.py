@@ -7,7 +7,7 @@ from traceback import print_exc
 from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
 from Tools.Profile import profile, profile_final
 # Don't remove import Tools.RedirectOutput line. It may seem to do nothing, but if removed it will break output redirection for crash logs.
-import Tools.RedirectOutput    # noqa: W605
+import Tools.RedirectOutput    # noqa: F401
 import eConsoleImpl
 import eBaseImpl
 import enigma
@@ -18,30 +18,30 @@ enigma.eConsoleAppContainer = eConsoleImpl.eConsoleAppContainer
 
 class Session:
 
-	# Session.open:
-	#	 * push current active dialog ("current_dialog") onto stack
-	#	 * call execEnd for this dialog
-	#	   * clear in_exec flag
-	#	   * hide screen
-	#	 * instantiate new dialog into "current_dialog"
-	#	   * create screens, components
-	#	   * read, apply skin
-	#	   * create GUI for screen
-	#	 * call execBegin for new dialog
-	#	   * set in_exec
-	#	   * show gui screen
-	#	   * call components' / screen's onExecBegin
-	# ... screen is active, until it calls "close"...
-	# Session.close:
-	#	 * assert in_exec
-	#	 * save return value
-	#	 * start deferred close handler ("onClose")
-	#	 * execEnd
-	#	   * clear in_exec
-	#	   * hide screen
-	# .. a moment later:
-	# Session.doClose:
-	#	 * destroy screen
+#  Session.open:
+# 	 * push current active dialog ("current_dialog") onto stack
+# 	 * call execEnd for this dialog
+# 	   * clear in_exec flag
+# 	   * hide screen
+# 	 * instantiate new dialog into "current_dialog"
+# 	   * create screens, components
+# 	   * read, apply skin
+# 	   * create GUI for screen
+# 	 * call execBegin for new dialog
+# 	   * set in_exec
+# 	   * show gui screen
+# 	   * call components' / screen's onExecBegin
+#  ... screen is active, until it calls "close"...
+#  Session.close:
+# 	 * assert in_exec
+# 	 * save return value
+# 	 * start deferred close handler ("onClose")
+# 	 * execEnd
+# 	   * clear in_exec
+# 	   * hide screen
+#  .. a moment later:
+#  Session.doClose:
+# 	 * destroy screen
 
 	def __init__(self, desktop=None, summary_desktop=None, navigation=None):
 		self.desktop = desktop
@@ -304,7 +304,7 @@ class AutoScartControl:
 		self.VCRSbChanged(self.current_vcr_sb)
 
 	def VCRSbChanged(self, value):
-		#print("vcr sb changed to", value)
+		# print("vcr sb changed to", value)
 		self.current_vcr_sb = value
 		if config.av.vcrswitch.value or value > 2:
 			if value:
@@ -576,14 +576,14 @@ AutoNTPSync()
 
 profile("LOAD:Wizard")
 print("[StartEnigma]  Initialising Wizards.")
-from Screens.StartWizard import *  # noqa: E402
+from Screens.StartWizard import *  # noqa: F403
 
 profile("LOAD:Plugin")
 print("[StartEnigma]  Initialising Plugins.")
 # initialize autorun plugins and plugin menu entries
 from Components.PluginComponent import plugins  # noqa: E402
 
-import Screens.Rc
+import Screens.Rc  # noqa: E402
 from Tools.BoundFunction import boundFunction  # noqa: E402
 from Plugins.Plugin import PluginDescriptor  # noqa: E402
 
