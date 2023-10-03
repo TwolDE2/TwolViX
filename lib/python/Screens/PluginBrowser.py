@@ -244,9 +244,9 @@ class PluginBrowser(Screen, ProtectedScreen):
 		if not (feedsstatuscheck.adapterAvailable() and feedsstatuscheck.NetworkUp()):
 			self.session.openWithCallback(self.close, MessageBox, _("Your %s %s has no %s access, please check your network settings and make sure you have network cable connected and try again.") % (getMachineBrand(), getMachineName(), feedsstatuscheck.adapterAvailable() and 'internet' or 'network'), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
 			return
-#		if kernelMismatch():
-#			self.session.openWithCallback(self.close, MessageBox, _("The Linux kernel has changed, plugins are not compatible. \nInstall latest image using USB stick or Image Manager."), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
-#			return
+		# if kernelMismatch():
+		# 	self.session.openWithCallback(self.close, MessageBox, _("The Linux kernel has changed, plugins are not compatible. \nInstall latest image using USB stick or Image Manager."), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
+		# 	return
 		self.session.openWithCallback(self.PluginDownloadBrowserClosed, PluginDownloadBrowser, PluginDownloadBrowser.DOWNLOAD, self.firsttime)
 		self.firsttime = False
 
@@ -343,7 +343,7 @@ class PluginDownloadBrowser(Screen):
 			cb(name, desc)
 
 	def createPluginFilter(self):
-		#Create Plugin Filter
+		# Create Plugin Filter
 		self.PLUGIN_PREFIX2 = []
 		if config.misc.pluginbrowser.bootlogos.value:
 			self.PLUGIN_PREFIX2.append(self.PLUGIN_PREFIX + 'bootlogos')
@@ -571,13 +571,13 @@ class PluginDownloadBrowser(Screen):
 		if self.type == self.DOWNLOAD and any([x for x in ('wget returned 1', 'wget returned 255', '404 Not Found') if x in str]):
 			self.run = 3
 			return
-		#prepend any remaining data from the previous call
+		# prepend any remaining data from the previous call
 		str = self.remainingdata + str
-		#split in lines
+		# split in lines
 		lines = str.split('\n')
-		#'str' should end with '\n', so when splitting, the last line should be empty. If this is not the case, we received an incomplete line
+		# 'str' should end with '\n', so when splitting, the last line should be empty. If this is not the case, we received an incomplete line
 		if len(lines[-1]):
-			#remember this data for next time
+			# remember this data for next time
 			self.remainingdata = lines[-1]
 			lines = lines[0:-1]
 		else:

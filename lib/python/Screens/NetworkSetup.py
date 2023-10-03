@@ -3,7 +3,7 @@ import netifaces as ni
 from random import Random
 import string
 import time
-
+import glob
 from enigma import eTimer, eConsoleAppContainer
 from boxbranding import getBoxType, getMachineBrand, getMachineName, getImageType, getImageVersion
 
@@ -30,6 +30,7 @@ from Screens.TextBox import TextBox
 from Tools.Directories import fileExists, isPluginInstalled, resolveFilename, SCOPE_CURRENT_SKIN, SCOPE_PLUGINS
 from Tools.LoadPixmap import LoadPixmap
 
+
 networkWizard = False
 XML_networkWizard = False
 wirelessLan = False
@@ -43,13 +44,12 @@ if isPluginInstalled("WirelessLan"):
 	wirelessLan = True
 	from Plugins.SystemPlugins.WirelessLan.Wlan import brcmWLConfig, iStatus, wpaSupplicant
 	from Plugins.SystemPlugins.WirelessLan.plugin import WlanScan, WlanStatus
-	
+
 # Define a function to determine whether a service is configured to
 # start at boot time.
 # This checks for a start file in rc2.d (rc4.d might be more
 # appropriate, but historically it's been rc2.d, so...).
 #
-import glob
 
 
 def ServiceIsEnabled(service_name):
@@ -184,22 +184,22 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 		self["introduction"] = StaticText(self.edittext)
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
-			{
-			"cancel": (self.close, _("Exit network interface list")),
-			"ok": (self.okbuttonClick, _("Select interface")),
-			})
+		{
+		"cancel": (self.close, _("Exit network interface list")),
+		"ok": (self.okbuttonClick, _("Select interface")),
+		})
 
 		self["ColorActions"] = HelpableActionMap(self, "ColorActions",
-			{
-			"red": (self.close, _("Exit network interface list")),
-			"green": (self.okbuttonClick, _("Select interface")),
-			"blue": (self.openNetworkWizard, _("Use the network wizard to configure selected network adapter")),
-			})
+		{
+		"red": (self.close, _("Exit network interface list")),
+		"green": (self.okbuttonClick, _("Select interface")),
+		"blue": (self.openNetworkWizard, _("Use the network wizard to configure selected network adapter")),
+		})
 
 		self["DefaultInterfaceAction"] = HelpableActionMap(self, "ColorActions",
-			{
-			"yellow": (self.setDefaultInterface, [_("Set interface as the default Interface"), _("* Only available if more than one interface is active.")]),
-			})
+		{
+		"yellow": (self.setDefaultInterface, [_("Set interface as the default Interface"), _("* Only available if more than one interface is active.")]),
+		})
 
 		self.adapters = [(iNetwork.getFriendlyAdapterName(x), x) for x in iNetwork.getAdapterList()]
 
@@ -510,9 +510,9 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 		self.createConfig()
 
 		self["ColorActions"] = HelpableActionMap(self, "ColorActions",
-			{
-			"blue": (self.KeyBlue, _("Open nameserver configuration")),
-			})
+		{
+		"blue": (self.KeyBlue, _("Open nameserver configuration")),
+		})
 
 		ConfigListScreen.__init__(self, [], session=session, on_change=self.newConfig, fullUI=True)
 
@@ -853,23 +853,23 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		self.missingwlanplugintxt = _("The wireless LAN plugin is not installed!\nPlease install it.")
 
 		self["WizardActions"] = HelpableActionMap(self, "WizardActions",
-			{
-			"up": (self.up, _("Move up to previous entry")),
-			"down": (self.down, _("Move down to next entry")),
-			"left": (self.left, _("Move up to first entry")),
-			"right": (self.right, _("Move down to last entry")),
-			})
+		{
+		"up": (self.up, _("Move up to previous entry")),
+		"down": (self.down, _("Move down to next entry")),
+		"left": (self.left, _("Move up to first entry")),
+		"right": (self.right, _("Move down to last entry")),
+		})
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
-			{
-			"cancel": (self.close, _("Exit network adapter setup menu")),
-			"ok": (self.ok, _("Select menu entry")),
-			})
+		{
+		"cancel": (self.close, _("Exit network adapter setup menu")),
+		"ok": (self.ok, _("Select menu entry")),
+		})
 
 		self["ColorActions"] = HelpableActionMap(self, "ColorActions",
-			{
-			"red": (self.close, _("Exit network adapter setup menu")),
-			})
+		{
+		"red": (self.close, _("Exit network adapter setup menu")),
+		})
 
 		self["actions"] = NumberActionMap(["WizardActions", "ShortcutActions"],
 		{
@@ -1567,23 +1567,23 @@ class NetworkMountsMenu(Screen, HelpableScreen):
 		self["introduction"] = StaticText()
 
 		self["WizardActions"] = HelpableActionMap(self, "WizardActions",
-			{
-			"up": (self.up, _("Move up to previous entry")),
-			"down": (self.down, _("Move down to next entry")),
-			"left": (self.left, _("Move up to first entry")),
-			"right": (self.right, _("Move down to last entry")),
-			})
+		{
+		"up": (self.up, _("Move up to previous entry")),
+		"down": (self.down, _("Move down to next entry")),
+		"left": (self.left, _("Move up to first entry")),
+		"right": (self.right, _("Move down to last entry")),
+		})
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
-			{
-			"cancel": (self.close, _("Exit mounts setup menu")),
-			"ok": (self.ok, _("Select menu entry")),
-			})
+		{
+		"cancel": (self.close, _("Exit mounts setup menu")),
+		"ok": (self.ok, _("Select menu entry")),
+		})
 
 		self["ColorActions"] = HelpableActionMap(self, "ColorActions",
-			{
-			"red": (self.close, _("Exit networkadapter setup menu")),
-			})
+		{
+		"red": (self.close, _("Exit networkadapter setup menu")),
+		})
 
 		self["actions"] = NumberActionMap(["WizardActions", "ShortcutActions"],
 		{
