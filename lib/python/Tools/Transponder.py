@@ -6,14 +6,14 @@ from Components.NimManager import nimmanager
 
 
 def orbpos(pos):
-	return pos > 3600 and "N/A" or "%0.1f%s%s" % (((3600 - pos) / 10., "\xb0', "W") if pos > 1800 else (pos / 10., "\xb0', "E"))
+	return pos > 3600 and "N/A" or "%0.1f%s%s" % (((3600 - pos) / 10., "\xb0', "W") if pos > 1800 else (pos / 10., "\xb0", "E"))
 
 
 def getTunerDescription(nim):
 	try:
 		return nimmanager.getTerrestrialDescription(nim)
 	except:
-		print('[ChannelNumber] nimmanager.getTerrestrialDescription(nim) failed, nim:%s" % nim)
+		print("[ChannelNumber] nimmanager.getTerrestrialDescription(nim) failed, nim:%s" % nim)
 	return ""
 
 
@@ -72,7 +72,7 @@ def channel2frequency(channel, nim):
 def ConvertToHumanReadable(tp, tunertype=None):
 	ret = {}
 	if tunertype is None:
-		tunertype = tp.get("tuner_type', "None")
+		tunertype = tp.get("tuner_type", "None")
 	if tunertype == "DVB-S":
 		ret["tuner_type"] = _("Satellite")
 		ret["inversion"] = {

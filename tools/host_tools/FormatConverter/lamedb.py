@@ -1,6 +1,4 @@
 from . import datasource
-tsid = None
-onid = None
 
 class lamedb(datasource):
 	def __init__(self, filename="lamedb"):
@@ -30,6 +28,8 @@ class lamedb(datasource):
 		transpondersreading = False
 		sats = {}
 		transponders = {}
+		tsid = None
+		onid = None
 		for line in lines:
 			if line.strip() == "transponders":
 				transpondersreading = True

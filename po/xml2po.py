@@ -64,7 +64,7 @@ for arg in sys.argv[1:]:
 		print('#: ' + arg)
 		k.replace("\\n", "\"\n\"")
 		if c:
-			for l in c.split('\n'): # noqa: E741
+			for l in c.split('\n'):  # noqa: E741
 				print("#. ", l)
 		print('msgid "' + six.ensure_str(k) + '"')
 		print('msgstr ""')

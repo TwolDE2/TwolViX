@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
-from . import datasource.genericdatasource
+from . import datasource
 from . import satxml
 from . import lamedb
 
@@ -10,7 +10,7 @@ if len(sys.argv) != 3:
 	print("usage: %s <lamedb> <satellites.xml>" % sys.argv[0])
 	sys.exit()
 
-gen = genericdatasource()
+gen = datasource.genericdatasource()
 db = lamedb(sys.argv[1])
 xml = satxml(sys.argv[2])
 

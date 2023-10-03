@@ -1,5 +1,5 @@
 import time
-from . import events.eventfnc
+from . import events
 
 # fake-enigma
 
@@ -127,15 +127,15 @@ class pNavigation:
 		self.m_event = slot()
 		self.m_record_event = slot()
 
-	@eventfnc
+	@events.eventfnc
 	def recordService(self, service):
 		return iRecordableService(service)
 
-	@eventfnc
+	@events.eventfnc
 	def stopRecordService(self, service):
 		service.stop()
 
-	@eventfnc
+	@events.eventfnc
 	def playService(self, service):
 		return None
 
@@ -174,15 +174,15 @@ class iRecordableService:
 	def __init__(self, ref):
 		self.ref = ref
 
-	@eventfnc
+	@events.eventfnc
 	def prepare(self, filename, begin, end, event_id):
 		return 0
 
-	@eventfnc
+	@events.eventfnc
 	def start(self):
 		return 0
 
-	@eventfnc
+	@events.eventfnc
 	def stop(self):
 		return 0
 

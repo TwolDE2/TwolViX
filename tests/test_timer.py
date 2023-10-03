@@ -3,7 +3,7 @@ import calendar
 from os import environ
 from . import enigma
 from . import tests
-from . import events.log
+from . import events
 
 # enigma.reset()
 def test_timer(repeat=0, timer_start=3600, timer_length=1000, sim_length=86400 * 7):
@@ -77,6 +77,6 @@ enigma.init_parental_control()
 environ['TZ'] = 'CET'
 time.tzset()
 
-# log(test_timer, test_name = "test_timer_repeating", base_time = calendar.timegm((2007, 3, 1, 12, 0, 0)), repeat=0x7f, sim_length = 86400 * 7)
-log(test_timer, test_name="test_timer_repeating_dst_skip", base_time=calendar.timegm((2007, 0o3, 20, 0, 0, 0)), timer_start=3600, repeat=0x7f, sim_length=86400 * 7)
-# log(test_timer, test_name = "test_timer_repeating_dst_start", base_time = calendar.timegm((2007, 03, 20, 0, 0, 0)), timer_start = 10000, repeat=0x7f, sim_length = 86400 * 7)
+# events.log(test_timer, test_name = "test_timer_repeating", base_time = calendar.timegm((2007, 3, 1, 12, 0, 0)), repeat=0x7f, sim_length = 86400 * 7)
+events.log(test_timer, test_name="test_timer_repeating_dst_skip", base_time=calendar.timegm((2007, 0o3, 20, 0, 0, 0)), timer_start=3600, repeat=0x7f, sim_length=86400 * 7)
+# events.log(test_timer, test_name = "test_timer_repeating_dst_start", base_time = calendar.timegm((2007, 03, 20, 0, 0, 0)), timer_start = 10000, repeat=0x7f, sim_length = 86400 * 7)
