@@ -117,7 +117,7 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 		self["actions"] = ActionMap(["ColorActions"],
 			{
 				"yellow": self.keyDefault,
-			}, -2)  # noqa: E123 
+			}, -2)  # noqa: E123
 		self.alpha = config.osd.alpha.value
 		self.onChangedEntry = []
 		self.list = []

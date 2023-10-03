@@ -114,23 +114,23 @@ cable_bands = {
 }
 
 cable_autoscan_nimtype = {
-		'SSH108': 'ssh108',
-		'TT3L10': 'tt3l10',
-		'TURBO': 'vuplus_turbo_c',
-		'TURBO2': 'vuplus_turbo2_c',
-		'TT2L08': 'tt2l08',
-		'BCM3148': 'bcm3148',  # BCM3158/BCM3148 use the same bcm3148 utility
-		'BCM3158': 'bcm3148'
-	}
+	'SSH108': 'ssh108',
+	'TT3L10': 'tt3l10',
+	'TURBO': 'vuplus_turbo_c',
+	'TURBO2': 'vuplus_turbo2_c',
+	'TT2L08': 'tt2l08',
+	'BCM3148': 'bcm3148',  # BCM3158/BCM3148 use the same bcm3148 utility
+	'BCM3158': 'bcm3148'
+}
 
 terrestrial_autoscan_nimtype = {
-		'SSH108': 'ssh108_t2_scan',
-		'TT3L10': 'tt3l10_t2_scan',
-		'TURBO': 'vuplus_turbo_t',
-		'TURBO2': 'vuplus_turbo2_t',
-		'TT2L08': 'tt2l08_t2_scan',
-		'BCM3466': 'bcm3466'
-	}
+	'SSH108': 'ssh108_t2_scan',
+	'TT3L10': 'tt3l10_t2_scan',
+	'TURBO': 'vuplus_turbo_t',
+	'TURBO2': 'vuplus_turbo2_t',
+	'TT2L08': 'tt2l08_t2_scan',
+	'BCM3466': 'bcm3466'
+}
 
 dual_tuner_list = ('TT3L10', 'BCM3466')
 vtuner_need_idx_list = ('TURBO2',)

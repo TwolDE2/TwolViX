@@ -329,7 +329,7 @@ class UpdatePlugin(Screen, ProtectedScreen):
 			if 'enigma2-plugin-settings-' in param[0] and self.channellist_only > 0:
 				self.channellist_name = param[0]
 				self.channellist_only = 2
-		#print( event, "-", param)
+		# print( event, "-", param)
 		pass
 
 	def setEndMessage(self, txt):
@@ -393,7 +393,6 @@ class UpdatePlugin(Screen, ProtectedScreen):
 		self.showJobView(job)
 
 	def doImageBackup(self):
-		backup = None
 		from Plugins.SystemPlugins.ViX.ImageManager import ImageBackup
 		self.ImageBackup = ImageBackup(self.session, True)
 		Components.Task.job_manager.AddJob(self.ImageBackup.createBackupJob())
