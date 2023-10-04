@@ -58,6 +58,7 @@ from Screens.Screen import Screen
 from Screens.TimeDateInput import TimeDateInput
 from Screens.TimerEdit import TimerEditList
 from Screens.TimerEntry import addTimerFromEvent
+from Screens.TimerSelection import TimerSelection
 from Screens.UnhandledKey import UnhandledKey
 from ServiceReference import ServiceReference, isPlayableForCur
 from Tools import Notifications
@@ -908,8 +909,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 	def queueChange(self):
 		self._waitForEventInfoTimer.stop()
 		self._waitForEventInfoTimer.start(50, True)
-		
-		
+
 	def avChange(self):
 		service = self.session.nav.getCurrentService()
 		ref_p = self.session.nav.getCurrentlyPlayingServiceReference()
@@ -930,14 +930,12 @@ class InfoBarShowHide(InfoBarScreenSaver):
 						audio_pid = pickle_loads(av_val.encode())
 					audio = service and service.audioTracks()
 					playinga_idx = audio and audio.getCurrentTrack()
-					n = audio and audio.getNumberOfTracks() or 0
+					# n = audio and audio.getNumberOfTracks() or 0
 					if audio_pid and audio_pid != -1 and playinga_idx != audio_pid:
 						audio.selectTrack(audio_pid)
-					
 					self.enableSubtitle(subs_pid)
-					
 				self._waitForEventInfoTimer.stop()
-			except Exception as e:
+			except Exception:
 				self._waitForEventInfoTimer.stop()
 
 
@@ -3883,13 +3881,10 @@ class InfoBarCueSheetSupport:
 		self.resume_point = None
 		self.force_next_resume = False
 		self.__event_tracker = ServiceEventTracker(screen=self,
-			eventmap={
-		iPlayableService.evStart: self.__serviceStarted,
-		iPlayableService.evCuesheetChanged: self.downloadCuesheet,
-		iPlayableService.evStopped: self.__evStopped,
-		}
-		)
-
+		eventmap={
+			iPlayableService.evStart: self.__serviceStarted,
+			iPlayableService.evCuesheetChanged: self.downloadCuesheet,
+			iPlayableService.evStopped: self.__evStopped, })
 		self.__blockDownloadCuesheet = False
 		self.__recording = None
 		self.__recordingCuts = []

@@ -29,14 +29,14 @@ class InputDeviceSelection(Screen, HelpableScreen):
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
 		{
-		"cancel": (self.close, _("Exit input device selection.")),
-		"ok": (self.okbuttonClick, _("Select input device.")),
+		"cancel": (self.close, _("Exit input device selection.")),  # noqa: E122
+		"ok": (self.okbuttonClick, _("Select input device.")),  # noqa: E122
 		}, -2)
 
 		self["ColorActions"] = HelpableActionMap(self, "ColorActions",
 		{
-		"red": (self.close, _("Exit input device selection.")),
-		"green": (self.okbuttonClick, _("Select input device.")),
+		"red": (self.close, _("Exit input device selection.")),  # noqa: E122
+		"green": (self.okbuttonClick, _("Select input device.")),  # noqa: E122
 		}, -2)
 
 		self.currentIndex = 0
