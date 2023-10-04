@@ -2696,8 +2696,6 @@ class InfoBarShowMovies:
 				"down": (self.down, _("Open the movie list"))
 			}, description=_("Open the movie list"))
 
-from Screens.PiPSetup import PiPSetup  # noqa: E402
-
 
 class ExtensionsList(ChoiceBox):
 	def __init__(self, session, clist, keys, refresh_list):
@@ -3037,6 +3035,11 @@ class InfoBarJobman:
 
 	def JobViewCB(self, in_background):
 		job_manager.in_background = in_background
+
+# depends on InfoBarExtensions
+
+
+from Screens.PiPSetup import PiPSetup  # noqa: E402
 
 
 class InfoBarPiP:
