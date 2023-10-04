@@ -87,11 +87,11 @@ class EventViewBase:
 				"prevEvent": self.prevEvent,
 				"nextEvent": self.nextEvent,
 				"contextMenu": self.doContext,
-			})
+			})  # noqa: E123
 		self["dialogactions"] = ActionMap(["WizardActions"],
 			{
 				"back": self.closeChoiceBoxDialog,
-			}, -1
+			}, -1  # noqa: E123
 		)
 		self["dialogactions"].csel = self
 		self["dialogactions"].setEnabled(False)

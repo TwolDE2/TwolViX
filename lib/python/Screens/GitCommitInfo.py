@@ -3,7 +3,7 @@ from json import loads
 from sys import modules
 
 from enigma import eTimer
-from boxbranding import getImageBuild, getImageDevBuild, getImageType
+from boxbranding import getImageBuild, getImageType  # getImageDevBuild removed Twol
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.Label import Label
@@ -18,8 +18,8 @@ from urllib.error import HTTPError, URLError
 if getImageType() == 'release':
 	ImageVer = getImageBuild()
 else:
-#	ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
-#	ImageVer = float(ImageVer)
+	# ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
+	# ImageVer = float(ImageVer)
 	ImageVer = getImageBuild()
 
 E2Branches = {
@@ -190,7 +190,7 @@ class CommitInfo(Screen):
 				"down": self["AboutScrollLabel"].pageDown,
 				"left": self.left,
 				"right": self.right
-			}
+			}  # noqa: E123
 		)
 
 		self["key_red"] = Button(_("Cancel"))
