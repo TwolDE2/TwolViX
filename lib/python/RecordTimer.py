@@ -752,7 +752,7 @@ class RecordTimerEntry(TimerEntry):
 				if int(ClientsStreaming("NUMBER").getText()) > 0:
 					if not Screens.Standby.inStandby:  # not already in standby
 						Notifications.AddNotificationWithCallback(self.sendStandbyNotification, MessageBox,
-							 _("A finished record timer wants to set your\n%s %s to standby. Do that now?") % (getMachineBrand(), getMachineName())
+							_("A finished record timer wants to set your\n%s %s to standby. Do that now?") % (getMachineBrand(), getMachineName())
 							+ _("\n(DeepStandby request changed to Standby owing to there being streaming clients.)"), timeout=180)
 					return True
 
@@ -970,7 +970,7 @@ def createTimer(xml):
 		"standby": AFTEREVENT.STANDBY,
 		"deepstandby": AFTEREVENT.DEEPSTANDBY,
 		"auto": AFTEREVENT.AUTO
-		}[afterevent]
+		}[afterevent]  # noqa: E123
 	eitx = xml.get("eit")
 	eit = int(eitx) if eitx else None
 	locationx = xml.get("location")

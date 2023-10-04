@@ -242,7 +242,7 @@ class RemoteControlType(ConfigListScreen, Screen):
 		("26", _("Protek 4K UHD/HD61")),
 		("27", _("HD60")),
 		("28", _("H7/H9/H9COMBO/H10 new Model"))
-		]
+	]
 
 	defaultRcList = [
 		("default", 0),

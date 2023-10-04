@@ -433,7 +433,7 @@ class CCcamInfoMain(Screen):
 				"down": self.down,
 				"left": self.left,
 				"right": self.right
-			}, -2)
+			}, -2)  # noqa: E123
 
 		self.onLayoutFinish.append(self.updateMenuList)
 
@@ -496,7 +496,7 @@ class CCcamInfoMain(Screen):
 			self.showInfo(_("Using old profile: ") + self.url, _("Profile"))
 
 	def keyNumberGlobal(self, idx):
-		if self.working == False and (idx < len(self.menu_list)):
+		if self.working is False and (idx < len(self.menu_list)):
 			self.working = True
 			sel = self.menu_list[idx]
 
@@ -829,7 +829,7 @@ class CCcamInfoInfoScreen(Screen):
 				"down": self["text"].pageDown,
 				"left": self["text"].pageUp,
 				"right": self["text"].pageDown,
-			}, -1)
+			}, -1)  # noqa: E123
 
 		self["key_red"] = Label(_("Cancel"))
 		self["shortcuts"] = ActionMap(["ShortcutActions"],
@@ -1026,8 +1026,8 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 										if int(down) > 0:
 											reshare = reshareList[i]
 											reshare += 1
-											#if caidprovider == "05021700":
-											#	print "re: %d" %(reshare)
+											# if caidprovider == "05021700":
+											# 	print "re: %d" %(reshare)
 											reshareList[i] = reshare
 											numberofreshare = 0
 											numberofreshare = reshare
@@ -1041,12 +1041,12 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 									self.hostList.append(hostname)
 									self.caidList.append(caidprovider)
 									totalcards += 1
-									#maxdown = list[6]
-									# while maxdown.startswith(" "):
-									# 	maxdown = maxdown[1:]
-									# 	down = maxdown
-									# if int(down)>0:
-									# 	resharecards +=1
+									# 	maxdown = list[6]
+									# 	while maxdown.startswith(" "):
+									# 		maxdown = maxdown[1:]
+									# 		down = maxdown
+									#	if int(down)>0:
+									# 		resharecards +=1
 
 		self.instance.setTitle("%s (%s %d) %s %s" % (_("Share View"), _("Total cards:"), totalcards, _("Hops:"), ulevel))
 		self["title"].setText("%s (%s %d) %s %s" % (_("Share View"), _("Total cards:"), totalcards, _("Hops:"), ulevel))
@@ -1294,7 +1294,7 @@ class CCcamInfoRemoteBoxMenu(Screen):
 				"green": self.new,
 				"yellow": self.location,
 				"blue": self.edit
-			}, -1)
+			}, -1)  # noqa: E123
 
 		self.onLayoutFinish.append(self.readProfiles)
 
@@ -1419,7 +1419,7 @@ class CCcamInfoShareInfo(Screen):
 				"green": self.uhopsMinus,
 				"yellow": self.maxdownPlus,
 				"blue": self.maxdownMinus
-			}, -1)
+			}, -1)  # noqa: E123
 
 		self.onLayoutFinish.append(self.readShares)
 
@@ -1551,7 +1551,7 @@ class CCcamInfoConfigSwitcher(Screen):
 				"green": self.activate,
 				"yellow": self.rename,
 				"blue": self.showContent
-			}, -1)
+			}, -1)  # noqa: E123
 
 		self.onLayoutFinish.append(self.showConfigs)
 
@@ -1665,7 +1665,7 @@ class CCcamInfoMenuConfig(Screen):
 				"red": self.close,
 				"green": self.save,
 				"yellow": self.location
-			}, -1)
+			}, -1)  # noqa: E123
 
 		self.onLayoutFinish.append(self.showConfigs)
 

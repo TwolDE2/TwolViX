@@ -73,7 +73,7 @@ def spinnerSkin(skinName):
 	</screen>""",
 		484, 150,
 		460, 60, 20,
-			]
+		]
 
 
 class VIXSoftcamManager(Screen):
@@ -113,7 +113,7 @@ class VIXSoftcamManager(Screen):
 		40, 215, 170, 30, 22,  # lab2
 		225, 216, 240, 100, 20,  # activecam
 		25,
-			]
+		]
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -140,7 +140,7 @@ class VIXSoftcamManager(Screen):
 			"blue": self.changeSelectionState,
 			"log": self.showLog,  # KEY_INFO
 			"menu": self.createSetup,
-			}, -1)
+			}, -1)  # noqa: E123
 
 		self["key_red"] = Button(_("Close"))
 		self["key_green"] = Button("")
@@ -569,7 +569,7 @@ class VIXSoftcamLog(Screen):
 </screen>""",
 	560, 400,
 	0, 0, 560, 400, 14,
-			]
+		]
 
 	def __init__(self, session):
 		self.session = session
@@ -589,9 +589,9 @@ class VIXSoftcamLog(Screen):
 			"ok": self.cancel,
 			"up": self["list"].pageUp,
 			"down": self["list"].pageDown
-			}, -2)
+			}, -2)  # noqa: E123
 
-	def cancel(self):
+  # noqa: W605	def cancel(self):
 		self.close()
 
 

@@ -192,8 +192,8 @@ class FlashExpander(Setup):
 					footnote = _("Flash directory '%s' not allowed!") % mountPoint
 				elif not access(mountPoint, W_OK):
 					footnote = _("Directory '%s' not writable!") % mountPoint
-	#			elif fstype and not fstype.startswith("ext"):
-	#				footnote = _("File system type '%s' not permitted!") % fstype
+				# elif fstype and not fstype.startswith("ext"):
+				# 	footnote = _("File system type '%s' not permitted!") % fstype
 				else:
 					footnote = None
 			else:

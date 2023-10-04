@@ -1588,9 +1588,9 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 	def configureDone(self, result):
 		if result:
 			self.applyConfigSettings({
-			"moviesort": config.movielist.moviesort.value,  # noqa: E121
-			"description": config.movielist.description.value,  # noqa: E121
-			"movieoff": config.usage.on_movie_eof.value})  # noqa: E121
+			"moviesort": config.movielist.moviesort.value,  # noqa: E122
+			"description": config.movielist.description.value,  # noqa: E122
+			"movieoff": config.usage.on_movie_eof.value})  # noqa: E122
 			self.saveLocalSettings()
 			self._updateButtonTexts()
 			self["list"].setItemsPerPage()
@@ -2518,7 +2518,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 
 	def installedMovieManagerPlugin(self):
 		try:
-			from Plugins.Extensions.MovieManager.ui import MovieManager
+			from Plugins.Extensions.MovieManager.ui import MovieManager  # noqa: F401
 			return True
 		except Exception as e:
 			print("[MovieSelection] MovieManager is not installed...", e)

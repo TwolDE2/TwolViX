@@ -5,15 +5,15 @@ from Tools.Profile import profile
 profile("LOAD:enigma")
 import enigma  # noqa: E402
 
-from Components.config import ConfigSelection
-from Components.Label import Label
-from Components.Pixmap import MultiPixmap
-from Components.SystemInfo import SystemInfo
-from Screens.MessageBox import MessageBox
+from Components.config import ConfigSelection  # noqa: E402
+from Components.Label import Label  # noqa: E402
+from Components.Pixmap import MultiPixmap  # noqa: E402
+from Components.SystemInfo import SystemInfo  # noqa: E402
+from Screens.MessageBox import MessageBox  # noqa: E402
 
 # workaround for required config entry dependencies.
-import Screens.MovieSelection
-from Screens.Screen import Screen
+import Screens.MovieSelection  # noqa: E402
+from Screens.Screen import Screen  # noqa: E402
 
 profile("LOAD:InfoBarGenerics")
 from Screens.InfoBarGenerics import InfoBarShowHide, \

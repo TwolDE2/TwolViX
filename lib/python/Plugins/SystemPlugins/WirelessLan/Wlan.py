@@ -243,7 +243,7 @@ class wpaSupplicant:
 				'encryption': "WPA2",
 				'wepkeytype': "ASCII",
 				'key': "",
-				}
+				}  # noqa: E123
 
 		for (k, v) in list(wsconf.items()):
 			print("[wsconf][%s] %s" % (k, v))
@@ -360,7 +360,7 @@ class wpaSupplicant:
 				'encryption': config.plugins.wlan.encryption.value,
 				'wepkeytype': config.plugins.wlan.wepkeytype.value,
 				'key': config.plugins.wlan.psk.value,
-				}
+				}  # noqa: E123
 
 			for (key, item) in list(wsconfig.items()):
 				if item == "None" or item == "":

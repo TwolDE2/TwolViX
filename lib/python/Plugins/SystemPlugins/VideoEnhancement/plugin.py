@@ -38,7 +38,7 @@ class VideoEnhancementSetup(ConfigListScreen, Screen):
 				"yellow": self.keyYellow,
 				"blue": self.keyBlue,
 				"menu": self.closeRecursive,
-			}, -2)
+			}, -2)  # noqa: E123
 
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("OK"))
@@ -286,7 +286,7 @@ class VideoEnhancementPreview(ConfigListScreen, Screen):
 			{
 				"cancel": self.keyCancel,
 				"save": self.keySave,
-			}, -2)
+			}, -2)  # noqa: E123
 
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("OK"))

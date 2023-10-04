@@ -86,8 +86,7 @@ class ChapterZap(Screen):
 				"8": self.keyNumberGlobal,
 				"9": self.keyNumberGlobal,
 				"0": self.keyNumberGlobal
-			}
-		)
+			})  # noqa: E123
 
 		self.Timer = eTimer()
 		self.Timer.callback.append(self.keyOK)
@@ -193,14 +192,13 @@ class DVDPlayer(Screen, InfoBarBase, InfoBarNotifications, InfoBarSeek, InfoBarP
 				"rightUp": self.doNothing,
 				"upUp": self.doNothing,
 				"downUp": self.doNothing,
-			})
+			})  # noqa: E123
 
 		self["OkCancelActions"] = ActionMap(["OkCancelActions"],
 			{
 				"ok": self.keyOk,
 				"cancel": self.keyCancel,
-			}
-		)
+			})  # noqa: E123
 
 		self["DVDPlayerPlaybackActions"] = HelpableActionMap(self, "DVDPlayerActions",
 			{
@@ -218,8 +216,7 @@ class DVDPlayer(Screen, InfoBarBase, InfoBarNotifications, InfoBarSeek, InfoBarP
 				"nextSubtitleTrack": (self.nextSubtitleTrack, _("switch to the next subtitle language")),
 				"nextAngle": (self.nextAngle, _("switch to the next angle")),
 				"seekBeginning": self.seekBeginning,
-			}, -2
-		)
+			}, -2)  # noqa: E123
 
 		self["NumberActions"] = NumberActionMap(["NumberActions"],
 			{
@@ -233,8 +230,7 @@ class DVDPlayer(Screen, InfoBarBase, InfoBarNotifications, InfoBarSeek, InfoBarP
 				"8": self.keyNumberGlobal,
 				"9": self.keyNumberGlobal,
 				"0": self.keyNumberGlobal,
-			}
-		)
+			})  # noqa: E123
 
 		self.onClose.append(self.__onClose)
 
