@@ -383,7 +383,7 @@ class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 			{
 			"yellow": (self.add, _("Add a nameserver entry")),
 			"blue": (self.remove, _("Remove a nameserver entry")),
-			})
+			})  # noqa: E123
 		ConfigListScreen.__init__(self, [], session=session, on_change=self.changedEntry, fullUI=True)
 		self.createConfig()
 		self.createSetup()
@@ -873,14 +873,14 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 
 		self["actions"] = NumberActionMap(["WizardActions", "ShortcutActions"],
 		{
-				"ok": self.ok,
-				"back": self.close,
-				"up": self.up,
-				"down": self.down,
-				"red": self.close,
-				"left": self.left,
-				"right": self.right,
-		}, -2)
+			"ok": self.ok,
+			"back": self.close,
+			"up": self.up,
+			"down": self.down,
+			"red": self.close,
+			"left": self.left,
+			"right": self.right,
+		}, -2)  # noqa: E123  # noqa: E123
 
 		self.updateStatusbar()
 		self.onClose.append(self.cleanup)
@@ -1587,14 +1587,14 @@ class NetworkMountsMenu(Screen, HelpableScreen):
 
 		self["actions"] = NumberActionMap(["WizardActions", "ShortcutActions"],
 		{
-				"ok": self.ok,
-				"back": self.close,
-				"up": self.up,
-				"down": self.down,
-				"red": self.close,
-				"left": self.left,
-				"right": self.right,
-		}, -2)
+			"ok": self.ok,
+			"back": self.close,
+			"up": self.up,
+			"down": self.down,
+			"red": self.close,
+			"left": self.left,
+			"right": self.right,
+		}, -2)  # noqa: E123
 
 		if self.selectionChanged not in self["menulist"].onSelectionChanged:
 			self["menulist"].onSelectionChanged.append(self.selectionChanged)

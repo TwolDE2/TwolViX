@@ -936,10 +936,10 @@ class oscEntitlements(Screen, OscamInfo):
 		self.cccamreader = reader
 		self["output"] = List([])
 		self["actions"] = ActionMap(["SetupActions"],
-					{
-						"ok": self.showData,
-						"cancel": self.exit
-					}, -1)  # noqa: E123
+			{
+				"ok": self.showData,
+				"cancel": self.exit
+			}, -1)  # noqa: E123
 		self["key_red"] = StaticText(_("Close"))
 		self.onLayoutFinish.append(self.showData)
 
@@ -971,7 +971,7 @@ class oscEntitlements(Screen, OscamInfo):
 				csystem,
 				str(hops[1]), str(hops[2]), str(hops[3]), str(hops[4]), str(hops[5]), str(csum), str(creshare),
 				providertxt[:-1]
-					))  # noqa: E123
+				))  # noqa: E123
 			outlist.append(res)
 		return res
 

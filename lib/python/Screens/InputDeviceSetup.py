@@ -28,16 +28,16 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		print(("[InputDeviceSetup] found devices :->", len(self.devices), self.devices))
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
-		{
-		"cancel": (self.close, _("Exit input device selection.")),
-		"ok": (self.okbuttonClick, _("Select input device.")),
-		}, -2)
+			{
+			"cancel": (self.close, _("Exit input device selection.")),
+			"ok": (self.okbuttonClick, _("Select input device.")),
+			}, -2)
 
 		self["ColorActions"] = HelpableActionMap(self, "ColorActions",
-		{
-		"red": (self.close, _("Exit input device selection.")),
-		"green": (self.okbuttonClick, _("Select input device.")),
-		}, -2)
+			{
+			"red": (self.close, _("Exit input device selection.")),
+			"green": (self.okbuttonClick, _("Select input device.")),
+			}, -2)
 
 		self.currentIndex = 0
 		self.list = []
@@ -271,11 +271,11 @@ class RemoteControlType(ConfigListScreen, Screen):
 		("hd2400", 19),
 		("h3", 21),
 		("h5", 21),
-		#("h7", 21),# old model
+		# ("h7", 21),# old model
 		("i55", 22),
 		("bre2ze4k", 23),
 		("e4hd", 24),
-		#("h9", 25),# old model
+		# ("h9", 25),# old model
 		("i55plus", 25),
 		("protek4k", 26),
 		("hd61", 26),

@@ -9,7 +9,7 @@ from time import time, localtime, strftime
 import pickle
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
-from boxbranding import getBrandOEM, getMachineBuild
+from boxbranding import getBrandOEM
 from keyids import KEYFLAGS, KEYIDS, KEYIDNAMES
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap
@@ -269,7 +269,7 @@ class InfoBarUnhandledKey:
 			self.unhandledKeyDialog = None
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
-#		print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS.get(flag, _("Unknown")), KEYIDNAMES.get(key, _("Unknown")), getKeyDescription(key)))
+		# print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS.get(flag, _("Unknown")), KEYIDNAMES.get(key, _("Unknown")), getKeyDescription(key)))
 		if flag != 2:  # don't hide on repeat
 			self.unhandledKeyDialog.hide()
 			if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
@@ -381,7 +381,7 @@ class SecondInfoBar(Screen, HelpableScreen):
 				"nextEvent": (self.nextEvent, _("Show description for next event)")),
 				"timerAdd": (self.timerAdd, _("Add timer")),
 				"openSimilarList": (self.openSimilarList, _("Show list of similar programs")),
-			}, prio=-1, description=_("Second infobar"))
+			}, prio=-1, description=_("Second infobar"))  # noqa: E123
 
 		self.__event_tracker = ServiceEventTracker(screen=self,
 			eventmap={
@@ -585,7 +585,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 				"LongOKPressed": (self.toggleShowLong, self._helpToggleShowLong),
 				"toggleShow": (self.toggleShow, _("Cycle through infobar displays")),
 				"hide": (self.keyHide, self._helpKeyHide),
-			}, prio=1, description=_("Show/hide infobar"))  # lower prio to make it possible to override ok and cancel..
+			}, prio=1, description=_("Show/hide infobar"))    # noqa: E123   lower prio to make it possible to override ok and cancel..
 
 		self.__event_tracker = ServiceEventTracker(screen=self,
 			eventmap={
@@ -1024,7 +1024,7 @@ class NumberZap(Screen):
 				"8": self.keyNumberGlobal,
 				"9": self.keyNumberGlobal,
 				"0": self.keyNumberGlobal
-			})
+			})  # noqa: E123
 
 		self.Timer = eTimer()
 		self.Timer.callback.append(self.keyOK)
@@ -1048,7 +1048,7 @@ class InfoBarNumberZap:
 				"8": (self.keyNumberGlobal, _("Zap to channel number")),
 				"9": (self.keyNumberGlobal, _("Zap to channel number")),
 				"0": (self.keyNumberGlobal, self._helpKeyNumberGlobal0),
-			}, description=_("Recall channel, panic button & number zap"))
+			}, description=_("Recall channel, panic button & number zap"))  # noqa: E123
 
 	def _helpKeyNumberGlobal0(self):
 		if isinstance(self, InfoBarPiP) and self.pipHandles0Action():
@@ -1121,7 +1121,7 @@ class InfoBarNumberZap:
 				bouquet = eServiceReference(bqrootstr)
 				bouquetlist = serviceHandler.list(bouquet)
 				service = None
-				if not bouquetlist is None:
+				if bouquetlist is not None:
 					while True:
 						bouquet = bouquetlist.getNext()
 						if not bouquet.valid():
@@ -1130,7 +1130,7 @@ class InfoBarNumberZap:
 							self.servicelist.clearPath()
 							self.servicelist.setRoot(bouquet)
 							servicelist = serviceHandler.list(bouquet)
-							if not servicelist is None:
+							if servicelist is not None:
 								serviceIterator = servicelist.getNext()
 								while serviceIterator.valid():
 									service, bouquet2 = self.searchNumber(1)
@@ -1213,7 +1213,7 @@ class InfoBarChannelSelection:
 	channelChange actions which open the channelSelection dialog """
 
 	def __init__(self):
-		#instantiate forever
+		# instantiate forever
 		self.servicelist = self.session.instantiateDialog(ChannelSelection)
 		self.servicelist2 = self.session.instantiateDialog(PiPZapSelection)
 		self.tscallback = None
@@ -1538,8 +1538,8 @@ class InfoBarEPG:
 		self.defaultEPGType = self.getDefaultEPGtype()
 		self.defaultINFOType = self.getDefaultINFOtype()
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
-				iPlayableService.evUpdatedEventInfo: self.__evEventInfoChanged,
-			})
+			iPlayableService.evUpdatedEventInfo: self.__evEventInfoChanged,
+		})
 
 		# Note regarding INFO button on the RCU. Some RCUs do not have an INFO button, but to make matters
 		# more complicated they have an EPG button that sends KEY_INFO instead of KEY_EPG. To deal with
@@ -1715,7 +1715,7 @@ class InfoBarEPG:
 	def getBouquetServices(self, bouquet):
 		services = []
 		servicelist = eServiceCenter.getInstance().list(bouquet)
-		if not servicelist is None:
+		if servicelist is not None:
 			while True:
 				service = servicelist.getNext()
 				if not service.valid():  # check if end of list
@@ -1771,7 +1771,7 @@ class InfoBarEPG:
 			if action:
 				action()
 			else:
-				print("[InfoBarGenerics][UserDefinedButtons] Missing action method %s" % actionName)
+				print("[InfoBarGenerics][UserDefinedButtons] Missing action method %s" % action)
 		if len(args) == 6 and args[0] == "open":
 			# open another EPG screen
 			self.session.openWithCallback(self.epgClosed, args[1], self.zapToService,
@@ -1875,9 +1875,9 @@ class InfoBarRdsDecoder:
 		self.rass_interactive = None
 
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
-				iPlayableService.evEnd: self.__serviceStopped,
-				iPlayableService.evUpdatedRassSlidePic: self.RassSlidePicChanged
-			})
+			iPlayableService.evEnd: self.__serviceStopped,
+			iPlayableService.evUpdatedRassSlidePic: self.RassSlidePicChanged
+		})
 
 		self["RdsActions"] = HelpableActionMap(self, ["InfobarRdsActions"],
 		{
@@ -2873,17 +2873,17 @@ class InfoBarExtensions:
 
 	def showIMDB(self):
 		if isPluginInstalled("tmdb"):
-			print("[InfoBarGenerics] [showIMDB] isPluginInstalled('tmdb')")		
+			print("[InfoBarGenerics] [showIMDB] isPluginInstalled('tmdb')")
 			from Plugins.Extensions.tmdb.tmdb import tmdbScreen
-			self.session.open(MessageBox, _("TMDB plugin installed!\n - using TMDB for searches."), type=MessageBox.TYPE_INFO, timeout=10, simple=True)			
+			self.session.open(MessageBox, _("TMDB plugin installed!\n - using TMDB for searches."), type=MessageBox.TYPE_INFO, timeout=10, simple=True)
 			s = self.session.nav.getCurrentService()
 			if s:
 				info = s.info()
-				event = info.getEvent(0) # 0 = now, 1 = next
+				event = info.getEvent(0)  # 0 = now, 1 = next
 				name = event and event.getEventName() or ''
 				self.session.open(tmdbScreen, name, 2)
-		elif isPluginInstalled("IMDb"):	
-			print("[InfoBarGenerics] [showIMDB] isPluginInstalled('IMDb')")				
+		elif isPluginInstalled("IMDb"):
+			print("[InfoBarGenerics] [showIMDB] isPluginInstalled('IMDb')")
 			from Plugins.Extensions.IMDb.plugin import IMDB
 			s = self.session.nav.getCurrentService()
 			if s:
@@ -3523,6 +3523,7 @@ class InfoBarVideoSetup:
 	def videoSetupDone(self, ret=None):
 		print("[InfoBarGenerics][videoSetupDone] %s" % ret)
 
+
 class InfoBarSubserviceSelection:
 	def __init__(self):
 		self["SubserviceSelectionAction"] = HelpableActionMap(self, "InfobarSubserviceSelectionActions",
@@ -3700,8 +3701,8 @@ class VideoMode(Screen):
 
 		self["actions"] = NumberActionMap(["InfobarVmodeButtonActions"],
 			{
-				"vmodeSelection": self.selectVMode
-			})
+			"vmodeSelection": self.selectVMode
+			})  # noqa: E123
 
 		self.Timer = eTimer()
 		self.Timer.callback.append(self.quit)
@@ -3835,8 +3836,8 @@ class InfoBarCueSheetSupport:
 		self.force_next_resume = False
 		self.__event_tracker = ServiceEventTracker(screen=self,
 			eventmap={
-				iPlayableService.evStart: self.__serviceStarted,
-				iPlayableService.evCuesheetChanged: self.downloadCuesheet,
+			iPlayableService.evStart: self.__serviceStarted,
+			iPlayableService.evCuesheetChanged: self.downloadCuesheet,
 			iPlayableService.evStopped: self.__evStopped,
 			}
 		)
@@ -4042,7 +4043,7 @@ class InfoBarCueSheetSupport:
 	def toggleMark(self, onlyremove=False, onlyadd=False, tolerance=5 * 90000, onlyreturn=False):
 		current_pos = self.cueGetCurrentPosition()
 		if current_pos is None:
-		# print("[InfoBarGenerics]not seekable")
+			# print("[InfoBarGenerics]not seekable")
 			return
 
 		nearest_cutpoint = self.getNearestCutPoint(current_pos)
@@ -4146,10 +4147,10 @@ class InfoBarSummary(Screen):
 		</widget>
 	</screen>"""
 
-# for picon:  (path="piconlcd" will use LCD picons)
-#		<widget source="session.CurrentService" render="Picon" position="6,0" size="120,64" path="piconlcd" >
-#			<convert type="ServiceName">Reference</convert>
-#		</widget>
+	# for picon:  (path="piconlcd" will use LCD picons)
+	#		<widget source="session.CurrentService" render="Picon" position="6,0" size="120,64" path="piconlcd" >
+	#			<convert type="ServiceName">Reference</convert>
+	#		</widget>
 
 
 class InfoBarSummarySupport:
@@ -4323,7 +4324,6 @@ class InfoBarSubtitleSupport:
 			self.toggleenableSubtitle(subtitlelist[0])
 			self.subtitle_window.showMessage(_("Subtitles on"), False)
 
-
 	def toggleenableSubtitle(self, newSubtitle):
 		if self.selected_subtitle != newSubtitle:
 			self.enableSubtitle(newSubtitle)
@@ -4336,10 +4336,10 @@ class InfoBarSubtitleSupport:
 class InfoBarServiceErrorPopupSupport:
 	def __init__(self):
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
-				iPlayableService.evTuneFailed: self.__tuneFailed,
-				iPlayableService.evTunedIn: self.__serviceStarted,
-				iPlayableService.evStart: self.__serviceStarted
-			})
+			iPlayableService.evTuneFailed: self.__tuneFailed,
+			iPlayableService.evTunedIn: self.__serviceStarted,
+			iPlayableService.evStart: self.__serviceStarted
+		})
 		self.__serviceStarted()
 
 	def __serviceStarted(self):

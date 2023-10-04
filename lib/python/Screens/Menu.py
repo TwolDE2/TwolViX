@@ -507,7 +507,7 @@ class MenuSort(Menu):
 
 
 class MainMenu(Menu):
-	#add file load functions for the xml-file
+	# add file load functions for the xml-file
 
 	def __init__(self, *x):
 		Menu.__init__(self, *x)

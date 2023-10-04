@@ -1588,9 +1588,9 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 	def configureDone(self, result):
 		if result:
 			self.applyConfigSettings({
-			"moviesort": config.movielist.moviesort.value,
-			"description": config.movielist.description.value,
-			"movieoff": config.usage.on_movie_eof.value})
+			"moviesort": config.movielist.moviesort.value,  # noqa: E121
+			"description": config.movielist.description.value,  # noqa: E121
+			"movieoff": config.usage.on_movie_eof.value})  # noqa: E121
 			self.saveLocalSettings()
 			self._updateButtonTexts()
 			self["list"].setItemsPerPage()
@@ -2104,7 +2104,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 
 		# If we've changed meta-data, we need to reload/redisplay
 
-		if need_reload: self["list"].reload(self.current_ref, self.selected_tags, self.collectionName)
+		if need_reload:
+			self["list"].reload(self.current_ref, self.selected_tags, self.collectionName)
 
 	def can_decode(self, item):
 		return self.list.countMarked() == 0 and item[0].getPath().endswith('.ts')
