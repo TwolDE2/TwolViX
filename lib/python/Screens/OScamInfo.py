@@ -379,7 +379,7 @@ class OscamInfo:
 			for client in clients:
 				if "type" in client.attrib:
 					if client.attrib["type"] == "c":
-						readers.append((client.attrib["name"], client.attrib["name"]))  # return tuple for later use in Choicebox
+						clientnames.append((client.attrib["name"], client.attrib["name"]))  # return tuple for later use in Choicebox
 			return clientnames
 		else:
 			return None
@@ -424,7 +424,6 @@ class oscMenuList(MenuList):
 class OscamInfoMenu(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
-		NAMEBIN = check_NAMEBIN()
 		NAMEBIN2 = check_NAMEBIN2()
 		self.setTitle(_("%s Info - Main Menu" % NAMEBIN2))
 		self.menu = [_("Show Ecm info"), _("Show Clients"), _("Show Readers/Proxies"), _("Show Log"), _("Card info (CCcam-Reader)"), _("Ecm Statistics"), _("Setup")]
@@ -586,7 +585,6 @@ class OscamInfoMenu(Screen):
 		return menuentries
 
 	def showMenu(self):
-		NAMEBIN = check_NAMEBIN()
 		entr = self.buildMenu(self.menu)
 		self["mainmenu"].l.setList(entr)
 		self["mainmenu"].moveToIndex(0)
@@ -605,10 +603,10 @@ class oscECMInfo(Screen, OscamInfo):
 			timeout = config.oscaminfo.intervall.value * 1000
 			self.loop.start(timeout, False)
 		self["actions"] = ActionMap(["SetupActions"],
-					{
-						"ok": self.exit,
-						"cancel": self.exit
-					}, -1)
+			{
+				"ok": self.exit,
+				"cancel": self.exit
+			}, -1)
 		self["key_red"] = StaticText(_("Close"))
 		self.onLayoutFinish.append(self.showData)
 
@@ -627,7 +625,6 @@ class oscECMInfo(Screen, OscamInfo):
 	def showData(self):
 		dataECM = self.getECMInfo(self.ecminfo)
 		out = []
-		y = 0
 		for i in dataECM:
 			out.append(self.buildListEntry(i))
 		self["output"].l.setItemHeight(int(30 * f))
@@ -975,7 +972,7 @@ class oscEntitlements(Screen, OscamInfo):
 					csystem,
 					str(hops[1]), str(hops[2]), str(hops[3]), str(hops[4]), str(hops[5]), str(csum), str(creshare),
 					providertxt[:-1]
-					))
+						))
 			outlist.append(res)
 		return res
 
@@ -1082,10 +1079,10 @@ class oscReaderStats(Screen, OscamInfo):
 		self.mlist = oscMenuList([])
 		self["output"] = List([])
 		self["actions"] = ActionMap(["SetupActions"],
-					{
-						"ok": self.showData,
-						"cancel": self.exit
-					}, -1)
+			{
+				"ok": self.showData,
+				"cancel": self.exit
+			}, -1)
 		self["key_red"] = StaticText(_("Close"))
 		self.onLayoutFinish.append(self.showData)
 
@@ -1114,10 +1111,10 @@ class oscReaderStats(Screen, OscamInfo):
 			for j in prov:
 				providertxt += "%s - %s%s" % (j[0], j[1], linefeed)
 			res.append((ca_id,
-					csystem,
-					str(hops[1]), str(hops[2]), str(hops[3]), str(hops[4]), str(hops[5]), str(csum), str(creshare),
-					providertxt[:-1]
-					))
+				csystem,
+				str(hops[1]), str(hops[2]), str(hops[3]), str(hops[4]), str(hops[5]), str(csum), str(creshare),
+				providertxt[:-1]
+				))
 			outlist.append(res)
 		return res
 
