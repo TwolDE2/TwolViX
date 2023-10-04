@@ -38,7 +38,7 @@ class DirectoryBrowser(Screen, HelpableScreen):
 				"red": self.exit,
 				"ok": self.ok,
 				"cancel": self.exit
-			})
+			})  # noqa: E123
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):

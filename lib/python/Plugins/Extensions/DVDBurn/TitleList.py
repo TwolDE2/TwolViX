@@ -79,7 +79,7 @@ class TitleList(Screen, HelpableScreen):
 		self["actions"] = ActionMap(["OkCancelActions"],
 			{
 				"cancel": self.leave
-			})
+			})  # noqa: E123
 
 		self["key_red"] = StaticText()
 		self["key_green"] = StaticText(_("Add title"))

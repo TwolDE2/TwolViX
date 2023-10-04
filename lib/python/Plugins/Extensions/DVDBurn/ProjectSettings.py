@@ -53,7 +53,7 @@ class FileBrowser(Screen, HelpableScreen):
 				"save": self.ok,
 				"ok": self.ok,
 				"cancel": self.exit
-			})
+			})  # noqa: E123
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("OK"))
 		self.onLayoutFinish.append(self.layoutFinished)

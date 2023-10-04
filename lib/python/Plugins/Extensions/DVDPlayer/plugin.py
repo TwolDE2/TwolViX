@@ -61,7 +61,7 @@ def filescan(**kwargs):
 				ScanPath(path="video_ts", with_subdirs=False),
 				ScanPath(path="VIDEO_TS", with_subdirs=False),
 				ScanPath(path="", with_subdirs=False),
-			],
+			],  # noqa: E123
 			name="DVD",
 			description=_("Play DVD"),
 			openfnc=filescan_open,

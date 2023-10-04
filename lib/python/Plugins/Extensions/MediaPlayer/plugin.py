@@ -1232,7 +1232,7 @@ def filescan(**kwargs):
 			paths_to_scan=[
 					ScanPath(path="", with_subdirs=False),
 					ScanPath(path="PRIVATE/AVCHD/BDMV/STREAM", with_subdirs=False),
-				],
+					],
 			name="Movie",
 			description=_("Watch movies..."),
 			openfnc=movielist_open,
@@ -1241,7 +1241,7 @@ def filescan(**kwargs):
 			paths_to_scan=[
 					ScanPath(path="mpegav", with_subdirs=False),
 					ScanPath(path="MPEGAV", with_subdirs=False),
-				],
+					],
 			name="Video CD",
 			description=_("View video CD..."),
 			openfnc=filescan_open,
@@ -1249,7 +1249,7 @@ def filescan(**kwargs):
 		Scanner(mimetypes=["audio/mpeg", "audio/x-wav", "audio/dts", "audio/ogg", "audio/flac", "audio/mp4", "audio/x-ms-wma", "audio/ac3", "audio/x-matroska", "audio/x-aac", "audio/x-monkeys-audio"],
 			paths_to_scan=[
 					ScanPath(path="", with_subdirs=False),
-				],
+					],
 			name="Music",
 			description=_("Play music..."),
 			openfnc=filescan_open,
@@ -1257,12 +1257,12 @@ def filescan(**kwargs):
 		Scanner(mimetypes=["audio/x-cda"],
 			paths_to_scan=[
 					ScanPath(path="", with_subdirs=False),
-				],
+					],
 			name="Audio-CD",
 			description=_("Play audio-CD..."),
 			openfnc=audioCD_open,
 		),
-		]
+		]  # noqa: E123
 
 
 def Plugins(**kwargs):
