@@ -40,7 +40,7 @@ class CIselectMainMenu(Screen):
 			{
 				"save": self.greenPressed,
 				"cancel": self.close
-			}, -1)
+			}, -1)  # noqa: E123
 
 		NUM_CI = SystemInfo["CommonInterface"]
 
@@ -131,7 +131,7 @@ class CIconfigMenu(Screen):
 				"blue": self.bluePressed,
 				"menu": self.menuPressed,
 				"cancel": self.cancel
-			}, -1)
+			}, -1)  # noqa: E123
 
 		print("[CI_Wizzard_Config] Configuring CI Slots : %d  " % self.ci_slot)
 
@@ -373,7 +373,7 @@ class easyCIconfigMenu(CIconfigMenu):
 				"yellow": self.yellowPressed,
 				"menu": self.menuPressed,
 				"cancel": self.cancel
-			}, -1)
+			}, -1)  # noqa: E123
 
 
 class CAidSelect(Screen):
@@ -454,7 +454,7 @@ class myProviderSelection(ChannelSelectionBase):
 				"showSatellites": boundFunction(self.showSatellites, changeMode=True),
 				"cancel": self.cancel,
 				"ok": self.channelSelected
-			})
+			})  # noqa: E123
 		self["key_red"] = StaticText(_("Close"))
 		self["key_green"] = StaticText()
 		self["key_yellow"] = StaticText()
@@ -595,7 +595,7 @@ class myChannelSelection(ChannelSelectionBase):
 				"ok": self.channelSelected,
 				"keyRadio": self.setModeRadio,
 				"keyTV": self.setModeTv
-			})
+			})  # noqa: E123
 
 		self["key_red"] = StaticText(_("All"))
 		self["key_green"] = StaticText(_("Close"))

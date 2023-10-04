@@ -15,7 +15,7 @@ class ServiceScan:
 		1: _("error while scanning"),
 		2: _("no resource manager"),
 		3: _("no channel list")
-		}
+		}  # noqa: E123
 
 	def scanStatusChanged(self):
 		if self.state == self.Running:

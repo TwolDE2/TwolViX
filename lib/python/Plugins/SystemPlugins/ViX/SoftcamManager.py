@@ -73,7 +73,7 @@ def spinnerSkin(skinName):
 	</screen>""",
 		484, 150,
 		460, 60, 20,
-		]
+			]  # noqa: E124
 
 
 class VIXSoftcamManager(Screen):
@@ -113,7 +113,7 @@ class VIXSoftcamManager(Screen):
 		40, 215, 170, 30, 22,  # lab2
 		225, 216, 240, 100, 20,  # activecam
 		25,
-		]
+				]  # noqa: E124
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -569,7 +569,7 @@ class VIXSoftcamLog(Screen):
 </screen>""",
 	560, 400,
 	0, 0, 560, 400, 14,
-		]
+			]  # noqa: E124
 
 	def __init__(self, session):
 		self.session = session
@@ -591,7 +591,7 @@ class VIXSoftcamLog(Screen):
 			"down": self["list"].pageDown
 			}, -2)  # noqa: E123
 
-  # noqa: W605	def cancel(self):
+	def cancel(self):
 		self.close()
 
 

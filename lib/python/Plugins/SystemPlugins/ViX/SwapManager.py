@@ -126,7 +126,7 @@ class VIXSwap(Screen):
 		160, 150, 220, 30, 20,
 		160, 200, 100, 30, 20,
 		160, 200, 100, 30, 20,
-			]
+				]  # noqa: E124
 
 	def __init__(self, session):
 		Screen.__init__(self, session)

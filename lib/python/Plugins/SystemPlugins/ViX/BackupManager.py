@@ -167,7 +167,7 @@ class VIXBackupManager(Screen):
 		10, 105, 540, 260, 20,  # list
 		10, 370, 400, 30, 20,  # backupstatus
 		26,
-	]
+			]  # noqa: E124
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -776,7 +776,7 @@ class BackupSelection(Screen):
 			140, 0, 140, 40, 20,
 			280, 0, 140, 40, 20,
 			5, 50, 550, 250, 25, 19,
-	]
+			]  # noqa: E124
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -875,7 +875,7 @@ class XtraPluginsSelection(Screen):
 			140, 0, 140, 40, 20,
 			280, 0, 140, 40, 20,
 			5, 50, 550, 250, 25, 19,
-	]
+			]  # noqa: E124
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -984,7 +984,7 @@ class VIXBackupManagerMenu(Setup):
 		0, 50, 300, 20, 20,  # footnote
 		0, 90, 560, 375, 25, 19,  # config
 		0, 75, 560, 75, 18,  # description
-	]
+			]  # noqa: E124
 
 	def __init__(self, session, setup, plugin=None, PluginLanguageDomain=None):
 		Setup.__init__(self, session, setup, plugin, PluginLanguageDomain)
@@ -1022,7 +1022,7 @@ class VIXBackupManagerLogView(TextBox):
 </screen>""",
 		560, 400,
 		0, 0, 560, 400, 16,
-	]
+			]  # noqa: E124
 
 	def __init__(self, session, filename):
 		TextBox.__init__(self, session, label="list")

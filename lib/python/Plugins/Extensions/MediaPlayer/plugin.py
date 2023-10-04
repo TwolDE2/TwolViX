@@ -1135,16 +1135,16 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 
 class MediaPlayerLCDScreen(Screen):
 	skin = (
-	"""<screen name="MediaPlayerLCDScreen" position="0, 0" size="132, 64" id="1">
-		<widget name="text1" position="4, 0" size="132, 35" font="Regular;16"/>
-		<widget name="text3" position="4, 36" size="132, 14" font="Regular;10"/>
-		<widget name="text4" position="4, 49" size="132, 14" font="Regular;10"/>
-	</screen>""",
-	"""<screen name="MediaPlayerLCDScreen" position="0, 0" size="96, 64" id="2">
-		<widget name="text1" position="0, 0" size="96, 35" font="Regular;14"/>
-		<widget name="text3" position="0, 36" size="96, 14" font="Regular;10"/>
-		<widget name="text4" position="0, 49" size="96, 14" font="Regular;10"/>
-	</screen>""")
+		"""<screen name="MediaPlayerLCDScreen" position="0, 0" size="132, 64" id="1">
+			<widget name="text1" position="4, 0" size="132, 35" font="Regular;16"/>
+			<widget name="text3" position="4, 36" size="132, 14" font="Regular;10"/>
+			<widget name="text4" position="4, 49" size="132, 14" font="Regular;10"/>
+		</screen>""",
+		"""<screen name="MediaPlayerLCDScreen" position="0, 0" size="96, 64" id="2">
+			<widget name="text1" position="0, 0" size="96, 35" font="Regular;14"/>
+			<widget name="text3" position="0, 36" size="96, 14" font="Regular;10"/>
+			<widget name="text4" position="0, 49" size="96, 14" font="Regular;10"/>
+		</screen>""")
 
 	def __init__(self, session, parent):
 		Screen.__init__(self, session)
@@ -1232,7 +1232,7 @@ def filescan(**kwargs):
 			paths_to_scan=[
 					ScanPath(path="", with_subdirs=False),
 					ScanPath(path="PRIVATE/AVCHD/BDMV/STREAM", with_subdirs=False),
-					],
+					],  # noqa: E123
 			name="Movie",
 			description=_("Watch movies..."),
 			openfnc=movielist_open,
@@ -1241,7 +1241,7 @@ def filescan(**kwargs):
 			paths_to_scan=[
 					ScanPath(path="mpegav", with_subdirs=False),
 					ScanPath(path="MPEGAV", with_subdirs=False),
-					],
+					],  # noqa: E123
 			name="Video CD",
 			description=_("View video CD..."),
 			openfnc=filescan_open,
@@ -1249,7 +1249,7 @@ def filescan(**kwargs):
 		Scanner(mimetypes=["audio/mpeg", "audio/x-wav", "audio/dts", "audio/ogg", "audio/flac", "audio/mp4", "audio/x-ms-wma", "audio/ac3", "audio/x-matroska", "audio/x-aac", "audio/x-monkeys-audio"],
 			paths_to_scan=[
 					ScanPath(path="", with_subdirs=False),
-					],
+					],  # noqa: E123
 			name="Music",
 			description=_("Play music..."),
 			openfnc=filescan_open,
@@ -1257,7 +1257,7 @@ def filescan(**kwargs):
 		Scanner(mimetypes=["audio/x-cda"],
 			paths_to_scan=[
 					ScanPath(path="", with_subdirs=False),
-					],
+					],  # noqa: E123
 			name="Audio-CD",
 			description=_("Play audio-CD..."),
 			openfnc=audioCD_open,

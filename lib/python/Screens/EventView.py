@@ -86,11 +86,13 @@ class EventViewBase:
 				"pageDown": self.pageDown,
 				"prevEvent": self.prevEvent,
 				"nextEvent": self.nextEvent,
-				"contextMenu": self.doContext, })  # noqa: E123
+				"contextMenu": self.doContext,
+			})
 		self["dialogactions"] = ActionMap(["WizardActions"],
 			{
 				"back": self.closeChoiceBoxDialog,
-			}, -1  # noqa: E123)
+			}, -1
+		)
 		self["dialogactions"].csel = self
 		self["dialogactions"].setEnabled(False)
 		self.onLayoutFinish.append(self.onCreate)

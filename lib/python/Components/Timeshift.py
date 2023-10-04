@@ -72,20 +72,20 @@ class InfoBarTimeshift:
 			{
 				"timeshiftActivateEnd": self.activateTimeshiftEnd,  # something like "rewind key"
 				"timeshiftActivateEndAndPause": self.activateTimeshiftEndAndPause  # something like "pause key"
-			}, prio=-1)  # priority over record
+			}, prio=-1)  # noqa: E123   priority over record
 
 		self["TimeshiftSeekPointerActions"] = ActionMap(["InfobarTimeshiftSeekPointerActions"],
 			{
 				"SeekPointerOK": self.ptsSeekPointerOK,
 				"SeekPointerLeft": self.ptsSeekPointerLeft,
 				"SeekPointerRight": self.ptsSeekPointerRight
-			}, prio=-1)
+			}, prio=-1)  # noqa: E123
 
 		self["TimeshiftFileActions"] = ActionMap(["InfobarTimeshiftActions"],
 			{
 				"jumpPreviousFile": self.__evSOF,
 				"jumpNextFile": self.__evEOF
-			}, prio=-1)  # priority over history
+			}, prio=-1)  # noqa: E123   priority over history
 
 		self["TimeshiftActions"].setEnabled(False)
 		self["TimeshiftActivateActions"].setEnabled(False)
@@ -99,14 +99,14 @@ class InfoBarTimeshift:
 		self.save_timeshift_file = False
 
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
-				iPlayableService.evStart: self.__serviceStarted,
-				iPlayableService.evSeekableStatusChanged: self.__seekableStatusChanged,
-				iPlayableService.evEnd: self.__serviceEnd,
-				iPlayableService.evSOF: self.__evSOF,
-				iPlayableService.evUpdatedInfo: self.__evInfoChanged,
-				iPlayableService.evUpdatedEventInfo: self.__evEventInfoChanged,
-				iPlayableService.evUser + 1: self.ptsTimeshiftFileChanged
-			})
+			iPlayableService.evStart: self.__serviceStarted,
+			iPlayableService.evSeekableStatusChanged: self.__seekableStatusChanged,
+			iPlayableService.evEnd: self.__serviceEnd,
+			iPlayableService.evSOF: self.__evSOF,
+			iPlayableService.evUpdatedInfo: self.__evInfoChanged,
+			iPlayableService.evUpdatedEventInfo: self.__evEventInfoChanged,
+			iPlayableService.evUser + 1: self.ptsTimeshiftFileChanged
+			})  # noqa: E123
 
 		self.pts_begintime = 0
 		self.pts_switchtolive = False

@@ -563,7 +563,7 @@ class DiseqcTesterTestTypeSelection(ConfigListScreen, Screen):
 		self["actions"] = ActionMap(["SetupActions"],
 			{
 				"ok": self.keySave,
-			}, -2)
+			}, -2)  # noqa: E123
 		self["key_green"] = StaticText(_("Start test"))
 		self.createSetup()
 
