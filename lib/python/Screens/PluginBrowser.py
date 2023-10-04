@@ -10,7 +10,7 @@ from Components.Harddisk import harddiskmanager
 from Components import Ipkg
 from Components.Label import Label
 from Components.Language import language
-from Components.OnlineUpdateCheck import feedsstatuscheck, kernelMismatch
+from Components.OnlineUpdateCheck import feedsstatuscheck  # kernelMismatch removed Twol
 from Components.PluginComponent import plugins
 from Components.PluginList import PluginList, PluginEntryComponent, PluginCategoryComponent, PluginDownloadComponent
 from Components.Sources.StaticText import StaticText
