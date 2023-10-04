@@ -3836,10 +3836,10 @@ class InfoBarCueSheetSupport:
 		self.force_next_resume = False
 		self.__event_tracker = ServiceEventTracker(screen=self,
 			eventmap={
-			iPlayableService.evStart: self.__serviceStarted,
-			iPlayableService.evCuesheetChanged: self.downloadCuesheet,
-			iPlayableService.evStopped: self.__evStopped,
-			}
+		iPlayableService.evStart: self.__serviceStarted,
+		iPlayableService.evCuesheetChanged: self.downloadCuesheet,
+		iPlayableService.evStopped: self.__evStopped,
+		}
 		)
 
 		self.__blockDownloadCuesheet = False
@@ -3899,7 +3899,6 @@ class InfoBarCueSheetSupport:
 		self.__findRecording()
 
 		self.downloadCuesheet()
-
 		force_resume = self.force_next_resume
 		self.force_next_resume = False
 		self.resume_point = None
@@ -4148,9 +4147,9 @@ class InfoBarSummary(Screen):
 	</screen>"""
 
 	# for picon:  (path="piconlcd" will use LCD picons)
-	#		<widget source="session.CurrentService" render="Picon" position="6,0" size="120,64" path="piconlcd" >
-	#			<convert type="ServiceName">Reference</convert>
-	#		</widget>
+	# <widget source="session.CurrentService" render="Picon" position="6,0" size="120,64" path="piconlcd" >
+	# <convert type="ServiceName">Reference</convert>
+	# </widget>
 
 
 class InfoBarSummarySupport:

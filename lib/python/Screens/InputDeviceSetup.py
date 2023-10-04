@@ -28,16 +28,16 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		print(("[InputDeviceSetup] found devices :->", len(self.devices), self.devices))
 
 		self["OkCancelActions"] = HelpableActionMap(self, "OkCancelActions",
-			{
-			"cancel": (self.close, _("Exit input device selection.")),
-			"ok": (self.okbuttonClick, _("Select input device.")),
-			}, -2)
+		{
+		"cancel": (self.close, _("Exit input device selection.")),
+		"ok": (self.okbuttonClick, _("Select input device.")),
+		}, -2)
 
 		self["ColorActions"] = HelpableActionMap(self, "ColorActions",
-			{
-			"red": (self.close, _("Exit input device selection.")),
-			"green": (self.okbuttonClick, _("Select input device.")),
-			}, -2)
+		{
+		"red": (self.close, _("Exit input device selection.")),
+		"green": (self.okbuttonClick, _("Select input device.")),
+		}, -2)
 
 		self.currentIndex = 0
 		self.list = []
