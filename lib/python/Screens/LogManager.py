@@ -143,7 +143,7 @@ class LogManager(Screen):
 				"right": self.right,
 				"down": self.down,
 				"up": self.up
-			}, -1)
+			}, -1)  # noqa: E123
 
 		self["key_red"] = Button(_("Debug Logs"))
 		self["key_green"] = Button(_("View"))
@@ -346,14 +346,14 @@ class LogManagerFb(Screen):
 
 		self["actions"] = ActionMap(["ChannelSelectBaseActions", "WizardActions", "DirectionActions", "MenuActions", "NumberActions", "ColorActions"],
 			{
-			 "ok": self.ok,
-			 "back": self.exit,
-			 "up": self.goUp,
-			 "down": self.goDown,
-			 "left": self.goLeft,
-			 "right": self.goRight,
-			 "0": self.doRefresh,
-			 }, -1)
+			"ok": self.ok,
+			"back": self.exit,
+			"up": self.goUp,
+			"down": self.goDown,
+			"left": self.goLeft,
+			"right": self.goRight,
+			"0": self.doRefresh,
+			}, -1)  # noqa: E123
 		self.onLayoutFinish.append(self.mainlist)
 
 	def exit(self):

@@ -2,7 +2,7 @@ from skin import findSkinScreen, parameters, menus, menuicons
 
 from Components.ActionMap import HelpableNumberActionMap, HelpableActionMap
 from Components.config import config, ConfigDictionarySet, configfile, NoSave
-from Components.NimManager import nimmanager
+from Components.NimManager import nimmanager  # noqa: F401 	used by setup
 from Components.Pixmap import Pixmap
 from Components.PluginComponent import plugins
 from Components.Sources.List import List
@@ -105,7 +105,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 			a = boundFunction(self.session.openWithCallback, self.menuClosedWithConfigFlush, Menu, node)
 		else:
 			a = boundFunction(self.session.openWithCallback, self.menuClosed, Menu, node)
-		#TODO add check if !empty(node.childNodes)
+		# TODO add check if !empty(node.childNodes)
 		destList.append((menu_text, a, key, weight, description, menupng))
 
 	def menuClosedWithConfigFlush(self, *res):
@@ -289,7 +289,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 
 		if self.menuID is not None:
 			# plugins
-			for l, description in plugins.getPluginsForMenuWithDescription(self.menuID):
+			for l, description in plugins.getPluginsForMenuWithDescription(self.menuID):  # noqa: E741
 				# check if a plugin overrides an existing menu
 				plugin_menuid = l[2]
 				for x in self.list:
@@ -302,7 +302,7 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		if "user" in config.usage.menu_sort_mode.value and self.menuID == "mainmenu":
 			plugin_list = []
 			id_list = []
-			for l in plugins.getPlugins([PluginDescriptor.WHERE_PLUGINMENU, PluginDescriptor.WHERE_EXTENSIONSMENU, PluginDescriptor.WHERE_EVENTINFO]):
+			for l in plugins.getPlugins([PluginDescriptor.WHERE_PLUGINMENU, PluginDescriptor.WHERE_EXTENSIONSMENU, PluginDescriptor.WHERE_EVENTINFO]):  # noqa: E741
 				l.id = (l.name.lower()).replace(' ', '_')
 				if l.id not in id_list:
 					id_list.append(l.id)

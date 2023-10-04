@@ -9,7 +9,6 @@ from Components.Language_cache import LANG_TEXT
 from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
-from Components.Pixmap import Pixmap
 from Screens.InfoBar import InfoBar
 from Screens.MessageBox import MessageBox
 from Screens.Rc import Rc
@@ -96,7 +95,7 @@ class LanguageSelection(Screen):
 		print("[LanguageSelection] save function inWizzard is ", inWizzard)
 		if inWizzard:
 			inWizzard = False
-			#self.session.openWithCallback(self.deletelanguagesCB, MessageBox, _("Do you want to delete all other languages?"), default = False)
+			# self.session.openWithCallback(self.deletelanguagesCB, MessageBox, _("Do you want to delete all other languages?"), default = False)
 			if self.oldActiveLanguage != config.osd.language.value:
 				self.session.open(TryQuitMainloop, 3)
 			self.close()

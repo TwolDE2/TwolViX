@@ -449,7 +449,7 @@ class OscamInfoMenu(Screen):
 						"0": self.keyNumberGlobal,
 						"up": self.up,
 						"down": self.down
-						}, -1)
+						}, -1)  # noqa: E123
 		self.onLayoutFinish.append(self.showMenu)
 
 	def ok(self):
@@ -606,7 +606,7 @@ class oscECMInfo(Screen, OscamInfo):
 			{
 				"ok": self.exit,
 				"cancel": self.exit
-			}, -1)
+			}, -1)  # noqa: E123
 		self["key_red"] = StaticText(_("Close"))
 		self.onLayoutFinish.append(self.showData)
 
@@ -620,7 +620,7 @@ class oscECMInfo(Screen, OscamInfo):
 			"",
 			(eListboxPythonMultiContent.TYPE_TEXT, 10 * f, 2 * f, 300 * f, 30 * f, 0, RT_HALIGN_LEFT, listentry[0]),
 			(eListboxPythonMultiContent.TYPE_TEXT, 300 * f, 2 * f, 300 * f, 30 * f, 0, RT_HALIGN_LEFT, listentry[1])
-			]
+			]  # noqa: E123
 
 	def showData(self):
 		dataECM = self.getECMInfo(self.ecminfo)
@@ -682,20 +682,20 @@ class oscInfo(Screen, OscamInfo):
 			timeout = config.oscaminfo.intervall.value * 1000
 			self.loop.start(timeout, False)
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions"],
-					{
-						"ok": self.key_ok,
-						"cancel": self.exit,
-						"red": self.exit,
-						"green": self.key_green,
-						"yellow": self.key_yellow,
-						"blue": self.key_blue,
-						"up": self.key_up,
-						"down": self.key_down,
-						"right": self.key_right,
-						"left": self.key_left,
-						"moveUp": self.key_moveUp,
-						"moveDown": self.key_moveDown
-					}, -1)
+			{
+				"ok": self.key_ok,
+				"cancel": self.exit,
+				"red": self.exit,
+				"green": self.key_green,
+				"yellow": self.key_yellow,
+				"blue": self.key_blue,
+				"up": self.key_up,
+				"down": self.key_down,
+				"right": self.key_right,
+				"left": self.key_left,
+				"moveUp": self.key_moveUp,
+				"moveDown": self.key_moveDown
+			}, -1)  # noqa: E123
 		self.onLayoutFinish.append(self.showData)
 
 	def key_ok(self):
@@ -812,7 +812,6 @@ class oscInfo(Screen, OscamInfo):
 		return res
 
 	def showData(self):
-		NAMEBIN = check_NAMEBIN()
 		NAMEBIN2 = check_NAMEBIN2()
 		if self.firstrun:
 			data = self.webif_data
@@ -940,7 +939,7 @@ class oscEntitlements(Screen, OscamInfo):
 					{
 						"ok": self.showData,
 						"cancel": self.exit
-					}, -1)
+					}, -1)  # noqa: E123
 		self["key_red"] = StaticText(_("Close"))
 		self.onLayoutFinish.append(self.showData)
 
@@ -969,10 +968,10 @@ class oscEntitlements(Screen, OscamInfo):
 			for j in prov:
 				providertxt += "%s - %s%s" % (j[0], j[1], linefeed)
 			res.append((ca_id,
-					csystem,
-					str(hops[1]), str(hops[2]), str(hops[3]), str(hops[4]), str(hops[5]), str(csum), str(creshare),
-					providertxt[:-1]
-						))
+				csystem,
+				str(hops[1]), str(hops[2]), str(hops[3]), str(hops[4]), str(hops[5]), str(csum), str(creshare),
+				providertxt[:-1]
+					))  # noqa: E123
 			outlist.append(res)
 		return res
 
@@ -1082,7 +1081,7 @@ class oscReaderStats(Screen, OscamInfo):
 			{
 				"ok": self.showData,
 				"cancel": self.exit
-			}, -1)
+			}, -1)  # noqa: E123
 		self["key_red"] = StaticText(_("Close"))
 		self.onLayoutFinish.append(self.showData)
 
@@ -1114,7 +1113,7 @@ class oscReaderStats(Screen, OscamInfo):
 				csystem,
 				str(hops[1]), str(hops[2]), str(hops[3]), str(hops[4]), str(hops[5]), str(csum), str(creshare),
 				providertxt[:-1]
-				))
+				))  # noqa: E123
 			outlist.append(res)
 		return res
 
