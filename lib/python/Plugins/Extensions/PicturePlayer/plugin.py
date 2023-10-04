@@ -39,7 +39,7 @@ def filescan(**kwargs):
 			paths_to_scan=[
 				ScanPath(path="DCIM", with_subdirs=True),
 				ScanPath(path="", with_subdirs=False),
-			],
+			],  # noqa: E123
 			name="Pictures",
 			description=_("View photos..."),
 			openfnc=filescan_open,

@@ -578,8 +578,8 @@ def Plugins(**kwargs):
 		list.append(
 			PluginDescriptor(name=_("FCCSetup"),
 			description=_("Fast Channel Change setup"),
-			where=[PluginDescriptor.WHERE_MENU],
-			needsRestart=False,
+			where=[PluginDescriptor.WHERE_MENU],  # noqa: E122
+			needsRestart=False,  # noqa: E122
 			fnc=main))  # noqa: E122
 
 	return list

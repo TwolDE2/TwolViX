@@ -1230,34 +1230,34 @@ def filescan(**kwargs):
 	return [
 		Scanner(mimetypes=["video/mpeg", "video/mp2t", "video/x-msvideo", "video/mkv", "video/x-ms-wmv", "video/x-matroska", "video/ogg", "video/dvd", "video/mp4", "video/avi", "video/divx", "video/x-mpeg", "video/x-flv", "video/quicktime", "video/x-ms-asf", "video/3gpp", "video/3gpp2", "application/vnd.rn-realmedia", "application/vnd.rn-realmedia-vbr", "video/mts"],
 			paths_to_scan=[
-					ScanPath(path="", with_subdirs=False),
-					ScanPath(path="PRIVATE/AVCHD/BDMV/STREAM", with_subdirs=False),
-					],  # noqa: E123
+				ScanPath(path="", with_subdirs=False),
+				ScanPath(path="PRIVATE/AVCHD/BDMV/STREAM", with_subdirs=False),
+				],  # noqa: E123
 			name="Movie",
 			description=_("Watch movies..."),
 			openfnc=movielist_open,
 		),
 		Scanner(mimetypes=["video/x-vcd"],
 			paths_to_scan=[
-					ScanPath(path="mpegav", with_subdirs=False),
-					ScanPath(path="MPEGAV", with_subdirs=False),
-					],  # noqa: E123
+				ScanPath(path="mpegav", with_subdirs=False),
+				ScanPath(path="MPEGAV", with_subdirs=False),
+				],  # noqa: E123
 			name="Video CD",
 			description=_("View video CD..."),
 			openfnc=filescan_open,
 		),
 		Scanner(mimetypes=["audio/mpeg", "audio/x-wav", "audio/dts", "audio/ogg", "audio/flac", "audio/mp4", "audio/x-ms-wma", "audio/ac3", "audio/x-matroska", "audio/x-aac", "audio/x-monkeys-audio"],
 			paths_to_scan=[
-					ScanPath(path="", with_subdirs=False),
-					],  # noqa: E123
+				ScanPath(path="", with_subdirs=False),
+				],  # noqa: E123
 			name="Music",
 			description=_("Play music..."),
 			openfnc=filescan_open,
 		),
 		Scanner(mimetypes=["audio/x-cda"],
 			paths_to_scan=[
-					ScanPath(path="", with_subdirs=False),
-					],  # noqa: E123
+				ScanPath(path="", with_subdirs=False),
+				],  # noqa: E123
 			name="Audio-CD",
 			description=_("Play audio-CD..."),
 			openfnc=audioCD_open,

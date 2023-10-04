@@ -149,7 +149,7 @@ def filescan(**kwargs):
 			description=_("Play Audio-CD..."),
 			openfnc=movielist_open,
 		),
-		]
+		]  # noqa: E123
 
 
 def Plugins(**kwargs):
@@ -159,4 +159,4 @@ def Plugins(**kwargs):
 		PluginDescriptor(name=_("Media scanner"), where=PluginDescriptor.WHERE_FILESCAN, needsRestart=False, fnc=filescan),
 		PluginDescriptor(where=PluginDescriptor.WHERE_SESSIONSTART, needsRestart=True, fnc=sessionstart),
 		PluginDescriptor(where=PluginDescriptor.WHERE_AUTOSTART, needsRestart=True, fnc=autostart)
-		]
+		]  # noqa: E123
