@@ -86,8 +86,7 @@ class EventViewBase:
 				"pageDown": self.pageDown,
 				"prevEvent": self.prevEvent,
 				"nextEvent": self.nextEvent,
-				"contextMenu": self.doContext,
-			})  # noqa: E123
+				"contextMenu": self.doContext, })  # noqa: E123
 		self["dialogactions"] = ActionMap(["WizardActions"],
 			{
 				"back": self.closeChoiceBoxDialog,
