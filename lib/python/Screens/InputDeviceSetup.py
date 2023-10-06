@@ -50,7 +50,6 @@ class InputDeviceSelection(Screen, HelpableScreen):
 
 	def buildInterfaceList(self, device, description, type, isinputdevice=True):
 		divpng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "div-h.png"))
-		activepng = None
 		devicepng = None
 		enabled = iInputDevices.getDeviceAttribute(device, 'enabled')
 		# print("[InputDevice] device = %s, description = %s, type = %s, isinputdevice = %s, enabled = %s" % (device, description, type, isinputdevice, enabled))
@@ -91,7 +90,7 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		for x in self.devices:
 			dev_type = iInputDevices.getDeviceAttribute(x[1], 'type')
 			self.list.append(self.buildInterfaceList(x[1], _(x[0]), dev_type))
-			# print("[InputDevice] list = {}, self.currentIndex = {}".format(self.list, self.currentIndex))
+		# print("[InputDevice] list = {}, self.currentIndex = {}".format(self.list, self.currentIndex))
 		self["list"].setList(self.list)
 		self["list"].setIndex(self.currentIndex)
 
@@ -129,7 +128,7 @@ class InputDeviceSetup(ConfigListScreen, Screen):
 		self["introduction"] = StaticText()
 
 		# for generating strings into .po only
-		devicenames = [_("%s %s front panel") % (getMachineBrand(), getMachineName()), _("%s %s front panel") % (getMachineBrand(), getMachineName()), _("%s %s remote control (native)") % (getMachineBrand(), getMachineName()), _("%s %s advanced remote control (native)") % (getMachineBrand(), getMachineName()), _("%s %s ir keyboard") % (getMachineBrand(), getMachineName()), _("%s %s ir mouse") % (getMachineBrand(), getMachineName())]
+		devicenames = [_("%s %s front panel") % (getMachineBrand(), getMachineName()), _("%s %s remote control (native)") % (getMachineBrand(), getMachineName()), _("%s %s advanced remote control (native)") % (getMachineBrand(), getMachineName()), _("%s %s ir keyboard") % (getMachineBrand(), getMachineName()), _("%s %s ir mouse") % (getMachineBrand(), getMachineName())]  # noqa: F841
 
 		self.createSetup()
 		self.onLayoutFinish.append(self.layoutFinished)
@@ -319,7 +318,6 @@ class RemoteControlType(ConfigListScreen, Screen):
 				self.defaultRcType = x[1]
 				break
 		# If there is none in the list, use the current value...
-
 		# print("[InputDevice] self.defaultRcType 1 = {}".format(self.defaultRcType))
 		if self.defaultRcType == 0:
 			self.defaultRcType = iRcTypeControl.readRcType()
