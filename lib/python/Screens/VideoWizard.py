@@ -6,6 +6,7 @@ from Screens.Rc import Rc
 from Screens.Wizard import WizardSummary
 from Screens.WizardLanguage import WizardLanguage
 from Tools.Directories import resolveFilename, SCOPE_SKIN, SCOPE_CURRENT_SKIN
+# from Tools.HardwareInfo import HardwareInfo
 
 config.misc.showtestcard = ConfigBoolean(default=False)
 
