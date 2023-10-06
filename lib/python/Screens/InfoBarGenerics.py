@@ -1816,7 +1816,7 @@ class InfoBarEPG:
 			if action:
 				action()
 			else:
-				print("[InfoBarGenerics][UserDefinedButtons] Missing action method %s" % action)
+				print("[InfoBarGenerics][UserDefinedButtons] Missing action method %s" % str(args[1]))
 		if len(args) == 6 and args[0] == "open":
 			# open another EPG screen
 			self.session.openWithCallback(self.epgClosed, args[1], self.zapToService,
@@ -2993,12 +2993,12 @@ class InfoBarPlugins:
 		return name
 
 	def getPluginList(self):
-		l = []
+		x = []
 		for p in plugins.getPlugins(where=PluginDescriptor.WHERE_EXTENSIONSMENU):
 			args = inspect.getfullargspec(p.fnc)[0]
 			if len(args) == 1 or len(args) == 2 and isinstance(self, InfoBarChannelSelection):
-				l.append(((boundFunction(self.getPluginName, p.name), boundFunction(self.runPlugin, p), lambda: True), None, p.name))
-		l.sort(key=lambda e: e[2])  # sort by name
+				x.append(((boundFunction(self.getPluginName, p.name), boundFunction(self.runPlugin, p), lambda: True), None, p.name))
+		x.sort(key=lambda e: e[2])  # sort by name
 		return l
 
 	def runPlugin(self, plugin):
