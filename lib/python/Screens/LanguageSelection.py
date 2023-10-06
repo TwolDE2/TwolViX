@@ -1,4 +1,3 @@
-import gettext
 from enigma import eTimer
 
 from Components.ActionMap import ActionMap
@@ -9,7 +8,6 @@ from Components.Language_cache import LANG_TEXT
 from Components.Pixmap import Pixmap
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
-from Screens.InfoBar import InfoBar
 from Screens.MessageBox import MessageBox
 from Screens.Rc import Rc
 from Screens.Screen import Screen, ScreenSummary
@@ -92,7 +90,7 @@ class LanguageSelection(Screen):
 	def save(self):
 		self.run()
 		global inWizzard
-		print("[LanguageSelection] save function inWizzard is ", inWizzard)
+		# print("[LanguageSelection] save function inWizzard is %s", %inWizzard)
 		if inWizzard:
 			inWizzard = False
 			# self.session.openWithCallback(self.deletelanguagesCB, MessageBox, _("Do you want to delete all other languages?"), default = False)
@@ -154,10 +152,10 @@ class LanguageSelection(Screen):
 			language.activateLanguage(self.oldActiveLanguage)
 			self.updateList()
 			self.selectActiveLanguage()
-		# self.close()
+			# self.close()
 
 	def run(self, justlocal=False):
-		print("[LanguageSelection][run] updating language...justlocal", justlocal)
+		# print("[LanguageSelection] updating language...")
 		lang = self["languages"].getCurrent()[0]
 
 		if lang == 'update cache':
