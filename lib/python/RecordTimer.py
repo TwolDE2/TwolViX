@@ -991,10 +991,10 @@ def createTimer(xml):
 	if flags:
 		entry.flags = set(flags.encode("utf-8").split(" "))
 
-	for l in xml.findall("log"):
-		time = int(l.get("time"))
-		code = int(l.get("code"))
-		msg = str(l.text.strip())
+	for x in xml.findall("log"):
+		time = int(x.get("time"))
+		code = int(x.get("code"))
+		msg = str(x.text.strip())
 		entry.log_entries.append((time, code, msg))
 
 	return entry
