@@ -1276,19 +1276,19 @@ class ChannelSelectionEdit:
 		self.session.openWithCallback(self.exitContext, ChannelContextMenu, self)
 
 	def exitContext(self, close=False):
-		l = self["list"]
-		l.setFontsize()
-		l.setItemsPerPage()
-		l.setMode("MODE_TV")
+		x = self["list"]
+		x.setFontsize()
+		x.setItemsPerPage()
+		x.setMode('MODE_TV')
 
-		# l.setMode("MODE_TV") automatically sets "hide number marker" to
+		# x.setMode("MODE_TV") automatically sets "hide number marker" to
 		# the config.usage.hide_number_markers.value so when we are in "movemode"
-		# we need to force display of the markers here after l.setMode("MODE_TV")
-		# has run. If l.setMode("MODE_TV") were ever removed above,
-		# "self.servicelist.l.setHideNumberMarker(False)" could be moved
+		# we need to force display of the markers here after x.setMode("MODE_TV")
+		# has run. If x.setMode("MODE_TV") were ever removed above,
+		# "self.servicelist.x.setHideNumberMarker(False)" could be moved
 		# directly to the "else" clause of "def toggleMoveMode".
 		if self.movemode:
-			self.servicelist.l.setHideNumberMarker(False)
+			self.servicelist.x.setHideNumberMarker(False)
 
 		if close:
 			self.cancel()
