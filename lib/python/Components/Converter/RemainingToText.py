@@ -374,7 +374,7 @@ class RemainingToText(Poll, Converter):
 				elif self.type == self.VFD_IN_SECONDS:
 					if remaining is not None:
 						if config.usage.swap_time_remaining_on_vfd.value == "1":  # Elapsed
-							return sign_p + "%d " % elasped
+							return sign_p + "%d " % elapsed
 						elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
 							return sign_p + "%d  " % elapsed + sign_r + "%d " % remaining
 						elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
