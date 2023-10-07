@@ -95,9 +95,9 @@ class RemainingToText(Poll, Converter):
 		else:
 			(duration, remaining) = self.source.time
 
-		l = duration  # Length
-		p = elapsed  # Position
-		r = remaining  # Remaining
+		# Length l = duration  
+		# Position p = elapsed  
+		remaining  # Remaining r = 
 
 		sign_l = ""
 
@@ -113,11 +113,11 @@ class RemainingToText(Poll, Converter):
 					if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
 						return sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
 					elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-						return sign_p + "%d  " % (elapsed // 60) + sign_r + ngettext("%d Min", "%d Mins", (remaining// 60)) % (remaining// 60)
+						return sign_p + "%d  " % (elapsed // 60) + sign_r + ngettext("%d Min", "%d Mins", (remaining // 60)) % (remaining // 60)
 					elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-						return sign_r + "%d  " % (remaining// 60) + sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
+						return sign_r + "%d  " % (remaining // 60) + sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
 					else:
-						return sign_r + ngettext("%d Min", "%d Mins", (remaining// 60)) % (remaining// 60)
+						return sign_r + ngettext("%d Min", "%d Mins", (remaining // 60)) % (remaining // 60)
 				else:
 					return ngettext("%d Min", "%d Mins", (duration // 60)) % (duration // 60)
 
@@ -126,11 +126,11 @@ class RemainingToText(Poll, Converter):
 					if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
 						return sign_p + "%d:%02d" % (elapsed // 60, elapsed % 60)
 					elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-						return sign_p + "%d:%02d  " % (elapsed // 60, elapsed % 60) + sign_r + "%d:%02d" % (remaining// 60, remaining% 60)
+						return sign_p + "%d:%02d  " % (elapsed // 60, elapsed % 60) + sign_r + "%d:%02d" % (remaining // 60, remaining % 60)
 					elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-						return sign_r + "%d:%02d  " % (remaining// 60, remaining% 60) + sign_p + "%d:%02d" % (elapsed // 60, elapsed % 60)
+						return sign_r + "%d:%02d  " % (remaining // 60, remaining % 60) + sign_p + "%d:%02d" % (elapsed // 60, elapsed % 60)
 					else:
-						return sign_r + "%d:%02d" % (remaining// 60, remaining% 60)
+						return sign_r + "%d:%02d" % (remaining // 60, remaining % 60)
 				else:
 					return "%d:%02d" % (duration // 60, duration % 60)
 			elif config.usage.swap_time_display_on_osd.value == "3":
@@ -138,11 +138,11 @@ class RemainingToText(Poll, Converter):
 					if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
 						return sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
 					elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-						return sign_p + "%d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60) + sign_r + "%d:%02d" % (remaining// 3600, remaining% 3600 // 60)
+						return sign_p + "%d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60) + sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 					elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-						return sign_r + "%d:%02d  " % (remaining// 3600, remaining% 3600 // 60) + sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
+						return sign_r + "%d:%02d  " % (remaining // 3600, remaining % 3600 // 60) + sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
 					else:
-						return sign_r + "%d:%02d" % (remaining// 3600, remaining% 3600 // 60)
+						return sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 				else:
 					return sign_duration + "%d:%02d" % (duration // 3600, duration % 3600 // 60)
 			elif config.usage.swap_time_display_on_osd.value == "4":
@@ -150,11 +150,11 @@ class RemainingToText(Poll, Converter):
 					if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
 						return sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
 					elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-						return sign_p + "%d:%02d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60) + sign_r + "%d:%02d:%02d" % (remaining// 3600, remaining% 3600 // 60, remaining% 60)
+						return sign_p + "%d:%02d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60) + sign_r + "%d:%02d:%02d" % (remaining // 3600, remaining % 3600 // 60, remaining % 60)
 					elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-						return sign_r + "%d:%02d:%02d  " % (remaining// 3600, remaining% 3600 // 60, remaining% 60) + sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
+						return sign_r + "%d:%02d:%02d  " % (remaining // 3600, remaining % 3600 // 60, remaining % 60) + sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
 					else:
-						return sign_r + "%d:%02d:%02d" % (remaining// 3600, remaining% 3600 // 60, remaining% 60)
+						return sign_r + "%d:%02d:%02d" % (remaining // 3600, remaining % 3600 // 60, remaining % 60)
 				else:
 					return sign_l + "%d:%02d:%02d" % (duration // 3600, duration % 3600 // 60, duration % 60)
 			elif config.usage.swap_time_display_on_osd.value == "5":
@@ -166,12 +166,12 @@ class RemainingToText(Poll, Converter):
 							return ""
 					elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
 						try:
-							return sign_p + "%d%%  " % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100) + sign_r + "%d%%" % ((float(remaining+ 0.0) // float(duration + 0.0)) * 100 + 1)
+							return sign_p + "%d%%  " % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100) + sign_r + "%d%%" % ((float(remaining + 0.0) // float(duration + 0.0)) * 100 + 1)
 						except:
 							return ""
 					elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
 						try:
-							return sign_r + "%d%%  " % ((float(remaining+ 0.0) // float(duration + 0.0)) * 100 + 1) + sign_p + "%d%%" % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100)
+							return sign_r + "%d%%  " % ((float(remaining + 0.0) // float(duration + 0.0)) * 100 + 1) + sign_p + "%d%%" % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100)
 						except:
 							return ""
 					else:
@@ -187,11 +187,11 @@ class RemainingToText(Poll, Converter):
 						if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
 							return sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
 						elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-							return sign_p + "%d  " % (elapsed // 60) + sign_r + ngettext("%d Min", "%d Mins", (remaining// 60)) % (remaining// 60)
+							return sign_p + "%d  " % (elapsed // 60) + sign_r + ngettext("%d Min", "%d Mins", (remaining // 60)) % (remaining // 60)
 						elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d  " % (remaining// 60) + sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
+							return sign_r + "%d  " % (remaining // 60) + sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
 						else:
-							return sign_r + ngettext("%d Min", "%d Mins", (remaining// 60)) % (remaining// 60)
+							return sign_r + ngettext("%d Min", "%d Mins", (remaining // 60)) % (remaining // 60)
 					else:
 						return ngettext("%d Min", "%d Mins", (duration // 60)) % (duration // 60)
 				elif self.type == self.WITH_SECONDS:
@@ -199,11 +199,11 @@ class RemainingToText(Poll, Converter):
 						if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
 							return sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
 						elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-							return sign_p + "%d:%02d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60) + sign_r + "%d:%02d:%02d" % (remaining// 3600, remaining% 3600 // 60, remaining% 60)
+							return sign_p + "%d:%02d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60) + sign_r + "%d:%02d:%02d" % (remaining // 3600, remaining % 3600 // 60, remaining % 60)
 						elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d:%02d:%02d  " % (remaining// 3600, remaining% 3600 // 60, remaining% 60) + sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
+							return sign_r + "%d:%02d:%02d  " % (remaining // 3600, remaining % 3600 // 60, remaining % 60) + sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
 						else:
-							return sign_r + "%d:%02d:%02d" % (remaining// 3600, remaining% 3600 // 60, remaining% 60)
+							return sign_r + "%d:%02d:%02d" % (remaining // 3600, remaining % 3600 // 60, remaining % 60)
 					else:
 						return sign_l + "%d:%02d:%02d" % (duration // 3600, duration % 3600 // 60, duration % 60)
 				elif self.type == self.NO_SECONDS:
@@ -211,11 +211,11 @@ class RemainingToText(Poll, Converter):
 						if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
 							return sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
 						elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-							return sign_p + "%d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60) + sign_r + "%d:%02d" % (remaining// 3600, remaining% 3600 // 60)
+							return sign_p + "%d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60) + sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 						elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d:%02d  " % (remaining// 3600, remaining% 3600 // 60) + sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
+							return sign_r + "%d:%02d  " % (remaining // 3600, remaining % 3600 // 60) + sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
 						else:
-							return sign_r + "%d:%02d" % (remaining// 3600, remaining% 3600 // 60)
+							return sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 					else:
 						return sign_l + "%d:%02d" % (duration // 3600, duration % 3600 // 60)
 				elif self.type == self.IN_SECONDS:
@@ -225,7 +225,7 @@ class RemainingToText(Poll, Converter):
 						elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
 							return sign_p + "%d  " % elapsed + sign_r + "%d " % r
 						elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d  " % remaining+ sign_p + "%d " % p
+							return sign_r + "%d  " % remaining + sign_p + "%d " % p
 						else:
 							return sign_r + "%d " % r
 					else:
@@ -238,12 +238,12 @@ class RemainingToText(Poll, Converter):
 							return ""
 					elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
 						try:
-							return sign_p + "%d%%  " % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100) + sign_r + "%d%%" % ((float(remaining+ 0.0) // float(duration + 0.0)) * 100 + 1)
+							return sign_p + "%d%%  " % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100) + sign_r + "%d%%" % ((float(remaining + 0.0) // float(duration + 0.0)) * 100 + 1)
 						except:
 							return ""
 					elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
 						try:
-							return sign_r + "%d%%  " % ((float(remaining+ 0.0) // float(duration + 0.0)) * 100 + 1) + sign_p + "%d%%" % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100)
+							return sign_r + "%d%%  " % ((float(remaining + 0.0) // float(duration + 0.0)) * 100 + 1) + sign_p + "%d%%" % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100)
 						except:
 							return ""
 					else:
@@ -266,11 +266,11 @@ class RemainingToText(Poll, Converter):
 					if config.usage.swap_time_remaining_on_vfd.value == "1":  # Elapsed
 						return sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
 					elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
-						return sign_p + "%d  " % (elapsed // 60) + sign_r + ngettext("%d Min", "%d Mins", (remaining// 60)) % (remaining// 60)
+						return sign_p + "%d  " % (elapsed // 60) + sign_r + ngettext("%d Min", "%d Mins", (remaining // 60)) % (remaining // 60)
 					elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
-						return sign_r + "%d  " % (remaining// 60) + sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
+						return sign_r + "%d  " % (remaining // 60) + sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
 					else:
-						return sign_r + ngettext("%d Min", "%d Mins", (remaining// 60)) % (remaining// 60)
+						return sign_r + ngettext("%d Min", "%d Mins", (remaining // 60)) % (remaining // 60)
 				else:
 					return ngettext("%d Min", "%d Mins", (duration // 60)) % (duration // 60)
 
@@ -279,11 +279,11 @@ class RemainingToText(Poll, Converter):
 					if config.usage.swap_time_remaining_on_vfd.value == "1":  # Elapsed
 						return sign_p + "%d:%02d" % (elapsed // 60, elapsed % 60)
 					elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
-						return sign_p + "%d:%02d  " % (elapsed // 60, elapsed % 60) + sign_r + "%d:%02d" % (remaining// 60, remaining% 60)
+						return sign_p + "%d:%02d  " % (elapsed // 60, elapsed % 60) + sign_r + "%d:%02d" % (remaining // 60, remaining % 60)
 					elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
-						return sign_r + "%d:%02d  " % (remaining// 60, remaining% 60) + sign_p + "%d:%02d" % (elapsed // 60, elapsed % 60)
+						return sign_r + "%d:%02d  " % (remaining // 60, remaining % 60) + sign_p + "%d:%02d" % (elapsed // 60, elapsed % 60)
 					else:
-						return sign_r + "%d:%02d" % (remaining// 60, remaining% 60)
+						return sign_r + "%d:%02d" % (remaining // 60, remaining % 60)
 				else:
 					return "%d:%02d" % (duration // 60, duration % 60)
 			elif config.usage.swap_time_display_on_vfd.value == "3":
@@ -291,11 +291,11 @@ class RemainingToText(Poll, Converter):
 					if config.usage.swap_time_remaining_on_vfd.value == "1":  # Elapsed
 						return sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
 					elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
-						return sign_p + "%d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60) + sign_r + "%d:%02d" % (remaining// 3600, remaining% 3600 // 60)
+						return sign_p + "%d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60) + sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 					elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
-						return sign_r + "%d:%02d  " % (remaining// 3600, remaining% 3600 // 60) + sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
+						return sign_r + "%d:%02d  " % (remaining // 3600, remaining % 3600 // 60) + sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
 					else:
-						return sign_r + "%d:%02d" % (remaining// 3600, remaining% 3600 // 60)
+						return sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 				else:
 					return sign_l + "%d:%02d" % (duration // 3600, duration % 3600 // 60)
 			elif config.usage.swap_time_display_on_vfd.value == "4":
@@ -303,11 +303,11 @@ class RemainingToText(Poll, Converter):
 					if config.usage.swap_time_remaining_on_vfd.value == "1":  # Elapsed
 						return sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
 					elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
-						return sign_p + "%d:%02d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60) + sign_r + "%d:%02d:%02d" % (remaining// 3600, remaining% 3600 // 60, remaining% 60)
+						return sign_p + "%d:%02d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60) + sign_r + "%d:%02d:%02d" % (remaining // 3600, remaining % 3600 // 60, remaining % 60)
 					elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
-						return sign_r + "%d:%02d:%02d  " % (remaining// 3600, remaining% 3600 // 60, remaining% 60) + sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
+						return sign_r + "%d:%02d:%02d  " % (remaining // 3600, remaining % 3600 // 60, remaining % 60) + sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
 					else:
-						return sign_r + "%d:%02d:%02d" % (remaining// 3600, remaining% 3600 // 60, remaining% 60)
+						return sign_r + "%d:%02d:%02d" % (remaining // 3600, remaining % 3600 // 60, remaining % 60)
 				else:
 					return sign_l + "%d:%02d:%02d" % (duration // 3600, duration % 3600 // 60, duration % 60)
 			elif config.usage.swap_time_display_on_vfd.value == "5":
@@ -319,12 +319,12 @@ class RemainingToText(Poll, Converter):
 							return ""
 					elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
 						try:
-							return sign_p + "%d%%  " % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100) + sign_r + "%d%%" % ((float(remaining+ 0.0) // float(duration + 0.0)) * 100 + 1)
+							return sign_p + "%d%%  " % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100) + sign_r + "%d%%" % ((float(remaining + 0.0) // float(duration + 0.0)) * 100 + 1)
 						except:
 							return ""
 					elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
 						try:
-							return sign_r + "%d%%  " % ((float(remaining+ 0.0) // float(duration + 0.0)) * 100 + 1) + sign_p + "%d%%" % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100)
+							return sign_r + "%d%%  " % ((float(remaining + 0.0) // float(duration + 0.0)) * 100 + 1) + sign_p + "%d%%" % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100)
 						except:
 							return ""
 					else:
@@ -340,11 +340,11 @@ class RemainingToText(Poll, Converter):
 						if config.usage.swap_time_remaining_on_vfd.value == "1":  # Elapsed
 							return sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
 						elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
-							return sign_p + "%d  " % (elapsed // 60) + sign_r + ngettext("%d Min", "%d Mins", (remaining// 60)) % (remaining// 60)
+							return sign_p + "%d  " % (elapsed // 60) + sign_r + ngettext("%d Min", "%d Mins", (remaining // 60)) % (remaining // 60)
 						elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d  " % (remaining// 60) + sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
+							return sign_r + "%d  " % (remaining // 60) + sign_p + ngettext("%d Min", "%d Mins", (elapsed // 60)) % (elapsed // 60)
 						else:
-							return sign_r + ngettext("%d Min", "%d Mins", (remaining// 60)) % (remaining// 60)
+							return sign_r + ngettext("%d Min", "%d Mins", (remaining // 60)) % (remaining // 60)
 					else:
 						return ngettext("%d Min", "%d Mins", (duration // 60)) % (duration // 60)
 				elif self.type == self.VFD_WITH_SECONDS:
@@ -352,11 +352,11 @@ class RemainingToText(Poll, Converter):
 						if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
 							return sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
 						elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-							return sign_p + "%d:%02d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60) + sign_r + "%d:%02d:%02d" % (remaining// 3600, remaining% 3600 // 60, remaining% 60)
+							return sign_p + "%d:%02d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60) + sign_r + "%d:%02d:%02d" % (remaining // 3600, remaining % 3600 // 60, remaining % 60)
 						elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d:%02d:%02d  " % (remaining// 3600, remaining% 3600 // 60, remaining% 60) + sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
+							return sign_r + "%d:%02d:%02d  " % (remaining // 3600, remaining % 3600 // 60, remaining % 60) + sign_p + "%d:%02d:%02d" % (elapsed // 3600, elapsed % 3600 // 60, elapsed % 60)
 						else:
-							return sign_r + "%d:%02d:%02d" % (remaining// 3600, remaining% 3600 // 60, remaining% 60)
+							return sign_r + "%d:%02d:%02d" % (remaining // 3600, remaining % 3600 // 60, remaining % 60)
 					else:
 						return sign_l + "%d:%02d:%02d" % (duration // 3600, duration % 3600 // 60, duration % 60)
 				elif self.type == self.VFD_NO_SECONDS:
@@ -364,11 +364,11 @@ class RemainingToText(Poll, Converter):
 						if config.usage.swap_time_remaining_on_vfd.value == "1":  # Elapsed
 							return sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
 						elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
-							return sign_p + "%d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60) + sign_r + "%d:%02d" % (remaining// 3600, remaining% 3600 // 60)
+							return sign_p + "%d:%02d  " % (elapsed // 3600, elapsed % 3600 // 60) + sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 						elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d:%02d  " % (remaining// 3600, remaining% 3600 // 60) + sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
+							return sign_r + "%d:%02d  " % (remaining // 3600, remaining % 3600 // 60) + sign_p + "%d:%02d" % (elapsed // 3600, elapsed % 3600 // 60)
 						else:
-							return sign_r + "%d:%02d" % (remaining// 3600, remaining% 3600 // 60)
+							return sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 					else:
 						return sign_l + "%d:%02d" % (duration // 3600, duration % 3600 // 60)
 				elif self.type == self.VFD_IN_SECONDS:
@@ -378,7 +378,7 @@ class RemainingToText(Poll, Converter):
 						elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
 							return sign_p + "%d  " % elapsed + sign_r + "%d " % r
 						elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d  " % remaining+ sign_p + "%d " % p
+							return sign_r + "%d  " % remaining + sign_p + "%d " % p
 						else:
 							return sign_r + "%d " % r
 					else:
@@ -391,12 +391,12 @@ class RemainingToText(Poll, Converter):
 							return ""
 					elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
 						try:
-							return sign_p + "%d%%  " % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100) + sign_r + "%d%%" % ((float(remaining+ 0.0) // float(duration + 0.0)) * 100 + 1)
+							return sign_p + "%d%%  " % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100) + sign_r + "%d%%" % ((float(remaining + 0.0) // float(duration + 0.0)) * 100 + 1)
 						except:
 							return ""
 					elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
 						try:
-							return sign_r + "%d%%  " % ((float(remaining+ 0.0) // float(duration + 0.0)) * 100 + 1) + sign_p + "%d%%" % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100)
+							return sign_r + "%d%%  " % ((float(remaining + 0.0) // float(duration + 0.0)) * 100 + 1) + sign_p + "%d%%" % ((float(elapsed + 0.0) // float(duration + 0.0)) * 100)
 						except:
 							return ""
 					else:
