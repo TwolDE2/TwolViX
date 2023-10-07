@@ -57,32 +57,25 @@ class LayoutInfo(Poll, Converter):
 				text = self.getLoadAvg()
 			else:
 				entry = {self.MEMTOTAL: ('Mem', 'Ram'),
-				 self.MEMFREE: ('Mem', 'Ram'),
-				 self.SWAPTOTAL: ('Swap', 'Swap'),
-				 self.SWAPFREE: ('Swap', 'Swap'),
-				 self.USBINFO: ('/media/usb', 'USB'),
-				 self.HDDINFO: ('/media/hdd', 'HDD'),
-				 self.FLASHINFO: ('/', 'Flash')}[self.type]
+				self.MEMFREE: ('Mem', 'Ram'),
+				self.SWAPTOTAL: ('Swap', 'Swap'),
+				self.SWAPFREE: ('Swap', 'Swap'),
+				self.USBINFO: ('/media/usb', 'USB'),
+				self.HDDINFO: ('/media/hdd', 'HDD'),
+				self.FLASHINFO: ('/', 'Flash')}[self.type]
 				if self.type in (self.USBINFO, self.HDDINFO, self.FLASHINFO):
-				    list = self.getDiskInfo(entry[0])
+					list = self.getDiskInfo(entry[0])
 				else:
-				    list = self.getMemInfo(entry[0])
+					list = self.getMemInfo(entry[0])
 				if list[0] == 0:
-				    text = '%s: N/A' % entry[1]
+					text = '%s: N/A' % entry[1]
 				elif self.shortFormat:
-				    text = '%s%%' % (list[3])
+					text = '%s%%' % (list[3])
 				elif self.fullFormat:
-				    text = '%s: %s Free:%s Used:%s (%s%%)' % (entry[1],
-				     self.getSizeStr(list[0]),
-				     self.getSizeStr(list[2]),
-				     self.getSizeStr(list[1]),
-				     list[3])
+					text = '%s: %s Free:%s Used:%s (%s%%)' % (entry[1], self.getSizeStr(list[0]), self.getSizeStr(list[2]), self.getSizeStr(list[1]), list[3])
 				else:
-				    text = '%s: %s Used:%s Free:%s' % (entry[1],
-				     self.getSizeStr(list[0]),
-				     self.getSizeStr(list[1]),
-				     self.getSizeStr(list[2]))
-			return text
+					text = '%s: %s Used:%s Free:%s' % (entry[1], self.getSizeStr(list[0]), self.getSizeStr(list[1]), self.getSizeStr(list[2])) 
+				return text
 
 		@cached
 		def getValue(self):
@@ -157,8 +150,8 @@ class LayoutInfo(Poll, Converter):
 			try:
 				fd = open('/proc/mounts', 'r')
 				for line in fd:
-					l = line.split()
-					if len(l) > 1 and l[1] == path:
+					partLine = line.split()
+					if len(partLine) > 1 and partLine[1] == path:
 						return True
 				fd.close()
 			except:
