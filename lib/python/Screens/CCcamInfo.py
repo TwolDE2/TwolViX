@@ -735,12 +735,12 @@ class CCcamInfoMain(Screen):
 		infoList = []
 		lines = html.split("\n")
 
-		for l in lines:
-			if l.__contains__('|'):
+		for partLine in lines:
+			if partLine.__contains__('|'):
 				if firstLine:
 					firstLine = False
 				else:
-					list = l.split('|')
+					list = partLine.split('|')
 					if len(list) > 5:
 						caid = list[1].replace(" ", "")
 						if caid != "":
@@ -1043,8 +1043,8 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 									totalcards += 1
 									# maxdown = list[6]
 									# while maxdown.startswith(" "):
-										# maxdown = maxdown[1:]
-										# down = maxdown
+									# 	maxdown = maxdown[1:]
+									# 	down = maxdown
 									# if int(down)>0:
 										# resharecards +=1
 
