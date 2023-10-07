@@ -32,18 +32,9 @@ from Components.UsageConfig import preferredInstantRecordPath, defaultMoviePath
 from Components.VolumeControl import VolumeControl
 import NavigationInstance
 from Plugins.Plugin import PluginDescriptor
-<<<<<<< HEAD
 from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT, findSafeRecordPath
-=======
-
-from Components.Timeshift import InfoBarTimeshift
-
-from Screens.Screen import Screen
-from Screens.AudioSelection import getAVDict
-from Screens.HelpMenu import HelpableScreen
->>>>>>> b0bc7d4... [InfoBarGenerics] unused import
 from Screens import ScreenSaver
-from Screens.AudioSelection import CONFIG_FILE_AV, getAVDict
+from Screens.AudioSelection import getAVDict
 from Screens.ChannelSelection import ChannelSelection, PiPZapSelection, BouquetSelector, EpgBouquetSelector, service_types_tv
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Dish import Dish
