@@ -1486,7 +1486,6 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 					"movieoff": config.usage.on_movie_eof.default
 				}
 				self.applyConfigSettings(updates)
-				pass  # ignore fail to open errors
 			except Exception as e:
 				print("[MovieSelection] Failed to load settings from %s: %s" % (path, e))
 		else:
@@ -1497,10 +1496,10 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 				}  # noqa: E123
 			self.applyConfigSettings(updates)
 
-# Remember this starting sort method for this dir.
-# selectSortby() needs this to highlight the current sort and
-# do_sort() needs it to know whence to move on.
-#
+		# Remember this starting sort method for this dir.
+		# selectSortby() needs this to highlight the current sort and
+		# do_sort() needs it to know whence to move on.
+		#
 		self["list"].current_sort = self.settings["moviesort"]
 
 	def applyConfigSettings(self, updates):
@@ -2082,6 +2081,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 				else:
 					metafile = open(meta, "r+")
 					sid = metafile.readline()
+					oldtitle = metafile.readline()  #noqa: F841 # local variable 'oldtitle' is assigned to but never used. Must be to skip a line.
 					rest = metafile.read()
 					metafile.seek(0)
 					metafile.write("%s%s\n%s" % (sid, newname, rest))
