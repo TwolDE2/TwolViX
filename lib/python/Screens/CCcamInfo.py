@@ -1046,7 +1046,7 @@ class CCcamShareViewMenu(Screen, HelpableScreen):
 									# 	maxdown = maxdown[1:]
 									# 	down = maxdown
 									# if int(down)>0:
-										# resharecards +=1
+									# 	resharecards +=1
 
 		self.instance.setTitle("%s (%s %d) %s %s" % (_("Share View"), _("Total cards:"), totalcards, _("Hops:"), ulevel))
 		self["title"].setText("%s (%s %d) %s %s" % (_("Share View"), _("Total cards:"), totalcards, _("Hops:"), ulevel))
