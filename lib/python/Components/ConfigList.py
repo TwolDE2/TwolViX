@@ -16,13 +16,13 @@ from Screens.VirtualKeyBoard import VirtualKeyBoard
 class ConfigList(GUIComponent):
 	def __init__(self, list, session=None):
 		GUIComponent.__init__(self)
-		self.l = eListboxPythonConfigContent()
+		self.x = eListboxPythonConfigContent()
 		seperation = parameters.get("ConfigListSeperator", applySkinFactor(200))
-		self.l.setSeperation(seperation)
+		self.x.setSeperation(seperation)
 		height, space = parameters.get("ConfigListSlider", applySkinFactor(17, 0))
-		self.l.setSlider(height, space)
+		self.x.setSlider(height, space)
 		self.timer = eTimer()
-		self.list = list
+		self.xist = list
 		self.onSelectionChanged = []
 		self.current = None
 		self.session = session
@@ -54,28 +54,28 @@ class ConfigList(GUIComponent):
 		self.invalidateCurrent()
 
 	def getCurrent(self):
-		return self.l.getCurrentSelection()
+		return self.x.getCurrentSelection()
 
 	def getCurrentIndex(self):
-		return self.l.getCurrentSelectionIndex()
+		return self.x.getCurrentSelectionIndex()
 
 	def setCurrentIndex(self, index):
 		if self.instance is not None:
 			self.instance.moveSelectionTo(index)
 
 	def invalidateCurrent(self):
-		self.l.invalidateEntry(self.l.getCurrentSelectionIndex())
+		self.x.invalidateEntry(self.x.getCurrentSelectionIndex())
 
 	def invalidate(self, entry):
 		# When the entry to invalidate does not exist, just ignore the request.
 		# This eases up conditional setup screens a lot.
 		if entry in self.__list:
-			self.l.invalidateEntry(self.__list.index(entry))
+			self.x.invalidateEntry(self.__list.index(entry))
 
 	GUI_WIDGET = eListbox
 
 	def isChanged(self):
-		for item in self.list:
+		for item in self.xist:
 			if len(item) > 1 and item[1].isChanged():
 				return True
 		return False
@@ -97,7 +97,7 @@ class ConfigList(GUIComponent):
 
 	def postWidgetCreate(self, instance):
 		instance.selectionChanged.get().append(self.selectionChanged)
-		instance.setContent(self.l)
+		instance.setContent(self.x)
 		self.instance.setWrapAround(True)
 
 	def preWidgetRemove(self, instance):
@@ -108,7 +108,7 @@ class ConfigList(GUIComponent):
 
 	def setList(self, l):
 		self.__list = l
-		self.l.setList(self.__list)
+		self.x.setList(self.__list)
 		if l is not None:
 			for x in l:
 				assert len(x) < 2 or isinstance(x[1], ConfigElement), "[ConfigList] Error: Entry in ConfigList '%s' must be a ConfigElement!" % str(x[1])
