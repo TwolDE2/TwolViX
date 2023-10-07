@@ -880,7 +880,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 			"red": self.close,
 			"left": self.left,
 			"right": self.right,
-		}, -2)  # noqa: E123  # noqa: E123
+		}, -2)  # noqa: E123
 
 		self.updateStatusbar()
 		self.onClose.append(self.cleanup)
@@ -898,7 +898,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		else:
 			try:
 				system("ifconfig %s up" % iface)
-				wlanresponse = list(Cell.all(iface))
+				wlanresponse = list(Cell.all(iface))  # what is this? local variable 'wlanresponse' is assigned to but never used
 			except IOError as err:
 				error_no, error_str = err.args
 				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
