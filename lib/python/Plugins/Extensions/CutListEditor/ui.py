@@ -1,23 +1,23 @@
-from Screens.Screen import Screen
-from Screens.MessageBox import MessageBox
-from Components.ServicePosition import ServicePositionGauge
+import bisect
+from time import gmtime, strftime
+from enigma import getDesktop, gFont, iPlayableService, RT_HALIGN_RIGHT
+
 from Components.ActionMap import HelpableActionMap
+from Components.config import config, ConfigSubsection, ConfigYesNo
+from Components.Console import Console
+from Components.Label import Label
 from Components.MultiContent import MultiContentEntryText
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
+from Components.ServicePosition import ServicePositionGauge
+from Components.Sources.List import List
 from Components.VideoWindow import VideoWindow
-from Components.Label import Label
-from Components.config import config, ConfigSubsection, ConfigYesNo
-from Screens.InfoBarGenerics import InfoBarSeek, InfoBarCueSheetSupport
-from enigma import getDesktop, gFont, iPlayableService, RT_HALIGN_RIGHT
+from Screens.ChoiceBox import ChoiceBox
 from Screens.FixedMenu import FixedMenu
 from Screens.HelpMenu import HelpableScreen
+from Screens.InfoBarGenerics import InfoBarSeek, InfoBarCueSheetSupport
+from Screens.MessageBox import MessageBox
+from Screens.Screen import Screen
 from ServiceReference import ServiceReference
-from Components.Sources.List import List
-from Components.Console import Console
-from Screens.ChoiceBox import ChoiceBox
-from time import gmtime, strftime
-
-import bisect
 
 try:
 	from Plugins.Extensions.MovieCut.plugin import main as MovieCut

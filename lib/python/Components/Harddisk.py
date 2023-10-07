@@ -677,13 +677,14 @@ class HarddiskManager:
 				mediumFound = True  # Check for medium.
 			except (IOError, OSError) as err:
 				if err.errno in (123, 159):  # ENOMEDIUM - No medium found.  (123 = Common Linux, 159 = MIPS Linux)
-					mediumFound = False
+					print("[Harddisk] Error: No medium found", err)				
+					# mediumFound = False
 				else:
 					print("[Harddisk] Error: Device '%s' (%s) media availability test failed:" % (device, physicalDevice), err)
 					continue
 			# if mediumFound:
 			# 	print("[Harddisk] DEBUG: Device '%s' (%s) has media." % (device, physicalDevice))
-			# print("[Harddisk] DEBUG: device = '%s', physicalDevice = '%s', devMajor = '%s', description = '%s'" % (device, physicalDevice, devMajor, description))
+			# 	print("[Harddisk] DEBUG: device = '%s', physicalDevice = '%s', devMajor = '%s', description = '%s'" % (device, physicalDevice, devMajor, description))
 			if not isCdrom and ospath.exists(devicePath):
 				partitions = [partition for partition in sorted(listdir(devicePath)) if partition.startswith(device)]  # Add HDD check for partitions.
 				if len(partitions) == 0:  # Add HDD check for HDD with no partitions (unformatted).

@@ -95,8 +95,8 @@ class RemainingToText(Poll, Converter):
 		else:
 			(duration, remaining) = self.source.time
 
-		# Length l = duration  
-		# Position p = elapsed  
+		# Length l = duration
+		# Position p = elapsed
 		# Remaining r = remaining
 
 		sign_l = ""
@@ -144,7 +144,7 @@ class RemainingToText(Poll, Converter):
 					else:
 						return sign_r + "%d:%02d" % (remaining // 3600, remaining % 3600 // 60)
 				else:
-					return sign_duration + "%d:%02d" % (duration // 3600, duration % 3600 // 60)
+					return sign_l + "%d:%02d" % (duration // 3600, duration % 3600 // 60)
 			elif config.usage.swap_time_display_on_osd.value == "4":
 				if remaining is not None:
 					if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
@@ -221,13 +221,13 @@ class RemainingToText(Poll, Converter):
 				elif self.type == self.IN_SECONDS:
 					if remaining is not None:
 						if config.usage.swap_time_remaining_on_osd.value == "1":  # Elapsed
-							return sign_p + "%d " % p
+							return sign_p + "%d " % elapsed
 						elif config.usage.swap_time_remaining_on_osd.value == "2":  # Elapsed & Remaining
-							return sign_p + "%d  " % elapsed + sign_r + "%d " % r
+							return sign_p + "%d  " % elapsed + sign_r + "%d " % remaining
 						elif config.usage.swap_time_remaining_on_osd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d  " % remaining + sign_p + "%d " % p
+							return sign_r + "%d  " % remaining + sign_p + "%d " % elapsed
 						else:
-							return sign_r + "%d " % r
+							return sign_r + "%d " % remaining
 					else:
 						return "%d " % duration + _("Mins")
 				elif self.type == self.PERCENTAGE:
@@ -252,7 +252,7 @@ class RemainingToText(Poll, Converter):
 						except:
 							return ""
 				else:
-					return sign_l + "%d" % l
+					return sign_l + "%d" % duration
 
 		else:
 			if config.usage.elapsed_time_positive_vfd.value:
@@ -374,13 +374,13 @@ class RemainingToText(Poll, Converter):
 				elif self.type == self.VFD_IN_SECONDS:
 					if remaining is not None:
 						if config.usage.swap_time_remaining_on_vfd.value == "1":  # Elapsed
-							return sign_p + "%d " % p
+							return sign_p + "%d " % elasped
 						elif config.usage.swap_time_remaining_on_vfd.value == "2":  # Elapsed & Remaining
-							return sign_p + "%d  " % elapsed + sign_r + "%d " % r
+							return sign_p + "%d  " % elapsed + sign_r + "%d " % remaining
 						elif config.usage.swap_time_remaining_on_vfd.value == "3":  # Remaining & Elapsed
-							return sign_r + "%d  " % remaining + sign_p + "%d " % p
+							return sign_r + "%d  " % remaining + sign_p + "%d " % elapsed
 						else:
-							return sign_r + "%d " % r
+							return sign_r + "%d " % remaining
 					else:
 						return "%d " % duration + _("Mins")
 				elif self.type == self.VFD_PERCENTAGE:
@@ -405,6 +405,6 @@ class RemainingToText(Poll, Converter):
 						except:
 							return ""
 				else:
-					return sign_l + "%d" % l
+					return sign_l + "%d" % duration
 
 	text = property(getText)

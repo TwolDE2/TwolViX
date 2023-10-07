@@ -176,8 +176,8 @@ def filescan(**kwargs):
 				paths_to_scan=[
 					ScanPath(path="ipk", with_subdirs=True),
 					ScanPath(path="", with_subdirs=False),
-				],
-				name="Ipkg",
+				],  # noqa: E126
+				name="Ipkg",  # noqa: E126
 				description=_("Install extensions."),
 				openfnc=filescan_open)
 

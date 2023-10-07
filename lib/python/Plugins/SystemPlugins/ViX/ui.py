@@ -46,7 +46,7 @@ class VIXMenu(Screen, ProtectedScreen):
 			22,  # fonts
 			300,  # itemHeight
 			5, 360, 600, 50, 22,  # status
-			]
+			]  # noqa: E124
 
 	def __init__(self, session, args=0):
 		Screen.__init__(self, session)

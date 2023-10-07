@@ -1288,7 +1288,7 @@ class ChannelSelectionEdit:
 		# "self.servicelist.x.setHideNumberMarker(False)" could be moved
 		# directly to the "else" clause of "def toggleMoveMode".
 		if self.movemode:
-			self.servicelist.x.setHideNumberMarker(False)
+			self.servicelist.l.setHideNumberMarker(False)
 
 		if close:
 			self.cancel()
