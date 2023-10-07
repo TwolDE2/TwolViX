@@ -303,15 +303,9 @@ class MMIDialog(Screen):
 
 	def ciStateChanged(self):
 		do_close = False
-<<<<<<< HEAD
-		if self.action == 0:			# reset
-			do_close = True
-		if self.action == 1:			# init
-=======
 		if self.action == 0:  # reset
 			do_close = True
 		if self.action == 1:  # init
->>>>>>> af4f671... E265
 			do_close = True
 
 		# module still there ?
