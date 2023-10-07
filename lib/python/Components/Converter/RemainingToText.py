@@ -97,7 +97,7 @@ class RemainingToText(Poll, Converter):
 
 		# Length l = duration  
 		# Position p = elapsed  
-		remaining  # Remaining r = 
+		# Remaining r = remaining
 
 		sign_l = ""
 
