@@ -518,15 +518,15 @@ class PowerTimer(Timer):
 				' autosleepinstandbyonly="%s"'
 				' autosleepdelay="%s"'
 				' autosleeprepeat="%s"' % (
-			timerTypes[timer.timerType],
-			int(timer.begin),
-			int(timer.end),
-			int(timer.repeated),
-			afterEvents[timer.afterEvent],
-			int(timer.disabled),
-			timer.autosleepinstandbyonly,
-			timer.autosleepdelay,
-			timer.autosleeprepeat))  # noqa: E123
+				timerTypes[timer.timerType],
+				int(timer.begin),
+				int(timer.end),
+				int(timer.repeated),
+				afterEvents[timer.afterEvent],
+				int(timer.disabled),
+				timer.autosleepinstandbyonly,
+				timer.autosleepdelay,
+				timer.autosleeprepeat))  # noqa: E123
 
 			if len(timer.log_entries) == 0:
 				list.append('/>\n')
