@@ -199,19 +199,12 @@ class PowerTimerEntry(TimerEntry):
 				# to make it clearer what each test is.
 				#
 				from Components.Converter.ClientsStreaming import ClientsStreaming
-				if ((not Screens.Standby.inStandby and NavigationInstance.instance.getCurrentlyPlayingServiceReference() and
-					('0:0:0:0:0:0:0:0:0' in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString() or
-					'4097:' in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString()
-					) or
-					(int(ClientsStreaming("NUMBER").getText()) > 0)
-					) or
-					(NavigationInstance.instance.RecordTimer.isRecording() or
-					abs(NavigationInstance.instance.RecordTimer.getNextRecordingTime() - time()) <= 900 or
-					abs(NavigationInstance.instance.RecordTimer.getNextZapTime() - time()) <= 900) or
+				if ((not Screens.Standby.inStandby and NavigationInstance.instance.getCurrentlyPlayingServiceReference() and ('0:0:0:0:0:0:0:0:0' in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString() or
+					'4097:' in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString()) or (int(ClientsStreaming("NUMBER").getText()) > 0)) or
+					(NavigationInstance.instance.RecordTimer.isRecording() or abs(NavigationInstance.instance.RecordTimer.getNextRecordingTime() - time()) <= 900 or
+					abs(NavigationInstance.instance.RecordTimer.getNextZapTime() - time()) <= 900) or 
 					(self.autosleepinstandbyonly == 'yes' and not Screens.Standby.inStandby) or
-					(self.autosleepinstandbyonly == 'yes' and Screens.Standby.inStandby and internalHDDNotSleeping()
-					)
-					):
+					(self.autosleepinstandbyonly == 'yes' and Screens.Standby.inStandby and internalHDDNotSleeping())):
 					self.do_backoff()
 					# retry
 					return False
@@ -518,15 +511,15 @@ class PowerTimer(Timer):
 				' autosleepinstandbyonly="%s"'
 				' autosleepdelay="%s"'
 				' autosleeprepeat="%s"' % (
-				timerTypes[timer.timerType],
-				int(timer.begin),
-				int(timer.end),
-				int(timer.repeated),
-				afterEvents[timer.afterEvent],
-				int(timer.disabled),
-				timer.autosleepinstandbyonly,
-				timer.autosleepdelay,
-				timer.autosleeprepeat))  # noqa: E123
+				timerTypes[timer.timerType],  # noqa: E122
+				int(timer.begin),  # noqa: E122
+				int(timer.end),  # noqa: E122
+				int(timer.repeated),  # noqa: E122
+				afterEvents[timer.afterEvent],  # noqa: E122
+				int(timer.disabled),  # noqa: E122
+				timer.autosleepinstandbyonly,  # noqa: E122
+				timer.autosleepdelay,  # noqa: E122
+				timer.autosleeprepeat))  # noqa: E122
 
 			if len(timer.log_entries) == 0:
 				list.append('/>\n')
