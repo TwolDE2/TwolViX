@@ -6,8 +6,7 @@ from traceback import print_exc
 
 from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
 from Tools.Profile import profile, profile_final
-# Don't remove import Tools.RedirectOutput line. It may seem to do nothing, but if removed it will break output redirection for crash logs.
-import Tools.RedirectOutput    # noqa: F401
+import Tools.RedirectOutput  # noqa: F401 # Don't remove this line. It may seem to do nothing, but if removed it will break output redirection for crash logs.
 import eConsoleImpl
 import eBaseImpl
 import enigma
