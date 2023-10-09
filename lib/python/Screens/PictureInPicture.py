@@ -133,7 +133,6 @@ class PictureInPicture(Screen):
 			config.av.pip.value[1] = y
 			config.av.pip.save()
 		w = config.av.pip.value[2]
-		h = config.av.pip.value[3]
 		if config.av.pip_mode.value == "cascade":
 			x = MAX_X - w
 			y = 0

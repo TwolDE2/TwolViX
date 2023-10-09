@@ -56,7 +56,7 @@ class PowerTimerEditList(Screen):
 				"right": self.right,
 				"up": self.up,
 				"down": self.down
-			}, -1)  # noqa: E123 
+			}, -1)  # noqa: E123
 		self.session.nav.PowerTimer.on_state_change.append(self.onStateChange)
 		self.onShown.append(self.updateState)
 

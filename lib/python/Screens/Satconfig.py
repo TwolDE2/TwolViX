@@ -546,14 +546,14 @@ class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 			for x in dvbs_slots:
 				try:
 					nim_slot = nimmanager.nim_slots[x]
-					if nim_slot == self.nimConfig:
-						self_idx = x
 					if nim_slot.config.configMode.value == "loopthrough":
 						loopthrough_count += 1
 				except:
 					pass
 			if loopthrough_count >= dvbs_slots_len:
 				return False
+			else:
+				return True	
 
 		self.slot_dest_list = []
 

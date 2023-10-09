@@ -14,12 +14,10 @@ from Components.ScrollLabel import ScrollLabel
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.Event import Event
 from Components.Sources.StaticText import StaticText
-from Components.UsageConfig import preferredTimerPath
 from Plugins.Plugin import PluginDescriptor
 from RecordTimer import AFTEREVENT
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Screen import Screen
-from Screens.TimerEdit import TimerSanityConflict
 from Screens.TimerEntry import TimerEntry, addTimerFromEvent
 from Tools.BoundFunction import boundFunction
 

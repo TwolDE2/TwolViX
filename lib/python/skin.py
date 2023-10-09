@@ -6,7 +6,7 @@ from os.path import basename, dirname, isfile
 from Components.config import ConfigSubsection, ConfigText, config
 from Components.Sources.Source import ObsoleteSource
 from Components.SystemInfo import SystemInfo
-from Tools.Directories import SCOPE_CONFIG, SCOPE_CURRENT_LCDSKIN, SCOPE_CURRENT_SKIN, SCOPE_FONTS, SCOPE_SKIN, SCOPE_SKIN_IMAGE, resolveFilename, fileReadXML, clearResolveLists
+from Tools.Directories import SCOPE_CURRENT_LCDSKIN, SCOPE_CURRENT_SKIN, SCOPE_FONTS, SCOPE_SKIN, resolveFilename, fileReadXML, clearResolveLists
 from Tools.Import import my_import
 from Tools.LoadPixmap import LoadPixmap
 
@@ -28,7 +28,7 @@ fonts = {}  # Dictionary of predefined and skin defined font aliases.
 menus = {}  # Dictionary of images associated with menu entries.
 menuicons = {}  # Dictionary of icons associated with menu items.
 parameters = {}  # Dictionary of skin parameters used to modify code behavior.
-stringparameters = {} # Dictionary that contains string type parameters for use in screens
+stringparameters = {}  # Dictionary that contains string type parameters for use in screens
 setups = {}  # Dictionary of images associated with setup menus.
 switchPixmap = {}  # Dictionary of switch images.
 scrollbarStyle = None  # When set, a dictionary of scrollbar styles
@@ -237,8 +237,6 @@ def parseCoordinate(s, e, size=0, font=None):
 		# No test on "e" because it's already a variable
 		if "center" in s:
 			center = (e - size) / 2.0  # noqa: F841
-		if "c" in s:
-			c = e / 2.0
 		if "w" in s:
 			s = s.replace("w", "*w")
 			w = float(font in fonts and fonts[font][3] or 0)  # noqa: F841

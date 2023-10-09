@@ -202,7 +202,7 @@ class PowerTimerEntry(TimerEntry):
 				if ((not Screens.Standby.inStandby and NavigationInstance.instance.getCurrentlyPlayingServiceReference() and ('0:0:0:0:0:0:0:0:0' in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString() or
 					'4097:' in NavigationInstance.instance.getCurrentlyPlayingServiceReference().toString()) or (int(ClientsStreaming("NUMBER").getText()) > 0)) or
 					(NavigationInstance.instance.RecordTimer.isRecording() or abs(NavigationInstance.instance.RecordTimer.getNextRecordingTime() - time()) <= 900 or
-					abs(NavigationInstance.instance.RecordTimer.getNextZapTime() - time()) <= 900) or 
+					abs(NavigationInstance.instance.RecordTimer.getNextZapTime() - time()) <= 900) or
 					(self.autosleepinstandbyonly == 'yes' and not Screens.Standby.inStandby) or
 					(self.autosleepinstandbyonly == 'yes' and Screens.Standby.inStandby and internalHDDNotSleeping())):
 					self.do_backoff()
@@ -397,11 +397,11 @@ def createTimer(xml):
 	else:
 		entry.repeated = int(repeated)
 
-	for l in xml.findall("log"):
-		ltime = int(l.get("time"))
-		lcode = int(l.get("code"))
-		# print("[PowerManager]: ltext, time, code", l.text, "   ", l.get("time"), "   ", l.get("code"))
-		msg = l.text.strip()
+	for lxml in xml.findall("log"):
+		ltime = int(lxml.get("time"))
+		lcode = int(lxml.get("code"))
+		# print("[PowerManager]: ltext, time, code", l.text, "   ", lxml.get("time"), "   ", lxml.get("code"))
+		msg = lxml.text.strip()
 		entry.log_entries.append((ltime, lcode, msg))
 	return entry
 

@@ -10,7 +10,8 @@ import pickle
 
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from boxbranding import getBrandOEM
-from keyids import KEYFLAGS, KEYIDS, KEYIDNAMES
+from keyids import KEYIDS
+#  from keyids import KEYFLAGS, KEYIDNAMES  # used by print debug
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap
 from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection, ACTIONKEY_RIGHT
@@ -26,7 +27,6 @@ from Components.Sources.Boolean import Boolean
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
-from Components.TimerList import TimerList
 from Components.Timeshift import InfoBarTimeshift
 from Components.UsageConfig import preferredInstantRecordPath, defaultMoviePath
 from Components.VolumeControl import VolumeControl
@@ -63,7 +63,8 @@ from Screens.UnhandledKey import UnhandledKey
 from ServiceReference import ServiceReference, isPlayableForCur
 from Tools import Notifications
 from Tools.Directories import pathExists, fileExists, isPluginInstalled
-from Tools.KeyBindings import getKeyDescription, getKeyBindingKeys
+from Tools.KeyBindings import getKeyBindingKeys
+# from Tools.KeyBindings import getKeyDescription  # Used by Debug
 from Tools.General import isIPTV
 from pickle import loads as pickle_loads
 
@@ -3036,9 +3037,6 @@ class InfoBarJobman:
 		job_manager.in_background = in_background
 
 # depends on InfoBarExtensions
-
-
-from Screens.PiPSetup import PiPSetup  # noqa: E402
 
 
 class InfoBarPiP:

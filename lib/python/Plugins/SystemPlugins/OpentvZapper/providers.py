@@ -14,8 +14,7 @@ providers = {
 			'transport_stream_id': 2004,
 			'dvb_type': 'dvbs',
 			'services': {},
-			},  # noqa: E123  
-
+			},  # noqa: E123
 		"service": {
 			'service_name': 'IEPG data 1',
 			'namespace': 18481152,
