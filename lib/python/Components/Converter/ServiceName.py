@@ -93,3 +93,39 @@ class ServiceName(Converter):
 	def changed(self, what):
 		if what[0] != self.CHANGED_SPECIFIC or what[1] in (iPlayableService.evStart,):
 			Converter.changed(self, what)
+
+	def getName(self, ref, info):
+		name = ref and info.getName(ref)
+		if name is None:
+			name = info.getName()
+		return name.replace('\xc2\x86', '').replace('\xc2\x87', '').replace('_', ' ')
+
+	def getNumber(self, ref, info):
+		if not ref:
+			ref = eServiceReference(info.getInfoString(iServiceInformation.sServiceref))
+		num = ref and ref.getChannelNum() or None
+		if num is not None:
+			num = str(num)
+		return num
+
+	def getProvider(self, ref, info):
+		if ref:
+			return info.getInfoString(ref, iServiceInformation.sProvider)
+		return info.getInfoString(iServiceInformation.sProvider)
+
+	def getOrbitalPos(self, ref, info):
+		orbitalpos = ""
+		if ref:
+			tp_data = info.getInfoObject(ref, iServiceInformation.sTransponderData)
+		else:
+			tp_data = info.getInfoObject(iServiceInformation.sTransponderData)
+		if tp_data is not None:
+			try:
+				position = tp_data["orbital_position"]
+				if position > 1800:  # west
+					orbitalpos = "%.1f " % (float(3600 - position) / 10) + _("W")
+				else:
+					orbitalpos = "%.1f " % (float(position) / 10) + _("E")
+			except:
+				pass
+		return orbitalpos

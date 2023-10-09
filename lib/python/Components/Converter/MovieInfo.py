@@ -133,6 +133,19 @@ class MovieInfo(Converter):
 				return info.getInfoString(service, iServiceInformation.sServiceref)
 			elif self.type == self.MOVIE_REC_FILESIZE:
 				return self.getFileSize(service, info)
+			elif self.type == self.FORMAT_STRING:
+				timeCreate = strftime("%A %d %b %Y", localtime(info.getInfo(service, iServiceInformation.sTimeCreate)))
+				duration = "%d min" % (info.getLength(service) / 60)
+				filesize = "%d MB" % (info.getInfoObject(service, iServiceInformation.sFileSize) / (1024 * 1024))
+				res_str = ""
+				for x in self.parts[1:]:
+					if x == "TIMECREATED" and timeCreate != '':
+						res_str = self.appendToStringWithSeparator(res_str, timeCreate)
+					if x == "DURATION" and duration != '':
+						res_str = self.appendToStringWithSeparator(res_str, duration)
+					if x == "FILESIZE" and filesize != '':
+						res_str = self.appendToStringWithSeparator(res_str, filesize)
+				return res_str
 		return ""
 
 	def __getCollectionDescription(self, service):
