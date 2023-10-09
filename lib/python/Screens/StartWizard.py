@@ -29,10 +29,7 @@ class StartWizard(WizardLanguage, Rc):
 		self["wizard"] = Pixmap()
 		print("[StartWizard][Init] import.......")
 
-	def markDone(self):		# setup remote control
-		config.misc.rcused.value = 1
-		config.misc.rcused.save()
-
+	def markDone(self):
 		config.misc.firstrun.value = 0
 		config.misc.firstrun.save()
 		configfile.save()
