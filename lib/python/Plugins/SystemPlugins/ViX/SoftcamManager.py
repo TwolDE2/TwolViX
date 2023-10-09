@@ -397,7 +397,7 @@ class VIXStartCam(Screen):
 				if data.find(startselectedcam) >= 0:
 					filewrite = open("/tmp/SoftcamsScriptsRunning.tmp", "w")
 					fileread = open("/tmp/SoftcamsScriptsRunning")
-					filewrite.writelines([l for l in fileread.readlines() if startselectedcam not in l])
+					filewrite.writelines([cam for cam in fileread.readlines() if startselectedcam not in cam])
 					fileread.close()
 					filewrite.close()
 					rename("/tmp/SoftcamsScriptsRunning.tmp", "/tmp/SoftcamsScriptsRunning")
@@ -429,7 +429,7 @@ class VIXStartCam(Screen):
 					output.close()
 					fileread = open("/tmp/SoftcamsDisableCheck")
 					filewrite = open("/tmp/SoftcamsDisableCheck.tmp", "w")
-					filewrite.writelines([l for l in fileread.readlines() if startselectedcam not in l])
+					filewrite.writelines([cam for cam in fileread.readlines() if startselectedcam not in cam])
 					fileread.close()
 					filewrite.close()
 					rename("/tmp/SoftcamsDisableCheck.tmp", "/tmp/SoftcamsDisableCheck")

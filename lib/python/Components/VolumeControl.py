@@ -1,6 +1,6 @@
 from enigma import eDVBVolumecontrol, eTimer
 from Components.config import config, ConfigSubsection, ConfigInteger
-from GlobalActions import globalActionMap
+from GlobalActions import globalActionMap  # noqa: F401
 from Screens.Volume import Volume
 from Screens.Mute import Mute
 from Tools.Profile import profile
@@ -65,7 +65,6 @@ class VolumeControl:
 		self.setVolume(-1)
 
 	def setVolume(self, direction):
-		oldvol = self.volctrl.getVolume()  # local variable 'oldvol' is assigned to but never used
 		if direction > 0:
 			self.volctrl.volumeUp()
 		else:

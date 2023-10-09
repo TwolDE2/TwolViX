@@ -140,7 +140,7 @@ class VideoFinetune(Screen):
 
 		xres, yres = getDesktop(0).size().width(), getDesktop(0).size().height()
 
-		bbw, bbh = xres // 192, yres // 192
+		# bbw, bbh = xres // 192, yres // 192
 		c.fill(0, 0, xres, yres, RGB(0, 0, 0))
 
 		for i in range(15):
@@ -178,11 +178,9 @@ class VideoFinetune(Screen):
 
 		xres, yres = getDesktop(0).size().width(), getDesktop(0).size().height()
 
-		bbw, bbh = xres // 192, yres // 192
+		# bbw, bbh = xres // 192, yres // 192
 		c.fill(0, 0, xres, yres, RGB(0, 0, 0))
 
-		bbw = xres // 192
-		bbh = yres // 192
 		c.fill(0, 0, xres, yres, RGB(255, 255, 255))
 
 		for i in range(15):
