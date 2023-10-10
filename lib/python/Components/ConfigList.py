@@ -18,7 +18,7 @@ class ConfigList(GUIComponent):
 		GUIComponent.__init__(self)
 		self.l = eListboxPythonConfigContent()
 		seperation = parameters.get("ConfigListSeperator", applySkinFactor(200))
-		self.l.setSeperation(seperation)
+		self.l.setSeperation(seperation)  # noqa: E741
 		height, space = parameters.get("ConfigListSlider", applySkinFactor(17, 0))
 		self.l.setSlider(height, space)
 		self.timer = eTimer()
@@ -106,11 +106,11 @@ class ConfigList(GUIComponent):
 		instance.selectionChanged.get().remove(self.selectionChanged)
 		instance.setContent(None)
 
-	def setList(self, l):
-		self.__list = l
+	def setList(self, configList):
+		self.__list = configList
 		self.l.setList(self.__list)
-		if l is not None:
-			for x in l:
+		if configList is not None:
+			for x in configList:
 				assert len(x) < 2 or isinstance(x[1], ConfigElement), "[ConfigList] Error: Entry in ConfigList '%s' must be a ConfigElement!" % str(x[1])
 
 	def getList(self):

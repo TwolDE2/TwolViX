@@ -1,6 +1,4 @@
-from operator import itemgetter
-
-from Components.config import config, getConfigListEntry, ConfigNothing, NoSave, ConfigPIN, configfile
+from Components.config import config, getConfigListEntry, ConfigNothing, NoSave, configfile
 from Components.ConfigList import ConfigListScreen
 from Screens.ChoiceBox import ChoiceBox
 from Screens.InputBox import PinInput

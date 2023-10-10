@@ -96,8 +96,8 @@ class LayoutInfo(Poll, Converter):
 				result = self.getDiskInfo(path)[3]
 			return result
 
-	text = property(getText)
-	value = property(getValue)
+	text = property(getText)  # noqa: F821
+	value = property(getValue)  # noqa: F821
 	range = 100
 
 	def getHddTemp(self):

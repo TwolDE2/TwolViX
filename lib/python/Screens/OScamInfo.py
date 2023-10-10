@@ -117,7 +117,7 @@ class OscamInfo:
 
 		# Assume that oscam webif is NOT blocking localhost, IPv6 is also configured if it is compiled in,
 		# and no user and password are required
-		blocked = False
+		# blocked = False
 		ipconfigured = ipcompiled
 		user = pwd = None
 
@@ -143,10 +143,11 @@ class OscamInfo:
 							if "::1" in allowed or "127.0.0.1" in allowed or "0.0.0.0-255.255.255.255" in allowed:
 								# ... until we find either 127.0.0.1 or ::1 in allowed list
 								blocked = False
-							if "::1" not in allowed:
+							else:
 								ipconfigured = False
-
-			ret = [user, pwd, port, ipconfigured]			# 127.0.0.1 gets 403 in oscam webif so ignore block fix later
+			if not blocked:
+				ret = [user, pwd, port, ipconfigured
+			# ret = [user, pwd, port, ipconfigured]			# 127.0.0.1 gets 403 in oscam webif so ignore block fix later
 
 		return ret
 
@@ -245,37 +246,27 @@ class OscamInfo:
 				for client in clients:
 					name = client.attrib["name"]
 					proto = client.attrib["protocol"]
-					if "au" in client.attrib:
-						au = client.attrib["au"]
-					else:
-						au = ""
+					# au = client.attrib["au"] if "au" in client.attrib else ""
+					# login = client.find("times").attrib["login"]
+					# online = client.find("times").attrib["online"]
+					port = client.find("connection").attrib["port"]					
 					caid = client.find("request").attrib["caid"]
 					srvid = client.find("request").attrib["srvid"]
+					ecmtime = _("n/a")
 					if "ecmtime" in client.find("request").attrib:
 						ecmtime = client.find("request").attrib["ecmtime"]
-						if ecmtime == "0" or ecmtime == "":
-							ecmtime = _("n/a")
-						else:
+						if ecmtime != "0" or ecmtime != "":
 							ecmtime = str(float(ecmtime) / 1000)[:5]
-					else:
-						ecmtime = _("n/a")
 					srvname = client.find("request").text
+					srvname_short = _("n/a")					
 					if srvname is not None:
-						if ":" in srvname:
-							srvname_short = srvname.split(":")[1].strip()
-						else:
-							srvname_short = srvname
-					else:
-						srvname_short = _("n/a")
-					login = client.find("times").attrib["login"]
-					online = client.find("times").attrib["online"]
+						srvname_short = srvname.split(":")[1].strip() if ":" in srvname else srvname
 					if proto.lower() == "dvbapi":
 						ip = ""
 					else:
 						ip = client.find("connection").attrib["ip"]
 						if ip == "0.0.0.0":
 							ip = ""
-					port = client.find("connection").attrib["port"]
 					connstatus = client.find("connection").text
 					if name != "" and name != "anonymous" and proto != "":
 						try:
@@ -1130,20 +1121,20 @@ class oscReaderStats(Screen, OscamInfo):
 			if dataWebif[0]:
 				dataReader = ElementTree.XML(dataWebif[1])
 				rdr = dataReader.find("reader")
-				# 					emms = rdr.find("emmstats")
-				# 					if "totalwritten" in emms.attrib:
-				# 						emm_wri = emms.attrib["totalwritten"]
-				# 					if "totalskipped" in emms.attrib:
-				# 						emm_ski = emms.attrib["totalskipped"]
-				# 					if "totalblocked" in emms.attrib:
-				# 						emm_blk = emms.attrib["totalblocked"]
-				# 					if "totalerror" in emms.attrib:
-				# 						emm_err = emms.attrib["totalerror"]
+				# emms = rdr.find("emmstats")
+				# if "totalwritten" in emms.attrib:
+				# 	emm_wri = emms.attrib["totalwritten"]
+				# if "totalskipped" in emms.attrib:
+				# 	emm_ski = emms.attrib["totalskipped"]
+				# if "totalblocked" in emms.attrib:
+				# 	emm_blk = emms.attrib["totalblocked"]
+				# if "totalerror" in emms.attrib:
+				# 	emm_err = emms.attrib["totalerror"]
 
 				ecmstat = rdr.find("ecmstats")
-				totalecm = ecmstat.attrib["totalecm"]
+				# totalecm = ecmstat.attrib["totalecm"]
 				ecmcount = ecmstat.attrib["count"] and int(ecmstat.attrib["count"]) or 0
-				lastacc = ecmstat.attrib["lastaccess"]
+				# lastacc = ecmstat.attrib["lastaccess"]
 				ecm = ecmstat.findall("ecm")
 				if ecmcount > 0:
 					for j in ecm:
@@ -1151,7 +1142,7 @@ class oscReaderStats(Screen, OscamInfo):
 						channel = j.attrib["channelname"]
 						avgtime = j.attrib["avgtime"]
 						lasttime = j.attrib["lasttime"]
-						retcode = j.attrib["rc"]
+						# retcode = j.attrib["rc"]
 						rcs = j.attrib["rcs"]
 						num = j.text
 						if rcs == "found":

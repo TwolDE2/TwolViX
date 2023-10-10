@@ -1,6 +1,6 @@
 from Components.config import config, ConfigBoolean, configfile
 from Components.Pixmap import Pixmap
-from Screens.LanguageSelection import LanguageWizard
+from Screens.LanguageSelection import LanguageWizard  # noqa: F401
 from Screens.Rc import Rc
 from Screens.WizardLanguage import WizardLanguage
 from Screens.WizardUserInterfacePositioner import UserInterfacePositionerWizard

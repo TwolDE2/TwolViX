@@ -1705,7 +1705,7 @@ class ScanSimple(ConfigListScreen, Screen, CableTransponderSearchSupport, Terres
 		self.session.postScanService = session.nav.getCurrentlyPlayingServiceOrGroup()
 
 		self.list = []
-		tlist = []
+		# tlist = []
 
 		known_networks = []
 		nims_to_scan = []

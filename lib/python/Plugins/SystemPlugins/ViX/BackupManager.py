@@ -915,7 +915,7 @@ class XtraPluginsSelection(Screen):
 		self.setTitle(_("Select folder that contains plugins"))
 
 	def selectionChanged(self):
-		current = self["checkList"].getCurrent()[0]  # what is this supposed to be doing
+		current = self["checkList"].getCurrent()[0]  # noqa: F841  skip doing anything
 
 	def up(self):
 		self["checkList"].up()

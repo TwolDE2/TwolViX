@@ -321,7 +321,7 @@ class WlanScan(Screen):
 
 	def updateAPList(self):
 		newList = []
-		newList = self.getAccessPoints(refresh=True)
+		newList = self.getAccessPoints(refresh=True)  # noqa: F841
 		self.newAPList = []
 		tmpList = []
 		currentListEntry = None

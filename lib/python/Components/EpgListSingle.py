@@ -141,7 +141,7 @@ class EPGListSingle(EPGListBase):
 		if sortType == 1:
 			self.list.sort(key=lambda x: (x[4] and x[4].lower() or '', x[2]))
 		else:
-			assert(sortType == 0)
+			assert(sortType == 0)  # noqa: E275
 			self.list.sort(key=lambda x: x[2])
 
 	def sortEPG(self):

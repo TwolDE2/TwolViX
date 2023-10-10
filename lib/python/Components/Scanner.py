@@ -173,10 +173,10 @@ def scanDevice(mountpoint):
 	scanner = []
 
 	for p in plugins.getPlugins(PluginDescriptor.WHERE_FILESCAN):
-		l = p()
-		if not isinstance(l, list):
-			l = [l]
-		scanner += l
+		scanDev = p()
+		if not isinstance(scanDev, list):
+			scanDev = [scanDev]
+		scanner += scanDev
 	# print("[Scanner][scanDevice] mountpoint ", mountpoint)
 	# print("[Scanner][scanDevice] scanner", scanner)
 
@@ -225,11 +225,11 @@ def openList(session, files):
 	scanner = []
 
 	for p in plugins.getPlugins(PluginDescriptor.WHERE_FILESCAN):
-		l = p()
-		if not isinstance(l, list):
-			scanner.append(l)
+		scanDev = p()
+		if not isinstance(scanDev, list):
+			scanner.append(scanDev)
 		else:
-			scanner += l
+			scanner += scanDev
 
 	print("[Scanner] ", scanner)
 
