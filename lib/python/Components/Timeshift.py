@@ -771,7 +771,7 @@ class InfoBarTimeshift:
 						# Get Event Info from meta file
 						if ospath.exists("%s.ts.meta" % fullname):
 							readmetafile = open("%s.ts.meta" % fullname, "r")
-							servicerefname = readmetafile.readline()[0:-1])  # noqa: F841 local variable 'servicerefname' is assigned to but never used
+							servicerefname = readmetafile.readline()[0:-1]  # noqa: F841 local variable 'servicerefname' is assigned to but never used
 							eventname = readmetafile.readline()[0:-1]
 							readmetafile.close()
 						else:
