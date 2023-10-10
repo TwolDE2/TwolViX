@@ -553,7 +553,7 @@ class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 			if loopthrough_count >= dvbs_slots_len:
 				return False
 			else:
-				return True	
+				return True
 
 		self.slot_dest_list = []
 

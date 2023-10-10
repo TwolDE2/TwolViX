@@ -16,9 +16,9 @@ from Screens.VirtualKeyBoard import VirtualKeyBoard
 class ConfigList(GUIComponent):
 	def __init__(self, list, session=None):
 		GUIComponent.__init__(self)
-		self.l = eListboxPythonConfigContent()
+		self.l = eListboxPythonConfigContent()  # noqa: E741
 		seperation = parameters.get("ConfigListSeperator", applySkinFactor(200))
-		self.l.setSeperation(seperation)  # noqa: E741
+		self.l.setSeperation(seperation)
 		height, space = parameters.get("ConfigListSlider", applySkinFactor(17, 0))
 		self.l.setSlider(height, space)
 		self.timer = eTimer()

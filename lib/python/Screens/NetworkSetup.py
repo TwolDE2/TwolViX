@@ -393,7 +393,7 @@ class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 		self.nameserverEntries = [NoSave(ConfigIP(default=nameserver)) for nameserver in self.nameservers]
 
 	def createSetup(self):
-		self["config"].list = [getConfigListEntry(_("Nameserver %d") % (i+1), x) for i, x in enumerate(self.nameserverEntries)]
+		self["config"].list = [getConfigListEntry(_("Nameserver %d") % (i+1), x) for i, x in enumerate(self.nameserverEntries)]  # noqa: E226
 
 	def keySave(self):
 		iNetwork.clearNameservers()
@@ -898,7 +898,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		else:
 			try:
 				system("ifconfig %s up" % iface)
-				wlanresponse = list(Cell.all(iface))  # what is this? local variable 'wlanresponse' is assigned to but never used
+				wlanresponse = list(Cell.all(iface))  # noqa: F841  call to check setup
 			except IOError as err:
 				error_no, error_str = err.args
 				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):

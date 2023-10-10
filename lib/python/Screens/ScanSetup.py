@@ -1390,7 +1390,7 @@ class ScanSetup(ConfigListScreen, Screen, CableTransponderSearchSupport, Terrest
 				sat = self.satList[index_to_scan][self.scan_satselection[index_to_scan].index]
 				getInitialTransponderList(tlist, sat[0], index_to_scan)
 			elif "multisat" in self.scan_type.value:
-				SatList = nimmanager.getSatListForNim(index_to_scan)
+				# SatList = nimmanager.getSatListForNim(index_to_scan)  # not used variable?
 				for x in self.multiscanlist:
 					if x[1].value:
 						print("[ScanSetup]    " + str(x[0]))

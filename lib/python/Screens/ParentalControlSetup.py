@@ -1,6 +1,6 @@
 from Components.config import config, getConfigListEntry, ConfigNothing, NoSave, configfile
 from Components.ConfigList import ConfigListScreen
-from Screens.ChoiceBox import ChoiceBox
+from Screens.ChoiceBox import ChoiceBox  # noqa: F401
 from Screens.InputBox import PinInput
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen

@@ -317,7 +317,7 @@ class VideoFinetune(Screen):
 		for y in range(0, height, 4):
 			c.fill(offset_x, offset_y + y, width // 2, 2, RGB(255, 255, 255))
 
-		offfset = 0
+		offset = 0
 		fnt = gFont("Regular", height // 14)
 		import math
 		for i in range(1, 15):

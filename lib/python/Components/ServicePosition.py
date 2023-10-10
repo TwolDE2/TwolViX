@@ -58,15 +58,15 @@ class ServicePosition(PerServiceDisplay):
 		if seek is not None:
 			if self.type != self.TYPE_RELATIVE:
 				if self.type == self.TYPE_LENGTH:
-					argument self.get(self.TYPE_LENGTH)
+					argument = self.get(self.TYPE_LENGTH)
 				elif self.type == self.TYPE_POSITION:
-					argument self.get(self.TYPE_POSITION)
+					argument = self.get(self.TYPE_POSITION)
 				elif self.type == self.TYPE_REMAINING:
-					argument self.get(self.TYPE_LENGTH) - self.get(self.TYPE_POSITION)
+					argument = self.get(self.TYPE_LENGTH) - self.get(self.TYPE_POSITION)
 
 				self.setText("%d:%02d" % (argument // 60, argument % 60))
 			else:
-				argument self.get(self.TYPE_POSITION)
+				argument = self.get(self.TYPE_POSITION)
 				if argument!= -1:
 					argument+= self.relative_base
 					try:

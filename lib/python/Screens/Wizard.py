@@ -5,7 +5,7 @@ from enigma import eTimer, eEnv
 
 from boxbranding import getMachineBrand, getMachineName
 from Components.ActionMap import NumberActionMap
-from Components.config import config, ConfigText, ConfigPassword, KEY_LEFT, KEY_RIGHT, KEY_0, KEY_DELETE, KEY_BACKSPACE, KEY_ASCII
+from Components.config import config, ConfigText, ConfigPassword, KEY_LEFT, KEY_RIGHT, KEY_0, KEY_DELETE, KEY_BACKSPACE, KEY_ASCII  # noqa: F401
 from Components.ConfigList import ConfigList
 from Components.Label import Label
 from Components.Slider import Slider

@@ -146,7 +146,7 @@ class OscamInfo:
 							else:
 								ipconfigured = False
 			if not blocked:
-				ret = [user, pwd, port, ipconfigured
+				ret = [user, pwd, port, ipconfigured]
 			# ret = [user, pwd, port, ipconfigured]			# 127.0.0.1 gets 403 in oscam webif so ignore block fix later
 
 		return ret
