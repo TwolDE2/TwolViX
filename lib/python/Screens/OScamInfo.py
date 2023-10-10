@@ -249,7 +249,7 @@ class OscamInfo:
 					# au = client.attrib["au"] if "au" in client.attrib else ""
 					# login = client.find("times").attrib["login"]
 					# online = client.find("times").attrib["online"]
-					port = client.find("connection").attrib["port"]					
+					# port = client.find("connection").attrib["port"]
 					caid = client.find("request").attrib["caid"]
 					srvid = client.find("request").attrib["srvid"]
 					ecmtime = _("n/a")
@@ -258,7 +258,7 @@ class OscamInfo:
 						if ecmtime != "0" or ecmtime != "":
 							ecmtime = str(float(ecmtime) / 1000)[:5]
 					srvname = client.find("request").text
-					srvname_short = _("n/a")					
+					srvname_short = _("n/a")
 					if srvname is not None:
 						srvname_short = srvname.split(":")[1].strip() if ":" in srvname else srvname
 					if proto.lower() == "dvbapi":
@@ -1117,7 +1117,7 @@ class oscReaderStats(Screen, OscamInfo):
 		title2 = ""
 		for i in readers:
 			dataWebif = self.openWebIF(part="readerstats", reader=i[1])
-			emm_wri = emm_ski = emm_blk = emm_err = ""
+			# emm_wri = emm_ski = emm_blk = emm_err = ""
 			if dataWebif[0]:
 				dataReader = ElementTree.XML(dataWebif[1])
 				rdr = dataReader.find("reader")

@@ -402,7 +402,7 @@ class InfoBarTimeshift:
 		ts = self.getTimeshift()
 		if ts and ts.isTimeshiftEnabled():
 			# print("[Timeshift]TEST5")
-			was_enabled = ts.isTimeshiftEnabled()  # "was_enabled" assigned but not used? This code is nonsense.
+			was_enabled = ts.isTimeshiftEnabled()  # noqa: F841 "was_enabled" assigned but not used? This code is nonsense.
 		if answer and ts:
 			# print("[Timeshift]TEST6")
 			if int(config.timeshift.startdelay.value):
@@ -587,9 +587,9 @@ class InfoBarTimeshift:
 					if statinfo.st_mtime < (time() - 5.0):
 						# Get Event Info from meta file
 						readmetafile = open("%s%s.meta" % (config.usage.timeshift_path.value, filename), "r")
-						servicerefname = readmetafile.readline()[0:-1]  # local variable 'servicerefname' is assigned to but never used
+						servicerefname = readmetafile.readline()[0:-1])  # noqa: F841 local variable 'servicerefname' is assigned to but never used
 						eventname = readmetafile.readline()[0:-1]
-						description = readmetafile.readline()[0:-1]  # local variable 'description' is assigned to but never used
+						description = readmetafile.readline()[0:-1])  # noqa: F841 local variable 'description' is assigned to but never used
 						begintime = readmetafile.readline()[0:-1]
 						readmetafile.close()
 
@@ -771,7 +771,7 @@ class InfoBarTimeshift:
 						# Get Event Info from meta file
 						if ospath.exists("%s.ts.meta" % fullname):
 							readmetafile = open("%s.ts.meta" % fullname, "r")
-							servicerefname = readmetafile.readline()[0:-1]  # local variable 'servicerefname' is assigned to but never used
+							servicerefname = readmetafile.readline()[0:-1])  # noqa: F841 local variable 'servicerefname' is assigned to but never used
 							eventname = readmetafile.readline()[0:-1]
 							readmetafile.close()
 						else:
@@ -995,7 +995,7 @@ class InfoBarTimeshift:
 			if fileExists(filename + ".meta", "r"):
 				# Get Event Info from meta file
 				readmetafile = open(filename + ".meta", "r")
-				servicerefname = readmetafile.readline()[0:-1]  # local variable 'servicerefname' is assigned to but never used
+				servicerefname = readmetafile.readline()[0:-1])  # noqa: F841 local variable 'servicerefname' is assigned to but never used
 				eventname = readmetafile.readline()[0:-1]
 				readmetafile.close()
 			else:

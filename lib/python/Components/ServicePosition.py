@@ -67,8 +67,8 @@ class ServicePosition(PerServiceDisplay):
 				self.setText("%d:%02d" % (argument // 60, argument % 60))
 			else:
 				argument = self.get(self.TYPE_POSITION)
-				if argument!= -1:
-					argument+= self.relative_base
+				if argument != -1:
+					argument += self.relative_base
 					try:
 						t = time.localtime(argument)
 						timestr = "%2d:%02d:%02d" % (t.tm_hour, t.tm_min, t.tm_sec)
