@@ -1,6 +1,6 @@
 from boxbranding import getMachineBrand, getMachineName
 from Components.ActionMap import ActionMap
-from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry)  # noqa: F401
+from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry  # noqa: F401
 from Components.ConfigList import ConfigListScreen
 from Components.Sources.Progress import Progress
 from Components.Sources.StaticText import StaticText

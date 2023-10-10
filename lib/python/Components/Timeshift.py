@@ -587,7 +587,7 @@ class InfoBarTimeshift:
 					if statinfo.st_mtime < (time() - 5.0):
 						# Get Event Info from meta file
 						readmetafile = open("%s%s.meta" % (config.usage.timeshift_path.value, filename), "r")
-						servicerefname = readmetafile.readline()[0:-1])  # noqa: F841 local variable 'servicerefname' is assigned to but never used
+						servicerefname = readmetafile.readline()[0:-1]  # noqa: F841 local variable 'servicerefname' is assigned to but never used
 						eventname = readmetafile.readline()[0:-1]
 						description = readmetafile.readline()[0:-1])  # noqa: F841 local variable 'description' is assigned to but never used
 						begintime = readmetafile.readline()[0:-1]
