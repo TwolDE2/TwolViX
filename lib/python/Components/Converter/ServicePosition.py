@@ -2,7 +2,7 @@ from enigma import iPlayableService
 
 from Components.config import config
 from Components.Converter.Converter import Converter
-from Components.Converter.Pollen import Poll
+from Components.Converter.Poll import Poll
 from Components.Element import cached, ElementError
 
 
@@ -51,14 +51,14 @@ class ServicePosition(Poll, Converter):
 		elif type == "VFDSummary":
 			self.type = self.TYPE_VFD_SUMMARY
 		else:
-			raise ElementError("type must be {Length|Position|Remaining|Gauge|Summary} with optionalen arguments {Negate|Detailed|ShowHours|ShowNoSeconds} for ServicePosition converter")
+			raise ElementError("type must be {Length|Position|Remaining|Gauge|Summary} with optional arguments {Negate|Detailed|ShowHours|ShowNoSeconds} for ServicePosition converter")
 
 		if self.detailed:
-			self.poll_intervalen = 100
+			self.poll_interval = 100
 		elif self.type == self.TYPE_LENGTH or self.type == self.TYPE_VFD_LENGTH:
-			self.poll_intervalen = 2000
+			self.poll_interval = 2000
 		else:
-			self.poll_intervalen = 500
+			self.poll_interval = 500
 
 		self.poll_enabled = True
 
@@ -500,7 +500,7 @@ class ServicePosition(Poll, Converter):
 
 	def changed(self, what):
 		cutlist_refresh = what[0] != self.CHANGED_SPECIFIC or what[1] in (iPlayableService.evCuesheetChanged,)
-		time_refresh = what[0] == self.CHANGED_POLlen or what[0] == self.CHANGED_SPECIFIC and what[1] in (iPlayableService.evCuesheetChanged,)
+		time_refresh = what[0] == self.CHANGED_POLL or what[0] == self.CHANGED_SPECIFIC and what[1] in (iPlayableService.evCuesheetChanged,)
 
 		if cutlist_refresh:
 			if self.type == self.TYPE_GAUGE:
