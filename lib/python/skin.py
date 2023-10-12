@@ -235,8 +235,6 @@ def parseCoordinate(s, e, size=0, font=None):
 		# No test on "e" because it's already a variable
 		if "center" in s:
 			center = (e - size) / 2.0  # noqa: F841
-		if "c" in s:
-			c = e / 2.0
 		if "w" in s:
 			s = s.replace("w", "*w")
 			w = float(font in fonts and fonts[font][3] or 0)  # noqa: F841
