@@ -155,12 +155,12 @@ class VIXBackupManager(Screen):
 		</applet>
 	</screen>""",
 		560, 400,  # screen
-		0, 0, 140, 40,  # colors
-		140, 0, 140, 40,
-		280, 0, 140, 40,
-		0, 0, 140, 40, 20,
-		140, 0, 140, 40, 20,
-		280, 0, 140, 40, 20,
+		0, 0, 140, 40,  # red
+		140, 0, 140, 40,  # green
+		280, 0, 140, 40,  # yellow
+		0, 0, 140, 40, 20,  # red 
+		140, 0, 140, 40, 20,  # green
+		280, 0, 140, 40, 20,  # yellow
 		0, 45, 35, 25,  # menu key
 		40, 45, 35, 25,  # info key
 		0, 50, 560, 50, 18,  # lab1
@@ -857,26 +857,23 @@ class BackupSelection(Screen):
 
 
 class XtraPluginsSelection(Screen):
+
 	skin = ["""
 		<screen name="BackupSelection" position="center,center" size="%d,%d">
 			<ePixmap pixmap="skin_default/buttons/red.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
 			<ePixmap pixmap="skin_default/buttons/green.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-			<ePixmap pixmap="skin_default/buttons/yellow.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
 			<widget source="key_red" render="Label" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#9f1313" transparent="1"/>
 			<widget source="key_green" render="Label" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#1f771f" transparent="1"/>
-			<widget source="key_yellow" render="Label" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#a08500" transparent="1"/>
 			<widget name="checkList" position="%d,%d" size="%d,%d" itemHeight="%d" font="Regular;%d" transparent="1" scrollbarMode="showOnDemand"/>
 		</screen>""",
 			560, 400,  # screen
-			0, 0, 140, 40,  # colors
-			140, 0, 140, 40,
-			280, 0, 140, 40,
-			0, 0, 140, 40, 20,
-			140, 0, 140, 40, 20,
-			280, 0, 140, 40, 20,
+			0, 0, 140, 40,  # red
+			140, 0, 140, 40,  # green
+			0, 0, 140, 40, 20,  # red
+			140, 0, 140, 40, 20,  # green
 			5, 50, 550, 250, 25, 19,
 			]  # noqa: E124
-
+			
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.setTitle(_("Select extra packages folder"))
@@ -901,18 +898,18 @@ class XtraPluginsSelection(Screen):
 				"up": self.up,
 				"menu": self.exit,
 			}, -1)
-		if self.selectionChanged not in self["checkList"].onSelectionChanged:
-			self["checkList"].onSelectionChanged.append(self.selectionChanged)
+		# if self.selectionChanged not in self["checkList"].onSelectionChanged:
+		# 		self["checkList"].onSelectionChanged.append(self.selectionChanged)
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
 		idx = 0
 		self["checkList"].moveToIndex(idx)
 		self.setWindowTitle()
-		self.selectionChanged()
+		current = self["checkList"].getCurrent()[0]
 
 	def setWindowTitle(self):
-		self.setTitle(_("Select folder that contains plugins"))
+		self.setTitle(_("Select folder that contains plugins and Save"))
 
 	def selectionChanged(self):
 		current = self["checkList"].getCurrent()[0]  # noqa: F841  skip doing anything
@@ -930,9 +927,11 @@ class XtraPluginsSelection(Screen):
 		self["checkList"].pageDown()
 
 	def saveSelection(self):
-		filelist = str(self.filelist.getFileList())
-		if filelist.find(".ipk") != -1:
-			config.backupmanager.xtraplugindir.setValue(self.filelist.getCurrentDirectory())
+		current = self["checkList"].getCurrent()[0]
+		# print("[BackupManager][saveSelection] current[0] ", current[0])
+		ipkList = FileList(current[0], showDirectories=False, showFiles=True, showMountpoints=False, matchingPattern="^.*.(ipk)")	
+		if ipkList.getFilename() is not None and ".ipk" in ipkList.getFilename():
+			config.backupmanager.xtraplugindir.setValue(current[0])
 			config.backupmanager.xtraplugindir.save()
 			config.backupmanager.save()
 			config.save()
