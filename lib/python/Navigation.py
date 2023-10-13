@@ -9,6 +9,7 @@ from Components.Sources.StreamService import StreamServiceList
 from Components.SystemInfo import SystemInfo
 from Screens.InfoBar import InfoBar
 from Screens.InfoBarGenerics import whitelist
+from ServiceReference import ServiceReference
 from Tools.BoundFunction import boundFunction
 from Tools.StbHardware import getFPWasTimerWakeup
 import NavigationInstance
