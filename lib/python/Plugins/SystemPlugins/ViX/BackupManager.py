@@ -930,7 +930,7 @@ class XtraPluginsSelection(Screen):
 		current = self["checkList"].getCurrent()[0]
 		# print("[BackupManager][saveSelection] current[0] ", current[0])
 		ipkList = FileList(current[0], showDirectories=False, showFiles=True, showMountpoints=False, matchingPattern="^.*.(ipk)")	
-		if ipkList.getFilename() is not None and ".ipk" in ipkList.getFilename():
+		if ipkList.getFilename() is not None:
 			config.backupmanager.xtraplugindir.setValue(current[0])
 			config.backupmanager.xtraplugindir.save()
 			config.backupmanager.save()
