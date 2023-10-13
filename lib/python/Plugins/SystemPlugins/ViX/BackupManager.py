@@ -158,7 +158,7 @@ class VIXBackupManager(Screen):
 		0, 0, 140, 40,  # red
 		140, 0, 140, 40,  # green
 		280, 0, 140, 40,  # yellow
-		0, 0, 140, 40, 20,  # red 
+		0, 0, 140, 40, 20,  # red
 		140, 0, 140, 40, 20,  # green
 		280, 0, 140, 40, 20,  # yellow
 		0, 45, 35, 25,  # menu key
@@ -873,7 +873,7 @@ class XtraPluginsSelection(Screen):
 			140, 0, 140, 40, 20,  # green
 			5, 50, 550, 250, 25, 19,
 			]  # noqa: E124
-			
+
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.setTitle(_("Select extra packages folder"))
@@ -898,21 +898,15 @@ class XtraPluginsSelection(Screen):
 				"up": self.up,
 				"menu": self.exit,
 			}, -1)
-		# if self.selectionChanged not in self["checkList"].onSelectionChanged:
-		# 		self["checkList"].onSelectionChanged.append(self.selectionChanged)
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
 		idx = 0
 		self["checkList"].moveToIndex(idx)
 		self.setWindowTitle()
-		current = self["checkList"].getCurrent()[0]
 
 	def setWindowTitle(self):
-		self.setTitle(_("Select folder that contains plugins and Save"))
-
-	def selectionChanged(self):
-		current = self["checkList"].getCurrent()[0]  # noqa: F841  skip doing anything
+		self.setTitle(_("Select folder containing plugins(.ipk) and Save"))
 
 	def up(self):
 		self["checkList"].up()
@@ -929,7 +923,7 @@ class XtraPluginsSelection(Screen):
 	def saveSelection(self):
 		current = self["checkList"].getCurrent()[0]
 		# print("[BackupManager][saveSelection] current[0] ", current[0])
-		ipkList = FileList(current[0], showDirectories=False, showFiles=True, showMountpoints=False, matchingPattern="^.*.(ipk)")	
+		ipkList = FileList(current[0], showDirectories=False, showFiles=True, showMountpoints=False, matchingPattern="^.*.(ipk)")
 		if ipkList.getFilename() is not None:
 			config.backupmanager.xtraplugindir.setValue(current[0])
 			config.backupmanager.xtraplugindir.save()
@@ -937,7 +931,7 @@ class XtraPluginsSelection(Screen):
 			config.save()
 			self.close(None)
 		else:
-			self.session.open(MessageBox, _("Please enter a folder that contains some packages."), MessageBox.TYPE_INFO, timeout=10)
+			self.session.open(MessageBox, _("Please select folder that contains .ipk packages."), MessageBox.TYPE_INFO, timeout=10)
 
 	def exit(self):
 		self.close(None)
