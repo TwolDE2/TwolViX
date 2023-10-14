@@ -9,7 +9,7 @@ from Components.Sources.StreamService import StreamServiceList
 from Components.SystemInfo import SystemInfo
 from Screens.InfoBar import InfoBar
 from Screens.InfoBarGenerics import streamrelayChecker
-from ServiceReference import ServiceReference
+from ServiceReference import ServiceReference  # noqa: F401
 from Tools.BoundFunction import boundFunction
 from Tools.StbHardware import getFPWasTimerWakeup
 import NavigationInstance
