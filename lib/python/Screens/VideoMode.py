@@ -298,7 +298,7 @@ class AutoVideoMode(Screen):
 		config_mode = str(config.av.videomode[config_port].value).replace("\n", "")
 		config_res = str(config.av.videomode[config_port].value[:-1]).replace("\n", "")
 		config_pol = str(config.av.videomode[config_port].value[-1:]).replace("\n", "")
-		print("[VideoMode][VideoChangeDetect] config.av.videorate[config_mode].value", config.av.videomode[config_port].value)
+		print("[VideoMode][VideoChangeDetect] config_port, config_mode, config_res, config_pol", config_port, "   ", config_mode, "   ", config_res, "   ", config_pol)
 		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 		with open("/proc/stb/video/videomode", "r") as fd:
 			current_mode = fd.read()[:-1].replace("\n", "")
