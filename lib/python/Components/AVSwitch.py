@@ -103,7 +103,7 @@ class AVSwitch:
 	def isModeAvailable(self, port, mode, rate):
 		rateNew = self.rates[mode][rate]
 		for modeNew in rateNew.values():
-			# print("[AVSwitch][isModeAvailable] modeNew", modeNew)		
+			# print("[AVSwitch][isModeAvailable] modeNew", modeNew)
 			if modeNew not in self.readAvailableModes():
 				return False
 		return True

@@ -311,12 +311,12 @@ class AutoVideoMode(Screen):
 			config_mode = str(config.av.videomode[config_port].value).replace("\n", "")
 			config_res = str(config.av.videomode[config_port].value[:-1]).replace("\n", "")
 			config_pol = str(config.av.videomode[config_port].value[-1:]).replace("\n", "")
-			config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")		
+			config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 			print("[VideoMode][VideoChangeDetect] config_port, config_mode, config_res, config_pol, config_rate", config_port, "   ", config_mode, "   ", config_res, "   ", config_pol, "   ", config_rate)
 		except KeyError as e:
-			print("[VideoMode][VideoChangeDetect] config_port Keyerror use current values", e) 		
+			print("[VideoMode][VideoChangeDetect] config_port Keyerror use current values", e)
 			config_mode = current_mode
-			config_res = current_mode
+			config_res = current_res
 			config_rate = current_rate
 			config_pol = current_pol
 		video_height = None
