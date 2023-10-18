@@ -62,7 +62,7 @@ class AVSwitch:
 	if SystemInfo["hasScart"]:
 		modes["Scart"] = ["PAL", "NTSC", "Multi"]
 
-	print("[AVSwitch] Modes-B are %s" % modes)
+	print("[AVSwitch] Modes found are %s" % modes)
 
 	def __init__(self):
 		self.last_modes_preferred = []
@@ -84,13 +84,16 @@ class AVSwitch:
 		return modes.split(" ")
 
 	def readPreferredModes(self):
+		modes = []
 		try:
 			with open("/proc/stb/video/videomode_preferred", "r") as fd:
 				modes = fd.read()[:-1]
 			self.modes_preferred = modes.split(" ")
 		except (IOError, OSError):
 			print("[AVSwitch] reading preferred modes failed, using all modes")
+		if not modes:
 			self.modes_preferred = self.readAvailableModes()
+			print("[AVSwitch] reading preferred modes found null using readAvaiableModes", self.modes_preferred)
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI")  # Must be HDMI.
@@ -98,9 +101,10 @@ class AVSwitch:
 	# Check if a high-level mode with a given rate is available.
 	#
 	def isModeAvailable(self, port, mode, rate):
-		rate = self.rates[mode][rate]
-		for mode in rate.values():
-			if mode not in self.readAvailableModes():
+		rateNew = self.rates[mode][rate]
+		for modeNew in rateNew.values():
+			# print("[AVSwitch][isModeAvailable] modeNew", modeNew)		
+			if modeNew not in self.readAvailableModes():
 				return False
 		return True
 
