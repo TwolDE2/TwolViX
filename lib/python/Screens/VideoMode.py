@@ -292,21 +292,8 @@ class AutoVideoMode(Screen):
 
 	def VideoChangeDetect(self):
 		global resolutionlabel
-		with open("/proc/stb/video/videomode", "r") as fd:
-			current_mode = fd.read()[:-1].replace("\n", "")
-		# print("[VideoMode][VideoChangeDetect] current_mode is/proc/stb/video/videomode", current_mode)
-		if current_mode.upper() in ("PAL", "NTSC"):
-			current_mode = current_mode.upper()
-		current_pol = ""
-		if "i" in current_mode:
-			current_pol = "i"
-		elif "p" in current_mode:
-			current_pol = "p"
-		current_res = current_pol and current_mode.split(current_pol)[0].replace("\n", "") or ""
-		current_rate = current_pol and current_mode.split(current_pol)[0].replace("\n", "") and current_mode.split(current_pol)[1].replace("\n", "") or ""
 		config_port = config.av.videoport.value
-		# print("[VideoMode][VideoChangeDetect] config.av.videomode[config_port].value", config.av.videomode[config_port].value)
-		# print("[VideoMode][VideoChangeDetect] config_port", config_port)
+		print("[VideoMode][VideoChangeDetect] config.av.videomode keys", list(config.av.videomode.keys()))
 		try:
 			config_mode = str(config.av.videomode[config_port].value).replace("\n", "")
 			config_res = str(config.av.videomode[config_port].value[:-1]).replace("\n", "")
@@ -315,10 +302,9 @@ class AutoVideoMode(Screen):
 			print("[VideoMode][VideoChangeDetect] config_port, config_mode, config_res, config_pol, config_rate", config_port, "   ", config_mode, "   ", config_res, "   ", config_pol, "   ", config_rate)
 		except KeyError as e:
 			print("[VideoMode][VideoChangeDetect] config_port Keyerror use current values", e)
-			config_mode = current_mode
-			config_res = current_res
-			config_rate = current_rate
-			config_pol = current_pol
+			self.delay = False
+			self.detecttimer.stop()
+			return
 		video_height = None
 		video_width = None
 		video_pol = None
