@@ -305,6 +305,10 @@ class AutoVideoMode(Screen):
 			self.delay = False
 			self.detecttimer.stop()
 			return
+		with open("/proc/stb/video/videomode", "r") as fd:
+			current_mode = fd.read()[:-1].replace("\n", "")
+		if current_mode.upper() in ("PAL", "NTSC"):
+			current_mode = current_mode.upper()
 		video_height = None
 		video_width = None
 		video_pol = None
