@@ -161,7 +161,7 @@ class ChoiceBox(Screen):
 		self["list"].instance.resize(enigma.eSize(*listsize))
 		self["list"].instance.move(enigma.ePoint(margin, listPos))
 
-		wsizex = margin*2 + width
+		wsizex = margin * 2 + width
 		wsizey = listPos + (count * itemheight) + margin
 		wsize = (wsizex, wsizey)
 		self.instance.resize(enigma.eSize(*wsize))
