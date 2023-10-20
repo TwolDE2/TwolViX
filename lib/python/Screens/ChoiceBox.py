@@ -141,15 +141,10 @@ class ChoiceBox(Screen):
 		desktop_h = enigma.getDesktop(0).size().height()
 		itemheight = self["list"].getItemHeight()
 		textsize = (0, 0)
-<<<<<<< HEAD
-		if self["text"].text and textsize[0] < textsize[1]:
-			textsize = (textsize[1], textsize[0] + 10)
-=======
 		if self["text"].text:
 			textsize = self["text"].getSize()
 			if textsize[0] < textsize[1]:
 				textsize = (textsize[1], textsize[0] + 10)
->>>>>>> efd79ee... [ChoiceBox] fix error on line 143, previously getSize was not read
 		listLen = len(self.list)
 		listMaxItems = int((desktop_h * 0.8 - textsize[1]) // itemheight)
 		scrollbar = self["list"].instance.getScrollbarWidth() + 5 if listLen > listMaxItems else 0
