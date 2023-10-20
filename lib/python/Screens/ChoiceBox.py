@@ -142,7 +142,7 @@ class ChoiceBox(Screen):
 		itemheight = self["list"].getItemHeight()
 		textsize = (0, 0)
 		if self["text"].text and textsize[0] < textsize[1]:
-				textsize = (textsize[1], textsize[0] + 10)
+			textsize = (textsize[1], textsize[0] + 10)
 		listLen = len(self.list)
 		listMaxItems = int((desktop_h * 0.8 - textsize[1]) // itemheight)
 		scrollbar = self["list"].instance.getScrollbarWidth() + 5 if listLen > listMaxItems else 0
