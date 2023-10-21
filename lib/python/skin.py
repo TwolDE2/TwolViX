@@ -1368,6 +1368,7 @@ def readSkin(screen, skin, names, desktop):
 	}
 
 	try:
+		# I don't need to see information on all skins processed
 		# msg = " from list '%s'" % ", ".join(names) if len(names) > 1 else ""
 		# posX = "?" if context.x is None else str(context.x)
 		# posY = "?" if context.y is None else str(context.y)
