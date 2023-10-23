@@ -56,7 +56,7 @@ class InputDeviceSelection(Screen, HelpableScreen):
 		if type is None:
 			devicepng = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/input_rcold-configured.png"))
 		elif type == 'remote':
-			if config.misc.rcused.value == 1:
+			if config.misc.rcused.value == 1:  # default is 1
 				if enabled:
 					devicepng = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/input_rcold-configured.png"))
 				else:
