@@ -117,7 +117,7 @@ class OscamInfo:
 
 		# Assume that oscam webif is NOT blocking localhost, IPv6 is also configured if it is compiled in,
 		# and no user and password are required
-		# blocked = False
+		blocked = False
 		ipconfigured = ipcompiled
 		user = pwd = None
 
