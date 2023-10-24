@@ -431,42 +431,39 @@ class JobManager:
 		list += self.active_jobs
 		return list
 
-
-'''
-	some examples:
-	class PartitionExistsPostcondition:
-	def __init__(self, device):
-		self.device = device
-
-	def check(self, task):
-		return access(self.device + "part1", F_OK)
-
-	class CreatePartitionTask(Task):
-	def __init__(self, device):
-		Task.__init__(self, "Creating partition")
-		self.device = device
-		self.setTool("/sbin/sfdisk")
-		self.args += ["-f", self.device + "disc"]
-		self.initial_input = "0,\n;\n;\n;\ny\n"
-		self.postconditions.append(PartitionExistsPostcondition(self.device))
-
-	class CreateFilesystemTask(Task):
-	def __init__(self, device, partition = 1, largefile = True):
-		Task.__init__(self, "Creating filesystem")
-		self.setTool("/sbin/mkfs.ext")
-		if largefile:
-			self.args += ["-T", "largefile"]
-		self.args.append("-m0")
-		self.args.append(device + "part%d" % partition)
-
-	class FilesystemMountTask(Task):
-	def __init__(self, device, partition = 1, filesystem = "ext3"):
-		Task.__init__(self, "Mounting filesystem")
-		self.setTool("/bin/mount")
-		if filesystem is not None:
-			self.args += ["-t", filesystem]
-		self.args.append(device + "part%d" % partition)
-'''
+# some examples:
+# class PartitionExistsPostcondition:
+# 		def __init__(self, device):
+# 			self.device = device
+# 	
+# 		def check(self, task):
+# 			return access(self.device + "part1", F_OK)
+# 
+# class CreatePartitionTask(Task):
+# 		def __init__(self, device):
+# 			Task.__init__(self, "Creating partition")
+# 			self.device = device
+# 			self.setTool("/sbin/sfdisk")
+# 			self.args += ["-f", self.device + "disc"]
+# 			self.initial_input = "0,\n;\n;\n;\ny\n"
+# 			self.postconditions.append(PartitionExistsPostcondition(self.device))
+# 
+# class CreateFilesystemTask(Task):
+# 		def __init__(self, device, partition = 1, largefile = True):
+# 			Task.__init__(self, "Creating filesystem")
+# 			self.setTool("/sbin/mkfs.ext")
+# 			if largefile:
+# 				self.args += ["-T", "largefile"]
+# 			self.args.append("-m0")
+# 			self.args.append(device + "part%d" % partition)
+# 
+# class FilesystemMountTask(Task):
+# 		def __init__(self, device, partition = 1, filesystem = "ext3"):
+# 			Task.__init__(self, "Mounting filesystem")
+# 			self.setTool("/bin/mount")
+# 			if filesystem is not None:
+# 				self.args += ["-t", filesystem]
+# 			self.args.append(device + "part%d" % partition)
 
 
 class Condition:
