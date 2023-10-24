@@ -255,8 +255,11 @@ class OscamInfo:
 					ecmtime = _("n/a")
 					if "ecmtime" in client.find("request").attrib:
 						ecmtime = client.find("request").attrib["ecmtime"]
-						if ecmtime != "0" or ecmtime != "":
+						# print("[OscamInfo][readXML] ecmtime", ecmtime)
+						try:
 							ecmtime = str(float(ecmtime) / 1000)[:5]
+						except ValueError:
+							ecmtime = _("n/a")
 					srvname = client.find("request").text
 					srvname_short = _("n/a")
 					if srvname is not None:
@@ -1131,9 +1134,9 @@ class oscReaderStats(Screen, OscamInfo):
 				# 	emm_err = emms.attrib["totalerror"]
 
 				ecmstat = rdr.find("ecmstats")
-				# totalecm = ecmstat.attrib["totalecm"]
+				totalecm = ecmstat.attrib["totalecm"]
 				ecmcount = ecmstat.attrib["count"] and int(ecmstat.attrib["count"]) or 0
-				# lastacc = ecmstat.attrib["lastaccess"]
+				lastacc = ecmstat.attrib["lastaccess"]
 				ecm = ecmstat.findall("ecm")
 				if ecmcount > 0:
 					for j in ecm:
@@ -1141,7 +1144,7 @@ class oscReaderStats(Screen, OscamInfo):
 						channel = j.attrib["channelname"]
 						avgtime = j.attrib["avgtime"]
 						lasttime = j.attrib["lasttime"]
-						# retcode = j.attrib["rc"]
+						retcode = j.attrib["rc"]
 						rcs = j.attrib["rcs"]
 						num = j.text
 						if rcs == "found":

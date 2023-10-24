@@ -302,7 +302,7 @@ class TryQuitMainloop(MessageBox):
 	def sendCEC(self):
 		print("[Standby][sendCEC] entered ")
 		import struct
-		from enigma import eHdmiCEC
+		from enigma import eHdmiCEC  # noqa: E402
 		physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
 		msgaddress = 0x0f  # use broadcast for active source command
 		cmd0 = 0x9d  # 157 sourceinactive
