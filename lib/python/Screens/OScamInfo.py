@@ -143,7 +143,7 @@ class OscamInfo:
 							if "::1" in allowed or "127.0.0.1" in allowed or "0.0.0.0-255.255.255.255" in allowed:
 								# ... until we find either 127.0.0.1 or ::1 in allowed list
 								blocked = False
-							else:
+							if "::1" not in allowed:
 								ipconfigured = False
 			if not blocked:
 				ret = [user, pwd, port, ipconfigured]
@@ -368,9 +368,8 @@ class OscamInfo:
 			status = dataXML.find("status")
 			clients = status.findall("client")
 			for client in clients:
-				if "type" in client.attrib:
-					if client.attrib["type"] == "c":
-						clientnames.append((client.attrib["name"], client.attrib["name"]))  # return tuple for later use in Choicebox
+				if "type" in client.attrib and client.attrib["type"] == "c":
+					clientnames.append((client.attrib["name"], client.attrib["name"]))  # return tuple for later use in Choicebox
 			return clientnames
 		else:
 			return None
