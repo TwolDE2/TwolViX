@@ -360,7 +360,7 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 			self.session.open(MessageBox, _("Finished configuring your network"), type=MessageBox.TYPE_INFO, timeout=10, default=False)
 
 	def openNetworkWizard(self):
-		if networkWizard and  XML_networkWizard:
+		if networkWizard and XML_networkWizard:
 			selection = self["list"].getCurrent()
 			if selection is not None:
 				self.session.openWithCallback(self.AdapterSetupClosed, NetworkWizard, selection[0])
