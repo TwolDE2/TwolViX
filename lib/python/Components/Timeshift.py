@@ -808,13 +808,13 @@ class InfoBarTimeshift:
 				statinfo = osstat("%s%s" % (config.usage.timeshift_path.value, filename))  # if no write for 3 sec = stranded timeshift
 				if statinfo.st_mtime < (time() - 3.0):
 					# try:
-					# print("[Timeshift][TimeShift] Erasing stranded timeshift %s" % filename)
+					# 	print("[Timeshift][TimeShift] Erasing stranded timeshift %s" % filename)
 					self.BgFileEraser.erase("%s%s" % (config.usage.timeshift_path.value, filename))
 
-					# Delete Meta and EIT File too
-					# if filename.startswith("pts_livebuffer_") is True:
-					# 	self.BgFileEraser.erase("%s%s.meta" % (config.usage.timeshift_path.value, filename))
-					# 	self.BgFileEraser.erase("%s%s.eit" % (config.usage.timeshift_path.value, filename))
+					# 	Delete Meta and EIT File too
+					# 	if filename.startswith("pts_livebuffer_") is True:
+					# 		self.BgFileEraser.erase("%s%s.meta" % (config.usage.timeshift_path.value, filename))
+					# 		self.BgFileEraser.erase("%s%s.eit" % (config.usage.timeshift_path.value, filename))
 					# except:
 					# 	print("[Timeshift][TimeShift] IO-Error while cleaning Timeshift Folder ...")
 
