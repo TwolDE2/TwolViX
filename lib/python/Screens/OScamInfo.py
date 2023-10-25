@@ -137,7 +137,7 @@ class OscamInfo:
 						elif "httpport" in i.lower():
 							port = i.split("=")[1].strip()
 						elif "httpallowed" in i.lower():
-							# Once we encounter a httpallowed statement, we have to assume oscam/ncam webif is blocking us ...
+							# Once we encounter a httpallowed statement, we have to assume oscam/ncam webif is blocking us 
 							blocked = True
 							allowed = i.split("=")[1].strip()
 							if "::1" in allowed or "127.0.0.1" in allowed or "0.0.0.0-255.255.255.255" in allowed:
@@ -147,8 +147,6 @@ class OscamInfo:
 								ipconfigured = False
 			if not blocked:
 				ret = [user, pwd, port, ipconfigured]
-			# ret = [user, pwd, port, ipconfigured]			# 127.0.0.1 gets 403 in oscam webif so ignore block fix later
-
 		return ret
 
 	def openWebIF(self, part=None, reader=None):
@@ -1134,9 +1132,9 @@ class oscReaderStats(Screen, OscamInfo):
 				# 	emm_err = emms.attrib["totalerror"]
 
 				ecmstat = rdr.find("ecmstats")
-				totalecm = ecmstat.attrib["totalecm"]
+				# totalecm = ecmstat.attrib["totalecm"]
 				ecmcount = ecmstat.attrib["count"] and int(ecmstat.attrib["count"]) or 0
-				lastacc = ecmstat.attrib["lastaccess"]
+				# lastacc = ecmstat.attrib["lastaccess"]
 				ecm = ecmstat.findall("ecm")
 				if ecmcount > 0:
 					for j in ecm:
@@ -1144,7 +1142,7 @@ class oscReaderStats(Screen, OscamInfo):
 						channel = j.attrib["channelname"]
 						avgtime = j.attrib["avgtime"]
 						lasttime = j.attrib["lasttime"]
-						retcode = j.attrib["rc"]
+						# retcode = j.attrib["rc"]
 						rcs = j.attrib["rcs"]
 						num = j.text
 						if rcs == "found":
