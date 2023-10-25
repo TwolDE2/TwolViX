@@ -435,10 +435,10 @@ class JobManager:
 # class PartitionExistsPostcondition:
 # 		def __init__(self, device):
 # 			self.device = device
-# 	
+#
 # 		def check(self, task):
 # 			return access(self.device + "part1", F_OK)
-# 
+#
 # class CreatePartitionTask(Task):
 # 		def __init__(self, device):
 # 			Task.__init__(self, "Creating partition")
@@ -447,7 +447,7 @@ class JobManager:
 # 			self.args += ["-f", self.device + "disc"]
 # 			self.initial_input = "0,\n;\n;\n;\ny\n"
 # 			self.postconditions.append(PartitionExistsPostcondition(self.device))
-# 
+#
 # class CreateFilesystemTask(Task):
 # 		def __init__(self, device, partition = 1, largefile = True):
 # 			Task.__init__(self, "Creating filesystem")
@@ -456,7 +456,7 @@ class JobManager:
 # 				self.args += ["-T", "largefile"]
 # 			self.args.append("-m0")
 # 			self.args.append(device + "part%d" % partition)
-# 
+#
 # class FilesystemMountTask(Task):
 # 		def __init__(self, device, partition = 1, filesystem = "ext3"):
 # 			Task.__init__(self, "Mounting filesystem")
