@@ -137,12 +137,12 @@ class OscamInfo:
 						elif "httpport" in i.lower():
 							port = i.split("=")[1].strip()
 						elif "httpallowed" in i.lower():
-							# Once we encounter a httpallowed statement, we have to assume oscam/ncam webif is blocking us 
+							# Once we encounter a httpallowed statement, we have to assume oscam/ncam webif is blocking us
 							blocked = True
 							allowed = i.split("=")[1].strip()
 							if "::1" in allowed or "127.0.0.1" in allowed or "0.0.0.0-255.255.255.255" in allowed:
 								# ... until we find either 127.0.0.1 or ::1 in allowed list
-								blocked = False
+								blocked = False  # noqa: F841
 							if "::1" not in allowed:
 								ipconfigured = False
 			if not blocked:
