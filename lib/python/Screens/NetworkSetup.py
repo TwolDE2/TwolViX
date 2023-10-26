@@ -647,7 +647,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 						self.extended = callFnc
 						if "configStrings" in p.fnc:
 							self.configStrings = p.fnc["configStrings"]
-
 						isExistBcmWifi = os_path.exists("/tmp/bcm/" + self.iface)
 						if not isExistBcmWifi:
 							self.hiddenSSID = getConfigListEntry(_("Hidden network"), config.plugins.wlan.hiddenessid)
@@ -689,7 +688,7 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 			if self.activateInterfaceEntry.value:
 				self.session.openWithCallback(self.keySaveConfirm, MessageBox, (_("Are you sure you want to activate this network configuration?\n\n") + self.oktext))
 			else:
-				self.session.openWithCallback(self.keySaveConfirm, MessageBox, (_("Are you sure you want to disable this network configuration?\n\n") + self.oktext))				
+				self.session.openWithCallback(self.keySaveConfirm, MessageBox, (_("Are you sure you want to disable this network configuration?\n\n") + self.oktext))
 		else:
 			self.close("cancel")
 		config.network.save()
@@ -776,9 +775,8 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 				self.session.openWithCallback(self.ConfigfinishedCB, MessageBox, _("Your network configuration has been activated."), type=MessageBox.TYPE_INFO, timeout=10)
 
 	def ConfigfinishedCB(self, data):
-		if data is not None:
-			if data is True:
-				self.close("ok")
+		if data is not None and data:
+			self.close('ok')
 
 	def keyCancelConfirm(self, result):
 		if not result:
