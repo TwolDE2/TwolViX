@@ -503,7 +503,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 
 		self.extended = None
 		self.applyConfigRef = None
-		self.finished_cb = None
 		self.oktext = _("Press OK on your remote control to continue.")
 		self.oldInterfaceState = iNetwork.getAdapterAttribute(self.iface, "up")
 
@@ -536,7 +535,7 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 
 		self["Adaptertext"] = StaticText(_("Network:"))
 		self["Adapter"] = StaticText()
-		self["introduction2"] = StaticText(_("Press OK to activate the settings."))
+		self["introduction2"] = StaticText(_("Enter adapter settings or disable adapter, then Save to action changed setup."))
 		self["key_blue"] = StaticText(_("Edit DNS"))
 
 	def layoutFinished(self):
@@ -686,12 +685,13 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 	def keySave(self):
 		self.hideInputHelp()
 		if self["config"].isChanged():
-			self.session.openWithCallback(self.keySaveConfirm, MessageBox, (_("Are you sure you want to activate this network configuration?\n\n") + self.oktext))
-		else:
-			if self.finished_cb:
-				self.finished_cb()
+			print("[NetworkSetup][AdapterSetup][keySave] interface value", self.activateInterfaceEntry.value)
+			if self.activateInterfaceEntry.value:
+				self.session.openWithCallback(self.keySaveConfirm, MessageBox, (_("Are you sure you want to activate this network configuration?\n\n") + self.oktext))
 			else:
-				self.close("cancel")
+				self.session.openWithCallback(self.keySaveConfirm, MessageBox, (_("Are you sure you want to disable this network configuration?\n\n") + self.oktext))				
+		else:
+			self.close("cancel")
 		config.network.save()
 
 	def keySaveConfirm(self, ret=False):
@@ -741,7 +741,7 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 			if self.activateInterfaceEntry.value is False:
 				iNetwork.deactivateInterface(self.iface, self.deactivateInterfaceCB)
 				iNetwork.writeNetworkConfig()
-				self.applyConfigRef = self.session.openWithCallback(self.applyConfigfinishedCB, MessageBox, _("Please wait while your network configuration is activated..."), type=MessageBox.TYPE_INFO, enable_input=False)
+				self.applyConfigRef = self.session.openWithCallback(self.applyConfigfinishedCB, MessageBox, _("Please wait while your network configuration is deactivated..."), type=MessageBox.TYPE_INFO, enable_input=False)
 			else:
 				if self.oldInterfaceState is False:
 					iNetwork.activateInterface(self.iface, self.deactivateInterfaceCB)
@@ -770,8 +770,8 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 
 	def applyConfigfinishedCB(self, data):
 		if data is True:
-			if self.finished_cb:
-				self.session.openWithCallback(lambda x: self.finished_cb(), MessageBox, _("Your network configuration has been activated."), type=MessageBox.TYPE_INFO, timeout=10)
+			if self.activateInterfaceEntry.value is False:
+				self.session.openWithCallback(self.ConfigfinishedCB, MessageBox, _("Your network configuration has been disabled."), type=MessageBox.TYPE_INFO, timeout=10)
 			else:
 				self.session.openWithCallback(self.ConfigfinishedCB, MessageBox, _("Your network configuration has been activated."), type=MessageBox.TYPE_INFO, timeout=10)
 
@@ -799,10 +799,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 		if data is not None:
 			if data is True:
 				self.close("cancel")
-
-	def runAsync(self, finished_cb):
-		self.finished_cb = finished_cb
-		self.keySave()
 
 	def NameserverSetupClosed(self, *ret):
 		iNetwork.loadNameserverConfig()
