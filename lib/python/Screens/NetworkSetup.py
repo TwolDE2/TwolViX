@@ -430,7 +430,7 @@ class NetworkMacSetup(ConfigListScreen, HelpableScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
-		# print("[NetworkSetup][NetworkMacSetup]")		
+		# print("[NetworkSetup][NetworkMacSetup]")
 		self.skinName = ["NetworkMacSetup", "Setup"]
 		self.setTitle(_("MAC Address Settings"))
 		ifacex = "wlan0"
