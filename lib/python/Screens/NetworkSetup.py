@@ -169,7 +169,7 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
 		self.setTitle(_("Device"))
-
+		# print("[NetworkSetup][NetworkAdapterSelection]")
 		self.wlan_errortext = _("No working wireless network adapter found.\nPlease verify that you have attached a compatible WLAN device and your network is configured correctly.")
 		self.lan_errortext = _("No working local network adapter found.\nPlease verify that you have attached a network cable and your network is configured correctly.")
 		self.oktext = _("Press OK on your remote control to continue.")
@@ -275,7 +275,6 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 	def updateList(self):
 		self.list = []
 		default_gw = None
-		iNetwork.getInterfaces()		
 		num_configured_if = len(iNetwork.getConfiguredAdapters())
 		if num_configured_if >= 2:
 			self["key_yellow"].setText(_("Default"))
@@ -376,7 +375,7 @@ class NameserverSetup(ConfigListScreen, HelpableScreen, Screen):
 		self.setTitle(_("Nameserver Settings"))
 		self.skinName = ["NameserverSetup", "Setup"]
 		self.backupNameserverList = iNetwork.getNameserverList()[:]
-		print("[NameserverSetup] backup-list:%s" % self.backupNameserverList)
+		# print("[NetworkSetup][NameserverSetup] backup-list:%s" % self.backupNameserverList)
 		self["key_yellow"] = StaticText(_("Add"))
 		self["key_blue"] = StaticText(_("Delete"))
 
@@ -431,6 +430,7 @@ class NetworkMacSetup(ConfigListScreen, HelpableScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
+		# print("[NetworkSetup][NetworkMacSetup]")		
 		self.skinName = ["NetworkMacSetup", "Setup"]
 		self.setTitle(_("MAC Address Settings"))
 		ifacex = "wlan0"
@@ -492,7 +492,7 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 	def __init__(self, session, networkinfo=None, essid=None):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
-
+		# print("[NetworkSetup][AdapterSetup] ")
 		if isinstance(networkinfo, (list, tuple)):
 			self.iface = networkinfo[0]
 			self.essid = networkinfo[1]
@@ -504,6 +504,7 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 
 		self.extended = None
 		self.applyConfigRef = None
+		self.finished_cb = None  # switch used by Wizard/NetworkWizard to control Wizard process
 		self.oktext = _("Press OK on your remote control to continue.")
 		self.oldInterfaceState = iNetwork.getAdapterAttribute(self.iface, "up")
 
@@ -685,13 +686,17 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 	def keySave(self):
 		self.hideInputHelp()
 		if self["config"].isChanged():
-			print("[NetworkSetup][AdapterSetup][keySave] interface value", self.activateInterfaceEntry.value)
+			# print("[NetworkSetup][AdapterSetup][keySave] interface value", self.activateInterfaceEntry.value)
 			if self.activateInterfaceEntry.value:
 				self.session.openWithCallback(self.keySaveConfirm, MessageBox, (_("Are you sure you want to activate this network configuration?\n\n") + self.oktext))
 			else:
 				self.session.openWithCallback(self.keySaveConfirm, MessageBox, (_("Are you sure you want to disable this network configuration?\n\n") + self.oktext))
 		else:
-			self.close("cancel")
+			if self.finished_cb:
+				self.finished_cb()
+			else:
+				self.close("cancel")
+		print("[NetworkSetup][AdapterSetup][keySave3] network.save()")
 		config.network.save()
 
 	def keySaveConfirm(self, ret=False):
@@ -733,7 +738,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 				iNetwork.setAdapterAttribute(self.iface, "gateway", self.gatewayConfigEntry.value)
 			else:
 				iNetwork.removeAdapterAttribute(self.iface, "gateway")
-
 			if self.extended is not None and self.configStrings is not None:
 				iNetwork.setAdapterAttribute(self.iface, "configStrings", self.configStrings(self.iface))
 				self.ws.writeConfig(self.iface)
@@ -770,7 +774,9 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 
 	def applyConfigfinishedCB(self, data):
 		if data is True:
-			if self.activateInterfaceEntry.value is False:
+			if self.finished_cb:  # switch set by Wizard/NetworkWizard to control return to wizard
+				self.session.openWithCallback(lambda x: self.finished_cb(), MessageBox, _("Your network configuration has been activated."), type=MessageBox.TYPE_INFO, timeout=10)
+			elif self.activateInterfaceEntry.value is False:  # if not wizard check for disable/enable Adapter
 				self.session.openWithCallback(self.ConfigfinishedCB, MessageBox, _("Your network configuration has been disabled."), type=MessageBox.TYPE_INFO, timeout=10)
 			else:
 				self.session.openWithCallback(self.ConfigfinishedCB, MessageBox, _("Your network configuration has been activated."), type=MessageBox.TYPE_INFO, timeout=10)
@@ -795,9 +801,13 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 			self.close("cancel")
 
 	def keyCancelCB(self, data):
-		if data is not None:
-			if data is True:
-				self.close("cancel")
+		if data is not None and data:
+			self.close("cancel")
+
+	def runAsync(self, finished_cb):  # Async used by Wizard/NetworkWizard to control Wizard code flow
+		# print("[NetworkSetup][AdapterSetup][runAsync1] finished_cb", finished_cb)
+		self.finished_cb = finished_cb
+		self.keySave()
 
 	def NameserverSetupClosed(self, *ret):
 		iNetwork.loadNameserverConfig()
