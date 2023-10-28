@@ -20,7 +20,7 @@ config.misc.restorewizardrun = ConfigBoolean(default=False)
 
 if fileExists("/usr/bin/kernel_auto.bin") and fileExists("/usr/bin/STARTUP.cpio.gz") and not fileHas("/proc/cmdline", "kexec=1") and config.misc.firstrun.value:
 	config.misc.Vuwizardenabled.value = True
-config.misc.networkenabled_negative = !config.misc.networkenabled	
+config.misc.networkenabled_negative = not config.misc.networkenabled	
 print("[StartWizard][import] import.......")
 
 
