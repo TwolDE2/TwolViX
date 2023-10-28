@@ -47,7 +47,6 @@ class VideoWizard(WizardLanguage, Rc):
 		</screen>"""
 
 	def __init__(self, session):
-		# FIXME anyone knows how to use relative paths from the plugin's directory?
 		self.xmlfile = resolveFilename(SCOPE_SKIN, "videowizard.xml")
 		self.hw = iAV		# needed by VideoWizard.xml do not change
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
