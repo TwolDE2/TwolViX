@@ -41,7 +41,7 @@ class NetworkWizard(WizardLanguage, Rc):
 		</screen>"""
 
 	def __init__(self, session, interface=None):
-		self.xmlfile = resolveFilename(SCOPE_SKIN, "networkwizard.xml"		
+		self.xmlfile = resolveFilename(SCOPE_SKIN, "networkwizard.xml")
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
 		Rc.__init__(self)
 		self.session = session
