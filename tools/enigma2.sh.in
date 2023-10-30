@@ -335,11 +335,6 @@ case $ret in
 	3)
 		rm -f /tmp/.listen.camd.socket.ignore
 		;;
-	4)
-		/sbin/modprobe -r lcd fp
-		/sbin/modprobe fp
-		/sbin/reboot
-		;;
 	12)
 		if [ -e /dev/block/by-name/bootoptions ]; then
 			mkdir -p /tmp/bootoptions
