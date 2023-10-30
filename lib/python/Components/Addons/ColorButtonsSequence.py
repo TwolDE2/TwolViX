@@ -1,6 +1,6 @@
 from Components.Addons.GUIAddon import GUIAddon
 
-from enigma import eLabel, eListbox, eListboxPythonMultiContent, BT_ALIGN_CENTER, BT_VALIGN_CENTER, RT_VALIGN_CENTER, RT_HALIGN_LEFT, eSize, getDesktop, gFont
+from enigma import eListbox, eListboxPythonMultiContent, BT_ALIGN_CENTER, RT_VALIGN_CENTER, RT_HALIGN_LEFT, eSize, getDesktop, gFont
 
 from skin import parseScale, parseColor, parseFont, applySkinFactor
 
@@ -50,7 +50,7 @@ class ColorButtonsSequence(GUIAddon):
 		height = self.instance.size().height()
 		xPos = width if self.alignment == "right" else 0
 		yPos = 0
-		sectorWidth = width // len(sequence)
+		# sectorWidth = width // len(sequence)
 		minSectorWidth = width // 4
 
 		res = [None]
@@ -65,7 +65,7 @@ class ColorButtonsSequence(GUIAddon):
 				if pic:
 					pixd_size = pic.size()
 					pixd_width = pixd_size.width()
-					pixd_height = pixd_size.height()
+					# pixd_height = pixd_size.height()
 					pic_x_pos = (xPos - pixd_width) if self.alignment == "right" else xPos
 					res.append(MultiContentEntryPixmapAlphaBlend(
 						pos=(pic_x_pos, yPos),
