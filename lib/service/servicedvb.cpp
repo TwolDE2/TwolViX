@@ -480,7 +480,7 @@ RESULT eStaticServiceDVBPVRInformation::getEvent(const eServiceReference &ref, e
 {
 	if (!ref.path.empty())
 	{
-		if (ref.path.find("://") != std::string::npos  && ref.path.find("://127") == std::string::npos")
+		if (ref.path.find("://") != std::string::npos  && ref.path.find("://127") == std::string::npos)
 		{
 			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]1 ref.path.find %d", ref.path);		
 			eServiceReference equivalentref(ref);
@@ -941,7 +941,7 @@ RESULT eServiceFactoryDVB::play(const eServiceReference &ref, ePtr<iPlayableServ
 RESULT eServiceFactoryDVB::record(const eServiceReference &ref, ePtr<iRecordableService> &ptr)
 {
 	eDebug("[servicedvb][eStaticServiceDVBInformation][record] ref.path.find %d", ref.path);
-	bool isstream = ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos";
+	bool isstream = ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos;
 	ptr = new eDVBServiceRecord((eServiceReferenceDVB&)ref, isstream);
 	return 0;
 }
@@ -1033,7 +1033,7 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_have_video_pid(0),
 	m_tune_state(-1),
 	m_noaudio(false),
-	m_is_stream(ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos"),
+	m_is_stream(ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos),
 	m_is_pvr(!ref.path.empty() && !m_is_stream),
 	m_is_paused(0),
 	m_timeshift_enabled(0),
