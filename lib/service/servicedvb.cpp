@@ -482,7 +482,7 @@ RESULT eStaticServiceDVBPVRInformation::getEvent(const eServiceReference &ref, e
 	{
 		if (ref.path.find("://") != std::string::npos  && ref.path.find("://127") == std::string::npos)
 		{
-			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]1 found :// but not ://127 %s", ref.path.c_str();		
+			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]1 found :// but not ://127 %s", ref.path.c_str());		
 			eServiceReference equivalentref(ref);
 			/* this might be a scrambled stream (id + 0x100), force equivalent dvb type */
 			equivalentref.type = eServiceFactoryDVB::id;
