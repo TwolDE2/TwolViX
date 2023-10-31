@@ -52,13 +52,13 @@ void eStreamClient::start()
 void eStreamClient::set_socket_option(int fd, int optid, int option)
 {
 	if(::setsockopt(fd, SOL_SOCKET, optid, &option, sizeof(option)))
-		eDebug("Failed to set socket option: %m");
+		eDebug("[streamserver][StreamClient] Failed to set socket option: %m");
 }
 
 void eStreamClient::set_tcp_option(int fd, int optid, int option)
 {
 	if(::setsockopt(fd, SOL_TCP, optid, &option, sizeof(option)))
-		eDebug("Failed to set TCP parameter: %m");
+		eDebug("[streamserver][StreamClient] Failed to set TCP parameter: %m");
 }
 
 void eStreamClient::notifier(int what)
@@ -165,7 +165,7 @@ void eStreamClient::notifier(int what)
 				pos = serviceref.find('?');
 				if (pos == std::string::npos)
 				{
-					eDebug("[eDVBServiceStream] stream ref: %s", serviceref.c_str());
+					eDebug("[streamserver][eDVBServiceStream] stream ref: %s", serviceref.c_str());
 					if (eDVBServiceStream::start(serviceref.c_str(), streamFd) >= 0)
 					{
 						running = true;
@@ -184,7 +184,7 @@ void eStreamClient::notifier(int what)
 					}
 					pos = request.find("&bitrate=");
 					posdur = request.find("&duration=");
-					eDebug("[eDVBServiceStream] stream ref: %s", serviceref.c_str());
+					eDebug("[streamserver][eDVBServiceStream] stream ref: %s", serviceref.c_str());
 					if (posdur != std::string::npos)
 					{
 						if (eDVBServiceStream::start(serviceref.c_str(), streamFd) >= 0)
@@ -195,7 +195,7 @@ void eStreamClient::notifier(int what)
 						}
 						int timeout = 0;
 						sscanf(request.substr(posdur).c_str(), "&duration=%d", &timeout);
-						eDebug("[eDVBServiceStream] duration: %d seconds", timeout);
+						eDebug("[streamserver][eDVBServiceStream] duration: %d seconds", timeout);
 						if (timeout)
 						{
 							m_timeout->startLongTimer(timeout);
