@@ -480,7 +480,7 @@ RESULT eStaticServiceDVBPVRInformation::getEvent(const eServiceReference &ref, e
 {
 	if (!ref.path.empty())
 	{
-		if (ref.path.find("://") != std::string::npos)
+		if (ref.path.find("://") != std::string::npos && ref.path.substr(0, 10) != "http://127")
 		{
 			eServiceReference equivalentref(ref);
 			/* this might be a scrambled stream (id + 0x100), force equivalent dvb type */
@@ -938,7 +938,7 @@ RESULT eServiceFactoryDVB::play(const eServiceReference &ref, ePtr<iPlayableServ
 
 RESULT eServiceFactoryDVB::record(const eServiceReference &ref, ePtr<iRecordableService> &ptr)
 {
-	bool isstream = ref.path.find("://") != std::string::npos;
+	bool isstream = ref.path.find("://") != std::string::npos && ref.path.substr(0, 10) != "http://127";
 	ptr = new eDVBServiceRecord((eServiceReferenceDVB&)ref, isstream);
 	return 0;
 }
@@ -1030,7 +1030,7 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_have_video_pid(0),
 	m_tune_state(-1),
 	m_noaudio(false),
-	m_is_stream(ref.path.find("://") != std::string::npos),
+	m_is_stream(ref.path.find("://") != std::string::npos && ref.path.substr(0, 10) != "http://127"),
 	m_is_pvr(!ref.path.empty() && !m_is_stream),
 	m_is_paused(0),
 	m_timeshift_enabled(0),
@@ -2916,7 +2916,7 @@ ePtr<iTsSource> eDVBServicePlay::createTsSource(eServiceReferenceDVB &ref, int p
 	 * (but m_is_stream would still be set, because of the ref which was passed to our
 	 * constructor)
 	 */
-	if (ref.path.substr(0, 7) == "http://")
+	if (ref.path.substr(0, 10) != "http://127" && ref.path.substr(0, 7) == "http://")
 	{
 		eHttpStream *f = new eHttpStream();
 		f->open(ref.path.c_str());
