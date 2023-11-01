@@ -480,9 +480,10 @@ RESULT eStaticServiceDVBPVRInformation::getEvent(const eServiceReference &ref, e
 {
 	if (!ref.path.empty())
 	{
-		if (ref.path.find("://") != std::string::npos  && ref.path.find("://127") == std::string::npos)
+		if (ref.path.find("://") != std::string::npos)
+///		if (ref.path.find("://") != std::string::npos  && ref.path.find("://127") == std::string::npos)
 		{
-			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]1 found :// but not ://127 %s", ref.path.c_str());		
+///			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]1 found :// but not ://127 %s", ref.path.c_str());		
 			eServiceReference equivalentref(ref);
 			/* this might be a scrambled stream (id + 0x100), force equivalent dvb type */
 			equivalentref.type = eServiceFactoryDVB::id;
@@ -491,7 +492,7 @@ RESULT eStaticServiceDVBPVRInformation::getEvent(const eServiceReference &ref, e
 		}
 		else
 		{
-			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]2 may include ://127 %s", ref.path.c_str());
+///			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]2 may include ://127 %s", ref.path.c_str());
 			ePtr<eServiceEvent> event = new eServiceEvent;
 			std::string filename = ref.path;
 			filename.erase(filename.length()-2, 2);
@@ -941,7 +942,8 @@ RESULT eServiceFactoryDVB::play(const eServiceReference &ref, ePtr<iPlayableServ
 RESULT eServiceFactoryDVB::record(const eServiceReference &ref, ePtr<iRecordableService> &ptr)
 {
 	eDebug("[servicedvb][eStaticServiceDVBInformation][record] ref.path.find %s", ref.path.c_str());
-	bool isstream = ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos;
+	bool isstream = ref.path.find("://") != std::string::npos;
+///	bool isstream = ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos;
 	ptr = new eDVBServiceRecord((eServiceReferenceDVB&)ref, isstream);
 	return 0;
 }
@@ -2920,8 +2922,9 @@ ePtr<iTsSource> eDVBServicePlay::createTsSource(eServiceReferenceDVB &ref, int p
 	 * (but m_is_stream would still be set, because of the ref which was passed to our
 	 * constructor)
 	 */
-	eDebug("[servicedvb][eDVBServicePlay][createTsSource] ref.path.c_str() %s", ref.path.c_str());	 
-	if (ref.path.substr(0, 10) != "http://127" && ref.path.substr(0, 7) == "http://")
+	eDebug("[servicedvb][eDVBServicePlay][createTsSource] ref.path.c_str() %s", ref.path.c_str());
+	if (ref.path.substr(0, 7) == "http://")
+//	if (ref.path.substr(0, 10) != "http://127" && ref.path.substr(0, 7) == "http://")
 	{
 		eHttpStream *f = new eHttpStream();
 		f->open(ref.path.c_str());
