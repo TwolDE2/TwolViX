@@ -142,8 +142,9 @@ class ServiceInfo(Screen):
 			if self.play_service:
 				refstr = self.play_service.toString()
 				reftype = self.play_service.type
-				if "%3a//" in refstr and reftype not in (1, 257, 4098, 4114):
+				if "%3a//" in refstr and "%3a//127" not in refstr and reftype not in (1, 257, 4098, 4114):
 					self.IPTV = True
+			print("[ServiceInfo][init] refstr reftype self.IPTV", refstr, "   ", reftype, "   ", self.IPTV)
 			self.audio = self.service and self.service.audioTracks()
 			self.number_of_tracks = self.audio and self.audio.getNumberOfTracks() or 0
 			self.sub_list = self.getSubtitleList()
@@ -170,6 +171,7 @@ class ServiceInfo(Screen):
 				name = _("N/A")
 				refstr = _("N/A")
 			resolution = "-"
+			print("[ServiceInfo][ShowServiceInformation] refstr name self.IPTV", refstr, "   ", name, "   ", self.IPTV)			
 			if self.info:
 				from Components.Converter.PliExtraInfo import codec_data
 				videocodec = codec_data.get(self.info.getInfo(iServiceInformation.sVideoType), "N/A")
@@ -230,6 +232,7 @@ class ServiceInfo(Screen):
 		if isinstance(nmspc, str) or nmspc == 0:
 			return None
 		namespace = "%08X" % (to_unsigned(nmspc))
+		print("[ServiceInfo][namespace] namespace", namespace)		
 		if namespace[:4] == "EEEE":
 			return "%s - DVB-T" % (namespace)
 		elif namespace[:4] == "FFFF":
