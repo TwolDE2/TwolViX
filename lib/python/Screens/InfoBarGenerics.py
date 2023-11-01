@@ -190,10 +190,10 @@ def streamrelayChecker(playref):
 		url = "http://%s:%s/" % (config.misc.softcam_streamrelay_url.getHTML(), config.misc.softcam_streamrelay_port.value)
 		if "127.0.0.1" in url:
 			playrefmod = ":".join([("%x" % (int(x[1], 16) + 1)).upper() if x[0] == 6 else x[1] for x in enumerate(playrefstring.split(':'))])
-			print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 in url", playrefmod)			
+			print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 in url", playrefmod)
 		else:
 			playrefmod = playrefstring
-			print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 not in url - whitelisted", playrefmod)			
+			print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 not in url - whitelisted", playrefmod)
 		playref = eServiceReference("%s%s%s:%s" % (playrefmod, url.replace(":", "%3a"), playrefstring.replace(":", "%3a"), ServiceReference(playref).getServiceName()))
 		print("[InfoBarGenerics][Whitelist_StreamRelay] Play service via streamrelay as it is whitelisted as such", playref.toString())
 	return playref
@@ -1555,16 +1555,15 @@ class InfoBarMenu:
 
 	def showNetworkMounts(self):
 		menulist = mdom.getroot().findall('menu')
-		print("[InfoBarGenerics][showNetworkMounts]1 menulist", menulist)		
 		for item in menulist:
 			if item.attrib['key'] == 'setup':
-				menulist = item.findall('menu')		
+				menulist = item.findall('menu')
 				for item in menulist:
-					print("[InfoBarGenerics][showNetworkMounts]2 item.attrib['key']", item.attrib['key'])			
+					print("[InfoBarGenerics][showNetworkMounts]2 item.attrib['key']", item.attrib['key'])
 					if item.attrib['key'] == 'network':
 						menulist = item.findall('item')
 						for item in menulist:
-							print("[InfoBarGenerics][showNetworkMounts]4 item.attrib['key']", item.attrib['key'])					
+							print("[InfoBarGenerics][showNetworkMounts]4 item.attrib['key']", item.attrib['key'])
 							if item.attrib['key'] == "netmounts_setup":
 								menu = item
 		assert menu.tag == "menu", "root element in menu must be 'menu'!"
