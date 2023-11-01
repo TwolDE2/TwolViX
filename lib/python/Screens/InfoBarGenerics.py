@@ -1555,6 +1555,7 @@ class InfoBarMenu:
 
 	def showNetworkMounts(self):
 		menulist = mdom.getroot().findall('menu')
+		print("[InfoBarGenerics][showNetworkMounts]1 menulist", menulist)		
 		for item in menulist:
 			if item.attrib['key'] == 'setup':
 				menulist = item.findall('menu')		
