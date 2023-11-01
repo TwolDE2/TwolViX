@@ -1545,26 +1545,27 @@ class InfoBarMenu:
 	def showSystemMenu(self):
 		menulist = mdom.getroot().findall('menu')
 		for item in menulist:
-			if item.attrib['entryID'] == 'setup_selection':
+			if item.attrib['key'] == 'setup':
 				menulist = item.findall('menu')
 				for item in menulist:
-					if item.attrib['entryID'] == 'system_selection':
+					if item.attrib['key'] == 'system':
 						menu = item
 		assert menu.tag == "menu", "root element in menu must be 'menu'!"
 		self.session.openWithCallback(self.mainMenuClosed, Menu, menu)
 
 	def showNetworkMounts(self):
 		menulist = mdom.getroot().findall('menu')
-		print("[InfoBarGenerics][showNetworkMounts]1 menulist", menulist)		
 		for item in menulist:
-			print("[InfoBarGenerics][showNetworkMounts]2 item in menulist", item)		
-			if item.attrib['entryID'] == 'setup_selection':
-				menulist = item.findall('menu')
-				print("[InfoBarGenerics][showNetworkMounts]3 menulist", menulist)		
+			if item.attrib['key'] == 'setup':
+				menulist = item.findall('menu')		
 				for item in menulist:
-					print("[InfoBarGenerics][showNetworkMounts]4 item in menulist", item)				
-					if item.attrib['entryID'] == 'network_menu':
-						menu = item
+					print("[InfoBarGenerics][showNetworkMounts]2 item.attrib['key']", item.attrib['key'])			
+					if item.attrib['key'] == 'network':
+						menulist = item.findall('item')
+						for item in menulist:
+							print("[InfoBarGenerics][showNetworkMounts]4 item.attrib['key']", item.attrib['key'])					
+							if item.attrib['key'] == "netmounts_setup":
+								menu = item
 		assert menu.tag == "menu", "root element in menu must be 'menu'!"
 		self.session.openWithCallback(self.mainMenuClosed, Menu, menu)
 
