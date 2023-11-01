@@ -46,6 +46,9 @@ class ColorButtonsSequence(GUIAddon):
 		self.l.setList(l_list)
 
 	def buildEntry(self, sequence):
+		res = [None]
+		if len(sequence) == 0:
+			return res
 		width = self.instance.size().width()
 		height = self.instance.size().height()
 		xPos = width if self.alignment == "right" else 0
@@ -53,7 +56,7 @@ class ColorButtonsSequence(GUIAddon):
 		# sectorWidth = width // len(sequence)
 		minSectorWidth = width // 4
 
-		res = [None]
+		pic = None
 		pixd_width = 0
 
 		for x, val in sequence.items():
@@ -65,7 +68,6 @@ class ColorButtonsSequence(GUIAddon):
 				if pic:
 					pixd_size = pic.size()
 					pixd_width = pixd_size.width()
-					# pixd_height = pixd_size.height()
 					pic_x_pos = (xPos - pixd_width) if self.alignment == "right" else xPos
 					res.append(MultiContentEntryPixmapAlphaBlend(
 						pos=(pic_x_pos, yPos),
