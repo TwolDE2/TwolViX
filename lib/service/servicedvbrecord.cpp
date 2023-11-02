@@ -35,7 +35,7 @@ eDVBServiceRecord::eDVBServiceRecord(const eServiceReferenceDVB &ref, bool isstr
 
 void eDVBServiceRecord::serviceEvent(int event)
 {
-	eDebug("[eDVBServiceRecord] RECORD service event %d", event);
+//	eDebug("[eDVBServiceRecord] RECORD service event %d", event);
 	switch (event)
 	{
 	case eDVBServicePMTHandler::eventTuned:

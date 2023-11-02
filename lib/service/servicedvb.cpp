@@ -481,9 +481,7 @@ RESULT eStaticServiceDVBPVRInformation::getEvent(const eServiceReference &ref, e
 	if (!ref.path.empty())
 	{
 		if (ref.path.find("://") != std::string::npos)
-///		if (ref.path.find("://") != std::string::npos  && ref.path.find("://127") == std::string::npos)
 		{
-///			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]1 found :// but not ://127 %s", ref.path.c_str());		
 			eServiceReference equivalentref(ref);
 			/* this might be a scrambled stream (id + 0x100), force equivalent dvb type */
 			equivalentref.type = eServiceFactoryDVB::id;
@@ -492,7 +490,6 @@ RESULT eStaticServiceDVBPVRInformation::getEvent(const eServiceReference &ref, e
 		}
 		else
 		{
-///			eDebug("[servicedvb][eStaticServiceDVBInformation][getEvent]2 may include ://127 %s", ref.path.c_str());
 			ePtr<eServiceEvent> event = new eServiceEvent;
 			std::string filename = ref.path;
 			filename.erase(filename.length()-2, 2);
@@ -941,9 +938,7 @@ RESULT eServiceFactoryDVB::play(const eServiceReference &ref, ePtr<iPlayableServ
 
 RESULT eServiceFactoryDVB::record(const eServiceReference &ref, ePtr<iRecordableService> &ptr)
 {
-	eDebug("[servicedvb][eStaticServiceDVBInformation][record] ref.path.find %s", ref.path.c_str());
 	bool isstream = ref.path.find("://") != std::string::npos;
-///	bool isstream = ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos;
 	ptr = new eDVBServiceRecord((eServiceReferenceDVB&)ref, isstream);
 	return 0;
 }
@@ -1035,7 +1030,8 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_have_video_pid(0),
 	m_tune_state(-1),
 	m_noaudio(false),
-	m_is_stream(ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos),
+	m_is_stream(ref.path.find("://") != std::string::npos),
+//	m_is_stream(ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos),
 	m_is_pvr(!ref.path.empty() && !m_is_stream),
 	m_is_paused(0),
 	m_timeshift_enabled(0),
@@ -1054,7 +1050,6 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_nownext_timer(eTimer::create(eApp))
 {
 //	m_is_streamx = m_is_stream;	// sets to false if looking at fallback url at this point as m_is_stream(ref.path.find("://") is false.
-	eDebug("[servicedvb][eDVBServicePlay][eDVBServicePlay] ref.path.c_str() %s", ref.path.c_str());
 	eDebug("[servicedvb][eDVBServicePlay] now running: m_is_streamx set by m_is_stream %d", m_is_streamx);
 	eDebug("[servicedvb][eDVBServicePlay] now running: m_is_pvr set to; %d", m_is_pvr);
 	if (connect_event)
@@ -2922,9 +2917,7 @@ ePtr<iTsSource> eDVBServicePlay::createTsSource(eServiceReferenceDVB &ref, int p
 	 * (but m_is_stream would still be set, because of the ref which was passed to our
 	 * constructor)
 	 */
-	eDebug("[servicedvb][eDVBServicePlay][createTsSource] ref.path.c_str() %s", ref.path.c_str());
 	if (ref.path.substr(0, 7) == "http://")
-//	if (ref.path.substr(0, 10) != "http://127" && ref.path.substr(0, 7) == "http://")
 	{
 		eHttpStream *f = new eHttpStream();
 		f->open(ref.path.c_str());
