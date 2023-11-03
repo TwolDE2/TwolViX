@@ -171,7 +171,6 @@ class ServiceInfo(Screen):
 				name = _("N/A")
 				refstr = _("N/A")
 			resolution = "-"
-			print("[ServiceInfo][ShowServiceInformation] refstr name self.IPTV", refstr, "   ", name, "   ", self.IPTV)			
 			if self.info:
 				from Components.Converter.PliExtraInfo import codec_data
 				videocodec = codec_data.get(self.info.getInfo(iServiceInformation.sVideoType), "N/A")
@@ -232,7 +231,6 @@ class ServiceInfo(Screen):
 		if isinstance(nmspc, str) or nmspc == 0:
 			return None
 		namespace = "%08X" % (to_unsigned(nmspc))
-		print("[ServiceInfo][namespace] namespace", namespace)		
 		if namespace[:4] == "EEEE":
 			return "%s - DVB-T" % (namespace)
 		elif namespace[:4] == "FFFF":
