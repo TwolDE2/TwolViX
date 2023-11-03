@@ -1560,11 +1560,9 @@ class InfoBarMenu:
 				for item in menulist:
 					print("[InfoBarGenerics][showNetworkMounts]2 item.attrib['key']", item.attrib['key'])
 					if item.attrib['key'] == 'network':
-						menulist = item.findall('item')
-						for item in menulist:
-							print("[InfoBarGenerics][showNetworkMounts]4 item.attrib['key']", item.attrib['key'])
-							if item.attrib['key'] == "netmounts_setup":
-								menu = item
+						menu = item
+						print("[InfoBarGenerics][showNetworkMounts]5 menu", menu)
+						break
 		assert menu.tag == "menu", "root element in menu must be 'menu'!"
 		self.session.openWithCallback(self.mainMenuClosed, Menu, menu)
 
