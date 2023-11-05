@@ -1548,20 +1548,20 @@ class InfoBarMenu:
 				menulist2= menuItem.findall("menu")
 				for menuItems in menulist2:
 					if menuItems.get('key') == "system":
-						self.session.openWithCallback(self.mainMenuClosed, Menu, menuItems)					
+						self.session.openWithCallback(self.mainMenuClosed, Menu, menuItems)
 
 	def showNetworkMounts(self):
-		print("[InfoBarGenerics][showNetworkMounts]0 getBrandOEM()", getBrandOEM())	
+		print("[InfoBarGenerics][showNetworkMounts]0 getBrandOEM()", getBrandOEM())
 		if getBrandOEM() == "gigablue":
-			self.showSystemMenu()	
+			self.showSystemMenu()
 		else:
 			menulist = mdom.getroot().findall('menu')
 			for menuItem in menulist:
 				if menuItem.get('key') == "setup":
 					menulist2 = menuItem.findall('menu')
-					for menuItem2 in menulist2:
-						if menuItem2.get('key') == "network":
-							self.session.openWithCallback(self.mainMenuClosed, Menu, menuItem2)
+					for menuItems in menulist2:
+						if menuItems.get('key') == "network":
+							self.session.openWithCallback(self.mainMenuClosed, Menu, menuItems)
 
 	def showRFSetup(self):
 		self.session.openWithCallback(self.mainMenuClosed, Setup, 'RFmod')
