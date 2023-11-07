@@ -55,7 +55,6 @@ class ColorButtonsSequence(GUIAddon):
 		height = self.instance.size().height()
 		xPos = width if self.alignment == "right" else 0
 		yPos = 0
-		# sectorWidth = width // len(sequence)
 		minSectorWidth = width // 4
 
 		pic = None
