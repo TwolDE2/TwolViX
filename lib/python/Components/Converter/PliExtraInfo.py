@@ -882,7 +882,15 @@ class PliExtraInfo(Poll, Converter, object):
 			return str((float(orbpos)) / 10.0) + "E"
 
 	def createProviderName(self, info):
-		return info.getInfoString(iServiceInformation.sProvider)
+		refstr = info.getInfoString(iServiceInformation.sServiceref)
+		print("[PliExtraInfo][createProviderName]1 refstr", refstr)
+		if "%3a//" in refstr.lower() and not "127.0.0.1" in refstr and not "0.0.0.0" in refstr and not "localhost" in refstr:
+			return ""
+		elif "%3a//127" in refstr and "17999" in refstr:
+			provider = self.namespace(info).replace("28.2\xb0E", "UK").replace("19.2\xb0E", "DE")
+			return "Sky %s" % provider
+		else:
+			return info.getInfoString(iServiceInformation.sProvider)
 
 	def createMisPls(self, fedata):
 		tmp = ""
