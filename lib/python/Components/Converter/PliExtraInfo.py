@@ -545,7 +545,7 @@ class PliExtraInfo(Poll, Converter, object):
 			elif field == "TransponderModulationFEC":
 				val = self.createModulation(fedata) + '-' + self.createFEC(fedata, feraw)
 			elif field == "TransponderName":
-				val = self.createTransponderName(feraw)
+				val = self.createTransponderName(feraw, info)
 			elif field == "ProviderName":
 				val = self.createProviderName(info)
 			elif field in ("NewLine", "NL"):
@@ -618,25 +618,44 @@ class PliExtraInfo(Poll, Converter, object):
 	def createTunerSystem(self, fedata):
 		return fedata.get("system") or ""
 
-	def createOrbPos(self, feraw):
+	def namespace(self, info):
+		if "%3a//127" in info.getInfoString(iServiceInformation.sServiceref).lower():
+			nmspc = info.getInfo(iServiceInformation.sNamespace) & 0xFFFFFFFF
+			namespace = "%08X" % nmspc
+			orbpos = int(namespace[:4], 16)
+			print("[PliExtraInfo][namespace]1 orbpos", orbpos)
+			if orbpos > 1800:
+				return str((float(3600 - orbpos)) / 10.0) + "\xb0" + "W"
+			elif orbpos > 0:
+				return str((float(orbpos)) / 10.0) + "\xb0" + "E"
+		else:
+			return ""
+
+
+	def createOrbPos(self, feraw, info):
 		orbpos = feraw.get("orbital_position")
 		if orbpos is not None:
 			if orbpos > 1800:
 				return str((float(3600 - orbpos)) / 10.0) + "\xb0" + "W"
 			elif orbpos > 0:
 				return str((float(orbpos)) / 10.0) + "\xb0" + "E"
-		return ""
+		else:
+			orbpos = self.namespace(info)
+			return orbpos
 
-	def createOrbPosOrTunerSystem(self, fedata, feraw):
-		orbpos = self.createOrbPos(feraw)
+	def createOrbPosOrTunerSystem(self, fedata, feraw, info):
+		orbpos = self.createOrbPos(feraw, info)
+		print("[PliExtraInfo][createOrbPosOrTunerSystem] orbpos", orbpos)
 		if orbpos != "":
 			return orbpos
 		return self.createTunerSystem(fedata)
 
-	def createTransponderName(self, feraw):
+	def createTransponderName(self, feraw, info):
 		orbpos = feraw.get("orbital_position")
 		if orbpos is None:  # Not satellite
-			return ""
+			orbpos = self.namespace(info)
+			print("[PliExtraInfo][createTransponderName] orbpos", orbpos)
+			return orbpos
 		freq = feraw.get("frequency")
 		if freq and freq < 10700000:  # C-band
 			if orbpos > 1800:
@@ -925,7 +944,7 @@ class PliExtraInfo(Poll, Converter, object):
 			return self.createModulation(fedata)
 
 		if textType == "OrbitalPosition":
-			return self.createOrbPos(feraw)
+			return self.createOrbPos(feraw, info)
 
 		if textType == "TunerType":
 			return self.createTunerType(feraw)
@@ -934,7 +953,7 @@ class PliExtraInfo(Poll, Converter, object):
 			return self.createTunerSystem(fedata)
 
 		if self.type == "OrbitalPositionOrTunerSystem":
-			return self.createOrbPosOrTunerSystem(fedata, feraw)
+			return self.createOrbPosOrTunerSystem(fedata, feraw, info)
 
 		if textType == "TerrestrialChannelNumber":
 			return self.createChannelNumber(fedata, feraw)
