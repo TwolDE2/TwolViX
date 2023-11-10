@@ -1,6 +1,9 @@
 from enigma import eListboxPythonMultiContent, gFont, iServiceInformation, eServiceCenter, eDVBFrontendParametersSatellite, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER
 
 from Components.ActionMap import ActionMap
+from Components.Converter.PliExtraInfo import codec_data
+from Components.Converter.ServiceInfo import getVideoHeight, getVideoWidth
+from Components.Converter.VAudioInfo import StdAudioDesc
 from Components.GUIComponent import GUIComponent
 from Components.Label import Label
 from Components.MenuList import MenuList
@@ -8,7 +11,7 @@ from Screens.Screen import Screen
 from ServiceReference import ServiceReference
 from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
 from skin import applySkinFactor, parameters, parseFont, parseScale
-from Components.Converter.VAudioInfo import StdAudioDesc
+
 
 TYPE_TEXT = 0
 TYPE_VALUE_HEX = 1
@@ -172,8 +175,6 @@ class ServiceInfo(Screen):
 				refstr = _("N/A")
 			resolution = "-"
 			if self.info:
-				from Components.Converter.PliExtraInfo import codec_data
-				from Components.Converter.ServiceInfo import getVideoHeight, getVideoWidth
 				videocodec = codec_data.get(self.info.getInfo(iServiceInformation.sVideoType), "N/A")
 				width = getVideoWidth(self.info)
 				height = getVideoHeight(self.info)
