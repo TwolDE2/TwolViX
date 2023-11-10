@@ -168,15 +168,14 @@ class whitelist:
 
 
 def reload_whitelist_vbi():
-	global whitelist_vbi
-	whitelist_vbi = [line.strip() for line in open('/etc/enigma2/whitelist_vbi', 'r').readlines()] if path.isfile('/etc/enigma2/whitelist_vbi') else []
+	whitelist.vbi = [line.strip() for line in open('/etc/enigma2/whitelist_vbi', 'r').readlines()] if os.path.isfile('/etc/enigma2/whitelist_vbi') else []
 
 
 reload_whitelist_vbi()
 
 
 def reload_streamrelay():
-	whitelist.streamrelay = [line.strip() for line in open('/etc/enigma2/whitelist_streamrelay', 'r').readlines()] if path.isfile('/etc/enigma2/whitelist_streamrelay') else []
+	whitelist.streamrelay = [line.strip() for line in open('/etc/enigma2/whitelist_streamrelay', 'r').readlines()] if os.path.isfile('/etc/enigma2/whitelist_streamrelay') else []
 
 
 reload_streamrelay()
@@ -190,12 +189,12 @@ def streamrelayChecker(playref):
 		url = "http://%s:%s/" % (config.misc.softcam_streamrelay_url.getHTML(), config.misc.softcam_streamrelay_port.value)
 		if "127.0.0.1" in url:
 			playrefmod = ":".join([("%x" % (int(x[1], 16) + 1)).upper() if x[0] == 6 else x[1] for x in enumerate(playrefstring.split(':'))])
-			print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 in url", playrefmod)
+			# print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 in url", playrefmod)
 		else:
 			playrefmod = playrefstring
-			print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 not in url - whitelisted", playrefmod)
+			# print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 not in url - whitelisted", playrefmod)
 		playref = eServiceReference("%s%s%s:%s" % (playrefmod, url.replace(":", "%3a"), playrefstring.replace(":", "%3a"), ServiceReference(playref).getServiceName()))
-		print("[InfoBarGenerics][Whitelist_StreamRelay] Play service via streamrelay as it is whitelisted as such", playref.toString())
+		print("[Whitelist_StreamRelay] Play service via streamrelay as it is whitelisted as such", playref.toString())
 	return playref
 
 
