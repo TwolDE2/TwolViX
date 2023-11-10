@@ -144,7 +144,7 @@ class ServiceInfo(Screen):
 				reftype = self.play_service.type
 				if "%3a//" in refstr and "%3a//127" not in refstr and reftype not in (1, 257, 4098, 4114):
 					self.IPTV = True
-			print("[ServiceInfo][init] refstr reftype self.IPTV", refstr, "   ", reftype, "   ", self.IPTV)
+			# print("[ServiceInfo][init] refstr reftype self.IPTV", refstr, "   ", reftype, "   ", self.IPTV)
 			self.audio = self.service and self.service.audioTracks()
 			self.number_of_tracks = self.audio and self.audio.getNumberOfTracks() or 0
 			self.sub_list = self.getSubtitleList()
