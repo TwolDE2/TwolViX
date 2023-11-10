@@ -56,7 +56,22 @@ class ServiceOrbitalPosition(Converter):
 				return _("Stream")
 			if refString.startswith("1:134:"):
 				return _("Alternative")
-		return ""
+		elif info:		
+			if "%3a//127" in info.getInfoString(iServiceInformation.sServiceref).lower():
+				nmspc = info.getInfo(iServiceInformation.sNamespace) & 0xFFFFFFFF
+				namespace = "%08X" % nmspc
+				# print("[ServiceOrbitalPosition][namespace] nmspc %s, namespace %s" % (nmspc, namespace))
+				EW = "E"
+				orbpos = int(namespace[:4], 16)
+				# print("[ServiceOrbitalPosition][namespace] orbpos %s" % (orbpos))
+				if orbpos > 1800:
+					orbpos = 3600 - orbpos
+					EW = "W"
+				return "%s\xb0 %s" % ((orbpos / 10.0), EW)
+			else:
+				return ""
+		else:
+			return ""
 
 	text = property(getText)
 
