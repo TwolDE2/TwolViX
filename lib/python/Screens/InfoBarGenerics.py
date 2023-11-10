@@ -168,14 +168,14 @@ class whitelist:
 
 
 def reload_whitelist_vbi():
-	whitelist.vbi = [line.strip() for line in open('/etc/enigma2/whitelist_vbi', 'r').readlines()] if os.path.isfile('/etc/enigma2/whitelist_vbi') else []
+	whitelist.vbi = [line.strip() for line in open('/etc/enigma2/whitelist_vbi', 'r').readlines()] if path.isfile('/etc/enigma2/whitelist_vbi') else []
 
 
 reload_whitelist_vbi()
 
 
 def reload_streamrelay():
-	whitelist.streamrelay = [line.strip() for line in open('/etc/enigma2/whitelist_streamrelay', 'r').readlines()] if os.path.isfile('/etc/enigma2/whitelist_streamrelay') else []
+	whitelist.streamrelay = [line.strip() for line in open('/etc/enigma2/whitelist_streamrelay', 'r').readlines()] if path.isfile('/etc/enigma2/whitelist_streamrelay') else []
 
 
 reload_streamrelay()
