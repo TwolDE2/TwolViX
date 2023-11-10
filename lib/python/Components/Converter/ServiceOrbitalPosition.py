@@ -60,14 +60,12 @@ class ServiceOrbitalPosition(Converter):
 			if "%3a//127" in info.getInfoString(iServiceInformation.sServiceref).lower():
 				nmspc = info.getInfo(iServiceInformation.sNamespace) & 0xFFFFFFFF
 				namespace = "%08X" % nmspc
-				# print("[ServiceOrbitalPosition][namespace] nmspc %s, namespace %s" % (nmspc, namespace))
 				EW = "E"
 				orbpos = int(namespace[:4], 16)
-				# print("[ServiceOrbitalPosition][namespace] orbpos %s" % (orbpos))
 				if orbpos > 1800:
 					orbpos = 3600 - orbpos
 					EW = "W"
-				return "%s\xb0 %s" % ((orbpos / 10.0), EW)
+				return "%s\xb0 %s" % (float(orbpos) / 10.0, EW)
 			else:
 				return ""
 		else:
