@@ -56,7 +56,7 @@ class ServiceOrbitalPosition(Converter):
 				return _("Stream")
 			if refString.startswith("1:134:"):
 				return _("Alternative")
-		elif info:		
+		elif info:
 			if "%3a//127" in info.getInfoString(iServiceInformation.sServiceref).lower():
 				nmspc = info.getInfo(iServiceInformation.sNamespace) & 0xFFFFFFFF
 				namespace = "%08X" % nmspc
