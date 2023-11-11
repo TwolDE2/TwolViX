@@ -194,7 +194,7 @@ def streamrelayChecker(playref):
 			playrefmod = playrefstring
 			# print("[InfoBarGenerics][Whitelist_StreamRelay] playrefmod 127.0.0.1 not in url - whitelisted", playrefmod)
 		playref = eServiceReference("%s%s%s:%s" % (playrefmod, url.replace(":", "%3a"), playrefstring.replace(":", "%3a"), ServiceReference(playref).getServiceName()))
-		print("[Whitelist_StreamRelay] Play service via streamrelay as it is whitelisted as such", playref.toString())
+		print("[InfoBarGenerics][Whitelist_StreamRelay] Play service via streamrelay as it is whitelisted as such", playref.toString())
 	return playref
 
 
