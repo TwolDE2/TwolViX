@@ -61,13 +61,13 @@ codec_data = {
 
 # patch stream type for Exteplayer3 and GSTplayer
 codec_data_patch = {
-#	"5001": "unknown",
+# 	"5001": "unknown",
 	"5002": "HEVC H.265"
 }
 
 # Dynamic range ("gamma") value to text
 gamma_data = {
-	#0: " SDR",
+# 	0: " SDR",
 	1: " HDR",
 	2: " HDR10",
 	3: " HLG",
@@ -613,7 +613,6 @@ class PliExtraInfo(Poll, Converter, object):
 
 	def createVideoCodec(self, info):
 		refstr = info.getInfoString(iServiceInformation.sServiceref)
-		xres = int(open("/proc/stb/vmpeg/0/xres", "r").read(), 16)
 		if refstr.lower().split(":")[0] in codec_data_patch.keys() and info.getInfo(iServiceInformation.sVideoType) == -1:
 			return codec_data_patch.get(refstr.lower().split(":")[0], _("N/A"))
 		else:
@@ -752,7 +751,6 @@ class PliExtraInfo(Poll, Converter, object):
 		else:
 			return ""
 
-
 	def createOrbPos(self, feraw, info):
 		orbpos = feraw.get("orbital_position")
 		if orbpos is not None:
@@ -883,7 +881,7 @@ class PliExtraInfo(Poll, Converter, object):
 
 	def createProviderName(self, info):
 		refstr = info.getInfoString(iServiceInformation.sServiceref)
-		if "%3a//" in refstr.lower() and not "127.0.0.1" in refstr and not "0.0.0.0" in refstr and not "localhost" in refstr:
+		if "%3a//" in refstr.lower() and "127.0.0.1" not in refstr and not "0.0.0.0" in refstr and not "localhost" in refstr:
 			return ""
 		elif "%3a//127" in refstr and "17999" in refstr:
 			provider = self.namespace(info).replace("28.2\xb0E", "Sky UK").replace("19.2\xb0E", "Sky Deutschland").replace("13.0\xb0E", "Sky Italia")
