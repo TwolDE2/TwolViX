@@ -883,11 +883,9 @@ class PliExtraInfo(Poll, Converter, object):
 
 	def createProviderName(self, info):
 		refstr = info.getInfoString(iServiceInformation.sServiceref)
-		print("[PliExtraInfo][createProviderName]1 refstr", refstr)
 		if "%3a//" in refstr.lower() and not "127.0.0.1" in refstr and not "0.0.0.0" in refstr and not "localhost" in refstr:
 			return ""
 		elif "%3a//127" in refstr and "17999" in refstr:
-			# provider = self.namespace(info).replace("28.2\xb0E", "UK").replace("19.2\xb0E", "DE").replace("13.0\xb0E", "IT")
 			provider = self.namespace(info).replace("28.2\xb0E", "Sky UK").replace("19.2\xb0E", "Sky Deutschland").replace("13.0\xb0E", "Sky Italia")
 			return "%s" % provider
 		else:
