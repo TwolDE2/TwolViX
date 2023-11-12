@@ -61,13 +61,13 @@ codec_data = {
 
 # patch stream type for Exteplayer3 and GSTplayer
 codec_data_patch = {
-# 	"5001": "unknown",
+# 	"5001": "unknown",  # noqa: E122
 	"5002": "HEVC H.265"
 }
 
 # Dynamic range ("gamma") value to text
 gamma_data = {
-# 	0: " SDR",
+# 	0: " SDR",  # noqa: E122
 	1: " HDR",
 	2: " HDR10",
 	3: " HLG",
@@ -881,7 +881,7 @@ class PliExtraInfo(Poll, Converter, object):
 
 	def createProviderName(self, info):
 		refstr = info.getInfoString(iServiceInformation.sServiceref)
-		if "%3a//" in refstr.lower() and "127.0.0.1" not in refstr and not "0.0.0.0" in refstr and not "localhost" in refstr:
+		if "%3a//" in refstr.lower() and "127.0.0.1" not in refstr and "0.0.0.0" not in refstr and "localhost" not in refstr:
 			return ""
 		elif "%3a//127" in refstr and "17999" in refstr:
 			provider = self.namespace(info).replace("28.2\xb0E", "Sky UK").replace("19.2\xb0E", "Sky Deutschland").replace("13.0\xb0E", "Sky Italia")
