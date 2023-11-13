@@ -89,7 +89,7 @@ class PiconLocator:
 			fields[2] = "1"
 			pngname = self.findPicon("_".join(fields))
 		if not pngname and fields[9] != "0":
-			#fallback to 0 for iptv buffering
+			# fallback to 0 for iptv buffering
 			fields[9] = "0"
 			pngname = self.findPicon('_'.join(fields))
 		if not pngname:  # picon by channel name
