@@ -746,7 +746,7 @@ class PliExtraInfo(Poll, Converter, object):
 			return self.formatOrbPos(orbpos)
 
 	def createProviderName(self, info):
-		return info.getInfoString(iServiceInformation.sProvider) or self.feraw and {282: "BSkyB", 192: "SKY", 130: "SkyItalia"}.get(self.feraw.get("orbital_position"), "")
+		return info.getInfoString(iServiceInformation.sProvider) or self.feraw and {282: "Sky UK", 192: "Sky Deutschland", 130: "Sky Italia"}.get(self.feraw.get("orbital_position"), "")
 
 	def createMisPls(self, fedata):
 		tmp = ""
