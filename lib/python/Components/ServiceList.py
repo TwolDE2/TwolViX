@@ -241,7 +241,7 @@ class ServiceList(GUIComponent):
 		def serviceItemHeight(value):  # for legacy support
 			itemHeight(value)
 
-		for (attrib, value) in sorted(self.skinAttributes, key=lambda x: 1 if x[0] == "itemHeight" else 0):
+		for (attrib, value) in sorted(self.skinAttributes, key=lambda item: 0 if item[0] == "itemHeight" else 1):
 			try:
 				locals().get(attrib)(value)
 				self.skinAttributes.remove((attrib, value))
