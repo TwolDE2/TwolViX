@@ -238,6 +238,9 @@ class ServiceList(GUIComponent):
 		def markerTextAlignment(value):
 			self.l.setMarkerTextAlignment(value)
 
+		def serviceItemHeight(value):  # for legacy support
+			itemHeight(value)
+
 		for (attrib, value) in self.skinAttributes[:]:
 			try:
 				locals().get(attrib)(value)
