@@ -91,8 +91,8 @@ class ServiceName(Converter):
 			name = self.getName(service, info)
 			numservice = self.source.serviceref
 			num = self.getNumber(numservice, info)
-			provider = self.getProvider(service, info)
-			orbpos = self.getOrbitalPos(service, info)
+			orbpos, tp_data = self.getOrbitalPos(service, info)
+			provider = self.getProvider(service, info, tp_data)
 			res_str = ""
 			for x in self.parts[1:]:
 				if x == "NUMBER" and num:
@@ -125,10 +125,10 @@ class ServiceName(Converter):
 			num = str(num)
 		return num
 
-	def getProvider(self, ref, info):
+	def getProvider(self, ref, info, tp_data=None):
 		if ref:
-			return info.getInfoString(ref, iServiceInformation.sProvider)
-		return info.getInfoString(iServiceInformation.sProvider)
+			return info.getInfoString(ref, iServiceInformation.sProvider) or tp_data and {282: "BSkyB", 192: "SKY", 130: "SkyItalia"}.get(tp_data["orbital_position"], "")
+		return info.getInfoString(iServiceInformation.sProvider) or tp_data and {282: "BSkyB", 192: "SKY", 130: "SkyItalia"}.get(tp_data["orbital_position"], "")
 
 	def getOrbitalPos(self, ref, info):
 		orbitalpos = ""
@@ -136,6 +136,13 @@ class ServiceName(Converter):
 			tp_data = info.getInfoObject(ref, iServiceInformation.sTransponderData)
 		else:
 			tp_data = info.getInfoObject(iServiceInformation.sTransponderData)
+
+		if not tp_data and not ref:
+			service = self.source.service
+			if service:
+				feraw = service.frontendInfo()
+				tp_data = feraw and feraw.getAll(config.usage.infobar_frontend_source.value == "settings")
+
 		if tp_data is not None:
 			try:
 				position = tp_data["orbital_position"]
@@ -145,4 +152,4 @@ class ServiceName(Converter):
 					orbitalpos = "%.1f " % (float(position) / 10) + _("E")
 			except:
 				pass
-		return orbitalpos
+		return orbitalpos, tp_data
