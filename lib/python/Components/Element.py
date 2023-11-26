@@ -95,17 +95,19 @@ class Element:
 			x()
 
 	def setSuspend(self, suspended):
-		changed = self.__suspended != suspended
-		if not self.__suspended and suspended:
-			self.doSuspend(1)
-		elif self.__suspended and not suspended:
-			self.doSuspend(0)
+		try:
+			changed = self.__suspended != suspended
+			if not self.__suspended and suspended:
+				self.doSuspend(1)
+			elif self.__suspended and not suspended:
+				self.doSuspend(0)
 
-		self.__suspended = suspended
-		if changed:
-			for s in self.sources:
-				s.checkSuspend()
-
+			self.__suspended = suspended
+			if changed:
+				for s in self.sources:
+					s.checkSuspend()
+		except:
+			return
 	suspended = property(lambda self: self.__suspended, setSuspend)
 
 	def checkSuspend(self):
