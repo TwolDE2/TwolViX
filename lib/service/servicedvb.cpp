@@ -1897,6 +1897,14 @@ RESULT eDVBServicePlay::getName(std::string &name)
 		eStaticServiceDVBInformation().getName(m_reference, name);
 	else
 		name = "DVB service";
+
+	if (!name.empty()) {
+	 	std::vector<std::string> name_split = split(name, "•");
+	 	name = name_split[0];
+		if (name_split.size() > 1) {
+			m_dvb_service->m_provider_name = name_split[1];
+		}
+	}
 	return 0;
 }
 
@@ -2057,6 +2065,10 @@ int eDVBServicePlay::getInfo(int w)
 	case sTSID:
 		return ((const eServiceReferenceDVB&)m_reference).getTransportStreamID().get();
 	case sNamespace:
+		// use origiginal namespace
+		if (!m_reference.streamrelayOrigSref.empty()){
+			return ((const eServiceReferenceDVB&)eServiceReferenceDVB(m_reference.streamrelayOrigSref)).getDVBNamespace().get();
+		}
 		return ((const eServiceReferenceDVB&)m_reference).getDVBNamespace().get();
 	case sProvider:
 		if (!m_dvb_service) return -1;
@@ -2078,17 +2090,13 @@ std::string eDVBServicePlay::getInfoString(int w)
 	case sProvider:
 	{
 		if (!m_dvb_service) return "";
-		std::string prov = m_dvb_service->m_provider_name;
-		if (prov.empty()) {
-			eServiceReferenceDVB sRelayOrigSref;
-			bool res = ((const eServiceReferenceDVB&)m_reference).getSROriginal(sRelayOrigSref);
-			if (res) {
-				ePtr<eDVBService> sRelayServiceOrigSref;
-				eDVBDB::getInstance()->getService(sRelayOrigSref, sRelayServiceOrigSref);
-				return sRelayServiceOrigSref->m_provider_name;
-			}
+		if(m_dvb_service->m_provider_name.empty() && !m_reference.streamrelayOrigSref.empty())
+		{
+			ePtr<eDVBService> sRelayServiceOrigSref;
+			eDVBDB::getInstance()->getService(eServiceReferenceDVB(m_reference.streamrelayOrigSref), sRelayServiceOrigSref);
+			m_dvb_service->m_provider_name = std::string(sRelayServiceOrigSref->m_provider_name);
 		}
-		return prov;
+		return m_dvb_service->m_provider_name;
 	}
 	case sServiceref:
 		return m_reference.toString();
@@ -2114,9 +2122,8 @@ std::string eDVBServicePlay::getInfoString(int w)
 
 ePtr<iDVBTransponderData> eDVBServicePlay::getTransponderData()
 {
-	eServiceReferenceDVB orig;
-	bool res = ((const eServiceReferenceDVB&)m_reference).getSROriginal(orig);
-	if (res) {
+	if (!m_reference.streamrelayOrigSref.empty()) {
+		eServiceReferenceDVB orig = eServiceReferenceDVB(m_reference.streamrelayOrigSref);
 		return eStaticServiceDVBInformation().getTransponderData(orig);
 	}
 	return eStaticServiceDVBInformation().getTransponderData(m_reference);
