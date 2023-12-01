@@ -95,7 +95,6 @@ class Element:
 			x()
 
 	def setSuspend(self, suspended):
-		print("[Element][setSuspend] routine called")
 		try:
 			changed = self.__suspended != suspended
 		except AttributeError:
