@@ -95,8 +95,13 @@ class Element:
 			x()
 
 	def setSuspend(self, suspended):
+		print("[Element][setSuspend] routine called")
 		try:
 			changed = self.__suspended != suspended
+		except AttributeError:
+			print("[Element][setSuspend]self.__suspended - No attribute __suspended")   
+			return
+		else:				
 			if not self.__suspended and suspended:
 				self.doSuspend(1)
 			elif self.__suspended and not suspended:
@@ -106,8 +111,6 @@ class Element:
 			if changed:
 				for s in self.sources:
 					s.checkSuspend()
-		except:
-			return
 	suspended = property(lambda self: self.__suspended, setSuspend)
 
 	def checkSuspend(self):
