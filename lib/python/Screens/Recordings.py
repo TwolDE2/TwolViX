@@ -113,8 +113,9 @@ class RecordingSettings(Setup):
 			Setup.keySelect(self)
 
 	def errorMsg(self):
-		self.session.open(MessageBox, "%s\n\n%s" % (self.footnote, _("Please select a valid directory.")), type=MessageBox.TYPE_ERROR)
-
+#		self.session.open(MessageBox, "%s\n\n%s" % (self.footnote, _("Please select a valid directory.")), type=MessageBox.TYPE_ERROR)
+		print("[Recordings] Please select a valid directory: ", self.errorItem)
+				
 	def keySave(self):
 		if self.errorItem == -1:
 			Setup.keySave(self)
