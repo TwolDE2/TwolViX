@@ -127,8 +127,8 @@ class ServiceName(Converter):
 
 	def getProvider(self, ref, info, tp_data=None):
 		if ref:
-			return info.getInfoString(ref, iServiceInformation.sProvider).replace("BSkyB", "Sky UK").replace("SKY", "Sky deutschland"), replace("SkyItalia", "Sky Italia")
-		return info.getInfoString(iServiceInformation.sProvider).replace("BSkyB", "Sky UK").replace("SKY", "Sky deutschland"), replace("SkyItalia", "Sky Italia")
+			return info.getInfoString(ref, iServiceInformation.sProvider).replace("SKY", "Sky deutschland").replace("SkyItalia", "Sky Italia").replace("BSkyB", "Sky UK")
+		return info.getInfoString(iServiceInformation.sProvider).replace("SKY", "Sky deutschland").replace("SkyItalia", "Sky Italia").replace("BSkyB", "Sky UK")
 
 	def getOrbitalPos(self, ref, info):
 		orbitalpos = ""

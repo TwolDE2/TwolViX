@@ -5,7 +5,7 @@ from Components.Renderer.Picon import getPiconName
 from skin import parseColor, parseFont, parseScale, applySkinFactor
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
-from Tools.TextBoundary import getTextBoundarySize
+# from Tools.TextBoundary import getTextBoundarySize
 
 
 def refreshServiceList(configElement=None):
