@@ -1160,11 +1160,7 @@ RESULT eDVBResourceManager::getChannelList(ePtr<iDVBChannelList> &list)
 		if (!simulate) \
 			eDebug(x); \
 	} while(0)
-RESULT eDVBResourceManager::getActiveChannels(std::list<active_channel> &list)
-{
-	list = m_active_channels;
-	return 0;
-}
+
 
 RESULT eDVBResourceManager::allocateChannel(const eDVBChannelID &channelid, eUsePtr<iDVBChannel> &channel, bool simulate)
 {
@@ -1520,7 +1516,7 @@ int eDVBResourceManager::canAllocateChannel(const eDVBChannelID &channelid, cons
 		}
 	}
 
-    // For stream relayed channel make a check is it in the available channels and if it is ignore it
+	// For stream relayed channel make a check is it in the available channels and if it is ignore it
 	if (ignoresr) {
 		for (std::list<active_channel>::iterator i(active_channels.begin()); i != active_channels.end(); ++i)
 		{
@@ -2156,7 +2152,7 @@ RESULT eDVBChannel::setChannel(const eDVBChannelID &channelid, ePtr<iDVBFrontend
 
 	m_channel_id = channelid;
 	m_mgr->addChannel(channelid, this);
-	
+
 	m_current_frontend_parameters = feparm;
 
 	if (!m_frontend)
