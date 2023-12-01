@@ -3,7 +3,7 @@ from os.path import isdir, realpath, join as pathJoin
 from Components.config import config
 from Components.UsageConfig import preferredPath
 from Screens.LocationBox import MovieLocationBox
-from Screens.MessageBox import MessageBox
+# from Screens.MessageBox import MessageBox
 from Screens.Setup import Setup
 from Tools.Directories import fileExists
 import Components.Harddisk
