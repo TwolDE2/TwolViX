@@ -1,13 +1,10 @@
 from time import localtime, time, strftime
 
-from enigma import eEPGCache, eListboxPythonMultiContent, gFont, eRect, eSize, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_HALIGN_CENTER, RT_VALIGN_CENTER, RT_VALIGN_TOP, RT_WRAP, BT_SCALE, BT_KEEP_ASPECT_RATIO, BT_ALIGN_CENTER
+from enigma import eListboxPythonMultiContent, gFont, eRect, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER
 from skin import parameters, applySkinFactor
 
 from Components.EpgListBase import EPGListBase
-from Components.GUIComponent import GUIComponent
-from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaBlend, MultiContentEntryPixmapAlphaTest
 from Components.config import config
-import NavigationInstance
 
 # Various value are in minutes, while others are in seconds.
 # Use this to remind us what is going on...
@@ -121,11 +118,11 @@ class EPGListMulti(EPGListBase):
 		for x in timerList:
 			if x.end >= startTime:
 				service = ":".join(x.service_ref.ref.toString().split(':')[:11])
-				l = self.filteredTimerList.get(service)
-				if l is None:
-					self.filteredTimerList[service] = l = [x]
+				srefl = self.filteredTimerList.get(service)
+				if srefl is None:
+					self.filteredTimerList[service] = srefl = [x]
 				else:
-					l.append(x)
+					srefl.append(x)
 				if x.begin > startTime + 6 * 3600:
 					break
 

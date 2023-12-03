@@ -3,11 +3,9 @@ import traceback
 from enigma import getDesktop
 from boxbranding import getBoxType
 from Components.ActionMap import ActionMap
-from Components.config import config, configfile, ConfigSubsection, getConfigListEntry, ConfigSelectionNumber, ConfigSelection, ConfigSlider, ConfigYesNo, NoSave, ConfigNumber, ConfigText
+from Components.config import config, configfile, getConfigListEntry, ConfigSelectionNumber, ConfigSelection, ConfigSlider, ConfigYesNo, NoSave, ConfigNumber
 from Components.ConfigList import ConfigListScreen
 from Components.Console import Console
-from Components.Language import language
-from Components.Pixmap import Pixmap
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from Screens.Screen import Screen
@@ -71,7 +69,7 @@ def InitOsdPosition():
 	SystemInfo["CanChangeOsdPosition"] = access('/proc/stb/fb/dst_left', R_OK) and True or False
 	SystemInfo["OsdSetup"] = SystemInfo["CanChangeOsdPosition"]
 
-	if SystemInfo["CanChangeOsdAlpha"] == True or SystemInfo["CanChangeOsdPosition"] == True:
+	if SystemInfo["CanChangeOsdAlpha"] is True or SystemInfo["CanChangeOsdPosition"] is True:
 		SystemInfo["OsdMenu"] = True
 	else:
 		SystemInfo["OsdMenu"] = False
@@ -118,7 +116,7 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 		self["actions"] = ActionMap(["ColorActions"],
 			{
 				"yellow": self.keyDefault,
-			}, -2)
+			}, -2)  # noqa: E123
 		self.alpha = config.osd.alpha.value
 		self.onChangedEntry = []
 		self.list = []
@@ -161,7 +159,7 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 			if self.restoreService not in self.onClose:
 				self.onClose.append(self.restoreService)
 			self.ConsoleB.ePopen('/usr/bin/showiframe /usr/share/enigma2/hd-testcard.mvi')
-#			config.osd.alpha.setValue(155)
+			# config.osd.alpha.setValue(155)
 		else:
 			self.close()
 
@@ -211,13 +209,12 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 		print('[UserInterfacePositioner] Setting OSD position: %s %s %s %s' % (config.osd.dst_left.value, config.osd.dst_width.value, config.osd.dst_top.value, config.osd.dst_height.value))
 
 	def __onClose(self):
-#		config.osd.alpha.setValue(self.alpha)	
 		self.ConsoleB.ePopen('/usr/bin/showiframe /usr/share/backdrop.mvi')
 
-# This is called by the Wizard...
+	# This is called by the Wizard...
 
 	def run(self):
-#		config.osd.alpha.setValue(self.alpha)	
+		# config.osd.alpha.setValue(self.alpha)
 		config.osd.dst_left.save()
 		config.osd.dst_width.save()
 		config.osd.dst_top.save()

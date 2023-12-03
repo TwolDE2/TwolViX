@@ -24,10 +24,10 @@ class TagManager():
 		filename = resolveFilename(SCOPE_CONFIG, "movietags")
 		try:
 			with open(filename, "r") as fd:
-				tags = fd.read().splitlines()		
+				tags = fd.read().splitlines()
 		except (IOError, OSError) as err:
 			if err.errno != ENOENT:  # ENOENT - No such file or directory.
-				print("[TagEditor] Error %d: Unable to read lines from file '%s'!  (%s)" % (err.errno, filename, err.strerror))		
+				print("[TagEditor] Error %d: Unable to read lines from file '%s'!  (%s)" % (err.errno, filename, err.strerror))
 		tags = [self.formatTag(x) for x in tags]
 		while "" in tags:
 			tags.remove("")
@@ -40,13 +40,10 @@ class TagManager():
 			filename = resolveFilename(SCOPE_CONFIG, "movietags")
 			try:
 				with open(filename, "w") as fd:
-					if isinstance(lines, list):
-						lines.append("")
-						lines = "\n".join(lines)
-					fd.write(lines)
-				print("[TagEditor] %d tags written to '%s'." % (len(self.tags), filename))					
+					fd.write(self.tags)
+				print("[TagEditor] %d tags written to '%s'." % (len(self.tags), filename))
 			except (IOError, OSError) as err:
-				print("[TagEditor] Error %d: Unable to write %d lines to file '%s'!  (%s)" % (err.errno, len(lines), filename, err.strerror))			
+				print("[TagEditor] Error %d: Unable to write %d lines to file '%s'!  (%s)" % (err.errno, len(self.tags), filename, err.strerror))
 
 	def getTags(self):
 		return self.tags
@@ -196,6 +193,7 @@ class TagEditor(Screen, HelpableScreen, TagManager):
 		for tag in newTags:
 			if tag not in tagList:
 				tagList.append(tag)
+
 	def showMenu(self):
 		menu = [
 			(_("Add new tag"), self.addNewTag),
@@ -320,7 +318,7 @@ class TagEditor(Screen, HelpableScreen, TagManager):
 		if isfile(filename):
 			try:
 				with open(filename, "r") as fd:
-					lines = fd.read().splitlines()		
+					lines = fd.read().splitlines()
 			except (IOError, OSError) as err:
 				if err.errno != ENOENT:  # ENOENT - No such file or directory.
 					print("[TagEditor] Error %d: Unable to read lines from file '%s'!  (%s)" % (err.errno, filename, err.strerror))

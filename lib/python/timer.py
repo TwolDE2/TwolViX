@@ -5,8 +5,8 @@ import datetime
 
 
 class TimerEntry:
-	StateWaiting = 0	# Waiting for the recording start time
-	StatePrepared = 1	# Pre recording preparation has been completed, about to start recording
+	StateWaiting = 0  # Waiting for the recording start time
+	StatePrepared = 1  # Pre recording preparation has been completed, about to start recording
 	StateRunning = 2 	# Currently recording
 	StateEnded = 3		# Recording was completed successfully
 	StateFailed = 4		# Something went wrong
@@ -72,7 +72,7 @@ class TimerEntry:
 				now = self.end + 120
 			self.findRunningEvent = findRunningEvent
 			self.findNextEvent = findNextEvent
-			#to avoid problems with daylight saving, we need to calculate with localtime, in struct_time representation
+			# to avoid problems with daylight saving, we need to calculate with localtime, in struct_time representation
 			localrepeatedbegindate = localtime(self.repeatedbegindate)
 			localbegin = localtime(self.begin)
 			localend = localtime(self.end)
@@ -94,7 +94,7 @@ class TimerEntry:
 				localbegin = self.addOneDay(localbegin)
 				localend = self.addOneDay(localend)
 
-			#we now have a struct_time representation of begin and end in localtime, but we have to calculate back to (gmt) seconds since epoch
+			# we now have a struct_time representation of begin and end in localtime, but we have to calculate back to (gmt) seconds since epoch
 			self.begin = int(mktime(localbegin))
 			self.end = int(mktime(localend))
 			if self.begin == self.end:
@@ -116,7 +116,7 @@ class TimerEntry:
 	# check if a timer entry must be skipped
 	def shouldSkip(self):
 		if self.disabled:
-			if self.end <= time() and not "PowerTimerEntry" in repr(self):
+			if self.end <= time() and "PowerTimerEntry" not in repr(self):
 				self.disabled = False
 			return True
 		if "PowerTimerEntry" in repr(self):
@@ -228,26 +228,27 @@ class Timer:
 			if not noRecalc:
 				self.calcNextActivation(dosave)
 
-# small piece of example code to understand how to use record simulation
-#		if NavigationInstance.instance:
-#			lst = [ ]
-#			cnt = 0
-#			for timer in self.timer_list:
-#				print "timer", cnt
-#				cnt += 1
-#				if timer.state == 0: #waiting
-#					lst.append(NavigationInstance.instance.recordService(timer.service_ref))
-#				else:
-#					print "STATE: ", timer.state
-#
-#			for rec in lst:
-#				if rec.start(True): #simulate
-#					print "FAILED!!!!!!!!!!!!"
-#				else:
-#					print "OK!!!!!!!!!!!!!!"
-#				NavigationInstance.instance.stopRecordService(rec)
-#		else:
-#			print "no NAV"
+	''' Small piece of example code to understand how to use record simulation
+			if NavigationInstance.instance:
+				lst = [ ]
+				cnt = 0
+				for timer in self.timer_list:
+					print "timer", cnt
+					cnt += 1
+					if timer.state == 0: #waiting
+						lst.append(NavigationInstance.instance.recordService(timer.service_ref))
+					else:
+						print("STATE: ", timer.state)
+
+				for rec in lst:
+					if rec.start(True): #simulate
+						print("FAILED!!!!!!!!!!!!")
+					else:
+						print("OK!!!!!!!!!!!!!!")
+					NavigationInstance.instance.stopRecordService(rec)
+			else:
+				print "no NAV"
+	'''
 
 	def setNextActivation(self, now, when):
 		delay = int((when - now) * 1000)
@@ -270,7 +271,7 @@ class Timer:
 
 		min = int(now) + self.MaxWaitTime
 
-		self.timer_list and self.timer_list.sort() #  resort/refresh list, try to fix hanging timers
+		self.timer_list and self.timer_list.sort()  # resort/refresh list, try to fix hanging timers
 
 		# calculate next activation point
 		timer_list = [t for t in self.timer_list if not t.disabled]
@@ -287,7 +288,7 @@ class Timer:
 
 	def timeChanged(self, timer, dosave=True):
 		timer.timeChanged()
-		try:		
+		try:
 			if timer.state == TimerEntry.StateEnded:
 				self.processed_timers.remove(timer)
 			else:

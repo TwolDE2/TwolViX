@@ -81,7 +81,7 @@ class DVDTitle:
 		template = template.replace("$f", self.inputfile)
 		template = template.replace("$C", self.DVBchannel)
 
-		#if template.find("$A") >= 0:
+		# if template.find("$A") >= 0:
 		from .TitleProperties import languageChoices
 		audiolist = []
 		for audiotrack in self.properties.audiotracks:
@@ -96,8 +96,7 @@ class DVDTitle:
 		template = template.replace("$A", audiostring)
 
 		if template.find("$l") >= 0:
-			l = self.length
-			lengthstring = "%d:%02d:%02d" % (l / 3600, l % 3600 / 60, l % 60)
+			lengthstring = "%d:%02d:%02d" % (self.length / 3600, self.length % 3600 / 60, self.length % 60)
 			template = template.replace("$l", lengthstring)
 		if self.timeCreate:
 			template = template.replace("$Y", str(self.timeCreate[0]))
@@ -113,10 +112,10 @@ class DVDTitle:
 		CUT_TYPE_IN = 0
 		CUT_TYPE_OUT = 1
 		CUT_TYPE_MARK = 2
-		CUT_TYPE_LAST = 3
+		# CUT_TYPE_LAST = 3
 
 		accumulated_in = 0
-		accumulated_at = 0
+		# accumulated_at = 0
 		last_in = 0
 
 		self.cutlist = []
@@ -125,10 +124,10 @@ class DVDTitle:
 		# our demuxer expects *strictly* IN,OUT lists.
 		currently_in = not any(type == CUT_TYPE_IN for pts, type in self.cuesheet)
 		if currently_in:
-			self.cutlist.append(0) # emulate "in" at first
+			self.cutlist.append(0)  # emulate "in" at first
 
 		for (pts, type) in self.cuesheet:
-			#print "pts=", pts, "type=", type, "accumulated_in=", accumulated_in, "accumulated_at=", accumulated_at, "last_in=", last_in
+			# print "pts=", pts, "type=", type, "accumulated_in=", accumulated_in, "accumulated_at=", accumulated_at, "last_in=", last_in
 			if type == CUT_TYPE_IN and not currently_in:
 				self.cutlist.append(pts)
 				last_in = pts
@@ -139,7 +138,7 @@ class DVDTitle:
 
 				# accumulate the segment
 				accumulated_in += pts - last_in
-				accumulated_at = pts
+				# accumulated_at = pts
 				currently_in = False
 
 			if type == CUT_TYPE_MARK and currently_in:

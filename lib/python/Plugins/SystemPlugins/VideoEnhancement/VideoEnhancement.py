@@ -163,10 +163,10 @@ class VideoEnhancement:
 					self.setConfiguredValues()
 
 			config.pep.split = ConfigSelection(choices={
-					"off": _("Off"),
-					"left": _("Left"),
-					"right": _("Right")},
-					default="off")
+				"off": _("Off"),
+				"left": _("Left"),
+				"right": _("Right")},
+				default="off")
 			config.pep.split.addNotifier(setSplitMode)
 		else:
 			config.pep.split = NoSave(ConfigNothing())
@@ -267,8 +267,8 @@ class VideoEnhancement:
 			config.pep.dynamic_contrast = NoSave(ConfigNothing())
 
 		try:
-			x = config.av.scaler_sharpness.value
-		except KeyError:
+			x = config.av.scaler_sharpness  # noqa: F841
+		except NameError:
 			if os_path.exists("/proc/stb/vmpeg/0/pep_scaler_sharpness"):
 				def setScaler_sharpness(config):
 					myval = int(config.value)

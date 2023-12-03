@@ -44,7 +44,7 @@ class PlayList(MenuList):
 			x, y, w, h = parameters.get("PlayListIcon", applySkinFactor(5, 3, 16, 16))
 			res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHATEST, x, y, w, h, png))
 		except:
-				pass
+			pass
 		return res
 
 	def clear(self):
@@ -106,12 +106,12 @@ class PlayList(MenuList):
 		return self.currPlaying
 
 	def getCurrentEvent(self):
-		l = self.l.getCurrentSelection()
-		return l and self.serviceHandler.info(l[0]).getEvent(l[0])
+		currl = self.l.getCurrentSelection()
+		return currl and self.serviceHandler.info(currl[0]).getEvent(currl[0])
 
 	def getCurrent(self):
-		l = self.l.getCurrentSelection()
-		return l and l[0]
+		currl = self.l.getCurrentSelection()
+		return currl and currl[0]
 
 	def getServiceRefList(self):
 		return [x[0] for x in self.list]

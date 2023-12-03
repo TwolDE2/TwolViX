@@ -1,12 +1,12 @@
 from os import path
 
-from enigma import eAVSwitch, getDesktop
-from boxbranding import getBoxType, getBrandOEM, getHaveAVJACK, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV
+from enigma import eAVSwitch
+from boxbranding import getBoxType, getBrandOEM
 
 from Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
 from Components.SystemInfo import SystemInfo
 from Tools.CList import CList
-from Tools.HardwareInfo import HardwareInfo
+# from Tools.HardwareInfo import HardwareInfo
 
 config.av = ConfigSubsection()
 
@@ -62,7 +62,7 @@ class AVSwitch:
 	if SystemInfo["hasScart"]:
 		modes["Scart"] = ["PAL", "NTSC", "Multi"]
 
-	print("[AVSwitch] Modes-B are %s" % modes)
+	print("[AVSwitch] Modes found are %s" % modes)
 
 	def __init__(self):
 		self.last_modes_preferred = []
@@ -84,13 +84,16 @@ class AVSwitch:
 		return modes.split(" ")
 
 	def readPreferredModes(self):
+		modes = []
 		try:
 			with open("/proc/stb/video/videomode_preferred", "r") as fd:
 				modes = fd.read()[:-1]
 			self.modes_preferred = modes.split(" ")
 		except (IOError, OSError):
 			print("[AVSwitch] reading preferred modes failed, using all modes")
+		if not modes:
 			self.modes_preferred = self.readAvailableModes()
+			print("[AVSwitch] reading preferred modes found null using readAvaiableModes", self.modes_preferred)
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI")  # Must be HDMI.
@@ -98,9 +101,10 @@ class AVSwitch:
 	# Check if a high-level mode with a given rate is available.
 	#
 	def isModeAvailable(self, port, mode, rate):
-		rate = self.rates[mode][rate]
-		for mode in rate.values():
-			if mode not in self.readAvailableModes():
+		rateNew = self.rates[mode][rate]
+		for modeNew in rateNew.values():
+			# print("[AVSwitch][isModeAvailable] modeNew", modeNew)
+			if modeNew not in self.readAvailableModes():
 				return False
 		return True
 
@@ -239,7 +243,7 @@ class AVSwitch:
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
 			print("[AVSwitch] current port (%s) not available, not setting videomode" % port)
-			print("[AVSwitch] current port not available, config.av.videomode", config.av.videomode)			
+			print("[AVSwitch] current port not available, config.av.videomode", config.av.videomode)
 			return
 		mode = config.av.videomode[port].value
 		if mode not in config.av.videorate:
@@ -278,7 +282,7 @@ class AVSwitch:
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
 			print("[AVSwitch] current port (%s) not available in getOutputAspect!!! force 16:9" % port)
-			print("[AVSwitch] current port not available config.av.videomode", config.av.videomode)			
+			print("[AVSwitch] current port not available config.av.videomode", config.av.videomode)
 		else:
 			mode = config.av.videomode[port].value
 			force_widescreen = self.isWidescreenMode(port, mode)
@@ -469,7 +473,7 @@ def InitAVSwitch():
 			choiceslist = procChoices.split(" ")
 			choices = [(item, _(item)) for item in choiceslist]
 			default = choiceslist[0]
-#			print("[AVSwitch][readChoices from Proc] choices=%s, default=%s" % (choices, default))
+			# print("[AVSwitch][readChoices from Proc] choices=%s, default=%s" % (choices, default))
 		return (choices, default)
 
 	iAVSwitch.setInput("ENCODER")  # Init on startup.

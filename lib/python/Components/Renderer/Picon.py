@@ -71,30 +71,34 @@ class PiconLocator:
 				self.searchPaths.append(value)
 
 	def getPiconName(self, serviceRef):
-		#remove the path and name fields, and replace ":" by "_"
+		# remove the path and name fields, and replace ":" by "_"
 		fields = GetWithAlternative(serviceRef).split(":", 10)[:10]
 		if not fields or len(fields) < 10:
 			return ""
 		pngname = self.findPicon("_".join(fields))
 		if not pngname and not fields[6].endswith("0000"):
-			#remove "sub-network" from namespace
+			# remove "sub-network" from namespace
 			fields[6] = fields[6][:-4] + "0000"
 			pngname = self.findPicon("_".join(fields))
 		if not pngname and fields[0] != "1":
-			#fallback to 1 for IPTV streams
+			# fallback to 1 for IPTV streams
 			fields[0] = "1"
 			pngname = self.findPicon("_".join(fields))
 		if not pngname and fields[2] != "2":
-			#fallback to 1 for TV services with non-standard service types
+			# fallback to 1 for TV services with non-standard service types
 			fields[2] = "1"
 			pngname = self.findPicon("_".join(fields))
-		if not pngname: # picon by channel name
+		if not pngname and fields[9] != "0":
+			# fallback to 0 for iptv buffering
+			fields[9] = "0"
+			pngname = self.findPicon('_'.join(fields))
+		if not pngname:  # picon by channel name
 			name = sanitizeFilename(eServiceReference(serviceRef).getServiceName())
 			name = re.sub("[^a-z0-9]", "", name.replace("&", "and").replace("+", "plus").replace("*", "star").lower())
 			if len(name) > 0:
 				pngname = self.findPicon(name)
-				if not pngname and len(name) > 2 and name.endswith("hd"):
-					pngname = self.findPicon(name[:-2])
+				if not pngname and len(name) > 2:
+					pngname = self.findPicon(re.sub("uhd$|fhd$|sd$|hd$|4k$", "", name))
 				if not pngname and len(name) > 6:
 					series = re.sub(r"s[0-9]*e[0-9]*$", "", name)
 					pngname = self.findPicon(series)
@@ -139,7 +143,7 @@ class Picon(Renderer):
 		if self.instance:
 			if what[0] in (self.CHANGED_DEFAULT, self.CHANGED_ALL, self.CHANGED_SPECIFIC):
 				pngname = piconLocator.getPiconName(self.source.text)
-				if not pathExists(pngname): # no picon for service found
+				if not pathExists(pngname):  # no picon for service found
 					pngname = self.defaultpngname
 				if self.pngname != pngname:
 					if pngname:

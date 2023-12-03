@@ -1,6 +1,6 @@
 from Components.FileList import FileList
 from Components.Sources.StaticText import StaticText
-from Components.config import config, getConfigListEntry, ConfigSubsection, ConfigText, ConfigYesNo, ConfigDirectory
+from Components.config import config, getConfigListEntry, ConfigYesNo, ConfigDirectory
 from Components.ConfigList import ConfigListScreen
 from Components.ActionMap import ActionMap
 from Components.Pixmap import Pixmap
@@ -38,7 +38,7 @@ class DirectoryBrowser(Screen, HelpableScreen):
 				"red": self.exit,
 				"ok": self.ok,
 				"cancel": self.exit
-			})
+			})  # noqa: E123
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
@@ -54,7 +54,7 @@ class DirectoryBrowser(Screen, HelpableScreen):
 				self.filelist.descent()
 				self.close(self["filelist"].getCurrentDirectory())
 		else:
-				self.close(self["filelist"].getFilename())
+			self.close(self["filelist"].getFilename())
 
 	def exit(self):
 		self.close(False)
@@ -79,7 +79,7 @@ class MediaPlayerSettings(ConfigListScreen, Screen):
 
 		self["setupActions"] = ActionMap(["SetupActions"],
 		{
-		    "ok": self.ok,
+			"ok": self.ok,
 		}, -2)
 		self.onLayoutFinish.append(self.layoutFinished)
 
@@ -93,8 +93,6 @@ class MediaPlayerSettings(ConfigListScreen, Screen):
 			self.list.append(getConfigListEntry(_("repeat playlist"), config.mediaplayer.repeat))
 			self.list.append(getConfigListEntry(_("save playlist on exit"), config.mediaplayer.savePlaylistOnExit))
 			self.list.append(getConfigListEntry(_("save last directory on exit"), config.mediaplayer.saveDirOnExit))
-			if not config.mediaplayer.saveDirOnExit.value:
-				self.list.append(getConfigListEntry(_("start directory"), config.mediaplayer.defaultDir))
 			self.list.append(getConfigListEntry(_("sorting of playlists"), config.mediaplayer.sortPlaylists))
 			self.list.append(getConfigListEntry(_("Always hide infobar"), config.mediaplayer.alwaysHideInfoBar))
 			self.list.append(getConfigListEntry(_("show mediaplayer on mainmenu"), config.mediaplayer.onMainMenu))

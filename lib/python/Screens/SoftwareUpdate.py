@@ -1,16 +1,13 @@
-from gettext import dgettext
-
 from enigma import eTimer, eDVBDB
 
-from boxbranding import getImageVersion, getImageBuild, getImageDevBuild, getImageType, getImageDistro, getMachineBrand, getMachineName, getMachineBuild
-from Components.ActionMap import ActionMap, NumberActionMap
+from boxbranding import getImageType, getMachineBrand, getMachineName
+from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config
-from Components.Console import Console
 from Components.Ipkg import IpkgComponent
 from Components.Pixmap import Pixmap
 from Components.Label import Label
-from Components.ScrollLabel import ScrollLabel
+from Components.ScrollLabel import ScrollLabel  # noqa: F401
 from Components.Sources.StaticText import StaticText
 from Components.Slider import Slider
 import Components.Task
@@ -223,19 +220,19 @@ class UpdatePlugin(Screen, ProtectedScreen):
 				self.slider.setValue(self.sliderPackages[param])
 			self.package.setText(param)
 			self.status.setText(_("Upgrading") + ": %s/%s" % (self.packages, self.total_packages))
-			if not param in self.processed_packages:
+			if param not in self.processed_packages:
 				self.processed_packages.append(param)
 				self.packages += 1
 		elif event == IpkgComponent.EVENT_INSTALL:
 			self.package.setText(param)
 			self.status.setText(_("Installing"))
-			if not param in self.processed_packages:
+			if param not in self.processed_packages:
 				self.processed_packages.append(param)
 				self.packages += 1
 		elif event == IpkgComponent.EVENT_REMOVE:
 			self.package.setText(param)
 			self.status.setText(_("Removing"))
-			if not param in self.processed_packages:
+			if param not in self.processed_packages:
 				self.processed_packages.append(param)
 				self.packages += 1
 		elif event == IpkgComponent.EVENT_CONFIGURING:
@@ -260,15 +257,18 @@ class UpdatePlugin(Screen, ProtectedScreen):
 				self.ipkg.startCmd(IpkgComponent.CMD_UPGRADE_LIST)
 			elif self.ipkg.currentCommand == IpkgComponent.CMD_UPGRADE_LIST:
 				self.total_packages = None
-				if getImageType() != 'release' or (config.softwareupdate.updateisunstable.value == 1 and config.softwareupdate.updatebeta.value):
+				if (getImageType() != 'release' or (config.softwareupdate.updateisunstable.value == 1 and config.softwareupdate.updatebeta.value)) or config.softwareupdate.updateisunstable.value == 0:
 					self.total_packages = len(self.ipkg.getFetchedList())
-					message = _("The current update may be unstable") + "\n" + _("Are you sure you want to update your %s %s ?") % (getMachineBrand(), getMachineName()) + "\n(" + (ngettext("%s updated package available", "%s updated packages available", self.total_packages) % self.total_packages) + ")"
-				elif config.softwareupdate.updateisunstable.value == 0:
-					self.total_packages = len(self.ipkg.getFetchedList())
-					message = _("Do you want to update your %s %s ?") % (getMachineBrand(), getMachineName()) + "\n(" + (ngettext("%s updated package available", "%s updated packages available", self.total_packages) % self.total_packages) + ")"
-				if self.total_packages is not None and self.total_packages > 150:
-					message += " " + _("Reflash recommended!")
+					packagesMsg = "\n(" + (ngettext("%s updated package available", "%s updated packages available", self.total_packages) % self.total_packages) + ")"
+					if getImageType() != 'release' or (config.softwareupdate.updateisunstable.value == 1 and config.softwareupdate.updatebeta.value):
+						message = _("The current update may be unstable.") + "\n" + _("Are you sure you want to update your %s %s?") % (getMachineBrand(), getMachineName()) + packagesMsg
+					elif config.softwareupdate.updateisunstable.value == 0:
+						message = _("Do you want to update your %s %s?") % (getMachineBrand(), getMachineName()) + packagesMsg
 				if self.total_packages:
+					if self.total_packages > 150:
+						message += " " + _("Reflash recommended!")
+					if isPluginInstalled("ViX") and not config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value:
+						message += "\n" + _("Making a settings backup before updating is highly recommended.")
 					global ocram
 					ocram = ''
 					for package_tmp in self.ipkg.getFetchedList():
@@ -281,7 +281,7 @@ class UpdatePlugin(Screen, ProtectedScreen):
 						(_("Upgrade and reboot system"), "cold")]
 					if isPluginInstalled("ViX"):
 						if not config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value:
-							choices.append((_("Perform a settings backup,") + '\n\t' + _("making a backup before updating") + '\n\t' + _("is strongly advised."), "backup"))
+							choices.append((_("Perform a settings backup"), "backup"))
 						if not config.softwareupdate.autoimagebackup.value and config.imagemanager.backuplocation.value:
 							choices.append((_("Perform a full image backup"), "imagebackup"))
 					choices.append((_("Update channel list only"), "channels"))
@@ -329,7 +329,7 @@ class UpdatePlugin(Screen, ProtectedScreen):
 			if 'enigma2-plugin-settings-' in param[0] and self.channellist_only > 0:
 				self.channellist_name = param[0]
 				self.channellist_only = 2
-		#print( event, "-", param)
+		# print( event, "-", param)
 		pass
 
 	def setEndMessage(self, txt):
@@ -345,14 +345,16 @@ class UpdatePlugin(Screen, ProtectedScreen):
 			return
 
 		if answer[1] == "menu":
+			packagesMsg = "\n(%s " % self.total_packages + _("Packages") + ")"
 			if config.softwareupdate.updateisunstable.value == 1:
-				message = _("The current update may be unstable") + "\n" + _("Are you sure you want to update your %s %s ?") % (getMachineBrand(), getMachineName()) + "\n(%s " % self.total_packages + _("Packages") + ")"
+				message = _("The current update may be unstable.") + "\n" + _("Are you sure you want to update your %s %s?") % (getMachineBrand(), getMachineName()) + packagesMsg
 			elif config.softwareupdate.updateisunstable.value == 0:
-				message = _("Do you want to update your %s %s ?") % (getMachineBrand(), getMachineName()) + "\n(%s " % self.total_packages + _("Packages") + ")"
+				message = _("Do you want to update your %s %s?") % (getMachineBrand(), getMachineName()) + packagesMsg
 			choices = [(_("View the changes"), "changes"),
 				(_("Upgrade and reboot system"), "cold")]
 			if not self.SettingsBackupDone and not config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value:
-				choices.append((_("Perform a settings backup, making a backup before updating is strongly advised."), "backup"))
+				choices.append((_("Perform a settings backup"), "backup"))
+				message += "\n" + _("Making a settings backup before updating is highly recommended.")
 			if not self.ImageBackupDone and not config.softwareupdate.autoimagebackup.value and config.imagemanager.backuplocation.value:
 				choices.append((_("Perform a full image backup"), "imagebackup"))
 			choices.append((_("Update channel list only"), "channels"))
@@ -386,18 +388,17 @@ class UpdatePlugin(Screen, ProtectedScreen):
 		Components.Task.job_manager.AddJob(self.BackupFiles.createBackupJob())
 		Components.Task.job_manager.in_background = False
 		for job in Components.Task.job_manager.getPendingJobs():
-			if job.name == dgettext('vix', 'Backup manager'):
+			if job.name == _('Backup manager'):
 				break
 		self.showJobView(job)
 
 	def doImageBackup(self):
-		backup = None
 		from Plugins.SystemPlugins.ViX.ImageManager import ImageBackup
 		self.ImageBackup = ImageBackup(self.session, True)
 		Components.Task.job_manager.AddJob(self.ImageBackup.createBackupJob())
 		Components.Task.job_manager.in_background = False
 		for job in Components.Task.job_manager.getPendingJobs():
-			if job.name == dgettext('vix', 'Image manager'):
+			if job.name == _('Image manager'):
 				break
 		self.showJobView(job)
 
@@ -412,9 +413,9 @@ class UpdatePlugin(Screen, ProtectedScreen):
 			self.close()
 
 	def showJobView(self, job):
-		if job.name == dgettext('vix', 'Image manager'):
+		if job.name == _('Image manager'):
 			self.ImageBackupDone = True
-		elif job.name == dgettext('vix', 'Backup manager'):
+		elif job.name == _('Backup manager'):
 			self.SettingsBackupDone = True
 		from Screens.TaskView import JobView
 		Components.Task.job_manager.in_background = False

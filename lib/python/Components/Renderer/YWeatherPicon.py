@@ -1,10 +1,8 @@
-#(c) 2boom mod 2012
+# (c) 2boom mod 2012
 
 from enigma import ePixmap, eTimer
 
-from Components.Pixmap import Pixmap
 from Components.Renderer.Renderer import Renderer
-from Components.config import *
 from Tools.Directories import fileExists, SCOPE_SKIN_IMAGE, SCOPE_CURRENT_SKIN, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
 

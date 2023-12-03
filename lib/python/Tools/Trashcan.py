@@ -65,7 +65,6 @@ class Trashcan:
 		self.gotRecordEvent(None, None)
 
 	def gotRecordEvent(self, service, event):
-		from RecordTimer import n_recordings
 		if event == enigma.iRecordableService.evEnd:
 			self.cleanIfIdle()
 
@@ -120,7 +119,7 @@ def cleanAll(path=None):
 	if not ospath.isdir(trash):
 		print("[Trashcan] No trash.", trash)
 		return 0
-	for root, dirs, files in walk(trash.encode(), topdown=False):
+	for root, dirs, files in walk(trash.encode(), topdown=False):  # handle non utf-8 filenames
 		for name in files:
 			fn = ospath.join(root, name)
 			enigma.eBackgroundFileEraser.getInstance().erase(fn)
@@ -172,9 +171,8 @@ class CleanTrashTask(Components.Task.PythonTask):
 				print("[Trashcan][CleanTrashTask][work] " + str(trashfolder) + ": Size:", "{:,}".format(trashsize))
 				candidates = []
 				size = 0
-				for root, dirs, files in walk(trashfolder.encode(), topdown=False):	# handle non utf-8 files
-#					print("[Trashcan][CleanTrashTask][work] lets look at files")
-					for name in files:	# Don't delete any per-directory config files from .Trash
+				for root, dirs, files in walk(trashfolder.encode(), topdown=False):  # handle non utf-8 files
+					for name in files:  # Don't delete any per-directory config files from .Trash
 						if (config.movielist.settings_per_directory.value and name == b".e2settings.pkl"):
 							continue
 						fn = ospath.join(root, name)
@@ -189,9 +187,9 @@ class CleanTrashTask(Components.Task.PythonTask):
 						else:
 							candidates.append((st.st_ctime, fn, st.st_size))
 							size += st.st_size
-#					print("[Trashcan][CleanTrashTask][work] lets look at directories")
+					# print("[Trashcan][CleanTrashTask][work] lets look at directories")
 					for name in dirs:		# Remove empty directories if possible
-#						print("[Trashcan][CleanTrashTask][work] dir name", dirs, "   ", name)					
+						# print("[Trashcan][CleanTrashTask][work] dir name", dirs, "   ", name)
 						try:
 							rmdir(ospath.join(root, name))
 						except Exception as e:
@@ -202,7 +200,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 					for st_ctime, fn, st_size in candidates:
 						if bytesToRemove < 0:
 							break
-						try:	# file may not exist if simultaneously a network trashcan and main box emptying trash
+						try:  # file may not exist if simultaneously a network trashcan and main box emptying trash
 							enigma.eBackgroundFileEraser.getInstance().erase(fn)
 						except:
 							pass

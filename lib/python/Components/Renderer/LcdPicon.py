@@ -1,6 +1,4 @@
 from os import path as ospath
-import re
-import unicodedata
 
 from enigma import ePixmap, ePicLoad
 from boxbranding import getDisplayType
@@ -73,7 +71,7 @@ class LcdPicon(Renderer):
 		if self.instance:
 			if what[0] in (self.CHANGED_DEFAULT, self.CHANGED_ALL, self.CHANGED_SPECIFIC):
 				pngname = lcdPiconLocator.getPiconName(self.source.text)
-				if not pathExists(pngname): # no picon for service found
+				if not pathExists(pngname):  # no picon for service found
 					pngname = self.defaultpngname
 				if self.pngname != pngname:
 					if pngname:

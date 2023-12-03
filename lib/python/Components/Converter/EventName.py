@@ -5,7 +5,7 @@ from Components.Element import cached
 from Components.Converter.genre import getGenreStringSub
 from Components.config import config
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
-from time import localtime, mktime, strftime
+from time import time, localtime, mktime, strftime
 
 
 class ETSIClassifications(dict):
@@ -106,11 +106,13 @@ class EventName(Converter):
 	RATINGCOUNTRY = 32
 	RATINGICON = 33
 
+	FORMAT_STRING = 34
+
 	KEYWORDS = {
 		# Arguments...
 		"Name": ("type", NAME),
 		"Description": ("type", SHORT_DESCRIPTION),
-		"ShortDescription": ("type", SHORT_DESCRIPTION), # added for consistency with MovieInfo
+		"ShortDescription": ("type", SHORT_DESCRIPTION),  # added for consistency with MovieInfo
 		"ExtendedDescription": ("type", EXTENDED_DESCRIPTION),
 		"FullDescription": ("type", FULL_DESCRIPTION),
 		"ID": ("type", ID),
@@ -162,15 +164,21 @@ class EventName(Converter):
 		parse = ","
 		type.replace(";", parse)  # Some builds use ";" as a separator, most use ",".
 		args = [arg.strip() for arg in type.split(parse)]
-		for arg in args:
-			name, value = self.KEYWORDS.get(arg, ("Error", None))
-			if name == "Error":
-				print("[EventName] ERROR: Unexpected / Invalid argument token '%s'!" % arg)
-			else:
-				setattr(self, name, value)
-		if self.separator is None:
-			default_sep = "SeparatorComma" if self.type == self.GENRELIST else "NotSeparated"
-			self.separator = self.KEYWORDS[default_sep][1]
+		self.parts = args
+
+		if len(self.parts) > 1:
+			self.type = self.FORMAT_STRING
+			self.separatorChar = self.parts[0]
+		else:
+			for arg in args:
+				name, value = self.KEYWORDS.get(arg, ("Error", None))
+				if name == "Error":
+					print("[EventName] ERROR: Unexpected / Invalid argument token '%s'!" % arg)
+				else:
+					setattr(self, name, value)
+			if self.separator is None:
+				default_sep = "SeparatorComma" if self.type == self.GENRELIST else "NotSeparated"
+				self.separator = self.KEYWORDS[default_sep][1]
 
 	def trimText(self, text):
 		if self.trim:
@@ -191,6 +199,8 @@ class EventName(Converter):
 	def getBoolean(self):
 		event = self.source.event
 		if event:
+			if self.type == self.NAME:
+				return bool(self.getText())
 			if self.type == self.PDC and event.getPdcPil():
 				return True
 		return False
@@ -275,7 +285,7 @@ class EventName(Converter):
 				if running_status in (6, 7):
 					return _("Reserved for future use")
 				return _("Undefined")
-		elif self.type in (self.NAME_NEXT, self.NAME_NEXT2) or self.type >= self.NEXT_DESCRIPTION:
+		elif self.type in (self.NAME_NEXT, self.NAME_NEXT2) or (self.type >= self.NEXT_DESCRIPTION and not self.type == self.FORMAT_STRING):
 			try:
 				reference = self.source.service
 				info = reference and self.source.info
@@ -307,6 +317,34 @@ class EventName(Converter):
 			rating = event.getParentalData()
 			if rating:
 				return rating.getCountryCode().upper()
+		elif self.type == self.FORMAT_STRING:
+			begin = event.getBeginTime()
+			end = begin + event.getDuration()
+			now = int(time())
+			t_start = localtime(begin)
+			t_end = localtime(end)
+			if begin <= now <= end:
+				duration = end - now
+				duration_str = "+%d min" % (duration / 60)
+			else:
+				duration = event.getDuration()
+				duration_str = "%d min" % (duration / 60)
+			start_time_str = "%2d:%02d" % (t_start.tm_hour, t_start.tm_min)
+			end_time_str = "%2d:%02d" % (t_end.tm_hour, t_end.tm_min)
+			name = self.trimText(event.getEventName())
+			res_str = ""
+			for x in self.parts[1:]:
+				if x == "NAME" and name:
+					res_str = self.appendToStringWithSeparator(res_str, name)
+				if x == "STARTTIME" and start_time_str:
+					res_str = self.appendToStringWithSeparator(res_str, start_time_str)
+				if x == "ENDTIME" and end_time_str:
+					res_str = self.appendToStringWithSeparator(res_str, end_time_str)
+				if x == "TIMERANGE" and start_time_str and end_time_str:
+					res_str = self.appendToStringWithSeparator(res_str, "%s - %s" % (start_time_str, end_time_str))
+				if x == "DURATION" and duration_str:
+					res_str = self.appendToStringWithSeparator(res_str, duration_str)
+			return res_str
 		return ""
 
 	text = property(getText)

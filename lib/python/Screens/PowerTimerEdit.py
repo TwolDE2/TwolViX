@@ -7,7 +7,6 @@ from Components.config import config
 from Components.Label import Label
 from Components.PowerTimerList import PowerTimerList
 from Components.Sources.StaticText import StaticText
-from Components.Sources.StaticText import StaticText
 from PowerTimer import PowerTimerEntry, AFTEREVENT
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
@@ -57,9 +56,10 @@ class PowerTimerEditList(Screen):
 				"right": self.right,
 				"up": self.up,
 				"down": self.down
-			}, -1)
+			}, -1)  # noqa: E123
 		self.session.nav.PowerTimer.on_state_change.append(self.onStateChange)
 		self.onShown.append(self.updateState)
+		self["timerlist"].selectionChanged()
 
 	def createSummary(self):
 		return PowerTimerEditListSummary
@@ -151,7 +151,7 @@ class PowerTimerEditList(Screen):
 
 		showCleanup = True
 		for x in self.list:
-			if (not x[0].disabled) and (x[1] == True):
+			if (not x[0].disabled) and (x[1] is True):
 				break
 		else:
 			showCleanup = False
@@ -190,7 +190,7 @@ class PowerTimerEditList(Screen):
 			cb(time, duration, state)
 
 	def fillTimerList(self):
-		#helper function to move finished timers to end of list
+		# helper function to move finished timers to end of list
 
 		def xcmp(a, b):
 			return (a > b) - (a < b)
@@ -205,7 +205,7 @@ class PowerTimerEditList(Screen):
 		del flist[:]
 		flist.extend([(timer, False) for timer in self.session.nav.PowerTimer.timer_list])
 		flist.extend([(timer, True) for timer in self.session.nav.PowerTimer.processed_timers])
-		if config.usage.timerlist_finished_timer_position.index: #end of list
+		if config.usage.timerlist_finished_timer_position.index:  # end of list
 			flist.sort(key=cmp_to_key(eol_compare))
 		else:
 			flist.sort(key=lambda x: x[0].begin)
@@ -278,7 +278,7 @@ class PowerTimerEditList(Screen):
 	def finishedAdd(self, answer):
 		if answer[0]:
 			entry = answer[1]
-			simulTimerList = self.session.nav.PowerTimer.record(entry)
+			simulTimerList = self.session.nav.PowerTimer.record(entry)  # noqa: F841
 			self.fillTimerList()
 			self.updateState()
 		else:

@@ -6,6 +6,7 @@ from Components.ConfigList import ConfigListScreen
 from Components.Pixmap import Pixmap
 from Components.Sources.StaticText import StaticText
 from Screens.Screen import Screen
+from Tools.ISO639 import LanguageCodes
 from . import DVDTitle
 
 
@@ -51,11 +52,11 @@ class TitleProperties(ConfigListScreen, Screen):
 
 		self["setupActions"] = ActionMap(["SetupActions", "ColorActions"],
 		{
-		    "green": self.exit,
-		    "red": self.cancel,
-		    "yellow": self.editTitle,
-		    "cancel": self.cancel,
-		    "ok": self.ok,
+			"green": self.exit,
+			"red": self.cancel,
+			"yellow": self.editTitle,
+			"cancel": self.cancel,
+			"ok": self.ok,
 		}, -2)
 
 		self.onShown.append(self.update)
@@ -72,7 +73,7 @@ class TitleProperties(ConfigListScreen, Screen):
 			self.list.append(getConfigListEntry("DVD " + _("Track"), self.properties.position))
 			self.list.append(getConfigListEntry("DVD " + _("Title"), self.properties.menutitle))
 			self.list.append(getConfigListEntry("DVD " + _("Description"), self.properties.menusubtitle))
-			if config.usage.setup_level.index >= 2: # expert+
+			if config.usage.setup_level.index >= 2:  # expert+
 				for audiotrack in self.properties.audiotracks:
 					DVB_aud = audiotrack.DVB_lang.value or audiotrack.pid.value
 					self.list.append(getConfigListEntry(_("Burn audio track (%s)") % DVB_aud, audiotrack.active))
@@ -133,16 +134,13 @@ class TitleProperties(ConfigListScreen, Screen):
 			self.project.titles.insert(new_pos - 1, swaptitle)
 
 	def ok(self):
-		#key = self.keydict[self["config"].getCurrent()[1]]
-		#if key in self.project.filekeys:
-			#self.session.openWithCallback(self.FileBrowserClosed, FileBrowser, key, self.settings)
+		# key = self.keydict[self["config"].getCurrent()[1]]
+		# if key in self.project.filekeys:
+		# 	self.session.openWithCallback(self.FileBrowserClosed, FileBrowser, key, self.settings)
 		pass
 
 	def cancel(self):
 		self.close()
-
-
-from Tools.ISO639 import LanguageCodes
 
 
 class LanguageChoices:

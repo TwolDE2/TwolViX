@@ -1,6 +1,7 @@
 from enigma import eListboxPythonMultiContent, gFont, iServiceInformation, eServiceCenter, eDVBFrontendParametersSatellite, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER
 
-from Components.ActionMap import ActionMap 
+from Components.ActionMap import ActionMap
+from Components.Converter.VAudioInfo import StdAudioDesc
 from Components.GUIComponent import GUIComponent
 from Components.Label import Label
 from Components.MenuList import MenuList
@@ -142,8 +143,9 @@ class ServiceInfo(Screen):
 			if self.play_service:
 				refstr = self.play_service.toString()
 				reftype = self.play_service.type
-				if "%3a//" in refstr and reftype not in (1, 257, 4098, 4114):
+				if "%3a//" in refstr and "%3a//127" not in refstr and reftype not in (1, 257, 4098, 4114):
 					self.IPTV = True
+			# print("[ServiceInfo][init] refstr reftype self.IPTV", refstr, "   ", reftype, "   ", self.IPTV)
 			self.audio = self.service and self.service.audioTracks()
 			self.number_of_tracks = self.audio and self.audio.getNumberOfTracks() or 0
 			self.sub_list = self.getSubtitleList()
@@ -172,9 +174,10 @@ class ServiceInfo(Screen):
 			resolution = "-"
 			if self.info:
 				from Components.Converter.PliExtraInfo import codec_data
+				from Components.Converter.ServiceInfo import getVideoHeight, getVideoWidth
 				videocodec = codec_data.get(self.info.getInfo(iServiceInformation.sVideoType), "N/A")
-				width = self.info.getInfo(iServiceInformation.sVideoWidth)
-				height = self.info.getInfo(iServiceInformation.sVideoHeight)
+				width = getVideoWidth(self.info)
+				height = getVideoHeight(self.info)
 				if width > 0 and height > 0:
 					fps = (self.info.getInfo(iServiceInformation.sFrameRate) + 500) // 1000
 					if fps in (0, -1):
@@ -246,7 +249,7 @@ class ServiceInfo(Screen):
 		if self.number_of_tracks:
 
 			def create_list(i):
-				audio_desc = self.audio.getTrackInfo(i).getDescription().replace("A_", "").replace("", "").replace("AC-3", "AC3").replace("(ATSC A/52)", "").replace("(ATSC A/52B)", "").replace("MPEG", "AAC").replace(" Layer 2 (MP2)", "").replace(" 3 (MP3)", "MP3").replace("-1", "").replace("2-", "").replace("-4 AAC", "").replace("4-AAC", "HE-AAC").replace("audio", "").replace("/L3", "").replace("/mpeg", "AAC").replace("/x-",  "").replace("raw",  "Dolby TrueHD").replace("E-AC3", "AC3+").replace("EAC3", "AC3+").replace("IPCM", "AC3").replace("LPCM", "AC3+").replace("AAC_PLUS", "AAC+").replace("AAC_LATM", "AAC").replace("WMA/PRO", "WMA Pro")
+				audio_desc = StdAudioDesc(self.audio.getTrackInfo(i).getDescription())
 				audio_pid = self.audio.getTrackInfo(i).getPID()
 				audio_lang = self.audio.getTrackInfo(i).getLanguage() or _("Not defined")
 				if self.IPTV:

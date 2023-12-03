@@ -2,7 +2,6 @@ from os import path
 
 from enigma import iPlayableService, iServiceInformation, eTimer, eServiceCenter, eServiceReference, eDVBDB
 
-from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import iAVSwitch as iAV
 from Components.config import config, configfile, getConfigListEntry
@@ -39,12 +38,8 @@ class VideoSetup(ConfigListScreen, Screen):
 		self.list = []
 		ConfigListScreen.__init__(self, self.list, session=session, on_change=self.changedEntry, fullUI=True)
 
-		from Components.ActionMap import ActionMap
 		self["actions"] = ActionMap(["SetupActions"],
-			{
-				"save": self.apply,
-			}, -2)
-
+			{"save": self.apply, }, -2)
 		self["description"] = Label("")
 		self.createSetup()
 		self.grabLastGoodMode()
@@ -252,18 +247,18 @@ class AutoVideoMode(Screen):
 		self.detecttimer.callback.append(self.VideoChangeDetect)
 
 	def checkIfDedicated3D(self):
-			service = self.session.nav.getCurrentlyPlayingServiceReference()
-			servicepath = service and service.getPath()
-			if servicepath and servicepath.startswith("/"):
-					if service.toString().startswith("1:"):
-						info = eServiceCenter.getInstance().info(service)
-						service = info and info.getInfoString(service, iServiceInformation.sServiceref)
-						return service and eDVBDB.getInstance().getFlag(eServiceReference(service)) & FLAG_IS_DEDICATED_3D == FLAG_IS_DEDICATED_3D and "sidebyside"
-					else:
-						return ".3d." in servicepath.lower() and "sidebyside" or ".tab." in servicepath.lower() and "topandbottom"
-			service = self.session.nav.getCurrentService()
-			info = service and service.info()
-			return info and info.getInfo(iServiceInformation.sIsDedicated3D) == 1 and "sidebyside"
+		service = self.session.nav.getCurrentlyPlayingServiceReference()
+		servicepath = service and service.getPath()
+		if servicepath and servicepath.startswith("/"):
+			if service.toString().startswith("1:"):
+				info = eServiceCenter.getInstance().info(service)
+				service = info and info.getInfoString(service, iServiceInformation.sServiceref)
+				return service and eDVBDB.getInstance().getFlag(eServiceReference(service)) & FLAG_IS_DEDICATED_3D == FLAG_IS_DEDICATED_3D and "sidebyside"
+			else:
+				return ".3d." in servicepath.lower() and "sidebyside" or ".tab." in servicepath.lower() and "topandbottom"
+		service = self.session.nav.getCurrentService()
+		info = service and service.info()
+		return info and info.getInfo(iServiceInformation.sIsDedicated3D) == 1 and "sidebyside"
 
 	def __evStart(self):
 		if config.osd.threeDmode.value == "auto":
@@ -297,25 +292,23 @@ class AutoVideoMode(Screen):
 
 	def VideoChangeDetect(self):
 		global resolutionlabel
-		print("[VideoMode][VideoChangeDetect] config.av.videoport.value", config.av.videoport.value)		
 		config_port = config.av.videoport.value
-		print("[VideoMode][VideoChangeDetect] config.av.videomode[config_port].value", config.av.videomode[config_port].value)		
-		config_mode = str(config.av.videomode[config_port].value).replace("\n", "")
-		config_res = str(config.av.videomode[config_port].value[:-1]).replace("\n", "")
-		config_pol = str(config.av.videomode[config_port].value[-1:]).replace("\n", "")
-		print("[VideoMode][VideoChangeDetect] config.av.videorate[config_mode].value", config.av.videomode[config_port].value)		
-		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")		
+		print("[VideoMode][VideoChangeDetect] config.av.videomode keys", list(config.av.videomode.keys()))
+		try:
+			config_mode = str(config.av.videomode[config_port].value).replace("\n", "")
+			config_res = str(config.av.videomode[config_port].value[:-1]).replace("\n", "")
+			config_pol = str(config.av.videomode[config_port].value[-1:]).replace("\n", "")
+			config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
+			print("[VideoMode][VideoChangeDetect] config_port, config_mode, config_res, config_pol, config_rate", config_port, "   ", config_mode, "   ", config_res, "   ", config_pol, "   ", config_rate)
+		except KeyError as e:
+			print("[VideoMode][VideoChangeDetect] config_port Keyerror use current values", e)
+			self.delay = False
+			self.detecttimer.stop()
+			return
 		with open("/proc/stb/video/videomode", "r") as fd:
 			current_mode = fd.read()[:-1].replace("\n", "")
 		if current_mode.upper() in ("PAL", "NTSC"):
 			current_mode = current_mode.upper()
-		current_pol = ""
-		if "i" in current_mode:
-			current_pol = "i"
-		elif "p" in current_mode:
-			current_pol = "p"
-		current_res = current_pol and current_mode.split(current_pol)[0].replace("\n", "") or ""
-		current_rate = current_pol and current_mode.split(current_pol)[0].replace("\n", "") and current_mode.split(current_pol)[1].replace("\n", "") or ""
 		video_height = None
 		video_width = None
 		video_pol = None
@@ -341,7 +334,7 @@ class AutoVideoMode(Screen):
 		except Exception:
 			pass
 		if not video_height or not video_width or not video_pol or not video_rate:
-			info = None if self.session.nav.getCurrentService() is None else self.session.nav.getCurrentService().info()	
+			info = None if self.session.nav.getCurrentService() is None else self.session.nav.getCurrentService().info()
 			if info:
 				video_height = int(info.getInfo(iServiceInformation.sVideoHeight))
 				video_width = int(info.getInfo(iServiceInformation.sVideoWidth))
@@ -380,7 +373,7 @@ class AutoVideoMode(Screen):
 				new_pol = str(video_pol)
 			else:
 				new_pol = config_pol
-			write_mode  = new_mode = None
+			write_mode = new_mode = None
 			if config_mode in ("PAL", "NTSC"):
 				write_mode = config_mode
 			elif config.av.autores.value == "all" or (config.av.autores.value == "hd" and int(new_res) >= 720):
@@ -444,7 +437,7 @@ class AutoVideoMode(Screen):
 						else:
 							write_mode = current_mode
 					except IOError:
-							write_mode = current_mode
+						write_mode = current_mode
 			if write_mode and current_mode != write_mode:
 				resolutionlabel["restxt"].setText(_("Video mode: %s") % write_mode)
 				if config.av.autores.value != "disabled" and config.av.autores_label_timeout.value != "0":

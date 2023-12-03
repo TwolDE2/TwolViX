@@ -76,7 +76,7 @@ class ScrollLabel(GUIComponent):
 			skin.applyAllAttributes(self.scrollbar, desktop, scrollbar_attribs + widget_attribs, parent.scale)
 			ret = True
 		self.pageWidth = self.long_text.size().width()
-		lineheight = fontRenderClass.getInstance().getLineHeight(self.long_text.getFont()) or 30 # assume a random lineheight if nothing is visible
+		lineheight = fontRenderClass.getInstance().getLineHeight(self.long_text.getFont()) or 30  # assume a random lineheight if nothing is visible
 		lines = int(self.long_text.size().height() // lineheight)
 		self.pageHeight = int(lines * lineheight)
 		self.instance.move(self.long_text.position())
@@ -137,15 +137,20 @@ class ScrollLabel(GUIComponent):
 			self.setPos(self.curPos + self.pageHeight)
 			self.updateScrollbar()
 
+	def firstPage(self):
+		self.setPos(0)
+		self.updateScrollbar()
+
 	def lastPage(self):
 		self.setPos(self.TotalTextHeight - self.pageHeight)
+		self.updateScrollbar()
 
 	def isAtLastPage(self):
 		return self.TotalTextHeight <= self.pageHeight or self.curPos == self.TotalTextHeight - self.pageHeight
 
 	def updateScrollbar(self):
 		vis = max(100 * self.pageHeight // self.TotalTextHeight, 3)
-		start = (100 - vis) * self.curPos // (self.TotalTextHeight - self.pageHeight)
+		start = (100 - vis) * self.curPos // ((self.TotalTextHeight - self.pageHeight) or 1)
 		self.scrollbar.setStartEnd(start, start + vis)
 
 	def GUIcreate(self, parent):

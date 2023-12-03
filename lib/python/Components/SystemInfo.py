@@ -10,12 +10,13 @@ from Tools.HardwareInfo import HardwareInfo
 
 SystemInfo = {}
 
+
 class BoxInformation:
 	def __init__(self, root=""):
 		self.immutableList = []
 		self.boxInfo = {}
 		file = root + pathjoin(resolveFilename(SCOPE_LIBDIR), "enigma.info")
-		self.boxInfo["overrideactive"] = False # not currently used by us
+		self.boxInfo["overrideactive"] = False  # not currently used by us
 		lines = fileReadLines(file)
 		if lines:
 			for line in lines:
@@ -26,7 +27,7 @@ class BoxInformation:
 					self.immutableList.append(item)
 					# Temporary fix: some items that look like floats are not floats and should be handled as strings, e.g. python "3.10" should not be processed as "3.1".
 					if not (value.startswith("\"") or value.startswith("'")) and item in ("python", "imageversion", "imgversion"):
-						value = '"' + value + '"' # wrap it so it is treated as a string
+						value = '"' + value + '"'  # wrap it so it is treated as a string
 					self.boxInfo[item] = self.processValue(value)
 			# print("[SystemInfo] Enigma information file data loaded into BoxInfo.")
 		else:
@@ -54,7 +55,7 @@ class BoxInformation:
 		elif value.upper() in ("TRUE", "YES", "ON", "ENABLED"):
 			value = True
 		elif value.isdigit() or ((value[0:1] == "-" or value[0:1] == "+") and value[1:].isdigit()):
-			if value[0] != "0": # if this is zero padded it must be a string, so skip
+			if value[0] != "0":  # if this is zero padded it must be a string, so skip
 				value = int(value)
 		elif value.startswith("0x") or value.startswith("0X"):
 			value = int(value, 16)
@@ -72,7 +73,7 @@ class BoxInformation:
 	def getEnigmaInfoList(self):
 		return sorted(self.immutableList)
 
-	def getEnigmaConfList(self): # not used by us
+	def getEnigmaConfList(self):  # not used by us
 		return []
 
 	def getItemsList(self):
@@ -97,8 +98,8 @@ class BoxInformation:
 		SystemInfo[item] = value
 		return True
 
-	def deleteItem(self, item):
-		if item in self.immutableList:
+	def deleteItem(self, item, forceOverride=False):
+		if item in self.immutableList and not forceOverride:
 			print("[BoxInfo] Error: Item '%s' is immutable and can not be deleted!" % item)
 		elif item in self.boxInfo:
 			del self.boxInfo[item]
@@ -121,14 +122,17 @@ MACHINEBUILD = BoxInfo.getItem("machinebuild")
 SystemInfo["ArchIsARM"] = ARCHITECTURE.startswith(("arm", "cortex"))
 SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
 
+
 def getBoxDisplayName():  # This function returns a tuple like ("BRANDNAME", "BOXNAME")
 	return (DISPLAYBRAND, DISPLAYMODEL)
+
 
 def getRCFile(ext):
 	filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", "%s.%s" % (BoxInfo.getItem("rcname"), ext)))
 	if not isfile(filename):
 		filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", "dmm1.%s" % ext))
 	return filename
+
 
 def setRCFile(source):
 	if source == "hardware":
@@ -141,14 +145,14 @@ def setRCFile(source):
 		SystemInfo["rc_default"] = True
 
 
-SystemInfo["HasRootSubdir"] = False	# This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["RecoveryMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["AndroidMode"] = False	# This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["HasMultibootMTD"] = False # This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")	# This needs to be here so it can be tested by getMultibootslots!
-SystemInfo["HasKexecUSB"] = False	# This needs to be here so it can be reset by getMultibootslots!
-from Tools.Multiboot import getMultibootslots  # This import needs to be here to avoid a SystemInfo load loop!
-SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")	# This needs to be for later checks
+SystemInfo["HasRootSubdir"] = False  # This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["RecoveryMode"] = False  # This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["AndroidMode"] = False  # This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["HasMultibootMTD"] = False  # This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")  # This needs to be here so it can be tested by getMultibootslots!
+SystemInfo["HasKexecUSB"] = False  # This needs to be here so it can be reset by getMultibootslots!
+from Tools.Multiboot import getMultibootslots  # noqa: E402  This import needs to be here to avoid a SystemInfo load loop!
+SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")  # This needs to be for later checks
 SystemInfo["canMultiBoot"] = getMultibootslots()
 # SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py
 # SystemInfo["MultiBootSlot"] = current slot set in Tools/Multiboot.py
@@ -169,12 +173,8 @@ def countFrontpanelLEDs():
 
 
 def hasInitCam():
-	for cam in listdir("/etc/init.d"):
-		if cam.startswith("softcam.") and not cam.endswith("None"):
-			return True
-		else:
-			pass
-	return False
+	return bool([f for f in listdir("/etc/init.d") if f.startswith("softcam.") and f != "softcam.None"])
+
 
 SystemInfo["CanKexecVu"] = getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]
 SystemInfo["HasUsbhdd"] = {}
@@ -183,11 +183,12 @@ SystemInfo["HasInitCam"] = hasInitCam()
 SystemInfo["MachineBrand"] = getMachineBrand()
 SystemInfo["MachineName"] = getMachineName()
 SystemInfo["DeveloperImage"] = getImageType().lower() != "release"
+SystemInfo["FCCactive"] = False
 SystemInfo["rc_model"] = rc_model.getRcFolder()
 SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
-SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4") # due to button limitations of the remote control
-SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "octagon1", "octagon3", "sf8008", "sf8008m", "uniboxhde") # due to button limitations of the remote control
-SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",) # Allow multiple functions only if both buttons are present
+SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4")  # due to button limitations of the remote control
+SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("ax4", "beyonwiz1", "beyonwiz2", "gb0", "gb1", "gb2", "gb3", "gb4", "octagon1", "octagon3", "sf8008", "sf8008m", "uniboxhde")  # due to button limitations of the remote control
+SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",)  # Allow multiple functions only if both buttons are present
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
@@ -206,14 +207,14 @@ SystemInfo["Fan"] = fileCheck("/proc/stb/fp/fan")
 SystemInfo["FanPWM"] = SystemInfo["Fan"] and fileCheck("/proc/stb/fp/fan_pwm")
 SystemInfo["WakeOnLAN"] = getBoxType() not in ("et8000", "et10000") and fileCheck("/proc/stb/power/wol") or fileCheck("/proc/stb/fp/wol")
 SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in getMachineMtdRoot()
-#	Sat Config
+# Sat Config
 SystemInfo["Blindscan_t2_available"] = fileCheck("/proc/stb/info/vumodel") and getBoxType().startswith("vu")
 SystemInfo["HasPhysicalLoopthrough"] = ["Vuplus DVB-S NIM(AVL2108)", "GIGA DVB-S2 NIM (Internal)"]
 if getBoxType() in ("et7500", "et8500"):
 	SystemInfo["HasPhysicalLoopthrough"].append("AVL6211")
 SystemInfo["FbcTunerPowerAlwaysOn"] = getBoxType() in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse")
 SystemInfo["HasFBCtuner"] = ["Vuplus DVB-C NIM(BCM3158)", "Vuplus DVB-C NIM(BCM3148)", "Vuplus DVB-S NIM(7376 FBC)", "Vuplus DVB-S NIM(45308X FBC)", "Vuplus DVB-S NIM(45208 FBC)", "DVB-S2 NIM(45208 FBC)", "DVB-S2X NIM(45308X FBC)", "DVB-S2 NIM(45308 FBC)", "DVB-C NIM(3128 FBC)", "BCM45208", "BCM45308X", "BCM3158"]
-# 	LED/LCD
+# LED/LCD
 SystemInfo["NumFrontpanelLEDs"] = countFrontpanelLEDs()
 SystemInfo["7segment"] = getDisplayType() in ("7segment")
 SystemInfo["Display"] = False
@@ -229,7 +230,7 @@ SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach") or fileCheck("/pro
 SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and getBoxType() != "gb800ueplus"
 SystemInfo["DisplayLED"] = getBoxType() in ("gb800se", "gb800solo", "gbx1", "gbx2", "gbx3", "gbx3h")
-SystemInfo["LEDButtons"] = False # getBoxType() == "vuultimo", For some reason this causes a cpp crash on vuultimo (which we no longer build). The cause needs investigating or the dead code in surrounding modules that this change causes should be removed.
+SystemInfo["LEDButtons"] = False  # getBoxType() == "vuultimo", For some reason this causes a cpp crash on vuultimo (which we no longer build). The cause needs investigating or the dead code in surrounding modules that this change causes should be removed.
 SystemInfo["PowerLED"] = fileExists("/proc/stb/power/powerled")
 SystemInfo["PowerLED2"] = fileExists("/proc/stb/power/powerled2")
 SystemInfo["StandbyLED"] = fileExists("/proc/stb/power/standbyled")
@@ -244,7 +245,7 @@ SystemInfo["VFD_scroll_repeats"] = not SystemInfo["7segment"] and getBoxType() n
 SystemInfo["VFD_scroll_delay"] = not SystemInfo["7segment"] and getBoxType() not in ("et8500") and fileCheck("/proc/stb/lcd/scroll_delay")
 SystemInfo["VFD_initial_scroll_delay"] = not SystemInfo["7segment"] and getBoxType() not in ("et8500") and fileCheck("/proc/stb/lcd/initial_scroll_delay")
 SystemInfo["VFD_final_scroll_delay"] = not SystemInfo["7segment"] and getBoxType() not in ("et8500") and fileCheck("/proc/stb/lcd/final_scroll_delay")
-#	Video Output control
+# Video Output control
 SystemInfo["ZapMode"] = fileCheck("/proc/stb/video/zapmode") or fileCheck("/proc/stb/video/zapping_mode")
 SystemInfo["FastChannelChange"] = False
 SystemInfo["3DMode"] = fileCheck("/proc/stb/fb/3dmode") or fileCheck("/proc/stb/fb/primary/3d")
@@ -258,7 +259,7 @@ SystemInfo["CanNotDoSimultaneousTranscodeAndPIP"] = getBoxType() in ("vusolo4k",
 SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["hasHdmiCec"] = fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")
 SystemInfo["HasHDMIin"] = getHaveHDMIinHD() in ("True",) or getHaveHDMIinFHD() in ("True",)
-#	Audio/Video Configuration setup values
+# Audio/Video Configuration setup values
 SystemInfo["hasJack"] = getHaveAVJACK() in ('True',)
 SystemInfo["hasRCA"] = getHaveRCA() in ('True',)
 SystemInfo["hasScart"] = getHaveSCART() in ('True',)
@@ -307,7 +308,7 @@ SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
 SystemInfo["CanBTAudio"] = fileHas("/proc/stb/audio/btaudio_choices", "off")
 SystemInfo["CanBTAudioDelay"] = fileCheck("/proc/stb/audio/btaudio_delay") or fileCheck("/proc/stb/audio/btaudio_delay_pcm")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
-#	Multiboot/bootmode options	The following entries need to be in this sequence to avoid a SystemInfo failure.
+# Multiboot/bootmode options	The following entries need to be in this sequence to avoid a SystemInfo failure.
 SystemInfo["canBackupEMC"] = getMachineBuild() in ("hd51", "h7") and ("disk.img", "%s" % SystemInfo["MBbootdevice"]) or getMachineBuild() in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "%s" % SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ("usb_update.bin", "none")
 SystemInfo["canMode12"] = getMachineBuild() in ("hd51", "h7") and ("brcm_cma=440M@328M brcm_cma=192M@768M", "brcm_cma=520M@248M brcm_cma=200M@768M")
 SystemInfo["HasH9SD"] = getMachineBuild() in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")

@@ -1,18 +1,13 @@
-from __future__ import print_function
-from __future__ import absolute_import
-
 from datetime import datetime
 from json import loads
 from sys import modules
 
 from enigma import eTimer
-from boxbranding import getImageVersion, getImageBuild, getImageDevBuild, getImageType
+from boxbranding import getImageBuild, getImageType  # getImageDevBuild removed Twol
 from Components.ActionMap import ActionMap
-from Components.Sources.StaticText import StaticText
 from Components.Button import Button
-from Components.ScrollLabel import ScrollLabel
 from Components.Label import Label
-from Components.config import config
+from Components.ScrollLabel import ScrollLabel
 from Screens.Screen import Screen
 
 # required methods: Request, urlopen, HTTPError, URLError
@@ -23,20 +18,20 @@ from urllib.error import HTTPError, URLError
 if getImageType() == 'release':
 	ImageVer = getImageBuild()
 else:
-#	ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
-#	ImageVer = float(ImageVer)
+	# ImageVer = "%s.%s" % (getImageBuild(),getImageDevBuild())
+	# ImageVer = float(ImageVer)
 	ImageVer = getImageBuild()
 
 E2Branches = {
 	'developer': 'Py3D',
 	'release': 'Py3'
-	}
+}
+
 
 project = 0
 projects = [
 	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=5.3", "OE-A Core"),
 	("https://api.github.com/repos/TwolDE2/enigma2/commits?sha=%s" % getattr(E2Branches, getImageType(), "Py3D"), "Enigma2"),
-	("https://api.github.com/repos/TwolDE2/vix-core/commits", "ViX Core"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
 	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
 	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
@@ -59,7 +54,7 @@ def readGithubCommitLogsSoftwareUpdate():
 			log = loads(urlopen(req, timeout=5).read())
 		for c in log:
 			if c['commit']['message'].startswith('openbh:') or (gitstart and not c['commit']['message'].startswith('openvix:') and getScreenTitle() in ("OE-A Core", "Enigma2", "ViX Core", "ViX Skins")):
-					continue
+				continue
 			if c['commit']['message'].startswith('openvix:'):
 				gitstart = False
 				if getImageType() == 'release' and c['commit']['message'].startswith('openvix: developer'):
@@ -77,7 +72,6 @@ def readGithubCommitLogsSoftwareUpdate():
 						releasever = '%s.%s' % (tmp[2], tmp[3])
 						releasever = float(releasever)
 				if ImageVer >= releasever:
-					blockstart = True
 					break
 
 			creator = c['commit']['author']['name']
@@ -196,7 +190,8 @@ class CommitInfo(Screen):
 				"down": self["AboutScrollLabel"].pageDown,
 				"left": self.left,
 				"right": self.right
-			})
+			}  # noqa: E123
+		)
 
 		self["key_red"] = Button(_("Cancel"))
 

@@ -1,14 +1,10 @@
 from Components.ActionMap import ActionMap
-from Components.config import config
 from Components.Harddisk import harddiskmanager
 from Components.Label import Label
 from Components.MenuList import MenuList
-from Components.Pixmap import Pixmap
 from Components.Task import job_manager
-from Components.Sources.StaticText import StaticText
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-from Tools.BoundFunction import boundFunction
 import Screens.InfoBar
 
 
@@ -24,7 +20,7 @@ class HarddiskSetup(Screen):
 		self["capacity"] = Label(_("Capacity: ") + hdd.capacity())
 		self["bus"] = Label(_("Bus: ") + hdd.bus())
 		self["key_red"] = Label(_("Cancel"))
-		self["key_green"] = Label(text) # text can be either "Initialize" or "Check"
+		self["key_green"] = Label(text)  # text can be either "Initialize" or "Check"
 		self["actions"] = ActionMap(["OkCancelActions"],
 		{
 			"ok": self.hddQuestion,
@@ -83,7 +79,7 @@ class HarddiskSelection(Screen):
 		Screen.__init__(self, session)
 		self.setTitle(_("Initialize Devices"))
 
-		self.skinName = "HarddiskSelection" # For derived classes
+		self.skinName = "HarddiskSelection"  # For derived classes
 		if harddiskmanager.HDDCount() == 0:
 			tlist = [(_("no storage devices found"), 0)]
 			self["hddlist"] = MenuList(tlist)
@@ -98,9 +94,9 @@ class HarddiskSelection(Screen):
 
 	def doIt(self, selection):
 		self.session.openWithCallback(self.close, HarddiskSetup, selection,
-			 action=selection.createInitializeJob,
-			 text=_("Initialize"),
-			 question=_("Do you really want to initialize this device?\nAll the data on the device will be lost!"))
+			action=selection.createInitializeJob,
+			text=_("Initialize"),
+			question=_("Do you really want to initialize this device?\nAll the data on the device will be lost!"))
 
 	def okbuttonClick(self):
 		selection = self["hddlist"].getCurrent()
@@ -119,6 +115,6 @@ class HarddiskFsckSelection(HarddiskSelection):
 
 	def doIt(self, selection):
 		self.session.openWithCallback(self.close, HarddiskSetup, selection,
-			 action=selection.createCheckJob,
-			 text=_("Check"),
-			 question=_("Do you really want to check the filesystem?\nThis could take a long time!"))
+			action=selection.createCheckJob,
+			text=_("Check"),
+			question=_("Do you really want to check the filesystem?\nThis could take a long time!"))

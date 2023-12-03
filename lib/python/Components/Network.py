@@ -1,7 +1,7 @@
 from os import listdir, path, system
 import re
 import netifaces as ni
-from socket import *
+from socket import *  # noqa: F401,F403  'from socket import *' used; unable to detect undefined names
 
 from Components.Console import Console
 from Components.PluginComponent import plugins
@@ -70,11 +70,11 @@ class Network:
 			if data['up']:
 				self.configuredInterfaces.append(iface)
 			nit = ni.ifaddresses(iface)
-			data['ip'] = self.convertIP(nit[ni.AF_INET][0]['addr']) # ipv4
+			data['ip'] = self.convertIP(nit[ni.AF_INET][0]['addr'])  # ipv4
 			data['netmask'] = self.convertIP(nit[ni.AF_INET][0]['netmask'])
 			data['bcast'] = self.convertIP(nit[ni.AF_INET][0]['broadcast'])
-			data['mac'] = nit[ni.AF_LINK][0]['addr'] # mac
-			data['gateway'] = self.convertIP(ni.gateways()['default'][ni.AF_INET][0]) # default gw
+			data['mac'] = nit[ni.AF_LINK][0]['addr']  # mac
+			data['gateway'] = self.convertIP(ni.gateways()['default'][ni.AF_INET][0])  # default gw
 		except:
 			data['dhcp'] = True
 			data['ip'] = [0, 0, 0, 0]
@@ -101,7 +101,7 @@ class Network:
 				fp.write("iface " + ifacename + " inet static\n")
 				fp.write("  hostname $(hostname)\n")
 				if 'ip' in iface:
-# 					print tuple(iface['ip'])
+					# print tuple(iface['ip'])
 					fp.write("	address %d.%d.%d.%d\n" % tuple(iface['ip']))
 					fp.write("	netmask %d.%d.%d.%d\n" % tuple(iface['netmask']))
 					if 'gateway' in iface:
@@ -144,21 +144,21 @@ class Network:
 					ifaces[currif]["dhcp"] = True
 				else:
 					ifaces[currif]["dhcp"] = False
-			if currif == iface: #read information only for available interfaces
+			if currif == iface:  # read information only for available interfaces
 				if split[0] == "address":
 					ifaces[currif]["address"] = list(map(int, split[1].split('.')))
 					if "ip" in self.ifaces[currif]:
-						if self.ifaces[currif]["ip"] != ifaces[currif]["address"] and ifaces[currif]["dhcp"] == False:
+						if self.ifaces[currif]["ip"] != ifaces[currif]["address"] and ifaces[currif]["dhcp"] is False:
 							self.ifaces[currif]["ip"] = list(map(int, split[1].split('.')))
 				if split[0] == "netmask":
 					ifaces[currif]["netmask"] = list(map(int, split[1].split('.')))
 					if "netmask" in self.ifaces[currif]:
-						if self.ifaces[currif]["netmask"] != ifaces[currif]["netmask"] and ifaces[currif]["dhcp"] == False:
+						if self.ifaces[currif]["netmask"] != ifaces[currif]["netmask"] and ifaces[currif]["dhcp"] is False:
 							self.ifaces[currif]["netmask"] = list(map(int, split[1].split('.')))
 				if split[0] == "gateway":
 					ifaces[currif]["gateway"] = list(map(int, split[1].split('.')))
 					if "gateway" in self.ifaces[currif]:
-						if self.ifaces[currif]["gateway"] != ifaces[currif]["gateway"] and ifaces[currif]["dhcp"] == False:
+						if self.ifaces[currif]["gateway"] != ifaces[currif]["gateway"] and ifaces[currif]["dhcp"] is False:
 							self.ifaces[currif]["gateway"] = list(map(int, split[1].split('.')))
 				if split[0] == "pre-up":
 					if "preup" in self.ifaces[currif]:
@@ -183,7 +183,7 @@ class Network:
 				callback(True)
 
 	def loadNameserverConfig(self):
-		ipRegexp = "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
+		ipRegexp = "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"  # noqa: W605
 		nameserverPattern = re.compile("nameserver +" + ipRegexp)
 		ipPattern = re.compile(ipRegexp)
 
@@ -202,7 +202,7 @@ class Network:
 				if ip:
 					self.nameservers.append(self.convertIP(ip))
 
-#		print "nameservers:", self.nameservers
+		# print("nameservers:", self.nameservers)
 
 	def getInstalledAdapters(self):
 		return [x for x in listdir('/sys/class/net') if not self.isBlacklisted(x)]
@@ -217,7 +217,7 @@ class Network:
 		if x in self.friendlyNames.keys():
 			return self.friendlyNames.get(x, x)
 		self.friendlyNames[x] = self.getFriendlyAdapterNaming(x)
-		return self.friendlyNames.get(x, x) # when we have no friendly name, use adapter name
+		return self.friendlyNames.get(x, x)  # when we have no friendly name, use adapter name
 
 	def getFriendlyAdapterNaming(self, iface):
 		name = None
@@ -273,7 +273,7 @@ class Network:
 		return None
 
 	def setAdapterAttribute(self, iface, attribute, value):
-# 		print "setting for adapter", iface, "attribute", attribute, " to value", value
+		# print "setting for adapter", iface, "attribute", attribute, " to value", value
 		if iface in self.ifaces:
 			self.ifaces[iface][attribute] = value
 
@@ -478,7 +478,7 @@ class Network:
 		def buildCommands(iface):
 			commands.append(("/sbin/ifdown", "/sbin/ifdown", "-f", iface))
 			commands.append(("/sbin/ip", "/sbin/ip", "addr", "flush", "dev", iface, "scope", "global"))
-			#wpa_supplicant sometimes doesn't quit properly on SIGTERM
+			# wpa_supplicant sometimes doesn't quit properly on SIGTERM
 			if path.exists('/var/run/wpa_supplicant/' + iface):
 				commands.append("wpa_cli -i" + iface + " terminate")
 
@@ -589,8 +589,8 @@ class Network:
 		from struct import pack
 		from socket import inet_ntoa
 
-		mask = 1 << 31
-		xnet = (1 << 32) - 1
+		# mask = 1 << 31 # what is this?
+		# xnet = (1 << 32) - 1 # what is this?
 		cidr_range = list(range(0, 32))
 		cidr = int(nmask)
 		if cidr not in cidr_range:

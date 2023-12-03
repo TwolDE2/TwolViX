@@ -107,7 +107,6 @@ EXTENSIONS = {
 }
 
 
-
 def FileEntryComponent(name, absolute=None, isDir=False):
 	res = [(absolute, isDir)]
 	x, y, w, h = parameters.get("FileListName", applySkinFactor(35, 1, 470, 20))
@@ -186,11 +185,11 @@ class FileList(MenuList):
 		return self.l.getCurrentSelection()[0]
 
 	def getCurrentEvent(self):
-		l = self.l.getCurrentSelection()
-		if not l or l[0][1] == True:
+		currl = self.l.getCurrentSelection()
+		if not currl or currl[0][1] is True:
 			return None
 		else:
-			return self.serviceHandler.info(l[0][0]).getEvent(l[0][0])
+			return self.serviceHandler.info(currl[0][0]).getEvent(currl[0][0])
 
 	def getFileList(self):
 		return self.list
@@ -215,7 +214,7 @@ class FileList(MenuList):
 		directories = []
 		files = []
 
-		if directory is None and self.showMountpoints: # present available mountpoints
+		if directory is None and self.showMountpoints:  # present available mountpoints
 			for p in harddiskmanager.getMountedPartitions():
 				mountPath = path.join(p.mountpoint, "")
 				if mountPath not in self.inhibitMounts and not self.inParentDirs(mountPath, self.inhibitDirs):
@@ -439,7 +438,7 @@ class MultiFileSelectList(FileList):
 		directories = []
 		files = []
 
-		if directory is None and self.showMountpoints: # present available mountpoints
+		if directory is None and self.showMountpoints:  # present available mountpoints
 			for p in harddiskmanager.getMountedPartitions():
 				mountPath = path.join(p.mountpoint, "")
 				if mountPath not in self.inhibitMounts and not self.inParentDirs(mountPath, self.inhibitDirs):

@@ -2,11 +2,72 @@ from enigma import iServiceInformation, iPlayableService
 
 from Components.Converter.Converter import Converter
 from Components.Converter.Poll import Poll
+from Components.Converter.VAudioInfo import StdAudioDesc
 from Components.Element import cached
 from Screens.InfoBarGenerics import hasActiveSubservicesForCurrentChannel
 from Tools.Transponder import ConvertToHumanReadable
 
 WIDESCREEN = [3, 4, 7, 8, 0xB, 0xC, 0xF, 0x10]
+
+
+def getProcVal(pathname, base=10):
+	val = None
+	try:
+		f = open(pathname, "r")
+		val = int(f.read(), base)
+		f.close()
+		if val >= 2 ** 31:
+			val -= 2 ** 32
+	except:
+		pass
+	return val
+
+
+def getVal(pathname, info, infoVal, base=10):
+	val = getProcVal(pathname, base=base)
+	return val if val is not None else info.getInfo(infoVal)
+
+
+def getValInt(pathname, info, infoVal, base=10, default=-1):
+	val = getVal(pathname, info, infoVal, base)
+	return val if val is not None else default
+
+
+def getValStr(pathname, info, infoVal, base=10, convert=lambda x: "%d" % x, instance=None):
+	val = getProcVal(pathname, base=base)
+	return convert(val) if val is not None else instance.getServiceInfoString(info, infoVal, convert)
+
+
+def getVideoHeight(info):
+	return getValInt("/proc/stb/vmpeg/0/yres", info, iServiceInformation.sVideoHeight, base=16)
+
+
+def getVideoHeightStr(info, convert=lambda x: "%d" % x if x > 0 else "?", instance=None):
+	return getValStr("/proc/stb/vmpeg/0/yres", info, iServiceInformation.sVideoHeight, base=16, convert=convert, instance=instance)
+
+
+def getVideoWidth(info):
+	return getValInt("/proc/stb/vmpeg/0/xres", info, iServiceInformation.sVideoWidth, base=16)
+
+
+def getVideoWidthStr(info, convert=lambda x: "%d" % x if x > 0 else "?", instance=None):
+	return getValStr("/proc/stb/vmpeg/0/xres", info, iServiceInformation.sVideoWidth, base=16, convert=convert, instance=instance)
+
+
+def getFrameRate(info):
+	return getValInt("/proc/stb/vmpeg/0/framerate", info, iServiceInformation.sFrameRate)
+
+
+def getFrameRateStr(info, convert=lambda x: "%d" % x if x > 0 else "", instance=None):
+	return getValStr("/proc/stb/vmpeg/0/framerate", info, iServiceInformation.sFrameRate, convert=convert, instance=instance)
+
+
+def getProgressive(info):
+	return getValInt("/proc/stb/vmpeg/0/progressive", info, iServiceInformation.sProgressive, default=0)
+
+
+def getProgressiveStr(info, convert=lambda x: "" if x else "i", instance=None):
+	return getValStr("/proc/stb/vmpeg/0/progressive", info, iServiceInformation.sProgressive, convert=convert, instance=instance)
 
 
 class ServiceInfo(Poll, Converter):
@@ -117,54 +178,6 @@ class ServiceInfo(Poll, Converter):
 			return info.getInfoString(what)
 		return convert(v)
 
-	def _getProcVal(self, pathname, base=10):
-		val = None
-		try:
-			f = open(pathname, "r")
-			val = int(f.read(), base)
-			f.close()
-			if val >= 2 ** 31:
-				val -= 2 ** 32
-		except Exception as e:
-			pass
-		return val
-
-	def _getVal(self, pathname, info, infoVal, base=10):
-		val = self._getProcVal(pathname, base=base)
-		return val if val is not None else info.getInfo(infoVal)
-
-	def _getValInt(self, pathname, info, infoVal, base=10, default=-1):
-		val = self._getVal(pathname, info, infoVal, base)
-		return val if val is not None else default
-
-	def _getValStr(self, pathname, info, infoVal, base=10, convert=lambda x: "%d" % x):
-		val = self._getProcVal(pathname, base=base)
-		return convert(val) if val is not None else self.getServiceInfoString(info, infoVal, convert)
-
-	def _getVideoHeight(self, info):
-		return self._getValInt("/proc/stb/vmpeg/0/yres", info, iServiceInformation.sVideoHeight, base=16)
-
-	def _getVideoHeightStr(self, info, convert=lambda x: "%d" % x if x > 0 else "?"):
-		return self._getValStr("/proc/stb/vmpeg/0/yres", info, iServiceInformation.sVideoHeight, base=16, convert=convert)
-
-	def _getVideoWidth(self, info):
-		return self._getValInt("/proc/stb/vmpeg/0/xres", info, iServiceInformation.sVideoWidth, base=16)
-
-	def _getVideoWidthStr(self, info, convert=lambda x: "%d" % x if x > 0 else "?"):
-		return self._getValStr("/proc/stb/vmpeg/0/xres", info, iServiceInformation.sVideoWidth, base=16, convert=convert)
-
-	def _getFrameRate(self, info):
-		return self._getValInt("/proc/stb/vmpeg/0/framerate", info, iServiceInformation.sFrameRate)
-
-	def _getFrameRateStr(self, info, convert=lambda x: "%d" % x if x > 0 else ""):
-		return self._getValStr("/proc/stb/vmpeg/0/framerate", info, iServiceInformation.sFrameRate, convert=convert)
-
-	def _getProgressive(self, info):
-		return self._getValInt("/proc/stb/vmpeg/0/progressive", info, iServiceInformation.sProgressive, default=0)
-
-	def _getProgressiveStr(self, info, convert=lambda x: "" if x else "i"):
-		return self._getValStr("/proc/stb/vmpeg/0/progressive", info, iServiceInformation.sProgressive, convert=convert)
-
 	@cached
 	def getBoolean(self):
 		service = self.source.service
@@ -173,7 +186,7 @@ class ServiceInfo(Poll, Converter):
 			return False
 		video_height = None
 		video_aspect = None
-		video_height = self._getVideoHeight(info)
+		video_height = getVideoHeight(info)
 		video_aspect = info.getInfo(iServiceInformation.sAspect)
 		if self.type == self.HAS_TELETEXT:
 			tpid = info.getInfo(iServiceInformation.sTXTPID)
@@ -186,7 +199,7 @@ class ServiceInfo(Poll, Converter):
 				idx = 0
 				while idx < n:
 					i = audio.getTrackInfo(idx)
-					description = i.getDescription().replace("A_", "").replace("", "").replace("AC-3", "AC3").replace("(ATSC A/52)", "").replace("(ATSC A/52B)", "").replace("MPEG", "AAC").replace(" Layer 2 (MP2)", "").replace(" 3 (MP3)", "MP3").replace("-1", "").replace("2-", "").replace("-4 AAC", "").replace("4-AAC", "HE-AAC").replace("audio", "").replace("/L3", "").replace("/mpeg", "AAC").replace("/x-",  "").replace("raw",  "Dolby TrueHD").replace("E-AC3", "AC3+").replace("EAC3", "AC3+").replace("IPCM", "AC3").replace("LPCM", "AC3+").replace("AAC_PLUS", "AAC+").replace("AAC_LATM", "AAC").replace("WMA/PRO", "WMA Pro")
+					description = StdAudioDesc(i.getDescription())
 					if description and description.split()[0] in ("AC4", "AAC+", "AC3", "AC3+", "Dolby", "DTS", "DTS-HD", "HE-AAC", "IPCM", "LPCM", "WMA Pro"):
 						if self.type == self.IS_MULTICHANNEL:
 							return True
@@ -241,7 +254,7 @@ class ServiceInfo(Poll, Converter):
 			elif self.type == self.IS_4K:
 				return video_height >= 1500
 			elif self.type == self.PROGRESSIVE:
-				return bool(self._getProgressive(info))
+				return bool(getProgressive(info))
 			elif self.type == self.IS_SDR:
 				return info.getInfo(iServiceInformation.sGamma) == 0
 			elif self.type == self.IS_HDR:
@@ -255,7 +268,10 @@ class ServiceInfo(Poll, Converter):
 			elif self.type == self.IS_VIDEO_AVC:
 				return info.getInfo(iServiceInformation.sVideoType) == 1
 			elif self.type == self.IS_VIDEO_HEVC:
-				return info.getInfo(iServiceInformation.sVideoType) == 7
+				if info.getInfoString(iServiceInformation.sServiceref).startswith("5002") and info.getInfo(iServiceInformation.sVideoType) == -1:
+					return 7
+				else:
+					return info.getInfo(iServiceInformation.sVideoType) == 7
 		return False
 
 	boolean = property(getBoolean)
@@ -267,9 +283,9 @@ class ServiceInfo(Poll, Converter):
 		if not info:
 			return ""
 		if self.type == self.XRES:
-			return self._getVideoWidthStr(info)
+			return getVideoWidthStr(info, instance=self)
 		elif self.type == self.YRES:
-			return self._getVideoHeightStr(info)
+			return getVideoHeightStr(info, instance=self)
 		elif self.type == self.APID:
 			return self.getServiceInfoString(info, iServiceInformation.sAudioPID)
 		elif self.type == self.VPID:
@@ -287,9 +303,9 @@ class ServiceInfo(Poll, Converter):
 		elif self.type == self.SID:
 			return self.getServiceInfoString(info, iServiceInformation.sSID)
 		elif self.type == self.FRAMERATE:
-			return self._getFrameRateStr(info, convert=lambda x: "%d fps" % ((x + 500) // 1000))
+			return getFrameRateStr(info, convert=lambda x: "%d fps" % ((x + 500) // 1000), instance=self)
 		elif self.type == self.PROGRESSIVE:
-			return self._getProgressiveStr(info)
+			return getProgressiveStr(info, instance=self)
 		elif self.type == self.TRANSFERBPS:
 			return self.getServiceInfoString(info, iServiceInformation.sTransferBPS, lambda x: "%d kB/s" % (x // 1024))
 		elif self.type == self.HAS_HBBTV:
@@ -319,15 +335,15 @@ class ServiceInfo(Poll, Converter):
 			out = "Freq: %s %s %s %s %s" % (frequency, polarization, sr_txt, symbolrate, fec)
 			return out
 		elif self.type == self.VIDEO_INFO:
-			progressive = self._getProgressiveStr(info)
-			fieldrate = self._getFrameRate(info)
+			progressive = getProgressiveStr(info, instance=self)
+			fieldrate = getFrameRate(info)
 			if fieldrate > 0:
 				if progressive == 'i':
 					fieldrate *= 2
 				fieldrate = "%dHz" % ((fieldrate + 500) // 1000,)
 			else:
 				fieldrate = ""
-			return "%sx%s%s %s" % (self._getVideoWidthStr(info), self._getVideoHeightStr(info), progressive, fieldrate)
+			return "%sx%s%s %s" % (getVideoWidthStr(info, instance=self), getVideoHeightStr(info, instance=self), progressive, fieldrate)
 		return ""
 
 	text = property(getText)
@@ -339,11 +355,11 @@ class ServiceInfo(Poll, Converter):
 		if not info:
 			return -1
 		if self.type == self.XRES:
-			return str(self._getVideoWidth(info))
+			return str(getVideoWidth(info))
 		elif self.type == self.YRES:
-			return str(self._getVideoHeight(info))
+			return str(getVideoHeight(info))
 		elif self.type == self.FRAMERATE:
-			return str(self._getFrameRate(self, info))
+			return str(getFrameRate(self, info))
 		return -1
 
 	value = property(getValue)

@@ -1,6 +1,6 @@
 from timer import TimerEntry
-from enigma import eListboxPythonMultiContent, eListbox, gFont, getDesktop, \
-	RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_TOP, RT_VALIGN_BOTTOM
+from enigma import eListboxPythonMultiContent, eListbox, gFont, \
+	RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_BOTTOM
 
 from Components.GUIComponent import GUIComponent
 from PowerTimer import AFTEREVENT, TIMERTYPE
@@ -11,12 +11,11 @@ from Tools.LoadPixmap import LoadPixmap
 
 
 class PowerTimerList(GUIComponent):
-#
-#  | <Service>     <Name of the Timer>  |
-#  | <start, end>              <state>  |
-#
+	#
+	#  | <Service>     <Name of the Timer>  |
+	#  | <start, end>              <state>  |
+	#
 	def buildTimerEntry(self, timer, processed):
-		screenwidth = getDesktop(0).size().width()
 		timertype = {
 			TIMERTYPE.WAKEUP: _("Wake Up"),
 			TIMERTYPE.WAKEUPTOSTANDBY: _("Wake Up To Standby"),
@@ -26,14 +25,14 @@ class PowerTimerList(GUIComponent):
 			TIMERTYPE.DEEPSTANDBY: _("Deep Standby"),
 			TIMERTYPE.REBOOT: _("Reboot"),
 			TIMERTYPE.RESTART: _("Restart GUI")
-			}[timer.timerType]
+		}[timer.timerType]
 
 		afterevent = {
 			AFTEREVENT.NONE: _("Nothing"),
 			AFTEREVENT.WAKEUPTOSTANDBY: _("Wake Up To Standby"),
 			AFTEREVENT.STANDBY: _("Standby"),
 			AFTEREVENT.DEEPSTANDBY: _("Deep Standby")
-			}[timer.afterEvent]
+		}[timer.afterEvent]
 
 		height = self.l.getItemSize().height()
 		width = self.l.getItemSize().width()
@@ -83,7 +82,7 @@ class PowerTimerList(GUIComponent):
 				if self.iconRepeat:
 					res.append((eListboxPythonMultiContent.TYPE_PIXMAP_ALPHABLEND, 2, self.rowSplit, self.iconWidth, self.iconHeight, self.iconRepeat))
 			else:
-				repeatedtext = begin[0] # date
+				repeatedtext = begin[0]  # date
 			text = repeatedtext + ((" %s ... %s (%d " + _("mins") + ")") % (begin[1], FuzzyTime(timer.end)[1], (timer.end - timer.begin) / 60))
 			res.append((eListboxPythonMultiContent.TYPE_TEXT, 148, self.itemHeight - self.rowSplit, width - 150, self.rowSplit, 2, RT_HALIGN_RIGHT | RT_VALIGN_BOTTOM, text))
 			icon = None
@@ -125,12 +124,14 @@ class PowerTimerList(GUIComponent):
 
 	def __init__(self, list):
 		GUIComponent.__init__(self)
-		self.l = eListboxPythonMultiContent()
+		self.onSelectionChanged = []
+		self.l = eListboxPythonMultiContent()  # noqa: E741
 		self.l.setBuildFunc(self.buildTimerEntry)
 		self.serviceNameFont = gFont("Regular", 20)
 		self.font = gFont("Regular", 18)
 		self.eventNameFont = gFont("Regular", 18)
 		self.l.setList(list)
+		self.listCount = len(list)  # used by pager
 		self.itemHeight = 50
 		self.rowSplit = 25
 		self.iconMargin = 4
@@ -178,6 +179,7 @@ class PowerTimerList(GUIComponent):
 		self.l.setFont(0, self.serviceNameFont)
 		self.l.setFont(1, self.font)
 		self.l.setFont(2, self.eventNameFont)
+		self.selectionChanged()
 		return GUIComponent.applySkin(self, desktop, parent)
 
 	def getCurrent(self):
@@ -187,8 +189,17 @@ class PowerTimerList(GUIComponent):
 	GUI_WIDGET = eListbox
 
 	def postWidgetCreate(self, instance):
+		instance.selectionChanged.get().append(self.selectionChanged)
 		instance.setContent(self.l)
 		self.instance = instance
+
+	def preWidgetRemove(self, instance):
+		instance.selectionChanged.get().remove(self.selectionChanged)
+		instance.setContent(None)
+
+	def selectionChanged(self):
+		for x in self.onSelectionChanged:
+			x()
 
 	def moveToIndex(self, index):
 		self.instance.moveSelectionTo(index)

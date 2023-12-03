@@ -6,13 +6,12 @@ from Components.config import config, getConfigListEntry, ConfigSubsection, Conf
 from Components.ConfigList import ConfigListScreen
 from Components.NimManager import nimmanager
 from Components.Sources.StaticText import StaticText
+from Components.Sources.TunerInfo import TunerInfo
 from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 
-
-# HasFBCDVBStuner = ["Vuplus DVB-S NIM(7376 FBC)", "Vuplus DVB-S NIM(45308X FBC)", "Vuplus DVB-S NIM(45208 FBC)", "DVB-S NIM(45208 FBC)", "DVB-S2X NIM(45308X FBC)", "DVB-S2 NIM(45308 FBC)", "BCM45208", "BCM45308X"]
 
 config.plugins.miscControl = ConfigSubsection()
 config.plugins.miscControl.forceLnbPower = ConfigSelection(default="off", choices=[("on", _("Yes")), ("off", _("No")), ("auto", _("Auto"))])
@@ -24,17 +23,19 @@ PROC_FORCE_TONEBURST = "/proc/stb/frontend/fbc/force_toneburst"
 IS_PROC_FORCE_LNBPOWER = ospath.exists(PROC_FORCE_LNBPOWER)
 IS_PROC_FORCE_TONEBURST = ospath.exists(PROC_FORCE_TONEBURST)
 
+
 def setProcValueOnOff(value, procPath):
 	try:
-		fd = open(procPath,'w')
+		fd = open(procPath, 'w')
 		fd.write(value)
 		fd.close()
 		return 0
-	except Exception as e:
+	except Exception:
 		return -1
 
+
 class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
-	skin = 	"""
+	skin = """
 		<screen position="center,center" size="620,150" title="Force LNB power - FBC tuners" >
 			<ePixmap pixmap="skin_default/buttons/red.png" position="140,10" size="140,40" alphatest="on" />
 			<ePixmap pixmap="skin_default/buttons/green.png" position="370,10" size="140,40" alphatest="on" />
@@ -55,7 +56,7 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 			"green": self.keySave,
 		}, -2)
 		self.list = []
-		ConfigListScreen.__init__(self, self.list,session=session)
+		ConfigListScreen.__init__(self, self.list, session=session)
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
 		self.dispErrorTimer = eTimer()
@@ -88,7 +89,7 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 	def keySave(self):
 		global tunerStateChanged
 		if IS_PROC_FORCE_LNBPOWER:
-			if config.plugins.miscControl.forceLnbPower.value == "auto" and tunerStateChanged == None:
+			if config.plugins.miscControl.forceLnbPower.value == "auto" and tunerStateChanged is None:
 				tunerStateChanged = FBCtunerChanged()
 			val = config.plugins.miscControl.forceLnbPower.value == "on" and "on" or "off"
 			res = setProcValueOnOff(val, PROC_FORCE_LNBPOWER)
@@ -109,10 +110,12 @@ class FBCtunerLNBstandbyPower(Screen, ConfigListScreen):
 		for x in self["config"].list:
 			x[1].cancel()
 
+
 global_set_on = False
-from Components.Sources.TunerInfo import TunerInfo
+
 
 class FBCtunerChanged(TunerInfo):
+
 	def tunerUseMaskChanged(self, mask):
 		global global_set_on
 		if config.plugins.miscControl.forceLnbPower.value == "auto":
@@ -138,12 +141,15 @@ def startSetup(menuid):
 			if slot.isCompatible("DVB-S") and slot.description in SystemInfo["HasFBCtuner"]:
 				return [(_("FBC force LNB power"), main, "lnb_power_on", 100)]
 	return []
-	
+
+
 def main(session, **kwargs):
 	session.open(FBCtunerLNBstandbyPower)
 
+
 OnStart = False
 tunerStateChanged = None
+
 
 def OnSessionStart(session, **kwargs):
 	global OnStart, tunerStateChanged
@@ -156,6 +162,7 @@ def OnSessionStart(session, **kwargs):
 			setProcValueOnOff(val, PROC_FORCE_LNBPOWER)
 		if IS_PROC_FORCE_TONEBURST:
 			setProcValueOnOff(config.plugins.miscControl.forceToneBurst.value, PROC_FORCE_TONEBURST)
+
 
 def Plugins(**kwargs):
 	pList = []

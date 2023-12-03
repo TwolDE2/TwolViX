@@ -85,7 +85,7 @@ class FastScanStatus(Screen):
 			{
 				"ok": self.ok,
 				"cancel": self.cancel
-			})
+			})  # noqa: E123
 
 		self.onFirstExecBegin.append(self.doServiceScan)
 

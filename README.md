@@ -15,7 +15,7 @@
 ## TwolDE (OpenViX) python3 is built using oe-alliance build-environment and several git repositories: ##
 
 > [https://github.com/oe-alliance/oe-alliance-core/tree/5.3](https://github.com/oe-alliance/oe-alliance-core/tree/5.3 "OE-Alliance")
-> 
+>
 > [https://github.com/TwolDE/enigma2/tree/Py3](https://github.com/OpenViX/enigma2/tree/Py3 "openViX E2")
 
 

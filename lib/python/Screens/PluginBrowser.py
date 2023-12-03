@@ -1,8 +1,7 @@
 from os import path, unlink
-from time import time
 
 from enigma import eConsoleAppContainer, eDVBDB, eTimer
-from boxbranding import getImageVersion, getImageType, getMachineBrand, getMachineName
+from boxbranding import getImageType, getMachineBrand, getMachineName
 
 from Components.ActionMap import ActionMap, NumberActionMap
 from Components.Button import Button
@@ -11,7 +10,7 @@ from Components.Harddisk import harddiskmanager
 from Components import Ipkg
 from Components.Label import Label
 from Components.Language import language
-from Components.OnlineUpdateCheck import feedsstatuscheck, kernelMismatch
+from Components.OnlineUpdateCheck import feedsstatuscheck  # kernelMismatch removed Twol
 from Components.PluginComponent import plugins
 from Components.PluginList import PluginList, PluginEntryComponent, PluginCategoryComponent, PluginDownloadComponent
 from Components.Sources.StaticText import StaticText
@@ -214,7 +213,7 @@ class PluginBrowser(Screen, ProtectedScreen):
 				self.list = [self.list[-1]] + self.list[:-1]
 			else:
 				self.list[currentIndex], self.list[swapIndex] = self.list[swapIndex], self.list[currentIndex]
-			self["list"].l.setList(self.list)
+			self["list"].setList(self.list)
 			if direction == 1:
 				self["list"].down()
 			else:
@@ -234,7 +233,7 @@ class PluginBrowser(Screen, ProtectedScreen):
 				self.list.append(PluginEntryComponent(plugin[0], self.listWidth))
 				pluginlist.remove(plugin[0])
 		self.list = self.list + [PluginEntryComponent(plugin, self.listWidth) for plugin in pluginlist]
-		self["list"].l.setList(self.list)
+		self["list"].setList(self.list)
 
 	def delete(self):
 		config.misc.pluginbrowser.po.value = False
@@ -245,9 +244,9 @@ class PluginBrowser(Screen, ProtectedScreen):
 		if not (feedsstatuscheck.adapterAvailable() and feedsstatuscheck.NetworkUp()):
 			self.session.openWithCallback(self.close, MessageBox, _("Your %s %s has no %s access, please check your network settings and make sure you have network cable connected and try again.") % (getMachineBrand(), getMachineName(), feedsstatuscheck.adapterAvailable() and 'internet' or 'network'), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
 			return
-#		if kernelMismatch():
-#			self.session.openWithCallback(self.close, MessageBox, _("The Linux kernel has changed, plugins are not compatible. \nInstall latest image using USB stick or Image Manager."), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
-#			return
+		# if kernelMismatch():
+		# 	self.session.openWithCallback(self.close, MessageBox, _("The Linux kernel has changed, plugins are not compatible. \nInstall latest image using USB stick or Image Manager."), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
+		# 	return
 		self.session.openWithCallback(self.PluginDownloadBrowserClosed, PluginDownloadBrowser, PluginDownloadBrowser.DOWNLOAD, self.firsttime)
 		self.firsttime = False
 
@@ -330,7 +329,7 @@ class PluginDownloadBrowser(Screen):
 	def selectionChanged(self):
 		item = self["list"].getCurrent()
 		try:
-			if isinstance(item[0], str): # category
+			if isinstance(item[0], str):  # category
 				name = item[0]
 				desc = ""
 			else:
@@ -344,7 +343,7 @@ class PluginDownloadBrowser(Screen):
 			cb(name, desc)
 
 	def createPluginFilter(self):
-		#Create Plugin Filter
+		# Create Plugin Filter
 		self.PLUGIN_PREFIX2 = []
 		if config.misc.pluginbrowser.bootlogos.value:
 			self.PLUGIN_PREFIX2.append(self.PLUGIN_PREFIX + 'bootlogos')
@@ -382,7 +381,7 @@ class PluginDownloadBrowser(Screen):
 			return
 
 		sel = sel[0]
-		if isinstance(sel, str): # category
+		if isinstance(sel, str):  # category
 			if sel in self.expanded:
 				self.expanded.remove(sel)
 			else:
@@ -572,13 +571,13 @@ class PluginDownloadBrowser(Screen):
 		if self.type == self.DOWNLOAD and any([x for x in ('wget returned 1', 'wget returned 255', '404 Not Found') if x in str]):
 			self.run = 3
 			return
-		#prepend any remaining data from the previous call
+		# prepend any remaining data from the previous call
 		str = self.remainingdata + str
-		#split in lines
+		# split in lines
 		lines = str.split('\n')
-		#'str' should end with '\n', so when splitting, the last line should be empty. If this is not the case, we received an incomplete line
+		# 'str' should end with '\n', so when splitting, the last line should be empty. If this is not the case, we received an incomplete line
 		if len(lines[-1]):
-			#remember this data for next time
+			# remember this data for next time
 			self.remainingdata = lines[-1]
 			lines = lines[0:-1]
 		else:
@@ -619,7 +618,7 @@ class PluginDownloadBrowser(Screen):
 										plugin.append('')
 								plugin.append(plugin[0][15:])
 								self.pluginlist.append(plugin)
-			self.pluginlist.sort()
+		self.pluginlist.sort()
 
 	def updateList(self):
 		updatedlist = []
@@ -631,7 +630,7 @@ class PluginDownloadBrowser(Screen):
 
 		if self.type == self.UPDATE:
 			self.list = updatedlist
-			self["list"].l.setList(updatedlist)
+			self["list"].setList(updatedlist)
 			return
 
 		for x in self.pluginlist:
@@ -680,7 +679,7 @@ class PluginDownloadBrowser(Screen):
 			else:
 				updatedlist.append(PluginCategoryComponent(x, expandableIcon, self.listWidth))
 		self.list = updatedlist
-		self["list"].l.setList(updatedlist)
+		self["list"].setList(updatedlist)
 
 
 language.addCallback(languageChanged)

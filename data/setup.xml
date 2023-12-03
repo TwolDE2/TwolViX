@@ -22,6 +22,9 @@
 		<item level="2" text="Include ECM in http streams" description="ECM data will be included in the stream. This enables a client receiver to decode it.">config.streaming.stream_ecm</item>
 		<item level="2" text="Descramble sending http streams" description="When enabled, http streams are descrambled on the server side. The (remote) client receiver does not have to do descrambling.">config.streaming.descramble</item>
 		<item level="2" text="Descramble receiving http streams" description="When enabled, always descramble receiving http streams. This takes up more resources (descrambling demuxers), only enable if necessary. Individual streams are always descrambled if 0x100 is added to the service type, regardless of this setting.">config.streaming.descramble_client</item>
+		<item level="2" text="Stream Relay url" description="The IP address of the streamrelay server that is used to descramble services that can only be decrypted via stream relay.">config.misc.softcam_streamrelay_url</item>
+		<item level="2" text="Stream Relay port" description="The port of the streamrelay server that is used to descramble services that can only be decrypted via stream relay.">config.misc.softcam_streamrelay_port</item>
+		<item level="2" text="Stream Relay delay" description="Delay when closing a stream relay service before reallocating the tuner for another service. Using '0' is only recommended for boxes with multiple satellite tuners.">config.misc.softcam_streamrelay_delay</item>
 		<item level="2" text="Require authentication for http streams" description="When enabled, authentication is required to watch http streams.">config.streaming.authentication</item>
 		<item level="2" text="Http(s) stream start delay" description="Define additional delay in milliseconds before start of http(s) streams, e.g. to connect a remote tuner, you use a complex system of DiSEqC.">config.usage.http_startdelay</item>
 		<item level="2" text="Wake On LAN" description="When enabled the set top box is able to wakeup on LAN" requires="WakeOnLAN">config.usage.wakeOnLAN</item>
@@ -49,7 +52,7 @@
 	<setup key="userinterface" title="GUI settings">
 		<item level="0" text="1st Infobar timeout" description="Set the time delay before hiding the infobar.">config.usage.infobar_timeout</item>
 		<item level="2" text="Show second infobar" description="Configure whether (and for how long) a second infobar will be shown when OK is pressed twice. The second infobar contains additional information about the current channel.">config.usage.show_second_infobar</item>
-		<item level="2" text="Second infobar style*" description="Choose the style of the second infobar. The 'Standard' view normally includes technical data. The 'Simple' view shows minimal technical data." requires="SecondInfoBarSimple">config.usage.second_infobar_simple</item>
+		<item level="2" text="Second infobar style*" description="Choose the style of the second infobar. The 'Standard' view normally includes technical data. The 'Simple' view shows minimal technical data." conditional="findSkinScreen('SecondInfoBarSimple')">config.usage.second_infobar_simple</item>
 		<item level="0" text="Enable infobar fade-out" description="Fade the infobar when hiding">config.usage.show_infobar_do_dimming</item>
 		<item level="0" text="Infobar fade-out speed" description="Configure the infobar fading speed">config.usage.show_infobar_dimming_speed</item>
 		<item level="0" text="Infobar EPG activation" description="Select how to activate the Infobar EPG. This will affect Infobar behaviour" requires="InfoBarEpg">config.vixsettings.InfoBarEpg_mode</item>
@@ -90,7 +93,7 @@
 		<item level="1" text="History buttons mode" description="Configure the function of the &lt;  &gt; buttons.">config.usage.historymode</item>
 		<item level="2" text="Show True/False as graphical switch" description="Enable to display all true/false, yes/no, on/off and enable/disable set up options as a graphical switch.">config.usage.boolean_graphic</item>
 		<item level="1" text="Show setup default values" description="In Setup screens choose whether to show the default value of the selected item in the description field.">config.usage.setupShowDefault</item>
-		<item level="2" text="Allow fast skin reload" requires="DeveloperImage" description="When changing skins this allows the skin to load without requiring an enigma restart.">config.usage.fast_skin_reload</item>
+		<item level="2" text="Allow fast skin reload" description="When changing skins this allows the skin to load without requiring an enigma restart.">config.usage.fast_skin_reload</item>
 	</setup>
 	<setup key="channelselection" title="Channel selection">
 		<item level="1" text="Alternative numbering mode" description="When enabled, channel numbering will start at '1' for every bouquet.">config.usage.alternative_number_mode</item>
@@ -328,7 +331,7 @@
 		</if>
 		<item level="0" text="Automatically update Client/Server View" description="Automatically update Client/Server View">config.oscaminfo.autoupdate</item>
 		<item level="0" text="Update interval (in seconds)" description="Update interval (in seconds)" conditional="config.oscaminfo.autoupdate.value">config.oscaminfo.intervall</item>
-	</setup>	
+	</setup>
 	<setup key="softcamscriptsetup" title="">
 		<item level="0" text="SoftcamScript select camscript" description="Select a softcam script from the available list.">config.misc.softcams</item>
 		<item level="0" text="SoftcamScript enable/disable cam restart" description="Allow reinitialisation of selected cam script.">config.misc.softcamrestarts</item>

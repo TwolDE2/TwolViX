@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from time import localtime, time, strftime
+from time import time
 
 from enigma import eEPGCache
 
@@ -12,7 +12,6 @@ import Screens.ChannelSelection
 from Screens.ChoiceBox import ChoiceBox
 from Screens.LocationBox import MovieLocationBox
 from Screens.MessageBox import MessageBox
-from Screens.Screen import Screen
 from Screens.TagEditor import TagEditor
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 from Screens.VirtualKeyBoard import VirtualKeyBoard
@@ -35,7 +34,7 @@ class TimerEntry(TimerEntryBase):
 			AFTEREVENT.DEEPSTANDBY: "deepstandby",
 			AFTEREVENT.STANDBY: "standby",
 			AFTEREVENT.AUTO: "auto"
-			}[self.timer.afterEvent]
+			}[self.timer.afterEvent]  # noqa: E123
 
 		if self.timer.record_ecm and self.timer.descramble:
 			recordingtype = "descrambled+ecm"
@@ -58,10 +57,10 @@ class TimerEntry(TimerEntryBase):
 		self.timerentry_tags = self.timer.tags[:]
 		# if no tags found, make name of event default tag set.
 		if not self.timerentry_tags:
-				tagname = self.timer.name.strip()
-				if tagname:
-					tagname = tagname[0].upper() + tagname[1:].replace(" ", "_")
-					self.timerentry_tags.append(tagname)
+			tagname = self.timer.name.strip()
+			if tagname:
+				tagname = tagname[0].upper() + tagname[1:].replace(" ", "_")
+				self.timerentry_tags.append(tagname)
 
 		self.timerentry_tagsset = ConfigSelection(choices=[not self.timerentry_tags and "None" or " ".join(self.timerentry_tags)])
 
@@ -80,7 +79,7 @@ class TimerEntry(TimerEntryBase):
 
 		# FIXME some service-chooser needed here
 		servicename = "N/A"
-		try: # no current service available?
+		try:  # no current service available?
 			servicename = str(self.timer.service_ref.getServiceName())
 		except:
 			pass
@@ -89,7 +88,7 @@ class TimerEntry(TimerEntryBase):
 
 	# So that setup.xml can call it as self.getPreferredTagEditor()
 	def getPreferredTagEditor(self):
-#		return TagEditor.getPreferredTagEditor()
+		# return TagEditor.getPreferredTagEditor()
 		return None
 
 	def keyText(self):
@@ -130,7 +129,7 @@ class TimerEntry(TimerEntryBase):
 				MovieLocationBox,
 				_("Select target folder"),
 				self.timerentry_dirname.value,
-				minFree=100 # We require at least 100MB free space
+				minFree=100  # We require at least 100MB free space
 			)
 		elif cur and cur[1] == self.timerentry_tagsset:
 			self.session.openWithCallback(
@@ -161,10 +160,9 @@ class TimerEntry(TimerEntryBase):
 
 	def selectChannelSelector(self, *args):
 		self.session.openWithCallback(
-				self.finishedChannelSelectionCorrection,
-				Screens.ChannelSelection.SimpleChannelSelection,
-				_("Select channel to record from")
-			)
+			self.finishedChannelSelectionCorrection,
+			Screens.ChannelSelection.SimpleChannelSelection,
+			_("Select channel to record from"))
 
 	def finishedChannelSelectionCorrection(self, *args):
 		if args:
@@ -190,7 +188,7 @@ class TimerEntry(TimerEntryBase):
 			"deepstandby": AFTEREVENT.DEEPSTANDBY,
 			"standby": AFTEREVENT.STANDBY,
 			"auto": AFTEREVENT.AUTO
-			}[self.timerentry_afterevent.value]
+			}[self.timerentry_afterevent.value]  # noqa: E123
 		# There is no point doing anything after a Zap-only timer!
 		# For a start, you can't actually configure anything in the menu, but
 		# leaving it as AUTO means that the code may try to shutdown at Zap time
@@ -202,12 +200,12 @@ class TimerEntry(TimerEntryBase):
 			"normal": True,
 			"descrambled+ecm": True,
 			"scrambled+ecm": False,
-			}[self.timerentry_recordingtype.value]
+			}[self.timerentry_recordingtype.value]  # noqa: E123
 		self.timer.record_ecm = {
 			"normal": False,
 			"descrambled+ecm": True,
 			"scrambled+ecm": True,
-			}[self.timerentry_recordingtype.value]
+			}[self.timerentry_recordingtype.value]  # noqa: E123
 		self.timer.service_ref = self.timerentry_service_ref
 		self.timer.tags = self.timerentry_tags
 
@@ -257,7 +255,7 @@ class TimerEntry(TimerEntryBase):
 			TimerEntryBase.decrementEnd(self)
 
 	def subserviceSelected(self, service):
-		if not service is None:
+		if service is not None:
 			self.timer.service_ref = ServiceReference(service[1])
 		self.saveTimer()
 		self.close((True, self.timer))

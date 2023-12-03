@@ -7,14 +7,15 @@ from Components.config import config
 from Components.ParentalControl import parentalControl
 from Components.Sources.StreamService import StreamServiceList
 from Components.SystemInfo import SystemInfo
-from Screens.InfoBar import InfoBar, MoviePlayer
+from Screens.InfoBar import InfoBar
+from Screens.InfoBarGenerics import streamrelayChecker, whitelist
+import Screens.Standby
+from ServiceReference import ServiceReference  # noqa: F401
 from Tools.BoundFunction import boundFunction
 from Tools.StbHardware import getFPWasTimerWakeup
 import NavigationInstance
 import PowerTimer
 import RecordTimer
-import Screens.Standby
-import ServiceReference
 
 # TODO: remove pNavgation, eNavigation and rewrite this stuff in python.
 
@@ -38,7 +39,8 @@ class Navigation:
 		self.currentlyPlayingServiceReference = None
 		self.currentlyPlayingServiceOrGroup = None
 		self.currentlyPlayingService = None
-		self.skipServRefReset = False
+		self.currentServiceIsStreamRelay = False
+		self.skipServiceReferenceReset = False
 		self.RecordTimer = RecordTimer.RecordTimer()
 		self.PowerTimer = PowerTimer.PowerTimer()
 		self.__wasTimerWakeup = False
@@ -97,18 +99,21 @@ class Navigation:
 		for x in self.event:
 			x(i)
 		if i == iPlayableService.evEnd:
-			if not self.skipServRefReset:
+			if not self.skipServiceReferenceReset:
 				self.currentlyPlayingServiceReference = None
 				self.currentlyPlayingServiceOrGroup = None
 			self.currentlyPlayingService = None
 
 	def dispatchRecordEvent(self, rec_service, event):
-#		print("record_event", rec_service, event)
+		# print "record_event", rec_service, event
 		for x in self.record_event:
 			try:
 				x(rec_service, event)
 			except:
 				pass
+
+	def restartService(self):
+		self.playService(self.currentlyPlayingServiceOrGroup, forceRestart=True)
 
 	def playService(self, ref, checkParentalControl=True, forceRestart=False, adjust=True):
 		oldref = self.currentlyPlayingServiceOrGroup
@@ -158,7 +163,7 @@ class Navigation:
 							self.currentlyPlayingServiceReference = None
 							self.currentlyPlayingServiceOrGroup = None
 							if oldref and "://" in oldref.getPath():
-								print("[Navigation] Streaming was active -> try again") # use timer to give the streamserver the time to deallocate the tuner
+								print("[Navigation] Streaming was active -> try again")  # use timer to give the streamserver the time to deallocate the tuner
 								self.retryServicePlayTimer = eTimer()
 								self.retryServicePlayTimer.callback.append(boundFunction(self.playService, ref, checkParentalControl, forceRestart, adjust))
 								self.retryServicePlayTimer.start(500, True)
@@ -172,8 +177,12 @@ class Navigation:
 			else:
 				playref = ref
 			if self.pnav:
-				self.pnav.stopService()
+				if not SystemInfo["FCCactive"]:
+					self.pnav.stopService()
+				else:
+					self.skipServiceReferenceReset = True
 				self.currentlyPlayingServiceReference = playref
+				playref = streamrelayChecker(playref)
 				self.currentlyPlayingServiceOrGroup = ref
 				if InfoBarInstance and InfoBarInstance.servicelist.servicelist.setCurrent(ref, adjust):
 					self.currentlyPlayingServiceOrGroup = InfoBarInstance.servicelist.servicelist.getCurrent()
@@ -205,19 +214,28 @@ class Navigation:
 								if config.usage.frontend_priority_dvbs.value != config.usage.frontend_priority.value:
 									setPreferredTuner(int(config.usage.frontend_priority_dvbs.value))
 									setPriorityFrontend = True
-				self.skipServRefReset = True
-				if self.pnav.playService(playref):
-				#	print("[Navigation] Failed to start", playref)
+				if config.misc.softcam_streamrelay_delay.value and self.currentServiceIsStreamRelay:
+					self.currentServiceIsStreamRelay = False
+					self.currentlyPlayingServiceReference = None
+					self.currentlyPlayingServiceOrGroup = None
+					print("[Navigation] Streamrelay was active -> delay the zap till tuner is freed")
+					self.retryServicePlayTimer = eTimer()
+					self.retryServicePlayTimer.callback.append(boundFunction(self.playService, ref, checkParentalControl, forceRestart, adjust))
+					self.retryServicePlayTimer.start(config.misc.softcam_streamrelay_delay.value, True)
+				elif self.pnav.playService(playref):
+					# print("[Navigation] Failed to start", playref)
 					self.currentlyPlayingServiceReference = None
 					self.currentlyPlayingServiceOrGroup = None
 					if oldref and "://" in oldref.getPath():
-						print("[Navigation] Streaming was active -> try again") # use timer to give the streamserver the time to deallocate the tuner
+						print("[Navigation] Streaming was active -> try again")  # use timer to give the streamserver the time to deallocate the tuner
 						self.retryServicePlayTimer = eTimer()
 						self.retryServicePlayTimer.callback.append(boundFunction(self.playService, ref, checkParentalControl, forceRestart, adjust))
 						self.retryServicePlayTimer.start(500, True)
-				self.skipServRefReset = False
+				self.skipServiceReferenceReset = False
 				if setPriorityFrontend:
 					setPreferredTuner(int(config.usage.frontend_priority.value))
+				if self.currentlyPlayingServiceReference and self.currentlyPlayingServiceReference.toString() in whitelist.streamrelay:
+					self.currentServiceIsStreamRelay = True
 				return 0
 		elif oldref and InfoBarInstance and InfoBarInstance.servicelist.servicelist.setCurrent(oldref, adjust):
 			self.currentlyPlayingServiceOrGroup = InfoBarInstance.servicelist.servicelist.getCurrent()
@@ -236,6 +254,7 @@ class Navigation:
 		if ref:
 			if ref.flags & eServiceReference.isGroup:
 				ref = getBestPlayableServiceReference(ref, eServiceReference(), simulate)
+			ref = streamrelayChecker(ref)
 			service = ref and self.pnav and self.pnav.recordService(ref, simulate)
 			if service is None:
 				print("[Navigation] record returned non-zero")

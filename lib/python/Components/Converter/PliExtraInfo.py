@@ -1,11 +1,10 @@
 # shamelessly copied from pliExpertInfo (Vali, Mirakels, Littlesat)
 
-from os import path
 from enigma import iServiceInformation, iPlayableService
 from Components.Converter.Converter import Converter
 from Components.Element import cached
 from Components.config import config
-from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
+from Tools.Transponder import ConvertToHumanReadable
 from Tools.GetEcmInfo import GetEcmInfo
 from Tools.Hex2strColor import Hex2strColor
 from Components.Converter.Poll import Poll
@@ -120,7 +119,7 @@ class PliExtraInfo(Poll, Converter, object):
 			"ServiceInfo": (
 				"ProviderName",
 				"TunerSystem",
-				"TransponderFrequency",
+				"TransponderFrequencyMHz",
 				"TransponderPolarization",
 				"TransponderSymbolRate",
 				"TransponderFEC",
@@ -131,7 +130,7 @@ class PliExtraInfo(Poll, Converter, object):
 				"ResolutionString",
 			),
 			"TransponderInfo": (
-				( # not feraw
+				(  # not feraw
 					"StreamURLInfo",
 				),
 				(  # feraw and "DVB-T" not in feraw.get("tuner_type", "")
@@ -224,17 +223,17 @@ class PliExtraInfo(Poll, Converter, object):
 	def createCryptoBar(self, info):
 		res = ""
 		available_caids = info.getInfoObject(iServiceInformation.sCAIDs)
-		colors = parameters.get("PliExtraInfoColors", (0x0000FF00, 0x00FFFF00, 0x007F7F7F, 0x00FFFFFF)) # "found", "not found", "available", "default" colors
+		colors = parameters.get("PliExtraInfoColors", (0x0000FF00, 0x00FFFF00, 0x007F7F7F, 0x00FFFFFF))  # "found", "not found", "available", "default" colors
 
 		for caid_entry in caid_data:
 			if int(caid_entry[0], 16) <= int(self.current_caid, 16) <= int(caid_entry[1], 16):
-				color = Hex2strColor(colors[0]) # green
+				color = Hex2strColor(colors[0])  # green
 			else:
-				color = Hex2strColor(colors[2]) # grey
+				color = Hex2strColor(colors[2])  # grey
 				try:
 					for caid in available_caids:
 						if int(caid_entry[0], 16) <= caid <= int(caid_entry[1], 16):
-							color = Hex2strColor(colors[1]) # yellow
+							color = Hex2strColor(colors[1])  # yellow
 				except:
 					pass
 
@@ -243,7 +242,7 @@ class PliExtraInfo(Poll, Converter, object):
 					res += " "
 				res += color + caid_entry[3]
 
-		res += Hex2strColor(colors[3]) # white (this acts like a color "reset" for following strings
+		res += Hex2strColor(colors[3])  # white (this acts like a color "reset" for following strings
 		return res
 
 	def createCryptoSeca(self, info):
@@ -441,7 +440,7 @@ class PliExtraInfo(Poll, Converter, object):
 	def createCryptoSpecial(self, info):
 		refstr = info.getInfoString(iServiceInformation.sServiceref)
 		caid_name = "Free to Air"
-		if "%3a//" in refstr.lower() and not "127.0.0.1" in refstr and not "0.0.0.0" in refstr and not "localhost" in refstr or "@" in refstr:
+		if "%3a//" in refstr.lower() and "127.0.0.1" not in refstr and "0.0.0.0" not in refstr and "localhost" not in refstr or "@" in refstr:
 			return "IPTV" + ":%06X:%04X" % (int(self.current_provid, 16), info.getInfo(iServiceInformation.sSID))
 		elif int(self.current_caid, 16) == 0:
 			return caid_name + ":%06X:%04X" % (int(self.current_provid, 16), info.getInfo(iServiceInformation.sSID))
@@ -563,7 +562,7 @@ class PliExtraInfo(Poll, Converter, object):
 	def createStreamURLInfo(self, info):
 		refstr = info.getInfoString(iServiceInformation.sServiceref)
 		if "%3a//" in refstr.lower():
-			return refstr.split(":")[10].replace("%3a", ":").replace("%3A", ":")
+			return refstr.replace("%3a", ":").replace("%3A", ":").split("://")[1].split("/")[0].split('@')[-1]
 		return ""
 
 	def createFrequency(self, fedata):
@@ -619,14 +618,17 @@ class PliExtraInfo(Poll, Converter, object):
 	def createTunerSystem(self, fedata):
 		return fedata.get("system") or ""
 
-	def createOrbPos(self, feraw):
-		orbpos = feraw.get("orbital_position")
-		if orbpos is not None:
+	def formatOrbPos(self, orbpos):
+		if isinstance(orbpos, int) and 0 <= orbpos <= 3600:  # sanity
 			if orbpos > 1800:
 				return str((float(3600 - orbpos)) / 10.0) + "\xb0" + "W"
-			elif orbpos > 0:
+			else:
 				return str((float(orbpos)) / 10.0) + "\xb0" + "E"
 		return ""
+
+	def createOrbPos(self, feraw):
+		orbpos = feraw.get("orbital_position")
+		return self.formatOrbPos(orbpos)
 
 	def createOrbPosOrTunerSystem(self, fedata, feraw):
 		orbpos = self.createOrbPos(feraw)
@@ -636,10 +638,10 @@ class PliExtraInfo(Poll, Converter, object):
 
 	def createTransponderName(self, feraw):
 		orbpos = feraw.get("orbital_position")
-		if orbpos is None: # Not satellite
+		if orbpos is None:  # Not satellite
 			return ""
 		freq = feraw.get("frequency")
-		if freq and freq < 10700000: # C-band
+		if freq and freq < 10700000:  # C-band
 			if orbpos > 1800:
 				orbpos += 1
 			else:
@@ -739,13 +741,11 @@ class PliExtraInfo(Poll, Converter, object):
 
 		if orbpos in sat_names:
 			return sat_names[orbpos]
-		elif orbpos > 1800:
-			return str((float(3600 - orbpos)) / 10.0) + "W"
 		else:
-			return str((float(orbpos)) / 10.0) + "E"
+			return self.formatOrbPos(orbpos)
 
 	def createProviderName(self, info):
-		return info.getInfoString(iServiceInformation.sProvider)
+		return info.getInfoString(iServiceInformation.sProvider).replace("SKY", "Sky deutschland").replace("SkyItalia", "Sky Italia").replace("BSkyB", "Sky UK")
 
 	def createMisPls(self, fedata):
 		tmp = ""
@@ -982,7 +982,7 @@ class PliExtraInfo(Poll, Converter, object):
 				if request_selected:
 					if int(caid_entry[0], 16) <= int(current_caid, 16) <= int(caid_entry[1], 16):
 						return True
-				else: # request available
+				else:  # request available
 					try:
 						for caid in available_caids:
 							if int(caid_entry[0], 16) <= caid <= int(caid_entry[1], 16):

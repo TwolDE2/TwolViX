@@ -1,21 +1,21 @@
 from os import path
-from gettext import dgettext
-from time import localtime, time
+from time import time
 
-from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer
+from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer, iRecordableService, quitMainloop
 
-from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM, getMachineBuild
+from boxbranding import getMachineBrand, getMachineName, getBoxType, getBrandOEM
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import AVSwitch
 from Components.config import config
 from Components.Console import Console
 import Components.ParentalControl
 from Components.SystemInfo import SystemInfo
-from Components.Sources.StaticText import StaticText
 from Components.Sources.StreamService import StreamServiceList
+from Components.Task import job_manager
 from GlobalActions import globalActionMap
 import Screens.InfoBar
 from Screens.Screen import Screen, ScreenSummary
+from Screens.MessageBox import MessageBox
 import Tools.Notifications
 
 inStandby = None
@@ -122,7 +122,7 @@ class Standby2(Screen):
 		if getBrandOEM() in ('dinobot') or SystemInfo["HasHiSi"] or getBoxType() in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("off")
-				print("[Standby] close hdmi on enter standby")		
+				print("[Standby] close hdmi on enter standby")
 			except:
 				pass
 		print("[Standby] enter standby")
@@ -137,7 +137,6 @@ class Standby2(Screen):
 		if self.paused_service:
 			self.paused_action and self.paused_service.unPauseService()
 		elif self.prev_running_service:
-			service = self.prev_running_service.toString()
 			if config.servicelist.startupservice_onstandby.value:
 				self.session.nav.playService(eServiceReference(config.servicelist.startupservice.value))
 				from Screens.InfoBar import InfoBar
@@ -202,12 +201,6 @@ class StandbySummary(ScreenSummary):
 	</screen>"""
 
 
-from enigma import quitMainloop, iRecordableService
-from Screens.MessageBox import MessageBox
-from time import time
-from Components.Task import job_manager
-
-
 class QuitMainloopScreen(Screen):
 	def __init__(self, session, retvalue=1):
 		self.skin = """<screen name="QuitMainloopScreen" position="fill" flags="wfNoBorder">
@@ -240,7 +233,7 @@ class TryQuitMainloop(MessageBox):
 		recordings = session.nav.getRecordings()
 		jobs = []
 		for job in job_manager.getPendingJobs():
-			if job.name != dgettext('vix', 'SoftcamCheck'):
+			if job.name != _('SoftcamCheck'):
 				jobs.append(job)
 
 		inTimeshift = Screens.InfoBar.InfoBar and Screens.InfoBar.InfoBar.instance and Screens.InfoBar.InfoBar.ptsGetTimeshiftStatus(Screens.InfoBar.InfoBar.instance)
@@ -296,34 +289,34 @@ class TryQuitMainloop(MessageBox):
 		else:
 			if event == iRecordableService.evEnd:
 				recordings = self.session.nav.getRecordings()
-				if not recordings: # no more recordings exist
+				if not recordings:  # no more recordings exist
 					rec_time = self.session.nav.RecordTimer.getNextRecordingTime()
 					if rec_time > 0 and (rec_time - time()) < 360:
-						self.initTimeout(360) # wait for next starting timer
+						self.initTimeout(360)  # wait for next starting timer
 						self.startTimer()
 					else:
-						self.close(True) # immediate shutdown
+						self.close(True)  # immediate shutdown
 			elif event == iRecordableService.evStart:
 				self.stopTimer()
 
 	def sendCEC(self):
-			print("[Standby][sendCEC] entered ")
-			import struct
-			from enigma import eHdmiCEC
-			physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
-			msgaddress = 0x0f # use broadcast for active source command
-			cmd0 = 0x9d	# 157 sourceinactive
-			data0 = struct.pack("BB", int(physicaladdress // 256), int(physicaladdress % 256))
-			data0 = data0.decode("UTF-8", "ignore")
-			cmd1 = 0x44	# 68 keypoweroff
-			data1 = struct.pack("B", 0x6c)
-			data1 = data1.decode("UTF-8", "ignore")
-			cmd2 = 0x36	# 54 standby
-			data2 = ""
-			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd0, data0, len(data0))
-			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd1, data1, len(data1))
-			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd2, data2, len(data2))
-			print("[Standby][sendCEC] departed ")
+		print("[Standby][sendCEC] entered ")
+		import struct
+		from enigma import eHdmiCEC  # noqa: E402
+		physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
+		msgaddress = 0x0f  # use broadcast for active source command
+		cmd0 = 0x9d  # 157 sourceinactive
+		data0 = struct.pack("BB", int(physicaladdress // 256), int(physicaladdress % 256))
+		data0 = data0.decode("UTF-8", "ignore")
+		cmd1 = 0x44  # 68 keypoweroff
+		data1 = struct.pack("B", 0x6c)
+		data1 = data1.decode("UTF-8", "ignore")
+		cmd2 = 0x36  # 54 standby
+		data2 = ""
+		eHdmiCEC.getInstance().sendMessage(msgaddress, cmd0, data0, len(data0))
+		eHdmiCEC.getInstance().sendMessage(msgaddress, cmd1, data1, len(data1))
+		eHdmiCEC.getInstance().sendMessage(msgaddress, cmd2, data2, len(data2))
+		print("[Standby][sendCEC] departed ")
 
 	def close(self, value):
 		if self.connected:
@@ -342,12 +335,11 @@ class TryQuitMainloop(MessageBox):
 			self.quitScreen = self.session.instantiateDialog(QuitMainloopScreen, retvalue=self.retval)
 			self.quitScreen.show()
 			print("[Standby] quitMainloop #1")
-			quitMainloopCode = self.retval
 			if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 				# set LCDminiTV off / fix a deep-standby-crash on some boxes / gb4k
 				print("[Standby] LCDminiTV off")
 				setLCDMiniTVMode("0")
-			if getBoxType() == "vusolo4k":  #workaround for white display flash
+			if getBoxType() == "vusolo4k":  # workaround for white display flash
 				f = open("/proc/stb/fp/oled_brightness", "w")
 				f.write("0")
 				f.close()

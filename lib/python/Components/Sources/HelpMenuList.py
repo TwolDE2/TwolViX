@@ -237,12 +237,12 @@ class HelpMenuList(List):
 
 	def ok(self):
 		# a list entry has a "private" tuple as first entry...
-		l = self.getCurrent()
-		if l is None:
+		listEntry = self.getCurrent()
+		if listEntry is None:
 			return
 		# ...containing (Actionmap, Context, Action, keydata).
 		# we returns this tuple to the callback.
-		self.callback(l[0], l[1], l[2])
+		self.callback(listEntry[0], listEntry[1], listEntry[2])
 
 	def handleButton(self, keyId, flag):
 		if keyId not in self.skipKeys:
@@ -250,9 +250,9 @@ class HelpMenuList(List):
 			if flag == 0:  # Reset the long press flag on Make.
 				self.longSeen = False
 			elif button in self.buttonMap and (flag == 3 or flag == 1 and not self.longSeen):  # Show help for pressed button for long press, or for Break if it's not a Long press.
-					self.longSeen = flag == 3
-					self.setIndex(self.buttonMap[button])
-					return 1  # Report keyId handled.
+				self.longSeen = flag == 3
+				self.setIndex(self.buttonMap[button])
+				return 1  # Report keyId handled.
 		return 0  # Report keyId not handled.
 
 	def getCurrent(self):

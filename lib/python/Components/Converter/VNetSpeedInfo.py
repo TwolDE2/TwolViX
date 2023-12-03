@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
-#This plugin is free software, you are allowed to
-#modify it (if you keep the license),
-#but you are not allowed to distribute/publish
-#it without source code (this version and your modifications).
-#This means you also have to distribute
-#source code of your modifications.
+# This plugin is free software, you are allowed to
+# modify it (if you keep the license),
+# but you are not allowed to distribute/publish
+# it without source code (this version and your modifications).
+# This means you also have to distribute
+# source code of your modifications.
 #
 #
 #######################################################################
@@ -41,7 +41,7 @@ class VNetSpeedInfo(Poll, Converter):
 	TMT = 15			# Transmit Lan oder Wlan total seit dem letzten Neustart in Megabyte - wenn beides vorhanden wird Lan ausgegeben
 	RC_MB = 16		# Receive Lan oder Wlan in Megabyte/s = Geschwindigkeit/Bandbreite - wenn beides vorhanden wird Lan ausgegeben
 	TM_MB = 17		# Transmit Lan oder Wlan in Megabyte/s = Geschwindigkeit/Bandbreite - wenn beides vorhanden wird Lan ausgegeben
-	NET_TYP = 18	# Lan - Wlan - Lan+Wlan
+	NET_TYP = 18  # Lan - Wlan - Lan+Wlan
 	ERR_RCL = 19  # Fehler Lan-Receive
 	ERR_TML = 20  # Fehler Lan-Transmit
 	DRO_RCL = 21  # Drop Lan-Receive
@@ -241,7 +241,7 @@ class VNetSpeedInfo(Poll, Converter):
 				self.wlantransmittotalout = newwlantransmit / 1024
 		bwm.close()
 
-#		if ((flaglan == 1) and (flagwlan == 0)) or ((flaglan == 1) and (flagwlan == 1)):
+		#  if ((flaglan == 1) and (flagwlan == 0)) or ((flaglan == 1) and (flagwlan == 1)):
 		if flaglan == 1:
 			self.receive = self.lanreceive
 			self.transmit = self.lantransmit

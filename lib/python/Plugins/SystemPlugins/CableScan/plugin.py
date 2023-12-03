@@ -83,7 +83,7 @@ class CableScanStatus(Screen):
 			{
 				"ok": self.ok,
 				"cancel": self.cancel
-			})
+			})  # noqa: E123
 
 		self.onFirstExecBegin.append(self.doServiceScan)
 
@@ -243,7 +243,7 @@ CableScanAutoStartTimer = eTimer()
 
 
 def CableScanMain(session, **kwargs):
-		session.open(CableScanScreen, nimmanager.getEnabledNimListOfType("DVB-C"))
+	session.open(CableScanScreen, nimmanager.getEnabledNimListOfType("DVB-C"))
 
 
 def restartScanAutoStartTimer(reply=False):

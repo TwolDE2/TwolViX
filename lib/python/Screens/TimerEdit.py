@@ -15,7 +15,6 @@ from Screens.Screen import Screen
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.ParentalControlSetup import ProtectedScreen
-from Screens.InputBox import PinInput
 from ServiceReference import ServiceReference
 from Screens.TimerEntry import TimerEntry, TimerLog
 from Screens.Setup import Setup
@@ -60,7 +59,7 @@ class TimerEditList(Screen, ProtectedScreen):
 				"ok": self.openEdit,
 				"cancel": self.leave,
 				"green": self.addCurrentTimer,
-				"log": self.showLog, # KEY_INFO
+				"log": self.showLog,  # KEY_INFO
 				"left": self.left,
 				"right": self.right,
 				"up": self.up,
@@ -68,13 +67,13 @@ class TimerEditList(Screen, ProtectedScreen):
 				"moveTop": self.moveTop,
 				"moveEnd": self.moveEnd,
 				"menu": self.createSetup
-			}, -1)
+			}, -1)  # noqa: E123
 		self.session.nav.RecordTimer.on_state_change.append(self.onStateChange)
 		self.onLayoutFinish.append(self.onCreate)
 
 	def onCreate(self):
 		self.fillTimerList()
-		self["timerlist"].l.setList(self.list)
+		self["timerlist"].setList(self.list)
 
 		if self.selectItem is not None:
 			(event, service) = self.selectItem
@@ -215,7 +214,7 @@ class TimerEditList(Screen, ProtectedScreen):
 
 		showCleanup = True
 		for x in self.list:
-			if (not x[0].disabled) and (x[1] == True):
+			if (not x[0].disabled) and (x[1] is True):
 				break
 		else:
 			showCleanup = False
@@ -268,7 +267,7 @@ class TimerEditList(Screen, ProtectedScreen):
 			cb(name, time, duration, service, state)
 
 	def fillTimerList(self):
-		#helper function to move finished timers to end of list
+		# helper function to move finished timers to end of list
 		def _cmp(a, b):
 			return (a > b) - (a < b)
 
@@ -287,7 +286,7 @@ class TimerEditList(Screen, ProtectedScreen):
 			xlist.extend([(timer, True) for timer in self.session.nav.RecordTimer.processed_timers if timer.disabled and timer.end > now])
 		else:
 			xlist.extend([(timer, True) for timer in self.session.nav.RecordTimer.processed_timers])
-		if config.usage.timerlist_finished_timer_position.index: #end of list
+		if config.usage.timerlist_finished_timer_position.index:  # end of list
 			xlist.sort(key=cmp_to_key(eol_compare))
 		else:
 			xlist.sort(key=lambda x: x[0].begin)
@@ -461,7 +460,7 @@ class TimerSanityConflict(Screen):
 				"red": self.editTimer1,
 				"up": self.up,
 				"down": self.down
-			}, -1)
+			}, -1)  # noqa: E123
 		self.onShown.append(self.updateState)
 
 	def getTimerList(self, timer):
@@ -474,7 +473,7 @@ class TimerSanityConflict(Screen):
 		self.session.openWithCallback(self.finishedEdit, TimerEntry, self["timer2"].getCurrent())
 
 	def toggleTimer(self):
-		x = self["list"].getSelectedIndex() + 1 # the first is the new timer so we do +1 here
+		x = self["list"].getSelectedIndex() + 1  # the first is the new timer so we do +1 here
 		if self.timer[x].disabled:
 			self.timer[x].disabled = False
 			self.session.nav.RecordTimer.timeChanged(self.timer[x])
@@ -514,7 +513,7 @@ class TimerSanityConflict(Screen):
 
 	def updateState(self):
 		if len(self.timer) > 1:
-			x = self["list"].getSelectedIndex() + 1 # the first is the new timer so we do +1 here
+			x = self["list"].getSelectedIndex() + 1  # the first is the new timer so we do +1 here
 			if self.timer[x] is not None:
 				if self.key_yellow_choice == self.EMPTY:
 					self["actions"].actions.update({"yellow": self.editTimer2})

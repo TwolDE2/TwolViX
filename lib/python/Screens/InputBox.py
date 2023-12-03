@@ -3,7 +3,6 @@ from time import time
 from enigma import getPrevAsciiCode
 
 from Components.ActionMap import HelpableNumberActionMap
-from Components.config import config
 from Components.Input import Input
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText

@@ -16,7 +16,7 @@ class EPGListBase(GUIComponent):
 		self.onSelChanged = []
 		if selChangedCB is not None:
 			self.onSelChanged.append(selChangedCB)
-		self.l = eListboxPythonMultiContent()
+		self.l = eListboxPythonMultiContent()  # noqa: E741
 		self.epgcache = eEPGCache.getInstance()
 
 		# Load the common clock icons.
@@ -55,7 +55,7 @@ class EPGListBase(GUIComponent):
 			for (attrib, value) in self.skinAttributes:
 				if attrib == "itemHeight":
 					self.skinItemHeight = parseScale(value)
-				elif attrib == "NumberOfRows": # for compatibility with ATV skins
+				elif attrib == "NumberOfRows":  # for compatibility with ATV skins
 					self.numberOfRows = int(value)
 				else:
 					attribs.append((attrib, value))
@@ -128,11 +128,11 @@ class EPGListBase(GUIComponent):
 		event = self.getEventFromId(service, eventId)
 		return event, service
 
-	def connectSelectionChanged(func):
+	def connectSelectionChanged(self, func):
 		if not self.onSelChanged.count(func):
 			self.onSelChanged.append(func)
 
-	def disconnectSelectionChanged(func):
+	def disconnectSelectionChanged(self, func):
 		self.onSelChanged.remove(func)
 
 	def selectionChanged(self):

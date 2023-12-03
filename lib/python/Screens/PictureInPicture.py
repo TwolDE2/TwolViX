@@ -133,7 +133,6 @@ class PictureInPicture(Screen):
 			config.av.pip.value[1] = y
 			config.av.pip.save()
 		w = config.av.pip.value[2]
-		h = config.av.pip.value[3]
 		if config.av.pip_mode.value == "cascade":
 			x = MAX_X - w
 			y = 0
@@ -218,7 +217,8 @@ class PictureInPicture(Screen):
 	def playService(self, service):
 		if service is None:
 			return False
-		ref = self.resolveAlternatePipService(service)
+		from Screens.InfoBarGenerics import streamrelayChecker
+		ref = streamrelayChecker(self.resolveAlternatePipService(service))
 		if ref:
 			if SystemInfo["CanNotDoSimultaneousTranscodeAndPIP"] and StreamServiceList:
 				self.pipservice = None
@@ -227,7 +227,7 @@ class PictureInPicture(Screen):
 				if not config.usage.hide_zap_errors.value:
 					Tools.Notifications.AddPopup(text="PiP...\n" + _("Connected transcoding, limit - no PiP!"), type=MessageBox.TYPE_ERROR, timeout=5, id="ZapPipError")
 				return False
-			if ref.toString().startswith("4097"):		#  Change to service type 1 and try to play a stream as type 1
+			if ref.toString().startswith("4097"):  # Change to service type 1 and try to play a stream as type 1
 				ref = eServiceReference("1" + ref.toString()[4:])
 			if not self.isPlayableForPipService(ref):
 				if not config.usage.hide_zap_errors.value:

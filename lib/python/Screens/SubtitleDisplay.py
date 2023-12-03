@@ -1,10 +1,9 @@
 from sys import maxsize
 
 from enigma import eTimer, getDesktop, eActionMap, gFont
-from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Screens.Screen import Screen
-import skin
+import skin  # noqa: F401
 
 
 class SubtitleDisplay(Screen):
@@ -38,7 +37,7 @@ class SubtitleDisplay(Screen):
 			# whilst the notification is shown any keydown event dismisses the notification
 			if flag == 0:
 				self.hideMessage()
-			else: # any key repeat or keyup event is discarded
+			else:  # any key repeat or keyup event is discarded
 				return 1
 
 	def showMessage(self, message, hideScreen):

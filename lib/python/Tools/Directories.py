@@ -3,7 +3,7 @@ from errno import ENOENT, EXDEV
 
 from os.path import basename as pathBasename, dirname as pathDirname, exists as pathExists, getsize as pathGetsize, isdir as pathIsdir, isfile as pathIsfile, islink as pathIslink, join as pathJoin, normpath as pathNormpath, splitext as pathSplitext
 
-from os import access, chmod, listdir, makedirs, mkdir, readlink, rename, rmdir, sep, stat as os_stat, statvfs, symlink, utime, walk, F_OK, R_OK, W_OK 
+from os import access, chmod, listdir, makedirs, mkdir, readlink, rename, rmdir, sep, stat as os_stat, statvfs, symlink, utime, walk, F_OK, R_OK, W_OK
 
 from enigma import eEnv, getDesktop
 from re import compile, split, search
@@ -144,7 +144,7 @@ def resolveFilename(scope, base="", path_prefix=None):
 			callingCode = pathNormpath(getframe(1).f_code.co_filename)
 			plugins = pathNormpath(scopePlugins)
 			path = None
-			if comparePath(plugins, callingCode):
+			if comparePaths(plugins, callingCode):
 				pluginCode = callingCode[len(plugins) + 1:].split(sep)
 				if len(pluginCode) > 2:
 					relative = "%s%s%s" % (pluginCode[0], sep, pluginCode[1])
@@ -160,7 +160,7 @@ def resolveFilename(scope, base="", path_prefix=None):
 				pathJoin(scopeConfig, "skin_common"),
 				scopeConfig
 			)
-			if not "skin_default" in skin:
+			if "skin_default" not in skin:
 				skinResolveList += addInList(pathJoin(scopeGUISkin, skin))
 			skinResolveList += addInList(
 				pathJoin(scopeGUISkin, "skin_fallback_%d" % getPrimarySkinResolution()),
@@ -250,7 +250,7 @@ def resolveFilename(scope, base="", path_prefix=None):
 
 
 def getPrimarySkinResolution():
-	from Components.config import config # deferred import
+	from Components.config import config  # deferred import
 	resolutions = ["480", "576", "720", "1080", "2160", "4320", "8640"]
 	resolution = None
 	skin = resolveFilename(SCOPE_SKIN, config.skin.primary_skin.value)
@@ -283,7 +283,7 @@ def fileWriteLine(filename, line, *args, **kwargs):
 		with open(filename, "w") as fd:
 			fd.write(str(line))
 		return 1
-	except (IOError, OSError) as err:
+	except (IOError, OSError):
 		print_exc()
 		return 0
 
@@ -307,7 +307,7 @@ def fileWriteLines(filename, lines, *args, **kwargs):
 				lines = "\n".join(lines)
 			fd.write(lines)
 		return 1
-	except (IOError, OSError) as err:
+	except (IOError, OSError):
 		print_exc()
 		return 0
 

@@ -3,10 +3,9 @@ from enigma import iServiceInformation, iPlayableService, iPlayableServicePtr, e
 
 from Components.Converter.Converter import Converter
 from Components.Element import cached
-from Components.NimManager import nimmanager
 import Screens.InfoBar
 from ServiceReference import resolveAlternate, ServiceReference
-from Tools.Transponder import ConvertToHumanReadable, getChannelNumber
+from Tools.Transponder import ConvertToHumanReadable
 
 
 class TransponderInfo(Converter):
@@ -20,7 +19,7 @@ class TransponderInfo(Converter):
 		if isinstance(service, iPlayableServicePtr):
 			info = service and service.info()
 			ref = None
-		else: # reference
+		else:  # reference
 			info = service and self.source.info
 			ref = service
 		if not info:
@@ -51,7 +50,7 @@ class TransponderInfo(Converter):
 				elif "ATSC" in transponderdata["system"]:
 					return "%s %s %s %s-%s" % (transponderdata["system"], transponderdata["frequency"], transponderdata["modulation"], tsid, onid)
 				return "%s %s %s %s %s %s %s-%s %s" % (transponderdata["system"], transponderdata["frequency"], transponderdata["polarization_abbreviation"], transponderdata["symbol_rate"],
- 					transponderdata["fec_inner"], transponderdata["modulation"], tsid, onid, transponderdata["detailed_satpos" in self.type and "orbital_position" or "orb_pos"])
+					transponderdata["fec_inner"], transponderdata["modulation"], tsid, onid, transponderdata["detailed_satpos" in self.type and "orbital_position" or "orb_pos"])
 			except:
 				return ""
 		if "://" in ref:

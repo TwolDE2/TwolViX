@@ -93,7 +93,7 @@ def getCPUSpeedMHzInt():
 			except IOError:
 				cpu_speed = 1700
 		else:
-			try: # Solo4K sf8008
+			try:  # Solo4K sf8008
 				with open("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r") as file:
 					cpu_speed = float(file.read()) // 1000
 			except IOError:
@@ -137,12 +137,12 @@ def getCpuCoresInt():
 def getCpuCoresString():
 	cores = getCpuCoresInt()
 	return {
-			0: _("unavailable"),
-			1: _("Single core"),
-			2: _("Dual core"),
-			4: _("Quad core"),
-			8: _("Octo core")
-			}.get(cores, _("%d cores") % cores)
+		0: _("unavailable"),
+		1: _("Single core"),
+		2: _("Dual core"),
+		4: _("Quad core"),
+		8: _("Octo core")
+	}.get(cores, _("%d cores") % cores)
 
 
 def _ifinfo(sock, addr, ifname):
@@ -159,10 +159,10 @@ def getIfConfig(ifname):
 	infos = {}
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	# offsets defined in /usr/include/linux/sockios.h on linux 2.6
-	infos["addr"] = 0x8915 # SIOCGIFADDR
-	infos["brdaddr"] = 0x8919 # SIOCGIFBRDADDR
-	infos["hwaddr"] = 0x8927 # SIOCSIFHWADDR
-	infos["netmask"] = 0x891b # SIOCGIFNETMASK
+	infos["addr"] = 0x8915  # SIOCGIFADDR
+	infos["brdaddr"] = 0x8919  # SIOCGIFBRDADDR
+	infos["hwaddr"] = 0x8927  # SIOCSIFHWADDR
+	infos["netmask"] = 0x891b  # SIOCGIFNETMASK
 	try:
 		for k, v in infos.items():
 			ifreq[k] = _ifinfo(sock, v, ifname)
@@ -186,15 +186,6 @@ def getPythonVersionString():
 	return "%s.%s.%s" % (version_info.major, version_info.minor, version_info.micro)
 
 
-def getEnigmaUptime():
-	location = "/etc/enigma2/profile"
-	try:
-		seconds = int(time() - ospath.getmtime(location))
-		return formatUptime(seconds)
-	except:
-		return ''
-
-
 def getBoxUptime():
 	try:
 		with open("/proc/uptime", "rb") as f:
@@ -202,22 +193,6 @@ def getBoxUptime():
 		return formatUptime(seconds)
 	except:
 		return ''
-
-
-def formatUptime(seconds):
-	out = ''
-	if seconds > 86400:
-		days = int(seconds / 86400)
-		out += ("1 day" if days == 1 else "%d days" % days) + ", "
-	if seconds > 3600:
-		hours = int((seconds % 86400) / 3600)
-		out += ("1 hour" if hours == 1 else "%d hours" % hours) + ", "
-	if seconds > 60:
-		minutes = int((seconds % 3600) / 60)
-		out += ("1 minute" if minutes == 1 else "%d minutes" % minutes) + " "
-	else:
-		out += ("1 second" if seconds == 1 else "%d seconds" % seconds) + " "
-	return out
 
 
 def getEnigmaUptime():

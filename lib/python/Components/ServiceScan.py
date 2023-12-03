@@ -15,7 +15,7 @@ class ServiceScan:
 		1: _("error while scanning"),
 		2: _("no resource manager"),
 		3: _("no channel list")
-		}
+		}  # noqa: E123
 
 	def scanStatusChanged(self):
 		if self.state == self.Running:
@@ -37,10 +37,10 @@ class ServiceScan:
 				percentage = self.scan.getProgress()
 				if percentage > 99:
 					percentage = 99
-				#TRANSLATORS: The stb is performing a channel scan, progress percentage is printed in '%d' (and '%%' will show a single '%' symbol)
+				# TRANSLATORS: The stb is performing a channel scan, progress percentage is printed in '%d' (and '%%' will show a single '%' symbol)
 				message = ngettext("Scanning - %d%% completed", "Scanning - %d%% completed", percentage) % percentage
 				message += ", "
-				#TRANSLATORS: Intermediate scanning result, '%d' channel(s) have been found so far
+				# TRANSLATORS: Intermediate scanning result, '%d' channel(s) have been found so far
 				message += ngettext("%d channel found", "%d channels found", result) % result
 				self.text.setText(message)
 				transponder = self.scan.getCurrentTransponder()
@@ -56,7 +56,7 @@ class ServiceScan:
 							sat_name = str(nimmgr.getSatDescription(orb_pos))
 						except KeyError:
 							sat_name = ""
-						if orb_pos > 1800: # west
+						if orb_pos > 1800:  # west
 							orb_pos = 3600 - orb_pos
 							h = _("W")
 						else:

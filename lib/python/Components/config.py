@@ -9,7 +9,6 @@ from enigma import getPrevAsciiCode
 from Tools.NumericalTextInput import NumericalTextInput
 from Tools.Directories import resolveFilename, SCOPE_CONFIG, fileExists
 from Components.Harddisk import harddiskmanager
-from Tools.LoadPixmap import LoadPixmap
 
 ACTIONKEY_LEFT = 0
 ACTIONKEY_RIGHT = 1
@@ -510,11 +509,12 @@ class ConfigSelection(ConfigElement):
 		if self._descr is None:
 			self._descr = self.description[self.value]
 		from Components.config import config
-		from skin import switchPixmap
-		if self.graphic and config.usage.boolean_graphic.value == "yes" and "menu_on" in switchPixmap and "menu_off" in switchPixmap:
-			pixmap = "menu_on" if self._descr in (_('True'), _('true'), _('Yes'), _('yes'), _('Enable'), _('enable'), _('Enabled'), _('enabled'), _('On'), _('on')) else "menu_off" if self._descr in (_('False'), _('false'), _('No'), _('no'), _("Disable"), _('disable'), _('Disabled'), _('disabled'), _('Off'), _('off'), _('None'), _('none')) else None
-			if pixmap:
-				return ('pixmap', switchPixmap[pixmap])
+		if self.graphic and config.usage.boolean_graphic.value == "yes":
+			from skin import switchPixmap
+			if "menu_on" in switchPixmap and "menu_off" in switchPixmap:
+				pixmap = "menu_on" if self._descr in (_('True'), _('true'), _('Yes'), _('yes'), _('Enable'), _('enable'), _('Enabled'), _('enabled'), _('On'), _('on')) else "menu_off" if self._descr in (_('False'), _('false'), _('No'), _('no'), _("Disable"), _('disable'), _('Disabled'), _('disabled'), _('Off'), _('off'), _('None'), _('none')) else None
+				if pixmap:
+					return ('pixmap', switchPixmap[pixmap])
 		return ("text", self._descr)
 
 	# HTML
@@ -576,10 +576,11 @@ class ConfigBoolean(ConfigElement):
 		return self.descriptions[self.value]
 
 	def getMulti(self, selected):
-		from skin import switchPixmap
 		from Components.config import config
-		if self.graphic and config.usage.boolean_graphic.value in ("yes", "only_bool") and "menu_on" in switchPixmap and "menu_off" in switchPixmap:
-			return ('pixmap', switchPixmap["menu_on" if self.value else "menu_off"])
+		if self.graphic and config.usage.boolean_graphic.value in ("yes", "only_bool"):
+			from skin import switchPixmap
+			if "menu_on" in switchPixmap and "menu_off" in switchPixmap:
+				return ('pixmap', switchPixmap["menu_on" if self.value else "menu_off"])
 		return ("text", self.descriptions[self.value])
 
 	# For HTML Interface - Is this still used?
@@ -738,7 +739,6 @@ class ConfigSequence(ConfigElement):
 				number = getKeyNumber(key)
 
 			block_len = [len(str(x[1])) for x in self.limits]
-			total_len = sum(block_len)
 
 			pos = 0
 			blocknumber = 0
@@ -757,7 +757,7 @@ class ConfigSequence(ConfigElement):
 			# position in the block
 			posinblock = self.marked_pos - block_len_total[blocknumber]
 
-			oldvalue = abs(self._value[blocknumber]) # we are using abs in order to allow change negative values like default -1 on mis
+			oldvalue = abs(self._value[blocknumber])  # we are using abs in order to allow change negative values like default -1 on mis
 			olddec = oldvalue % 10 ** (number_len - posinblock) - (oldvalue % 10 ** (number_len - posinblock - 1))
 			newvalue = oldvalue - olddec + (10 ** (number_len - posinblock - 1) * number)
 
@@ -765,8 +765,8 @@ class ConfigSequence(ConfigElement):
 			self.marked_pos += 1
 
 			self.validate()
-		if not isinstance(self, ConfigClock) and prev != str(self._value): # callback for ConfigClock handled in ConfigClock
-			self.changed() # this is here only because SetValue() has not been called
+		if not isinstance(self, ConfigClock) and prev != str(self._value):  # callback for ConfigClock handled in ConfigClock
+			self.changed()  # this is here only because SetValue() has not been called
 			if callable(callback):
 				callback()
 
@@ -830,7 +830,7 @@ class ConfigIP(ConfigSequence):
 			self.changed()
 			if callable(callback):
 				callback()
-		
+
 	def execHandleKey(self, key):
 		if key == ACTIONKEY_LEFT:
 			if self.marked_block > 0:
@@ -899,7 +899,8 @@ class ConfigIP(ConfigSequence):
 		else:
 			return "text", value
 
-	def getHTML(self, id):
+	def getHTML(self, id=0):
+		# I do not know why id is here but it is used in the sources renderer and I'm afraid we should keep it for compatibily. It is not used here but I give at a default value
 		# we definitely don't want leading zeros
 		return '.'.join(["%d" % d for d in self.value])
 
@@ -1022,7 +1023,7 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 				mark = list(range(0, min(self.visible_width, len(self.text))))
 			else:
 				mark = [self.marked_pos - self.offset]
-			return "mtext"[1 - selected:], six.ensure_str(text[self.offset:self.offset + self.visible_width]) + " ", mark
+			return "mtext"[1 - selected:], six.ensure_str(self.text[self.offset:self.offset + self.visible_width]) + " ", mark
 		else:
 			if self.allmarked:
 				mark = list(range(0, len(self.text)))
@@ -1065,10 +1066,10 @@ class ConfigClock(ConfigSequence):
 		# dafault can either be a timestamp
 		# or an (hours, minutes) tuple.
 		if isinstance(default, tuple):
-			l = list(localtime())
-			l[3] = default[0] # hours
-			l[4] = default[1] # minutes
-			default = int(mktime(tuple(l)))
+			itemList = list(localtime())
+			itemList[3] = default[0]  # hours
+			itemList[4] = default[1]  # minutes
+			default = int(mktime(tuple(itemList)))
 		t = localtime(default)
 		ConfigSequence.__init__(self, seperator=":", limits=clock_limits, default=[t.tm_hour, t.tm_min])
 
@@ -1609,6 +1610,8 @@ class ConfigDirectory(ConfigText):
 			val = ""
 		ConfigText.setValue(self, val)
 
+	value = property(getValue, setValue)
+
 	def getMulti(self, selected):
 		if self.text == "":
 			return "mtext"[1 - selected:], _("List of storage devices"), list(range(0))
@@ -1642,7 +1645,7 @@ class ConfigSlider(ConfigElement):
 			elif key == ACTIONKEY_LAST:
 				value = self.max
 			if value != self.value:
-				self.value = value # self.value calls the notifier
+				self.value = value  # self.value calls the notifier
 				if callable(callback):
 					callback()
 
@@ -2196,11 +2199,11 @@ class Config(ConfigSubsection):
 	def unpickle(self, lines, base_file=True):
 		tree = {}
 		configbase = tree.setdefault("config", {})
-		for l in lines:
-			if not l or l[0] == '#':
+		for element in lines:
+			if not element or element[0] == '#':
 				continue
 
-			result = l.split('=', 1)
+			result = element.split('=', 1)
 			if len(result) != 2:
 				continue
 			(name, val) = result
@@ -2281,7 +2284,7 @@ class ConfigFile:
 				ret = self.__resolveValue(names[1:], config.content.items)
 				if ret and len(ret):
 					return ret
-		#	print("[Config] getResolvedKey", key, "empty variable.")
+		# print("[Config] getResolvedKey", key, "empty variable.")
 		return ""
 
 

@@ -38,12 +38,12 @@ class Listbox(Renderer):
 		if self.__content is not None:
 			instance.setContent(self.__content)
 		instance.selectionChanged.get().append(self.selectionChanged)
-		self.wrap_around = self.wrap_around # trigger
-		self.selection_enabled = self.selection_enabled # trigger
+		self.wrap_around = self.wrap_around  # trigger
+		self.selection_enabled = self.selection_enabled  # trigger
 		for (attrib, value) in self.skinAttributes:
 			if attrib == "scrollbarMode":
 				self.__scrollbarMode = value
-		self.scrollbarMode = self.scrollbarMode # trigger
+		self.scrollbarMode = self.scrollbarMode  # trigger
 
 	def preWidgetRemove(self, instance):
 		instance.setContent(None)
@@ -86,9 +86,10 @@ class Listbox(Renderer):
 		self.__scrollbarMode = mode
 		if self.instance is not None:
 			self.instance.setScrollbarMode(int(
-				{"showOnDemand": eListbox.showOnDemand,
-				  "showAlways": eListbox.showAlways,
-				  "showNever": eListbox.showNever,
+				{
+					"showOnDemand": eListbox.showOnDemand,
+					"showAlways": eListbox.showAlways,
+					"showNever": eListbox.showNever,
 				}[mode]))
 
 	scrollbarMode = property(lambda self: self.__scrollbarMode, setScrollbarMode)
