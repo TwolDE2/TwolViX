@@ -159,7 +159,7 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 			return
 		elif self.settings.afterEvent.value == "close" and self.job.status == self.job.FINISHED:
 			self.close(False)
-		if self.settings.afterEvent.value == "deepstandby":
+		elif self.settings.afterEvent.value == "deepstandby":
 			if not Screens.Standby.inTryQuitMainloop:
 				Tools.Notifications.AddNotificationWithCallback(self.sendTryQuitMainloopNotification, MessageBox, _("A sleep timer wants to shut down\nyour %s %s. Proceed?") % (getMachineBrand(), getMachineName()), timeout=20)
 		elif self.settings.afterEvent.value == "standby":
