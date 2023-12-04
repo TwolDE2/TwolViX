@@ -2,12 +2,12 @@ from bisect import insort
 from gettext import dgettext
 import itertools
 import datetime
-from os import listdir, path
+from os import listdir, path as ospath
 from re import match
 from sys import maxsize
 from time import time, localtime, strftime
 
-from pickle import load as pickle_load, dump as pickle_dump, dumps as pickle_dumpss, HIGHEST_PROTOCOL as pickle_HIGHEST_PROTOCOL
+from pickle import load as pickle_load, dump as pickle_dump, HIGHEST_PROTOCOL as pickle_HIGHEST_PROTOCOL
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from boxbranding import getBrandOEM
 from keyids import KEYIDS
@@ -102,9 +102,9 @@ def setResumePoint(session):
 				for k, v in list(resumePointCache.items()):
 					if v[0] < lru:
 						candidate = k
-						filepath = path.realpath(candidate.split(':')[-1])
+						filepath = ospath.realpath(candidate.split(':')[-1])
 						mountpoint = findMountPoint(filepath)
-						if path.ismount(mountpoint) and not path.exists(filepath):
+						if ospath.ismount(mountpoint) and not ospath.exists(filepath):
 							del resumePointCache[candidate]
 				saveResumePoints()
 
@@ -166,7 +166,7 @@ class whitelist:
 
 
 def reload_whitelist_vbi():
-	whitelist.vbi = [line.strip() for line in open('/etc/enigma2/whitelist_vbi', 'r').readlines()] if path.isfile('/etc/enigma2/whitelist_vbi') else []
+	whitelist.vbi = [line.strip() for line in open('/etc/enigma2/whitelist_vbi', 'r').readlines()] if ospath.isfile('/etc/enigma2/whitelist_vbi') else []
 
 
 reload_whitelist_vbi()
@@ -177,7 +177,7 @@ class InfoBarStreamRelay:
 	FILENAME = "/etc/enigma2/whitelist_streamrelay"
 
 	def __init__(self):
-		self.__srefs = self.__sanitizeData(open(self.FILENAME, 'r').readlines()) if os.path.isfile(self.FILENAME) else []
+		self.__srefs = self.__sanitizeData(open(self.FILENAME, 'r').readlines()) if ospath.isfile(self.FILENAME) else []
 
 	def __sanitizeData(self, data):
 		return list(set([line.strip() for line in data if line and isinstance(line, str) and match("^(?:[0-9A-F]+[:]){10}$", line.strip())])) if isinstance(data, list) else []
@@ -231,7 +231,7 @@ def reload_subservice_groupslist(force=False):
 	if subservice_groupslist is None or force:
 		try:
 			groupedservices = "/etc/enigma2/groupedservices"
-			if not path.isfile(groupedservices):
+			if not ospath.isfile(groupedservices):
 				groupedservices = "/usr/share/enigma2/groupedservices"
 			subservice_groupslist = [list(g) for k, g in itertools.groupby([line.split('#')[0].strip() for line in open(groupedservices).readlines()], lambda x: not x) if not k]
 		except:
@@ -387,7 +387,7 @@ class InfoBarScreenSaver:
 			ref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 			if ref and not (hasattr(self.session, "pipshown") and self.session.pipshown):
 				ref = ref.toString().split(":")
-				flag = ref[2] == "2" or path.splitext(ref[10])[1].lower() in AUDIO_EXTENSIONS
+				flag = ref[2] == "2" or ospath.splitext(ref[10])[1].lower() in AUDIO_EXTENSIONS
 		if time and flag:
 			self.screenSaverTimer.startLongTimer(time)
 		else:
@@ -2299,11 +2299,11 @@ class InfoBarSeek:
 			self.activityTimer.stop()
 			self.activity = 0
 			hdd = 0
-		if path.exists("/proc/stb/lcd/symbol_hdd"):
+		if ospath.exists("/proc/stb/lcd/symbol_hdd"):
 			file = open("/proc/stb/lcd/symbol_hdd", "w")
 			file.write('%d' % int(hdd))
 			file.close()
-		if path.exists("/proc/stb/lcd/symbol_hddprogress"):
+		if ospath.exists("/proc/stb/lcd/symbol_hddprogress"):
 			file = open("/proc/stb/lcd/symbol_hddprogress", "w")
 			file.write('%d' % int(self.activity))
 			file.close()
@@ -2727,7 +2727,7 @@ class InfoBarTimeshiftState(InfoBarPVRState):
 		self.pvrStateDialog.hide()
 
 	def __timeshiftEventName(self, state):
-		if path.exists("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value, self.pts_currplaying)):
+		if ospath.exists("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value, self.pts_currplaying)):
 			readmetafile = open("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value, self.pts_currplaying), "r")
 			servicerefname = readmetafile.readline()[0:-1]  # noqa: F841 servicerefname assigned, not used
 			eventname = readmetafile.readline()[0:-1]
