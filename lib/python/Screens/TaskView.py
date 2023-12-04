@@ -120,9 +120,10 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 			self["summary_job_task"].text = j.getStatustext()
 		if j.status in (j.FINISHED, j.FAILED):
 			self.performAfterEvent()
-			self.backgroundable = False
-			self["key_blue"].setText("")
-			self["backgroundActions"].setEnabled(False)
+			if self.backgroundable:
+				self.backgroundable = False
+				self["key_blue"].setText("")
+				self["backgroundActions"].setEnabled(False)
 			if j.status == j.FINISHED:
 				self["key_green"].setText(_("OK"))
 				self["okActions"].setEnabled(True)
