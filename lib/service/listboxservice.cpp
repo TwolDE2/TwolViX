@@ -35,7 +35,7 @@ void join(const std::vector<std::string>& v, char c, std::string& s) {
    }
 }
 
-bool compareServices(const eServiceReference &ref1, const eServiceReference &ref2) {
+bool compareServices(const eServiceReference &ref1, const eServiceReference &ref2, bool alternativeMatching) {
 	eServiceReference r_i = ref1;
 	std::vector<std::string> ref_split = split(r_i.toString(), ":");
 	std::vector<std::string> s_split = split(ref2.toString(), ":");
@@ -67,7 +67,7 @@ bool compareServices(const eServiceReference &ref1, const eServiceReference &ref
 		return r_i.toString() == ref_orig;
 	}
 
-	return ref_s == s_s;
+	return false;
 }
 
 void eListboxServiceContent::addService(const eServiceReference &service, bool beforeCurrent)
@@ -683,13 +683,13 @@ bool eListboxServiceContent::checkServiceIsRecorded(eServiceReference ref)
 			if (!db->getBouquet(ref, bouquet))
 			{
 				for (std::list<eServiceReference>::iterator i(bouquet->m_services.begin()); i != bouquet->m_services.end(); ++i){
-					if (compareServices(*i, it->second))
+					if (compareServices(*i, it->second, m_alternative_record_match))
 						return true;
 				}
 			}
 		}
 		else {
-			if (compareServices(ref, it->second))
+			if (compareServices(ref, it->second, m_alternative_record_match))
 				return true;
 		} 
 	}
