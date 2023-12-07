@@ -1,5 +1,5 @@
 from os import path
-
+from boxbranding import getBoxType
 from enigma import iPlayableService, iServiceInformation, eTimer, eServiceCenter, eServiceReference, eDVBDB
 
 from Components.ActionMap import ActionMap
@@ -19,7 +19,8 @@ from Tools.HardwareInfo import HardwareInfo
 resolutionlabel = None
 previous = None
 isDedicated3D = False
-
+videomode = "/proc/stb/video/videomode_50hz" if getBoxType() in ("gbquad4k", "gbue4k") else "/proc/stb/video/videomode"
+videogb4k = True if getBoxType() in ("gbue4k", ) else False
 
 class VideoSetup(ConfigListScreen, Screen):
 	def __init__(self, session):
@@ -305,7 +306,7 @@ class AutoVideoMode(Screen):
 			self.delay = False
 			self.detecttimer.stop()
 			return
-		with open("/proc/stb/video/videomode", "r") as fd:
+		with open(videomode, "r") as fd:
 			current_mode = fd.read()[:-1].replace("\n", "")
 		if current_mode.upper() in ("PAL", "NTSC"):
 			current_mode = current_mode.upper()
@@ -428,6 +429,10 @@ class AutoVideoMode(Screen):
 					new_mode = config.av.autores_2160p30.value
 				write_mode = new_mode
 			else:
+				# print("[VideoMode][VideoChangeDetect] config.av.autores.value != HD or ALL, new_rate", config.av.autores.value, "   ", new_rate)
+				if video_rate == 25000 or (videogb4k and video_rate == 23976):				
+					new_rate = 50
+				# print("[VideoMode][VideoChangeDetect] else:  video_rate, new_rate", video_rate, "   ", new_rate)									
 				if path.exists("/proc/stb/video/videomode_%shz" % new_rate) and config_rate == "multi":
 					try:
 						with open("/proc/stb/video/videomode_%shz" % new_rate, "r") as fd:
@@ -443,8 +448,16 @@ class AutoVideoMode(Screen):
 				if config.av.autores.value != "disabled" and config.av.autores_label_timeout.value != "0":
 					resolutionlabel.show()
 				print("[VideoMode] setMode - port: %s, mode: %s" % (config.av.videoport.value, write_mode))
-				with open("/proc/stb/video/videomode", "w") as fd:
+				if videogb4k:
+					if write_mode in ("1080p24", "1080p25", "1080p30"):
+						write_mode = "1080p"
+					elif write_mode in ("2160p24", "2160p25", "2160p30"):
+						write_mode = "2160p"
+				with open(videomode, "r+") as fd:
 					fd.write(write_mode)
+					# read_mode = fd.read().replace("\n", "")					
+					# print("[VideoMode]3 fd.write_mode, read_mode", write_mode, "   ", read_mode)
+										
 		iAV.setAspect(config.av.aspect)
 		iAV.setWss(config.av.wss)
 		iAV.setPolicy43(config.av.policy_43)
