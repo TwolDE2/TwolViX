@@ -22,6 +22,7 @@ isDedicated3D = False
 videomode = "/proc/stb/video/videomode_50hz" if getBoxType() in ("gbquad4k", "gbue4k") else "/proc/stb/video/videomode"
 videogb4k = True if getBoxType() in ("gbue4k", ) else False
 
+
 class VideoSetup(ConfigListScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
