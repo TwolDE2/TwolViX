@@ -435,7 +435,7 @@ class AutoVideoMode(Screen):
 				write_mode = new_mode
 			else:
 				# print("[VideoMode][VideoChangeDetect] config.av.autores.value != HD or ALL, new_rate", config.av.autores.value, "   ", new_rate)
-				if video_rate == 25000:				
+				if video_rate == 25000:  # videomode_25hz is not in proc and will be reset 2nd pass thru , so do it now.
 					new_rate = 50
 				# print("[VideoMode][VideoChangeDetect] else:  video_rate, new_rate", video_rate, "   ", new_rate)									
 				if path.exists("/proc/stb/video/videomode_%shz" % new_rate) and config_rate == "multi":
