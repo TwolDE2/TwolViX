@@ -306,8 +306,12 @@ class AutoVideoMode(Screen):
 			self.delay = False
 			self.detecttimer.stop()
 			return
-		with open(videomode, "r+") as fd:
-			current_mode = fd.read()[:-1].replace("\n", "")
+		try:	
+			with open(videomode, "r+") as fd:  # GB4K can fail on initial open
+				current_mode = fd.read()[:-1].replace("\n", "")
+		except:
+			with open("/proc/stb/video/videomode", "r") as fd:
+				current_mode = fd.read()[:-1].replace("\n", "")
 		if current_mode.upper() in ("PAL", "NTSC"):
 			current_mode = current_mode.upper()
 		video_height = None
@@ -448,7 +452,12 @@ class AutoVideoMode(Screen):
 				if config.av.autores.value != "disabled" and config.av.autores_label_timeout.value != "0":
 					resolutionlabel.show()
 				print("[VideoMode] setMode - port: %s, mode: %s" % (config.av.videoport.value, write_mode))
-				with open(videomode, "w+") as fd:
+				if videogb4k:
+					if write_mode in ("1080p24", "1080p25", "1080p30"):
+						write_mode = "1080p"
+					elif write_mode in ("2160p24", "2160p25", "2160p30"):
+						write_mode = "2160p"
+				with open(videomode, "r+") as fd:
 					fd.write(write_mode)
 					# read_mode = fd.read().replace("\n", "")					
 					# print("[VideoMode]3 fd.write_mode, read_mode", write_mode, "   ", read_mode)
