@@ -182,7 +182,7 @@ class Wizard(Screen):
 
 		self["text"] = Label()
 		self["description"] = Label("")
-		
+
 		if showConfig:
 			self["config"] = ConfigList([], session=session)
 
