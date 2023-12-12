@@ -181,7 +181,8 @@ class Wizard(Screen):
 		self.timeoutTimer.callback.append(self.timeoutCounterFired)
 
 		self["text"] = Label()
-
+		self["description"] = Label("")
+		
 		if showConfig:
 			self["config"] = ConfigList([], session=session)
 
