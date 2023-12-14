@@ -3,11 +3,11 @@ from os.path import isdir, realpath, join as pathJoin, splitext
 from tempfile import NamedTemporaryFile
 
 from Components.config import config
+import Components.Harddisk
 from Screens.LocationBox import TimeshiftLocationBox
-# from Screens.MessageBox import MessageBox
 from Screens.Setup import Setup
 from Tools.Directories import fileExists
-import Components.Harddisk
+
 
 
 class TimeshiftSettings(Setup):
@@ -108,7 +108,6 @@ class TimeshiftSettings(Setup):
 			Setup.selectionChanged(self)
 		else:
 			self["config"].setCurrentIndex(self.errorItem)
-			self.errorMsg()
 
 	def changedEntry(self):
 		if self.getCurrentItem() is config.usage.timeshift_path:
@@ -121,12 +120,6 @@ class TimeshiftSettings(Setup):
 		else:
 			Setup.keySelect(self)
 
-	def errorMsg(self):
-		# self.session.open(MessageBox, "%s\n\n%s" % (self.footnote, _("Please select a valid directory.")), type=MessageBox.TYPE_ERROR)
-		print("[Recordings] Please select a valid directory: ", self.errorItem)
-
 	def keySave(self):
 		if self.errorItem == -1:
 			Setup.keySave(self)
-		else:
-			self.errorMsg()
