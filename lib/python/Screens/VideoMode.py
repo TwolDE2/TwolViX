@@ -19,9 +19,8 @@ from Tools.HardwareInfo import HardwareInfo
 resolutionlabel = None
 previous = None
 isDedicated3D = False
-videomode = "/proc/stb/video/videomode_50hz" if getBoxType() in ("gbquad4k", "gbue4k") else "/proc/stb/video/videomode"
-videogb4k = True if getBoxType() in ("gbue4k", ) else False
-
+videomode = "/proc/stb/video/videomode"
+videogbue4k = True if getBoxType() in ("gbue4k", ) else False
 
 class VideoSetup(ConfigListScreen, Screen):
 	def __init__(self, session):
@@ -307,12 +306,8 @@ class AutoVideoMode(Screen):
 			self.delay = False
 			self.detecttimer.stop()
 			return
-		try:
-			with open(videomode, "r+") as fd:  # GB4K can fail on initial open
-				current_mode = fd.read()[:-1].replace("\n", "")
-		except:
-			with open("/proc/stb/video/videomode", "r") as fd:
-				current_mode = fd.read()[:-1].replace("\n", "")
+		with open(videomode, "r") as fd:
+			current_mode = fd.read()[:-1].replace("\n", "")
 		if current_mode.upper() in ("PAL", "NTSC"):
 			current_mode = current_mode.upper()
 		video_height = None
@@ -374,7 +369,6 @@ class AutoVideoMode(Screen):
 				new_rate = str((new_rate + 500) // 1000)
 			else:
 				new_rate = config_rate
-
 			if video_pol != -1:
 				new_pol = str(video_pol)
 			else:
@@ -435,12 +429,12 @@ class AutoVideoMode(Screen):
 				write_mode = new_mode
 			else:
 				# print("[VideoMode][VideoChangeDetect] config.av.autores.value != HD or ALL, new_rate", config.av.autores.value, "   ", new_rate)
-				if video_rate == 25000:  # videomode_25hz is not in proc and will be reset 2nd pass thru , so do it now.
+				if video_rate == 25000 or (videogbue4k and video_rate == 23976):  # videomode_25hz is not in proc and will be reset 2nd pass thru , so do it now.
 					new_rate = 50
 				# print("[VideoMode][VideoChangeDetect] else:  video_rate, new_rate", video_rate, "   ", new_rate)
 				if path.exists("/proc/stb/video/videomode_%shz" % new_rate) and config_rate == "multi":
-					try:
-						with open("/proc/stb/video/videomode_%shz" % new_rate, "r+") as fd:
+					try:  # gbuhd4k/gbue4k sometimes will 1st time fail on open
+						with open("%s_%shz" % (videomode, new_rate), "r") as fd:
 							multi_videomode = fd.read().replace("\n", "")
 						if multi_videomode and (current_mode != multi_videomode):
 							write_mode = multi_videomode
@@ -453,12 +447,12 @@ class AutoVideoMode(Screen):
 				if config.av.autores.value != "disabled" and config.av.autores_label_timeout.value != "0":
 					resolutionlabel.show()
 				print("[VideoMode] setMode - port: %s, mode: %s" % (config.av.videoport.value, write_mode))
-				if videogb4k:
+				if videogbue4k:
 					if write_mode in ("1080p24", "1080p25", "1080p30"):
 						write_mode = "1080p"
 					elif write_mode in ("2160p24", "2160p25", "2160p30"):
 						write_mode = "2160p"
-				with open(videomode, "r+") as fd:
+				with open(videomode, "w+") as fd:
 					fd.write(write_mode)
 					# read_mode = fd.read().replace("\n", "")
 					# print("[VideoMode]3 fd.write_mode, read_mode", write_mode, "   ", read_mode)
