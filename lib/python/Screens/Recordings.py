@@ -8,7 +8,6 @@ from Screens.Setup import Setup
 from Tools.Directories import fileExists
 
 
-
 class RecordingSettings(Setup):
 	def __init__(self, session):
 		self.styles = [("<default>", _("<Default movie location>")), ("<current>", _("<Current movielist location>")), ("<timer>", _("<Last timer location>"))]

@@ -9,7 +9,6 @@ from Screens.Setup import Setup
 from Tools.Directories import fileExists
 
 
-
 class TimeshiftSettings(Setup):
 	def __init__(self, session):
 		self.buildChoices("TimeshiftPath", config.usage.timeshift_path, None)

@@ -22,6 +22,7 @@ isDedicated3D = False
 videomode = "/proc/stb/video/videomode"
 videogbue4k = True if getBoxType() in ("gbue4k", ) else False
 
+
 class VideoSetup(ConfigListScreen, Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -432,7 +433,7 @@ class AutoVideoMode(Screen):
 				if video_rate == 25000 or (videogbue4k and video_rate == 23976):  # videomode_25hz is not in proc and will be reset 2nd pass thru , so do it now.
 					new_rate = 50
 				# print("[VideoMode][VideoChangeDetect] else:  video_rate, new_rate", video_rate, "   ", new_rate)
-				if path.exists("/proc/stb/video/videomode_%shz" % new_rate) and config_rate == "multi":
+				if path.exists("%s_%shz" % (videomode, new_rate)) and config_rate == "multi":
 					try:  # gbuhd4k/gbue4k sometimes will 1st time fail on open
 						with open("%s_%shz" % (videomode, new_rate), "r") as fd:
 							multi_videomode = fd.read().replace("\n", "")
