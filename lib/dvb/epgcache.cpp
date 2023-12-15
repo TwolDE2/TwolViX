@@ -3039,7 +3039,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	aliases = fopen(aliases_file, "r");
 	if (!aliases)
 	{
-	eDebug("[epgcache][CrossEPG V21 patch] cannot open crossepg aliases db");
+		eDebug("[epgcache][CrossEPG V21 patch] cannot open crossepg aliases db");
 		fclose(headers);
 		fclose(descriptors);
 		return;
@@ -3070,7 +3070,7 @@ void eEPGCache::crossepgImportEPGv21(std::string dbroot)
 	fread (tmp, 13, 1, aliases);
 	if (memcmp (tmp, "_xEPG_ALIASES", 13) != 0)
 	{
-	eDebug("[epgcache][CrossEPG V21 patch] crossepg aliases db invalid magic");
+		eDebug("[epgcache][CrossEPG V21 patch] crossepg aliases db invalid magic");
 		fclose(headers);
 		fclose(descriptors);
 		fclose(aliases);
