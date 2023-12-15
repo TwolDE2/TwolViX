@@ -192,7 +192,7 @@ void bsodFatal(const char *component)
 	os.clear();
 	os << "We are really sorry. Your receiver encountered "
 		"a software problem, and needs to be restarted.\n"
-		"Please post the logfile " << crashlog_name << " to the openViX forum - www.world-of-satellite.com.\n"		
+		"Please post the logfile " << crashlog_name << " to the openViX forum - www.world-of-satellite.com.\n"
 		"Your STB restarts in 10 seconds!\n"
 		"Component: " << component;
 
