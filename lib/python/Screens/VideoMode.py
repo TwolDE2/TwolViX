@@ -456,7 +456,7 @@ class AutoVideoMode(Screen):
 				with open(videomode, "w+") as fd:
 					fd.write(write_mode)
 					# read_mode = fd.read().replace("\n", "")
-					# print("[VideoMode]3 fd.write_mode, read_mode", write_mode, "   ", read_mode)
+					# print("[VideoMode] fd.write_mode, read_mode", write_mode, "   ", read_mode)
 
 		iAV.setAspect(config.av.aspect)
 		iAV.setWss(config.av.wss)
