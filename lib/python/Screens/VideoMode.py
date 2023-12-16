@@ -433,9 +433,9 @@ class AutoVideoMode(Screen):
 				if video_rate == 25000 or (videogbue4k and video_rate == 23976):  # videomode_25hz is not in proc and will be reset 2nd pass thru , so do it now.
 					new_rate = 50
 				# print("[VideoMode][VideoChangeDetect] else:  video_rate, new_rate", video_rate, "   ", new_rate)
-				if path.exists("%s_%shz" % (videomode, new_rate)) and config_rate == "multi":
+				if path.exists(f"{videomode}_{new_rate}hz") and config_rate == "multi":
 					try:  # gbuhd4k/gbue4k sometimes will 1st time fail on open
-						with open("%s_%shz" % (videomode, new_rate), "r") as fd:
+						with open(f"{videomode}_{new_rate}hz", "r") as fd:
 							multi_videomode = fd.read().replace("\n", "")
 						if multi_videomode and (current_mode != multi_videomode):
 							write_mode = multi_videomode
@@ -444,10 +444,10 @@ class AutoVideoMode(Screen):
 					except IOError:
 						write_mode = current_mode
 			if write_mode and current_mode != write_mode:
-				resolutionlabel["restxt"].setText(_("Video mode: %s") % write_mode)
+				resolutionlabel["restxt"].setText(_(f"Video mode: {write_mode}"))
 				if config.av.autores.value != "disabled" and config.av.autores_label_timeout.value != "0":
 					resolutionlabel.show()
-				print("[VideoMode] setMode - port: %s, mode: %s" % (config.av.videoport.value, write_mode))
+				print(f"[VideoMode] setMode - port: {config.av.videoport.value}, mode: {write_mode}")
 				if videogbue4k:
 					if write_mode in ("1080p24", "1080p25", "1080p30"):
 						write_mode = "1080p"
