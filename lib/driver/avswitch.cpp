@@ -3,7 +3,7 @@
 #include <sys/ioctl.h>
 #include <string.h>
 
-#include <lib/base/cfileX.h>
+#include <lib/base/cfile.h>
 #include <lib/base/init.h>
 #include <lib/base/init_num.h>
 #include <lib/base/eerror.h>
