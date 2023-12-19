@@ -35,6 +35,14 @@ public:
 	std::string getVideoModeX(const std::string &defaultVal = "", int flags = 0) const;
 	void setVideoModeX(const std::string &newMode, int flags = 0) const;
 	bool isActive();
+	
+	enum
+	{
+		FLAGS_DEBUG = 1,
+		FLAGS_SUPPRESS_NOT_EXISTS = 2,
+		FLAGS_SUPPRESS_READWRITE_ERROR = 4
+	};
+	
 	PSignal1<void, int> vcr_sb_notifier;
 };
 
