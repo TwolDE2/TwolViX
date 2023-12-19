@@ -227,93 +227,16 @@ void eAVSwitch::setAspectRatio(int ratio)
 
 }
 
-/// @brief Get VideoModeX
-/// @param defaultVal
-/// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
-/// @return
-std::string eAVSwitch::getVideoModeX(const std::string &defaultVal, int flags) const
-{
-	std::string result = CFile::read(proc_videomode, __MODULE__, flags);
-	if (!result.empty() && result[result.length() - 1] == '\n')
-	{
-		result.erase(result.length() - 1);
-	}
-	if (flags & FLAGS_DEBUG)
-		eDebug("[%s] %s: %s", __MODULE__, "getVideoModeX", result.c_str());
 
-	return result;
-}
-
-
-/// @param newMode
-/// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
-void eAVSwitch::setVideoModeX(const std::string &newMode, int flags) const
+// @param newMode
+// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+void eAVSwitch::setVideoMode(const std::string &newMode, int flags) const
 {
 	CFile::writeStr(proc_videomode, newMode, __MODULE__, flags);
 	if (flags & FLAGS_DEBUG)
-		eDebug("[%s] %s: %s", __MODULE__, "setVideoModeX", newMode.c_str());
+		eDebug("[%s] %s: %s", __MODULE__, "setVideoMode", newMode.c_str());
 }
 
-void eAVSwitch::setVideomode(int mode)
-{
-	const char *pal="pal";
-	const char *ntsc="ntsc";
-
-	if (mode == m_video_mode)
-		return;
-
-	if (mode == 2)
-	{
-		int fd1 = open("/proc/stb/video/videomode_50hz", O_WRONLY);
-		if(fd1 < 0) {
-			eDebug("[eAVSwitch] cannot open /proc/stb/video/videomode_50hz: %m");
-			return;
-		}
-		int fd2 = open("/proc/stb/video/videomode_60hz", O_WRONLY);
-		if(fd2 < 0) {
-			eDebug("[eAVSwitch] cannot open /proc/stb/video/videomode_60hz: %m");
-			close(fd1);
-			return;
-		}
-		if (write(fd1, pal, strlen(pal)) < 1)
-		{
-			eDebug("[eAVSwitch] setVideomode pal failed %m");
-		}
-		if (write(fd2, ntsc, strlen(ntsc)) < 1)
-		{
-			eDebug("[eAVSwitch] setVideomode ntsc failed %m");
-		}
-		close(fd1);
-		close(fd2);
-	}
-	else
-	{
-		int fd = open("/proc/stb/video/videomode", O_WRONLY);
-		if(fd < 0) {
-			eDebug("[eAVSwitch] cannot open /proc/stb/video/videomode: %m");
-			return;
-		}
-		switch(mode) {
-			case 0:
-				if (write(fd, pal, strlen(pal)) < 1)
-				{
-					eDebug("[eAVSwitch] setVideomode pal failed %m");
-				}
-				break;
-			case 1:
-				if (write(fd, ntsc, strlen(ntsc)) < 1)
-				{
-					eDebug("[eAVSwitch] setVideomode ntsc failed %m");
-				}
-				break;
-			default:
-				eDebug("[eAVSwitch] unknown videomode %d", mode);
-		}
-		close(fd);
-	}
-
-	m_video_mode = mode;
-}
 
 void eAVSwitch::setWSS(int val) // 0 = auto, 1 = auto(4:3_off)
 {
