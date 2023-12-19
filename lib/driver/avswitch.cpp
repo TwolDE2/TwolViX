@@ -3,12 +3,18 @@
 #include <sys/ioctl.h>
 #include <string.h>
 
-#include <lib/base/cfile.h>
+#include <lib/base/cfileX.h>
 #include <lib/base/init.h>
 #include <lib/base/init_num.h>
 #include <lib/base/eerror.h>
 #include <lib/base/ebase.h>
 #include <lib/driver/avswitch.h>
+
+const char *__MODULE__ = "eAVControl";
+const char *proc_videomode = "/proc/stb/video/videomode";
+const char *proc_videomode_50 = "/proc/stb/video/videomode_50hz";
+const char *proc_videomode_60 = "/proc/stb/video/videomode_60hz";
+const char *proc_videomode_24 = "/proc/stb/video/videomode_24hz";
 
 eAVSwitch *eAVSwitch::instance = 0;
 
@@ -221,6 +227,33 @@ void eAVSwitch::setAspectRatio(int ratio)
 
 }
 
+/// @brief Get VideoModeX
+/// @param defaultVal
+/// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+/// @return
+std::string eAVControl::getVideoMode(const std::string &defaultVal, int flags) const
+{
+	std::string result = CFile::read(proc_videomode, __MODULE__, flags);
+	if (!result.empty() && result[result.length() - 1] == '\n')
+	{
+		result.erase(result.length() - 1);
+	}
+	if (flags & FLAGS_DEBUG)
+		eDebug("[%s] %s: %s", __MODULE__, "getVideoMode", result.c_str());
+
+	return result;
+}
+
+
+/// @param newMode
+/// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+void eAVControl::setVideoModeX(const std::string &newMode, int flags) const
+{
+	CFile::writeStr(proc_videomode, newMode, __MODULE__, flags);
+	if (flags & FLAGS_DEBUG)
+		eDebug("[%s] %s: %s", __MODULE__, "setVideoMode", newMode.c_str());
+}
+
 void eAVSwitch::setVideomode(int mode)
 {
 	const char *pal="pal";
@@ -301,6 +334,7 @@ void eAVSwitch::setWSS(int val) // 0 = auto, 1 = auto(4:3_off)
 //	eDebug("set wss to %s", wss[val]);
 	close(fd);
 }
+
 
 //FIXME: correct "run/startlevel"
 eAutoInitP0<eAVSwitch> init_avswitch(eAutoInitNumbers::rc, "AVSwitch Driver");

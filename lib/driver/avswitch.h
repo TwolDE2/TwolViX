@@ -32,6 +32,8 @@ public:
 	void setVideomode(int mode);
 	void setInput(int val);
 	void setWSS(int val);
+	std::string getVideoModeX(const std::string &defaultVal = "", int flags = 0) const;
+	void setVideoModeX(const std::string &newMode, int flags = 0) const;
 	bool isActive();
 	PSignal1<void, int> vcr_sb_notifier;
 };
