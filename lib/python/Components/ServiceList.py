@@ -118,7 +118,7 @@ class ServiceList(GUIComponent):
 
 		def foregroundColorNextEvent(value):
 			self.l.setColor(eListboxServiceContent.eventNextForeground, parseColor(value))
-			
+
 		def foregroundColorEventRemaining(value):
 			self.l.setColor(eListboxServiceContent.eventRemainingForeground, parseColor(value))
 
@@ -130,7 +130,7 @@ class ServiceList(GUIComponent):
 
 		def foregroundColorEventNextSelected(value):
 			self.l.setColor(eListboxServiceContent.eventNextForegroundSelected, parseColor(value))
-			
+
 		def foregroundColorEventRemainingSelected(value):
 			self.l.setColor(eListboxServiceContent.eventRemainingForegroundSelected, parseColor(value))
 
@@ -175,7 +175,7 @@ class ServiceList(GUIComponent):
 
 		def colorServiceNextDescriptionSelectedFallback(value):
 			self.l.setColor(eListboxServiceContent.eventNextForegroundSelectedFallback, parseColor(value))
-			
+
 		def colorServiceRemainingDescriptionFallback(value):
 			self.l.setColor(eListboxServiceContent.eventRemainingForegroundFallback, parseColor(value))
 
@@ -198,7 +198,7 @@ class ServiceList(GUIComponent):
 			font = parseFont(value, ((5, 6), (1, 1)))
 			self.ServiceNextInfoFontName = font.family
 			self.ServiceNextInfoFontSize = font.pointSize
-			
+
 		def serviceRemainingInfoFont(value):
 			font = parseFont(value, ((1, 1), (1, 1)))
 			self.ServiceRemainingInfoFontName = font.family
