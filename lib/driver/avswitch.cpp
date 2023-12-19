@@ -231,7 +231,7 @@ void eAVSwitch::setAspectRatio(int ratio)
 /// @param defaultVal
 /// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 /// @return
-std::string eAVSwitch::getVideoMode(const std::string &defaultVal, int flags) const
+std::string eAVSwitch::getVideoModeX(const std::string &defaultVal, int flags) const
 {
 	std::string result = CFile::read(proc_videomode, __MODULE__, flags);
 	if (!result.empty() && result[result.length() - 1] == '\n')
@@ -239,7 +239,7 @@ std::string eAVSwitch::getVideoMode(const std::string &defaultVal, int flags) co
 		result.erase(result.length() - 1);
 	}
 	if (flags & FLAGS_DEBUG)
-		eDebug("[%s] %s: %s", __MODULE__, "getVideoMode", result.c_str());
+		eDebug("[%s] %s: %s", __MODULE__, "getVideoModeX", result.c_str());
 
 	return result;
 }
@@ -251,7 +251,7 @@ void eAVSwitch::setVideoModeX(const std::string &newMode, int flags) const
 {
 	CFile::writeStr(proc_videomode, newMode, __MODULE__, flags);
 	if (flags & FLAGS_DEBUG)
-		eDebug("[%s] %s: %s", __MODULE__, "setVideoMode", newMode.c_str());
+		eDebug("[%s] %s: %s", __MODULE__, "setVideoModeX", newMode.c_str());
 }
 
 void eAVSwitch::setVideomode(int mode)

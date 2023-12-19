@@ -27,13 +27,12 @@ public:
 	static eAVSwitch *getInstance();
 	bool haveScartSwitch();
 	int getVCRSlowBlanking();
+	std::string getVideoMode(const std::string &defaultVal = "", int flags = 0) const;	
 	void setColorFormat(int format);
 	void setAspectRatio(int ratio);
-	void setVideomode(int mode);
 	void setInput(int val);
 	void setWSS(int val);
-	std::string getVideoModeX(const std::string &defaultVal = "", int flags = 0) const;
-	void setVideoModeX(const std::string &newMode, int flags = 0) const;
+	void setVideoMode(const std::string &newMode, int flags = 0) const;
 	bool isActive();
 	
 	enum
