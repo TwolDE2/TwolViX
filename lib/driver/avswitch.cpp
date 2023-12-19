@@ -227,6 +227,23 @@ void eAVSwitch::setAspectRatio(int ratio)
 
 }
 
+// @brief Get VideoMode
+// @param defaultVal
+// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// @return
+std::string eAVSwitch::getVideoMode(const std::string &defaultVal, int flags) const
+{
+	std::string result = CFile::read(proc_videomode, __MODULE__, flags);
+	if (!result.empty() && result[result.length() - 1] == '\n')
+	{
+		result.erase(result.length() - 1);
+	}
+	if (flags & FLAGS_DEBUG)
+		eDebug("[%s] %s: %s", __MODULE__, "getVideoMode", result.c_str());
+
+	return result;
+}
+
 
 // @param newMode
 // @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
