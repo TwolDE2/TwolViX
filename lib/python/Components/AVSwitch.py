@@ -136,13 +136,13 @@ class AVSwitch:
 		try:
 			with open("/proc/stb/video/videomode_50hz", "w") as fd:
 				fd.write(mode_50)
-			print(f"[AVSwitch][setMode][videomode_50hz] set to {mode_50}")				
+			print(f"[AVSwitch][setMode][videomode_50hz] set to {mode_50}")
 		except (IOError, OSError):
 			print("[AVSwitch] cannot open /proc/stb/video/videomode_50hz")
 		try:
 			with open("/proc/stb/video/videomode_60hz", "w") as fd:
 				fd.write(mode_60)
-			print(f"[AVSwitch][setMode][videomode_60hz] set to {mode_60}")				
+			print(f"[AVSwitch][setMode][videomode_60hz] set to {mode_60}")
 		except (IOError, OSError):
 			print("[AVSwitch] cannot open /proc/stb/video/videomode_60hz")
 
@@ -150,7 +150,7 @@ class AVSwitch:
 			try:
 				with open("/proc/stb/video/videomode_24hz", "w") as fd:
 					fd.write(mode_24)
-					print(f"[AVSwitch][setMode][videomode_24hz] set to {mode_24}")					
+					print(f"[AVSwitch][setMode][videomode_24hz] set to {mode_24}")
 			except (IOError, OSError):
 				print("[AVSwitch] cannot open /proc/stb/video/videomode_24hz")
 
@@ -166,8 +166,8 @@ class AVSwitch:
 		except Exception:  # Don't support 50Hz, 60Hz for 1080p.
 			set_mode = mode_50
 		print(f"[AVSwitch][videomode] set to: {set_mode}")
-#		with open("/proc/stb/video/videomode", "w") as fd:
-#			fd.write(set_mode)
+		# with open("/proc/stb/video/videomode", "w") as fd:
+		#	fd.write(set_mode)
 		eAVSwitch.getInstance().setVideoMode(set_mode)
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
@@ -218,10 +218,10 @@ class AVSwitch:
 		portlist = self.getPortList()
 		print(f"[AVSwitch][createConfig] portlist is {portlist}")
 		for port in portlist:
-			print(f"[AVSwitch] port is {port}")		
+			print(f"[AVSwitch] port is {port}")
 			descr = port
 			if "HDMI" in port:
-				print(f"[AVSwitch][createConfig] port:{port} descr:{descr}")				
+				print(f"[AVSwitch][createConfig] port:{port} descr:{descr}")
 				lst.insert(0, (port, descr))
 			else:
 				lst.append((port, descr))
@@ -229,7 +229,7 @@ class AVSwitch:
 			if len(modes):
 				config.av.videomode[port] = ConfigSelection(choices=[mode for (mode, rates) in modes])
 			for (mode, rates) in modes:
-				print(f"[AVSwitch][createConfig] mode:{mode} rates:{rates}")			
+				print(f"[AVSwitch][createConfig] mode:{mode} rates:{rates}")
 				config.av.videorate[mode] = ConfigSelection(choices=rates)
 		config.av.videoport = ConfigSelection(choices=lst)
 

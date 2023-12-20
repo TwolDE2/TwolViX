@@ -307,8 +307,8 @@ class AutoVideoMode(Screen):
 			self.delay = False
 			self.detecttimer.stop()
 			return
-#		with open(videomode, "r") as fd:
-#			current_mode = fd.read()[:-1].replace("\n", "")
+		# with open(videomode, "r") as fd:
+			# current_mode = fd.read()[:-1].replace("\n", "")
 		current_mode = eAVSwitch.getInstance().getVideoMode("")
 		if current_mode.upper() in ("PAL", "NTSC"):
 			current_mode = current_mode.upper()
@@ -339,16 +339,16 @@ class AutoVideoMode(Screen):
 			pass
 		print(f"[VideoMode][VideoChangeDetect]1 video_height:{video_height}, video_width:{video_width}, video_pol:{video_pol}, video_rate:{video_rate}")
 		if not video_height or not video_width or not video_pol or not video_rate:
-			print(f"[VideoMode][VideoChangeDetect]self.session.nav.getCurrentService()", self.session.nav.getCurrentService())
+			print("[VideoMode][VideoChangeDetect]self.session.nav.getCurrentService()", self.session.nav.getCurrentService())
 			info = None if self.session.nav.getCurrentService() is None else self.session.nav.getCurrentService().info()
 			if info:
 				video_height = int(info.getInfo(iServiceInformation.sVideoHeight))
 				video_width = int(info.getInfo(iServiceInformation.sVideoWidth))
 				video_pol = ("i", "p")[info.getInfo(iServiceInformation.sProgressive)]
 				video_rate = int(info.getInfo(iServiceInformation.sFrameRate))
-				print(f"[VideoMode][VideoChangeDetect]2 have info - video_height:{video_height}, video_width:{video_width}, video_pol:{video_pol}, video_rate:{video_rate}")				
+				print(f"[VideoMode][VideoChangeDetect]2 have info - video_height:{video_height}, video_width:{video_width}, video_pol:{video_pol}, video_rate:{video_rate}")
 		if video_height and video_width and video_pol and video_rate:
-			print(f"[VideoMode][VideoChangeDetect]3 video_height:{video_height}, video_width:{video_width}, video_pol:{video_pol}, video_rate:{video_rate}")		
+			print(f"[VideoMode][VideoChangeDetect]3 video_height:{video_height}, video_width:{video_width}, video_pol:{video_pol}, video_rate:{video_rate}")
 			resolutionlabel["content"].setText(_("Video content: %ix%i%s %iHz") % (video_width, video_height, video_pol, (video_rate + 500) // 1000))
 			if (1 < video_width <= 1024) and video_height <= 480 and video_rate in (23976, 24000, 25000, 29970, 50000, 59940):
 				new_res = "480"
@@ -361,11 +361,11 @@ class AutoVideoMode(Screen):
 			elif (video_width == 3840) and video_height > 1080:
 				new_res = "2160"
 			else:
-				print(f"[VideoMode][VideoChangeDetect]new_res = config_res:{config_res}")			
+				print(f"[VideoMode][VideoChangeDetect]new_res = config_res:{config_res}")
 				new_res = config_res
-			print(f"[VideoMode][VideoChangeDetect]new_res:{new_res}, video_width:{video_width}, video_height:{video_height}")					
+			print(f"[VideoMode][VideoChangeDetect]new_res:{new_res}, video_width:{video_width}, video_height:{video_height}")
 			if video_rate != -1:
-				print(f"[VideoMode][VideoChangeDetect]video_rate:{video_rate}")			
+				print(f"[VideoMode][VideoChangeDetect]video_rate:{video_rate}")
 				if video_rate == 25000 and video_pol == "i":
 					new_rate = 50000
 				elif video_rate == 59940 or (video_rate == 29970 and video_pol == "i") or (video_rate == 29970 and video_pol == "p" and config.av.autores.value == "disabled"):
@@ -376,10 +376,10 @@ class AutoVideoMode(Screen):
 					new_rate = 30000
 				else:
 					new_rate = video_rate
-				print(f"[VideoMode][VideoChangeDetect]new_rate:{new_rate}, video_rate:{video_rate}")					
+				print(f"[VideoMode][VideoChangeDetect]new_rate:{new_rate}, video_rate:{video_rate}")
 				new_rate = str((new_rate + 500) // 1000)
 			else:
-				print(f"[VideoMode][VideoChangeDetect]new_rate = config_rate:{config_rate}")			
+				print(f"[VideoMode][VideoChangeDetect]new_rate = config_rate:{config_rate}")
 				new_rate = config_rate
 			print(f"[VideoMode][VideoChangeDetect]new_rate/1000:{new_rate}")
 			if video_pol != -1:
@@ -398,7 +398,7 @@ class AutoVideoMode(Screen):
 					new_pol = new_pol.replace("i", "p")
 					print(f"[VideoMode][VideoChangeDetect] new_pol:{new_pol}")
 				# print(f"[VideoMode][VideoChangeDetect] AvailableVideomodes:{SystemInfo['AvailableVideomodes']}")
-				print(f"[VideoMode][VideoChangeDetect] new_res+new_pol+new_rate: {new_res+new_pol+new_rate}")									
+				print(f"[VideoMode][VideoChangeDetect] new_res+new_pol+new_rate: {new_res+new_pol+new_rate}")
 				if new_res + new_pol + new_rate in SystemInfo["AvailableVideomodes"]:
 					new_mode = new_res + new_pol + new_rate
 					print(f"[VideoMode][VideoChangeDetect]1 new_mode:{new_mode}")
@@ -463,31 +463,31 @@ class AutoVideoMode(Screen):
 						with open(f"{videomode}_{new_rate}hz", "r") as fd:
 							multi_videomode = fd.read().replace("\n", "")
 						# if new_rate != "60" and multi_videomode[-1] == "p" or multi_videomode[-1] == "i":
-							# multi_videomode += new_rate							
+							# multi_videomode += new_rate
 						print(f"[VideoMode][VideoChangeDetect]1 multi_videomode:{multi_videomode}, current_mode:{current_mode}")
 						if multi_videomode and (current_mode != multi_videomode):
 							write_mode = multi_videomode
-							print(f"[VideoMode][VideoChangeDetect]2 write_mode:{write_mode}, multi_videomode:{multi_videomode}")								
+							print(f"[VideoMode][VideoChangeDetect]2 write_mode:{write_mode}, multi_videomode:{multi_videomode}")
 						else:
 							write_mode = current_mode
-							print(f"[VideoMode][VideoChangeDetect]3 write_mode:{write_mode}, current_mode:{current_mode}")							
+							print(f"[VideoMode][VideoChangeDetect]3 write_mode:{write_mode}, current_mode:{current_mode}")
 					except IOError:
-						print(f"[VideoMode][VideoChangeDetect]4 IOError new_rate:{new_rate}, current_mode:{current_mode}")					
+						print(f"[VideoMode][VideoChangeDetect]4 IOError new_rate:{new_rate}, current_mode:{current_mode}")
 						write_mode = current_mode
-			print(f"[VideoMode][VideoChangeDetect]5 write_mode: {write_mode} current_mode: {current_mode}")							
+			print(f"[VideoMode][VideoChangeDetect]5 write_mode: {write_mode} current_mode: {current_mode}")
 			if write_mode and current_mode != write_mode:
 				resolutionlabel["restxt"].setText(_(f"Video mode: {write_mode}"))
 				if config.av.autores.value != "disabled" and config.av.autores_label_timeout.value != "0":
 					resolutionlabel.show()
 				print(f"[VideoMode] setMode - port: {config.av.videoport.value}, mode: {write_mode}")
 				# with open(videomode, "w+") as fd:
-					# fd.write(write_mode)
-					# read_mode = fd.read().replace("\n", "")
+				#	fd.write(write_mode)
+				#	read_mode = fd.read().replace("\n", "")
 				eAVSwitch.getInstance().setVideoMode(write_mode)
 				read_mode = eAVSwitch.getInstance().getVideoMode("")
 				print(f"[VideoMode]3 fd.write_mode:{write_mode}, read_mode:{read_mode}")
 			else:
-				print(f"[VideoMode][VideoChangeDetect]6 VideoMode not changed write_mode: {write_mode} current_mode: {current_mode}")	
+				print(f"[VideoMode][VideoChangeDetect]6 VideoMode not changed write_mode: {write_mode} current_mode: {current_mode}")
 		iAV.setAspect(config.av.aspect)
 		iAV.setWss(config.av.wss)
 		iAV.setPolicy43(config.av.policy_43)
