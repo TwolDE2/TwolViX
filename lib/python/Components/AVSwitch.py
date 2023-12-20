@@ -93,7 +93,7 @@ class AVSwitch:
 		if not modes:
 			# print(f"[AVSwitch][readPreferredModes] videomodes:{SystemInfo['AvailableVideomodes']}")
 			self.modes_preferred = SystemInfo["AvailableVideomodes"]
-			print("[AVSwitch] reading preferred modes found null using readAvaiableModes", self.modes_preferred)
+			# print("[AVSwitch] reading preferred modes found null using readAvailableModes", modes)
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI")  # Must be HDMI.
@@ -108,7 +108,7 @@ class AVSwitch:
 			if modeNew not in SystemInfo["AvailableVideomodes"]:
 				# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} not available")
 				return False
-		print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} available")
+		# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} available")
 		return True
 
 	def isWidescreenMode(self, port, mode):
@@ -254,18 +254,17 @@ class AVSwitch:
 	def setConfiguredMode(self):
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
-			print("[AVSwitch] current port (%s) not available, not setting videomode" % port)
-			print("[AVSwitch] current port not available, config.av.videomode", config.av.videomode)
+			print(f"[AVSwitch] current port: {port} not available, not setting videomode:{config.av.videomode}")
 			return
 		mode = config.av.videomode[port].value
 		if mode not in config.av.videorate:
-			print("[AVSwitch] current mode not available, not setting videomode")
+			print(f"[AVSwitch] current mode:{mode} not available in config.av.videorate:{config.av.videorate}")
 			return
 		rate = config.av.videorate[mode].value
 		self.setMode(port, mode, rate)
 
 	def setAspect(self, cfgelement):
-		print("[AVSwitch] setting aspect: %s" % cfgelement.value)
+		print(f"[AVSwitch] setting aspect:{cfgelement.value}")
 		with open("/proc/stb/video/aspect", "w") as fd:
 			fd.write(cfgelement.value)
 
@@ -274,18 +273,18 @@ class AVSwitch:
 			wss = "auto(4:3_off)"
 		else:
 			wss = "auto"
-		print("[AVSwitch] setting wss: %s" % wss)
+		print(f"[AVSwitch] setting wss:{wss}")
 		with open("/proc/stb/denc/0/wss", "w") as fd:
 			fd.write(wss)
 
 	def setPolicy43(self, cfgelement):
-		print("[AVSwitch] setting policy: %s" % cfgelement.value)
+		print(f"[AVSwitch] setting policy:{cfgelement.value}")
 		with open("/proc/stb/video/policy", "w") as fd:
 			fd.write(cfgelement.value)
 
 	def setPolicy169(self, cfgelement):
 		if path.exists("/proc/stb/video/policy2"):
-			print("[AVSwitch] setting policy2: %s" % cfgelement.value)
+			print(f"[AVSwitch] setting policy2: {cfgelement.value}")
 			with open("/proc/stb/video/policy2", "w") as fd:
 				fd.write(cfgelement.value)
 
@@ -293,8 +292,7 @@ class AVSwitch:
 		ret = (16, 9)
 		port = config.av.videoport.value
 		if port not in config.av.videomode:
-			print("[AVSwitch] current port (%s) not available in getOutputAspect!!! force 16:9" % port)
-			print("[AVSwitch] current port not available config.av.videomode", config.av.videomode)
+			print(f"[AVSwitch] current port:{port} not available in config.av.videomode:{config.av.videomode} force 16:9")
 		else:
 			mode = config.av.videomode[port].value
 			force_widescreen = self.isWidescreenMode(port, mode)
