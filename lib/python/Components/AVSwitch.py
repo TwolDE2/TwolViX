@@ -74,14 +74,13 @@ class AVSwitch:
 		self.readPreferredModes()
 
 	def readAvailableModes(self):
+		SystemInfo["AvailableVideomodes"] = []
 		try:
 			with open("/proc/stb/video/videomode_choices", "r") as fd:
-				modes = fd.read()[:-1]
+				SystemInfo["AvailableVideomodes"] = fd.read()[:-1].split(" ")
+				# print(f"[AVSwitch] read available videomodes:{SystemInfo['AvailableVideomodes']}")
 		except (IOError, OSError):
 			print("[AVSwitch] couldn't read available videomodes.")
-			modes = []
-			return modes
-		return modes.split(" ")
 
 	def readPreferredModes(self):
 		modes = []
@@ -92,7 +91,8 @@ class AVSwitch:
 		except (IOError, OSError):
 			print("[AVSwitch] reading preferred modes failed, using all modes")
 		if not modes:
-			self.modes_preferred = self.readAvailableModes()
+			# print(f"[AVSwitch][readPreferredModes] videomodes:{SystemInfo['AvailableVideomodes']}")
+			self.modes_preferred = SystemInfo["AvailableVideomodes"]
 			print("[AVSwitch] reading preferred modes found null using readAvaiableModes", self.modes_preferred)
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
@@ -103,16 +103,19 @@ class AVSwitch:
 	def isModeAvailable(self, port, mode, rate):
 		rateNew = self.rates[mode][rate]
 		for modeNew in rateNew.values():
-			# print("[AVSwitch][isModeAvailable] modeNew", modeNew)
-			if modeNew not in self.readAvailableModes():
+			# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew}")
+			# print(f"[AVSwitch][isModeAvailable] videomodes:{SystemInfo['AvailableVideomodes']}")
+			if modeNew not in SystemInfo["AvailableVideomodes"]:
+				# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} not available")
 				return False
+		print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} available")
 		return True
 
 	def isWidescreenMode(self, port, mode):
 		return mode in self.widescreen_modes
 
 	def setMode(self, port, mode, rate, force=None):
-		print("[AVSwitch] setMode - port: %s, mode: %s, rate: %s" % (port, mode, rate))
+		print(f"[AVSwitch] setMode - port: {port}, mode: {mode}, rate: {rate}")
 		# config.av.videoport.setValue(port)
 		# we can ignore "port"
 		self.current_mode = mode
@@ -129,14 +132,17 @@ class AVSwitch:
 			mode_24 = mode_60
 			if force == 50:
 				mode_24 = mode_50
+		print(f"[AVSwitch] setMode - mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")
 		try:
 			with open("/proc/stb/video/videomode_50hz", "w") as fd:
 				fd.write(mode_50)
+			print(f"[AVSwitch][setMode][videomode_50hz] set to {mode_50}")				
 		except (IOError, OSError):
 			print("[AVSwitch] cannot open /proc/stb/video/videomode_50hz")
 		try:
 			with open("/proc/stb/video/videomode_60hz", "w") as fd:
 				fd.write(mode_60)
+			print(f"[AVSwitch][setMode][videomode_60hz] set to {mode_60}")				
 		except (IOError, OSError):
 			print("[AVSwitch] cannot open /proc/stb/video/videomode_60hz")
 
@@ -144,6 +150,7 @@ class AVSwitch:
 			try:
 				with open("/proc/stb/video/videomode_24hz", "w") as fd:
 					fd.write(mode_24)
+					print(f"[AVSwitch][setMode][videomode_24hz] set to {mode_24}")					
 			except (IOError, OSError):
 				print("[AVSwitch] cannot open /proc/stb/video/videomode_24hz")
 
@@ -158,9 +165,10 @@ class AVSwitch:
 			set_mode = modes.get(int(rate))
 		except Exception:  # Don't support 50Hz, 60Hz for 1080p.
 			set_mode = mode_50
-		print("[AVSwitch] set mode is %s" % set_mode)
-		with open("/proc/stb/video/videomode", "w") as fd:
-			fd.write(set_mode)
+		print(f"[AVSwitch][videomode] set to: {set_mode}")
+#		with open("/proc/stb/video/videomode", "w") as fd:
+#			fd.write(set_mode)
+		eAVSwitch.getInstance().setVideoMode(set_mode)
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
@@ -197,6 +205,7 @@ class AVSwitch:
 			# If at least one rate is ok, add this mode.
 			if len(rates):
 				res.append((mode, rates))
+		print(f"[AVSwitch][getModeList] ModeList:{res}")
 		return res
 
 	def createConfig(self, *args):
@@ -207,10 +216,12 @@ class AVSwitch:
 		config.av.videorate = ConfigSubDict()
 		# create list of output ports
 		portlist = self.getPortList()
-		print("[AVSwitch] portlist is %s" % portlist)
+		print(f"[AVSwitch][createConfig] portlist is {portlist}")
 		for port in portlist:
+			print(f"[AVSwitch] port is {port}")		
 			descr = port
 			if "HDMI" in port:
+				print(f"[AVSwitch][createConfig] port:{port} descr:{descr}")				
 				lst.insert(0, (port, descr))
 			else:
 				lst.append((port, descr))
@@ -218,6 +229,7 @@ class AVSwitch:
 			if len(modes):
 				config.av.videomode[port] = ConfigSelection(choices=[mode for (mode, rates) in modes])
 			for (mode, rates) in modes:
+				print(f"[AVSwitch][createConfig] mode:{mode} rates:{rates}")			
 				config.av.videorate[mode] = ConfigSelection(choices=rates)
 		config.av.videoport = ConfigSelection(choices=lst)
 
