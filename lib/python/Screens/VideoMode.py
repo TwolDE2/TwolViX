@@ -481,8 +481,8 @@ class AutoVideoMode(Screen):
 					resolutionlabel.show()
 				print(f"[VideoMode] setMode - port: {config.av.videoport.value}, mode: {write_mode}")
 				# with open(videomode, "w+") as fd:
-				#	fd.write(write_mode)
-				#	read_mode = fd.read().replace("\n", "")
+				# fd.write(write_mode)
+				# read_mode = fd.read().replace("\n", "")
 				eAVSwitch.getInstance().setVideoMode(write_mode)
 				read_mode = eAVSwitch.getInstance().getVideoMode("")
 				print(f"[VideoMode]3 fd.write_mode:{write_mode}, read_mode:{read_mode}")

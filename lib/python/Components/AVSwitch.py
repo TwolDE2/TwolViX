@@ -167,7 +167,7 @@ class AVSwitch:
 			set_mode = mode_50
 		print(f"[AVSwitch][videomode] set to: {set_mode}")
 		# with open("/proc/stb/video/videomode", "w") as fd:
-		#	fd.write(set_mode)
+		# fd.write(set_mode)
 		eAVSwitch.getInstance().setVideoMode(set_mode)
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
