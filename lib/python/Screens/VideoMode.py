@@ -86,10 +86,8 @@ class VideoSetup(ConfigListScreen, Screen):
 		if config.av.autores.value in ("all", "hd") or config.av.videorate[config.av.videomode[config.av.videoport.value].value].value == "multi":
 			self.list.append(getConfigListEntry(_("Delay time"), config.av.autores_delay, _("Set the time before checking video source for resolution/refresh rate infomation.")))
 		port = config.av.videoport.value
-		if port not in config.av.videomode:
-			mode = None
-		else:
-			mode = config.av.videomode[port].value
+		mode = config.av.videomode[port].value if port in config.av.videomode else None
+
 		# some modes (720p, 1080i) are always widescreen. Don't let the user select something here, "auto" is not what he wants.
 		force_wide = iAV.isWidescreenMode(port, mode)
 		# if not force_wide:
@@ -301,7 +299,7 @@ class AutoVideoMode(Screen):
 			config_res = str(config.av.videomode[config_port].value[:-1]).replace("\n", "")
 			config_pol = str(config.av.videomode[config_port].value[-1:]).replace("\n", "")
 			config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
-			print(f"[VideoMode][VideoChangeDetect] config_port:{config_port}, config_mode:{config_mode}, config_res:{config_res}, config_pol:{config_pol}, config_rate:{config_rate}")
+			print(f"[VideoMode][VideoChangeDetect]1 config_port:{config_port}, config_mode:{config_mode}, config_res:{config_res}, config_pol:{config_pol}, config_rate:{config_rate}")
 		except KeyError as e:
 			print("[VideoMode][VideoChangeDetect] config_port Keyerror use current values", e)
 			self.delay = False
@@ -313,6 +311,7 @@ class AutoVideoMode(Screen):
 		if current_mode.upper() in ("PAL", "NTSC"):
 			current_mode = current_mode.upper()
 		print(f"[VideoMode][VideoChangeDetect] current_mode:{current_mode}")
+		print(f"[VideoMode][VideoChangeDetect]2 config_port:{config_port}, config_mode:{config_mode}, config_res:{config_res}, config_pol:{config_pol}, config_rate:{config_rate}")
 		video_height = None
 		video_width = None
 		video_pol = None
