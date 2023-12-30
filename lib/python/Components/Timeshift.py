@@ -499,7 +499,7 @@ class InfoBarTimeshift:
 
 	def eraseTimeshiftFile(self):
 		for filename in listdir(config.usage.timeshift_path.value):
-			if filename.startswith("timeshift.") and not filename.endswith(".del") and not filename.endswith(".copy"):
+			if filename.startswith("timeshift.") and not filename.endswith((".del", ".copy")):
 				self.BgFileEraser.erase("%s%s" % (config.usage.timeshift_path.value, filename))
 
 	def autostartPermanentTimeshift(self):
@@ -804,7 +804,7 @@ class InfoBarTimeshift:
 			return
 
 		for filename in listdir(config.usage.timeshift_path.value):
-			if (filename.startswith("timeshift.") or filename.startswith("pts_livebuffer_")) and (filename.endswith(".del") is False and filename.endswith(".copy") is False):
+			if filename.startswith(("timeshift.", "pts_livebuffer_")) and not filename.endswith((".del", ".copy")):
 				# print("[Timeshift]filename:", filename)
 				statinfo = osstat("%s%s" % (config.usage.timeshift_path.value, filename))  # if no write for 3 sec = stranded timeshift
 				if statinfo.st_mtime < (time() - 3.0):
@@ -877,8 +877,8 @@ class InfoBarTimeshift:
 	def ptsCreateHardlink(self):
 		# print("[Timeshift]ptsCreateHardlink")
 		for filename in listdir(config.usage.timeshift_path.value):
-			# if filename.startswith("timeshift") and not ospath.splitext(filename)[1]:
-			if filename.startswith("timeshift.") and not filename.endswith(".sc") and not filename.endswith(".del") and not filename.endswith(".copy") and not filename.endswith(".ap"):
+			# if filename.startswith("timeshift") and not os.path.splitext(filename)[1]:
+			if filename.startswith("timeshift.") and not filename.endswith((".sc", ".del", ".copy", ".ap")):
 				if ospath.exists("%spts_livebuffer_%s.eit" % (config.usage.timeshift_path.value, self.pts_eventcount)):
 					self.BgFileEraser.erase("%spts_livebuffer_%s.eit" % (config.usage.timeshift_path.value, self.pts_eventcount))
 				if ospath.exists("%spts_livebuffer_%s.meta" % (config.usage.timeshift_path.value, self.pts_eventcount)):
