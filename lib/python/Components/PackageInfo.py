@@ -272,7 +272,7 @@ class PackageInfoHandler:
 		if "hardware" in prerequisites:
 			hardware_found = False
 			for hardware in prerequisites["hardware"]:
-				if hardware == getBoxType():
+				if hardware == SystemInfo["boxtype"]:
 					hardware_found = True
 			if not hardware_found:
 				return False

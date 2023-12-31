@@ -1,7 +1,7 @@
 from os import path
 
 from enigma import iRecordableService
-from boxbranding import getBoxType
+
 from Components.config import config, ConfigSubList, ConfigSubsection, ConfigSlider
 from Tools.BoundFunction import boundFunction
 import NavigationInstance
@@ -65,12 +65,7 @@ class FanControl:
 		for fanid in range(self.getFanCount()):
 			fan = ConfigSubsection()
 			fan.vlt = ConfigSlider(default=15, increment=5, limits=(0, 255))
-			if getBoxType() == 'tm2t':
-				fan.pwm = ConfigSlider(default=150, increment=5, limits=(0, 255))
-			if getBoxType() == 'tmsingle':
-				fan.pwm = ConfigSlider(default=100, increment=5, limits=(0, 255))
-			else:
-				fan.pwm = ConfigSlider(default=50, increment=5, limits=(0, 255))
+			fan.pwm = ConfigSlider(default=50, increment=5, limits=(0, 255))
 			fan.vlt_standby = ConfigSlider(default=5, increment=5, limits=(0, 255))
 			fan.pwm_standby = ConfigSlider(default=0, increment=5, limits=(0, 255))
 			fan.vlt.addNotifier(boundFunction(setVlt, self, fanid))

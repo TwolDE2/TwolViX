@@ -1,7 +1,6 @@
 from os import path
 
 from enigma import eAVSwitch
-from boxbranding import getBoxType, getBrandOEM
 
 from Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
 from Components.SystemInfo import SystemInfo
@@ -154,7 +153,7 @@ class AVSwitch:
 			except (IOError, OSError):
 				print("[AVSwitch] cannot open /proc/stb/video/videomode_24hz")
 
-		if getBrandOEM() in ("gigablue",):
+		if SystemInfo["brand"] in ("gigablue",):
 			try:
 				# use 50Hz mode (if available) for booting
 				with open("/etc/videomode", "w") as fd:
@@ -500,7 +499,7 @@ def InitAVSwitch():
 	if SystemInfo["havecolorspace"]:
 		def setHDMIColorspace(configElement):
 			open(SystemInfo["havecolorspace"], "w").write(configElement.value)
-		if getBrandOEM() == "vuplus" and SystemInfo["HasMMC"]:
+		if SystemInfo["brand"] == "vuplus" and SystemInfo["HasMMC"]:
 			choices = [
 				("Edid(Auto)", _("Auto")),
 				("Hdmi_Rgb", _("RGB")),
@@ -876,7 +875,7 @@ def InitAVSwitch():
 				open("/proc/stb/vmpeg/0/pep_apply", "w").write("1")
 			except (IOError, OSError):
 				print("[AVSwitch] couldn't write pep_scaler_sharpness")
-		if getBoxType() in ("gbquad", "gbquadplus"):
+		if SystemInfo["boxtype"] in ("gbquad", "gbquadplus"):
 			config.av.scaler_sharpness = ConfigSlider(default=5, limits=(0, 26))
 		else:
 			config.av.scaler_sharpness = ConfigSlider(default=13, limits=(0, 26))
