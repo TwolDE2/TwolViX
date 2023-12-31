@@ -137,7 +137,7 @@ def getBoxType():  # this function mimics the function of the same name in brand
 
 
 BoxInfo.setItem("boxtype", getBoxType(), immutable=True)
-	
+
 
 def getMachineName():  # this function mimics the function of the same name in branding module
 	if MACHINEBUILD == "sf8008":
@@ -154,7 +154,7 @@ def getMachineName():  # this function mimics the function of the same name in b
 
 
 BoxInfo.setItem("machinename", getMachineName(), immutable=True)
-	
+
 
 def getBoxDisplayName():  # This function returns a tuple like ("BRANDNAME", "BOXNAME")
 	return (DISPLAYBRAND, SystemInfo["machinename"])
