@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-=======
-# the implementation here is a bit crappy.
-# from boxbranding import getBoxType, getMachineBuild
->>>>>>> a5a10a683d (Clean up boxbranding)
 import time
 
-from Tools.Directories import resolveFilename, SCOPE_CONFIG
+from Tools.Directories import resolveFilename, SCOPE_CONFIG  # , fileExists, SCOPE_LIBDIR
 
 PERCENTAGE_START = 0
 PERCENTAGE_END = 100
@@ -15,6 +10,15 @@ profile_start = time.time()
 profile_data = {}
 total_time = 1
 profile_file = None
+
+
+# def getModel():  # Here because we can't call SystemInfo this early in the boot process
+# 	if fileExists(f := pathjoin(resolveFilename(SCOPE_LIBDIR), "enigma.info")):
+# 		return (m := [x.split("=")[1].strip() for x in open(f).readlines() if x.startswith("machinebuild=")]) and m[0] or None
+
+		
+# MODEL = getModel()
+
 
 try:
 	f = open(resolveFilename(SCOPE_CONFIG, "profile"), "r")
@@ -38,31 +42,7 @@ except IOError:
 
 def profile(id):
 	now = time.time() - profile_start
-
-<<<<<<< HEAD
 	(dev, fmt) = ("/proc/progress", "%d \n")
-=======
-	# GML: Set the device and format here...probably more could be added?
-	#
-	# box_type = getBoxType()
-	# if box_type in ("odinm7", "odinm6", "xp1000s"):
-	# 	dev_fmt = ("/dev/dbox/oled0", "%d")
-	# elif box_type in ("gb800se", "gb800solo"):
-	# 	dev_fmt = ("/dev/dbox/oled0", "%d  \n")
-	# elif box_type == "mbtwin":
-	# 	dev_fmt = ("/dev/dbox/oled0", "%d%%")
-	# elif box_type == "gb800seplus":
-	# 	dev_fmt = ("/dev/mcu", "%d  \n")
-	# elif box_type == "ebox5000":
-	# 	dev_fmt = ("/proc/progress", "%d"),
-	# elif getMachineBuild() in ("inihdp", "inihdx"):
-	# 	dev_fmt = ("/proc/vfd", "Loading %d%%\n")
-	# else:
-	# 	dev_fmt = ("/proc/progress", "%d \n")
-
-	dev_fmt = ("/proc/progress", "%d \n")
-	(dev, fmt) = dev_fmt
->>>>>>> a5a10a683d (Clean up boxbranding)
 
 	if profile_file:
 		profile_file.write("%7.3f\t%s\n" % (now, id))
