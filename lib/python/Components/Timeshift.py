@@ -539,11 +539,7 @@ class InfoBarTimeshift:
 		self.stopTimeshiftcheckTimeshiftRunningCallback(True)
 		ts = self.getTimeshift()
 		if ts and not ts.startTimeshift():
-<<<<<<< HEAD
-			if (getBoxType() == "vuuno" or getBoxType() == "vuduo") and ospath.exists("/proc/stb/lcd/symbol_timeshift"):
-=======
-			if (SystemInfo["boxtype"] == "vuuno" or SystemInfo["boxtype"] == "vuduo") and os.path.exists("/proc/stb/lcd/symbol_timeshift"):
->>>>>>> a5a10a683d (Clean up boxbranding)
+			if (SystemInfo["boxtype"] == "vuuno" or SystemInfo["boxtype"] == "vuduo") and ospath.exists("/proc/stb/lcd/symbol_timeshift"):
 				if self.session.nav.RecordTimer.isRecording():
 					f = open("/proc/stb/lcd/symbol_timeshift", "w")
 					f.write("0")

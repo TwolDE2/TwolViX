@@ -2,11 +2,11 @@ from os import listdir, path, system
 import xml.sax
 
 from enigma import eConsoleAppContainer, eDVBDB
-from Tools.Directories import crawlDirectory, resolveFilename, SCOPE_CONFIG, SCOPE_SKIN, copyfile, copytree
-from boxbranding import getBoxType
+
 from Components.config import config, configfile
 from Components.Ipkg import IpkgComponent
 from Components.NimManager import nimmanager
+from Tools.Directories import crawlDirectory, resolveFilename, SCOPE_CONFIG, SCOPE_SKIN, copyfile, copytree
 
 
 class InfoHandlerParseError(Exception):

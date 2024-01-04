@@ -9,7 +9,6 @@ from time import time, localtime, strftime
 
 from pickle import load as pickle_load, dump as pickle_dump, HIGHEST_PROTOCOL as pickle_HIGHEST_PROTOCOL
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
-from boxbranding import getBrandOEM
 from keyids import KEYIDS
 #  from keyids import KEYFLAGS, KEYIDNAMES  # used by print debug
 

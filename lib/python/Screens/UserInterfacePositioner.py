@@ -1,7 +1,7 @@
 from os import access, R_OK
 import traceback
 from enigma import getDesktop
-from boxbranding import getBoxType
+
 from Components.ActionMap import ActionMap
 from Components.config import config, configfile, getConfigListEntry, ConfigSelectionNumber, ConfigSelection, ConfigSlider, ConfigYesNo, NoSave, ConfigNumber
 from Components.ConfigList import ConfigListScreen
@@ -11,12 +11,6 @@ from Components.SystemInfo import SystemInfo
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Tools.Directories import fileCheck, fileExists
-<<<<<<< HEAD
-=======
-from enigma import getDesktop
-from os import access, R_OK
-import traceback
->>>>>>> a5a10a683d (Clean up boxbranding)
 
 
 def getFilePath(setting):

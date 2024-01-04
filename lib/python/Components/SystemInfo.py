@@ -4,7 +4,6 @@ from hashlib import md5
 from os.path import isfile, join as pathjoin
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
-from boxbranding import getBoxType, getBrandOEM, getDisplayType, getHaveAVJACK, getHaveHDMIinFHD, getHaveHDMIinHD, getHaveRCA, getHaveSCART, getHaveSCARTYUV, getHaveYUV, getImageType, getMachineBrand, getMachineBuild, getMachineMtdRoot, getMachineName
 from Components.About import getChipSetString
 from Components.RcModel import rc_model
 from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLines
@@ -249,7 +248,6 @@ SystemInfo["LedSuspendColor"] = fileExists("/proc/stb/fp/ledsuspendledcolor")
 SystemInfo["Power24x7On"] = fileExists("/proc/stb/fp/power4x7on")
 SystemInfo["Power24x7Standby"] = fileExists("/proc/stb/fp/power4x7standby")
 SystemInfo["Power24x7Suspend"] = fileExists("/proc/stb/fp/power4x7suspend")
-<<<<<<< HEAD
 SystemInfo["VFD_scroll_repeats"] = not SystemInfo["7segment"] and SystemInfo["boxtype"] not in ("et8500",) and fileCheck("/proc/stb/lcd/scroll_repeats")
 SystemInfo["VFD_scroll_delay"] = not SystemInfo["7segment"] and SystemInfo["boxtype"] not in ("et8500",) and fileCheck("/proc/stb/lcd/scroll_delay")
 SystemInfo["VFD_initial_scroll_delay"] = not SystemInfo["7segment"] and SystemInfo["boxtype"] not in ("et8500",) and fileCheck("/proc/stb/lcd/initial_scroll_delay")
