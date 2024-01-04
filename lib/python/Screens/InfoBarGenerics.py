@@ -1565,8 +1565,7 @@ class InfoBarMenu:
 						self.session.openWithCallback(self.mainMenuClosed, Menu, menuItems)
 
 	def showNetworkMounts(self):
-		print("[InfoBarGenerics][showNetworkMounts]0 getBrandOEM()", getBrandOEM())
-		if getBrandOEM() == "gigablue":
+		if SystemInfo["brand"] == "gigablue":
 			self.showSystemMenu()
 		else:
 			menulist = mdom.getroot().findall('menu')
@@ -4344,7 +4343,7 @@ class InfoBarTeletextPlugin:
 		for p in plugins.getPlugins(PluginDescriptor.WHERE_TELETEXT):
 			self.teletext_plugin = p
 
-		if self.teletext_plugin is not None and getBrandOEM() != "gigablue":
+		if self.teletext_plugin is not None and SystemInfo["brand"] != "gigablue":
 			self["TeletextActions"] = HelpableActionMap(self, "InfobarTeletextActions",
 				{
 					"startTeletext": (self.startTeletext, _("View teletext"))

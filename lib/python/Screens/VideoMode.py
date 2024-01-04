@@ -19,7 +19,7 @@ resolutionlabel = None
 previous = None
 isDedicated3D = False
 videomode = "/proc/stb/video/videomode"
-videogbue4k = True if getBoxType() in ("gbue4k", ) else False
+videogbue4k = True if SystemInfo["boxtype"] in ("gbue4k", ) else False
 
 
 class VideoSetup(ConfigListScreen, Screen):

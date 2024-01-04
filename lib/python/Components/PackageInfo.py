@@ -6,6 +6,7 @@ from enigma import eConsoleAppContainer, eDVBDB
 from Components.config import config, configfile
 from Components.Ipkg import IpkgComponent
 from Components.NimManager import nimmanager
+from Components.SystemInfo import SystemInfo
 from Tools.Directories import crawlDirectory, resolveFilename, SCOPE_CONFIG, SCOPE_SKIN, copyfile, copytree
 
 

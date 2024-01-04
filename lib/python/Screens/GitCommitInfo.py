@@ -19,6 +19,7 @@ from urllib.error import HTTPError, URLError
 if SystemInfo["imagetype"] == 'release':
 	ImageVer = "%03d" % int(SystemInfo["imagebuild"])
 else:
+	ImageVer = "%03d" % int(SystemInfo["imagebuild"])
 	# ImageVer = "%s.%s" % (SystemInfo["imagebuild"], SystemInfo["imagedevbuild"])
 	# ImageVer = float(ImageVer)
 
