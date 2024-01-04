@@ -1361,7 +1361,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	}
 	else if (!strcmp(m_description, "Vuplus DVB-S NIM(Si2166)")) // VU+ Zero4K
 	{
-		ret = snr;
+		ret = snr / 40;
 	}
 	else if (!strncmp(m_description, "Si216", 5)) // New models with SI tuners
 	{
