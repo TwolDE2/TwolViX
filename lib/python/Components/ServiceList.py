@@ -2,6 +2,7 @@ from enigma import eListboxServiceContent, eListbox, eServiceCenter, eServiceRef
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components.Renderer.Picon import getPiconName
+from Components.SystemInfo import SystemInfo
 from skin import parseColor, parseFont, parseScale, applySkinFactor
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
@@ -63,8 +64,8 @@ class ServiceList(GUIComponent):
 		pic and self.l.setPixmap(self.l.picCatchup, pic)
 		pic = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/ico_altref-fs8.png"))
 		pic and self.l.setPixmap(self.l.picBackup, pic)
-
-		self.l.setAlternativeRecordMatching(config.recording.record_icon_match.value == "Sref only")
+		if SystemInfo["MultiBootSlot"] != 0:  # only in recovery image
+			self.l.setAlternativeRecordMatching(config.recording.record_icon_match.value == "Sref only")
 
 		self.root = None
 		self.mode = self.MODE_NORMAL
