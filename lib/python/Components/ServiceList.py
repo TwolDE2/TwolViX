@@ -66,7 +66,6 @@ class ServiceList(GUIComponent):
 		pic and self.l.setPixmap(self.l.picBackup, pic)
 		if SystemInfo["MultiBootSlot"] != 0:  # only in recovery image
 			self.l.setAlternativeRecordMatching(config.recording.record_icon_match.value == "Sref only")
-
 		self.root = None
 		self.mode = self.MODE_NORMAL
 		self.listHeight = 0
