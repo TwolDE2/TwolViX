@@ -16,10 +16,11 @@ from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
 
 # following noops normal ViX code as I use alphanumeric Imageversion which causes crash
+print(f"[GitCommitInfo] SystemInfo['imagebuild']={SystemInfo['imagebuild']}")
 if SystemInfo["imagetype"] == 'release':
-	ImageVer = "%03d" % int(SystemInfo["imagebuild"])
+	ImageVer = SystemInfo["imagebuild"]
 else:
-	ImageVer = "%03d" % int(SystemInfo["imagebuild"])
+	ImageVer = SystemInfo["imagebuild"]
 	# ImageVer = "%s.%s" % (SystemInfo["imagebuild"], SystemInfo["imagedevbuild"])
 	# ImageVer = float(ImageVer)
 
