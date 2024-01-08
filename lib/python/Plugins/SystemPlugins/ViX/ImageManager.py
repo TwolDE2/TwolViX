@@ -682,8 +682,9 @@ class VIXImageManager(Screen):
 					version = float(parts[0] + "." + parts[1])
 					if name_split[0] == "openbh" and version > 5.1:
 						retval = True
-					if name_split[0] == "openvix" and (version > 6.3 or version == 6.3 and len(parts) > 2 and parts[2].isnumeric() and int(parts[2]) > 2):  # greater than 6.2.002
+					if name_split[0] == "openvix":
 						retval = True
+		print(f"[ImageManager][isVuKexecCompatibleImage] retval={retval}")
 		return retval
 
 	def VuKexecCopyimage(self):
