@@ -507,8 +507,6 @@ class VIXImageManager(Screen):
 		self.multibootslot = 1
 		self.MTDKERNEL = SystemInfo["mtdkernel"]
 		self.MTDROOTFS = SystemInfo["mtdrootfs"]
-		if SystemInfo["machinebuild"] == "et8500" and path.exists("/proc/mtd"):
-			self.dualboot = self.dualBoot()
 		recordings = self.session.nav.getRecordings()
 		if not recordings:
 			next_rec_time = self.session.nav.RecordTimer.getNextRecordingTime()
@@ -525,7 +523,7 @@ class VIXImageManager(Screen):
 			if pathExists("/dev/sda4"):
 				self.HasSDmmc = True
 		imagedict = GetImagelist()
-		print("[ImageManager][keyRestore] imagedict", imagedict)
+		print(f"[ImageManager][keyRestore] imagedict={imagedict}")
 		choices = []
 		currentimageslot = SystemInfo["MultiBootSlot"]
 		for x in imagedict.keys():
@@ -571,59 +569,43 @@ class VIXImageManager(Screen):
 	def keyRestore4(self, result, retval, extra_args=None):
 		if retval == 0:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Flash image unzip successful."), MessageBox.TYPE_INFO, timeout=4)
-			if SystemInfo["machinebuild"] == "et8500" and self.dualboot:
-				message = _("ET8500 Multiboot: Yes to restore OS1 No to restore OS2:\n ") + self.sel[1]
-				ybox = self.session.openWithCallback(self.keyRestore5_ET8500, MessageBox, message)
-				ybox.setTitle(_("ET8500 Image Restore"))
-			else:
-				MAINDEST = "%s/%s" % (self.TEMPDESTROOT, SystemInfo["imagedir"])
-				if pathExists("%s/SDAbackup" % MAINDEST) and self.multibootslot != 1:
-					self.session.open(MessageBox, _("Multiboot only able to restore this backup to mmc slot1"), MessageBox.TYPE_INFO, timeout=20)
-					print("[ImageManager] SF8008 mmc restore to SDcard failed:\n", end=' ')
-					self.close()
-				else:
-					self.keyRestore6(0)
+			MAINDEST = "%s/%s" % (self.TEMPDESTROOT, SystemInfo["imagedir"])
+			self.keyRestore6()
 		else:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Unzip error (also sent to any debug log):\n%s") % result, MessageBox.TYPE_INFO, timeout=20)
 			print("[ImageManager] unzip failed:\n", result)
 			self.close()
 
-	def keyRestore5_ET8500(self, answer):
-		if answer:
-			self.keyRestore6(0)
-		else:
-			self.keyRestore6(1)
-
-	def keyRestore6(self, ret):
+	def keyRestore6(self):
 		MAINDEST = "%s/%s" % (self.TEMPDESTROOT, SystemInfo["imagedir"])
 		print("[ImageManager] MAINDEST=%s" % MAINDEST)
-		if ret == 0:
-			CMD = "/usr/bin/ofgwrite -r -k '%s'" % MAINDEST							# normal non multiboot receiver
-			if SystemInfo["canMultiBoot"]:
-				if self.multibootslot == 0 and SystemInfo["HasKexecMultiboot"]:		# reset Vu Multiboot slot0
-					kz0 = SystemInfo["mtdkernel"]
-					rz0 = SystemInfo["mtdrootfs"]
-					CMD = "/usr/bin/ofgwrite -k%s -r%s '%s'" % (kz0, rz0, MAINDEST)  # slot0 treat as kernel/root only multiboot receiver
-				elif SystemInfo["HasHiSi"] and SystemInfo["canMultiBoot"][self.multibootslot]["rootsubdir"] is None:  # sf8008 type receiver using SD card in multiboot
-					CMD = "/usr/bin/ofgwrite -r%s -k%s -m0 '%s'" % (self.MTDROOTFS, self.MTDKERNEL, MAINDEST)
-					print("[ImageManager] running commnd:%s slot = %s" % (CMD, self.multibootslot))
-					if fileExists("/boot/STARTUP") and fileExists("/boot/STARTUP_6"):
-						copyfile("/boot/STARTUP_%s" % self.multibootslot, "/boot/STARTUP")
-				elif SystemInfo["HasKexecMultiboot"]:
-					if SystemInfo["HasKexecUSB"] and "mmcblk" not in self.MTDROOTFS:
-						CMD = "/usr/bin/ofgwrite -r%s -kzImage -s'%s/linuxrootfs' -m%s '%s'" % (self.MTDROOTFS, SystemInfo["boxtype"][2:], self.multibootslot, MAINDEST)
-					else:
-						CMD = "/usr/bin/ofgwrite -r%s -kzImage -m%s '%s'" % (self.MTDROOTFS, self.multibootslot, MAINDEST)
-					print("[ImageManager] running commnd:%s slot = %s" % (CMD, self.multibootslot))
+		CMD = "/usr/bin/ofgwrite -r -k '%s'" % MAINDEST							# normal non multiboot receiver
+		if SystemInfo["canMultiBoot"]:
+			if self.multibootslot == 0 and SystemInfo["HasKexecMultiboot"]:		# reset Vu Multiboot slot0
+				kz0 = SystemInfo["mtdkernel"]
+				rz0 = SystemInfo["mtdrootfs"]
+				CMD = "/usr/bin/ofgwrite -k%s -r%s '%s'" % (kz0, rz0, MAINDEST)  # slot0 treat as kernel/root only multiboot receiver
+				print(f"[ImageManager] kz0={kz0} rz0={rz0}")
+				print(f"[ImageManager] CMD={CMD}")					
+			elif SystemInfo["HasHiSi"] and SystemInfo["canMultiBoot"][self.multibootslot]["rootsubdir"] is None:  # sf8008 type receiver using SD card in multiboot
+				CMD = "/usr/bin/ofgwrite -r%s -k%s -m0 '%s'" % (self.MTDROOTFS, self.MTDKERNEL, MAINDEST)
+				print("[ImageManager] running commnd:%s slot = %s" % (CMD, self.multibootslot))
+				if fileExists("/boot/STARTUP") and fileExists("/boot/STARTUP_6"):
+					copyfile("/boot/STARTUP_%s" % self.multibootslot, "/boot/STARTUP")
+			elif SystemInfo["HasKexecMultiboot"]:
+				if SystemInfo["HasKexecUSB"] and "mmcblk" not in self.MTDROOTFS:
+					CMD = "/usr/bin/ofgwrite -r%s -kzImage -s'%s/linuxrootfs' -m%s '%s'" % (self.MTDROOTFS, SystemInfo["boxtype"][2:], self.multibootslot, MAINDEST)
 				else:
-					CMD = "/usr/bin/ofgwrite -r -k -m%s '%s'" % (self.multibootslot, MAINDEST)  # Normal multiboot
-			elif SystemInfo["HasH9SD"]:
-				if fileHas("/proc/cmdline", "root=/dev/mmcblk0p1") is True and fileExists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 using SD card
-					CMD = "/usr/bin/ofgwrite -rmmcblk0p1 '%s'" % MAINDEST
-				elif fileExists("%s/rootfs.ubi" % MAINDEST) and fileExists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 no SD card - build has both roots causes ofgwrite issue
-					rename("%s/rootfs.tar.bz2" % MAINDEST, "%s/xx.txt" % MAINDEST)
-		else:
-			CMD = "/usr/bin/ofgwrite -rmtd4 -kmtd3  %s/" % MAINDEST  # Xtrend ET8500 with OS2 multiboot
+					CMD = "/usr/bin/ofgwrite -r%s -kzImage -m%s '%s'" % (self.MTDROOTFS, self.multibootslot, MAINDEST)
+				print("[ImageManager] running commnd:%s slot = %s" % (CMD, self.multibootslot))
+			else:
+				CMD = "/usr/bin/ofgwrite -r -k -m%s '%s'" % (self.multibootslot, MAINDEST)  # Normal multiboot
+			print(f"[ImageManager] running flash Console command={CMD}")
+		elif SystemInfo["HasH9SD"]:
+			if fileHas("/proc/cmdline", "root=/dev/mmcblk0p1") is True and fileExists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 using SD card
+				CMD = "/usr/bin/ofgwrite -rmmcblk0p1 '%s'" % MAINDEST
+			elif fileExists("%s/rootfs.ubi" % MAINDEST) and fileExists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 no SD card - build has both roots causes ofgwrite issue
+				rename("%s/rootfs.tar.bz2" % MAINDEST, "%s/xx.txt" % MAINDEST)
 		print("[ImageManager] running commnd:", CMD)
 		self.Console.ePopen(CMD, self.ofgwriteResult)
 		fbClass.getInstance().lock()
@@ -651,21 +633,6 @@ class VIXImageManager(Screen):
 		else:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("ofgwrite error (also sent to any debug log):\n%s") % result, MessageBox.TYPE_INFO, timeout=20)
 			print("[ImageManager] OFGWriteResult failed:\n", result)
-
-	def dualBoot(self):
-		rootfs2 = False
-		kernel2 = False
-		with open("/proc/mtd")as f:
-			L = f.readlines()
-			for x in L:
-				if "rootfs2" in x:
-					rootfs2 = True
-				if "kernel2" in x:
-					kernel2 = True
-			if rootfs2 and kernel2:
-				return True
-			else:
-				return False
 
 	def isVuKexecCompatibleImage(self, name):
 		retval = False
@@ -824,7 +791,7 @@ class AutoImageManagerTimer:
 			from Screens.Standby import inStandby
 
 			if not inStandby and config.imagemanager.query.value:
-				message = _("Your %s %s is about to create a full image backup, this can take about 6 minutes to complete.\nDo you want to allow this?") % (SystemInfo["displaybrand"], SystemInfo["machinename"])
+				message = _(f"Your {SystemInfo['displaybrand']} {SystemInfo['machinename']} is about to create a full image backup, this can take about 6 minutes to complete.\nDo you want to allow this?")
 				ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Scheduled backup.")
 			else:
