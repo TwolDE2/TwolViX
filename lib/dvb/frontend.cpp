@@ -1482,7 +1482,6 @@ int eDVBFrontend::readFrontendData(int type)
 	LSB = 0.01 dB.
 	Values derived from the legacy API are likely to be unreliable.
 */
-+			// VU+ 4K for unlocked signal
 +			if (m_state != stateLock)
 +			{
 +				uint16_t snr = 0;
