@@ -65,7 +65,7 @@ int eDVBFrontendStatus::getBER() const
 
 int eDVBFrontendStatus::getSNR() const
 {
-	if (!frontend) return 0;	
+	if (!frontend) return 0;
 	return frontend->readFrontendData(iFrontendInformation_ENUMS::signalQuality);
 }
 
