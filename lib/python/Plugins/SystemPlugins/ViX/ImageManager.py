@@ -569,7 +569,6 @@ class VIXImageManager(Screen):
 	def keyRestore4(self, result, retval, extra_args=None):
 		if retval == 0:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Flash image unzip successful."), MessageBox.TYPE_INFO, timeout=4)
-			MAINDEST = "%s/%s" % (self.TEMPDESTROOT, SystemInfo["imagedir"])
 			self.keyRestore6()
 		else:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Unzip error (also sent to any debug log):\n%s") % result, MessageBox.TYPE_INFO, timeout=20)
@@ -586,7 +585,7 @@ class VIXImageManager(Screen):
 				rz0 = SystemInfo["mtdrootfs"]
 				CMD = "/usr/bin/ofgwrite -k%s -r%s '%s'" % (kz0, rz0, MAINDEST)  # slot0 treat as kernel/root only multiboot receiver
 				print(f"[ImageManager] kz0={kz0} rz0={rz0}")
-				print(f"[ImageManager] CMD={CMD}")					
+				print(f"[ImageManager] CMD={CMD}")
 			elif SystemInfo["HasHiSi"] and SystemInfo["canMultiBoot"][self.multibootslot]["rootsubdir"] is None:  # sf8008 type receiver using SD card in multiboot
 				CMD = "/usr/bin/ofgwrite -r%s -k%s -m0 '%s'" % (self.MTDROOTFS, self.MTDKERNEL, MAINDEST)
 				print("[ImageManager] running commnd:%s slot = %s" % (CMD, self.multibootslot))
