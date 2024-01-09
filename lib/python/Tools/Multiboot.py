@@ -26,9 +26,9 @@ def getMultibootslots():
 	slotname = ""
 	SystemInfo["MultiBootSlot"] = None
 	SystemInfo["VuUUIDSlot"] = ""
+	SystemInfo["BootDevice"] = ""
 	UUID = ""
 	UUIDnum = 0
-	BoxInfo = BoxInfoRunningInstance
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
 	MbootList = MbootList2 if fileHas("/proc/cmdline", "kexec=1") else MbootList1
@@ -41,7 +41,7 @@ def getMultibootslots():
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
 				print("[Multiboot][[getMultibootslots]1 Bootdevice found: %s" % device2)
-				BoxInfo.setItem("mtdbootfs", device2, forceOverride=True)
+				SystemInfo["BootDevice"] = device2
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
 					slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 					slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[0]
@@ -157,9 +157,10 @@ def GetImagelist(Recovery=None):
 			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
-				print("[multiboot] [BoxInfo] using BoxInfo")
+				print("[multiboot] [GetImagelist] using enigma.info")
 				BuildVersion = createInfo(slot, imagedir=imagedir)
 			else:
+				print("[multiboot] [GetImagelist] using BoxInfo")			
 				Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
 				if fileHas("/proc/cmdline", "kexec=1") and path.isfile(path.join(imagedir, "etc/vtiversion.info")):
 					Vti = open(path.join(imagedir, "etc/vtiversion.info")).read()
