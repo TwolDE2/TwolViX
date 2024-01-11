@@ -3,6 +3,7 @@ from enigma import loadGIF, loadJPG, loadPNG, loadSVG, RT_HALIGN_CENTER
 # If cached is not supplied, LoadPixmap defaults to caching PNGs and not caching JPGs
 # Split alpha channel JPGs are never cached as the C++ layer's caching is based on
 # a single file per image in the cache
+
 def LoadPixmap(path, desktop=None, cached=None, width=0, height=0, scaletoFit=0, align=RT_HALIGN_CENTER):
 	if path[-4:] == ".png":
 		# cache unless caller explicity requests to not cache

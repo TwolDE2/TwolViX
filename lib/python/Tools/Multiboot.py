@@ -160,7 +160,7 @@ def GetImagelist(Recovery=None):
 				print("[multiboot] [GetImagelist] using enigma.info")
 				BuildVersion = createInfo(slot, imagedir=imagedir)
 			else:
-				print("[multiboot] [GetImagelist] using BoxInfo")			
+				print("[multiboot] [GetImagelist] using BoxInfo")
 				Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
 				if fileHas("/proc/cmdline", "kexec=1") and path.isfile(path.join(imagedir, "etc/vtiversion.info")):
 					Vti = open(path.join(imagedir, "etc/vtiversion.info")).read()
