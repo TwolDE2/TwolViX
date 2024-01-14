@@ -45,12 +45,15 @@ class VideoSetup(ConfigListScreen, Screen):
 		self.grabLastGoodMode()
 
 	def startHotplug(self):
+		print("[VideoMode][startHotplug] Entered")
 		iAV.on_hotplug.append(self.createSetup)
 
 	def stopHotplug(self):
+		print("[VideoMode][stopHotplug Entered")
 		iAV.on_hotplug.remove(self.createSetup)
 
 	def createSetup(self):
+		print("[VideoMode][createSetup] Entered")
 		level = config.usage.setup_level.index
 		self.list = [
 			getConfigListEntry(_("Video output"), config.av.videoport, _("Configures which video output connector will be used."))
@@ -169,6 +172,7 @@ class VideoSetup(ConfigListScreen, Screen):
 		self.createSetup()
 
 	def confirm(self, confirmed):
+		print("[VideoMode][confirm] Entered")	
 		if not confirmed:
 			config.av.videoport.setValue(self.last_good[0])
 			config.av.videomode[self.last_good[0]].setValue(self.last_good[1])
@@ -178,20 +182,20 @@ class VideoSetup(ConfigListScreen, Screen):
 			self.keySave()
 
 	def grabLastGoodMode(self):
-		print("[VideoMode][grabLastGoodMode] Entered)
+		print("[VideoMode][grabLastGoodMode] Entered")
 		port = config.av.videoport.value
 		mode = config.av.videomode[port].value
 		rate = config.av.videorate[mode].value
 		self.last_good = (port, mode, rate)
 
 	def saveAll(self):
-		print("[VideoMode][saveAll] Entered)
+		print("[VideoMode][saveAll] Entered")
 		if config.av.videoport.value == 'Scart':
 			config.av.autores.setValue('disabled')
 		ConfigListScreen.saveAll(self)
 
 	def apply(self):
-		print("[VideoMode][apply] Entered)
+		print("[VideoMode][apply] Entered")
 		port = config.av.videoport.value
 		mode = config.av.videomode[port].value
 		rate = config.av.videorate[mode].value
@@ -205,7 +209,7 @@ class VideoSetup(ConfigListScreen, Screen):
 
 class AutoVideoModeLabel(Screen):
 	def __init__(self, session):
-		print("[VideoMode][AutoVideoModeLabel] Entered)
+		print("[VideoMode][AutoVideoModeLabel] Entered")
 		Screen.__init__(self, session)
 		self["content"] = Label()
 		self["restxt"] = Label()
@@ -236,7 +240,7 @@ def applySettings(mode=config.osd.threeDmode.value, znorm=int(config.osd.threeDz
 class AutoVideoMode(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
-		print("[VideoMode][AutoVideoMode] Entered)
+		print("[VideoMode][AutoVideoMode] Entered")
 		self.current3dmode = config.osd.threeDmode.value
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
 			iPlayableService.evStart: self.__evStart,
@@ -250,7 +254,7 @@ class AutoVideoMode(Screen):
 		self.detecttimer.callback.append(self.VideoChangeDetect)
 
 	def checkIfDedicated3D(self):
-		print("[VideoMode][checkIfDedicated3D] Entered)
+		print("[VideoMode][checkIfDedicated3D] Entered")
 		service = self.session.nav.getCurrentlyPlayingServiceReference()
 		servicepath = service and service.getPath()
 		if servicepath and servicepath.startswith("/"):
@@ -265,7 +269,7 @@ class AutoVideoMode(Screen):
 		return info and info.getInfo(iServiceInformation.sIsDedicated3D) == 1 and "sidebyside"
 
 	def __evStart(self):
-		print("[VideoMode][__evStart] Entered)
+		print("[VideoMode][__evStart] Entered")
 		if config.osd.threeDmode.value == "auto":
 			global isDedicated3D
 			isDedicated3D = self.checkIfDedicated3D()
@@ -275,7 +279,7 @@ class AutoVideoMode(Screen):
 				applySettings()
 
 	def BufferInfo(self):
-		print("[VideoMode][BufferInfo] Entered)
+		print("[VideoMode][BufferInfo] Entered")
 		bufferInfo = self.session.nav.getCurrentService().streamed().getBufferCharge()
 		if bufferInfo[0] > 98:
 			self.bufferfull = True
@@ -284,7 +288,7 @@ class AutoVideoMode(Screen):
 			self.bufferfull = False
 
 	def VideoChanged(self):
-		print("[VideoMode][VideoChanged] Entered)
+		print("[VideoMode][VideoChanged] Entered")
 		if self.session.nav.getCurrentlyPlayingServiceReference() and not self.session.nav.getCurrentlyPlayingServiceReference().toString().startswith("4097:"):
 			delay = config.av.autores_delay.value
 		else:
@@ -493,6 +497,7 @@ class AutoVideoMode(Screen):
 				print(f"[VideoMode]3 fd.write_mode:{write_mode}, read_mode:{read_mode}")
 			else:
 				print(f"[VideoMode][VideoChangeDetect]6 VideoMode not changed write_mode: {write_mode} current_mode: {current_mode}")
+		print("[VideoMode][VideoChangeDetect] set aspect, set Wss, setPolicy43, setPolicy169")
 		iAV.setAspect(config.av.aspect)
 		iAV.setWss(config.av.wss)
 		iAV.setPolicy43(config.av.policy_43)
