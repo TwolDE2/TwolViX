@@ -19,7 +19,6 @@ resolutionlabel = None
 previous = None
 isDedicated3D = False
 videomode = "/proc/stb/video/videomode"
-videogbue4k = True if SystemInfo["boxtype"] in ("gbue4k", ) else False
 
 
 class VideoSetup(ConfigListScreen, Screen):
@@ -179,17 +178,20 @@ class VideoSetup(ConfigListScreen, Screen):
 			self.keySave()
 
 	def grabLastGoodMode(self):
+		print("[VideoMode][grabLastGoodMode] Entered)
 		port = config.av.videoport.value
 		mode = config.av.videomode[port].value
 		rate = config.av.videorate[mode].value
 		self.last_good = (port, mode, rate)
 
 	def saveAll(self):
+		print("[VideoMode][saveAll] Entered)
 		if config.av.videoport.value == 'Scart':
 			config.av.autores.setValue('disabled')
 		ConfigListScreen.saveAll(self)
 
 	def apply(self):
+		print("[VideoMode][apply] Entered)
 		port = config.av.videoport.value
 		mode = config.av.videomode[port].value
 		rate = config.av.videorate[mode].value
@@ -203,6 +205,7 @@ class VideoSetup(ConfigListScreen, Screen):
 
 class AutoVideoModeLabel(Screen):
 	def __init__(self, session):
+		print("[VideoMode][AutoVideoModeLabel] Entered)
 		Screen.__init__(self, session)
 		self["content"] = Label()
 		self["restxt"] = Label()
@@ -233,6 +236,7 @@ def applySettings(mode=config.osd.threeDmode.value, znorm=int(config.osd.threeDz
 class AutoVideoMode(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
+		print("[VideoMode][AutoVideoMode] Entered)
 		self.current3dmode = config.osd.threeDmode.value
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
 			iPlayableService.evStart: self.__evStart,
@@ -246,6 +250,7 @@ class AutoVideoMode(Screen):
 		self.detecttimer.callback.append(self.VideoChangeDetect)
 
 	def checkIfDedicated3D(self):
+		print("[VideoMode][checkIfDedicated3D] Entered)
 		service = self.session.nav.getCurrentlyPlayingServiceReference()
 		servicepath = service and service.getPath()
 		if servicepath and servicepath.startswith("/"):
@@ -260,6 +265,7 @@ class AutoVideoMode(Screen):
 		return info and info.getInfo(iServiceInformation.sIsDedicated3D) == 1 and "sidebyside"
 
 	def __evStart(self):
+		print("[VideoMode][__evStart] Entered)
 		if config.osd.threeDmode.value == "auto":
 			global isDedicated3D
 			isDedicated3D = self.checkIfDedicated3D()
@@ -269,6 +275,7 @@ class AutoVideoMode(Screen):
 				applySettings()
 
 	def BufferInfo(self):
+		print("[VideoMode][BufferInfo] Entered)
 		bufferInfo = self.session.nav.getCurrentService().streamed().getBufferCharge()
 		if bufferInfo[0] > 98:
 			self.bufferfull = True
@@ -277,6 +284,7 @@ class AutoVideoMode(Screen):
 			self.bufferfull = False
 
 	def VideoChanged(self):
+		print("[VideoMode][VideoChanged] Entered)
 		if self.session.nav.getCurrentlyPlayingServiceReference() and not self.session.nav.getCurrentlyPlayingServiceReference().toString().startswith("4097:"):
 			delay = config.av.autores_delay.value
 		else:
@@ -451,8 +459,7 @@ class AutoVideoMode(Screen):
 					new_mode = config.av.autores_2160p30.value
 				write_mode = new_mode
 			else:
-				print(f"[VideoMode][VideoChangeDetect] config.av.autores.value != HD or ALL:{config.av.autores.value}, new_rate:{new_rate}")
-				if video_rate == 25000 or (videogbue4k and video_rate == 23976):  # videomode_25hz is not in proc and will be reset 2nd pass thru , so do it now.
+				if video_rate == 25000:  # videomode_25hz is not in proc and will be reset 2nd pass thru , so do it now.
 					new_rate = 50
 				print(f"[VideoMode][VideoChangeDetect] else:  video_rate:{video_rate}, new_rate:{new_rate}")
 				if path.exists(f"{videomode}_{new_rate}hz") and config_rate == "multi":
