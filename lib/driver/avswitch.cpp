@@ -231,7 +231,7 @@ void eAVSwitch::setAspectRatio(int ratio)
 // @param defaultVal
 // @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 // @return
-int eAVControl::getFrameRate(int defaultVal, int flags) const
+int eAVSwitch::getFrameRate(int defaultVal, int flags) const
 {
 
 	const char *fileName = "/proc/stb/vmpeg/0/framerate";
