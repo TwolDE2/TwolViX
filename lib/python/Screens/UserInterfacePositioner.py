@@ -41,7 +41,7 @@ def InitOsd():
 	config.osd.dst_top = ConfigSelectionNumber(default=0, stepwidth=1, min=0, max=576, wraparound=False)
 	config.osd.dst_height = ConfigSelectionNumber(default=576, stepwidth=1, min=0, max=576, wraparound=False)
 	config.osd.alpha = ConfigSelectionNumber(default=255, stepwidth=1, min=0, max=255, wraparound=False)
-	config.av.osd_alpha = NoSave(ConfigNumber(default=255))
+	config.misc.osd_alpha = NoSave(ConfigNumber(default=255))
 	config.osd.threeDmode = ConfigSelection([("off", _("Off")), ("auto", _("Auto")), ("sidebyside", _("Side by Side")), ("topandbottom", _("Top and Bottom"))], "auto")
 	config.osd.threeDznorm = ConfigSlider(default=50, increment=1, limits=(0, 100))
 	config.osd.show3dextensions = ConfigYesNo(default=False)
@@ -98,7 +98,7 @@ def InitOsdPosition():
 	def setOSDAlpha(configElement):
 		if SystemInfo["CanChangeOsdAlpha"]:
 			print('[UserInterfacePositioner] Setting OSD alpha:', str(configElement.value))
-			config.av.osd_alpha.setValue(configElement.value)
+			config.misc.osd_alpha.setValue(configElement.value)
 			f = open("/proc/stb/video/alpha", "w")
 			f.write(str(configElement.value))
 			f.close()

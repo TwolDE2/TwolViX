@@ -1,4 +1,3 @@
-from Components.AVSwitch import iAVSwitch as iAV
 from Components.config import config, ConfigBoolean, configfile
 from Components.Pixmap import Pixmap
 from Components.SystemInfo import SystemInfo
@@ -48,6 +47,7 @@ class VideoWizard(WizardLanguage, Rc):
 
 	def __init__(self, session):
 		self.xmlfile = resolveFilename(SCOPE_SKIN, "videowizard.xml")
+		from Components.AVSwitch import iAVSwitch as iAV
 		self.hw = iAV		# needed by VideoWizard.xml do not change
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
 		Rc.__init__(self)

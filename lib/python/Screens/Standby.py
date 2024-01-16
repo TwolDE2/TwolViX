@@ -1,10 +1,9 @@
 from os import path
 from time import time
 
-from enigma import eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer, iRecordableService, quitMainloop
+from enigma import eAVSwitch, eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer, iRecordableService, quitMainloop
 
 from Components.ActionMap import ActionMap
-from Components.AVSwitch import AVSwitch
 from Components.config import config
 from Components.Console import Console
 import Components.ParentalControl
@@ -62,7 +61,6 @@ class Standby2(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.skinName = "Standby"
-		self.avswitch = AVSwitch()
 
 		print("[Standby] enter standby")
 
@@ -115,9 +113,9 @@ class Standby2(Screen):
 			self.infoBarInstance and hasattr(self.infoBarInstance, "showPiP") and self.infoBarInstance.showPiP()
 
 		if SystemInfo["ScartSwitch"]:
-			self.avswitch.setInput("SCART")
+			self.setInput("SCART")
 		else:
-			self.avswitch.setInput("AUX")
+			self.setInput("AUX")
 		if SystemInfo["brand"] in ('dinobot') or SystemInfo["HasHiSi"] or SystemInfo["boxtype"] in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("off")
@@ -144,7 +142,7 @@ class Standby2(Screen):
 				self.session.nav.playService(self.prev_running_service)
 		self.session.screen["Standby"].boolean = False
 		globalActionMap.setEnabled(True)
-		self.avswitch.setInput("ENCODER")
+		self.setInput("ENCODER")
 		self.leaveMute()
 		if path.exists("/usr/scripts/standby_leave.sh"):
 			Console().ePopen("/usr/scripts/standby_leave.sh")
@@ -164,6 +162,13 @@ class Standby2(Screen):
 			self.prev_running_service = eServiceReference(config.tv.lastservice.value)
 		self.session.nav.stopService()
 
+	def setInput(self, input):
+		INPUT = {
+			"ENCODER": 0,
+			"SCART": 1,
+			"AUX": 2
+		}
+		eAVSwitch.getInstance().setInput(INPUT[input])
 
 class Standby(Standby2):
 	def __init__(self, session):
