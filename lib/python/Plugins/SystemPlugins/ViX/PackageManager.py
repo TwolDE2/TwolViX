@@ -16,7 +16,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Standby import TryQuitMainloop
 
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_PLUGIN, SCOPE_CURRENT_SKIN
+from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
 from Tools.NumericalTextInput import NumericalTextInput
 
@@ -80,7 +80,7 @@ class PackageManager(Screen, NumericalTextInput):
 			5, 50, 510, 2,
 			22, 14,  # font
 			52,  # itemHeight
-			]
+		]
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -121,7 +121,7 @@ class PackageManager(Screen, NumericalTextInput):
 		self.Console = Console()
 		self.cmdList = []
 		self.cachelist = []
-		self.cache_ttl = 86400  #600 is default, 0 disables, Seconds cache is considered valid (24h should be ok for caching opkgs)
+		self.cache_ttl = 86400  # 600 is default, 0 disables, Seconds cache is considered valid (24h should be ok for caching opkgs)
 		self.cache_file = "/etc/enigma2/packetmanager.cache"  # Path to cache directory
 		self.oktext = _("\nAfter pressing OK, please wait!")
 		self.unwanted_extensions = ("-dbg", "-dev", "-doc", "-staticdev", "-src", "busybox")
@@ -283,9 +283,9 @@ class PackageManager(Screen, NumericalTextInput):
 					tokens = x.split(" - ")
 					name = tokens[0].strip()
 					if name and not any(name.endswith(x) for x in self.unwanted_extensions):
-						l = len(tokens)
-						version = l > 1 and tokens[1].strip() or ""
-						descr = l > 2 and tokens[2].strip() or ""
+						tokenLength = len(tokens)
+						version = tokenLength > 1 and tokens[1].strip() or ""
+						descr = tokenLength > 2 and tokens[2].strip() or ""
 						if name == last_name:
 							continue
 						last_name = name
@@ -309,8 +309,8 @@ class PackageManager(Screen, NumericalTextInput):
 				tokens = x.split(" - ")
 				name = tokens[0].strip()
 				if not any(name.endswith(x) for x in self.unwanted_extensions):
-					l = len(tokens)
-					version = l > 1 and tokens[1].strip() or ""
+					tokenLength = len(tokens)
+					version = tokenLength > 1 and tokens[1].strip() or ""
 					self.installed_packetlist[name] = version
 		if not self.Console:
 			self.Console = Console()
@@ -324,8 +324,8 @@ class PackageManager(Screen, NumericalTextInput):
 				tokens = x.split(" - ")
 				name = tokens[0].strip()
 				if not any(name.endswith(x) for x in self.unwanted_extensions):
-					l = len(tokens)
-					version = l > 2 and tokens[2].strip() or ""
+					tokenLength = len(tokens)
+					version = tokenLength > 2 and tokens[2].strip() or ""
 					self.upgradeable_packages[name] = version
 		self.buildPacketList()
 

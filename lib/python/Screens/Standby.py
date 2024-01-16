@@ -170,6 +170,7 @@ class Standby2(Screen):
 		}
 		eAVSwitch.getInstance().setInput(INPUT[input])
 
+
 class Standby(Standby2):
 	def __init__(self, session):
 		if Screens.InfoBar.InfoBar and Screens.InfoBar.InfoBar.instance and Screens.InfoBar.InfoBar.ptsGetTimeshiftStatus(Screens.InfoBar.InfoBar.instance):

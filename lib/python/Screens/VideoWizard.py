@@ -22,6 +22,8 @@ class VideoWizardSummary(WizardSummary):
 
 
 class VideoWizard(WizardLanguage, Rc):
+	from Components.AVSwitch import iAVSwitch as iAV
+
 	skin = """
 		<screen position="fill" title="Welcome..." flags="wfNoBorder" >
 			<panel name="WizardMarginsTemplate"/>
@@ -47,7 +49,6 @@ class VideoWizard(WizardLanguage, Rc):
 
 	def __init__(self, session):
 		self.xmlfile = resolveFilename(SCOPE_SKIN, "videowizard.xml")
-		from Components.AVSwitch import iAVSwitch as iAV
 		self.hw = iAV		# needed by VideoWizard.xml do not change
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
 		Rc.__init__(self)
