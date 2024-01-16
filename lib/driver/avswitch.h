@@ -27,6 +27,7 @@ public:
 	static eAVSwitch *getInstance();
 	bool haveScartSwitch();
 	int getVCRSlowBlanking();
+	int getFrameRate(int defaultVal = 50000, int flags = 0) const;
 	std::string getVideoMode(const std::string &defaultVal = "", int flags = 0) const;	
 	void setColorFormat(int format);
 	void setAspectRatio(int ratio);

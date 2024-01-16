@@ -10,7 +10,7 @@
 #include <lib/base/ebase.h>
 #include <lib/driver/avswitch.h>
 
-const char *__MODULE__ = "eAVControl";
+const char *__MODULE__ = "eAVSwitch";
 const char *proc_videomode = "/proc/stb/video/videomode";
 const char *proc_videomode_50 = "/proc/stb/video/videomode_50hz";
 const char *proc_videomode_60 = "/proc/stb/video/videomode_60hz";
@@ -225,6 +225,26 @@ void eAVSwitch::setAspectRatio(int ratio)
 	}
 	close(fd);
 
+}
+
+// @brief Get FrameRate
+// @param defaultVal
+// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// @return
+int eAVControl::getFrameRate(int defaultVal, int flags) const
+{
+
+	const char *fileName = "/proc/stb/vmpeg/0/framerate";
+	int value = 0;
+	int ret = CFile::parseInt(&value, fileName, __MODULE__, flags);
+	if (ret != 0)
+	{
+		value = defaultVal;
+	}
+	else if (flags & FLAGS_DEBUG)
+		eDebug("[%s] %s: %d", __MODULE__, "getFrameRate", value);
+
+	return value;
 }
 
 // @brief Get VideoMode
