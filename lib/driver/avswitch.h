@@ -40,6 +40,7 @@ public:
 	void setVideoMode(const std::string &newMode, int flags = 0) const;
 	void setPolicy43(const std::string &newPolicy, int flags = 0) const;
 	void setPolicy169(const std::string &newPolicy, int flags = 0) const;
+	void setVideoSize(int top, int left, int width, int height, int flags = 0) const;
 	bool isActive();
 	
 	enum

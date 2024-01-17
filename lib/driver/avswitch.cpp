@@ -15,7 +15,6 @@ const char *proc_hdmi_rx_monitor = "/proc/stb/hdmi-rx/0/hdmi_rx_monitor";
 const char *proc_hdmi_rx_monitor_audio = "/proc/stb/audio/hdmi_rx_monitor";
 const char *proc_policy169 = "/proc/stb/video/policy2";
 const char *proc_policy43 = "/proc/stb/video/policy";
-const char *proc_videomode = "/proc/stb/video/videomode";
 const char *proc_videoaspect_r = "/proc/stb/vmpeg/0/aspect";
 const char *proc_videoaspect_w = "/proc/stb/video/aspect";
 const char *proc_videomode = "/proc/stb/video/videomode";
