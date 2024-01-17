@@ -292,7 +292,7 @@ class AutoVideoMode(Screen):
 			delay = 500
 		elif self.session.nav.getCurrentlyPlayingServiceReference() and not self.session.nav.getCurrentlyPlayingServiceReference().toString().startswith("4097:"):
 			delay = config.av.autores_delay.value
-			print(f"[VideoMode][VideoChanged] delay (single):{delay} delayAuto:{delayAuto}")			
+			print(f"[VideoMode][VideoChanged] delay (single):{delay} delayAuto:{delayAuto}")
 		else:
 			delay = config.av.autores_delay.value * 2
 			print(f"[VideoMode][VideoChanged] delay (double):{delay} delayAuto:{delayAuto}")
@@ -305,7 +305,7 @@ class AutoVideoMode(Screen):
 		if config_rate == "auto":
 			if not self.detecttimerAuto.isActive() and not self.delayAuto:
 				self.delayAuto = True
-				print(f"[VideoMode][VideoChanged]not self.detecttimerAuto.IS Active delayAuto:{delayAuto} Entered")				
+				print(f"[VideoMode][VideoChanged]not self.detecttimerAuto.IS Active delayAuto:{delayAuto} Entered")
 			else:
 				self.delayAuto = True
 				self.detecttimerAuto.stop()
@@ -316,17 +316,17 @@ class AutoVideoMode(Screen):
 	def AutoVideoChangeDetect(self):
 		print("[VideoMode][AutoVideoChangeDetect] Entered")
 		self.delay = False
-		self.delayAuto = False			
+		self.delayAuto = False
 		self.detecttimer.stop()
-		self.detecttimerAuto.stop()							
-		
+		self.detecttimerAuto.stop()
+
 	def VideoChangeDetect(self):
-		print("[VideoMode][VideoChangeDetect] Entered")	
+		print("[VideoMode][VideoChangeDetect] Entered")
 		global resolutionlabel
 		video_ratex = ""
 		current_modex = eAVSwitch.getInstance().getVideoMode("")
 		video_ratex = eAVSwitch.getInstance().getFrameRate(0)
-		print(f"[VideoMode][VideoChangeDetect] video_ratex:{video_ratex} current_modex:{current_modex}")	
+		print(f"[VideoMode][VideoChangeDetect] video_ratex:{video_ratex} current_modex:{current_modex}")
 		config_port = config.av.videoport.value
 		# print("[VideoMode][VideoChangeDetect] config.av.videomode keys", list(config.av.videomode.keys()))
 		try:
@@ -340,7 +340,7 @@ class AutoVideoMode(Screen):
 			self.delay = False
 			self.delayAuto = False
 			self.detecttimer.stop()
-			self.detecttimerAuto.stop()		
+			self.detecttimerAuto.stop()
 			return
 		current_mode = eAVSwitch.getInstance().getVideoMode("")
 		if current_mode.upper() in ("PAL", "NTSC"):
