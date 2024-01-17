@@ -139,7 +139,7 @@ bool eAVSwitch::isActive()
 // @param defaultVal
 // @param flags
 // @return
-int eAVControl::getAspect(int defaultVal, int flags) const
+int eAVSwitch::getAspect(int defaultVal, int flags) const
 {
 	int value = 0;
 	CFile::parseIntHex(&value, proc_videoaspect_r, __MODULE__, flags);
@@ -151,7 +151,7 @@ int eAVControl::getAspect(int defaultVal, int flags) const
 // @brief Get progressive
 // @param flags
 // @return
-bool eAVControl::getProgressive(int flags) const
+bool eAVSwitch::getProgressive(int flags) const
 {
 	int value = 0;
 	CFile::parseIntHex(&value, "/proc/stb/vmpeg/0/progressive", __MODULE__, flags);
@@ -164,7 +164,7 @@ bool eAVControl::getProgressive(int flags) const
 // @param defaultVal = 0
 // @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 // @return resolution value
-int eAVControl::getResolutionX(int defaultVal, int flags) const
+int eAVSwitch::getResolutionX(int defaultVal, int flags) const
 {
 	int value;
 	int ret = CFile::parseIntHex(&value, "/proc/stb/vmpeg/0/xres", __MODULE__, flags);
@@ -183,7 +183,7 @@ int eAVControl::getResolutionX(int defaultVal, int flags) const
 // @param defaultVal = 0
 // @param flags bit (1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 // @return resolution value
-int eAVControl::getResolutionY(int defaultVal, int flags) const
+int eAVSwitch::getResolutionY(int defaultVal, int flags) const
 {
 
 	int value;
@@ -366,7 +366,7 @@ void eAVSwitch::setWSS(int val) // 0 = auto, 1 = auto(4:3_off)
 // @brief setPolicy43
 // @param newPolicy
 // @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
-void eAVControl::setPolicy43(const std::string &newPolicy, int flags) const
+void eAVSwitch::setPolicy43(const std::string &newPolicy, int flags) const
 {
 
 	CFile::writeStr(proc_policy43, newPolicy, __MODULE__, flags);
@@ -378,7 +378,7 @@ void eAVControl::setPolicy43(const std::string &newPolicy, int flags) const
 // @brief setPolicy169
 // @param newPolicy
 // @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
-void eAVControl::setPolicy169(const std::string &newPolicy, int flags) const
+void eAVSwitch::setPolicy169(const std::string &newPolicy, int flags) const
 {
 
 	CFile::writeStr(proc_policy169, newPolicy, __MODULE__, flags);
@@ -393,7 +393,7 @@ void eAVControl::setPolicy169(const std::string &newPolicy, int flags) const
 // @param width 
 // @param height 
 // @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
-void eAVControl::setVideoSize(int top, int left, int width, int height, int flags) const
+void eAVSwitch::setVideoSize(int top, int left, int width, int height, int flags) const
 {
 
 	CFile::writeIntHex("/proc/stb/vmpeg/0/dst_top", top, __MODULE__, flags);
