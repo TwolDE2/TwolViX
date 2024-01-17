@@ -243,13 +243,12 @@ class AutoVideoMode(Screen):
 			iPlayableService.evBuffering: self.BufferInfo,
 		})
 		self.delay = False
-		self.delayAuto = False		
+		self.delayAuto = False
 		self.bufferfull = True
 		self.detecttimer = eTimer()
 		self.detecttimer.callback.append(self.VideoChangeDetect)
 		self.detecttimerAuto = eTimer()
 		self.detecttimerAuto.callback.append(self.AutoVideoChangeDetect)
-		
 
 	def checkIfDedicated3D(self):
 		service = self.session.nav.getCurrentlyPlayingServiceReference()
@@ -285,7 +284,7 @@ class AutoVideoMode(Screen):
 
 	def VideoChanged(self):
 		print("[VideoMode][VideoChanged] Entered")
-		config_mode = str(config.av.videomode[config.av.videoport.value].value).replace("\n", "")		
+		config_mode = str(config.av.videomode[config.av.videoport.value].value).replace("\n", "")
 		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 		print(f"[VideoMode][VideoChanged] config_rate:{config_rate}")
 		delayAuto = 5000
@@ -297,7 +296,6 @@ class AutoVideoMode(Screen):
 		else:
 			delay = config.av.autores_delay.value * 2
 			print(f"[VideoMode][VideoChanged] delay (double):{delay} delayAuto:{delayAuto}")
-			
 		if not self.detecttimer.isActive() and not self.delay:
 			self.delay = True
 		else:
@@ -309,7 +307,7 @@ class AutoVideoMode(Screen):
 				self.delayAuto = True
 				print(f"[VideoMode][VideoChanged]not self.detecttimerAuto.IS Active delayAuto:{delayAuto} Entered")				
 			else:
-				self.delayAuto = True			
+				self.delayAuto = True
 				self.detecttimerAuto.stop()
 				print(f"[VideoMode][VideoChanged]not self.detecttimerAuto.NOT Active delayAuto:{delayAuto} Entered")
 			self.detecttimerAuto.start(delayAuto)
@@ -327,8 +325,8 @@ class AutoVideoMode(Screen):
 		global resolutionlabel
 		video_ratex = ""
 		current_modex = eAVSwitch.getInstance().getVideoMode("")
-		video_ratex = eAVSwitch.getInstance().getFrameRate(0)	
-		print(f"[VideoMode][VideoChangeDetect] video_ratex:{video_ratex} current_modex:{current_modex}")		
+		video_ratex = eAVSwitch.getInstance().getFrameRate(0)
+		print(f"[VideoMode][VideoChangeDetect] video_ratex:{video_ratex} current_modex:{current_modex}")	
 		config_port = config.av.videoport.value
 		# print("[VideoMode][VideoChangeDetect] config.av.videomode keys", list(config.av.videomode.keys()))
 		try:
@@ -340,9 +338,9 @@ class AutoVideoMode(Screen):
 		except KeyError:
 			# print("[VideoMode][VideoChangeDetect] config_port Keyerror use current values", e)
 			self.delay = False
-			self.delayAuto = False			
+			self.delayAuto = False
 			self.detecttimer.stop()
-			self.detecttimerAuto.stop()			
+			self.detecttimerAuto.stop()		
 			return
 		current_mode = eAVSwitch.getInstance().getVideoMode("")
 		if current_mode.upper() in ("PAL", "NTSC"):
@@ -502,7 +500,7 @@ class AutoVideoMode(Screen):
 				read_mode = eAVSwitch.getInstance().getVideoMode("")
 				print(f"[VideoMode]3 fd.write_mode:{write_mode}, read_mode:{read_mode}")
 				self.delay = False
-				self.detecttimer.stop()				
+				self.detecttimer.stop()
 				if config_rate == "auto":
 					self.delayAuto = False
 					self.detecttimerAuto.stop()
