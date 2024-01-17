@@ -25,7 +25,7 @@ class AVSwitch:
 	rates["720p"] = {"50Hz": {50: "720p50"}, "60Hz": {60: "720p"}, "multi": {50: "720p50", 60: "720p", 24: "720p24"}}
 	rates["1080i"] = {"50Hz": {50: "1080i50"}, "60Hz": {60: "1080i"}, "multi": {50: "1080i50", 60: "1080i", 24: "1080p24"}}
 	rates["1080p"] = {"50Hz": {50: "1080p50"}, "60Hz": {60: "1080p"}, "multi": {50: "1080p50", 60: "1080p", 24: "1080p24"}}
-	rates["2160p"] = {"50Hz": {50: "2160p50"}, "60Hz": {60: "2160p"}, "multi": {50: "2160p50", 60: "2160p", 24: "2160p24"}}
+	rates["2160p"] = {"50Hz": {50: "2160p50"}, "60Hz": {60: "2160p"}, "multi": {50: "2160p50", 60: "2160p", 24: "2160p24"}, "auto": {50: "2160p50", 60: "2160p", 24: "2160p24"}}
 	rates["2160p30"] = {"25Hz": {50: "2160p25"}, "30Hz": {60: "2160p30"}, "multi": {50: "2160p25", 60: "2160p30", 24: "2160p24"}}
 	rates["PC"] = {
 		"1024x768": {60: "1024x768"},  # not possible on DM7025
@@ -165,8 +165,6 @@ class AVSwitch:
 		except Exception:  # Don't support 50Hz, 60Hz for 1080p.
 			set_mode = mode_50
 		print(f"[AVSwitch][videomode] set to: {set_mode}")
-		# with open("/proc/stb/video/videomode", "w") as fd:
-		# fd.write(set_mode)
 		eAVSwitch.getInstance().setVideoMode(set_mode)
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
@@ -208,8 +206,6 @@ class AVSwitch:
 		return res
 
 	def createConfig(self, *args):
-		# hw_type = HardwareInfo().get_device_name()
-		# has_hdmi = HardwareInfo().has_hdmi()
 		lst = []
 		config.av.videomode = ConfigSubDict()
 		config.av.videorate = ConfigSubDict()
