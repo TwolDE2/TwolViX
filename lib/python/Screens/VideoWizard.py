@@ -48,7 +48,7 @@ class VideoWizard(WizardLanguage, Rc):
 		</screen>"""
 
 	def __init__(self, session):
-		from Components.AVSwitch import iAVSwitch as iAV	
+		from Components.AVSwitch import iAVSwitch as iAV
 		self.xmlfile = resolveFilename(SCOPE_SKIN, "videowizard.xml")
 		self.hw = iAV()		# needed by VideoWizard.xml do not change
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)

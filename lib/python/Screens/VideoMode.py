@@ -311,7 +311,7 @@ class AutoVideoMode(Screen):
 			config_pol = str(config.av.videomode[config_port].value[-1:]).replace("\n", "")
 			config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 			print(f"[VideoMode][VideoChangeDetect]1 config_port:{config_port}, config_mode:{config_mode}, config_res:{config_res}, config_pol:{config_pol}, config_rate:{config_rate}")
-		except KeyError as e:
+		except KeyError:
 			# print("[VideoMode][VideoChangeDetect] config_port Keyerror use current values", e)
 			self.delay = False
 			self.detecttimer.stop()
