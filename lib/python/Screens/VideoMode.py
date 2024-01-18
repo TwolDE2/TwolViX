@@ -296,6 +296,8 @@ class AutoVideoMode(Screen):
 		else:
 			delay = config.av.autores_delay.value * 2
 			print(f"[VideoMode][VideoChanged] delay (double):{delay} delayAuto:{delayAuto}")
+		if delay == 0:
+			delay=1000 	
 		if not self.detecttimer.isActive() and not self.delay:
 			self.delay = True
 		else:
