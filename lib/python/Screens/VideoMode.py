@@ -288,7 +288,7 @@ class AutoVideoMode(Screen):
 		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 		print(f"[VideoMode][VideoChanged] config_rate:{config_rate}")
 		delayAuto = 5000
-		if config_rate == "auto":
+		if config_rate == "auto":  # minimum 500ms  
 			delay = 500
 		elif self.session.nav.getCurrentlyPlayingServiceReference() and not self.session.nav.getCurrentlyPlayingServiceReference().toString().startswith("4097:"):
 			delay = config.av.autores_delay.value
@@ -297,7 +297,7 @@ class AutoVideoMode(Screen):
 			delay = config.av.autores_delay.value * 2
 			print(f"[VideoMode][VideoChanged] delay (double):{delay} delayAuto:{delayAuto}")
 		if delay == 0:
-			delay=1000 	
+			delay=500 	
 		if not self.detecttimer.isActive() and not self.delay:
 			self.delay = True
 		else:
