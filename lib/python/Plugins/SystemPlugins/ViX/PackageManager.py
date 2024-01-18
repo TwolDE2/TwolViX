@@ -80,7 +80,7 @@ class PackageManager(Screen, NumericalTextInput):
 			5, 50, 510, 2,
 			22, 14,  # font
 			52,  # itemHeight
-	]
+		]  # noqa: E124
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
