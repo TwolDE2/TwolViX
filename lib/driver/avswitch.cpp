@@ -269,6 +269,16 @@ void eAVSwitch::setVideoMode(const std::string &newMode, int flags) const
 		eDebug("[%s] %s: %s", __MODULE__, "setVideoMode", newMode.c_str());
 }
 
+// @brief setAspect
+// @param newFormat (auto, 4:3, 16:9, 16:10)
+// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+void eAVSwitch::setAspect(const std::string &newFormat, int flags) const
+{
+	CFile::writeStr(proc_videoaspect_w, newFormat, __MODULE__, flags);
+	if (flags & FLAGS_DEBUG)
+		eDebug("[%s] %s: %s", __MODULE__, "setAspect", newFormat.c_str());
+}
+
 void eAVSwitch::setAspectRatio(int ratio)
 {
 	/*

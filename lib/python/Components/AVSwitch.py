@@ -259,9 +259,10 @@ class AVSwitch:
 		self.setMode(port, mode, rate)
 
 	def setAspect(self, cfgelement):
+		eAVSwitch.getInstance().setAspect(configElement.value, 1)	
 		print(f"[AVSwitch] setting aspect:{cfgelement.value}")
-		with open("/proc/stb/video/aspect", "w") as fd:
-			fd.write(cfgelement.value)
+#		with open("/proc/stb/video/aspect", "w") as fd:
+#			fd.write(cfgelement.value)
 
 	def setWss(self, cfgelement):
 		if not cfgelement.value:
@@ -269,19 +270,22 @@ class AVSwitch:
 		else:
 			wss = "auto"
 		print(f"[AVSwitch] setting wss:{wss}")
-		with open("/proc/stb/denc/0/wss", "w") as fd:
-			fd.write(wss)
+		eAVSwitch.getInstance().setWSS(configElement.value, 1)		
+#		with open("/proc/stb/denc/0/wss", "w") as fd:
+#			fd.write(wss)
 
 	def setPolicy43(self, cfgelement):
 		print(f"[AVSwitch] setting policy:{cfgelement.value}")
-		with open("/proc/stb/video/policy", "w") as fd:
-			fd.write(cfgelement.value)
+		eAVSwitch.getInstance().setPolicy43(configElement.value, 1)		
+#		with open("/proc/stb/video/policy", "w") as fd:
+#			fd.write(cfgelement.value)
 
 	def setPolicy169(self, cfgelement):
-		if path.exists("/proc/stb/video/policy2"):
-			print(f"[AVSwitch] setting policy2: {cfgelement.value}")
-			with open("/proc/stb/video/policy2", "w") as fd:
-				fd.write(cfgelement.value)
+		eAVControl.getInstance().setPolicy169(configElement.value, 1)	
+#		if path.exists("/proc/stb/video/policy2"):
+#			print(f"[AVSwitch] setting policy2: {cfgelement.value}")
+#			with open("/proc/stb/video/policy2", "w") as fd:
+#				fd.write(cfgelement.value)
 
 	def getOutputAspect(self):
 		ret = (16, 9)
