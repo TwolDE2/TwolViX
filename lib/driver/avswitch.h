@@ -33,7 +33,6 @@ public:
 	int getResolutionX(int defaultVal = 0, int flags = 0) const;
 	int getResolutionY(int defaultVal = 0, int flags = 0) const;
 	std::string getVideoMode(const std::string &defaultVal = "", int flags = 0) const;
-	void setAspectRatio(int ratio, int flags = 0) const;
 	void setAspect(const std::string &newFormat, int flags = 0) const;
 	void setColorFormat(int format);
 	void setAspectRatio(int ratio);

@@ -279,45 +279,6 @@ void eAVSwitch::setAspect(const std::string &newFormat, int flags) const
 		eDebug("[%s] %s: %s", __MODULE__, "setAspect", newFormat.c_str());
 }
 
-void eAVSwitch::setAspectRatio(int ratio)
-{
-	/*
-	0-4:3 Letterbox
-	1-4:3 PanScan
-	2-16:9
-	3-16:9 forced ("panscan")
-	4-16:10 Letterbox
-	5-16:10 PanScan
-	6-16:9 forced ("letterbox")
-	*/
-	const char *aspect[] = {"4:3", "4:3", "any", "16:9", "16:10", "16:10", "16:9", "16:9"};
-	const char *policy[] = {"letterbox", "panscan", "bestfit", "panscan", "letterbox", "panscan", "letterbox"};
-
-	int fd;
-	if((fd = open("/proc/stb/video/aspect", O_WRONLY)) < 0) {
-		eDebug("[eAVSwitch] cannot open /proc/stb/video/aspect: %m");
-		return;
-	}
-//	eDebug("set aspect to %s", aspect[ratio]);
-	if (write(fd, aspect[ratio], strlen(aspect[ratio])) < 1)
-	{
-		eDebug("[eAVSwitch] setAspectRatio failed %m");
-	}
-	close(fd);
-
-	if((fd = open("/proc/stb/video/policy", O_WRONLY)) < 0) {
-		eDebug("[eAVSwitch] cannot open /proc/stb/video/policy: %m");
-		return;
-	}
-//	eDebug("set ratio to %s", policy[ratio]);
-	if (write(fd, policy[ratio], strlen(policy[ratio])) < 1)
-	{
-		eDebug("[eAVSwitch] setAspectRatio policy failed %m");
-	}
-	close(fd);
-
-}
-
 void eAVSwitch::setColorFormat(int format)
 {
 	/*
