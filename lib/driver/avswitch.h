@@ -35,7 +35,6 @@ public:
 	std::string getVideoMode(const std::string &defaultVal = "", int flags = 0) const;
 	void setAspect(const std::string &newFormat, int flags = 0) const;
 	void setColorFormat(int format);
-	void setAspectRatio(int ratio);
 	void setInput(int val);
 	void setWSS(int val);
 	void setVideoMode(const std::string &newMode, int flags = 0) const;
