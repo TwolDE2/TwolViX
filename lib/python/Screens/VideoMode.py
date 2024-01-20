@@ -325,7 +325,7 @@ class AutoVideoMode(Screen):
 	def VideoChangeDetect(self):
 		print("[VideoMode][VideoChangeDetect] Entered")
 		global resolutionlabel
-		print(f"[VideoMode][VideoChangeDetect] video_rate:{eAVSwitch.getInstance().getFrameRate(0)} current_mode:{eAVSwitch.getInstance().getVideoMode("")}")
+		print(f"[VideoMode][VideoChangeDetect] video_rate:{eAVSwitch.getInstance().getFrameRate(0)} current_mode:{eAVSwitch.getInstance().getVideoMode('')}")
 		config_port = config.av.videoport.value
 		# print("[VideoMode][VideoChangeDetect] config.av.videomode keys", list(config.av.videomode.keys()))
 		try:
