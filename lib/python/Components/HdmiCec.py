@@ -355,7 +355,7 @@ class HdmiCec:
 		self.handlingStandbyFromTV = False
 		if config.hdmicec.enabled.value:
 			counterDots = config.hdmicec.enabled.value.count('.')
-			if counterDots = 4 and config.hdmicec.fixed_physical_address.value[1:3] != ".0":
+			if counterDots == 4 and config.hdmicec.fixed_physical_address.value[1:3] != ".0":
 				try:
 					print(f"[HdmiCEC][init]phsyical address changed by setup value:{config.hdmicec.fixed_physical_address.value}")
 					setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
