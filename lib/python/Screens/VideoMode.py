@@ -505,6 +505,9 @@ class AutoVideoMode(Screen):
 					self.detecttimerAuto.stop()
 			else:
 				print(f"[VideoMode][VideoChangeDetect]6 VideoMode not changed write_mode: {write_mode} current_mode: {current_mode}")
+		if config_rate != "auto":
+			self.delay = False
+			self.detecttimer.stop()		
 		iAV.setAspect(config.av.aspect)
 		iAV.setWss(config.av.wss)
 		iAV.setPolicy43(config.av.policy_43)
