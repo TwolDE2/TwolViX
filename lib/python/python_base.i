@@ -171,7 +171,6 @@ static PyGetSetDef eTimerPy_getseters[] = {
 
 static PyTypeObject eTimerPyType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
-	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)	
 	"eBaseImpl.eTimer", /*tp_name*/
 	sizeof(eTimerPy), /*tp_basicsize*/
 	.tp_dealloc = (destructor)eTimerPy_dealloc,
@@ -330,7 +329,6 @@ static PyGetSetDef eSocketNotifierPy_getseters[] = {
 
 static PyTypeObject eSocketNotifierPyType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
-	.ob_base = PyVarObject_HEAD_INIT(NULL, 0)	
 	"eBaseImpl.eSocketNotifier", /*tp_name*/
 	sizeof(eSocketNotifierPy), /*tp_basicsize*/
 	.tp_dealloc = (destructor)eSocketNotifierPy_dealloc,
