@@ -6,6 +6,10 @@ extern "C" {
 
 // eTimer replacement
 
+typedef struct {
+    PyObject_HEAD
+} CustomObject;
+
 struct eTimerPy
 {
 	PyObject_HEAD
