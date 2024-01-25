@@ -45,9 +45,11 @@ class VideoSetup(ConfigListScreen, Screen):
 		self.grabLastGoodMode()
 
 	def startHotplug(self):
+		print("[VideoMode][startHotplug] Entered")
 		iAV.on_hotplug.append(self.createSetup)
 
 	def stopHotplug(self):
+		print("[VideoMode][stopHotplug] Entered")
 		iAV.on_hotplug.remove(self.createSetup)
 
 	def createSetup(self):
@@ -237,10 +239,19 @@ class AutoVideoMode(Screen):
 		self.current3dmode = config.osd.threeDmode.value
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
 			iPlayableService.evStart: self.__evStart,
-			iPlayableService.evVideoSizeChanged: self.VideoChanged,
-			iPlayableService.evVideoProgressiveChanged: self.VideoChanged,
-			iPlayableService.evVideoFramerateChanged: self.VideoChanged,
-			iPlayableService.evBuffering: self.BufferInfo,
+			iPlayableService.evVideoSizeChanged: self.evVideoFramerateChanged,
+			iPlayableService.evVideoProgressiveChanged: self.evVideoFramerateChanged,
+			iPlayableService.evVideoFramerateChanged: self.evVideoFramerateChanged,
+			iPlayableService.evStart: self.__evStart,
+			#iPlayableService.evBuffering: self.BufferInfo,
+			#iPlayableService.evEnd: self.BufferInfoStop,
+			iPlayableService.evSeekableStatusChanged: self.evVideoFramerateChanged,
+			iPlayableService.evEOF: self.evVideoFramerateChanged,
+			iPlayableService.evSOF: self.evVideoFramerateChanged,
+			iPlayableService.evCuesheetChanged: self.evVideoFramerateChanged,
+			iPlayableService.evUpdatedEventInfo: self.evVideoFramerateChanged,
+			iPlayableService.evGstreamerPlayStarted: self.evVideoFramerateChanged,
+			iPlayableService.evUpdatedInfo: self.evVideoFramerateChanged
 		})
 		self.delay = False
 		self.delayAuto = False
@@ -250,7 +261,58 @@ class AutoVideoMode(Screen):
 		self.detecttimerAuto = eTimer()
 		self.detecttimerAuto.callback.append(self.AutoVideoChangeDetect)
 
+	def evVideoFramerateChanged(self):
+		print("[VideoMode][evVideoFramerateChanged] Entered")
+		config_mode = str(config.av.videomode[config.av.videoport.value].value).replace("\n", "")
+		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
+		print(f"[VideoMode][VideoChanged] config_rate:{config_rate}")
+		delayAuto = 3000
+		if config_rate == "auto":  # minimum 500ms  
+			current_mode = eAVSwitch.getInstance().getVideoMode("")
+			video_rate = eAVSwitch.getInstance().getFrameRate(0)
+			if video_rate == 25000 :
+				new_rate = 50000
+			elif video_rate == 59940 or video_rate == 29970:
+				new_rate = 60000
+			elif video_rate == 23976:
+				new_rate = 24000
+			elif video_rate == 29970:
+				new_rate = 30000
+			else:
+				new_rate = video_rate
+			print(f"[VideoMode][evVideoFramerateChanged]1 new_rate:{new_rate}, video_rate:{video_rate}")
+			new_rate = str((new_rate + 500) // 1000)
+			print(f"[VideoMode][evVideoFramerateChanged]2 new_rate:{new_rate}, video_rate:{video_rate}")
+			try:			
+				with open(f"{videomode}_{new_rate}hz", "r") as fd:
+					multi_videomode = fd.read().replace("\n", "")
+			except:
+				return
+			print(f"[VideoMode][evVideoFramerateChanged]new_rate:{new_rate}, multi_videomode:{multi_videomode}")
+			eAVSwitch.getInstance().setVideoMode(multi_videomode)
+			read_mode = eAVSwitch.getInstance().getVideoMode("")
+			print(f"[VideoMode][evVideoFramerateChanged] fd.multi_videomode:{multi_videomode}, read_mode:{read_mode}")
+			if not self.detecttimerAuto.isActive() and not self.delayAuto:
+				self.delayAuto = True
+				print(f"[VideoMode][evVideoFramerateChanged]not self.detecttimerAuto.IS Active delayAuto:{delayAuto} Entered")
+			else:
+				self.delayAuto = True
+				self.detecttimerAuto.stop()
+				print(f"[VideoMode][evVideoFramerateChanged]not self.detecttimerAuto.NOT Active delayAuto:{delayAuto} Entered")
+			self.detecttimerAuto.start(delayAuto)
+		else:
+			self.VideoChanged()
+
+	def AutoVideoChangeDetect(self):
+		print("[VideoMode][AutoVideoChangeDetect] Entered")
+		read_mode = eAVSwitch.getInstance().getVideoMode("")
+		print(f"[VideoMode][AutoVideoChangeDetect read_mode:{read_mode}")		
+		eAVSwitch.getInstance().setVideoMode(read_mode)
+		self.delayAuto = False
+		self.detecttimerAuto.stop()
+
 	def checkIfDedicated3D(self):
+		print("[VideoMode][checkIfDedicated3D] Entered")
 		service = self.session.nav.getCurrentlyPlayingServiceReference()
 		servicepath = service and service.getPath()
 		if servicepath and servicepath.startswith("/"):
@@ -265,6 +327,7 @@ class AutoVideoMode(Screen):
 		return info and info.getInfo(iServiceInformation.sIsDedicated3D) == 1 and "sidebyside"
 
 	def __evStart(self):
+		print("[VideoMode][__evStart] Entered")
 		if config.osd.threeDmode.value == "auto":
 			global isDedicated3D
 			isDedicated3D = self.checkIfDedicated3D()
@@ -274,53 +337,40 @@ class AutoVideoMode(Screen):
 				applySettings()
 
 	def BufferInfo(self):
+		print("[VideoMode][BufferInfo] Entered")
 		bufferInfo = self.session.nav.getCurrentService().streamed().getBufferCharge()
-		print(f"[VideoMode][BufferInfo] bufferInfo[0]:{bufferInfo[0]}")
 		if bufferInfo[0] > 98:
 			self.bufferfull = True
 			self.VideoChanged()
 		else:
 			self.bufferfull = False
 
+	def BufferInfoStop(self):
+		print("[VideoMode][BufferInfoStop] Entered")
+		self.bufferfull = True
+
+
 	def VideoChanged(self):
 		print("[VideoMode][VideoChanged] Entered")
 		config_mode = str(config.av.videomode[config.av.videoport.value].value).replace("\n", "")
 		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 		print(f"[VideoMode][VideoChanged] config_rate:{config_rate}")
-		delayAuto = 5000
-		if config_rate == "auto":  # minimum 500ms  
-			delay = 500
-		elif self.session.nav.getCurrentlyPlayingServiceReference() and not self.session.nav.getCurrentlyPlayingServiceReference().toString().startswith("4097:"):
-			delay = config.av.autores_delay.value
-			print(f"[VideoMode][VideoChanged] delay (single):{delay} delayAuto:{delayAuto}")
-		else:
-			delay = config.av.autores_delay.value * 2
-			print(f"[VideoMode][VideoChanged] delay (double):{delay} delayAuto:{delayAuto}")
-		if delay == 0:
-			delay=500 	
-		if not self.detecttimer.isActive() and not self.delay:
-			self.delay = True
-		else:
-			self.delay = True
-			self.detecttimer.stop()
-
-		if config_rate == "auto":
-			if not self.detecttimerAuto.isActive() and not self.delayAuto:
-				self.delayAuto = True
-				print(f"[VideoMode][VideoChanged]not self.detecttimerAuto.IS Active delayAuto:{delayAuto} Entered")
+		if config_rate != "auto":		
+			if self.session.nav.getCurrentlyPlayingServiceReference() and not self.session.nav.getCurrentlyPlayingServiceReference().toString().startswith("4097:"):
+				delay = config.av.autores_delay.value
+				print(f"[VideoMode][VideoChanged] delay (single):{delay} ")
 			else:
-				self.delayAuto = True
-				self.detecttimerAuto.stop()
-				print(f"[VideoMode][VideoChanged]not self.detecttimerAuto.NOT Active delayAuto:{delayAuto} Entered")
-			self.detecttimerAuto.start(delayAuto)
-		self.detecttimer.start(delay)
+				delay = config.av.autores_delay.value * 2
+				print(f"[VideoMode][VideoChanged] delay (double):{delay} ")
+			if delay == 0:
+				delay=500 	
+			if not self.detecttimer.isActive() and not self.delay:
+				self.delay = True
+			else:
+				self.delay = True
+				self.detecttimer.stop()
 
-	def AutoVideoChangeDetect(self):
-		print("[VideoMode][AutoVideoChangeDetect] Entered")
-		self.delay = False
-		self.delayAuto = False
-		self.detecttimer.stop()
-		self.detecttimerAuto.stop()
+			self.detecttimer.start(delay)
 
 	def VideoChangeDetect(self):
 		print("[VideoMode][VideoChangeDetect] Entered")
@@ -337,9 +387,7 @@ class AutoVideoMode(Screen):
 		except KeyError:
 			# print("[VideoMode][VideoChangeDetect] config_port Keyerror use current values", e)
 			self.delay = False
-			self.delayAuto = False
 			self.detecttimer.stop()
-			self.detecttimerAuto.stop()
 			return
 		current_mode = eAVSwitch.getInstance().getVideoMode("")
 		if current_mode.upper() in ("PAL", "NTSC"):
@@ -477,8 +525,6 @@ class AutoVideoMode(Screen):
 					try:
 						with open(f"{videomode}_{new_rate}hz", "r") as fd:
 							multi_videomode = fd.read().replace("\n", "")
-						# if new_rate != "60" and multi_videomode[-1] == "p" or multi_videomode[-1] == "i":
-							# multi_videomode += new_rate
 						print(f"[VideoMode][VideoChangeDetect]1 multi_videomode:{multi_videomode}, current_mode:{current_mode}")
 						if multi_videomode and (current_mode != multi_videomode):
 							write_mode = multi_videomode
@@ -505,9 +551,8 @@ class AutoVideoMode(Screen):
 					self.detecttimerAuto.stop()
 			else:
 				print(f"[VideoMode][VideoChangeDetect]6 VideoMode not changed write_mode: {write_mode} current_mode: {current_mode}")
-		if config_rate != "auto":
-			self.delay = False
-			self.detecttimer.stop()		
+		self.delay = False
+		self.detecttimer.stop()
 		iAV.setAspect(config.av.aspect)
 		iAV.setWss(config.av.wss)
 		iAV.setPolicy43(config.av.policy_43)
