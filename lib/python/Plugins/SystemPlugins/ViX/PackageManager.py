@@ -1,5 +1,3 @@
-from time import time
-
 from Components.Console import Console
 from Components.Ipkg import IpkgComponent
 from Components.Sources.List import List
@@ -208,8 +206,8 @@ class PackageManager(Screen):
 			tokens = x.split(" - ")
 			name = tokens[0].strip()
 			if not any(name.endswith(x) for x in self.unwanted_extensions):
-				l = len(tokens)
-				version = l > 1 and tokens[-1].strip() or ""
+				tokenLength = len(tokens)
+				version = tokenLength > 1 and tokens[-1].strip() or ""
 				packages[name] = version
 		return packages
 

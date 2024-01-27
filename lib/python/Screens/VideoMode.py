@@ -266,7 +266,7 @@ class AutoVideoMode(Screen):
 		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 		print(f"[VideoMode][VideoChanged] config_rate:{config_rate}")
 		delayAuto = 3000
-		if config_rate == "auto":  # minimum 500ms  
+		if config_rate == "auto":  # minimum 500ms
 			current_mode = eAVSwitch.getInstance().getVideoMode("")
 			video_rate = eAVSwitch.getInstance().getFrameRate(0)
 			if video_rate == 25000:
@@ -282,7 +282,7 @@ class AutoVideoMode(Screen):
 			print(f"[VideoMode][evVideoFramerateChanged]1 new_rate:{new_rate}, video_rate:{video_rate}")
 			new_rate = str((new_rate + 500) // 1000)
 			print(f"[VideoMode][evVideoFramerateChanged]2 new_rate:{new_rate}, video_rate:{video_rate}")
-			try:			
+			try:
 				with open(f"{videomode}_{new_rate}hz", "r") as fd:
 					multi_videomode = fd.read().replace("\n", "")
 			except:
@@ -305,7 +305,7 @@ class AutoVideoMode(Screen):
 	def AutoVideoChangeDetect(self):
 		print("[VideoMode][AutoVideoChangeDetect] Entered")
 		read_mode = eAVSwitch.getInstance().getVideoMode("")
-		print(f"[VideoMode][AutoVideoChangeDetect read_mode:{read_mode}")		
+		print(f"[VideoMode][AutoVideoChangeDetect read_mode:{read_mode}")
 		eAVSwitch.getInstance().setVideoMode(read_mode)
 		self.delayAuto = False
 		self.detecttimerAuto.stop()
@@ -348,13 +348,12 @@ class AutoVideoMode(Screen):
 		print("[VideoMode][BufferInfoStop] Entered")
 		self.bufferfull = True
 
-
 	def VideoChanged(self):
 		print("[VideoMode][VideoChanged] Entered")
 		config_mode = str(config.av.videomode[config.av.videoport.value].value).replace("\n", "")
 		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 		print(f"[VideoMode][VideoChanged] config_rate:{config_rate}")
-		if config_rate != "auto":		
+		if config_rate != "auto":
 			if self.session.nav.getCurrentlyPlayingServiceReference() and not self.session.nav.getCurrentlyPlayingServiceReference().toString().startswith("4097:"):
 				delay = config.av.autores_delay.value
 				print(f"[VideoMode][VideoChanged] delay (single):{delay} ")
@@ -362,7 +361,7 @@ class AutoVideoMode(Screen):
 				delay = config.av.autores_delay.value * 2
 				print(f"[VideoMode][VideoChanged] delay (double):{delay} ")
 			if delay == 0:
-				delay=500 	
+				delay = 500
 			if not self.detecttimer.isActive() and not self.delay:
 				self.delay = True
 			else:

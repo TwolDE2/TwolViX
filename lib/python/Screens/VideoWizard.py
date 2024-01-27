@@ -46,8 +46,8 @@ class VideoWizard(WizardLanguage, Rc):
 
 	def __init__(self, session):
 		self.xmlfile = resolveFilename(SCOPE_SKIN, "videowizard.xml")
-		from Components.AVSwitch import iAVSwitch as self.iAV
-		self.hw = self.iAV		# needed by VideoWizard.xml do not change
+		from Components.AVSwitch import iAVSwitch as iAV
+		self.hw = iAV		# needed by VideoWizard.xml do not change
 		WizardLanguage.__init__(self, session, showSteps=False, showStepSlider=False)
 		Rc.__init__(self)
 		self["wizard"] = Pixmap()
@@ -62,17 +62,17 @@ class VideoWizard(WizardLanguage, Rc):
 		return VideoWizardSummary
 
 	def markDone(self):
-		self.iAV.saveMode(self.port, self.mode, self.rate)
+		from Components.AVSwitch import iAVSwitch as iAV
+		iAV.saveMode(self.port, self.mode, self.rate)
 		config.misc.videowizardenabled.value = 0
 		config.misc.videowizardenabled.save()
 		configfile.save()
 
 	def listInputChannels(self):
-		# hw_type = HardwareInfo().get_device_name()
-		# has_hdmi = HardwareInfo().has_hdmi()
+		from Components.AVSwitch import iAVSwitch as iAV
 		list = []
-		for port in self.iAV.getPortList():
-			if self.iAV.isPortUsed(port):
+		for port in iAV.getPortList():
+			if iAV.isPortUsed(port):
 				descr = port
 				if descr == "Scart" and not SystemInfo["hasScart"]:
 					continue
@@ -88,8 +88,6 @@ class VideoWizard(WizardLanguage, Rc):
 		self.inputSelect(index)
 
 	def inputSelectionMoved(self):
-		# hw_type = HardwareInfo().get_device_name()
-		# has_hdmi = HardwareInfo().has_hdmi()
 		print("[VideoWizard] input selection moved:", self.selection)
 		self.inputSelect(self.selection)
 		if self["portpic"].instance is not None:
@@ -101,18 +99,20 @@ class VideoWizard(WizardLanguage, Rc):
 			self["portpic"].instance.setPixmapFromFile(resolveFilename(SCOPE_CURRENT_SKIN, "icons/%s.png" % picname))
 
 	def inputSelect(self, port):
+		from Components.AVSwitch import iAVSwitch as iAV
 		print("[VideoWizard] inputSelect:", port)
-		modeList = self.iAV.getModeList(self.selection)
+		modeList = iAV.getModeList(self.selection)
 		print("[VideoWizard] modeList:", modeList)
 		self.port = port
 		if len(modeList) > 0:
 			ratesList = self.listRates(modeList[0][0])
-			self.iAV.setMode(port=port, mode=modeList[0][0], rate=ratesList[0][0])
+			iAV.setMode(port=port, mode=modeList[0][0], rate=ratesList[0][0])
 
 	def listModes(self):
+		from Components.AVSwitch import iAVSwitch as iAV
 		list = []
 		print("[VideoWizard] modes for port", self.port)
-		for mode in self.iAV.getModeList(self.port):
+		for mode in iAV.getModeList(self.port):
 			# if mode[0] != "PC":
 			list.append((mode[0], mode[0]))
 		print("[VideoWizard] modeslist:", list)
@@ -128,20 +128,22 @@ class VideoWizard(WizardLanguage, Rc):
 		self.modeSelect(self.selection)
 
 	def modeSelect(self, mode):
+		from Components.AVSwitch import iAVSwitch as iAV
 		ratesList = self.listRates(mode)
 		print("[VideoWizard] ratesList:", ratesList)
 		if self.port == "HDMI" and mode in ("720p", "1080i", "1080p", "2160p"):
 			self.rate = "multi"
-			self.iAV.setMode(port=self.port, mode=mode, rate="multi")
+			iAV.setMode(port=self.port, mode=mode, rate="multi")
 		else:
-			self.iAV.setMode(port=self.port, mode=mode, rate=ratesList[0][0])
+			iAV.setMode(port=self.port, mode=mode, rate=ratesList[0][0])
 
 	def listRates(self, querymode=None):
+		from Components.AVSwitch import iAVSwitch as iAV
 		if querymode is None:
 			querymode = self.mode
 		list = []
 		print("[VideoWizard] modes for port", self.port, "and mode", querymode)
-		for mode in self.iAV.getModeList(self.port):
+		for mode in iAV.getModeList(self.port):
 			print("[VideoWizard] mode:", mode)
 			if mode[0] == querymode:
 				for rate in mode[1]:
@@ -163,7 +165,8 @@ class VideoWizard(WizardLanguage, Rc):
 		self.rateSelect(self.selection)
 
 	def rateSelect(self, rate):
-		self.iAV.setMode(port=self.port, mode=self.mode, rate=rate)
+		from Components.AVSwitch import iAVSwitch as iAV
+		iAV.setMode(port=self.port, mode=self.mode, rate=rate)
 
 	def showTestCard(self, selection=None):
 		if selection is None:
@@ -175,14 +178,15 @@ class VideoWizard(WizardLanguage, Rc):
 			config.misc.showtestcard.value = False
 
 	def keyNumberGlobal(self, number):
+		from Components.AVSwitch import iAVSwitch as iAV
 		if number in (1, 2, 3):
 			if number == 1:
-				self.iAV.saveMode("HDMI", "720p", "multi")
+				iAV.saveMode("HDMI", "720p", "multi")
 			elif number == 2:
-				self.iAV.saveMode("HDMI", "1080i", "multi")
+				iAV.saveMode("HDMI", "1080i", "multi")
 			elif number == 3:
-				self.iAV.saveMode("Scart", "Multi", "multi")
-			self.iAV.setConfiguredMode()
+				iAV.saveMode("Scart", "Multi", "multi")
+			iAV.setConfiguredMode()
 			self.close()
 
 		WizardLanguage.keyNumberGlobal(self, number)
