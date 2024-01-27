@@ -391,7 +391,7 @@ class HdmiCec:
 			ctrl0 = message.getControl0()
 			ctrl1 = message.getControl1()
 			ctrl2 = message.getControl2()
-			msgaddress = message.getAddress()	# 0 = TV, 5 = receiver 15 = broadcast
+			msgaddress = message.getAddress()  # 0 = TV, 5 = receiver 15 = broadcast
 			print(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd=%X, ctrl0={cmd}, length={ctrl0}")
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, ctrl0)
@@ -399,26 +399,26 @@ class HdmiCec:
 				print("[HdmiCEC][messageReceived1a]: msgaddress > 15 reset to 0")
 				msgaddress = 0
 			if cmd == 0x00:
-				if length == 0:	# only polling message ( it's same as ping )
+				if length == 0:  # only polling message ( it's same as ping )
 					print("[HdmiCEC][messageReceived1b]: received polling message")
 				else:
-					if ctrl0 == 68:	# feature abort
+					if ctrl0 == 68:  # feature abort
 						print(f"[HdmiCEC][messageReceived2]: volume forwarding not supported by device {msgaddress:02x}")
 						self.volumeForwardingEnabled = False
 			elif cmd == 0x46: # request name
 				self.sendMessage(msgaddress, "osdname")
 			elif cmd == 0x72 or cmd == 0x7e: # system audio mode status 114 or 126
 				if ctrl0 == 1:
-					self.volumeForwardingDestination = 5 # on: send volume keys to receiver
+					self.volumeForwardingDestination = 5  # on: send volume keys to receiver
 				else:
-					self.volumeForwardingDestination = 0 # off: send volume keys to tv
+					self.volumeForwardingDestination = 0  # off: send volume keys to tv
 				print(f"[HdmiCEC][messageReceived4]: volume forwarding={self.volumeForwardingDestination}, msgaddress={msgaddress}")
 				if config.hdmicec.volume_forwarding.value:
 					print(f"[HdmiCEC][messageReceived5]: volume forwarding to device {self.volumeForwardingDestination:02x}enabled")
 					self.volumeForwardingEnabled = True
-			elif cmd == 0x83: # request address
+			elif cmd == 0x83:  # request address
 				self.sendMessage(msgaddress, "reportaddress")
-			elif cmd == 0x85: # request active source
+			elif cmd == 0x85:  # request active source
 				if not Screens.Standby.inStandby:
 					if config.hdmicec.report_active_source.value:
 						self.sendMessage(msgaddress, "sourceactive")
@@ -430,30 +430,30 @@ class HdmiCec:
 					if not Screens.Standby.inStandby:
 						if config.hdmicec.report_active_source.value:
 							self.sendMessage(msgaddress, "sourceactive")
-			elif cmd == 0x8c: # request vendor id
+			elif cmd == 0x8c:  # request vendor id
 				self.sendMessage(msgaddress, "vendorid")
 			elif cmd == 0x8d: # menu request
-				if ctrl0 == 1: 			# query
+				if ctrl0 == 1:  # query
 					if Screens.Standby.inStandby:
 						self.sendMessage(msgaddress, "menuinactive")
 					else:
 						self.sendMessage(msgaddress, "menuactive")
-			elif cmd == 0x8f: # request power status
+			elif cmd == 0x8f:  # request power status
 				if Screens.Standby.inStandby:
 					self.sendMessage(msgaddress, "powerinactive")
 				else:
 					self.sendMessage(msgaddress, "poweractive")
-			elif cmd == 0x90: # receive powerstatus report
+			elif cmd == 0x90:  # receive powerstatus report
 				if ctrl0 == 0: 			# some box is powered
 					if config.hdmicec.next_boxes_detect.value:
 						self.useStandby = False
 					print("[HDMI-CEC][messageReceived7] powered box found")
-			elif cmd == 0x9F: # request get CEC version
+			elif cmd == 0x9F:  # request get CEC version
 				self.sendMessage(msgaddress, "sendcecversion")
 
 			if cmd == 0x36 and config.hdmicec.handle_tv_standby.value:  # handle standby request from the tv
 				self.handlingStandbyFromTV = True  # avoid echoing the "System Standby" command back to the tv
-				self.standby() # handle standby
+				self.standby()  # handle standby
 				self.handlingStandbyFromTV = False  # after handling the standby command, we are free to send "standby" ourselves again
 
 			if Screens.Standby.inStandby and config.hdmicec.handle_tv_wakeup.value:  # handle wakeup requests from the tv
