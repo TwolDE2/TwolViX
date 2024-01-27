@@ -460,7 +460,7 @@ class AutoVideoMode(Screen):
 					new_pol = new_pol.replace("i", "p")
 					print(f"[VideoMode][VideoChangeDetect] new_pol:{new_pol}")
 				# print(f"[VideoMode][VideoChangeDetect] AvailableVideomodes:{SystemInfo['AvailableVideomodes']}")
-				print(f"[VideoMode][VideoChangeDetect] new_res+new_pol+new_rate: {new_res+new_pol+new_rate}")
+				print(f"[VideoMode][VideoChangeDetect] new_res + new_pol + new_rate: {new_res + new_pol + new_rate}")
 				if new_res + new_pol + new_rate in SystemInfo["AvailableVideomodes"]:
 					new_mode = new_res + new_pol + new_rate
 					print(f"[VideoMode][VideoChangeDetect]1 new_mode:{new_mode}")
