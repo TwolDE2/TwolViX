@@ -405,9 +405,9 @@ class HdmiCec:
 					if ctrl0 == 68:  # feature abort
 						print(f"[HdmiCEC][messageReceived2]: volume forwarding not supported by device {msgaddress:02x}")
 						self.volumeForwardingEnabled = False
-			elif cmd == 0x46: # request name
+			elif cmd == 0x46:  # request name
 				self.sendMessage(msgaddress, "osdname")
-			elif cmd == 0x72 or cmd == 0x7e: # system audio mode status 114 or 126
+			elif cmd == 0x72 or cmd == 0x7e:  # system audio mode status 114 or 126
 				if ctrl0 == 1:
 					self.volumeForwardingDestination = 5  # on: send volume keys to receiver
 				else:
@@ -432,7 +432,7 @@ class HdmiCec:
 							self.sendMessage(msgaddress, "sourceactive")
 			elif cmd == 0x8c:  # request vendor id
 				self.sendMessage(msgaddress, "vendorid")
-			elif cmd == 0x8d: # menu request
+			elif cmd == 0x8d:  # menu request
 				if ctrl0 == 1:  # query
 					if Screens.Standby.inStandby:
 						self.sendMessage(msgaddress, "menuinactive")
