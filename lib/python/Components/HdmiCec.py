@@ -355,13 +355,13 @@ class HdmiCec:
 		self.handlingStandbyFromTV = False
 		if config.hdmicec.enabled.value:
 			countDots = config.hdmicec.fixed_physical_address.value.count(".")
-			print(f"[HdmiCEC][init]2countDots:{countDots}")						
+			print(f"[HdmiCEC][init]2countDots:{countDots}")					
 			if countDots == 3 and config.hdmicec.fixed_physical_address.value[1:3] != ".0":
 				try:
 					print(f"[HdmiCEC][init]phsyical address changed by setup value:{config.hdmicec.fixed_physical_address.value}")
 					setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
 				except:
-					setFixedPhysicalAddress("0.0.0.0")				
+					setFixedPhysicalAddress("0.0.0.0")
 		else:
 			print("[HdmiCEC][init] no set physical address ")
 			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver

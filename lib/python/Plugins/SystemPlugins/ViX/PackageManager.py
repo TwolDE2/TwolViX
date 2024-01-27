@@ -199,6 +199,7 @@ class PackageManager(Screen):
 
 	def OpkgListUpgradeable_Finished(self, result, retval, extra_args=None):
 		if result:
+			self.upgradeable_packages = self.parseResult(result)
 		self.buildPacketList()
 
 	def parseResult(self, result):

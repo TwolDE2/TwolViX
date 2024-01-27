@@ -88,7 +88,6 @@ class VideoSetup(ConfigListScreen, Screen):
 			self.list.append(getConfigListEntry(_("Delay time"), config.av.autores_delay, _("Set the time before checking video source for resolution/refresh rate infomation.")))
 		port = config.av.videoport.value
 		mode = config.av.videomode[port].value if port in config.av.videomode else None
-
 		# some modes (720p, 1080i) are always widescreen. Don't let the user select something here, "auto" is not what he wants.
 		force_wide = iAV.isWidescreenMode(port, mode)
 		# if not force_wide:
@@ -243,8 +242,8 @@ class AutoVideoMode(Screen):
 			iPlayableService.evVideoProgressiveChanged: self.evVideoFramerateChanged,
 			iPlayableService.evVideoFramerateChanged: self.evVideoFramerateChanged,
 			iPlayableService.evStart: self.__evStart,
-			#iPlayableService.evBuffering: self.BufferInfo,
-			#iPlayableService.evEnd: self.BufferInfoStop,
+			# iPlayableService.evBuffering: self.BufferInfo,
+			# iPlayableService.evEnd: self.BufferInfoStop,
 			iPlayableService.evSeekableStatusChanged: self.evVideoFramerateChanged,
 			iPlayableService.evEOF: self.evVideoFramerateChanged,
 			iPlayableService.evSOF: self.evVideoFramerateChanged,
@@ -270,7 +269,7 @@ class AutoVideoMode(Screen):
 		if config_rate == "auto":  # minimum 500ms  
 			current_mode = eAVSwitch.getInstance().getVideoMode("")
 			video_rate = eAVSwitch.getInstance().getFrameRate(0)
-			if video_rate == 25000 :
+			if video_rate == 25000:
 				new_rate = 50000
 			elif video_rate == 59940 or video_rate == 29970:
 				new_rate = 60000

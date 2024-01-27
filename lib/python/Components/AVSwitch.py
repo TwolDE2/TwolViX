@@ -259,10 +259,10 @@ class AVSwitch:
 		self.setMode(port, mode, rate)
 
 	def setAspect(self, configElement):
-		eAVSwitch.getInstance().setAspect(configElement.value, 1)	
+		eAVSwitch.getInstance().setAspect(configElement.value, 1)
 		print(f"[AVSwitch] setting aspect:{configElement.value}")
-#		with open("/proc/stb/video/aspect", "w") as fd:
-#			fd.write(configElement.value)
+		with open("/proc/stb/video/aspect", "w") as fd:
+			fd.write(configElement.value)
 
 	def setWss(self, configElement):
 		if not configElement.value:
@@ -275,11 +275,11 @@ class AVSwitch:
 
 	def setPolicy43(self, configElement):
 		print(f"[AVSwitch] setting policy43:{configElement.value}")
-		eAVSwitch.getInstance().setPolicy43(configElement.value, 1)		
+		eAVSwitch.getInstance().setPolicy43(configElement.value, 1)
 
 	def setPolicy169(self, configElement):
-		print(f"[AVSwitch] setting policy169:{configElement.value}")	
-		eAVSwitch.getInstance().setPolicy169(configElement.value, 1)	
+		print(f"[AVSwitch] setting policy169:{configElement.value}")
+		eAVSwitch.getInstance().setPolicy169(configElement.value, 1)
 
 	def getOutputAspect(self):
 		ret = (16, 9)
