@@ -238,77 +238,24 @@ class AutoVideoMode(Screen):
 		self.current3dmode = config.osd.threeDmode.value
 		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={
 			iPlayableService.evStart: self.__evStart,
-			iPlayableService.evVideoSizeChanged: self.evVideoFramerateChanged,
-			iPlayableService.evVideoProgressiveChanged: self.evVideoFramerateChanged,
-			iPlayableService.evVideoFramerateChanged: self.evVideoFramerateChanged,
-			iPlayableService.evStart: self.__evStart,
-			# iPlayableService.evBuffering: self.BufferInfo,
-			# iPlayableService.evEnd: self.BufferInfoStop,
-			iPlayableService.evSeekableStatusChanged: self.evVideoFramerateChanged,
-			iPlayableService.evEOF: self.evVideoFramerateChanged,
-			iPlayableService.evSOF: self.evVideoFramerateChanged,
-			iPlayableService.evCuesheetChanged: self.evVideoFramerateChanged,
-			iPlayableService.evUpdatedEventInfo: self.evVideoFramerateChanged,
-			iPlayableService.evGstreamerPlayStarted: self.evVideoFramerateChanged,
-			iPlayableService.evUpdatedInfo: self.evVideoFramerateChanged
+			iPlayableService.evEnd: self.isVideoFramerateChanged,
+			iPlayableService.evSeekableStatusChanged: self.isVideoFramerateChanged,
+			iPlayableService.evVideoSizeChanged: self.isVideoFramerateChanged,
+			iPlayableService.evVideoProgressiveChanged: self.isVideoFramerateChanged,
+			iPlayableService.evVideoFramerateChanged: self.isVideoFramerateChanged,			
+			iPlayableService.evCuesheetChanged: self.isVideoFramerateChanged,
+			iPlayableService.evUpdatedInfo: self.isVideoFramerateChanged,
+			#  iPlayableService.evUpdatedEventInfo: self.evUpdatedEventInfo,			
+			#  iPlayableService.evEOF: self.evEOF,
+			#  iPlayableService.evSOF: self.evSOF,			
+			#  iPlayableService.evGstreamerPlayStarted: self.evGstreamerPlayStarted,
+			#  iPlayableService.evBuffering: self.evBuffering,
 		})
 		self.delay = False
 		self.delayAuto = False
 		self.bufferfull = True
 		self.detecttimer = eTimer()
 		self.detecttimer.callback.append(self.VideoChangeDetect)
-		self.detecttimerAuto = eTimer()
-		self.detecttimerAuto.callback.append(self.AutoVideoChangeDetect)
-
-	def evVideoFramerateChanged(self):
-		print("[VideoMode][evVideoFramerateChanged] Entered")
-		config_mode = str(config.av.videomode[config.av.videoport.value].value).replace("\n", "")
-		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
-		print(f"[VideoMode][VideoChanged] config_rate:{config_rate}")
-		delayAuto = 3000
-		if config_rate == "auto":  # minimum 500ms
-			current_mode = eAVSwitch.getInstance().getVideoMode("")
-			video_rate = eAVSwitch.getInstance().getFrameRate(0)
-			if video_rate == 25000:
-				new_rate = 50000
-			elif video_rate == 59940 or video_rate == 29970:
-				new_rate = 60000
-			elif video_rate == 23976:
-				new_rate = 24000
-			elif video_rate == 29970:
-				new_rate = 30000
-			else:
-				new_rate = video_rate
-			print(f"[VideoMode][evVideoFramerateChanged]1 new_rate:{new_rate}, video_rate:{video_rate}")
-			new_rate = str((new_rate + 500) // 1000)
-			print(f"[VideoMode][evVideoFramerateChanged]2 new_rate:{new_rate}, video_rate:{video_rate}")
-			try:
-				with open(f"{videomode}_{new_rate}hz", "r") as fd:
-					multi_videomode = fd.read().replace("\n", "")
-			except:
-				return
-			print(f"[VideoMode][evVideoFramerateChanged]new_rate:{new_rate}, multi_videomode:{multi_videomode}")
-			eAVSwitch.getInstance().setVideoMode(multi_videomode)
-			read_mode = eAVSwitch.getInstance().getVideoMode("")
-			print(f"[VideoMode][evVideoFramerateChanged] fd.multi_videomode:{multi_videomode}, read_mode:{read_mode}")
-			if not self.detecttimerAuto.isActive() and not self.delayAuto:
-				self.delayAuto = True
-				print(f"[VideoMode][evVideoFramerateChanged]not self.detecttimerAuto.IS Active delayAuto:{delayAuto} Entered")
-			else:
-				self.delayAuto = True
-				self.detecttimerAuto.stop()
-				print(f"[VideoMode][evVideoFramerateChanged]not self.detecttimerAuto.NOT Active delayAuto:{delayAuto} Entered")
-			self.detecttimerAuto.start(delayAuto)
-		else:
-			self.VideoChanged()
-
-	def AutoVideoChangeDetect(self):
-		print("[VideoMode][AutoVideoChangeDetect] Entered")
-		read_mode = eAVSwitch.getInstance().getVideoMode("")
-		print(f"[VideoMode][AutoVideoChangeDetect read_mode:{read_mode}")
-		eAVSwitch.getInstance().setVideoMode(read_mode)
-		self.delayAuto = False
-		self.detecttimerAuto.stop()
 
 	def checkIfDedicated3D(self):
 		print("[VideoMode][checkIfDedicated3D] Entered")
@@ -327,6 +274,7 @@ class AutoVideoMode(Screen):
 
 	def __evStart(self):
 		print("[VideoMode][__evStart] Entered")
+		self.isVideoFramerateChanged()	
 		if config.osd.threeDmode.value == "auto":
 			global isDedicated3D
 			isDedicated3D = self.checkIfDedicated3D()
@@ -334,6 +282,63 @@ class AutoVideoMode(Screen):
 				applySettings(isDedicated3D)
 			else:
 				applySettings()
+
+	def __evEnd(self):
+		print("[VideoMode][__evEnd] Entered")
+		self.isVideoFramerateChanged()
+		
+	def evEOF(self):
+		print("[VideoMode][evEOF] Entered")
+		self.isVideoFramerateChanged()
+		
+	def evSOF(self):
+		print("[VideoMode][evSOF] Entered")
+		self.isVideoFramerateChanged()
+
+	def evCuesheetChanged(self):
+		print("[VideoMode][evCuesheetChanged] Entered")
+		self.isVideoFramerateChanged()
+
+	def evUpdatedEventInfo(self):
+		print("[VideoMode][evUpdatedEventInfo] Entered")
+		self.isVideoFramerateChanged()
+
+	def evUpdatedInfo(self):
+		print("[VideoMode][evUpdatedEventInfo] Entered")
+		self.isVideoFramerateChanged()
+
+	def evGstreamerPlayStarted(self):
+		print("[VideoMode][evGstreamerPlayStarted] Entered")
+		self.isVideoFramerateChanged()
+
+	def evVideoSizeChanged(self):
+		print("[VideoMode][evVideoSizeChanged] Entered")
+		self.isVideoFramerateChanged()
+
+	def evVideoProgressiveChanged(self):
+		print("[VideoMode][evVideoProgressiveChanged] Entered")
+		self.isVideoFramerateChanged()
+
+	def evVideoFramerateChanged(self):
+		print("[VideoMode][evVideoFramerateChanged] Entered")
+		self.isVideoFramerateChanged()
+		
+	def evVideoGammaChange(self):
+		print("[VideoMode][evVideoGammaChange] Entered")
+		self.isVideoFramerateChanged()
+
+	def evUpdatedInfo(self):
+		print("[VideoMode][evUpdatedInfo] Entered")
+		self.isVideoFramerateChanged()		
+		
+		
+	def seekstatus(self):
+		print("[VideoMode][seekstatus] Entered")
+		self.isVideoFramerateChanged()
+		
+	def evBuffering(self):
+		print("[VideoMode][evBuffering] Entered")
+		self.isVideoFramerateChanged()
 
 	def BufferInfo(self):
 		print("[VideoMode][BufferInfo] Entered")
@@ -347,6 +352,52 @@ class AutoVideoMode(Screen):
 	def BufferInfoStop(self):
 		print("[VideoMode][BufferInfoStop] Entered")
 		self.bufferfull = True
+
+	def isVideoFramerateChanged(self):
+		print("[VideoMode][isVideoFramerateChanged] Entered")
+		config_mode = str(config.av.videomode[config.av.videoport.value].value).replace("\n", "")
+		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
+		#  print(f"[VideoMode][isVideoFramerateChanged] config_rate:{config_rate}")
+		if config_rate == "auto":
+			current_mode = eAVSwitch.getInstance().getVideoMode("")
+			current_rate = current_mode.replace("2160p", "").replace("1050p", "").replace(" ", "")
+			video_rate = eAVSwitch.getInstance().getFrameRate(0)
+			if video_rate == 25000:
+				new_rate = 50000
+			elif video_rate == 59940 or video_rate == 29970:
+				new_rate = 60000
+			elif video_rate == 23976:
+				new_rate = 24000
+			elif video_rate == 29970:
+				new_rate = 30000
+			else:
+				new_rate = video_rate
+			#  print(f"[VideoMode][isVideoFramerateChanged]1 new_rate:{new_rate}, video_rate:{video_rate}, current_mode:{current_mode}")
+			new_rate = str((new_rate + 500) // 1000)
+			print(f"[VideoMode][isVideoFramerateChanged]1a  new_rate:{new_rate}, current_rate:{current_rate}, current_rate_len:{len(current_rate)}")			
+			if len(current_rate) == 0 and new_rate == "60":	#  handle 2160p60 is 2160
+				return
+			elif new_rate == current_rate: # if current rate is same, do nothing
+				return
+			else:	
+				#  print(f"[VideoMode][isVideoFramerateChanged]3 new_rate:{new_rate}, video_rate:{video_rate}")
+				try:			
+					with open(f"{videomode}_{new_rate}hz", "r") as fd:
+						multi_videomode = fd.read().replace("\n", "")
+				except:
+					return
+				print(f"[VideoMode][isVideoFramerateChanged]new_rate:{new_rate}, multi_videomode:{multi_videomode}")
+				eAVSwitch.getInstance().setVideoMode(multi_videomode)
+		else:
+			self.VideoChanged()
+
+	def AutoVideoChangeDetect(self):
+		print("[VideoMode][AutoVideoChangeDetect] Entered")
+		read_mode = eAVSwitch.getInstance().getVideoMode("")
+		print(f"[VideoMode][AutoVideoChangeDetect read_mode:{read_mode}")
+		eAVSwitch.getInstance().setVideoMode(read_mode)
+		self.delayAuto = False
+		self.detecttimerAuto.stop()
 
 	def VideoChanged(self):
 		print("[VideoMode][VideoChanged] Entered")
@@ -544,9 +595,6 @@ class AutoVideoMode(Screen):
 				print(f"[VideoMode]3 fd.write_mode:{write_mode}, read_mode:{read_mode}")
 				self.delay = False
 				self.detecttimer.stop()
-				if config_rate == "auto":
-					self.delayAuto = False
-					self.detecttimerAuto.stop()
 			else:
 				print(f"[VideoMode][VideoChangeDetect]6 VideoMode not changed write_mode: {write_mode} current_mode: {current_mode}")
 		self.delay = False
