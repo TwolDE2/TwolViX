@@ -126,7 +126,7 @@ class VIXIPKInstaller(Screen):
 			self.loadDir = "/media/usb"
 			for line in f:
 				if line.find(".ipk") != -1:
-					#  print(f"[IPKinstaller]2 f:{f} line:{line}")		
+					#  print(f"[IPKinstaller]2 f:{f} line:{line}")
 					self.list.append(path.join(self.loadDir, line))
 
 		self.list.sort()
@@ -143,7 +143,7 @@ class VIXIPKInstaller(Screen):
 			sel = self["list"].getCurrent()
 			if sel:
 				cmd1 = f"/usr/bin/opkg install {sel}"
-				print(f"[IPKinstaller]4 sel:{sel}, cmd1:{cmd1}")				
+				print(f"[IPKinstaller]4 sel:{sel}, cmd1:{cmd1}")
 				self.session.openWithCallback(self.installFinished(sel), Console, title=_("Installing..."), cmdlist=[cmd1], closeOnSuccess=True)
 
 	def installFinished(self, sel):
