@@ -12,6 +12,7 @@ from Components.Sources.Boolean import Boolean
 from Components.SystemInfo import SystemInfo
 from Screens.ChannelSelection import FLAG_IS_DEDICATED_3D
 from Screens.Screen import Screen
+from Screens.Standby import TryQuitMainloop
 from Tools.Directories import isPluginInstalled
 from Tools.HardwareInfo import HardwareInfo
 
@@ -177,7 +178,10 @@ class VideoSetup(ConfigListScreen, Screen):
 			config.av.videorate[self.last_good[1]].setValue(self.last_good[2])
 			iAV.setMode(*self.last_good)
 		else:
-			self.keySave()
+			if config.av.videorate[config.av.videomode[config.av.videoport.value].value].value != "auto"
+				self.keySave()
+			else:
+				self.session.open(TryQuitMainloop, 3)
 
 	def grabLastGoodMode(self):
 		port = config.av.videoport.value
