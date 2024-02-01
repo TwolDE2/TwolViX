@@ -282,6 +282,7 @@ class AutoVideoMode(Screen):
 				applySettings(isDedicated3D)
 			else:
 				applySettings()
+		self.isVideoFramerateChanged()
 
 	def __evEnd(self):
 		print("[VideoMode][__evEnd] Entered")
@@ -359,45 +360,15 @@ class AutoVideoMode(Screen):
 		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
 		#  print(f"[VideoMode][isVideoFramerateChanged] config_rate:{config_rate}")
 		if config_rate == "auto":
-			current_mode = eAVSwitch.getInstance().getVideoMode("")
-			current_rate = current_mode.replace("2160p", "").replace("1050p", "").replace(" ", "")
-			video_rate = eAVSwitch.getInstance().getFrameRate(0)
-			if video_rate == 25000:
-				new_rate = 50000
-			elif video_rate == 59940 or video_rate == 29970:
-				new_rate = 60000
-			elif video_rate == 23976:
-				new_rate = 24000
-			elif video_rate == 29970:
-				new_rate = 30000
-			else:
-				new_rate = video_rate
-			#  print(f"[VideoMode][isVideoFramerateChanged]1 new_rate:{new_rate}, video_rate:{video_rate}, current_mode:{current_mode}")
-			new_rate = str((new_rate + 500) // 1000)
-			print(f"[VideoMode][isVideoFramerateChanged]1a  new_rate:{new_rate}, current_rate:{current_rate}, current_rate_len:{len(current_rate)}")			
-			if len(current_rate) == 0 and new_rate == "60":	#  handle 2160p60 is 2160
-				return
-			elif new_rate == current_rate: # if current rate is same, do nothing
-				return
-			else:	
-				#  print(f"[VideoMode][isVideoFramerateChanged]3 new_rate:{new_rate}, video_rate:{video_rate}")
-				try:			
-					with open(f"{videomode}_{new_rate}hz", "r") as fd:
-						multi_videomode = fd.read().replace("\n", "")
-				except:
-					return
-				print(f"[VideoMode][isVideoFramerateChanged]new_rate:{new_rate}, multi_videomode:{multi_videomode}")
-				eAVSwitch.getInstance().setVideoMode(multi_videomode)
+			print(f"[VideoMode][isVideoFramerateChanged] config_rate:{config_rate} leave VideoMode")
+			return
 		else:
-			self.VideoChanged()
-
-	def AutoVideoChangeDetect(self):
-		print("[VideoMode][AutoVideoChangeDetect] Entered")
-		read_mode = eAVSwitch.getInstance().getVideoMode("")
-		print(f"[VideoMode][AutoVideoChangeDetect read_mode:{read_mode}")
-		eAVSwitch.getInstance().setVideoMode(read_mode)
-		self.delayAuto = False
-		self.detecttimerAuto.stop()
+			print("[VideoMode][AutoVideoChangeDetect] Entered")
+			read_mode = eAVSwitch.getInstance().getVideoMode("")
+			print(f"[VideoMode][AutoVideoChangeDetect read_mode:{read_mode}")
+			eAVSwitch.getInstance().setVideoMode(read_mode)
+			self.delayAuto = False
+			self.detecttimerAuto.stop()
 
 	def VideoChanged(self):
 		print("[VideoMode][VideoChanged] Entered")
@@ -607,11 +578,16 @@ class AutoVideoMode(Screen):
 
 def autostart(session):
 	global resolutionlabel
-	if not isPluginInstalled("AutoResolution"):
-		if resolutionlabel is None:
-			resolutionlabel = session.instantiateDialog(AutoVideoModeLabel)
-		AutoVideoMode(session)
-	else:
+	print("[VideoMode][autostart] AutoVideoMode enabled")	
+	if isPluginInstalled("AutoResolution"):
 		config.av.autores.setValue(False)
 		config.av.autores.save()
 		configfile.save()
+	else:
+		config_mode = str(config.av.videomode[config.av.videoport.value].value).replace("\n", "")
+		config_rate = str(config.av.videorate[config_mode].value).replace("Hz", "").replace("\n", "")
+		print(f"[VideoMode][autostart] config_rate:{config_rate}")
+		if config_rate != "auto":
+			if resolutionlabel is None:
+				resolutionlabel = session.instantiateDialog(AutoVideoModeLabel)
+			AutoVideoMode(session)

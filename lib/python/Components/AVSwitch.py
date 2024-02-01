@@ -119,53 +119,53 @@ class AVSwitch:
 		# we can ignore "port"
 		self.current_mode = mode
 		self.current_port = port
-		modes = self.rates[mode][rate]
-		mode_50 = modes.get(50)
-		mode_60 = modes.get(60)
-		mode_24 = modes.get(24)
-		if mode_50 is None or force == 60:
-			mode_50 = mode_60
-		if mode_60 is None or force == 50:
-			mode_60 = mode_50
-		if mode_24 is None or force:
-			mode_24 = mode_60
-			if force == 50:
-				mode_24 = mode_50
-		print(f"[AVSwitch] setMode - mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")
-		try:
-			with open("/proc/stb/video/videomode_50hz", "w") as fd:
-				fd.write(mode_50)
-			print(f"[AVSwitch][setMode][videomode_50hz] set to {mode_50}")
-		except (IOError, OSError):
-			print("[AVSwitch] cannot open /proc/stb/video/videomode_50hz")
-		try:
-			with open("/proc/stb/video/videomode_60hz", "w") as fd:
-				fd.write(mode_60)
-			print(f"[AVSwitch][setMode][videomode_60hz] set to {mode_60}")
-		except (IOError, OSError):
-			print("[AVSwitch] cannot open /proc/stb/video/videomode_60hz")
-
-		if SystemInfo["Has24hz"]:
+		if rate != "auto":
+			modes = self.rates[mode][rate]
+			mode_50 = modes.get(50)
+			mode_60 = modes.get(60)
+			mode_24 = modes.get(24)
+			print(f"[AVSwitch] setMode - mode: {mode}, mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")		
+			if mode_50 is None or force == 60:
+				mode_50 = mode_60
+			if mode_60 is None or force == 50:
+				mode_60 = mode_50
+			if mode_24 is None or force:
+				mode_24 = mode_60
+				if force == 50:
+					mode_24 = mode_50
+			print(f"[AVSwitch] setMode - mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")
 			try:
-				with open("/proc/stb/video/videomode_24hz", "w") as fd:
-					fd.write(mode_24)
-					print(f"[AVSwitch][setMode][videomode_24hz] set to {mode_24}")
-			except (IOError, OSError):
-				print("[AVSwitch] cannot open /proc/stb/video/videomode_24hz")
-
-		if SystemInfo["brand"] in ("gigablue",):
-			try:
-				# use 50Hz mode (if available) for booting
-				with open("/etc/videomode", "w") as fd:
+				with open("/proc/stb/video/videomode_50hz", "w") as fd:
 					fd.write(mode_50)
-			except IOError:
-				print("[AVSwitch] GigaBlue writing initial videomode to /etc/videomode failed.")
-		try:
-			set_mode = modes.get(int(rate))
-		except Exception:  # Don't support 50Hz, 60Hz for 1080p.
-			set_mode = mode_50
-		print(f"[AVSwitch][videomode] set to: {set_mode}")
-		eAVSwitch.getInstance().setVideoMode(set_mode)
+				print(f"[AVSwitch][setMode][videomode_50hz] set to {mode_50}")
+			except (IOError, OSError):
+				mode_50 = "XXXX"
+				print("[AVSwitch] cannot open /proc/stb/video/videomode_50hz")
+			try:
+				with open("/proc/stb/video/videomode_60hz", "w") as fd:
+					fd.write(mode_60)
+				print(f"[AVSwitch][setMode][videomode_60hz] set to {mode_60}")
+			except (IOError, OSError):
+				mode_60 = "XXXX"		
+				print("[AVSwitch] cannot open /proc/stb/video/videomode_60hz")
+
+			if SystemInfo["Has24hz"]:
+				try:
+					with open("/proc/stb/video/videomode_24hz", "w") as fd:
+						fd.write(mode_24)
+						print(f"[AVSwitch][setMode][videomode_24hz] set to {mode_24}")
+				except (IOError, OSError):
+					mode_24 = "XXXX"			
+					print("[AVSwitch] cannot open /proc/stb/video/videomode_24hz")
+
+			if SystemInfo["brand"] in ("gigablue",):
+				try:
+					# use 50Hz mode (if available) for booting
+					with open("/etc/videomode", "w") as fd:
+						fd.write(mode_50)
+				except IOError:
+					print("[AVSwitch] GigaBlue writing initial videomode to /etc/videomode failed.")
+		print(f"[AVSwitch] setMode ####reached AVSwitch setmode end - mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")				
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
