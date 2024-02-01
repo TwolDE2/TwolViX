@@ -165,7 +165,8 @@ class AVSwitch:
 						fd.write(mode_50)
 				except IOError:
 					print("[AVSwitch] GigaBlue writing initial videomode to /etc/videomode failed.")
-		print(f"[AVSwitch] setMode ####reached AVSwitch setmode end - mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")				
+			print(f"[AVSwitch]1 setMode ####reached AVSwitch setmode end - mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")				
+		print("[AVSwitch]2 setMode ####reached AVSwitch setmode end ")
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
