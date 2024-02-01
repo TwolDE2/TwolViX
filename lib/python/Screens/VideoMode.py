@@ -178,7 +178,7 @@ class VideoSetup(ConfigListScreen, Screen):
 			config.av.videorate[self.last_good[1]].setValue(self.last_good[2])
 			iAV.setMode(*self.last_good)
 		else:
-			if config.av.videorate[config.av.videomode[config.av.videoport.value].value].value != "auto"
+			if config.av.videorate[config.av.videomode[config.av.videoport.value].value].value != "auto":
 				self.keySave()
 			else:
 				self.session.open(TryQuitMainloop, 3)
