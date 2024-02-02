@@ -3,7 +3,7 @@ from enigma import iPlayableService, iServiceInformation, eTimer, eServiceCenter
 
 from Components.ActionMap import ActionMap
 from Components.AVSwitch import iAVSwitch as iAV
-from Components.config import config, configfile, getConfigListEntry
+from Components.config import config, getConfigListEntry
 from Components.ConfigList import ConfigListScreen
 from Components.Label import Label
 from Components.Pixmap import Pixmap
@@ -22,6 +22,7 @@ previous = None
 isDedicated3D = False
 videomode = "/proc/stb/video/videomode"
 
+
 def getConfig_videomode(getmode, getrate):
 	port = config.av.videoport.value
 	mode = getmode[port].value
@@ -29,6 +30,7 @@ def getConfig_videomode(getmode, getrate):
 	pol = mode.replace("p30", "p")[-1:]
 	rate = getrate[mode].value.replace("Hz", "")
 	return port, mode, res, pol, rate
+
 
 def setProgressiveRate(vid_rate, new_rate, new_res, config_res, config_rate):
 	if vid_rate == 24:
@@ -49,6 +51,7 @@ def setProgressiveRate(vid_rate, new_rate, new_res, config_res, config_rate):
 	if int(new_res) >= int(config_res) and config_rate not in ("auto", "multi") and int(config_rate) < int(new_rate):
 		new_rate = config_rate
 	return new_rate
+
 
 class VideoSetup(ConfigListScreen, Screen):
 	def __init__(self, session):
