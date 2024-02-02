@@ -368,8 +368,9 @@ def runScreenTest():
 			session.scart = AutoScartControl(session)
 
 		profile("Init:AutoVideoMode")
-		import Screens.VideoMode
-		Screens.VideoMode.autostart(session)
+		if config.av.autores.value != "disabled":
+			import Screens.VideoMode
+			Screens.VideoMode.autostart(session)
 
 	profile("RunReactor")
 	profile_final()
