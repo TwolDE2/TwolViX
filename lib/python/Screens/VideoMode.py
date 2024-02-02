@@ -225,7 +225,6 @@ class VideoSetup(ConfigListScreen, Screen):
 		rate = config.av.videorate[mode].value
 		if (port, mode, rate) != self.last_good:
 			iAV.setMode(port, mode, rate)
-			from Screens.MessageBox import MessageBox
 			self.session.openWithCallback(self.confirm, MessageBox, _("Is this video mode ok?"), MessageBox.TYPE_YESNO, timeout=20, default=False)
 		else:
 			self.keySave()
@@ -272,12 +271,12 @@ class AutoVideoMode(Screen):
 			iPlayableService.evVideoFramerateChanged: self.VideoChanged,
 			# iPlayableService.evBuffering: self.evBuffering,
 			# iPlayableService.evEnd: self.VideoChanged,
-			# iPlayableService.evSeekableStatusChanged: self.VideoChanged,			
+			# iPlayableService.evSeekableStatusChanged: self.VideoChanged,
 			# iPlayableService.evCuesheetChanged: self.VideoChanged,
 			# iPlayableService.evUpdatedInfo: self.VideoChanged,
-			# iPlayableService.evUpdatedEventInfo: self.evUpdatedEventInfo,			
+			# iPlayableService.evUpdatedEventInfo: self.evUpdatedEventInfo,
 			# iPlayableService.evEOF: self.evEOF,
-			# iPlayableService.evSOF: self.evSOF,			
+			# iPlayableService.evSOF: self.evSOF,
 			# iPlayableService.evGstreamerPlayStarted: self.evGstreamerPlayStarted,
 
 		})
@@ -328,7 +327,7 @@ class AutoVideoMode(Screen):
 		if config.av.autores.value == "disabled":
 			print("[VideoMode] autoresolution is disabled - resolution not changed !")
 			return
-		else:	
+		else:
 			print("[VideoMode][VideoChanged] Entered")
 			if self.session.nav.getCurrentlyPlayingServiceReference() and not self.session.nav.getCurrentlyPlayingServiceReference().toString().startswith("4097:"):
 				delay = config.av.autores_delay.value

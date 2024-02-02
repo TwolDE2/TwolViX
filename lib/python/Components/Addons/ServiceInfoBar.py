@@ -113,11 +113,11 @@ class ServiceInfoBar(GUIAddon):
 			service = self.nav.getCurrentService()
 			info = service and service.info()
 			isRef = isinstance(service, eServiceReference)
-			#self.current_info = info
+			# self.current_info = info
 			if not info:
 				return None
 			video_height = None
-			video_aspect = None
+			# video_aspect = None
 			video_height = getVideoHeight(info)
 			if key == "videoRes":
 				if video_height >= 720 and video_height < 1500:
@@ -230,11 +230,11 @@ class ServiceInfoBar(GUIAddon):
 					else:
 						textWidth = self._calcTextWidth(self.current_crypto, font=self.font, size=eSize(self.getDesktopWith() // 3, 0))
 						res.append(MultiContentEntryText(
-								pos=(xPos - textWidth, yPos - 2), size=(textWidth, self.instance.size().height()),
-								font=0, flags=RT_HALIGN_CENTER | RT_VALIGN_TOP,
-								text=self.current_crypto,
-								color=self.foreColor, color_sel=self.foreColor,
-								backcolor=None, backcolor_sel=None))
+							pos=(xPos - textWidth, yPos - 2), size=(textWidth, self.instance.size().height()),
+							font=0, flags=RT_HALIGN_CENTER | RT_VALIGN_TOP,
+							text=self.current_crypto,
+							color=self.foreColor, color_sel=self.foreColor,
+							backcolor=None, backcolor_sel=None))
 						if self.alignment == "right":
 							xPos -= textWidth + self.spacing
 						else:

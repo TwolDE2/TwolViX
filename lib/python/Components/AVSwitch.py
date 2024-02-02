@@ -123,7 +123,7 @@ class AVSwitch:
 		mode_50 = modes.get(50)
 		mode_60 = modes.get(60)
 		mode_24 = modes.get(24)
-		print(f"[AVSwitch] setMode modes - setup_mode: {mode}, available:  mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")		
+		print(f"[AVSwitch] setMode modes - setup_mode: {mode}, available:  mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")
 		if mode_50 is None or force == 60:
 			mode_50 = mode_60
 		if mode_60 is None or force == 50:
@@ -151,13 +151,13 @@ class AVSwitch:
 		print(f"[AVSwitch] setMode - chosen modes:- mode_50: {mode_50}, mode_60: {mode_60}, mode_24: {mode_24}")
 		print(f"[AVSwitch] setMode current modes:- currentMode_50:{currentMode_50} currentMode_60:{currentMode_60} currentMode_24:{currentMode_24}")
 
-		if currentMode_50 != mode_50:									
+		if currentMode_50 != mode_50:
 			try:
 				with open("/proc/stb/video/videomode_50hz", "w") as fd:
 					fd.write(mode_50)
 				print(f"[AVSwitch][setMode][videomode_50hz] set to {mode_50}")
 			except (IOError, OSError):
-				mode_50 = "XXXX"
+				modes_50 = "XXXX"
 				print("[AVSwitch] cannot open /proc/stb/video/videomode_50hz")
 		if currentMode_60 != mode_60:
 			try:
@@ -165,7 +165,7 @@ class AVSwitch:
 					fd.write(mode_60)
 				print(f"[AVSwitch][setMode][videomode_60hz] set to {mode_60}")
 			except (IOError, OSError):
-				mode_60 = "XXXX"		
+				modes_60 = "XXXX"
 				print("[AVSwitch] cannot open /proc/stb/video/videomode_60hz")
 
 		if SystemInfo["Has24hz"] and currentMode_24 != mode_24:
@@ -174,7 +174,7 @@ class AVSwitch:
 					fd.write(mode_24)
 					print(f"[AVSwitch][setMode][videomode_24hz] set to {mode_24}")
 			except (IOError, OSError):
-				mode_24 = "XXXX"			
+				modes_24 = "XXXX"
 				print("[AVSwitch] cannot open /proc/stb/video/videomode_24hz")
 
 		if SystemInfo["brand"] in ("gigablue",):
@@ -185,12 +185,9 @@ class AVSwitch:
 			except IOError:
 				print("[AVSwitch] GigaBlue writing initial videomode to /etc/videomode failed.")
 		print("[AVSwitch]2 setMode ####reached AVSwitch setmode end ")
-		# try:
-		# 	set_mode = modes.get(int(rate))
-		# except Exception:  # Don't support 50Hz, 60Hz for 1080p.
-		# 	set_mode = mode_50
-		# print(f"[AVSwitch][videomode] set to: {set_mode}")
-		# eAVSwitch.getInstance().setVideoMode(set_mode)
+		if modes_50 = "XXXX" and modes_60 ="XXXX" # Don't support 50Hz, 60Hz for 1080p.
+			print(f"[AVSwitch][videomode] set to: {mode_50}")
+			eAVSwitch.getInstance().setVideoMode(mode_50)
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
