@@ -260,11 +260,11 @@ class ServiceInfoBar(GUIAddon):
 				else:
 					textWidth = self._calcTextWidth(self.current_crypto, font=self.font, size=eSize(self.getDesktopWith() // 3, 0))
 					res.append(MultiContentEntryText(
-							pos=(xPos - textWidth, yPos - 2), size=(textWidth, self.instance.size().height()),
-							font=0, flags=RT_HALIGN_CENTER | RT_VALIGN_TOP,
-							text=self.current_crypto,
-							color=self.foreColor, color_sel=self.foreColor,
-							backcolor=None, backcolor_sel=None))
+						pos=(xPos - textWidth, yPos - 2), size=(textWidth, self.instance.size().height()),
+						font=0, flags=RT_HALIGN_CENTER | RT_VALIGN_TOP,
+						text=self.current_crypto,
+						color=self.foreColor, color_sel=self.foreColor,
+						backcolor=None, backcolor_sel=None))
 					if self.alignment == "right":
 						xPos -= textWidth + self.spacing
 					else:
