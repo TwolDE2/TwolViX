@@ -28,27 +28,6 @@ def getConfig_videomode(getmode, getrate):
 	return port, mode, res, pol, rate
 
 
-def setProgressiveRate(vid_rate, new_rate, new_res, config_res, config_rate):
-	if vid_rate == 24:
-		if int(new_res) <= 720:
-			new_rate = config.av.autores_24p.value.split(",")[0]
-		else:
-			new_rate = config.av.autores_24p.value.split(",")[1]
-	elif vid_rate == 25:
-		if int(new_res) <= 720:
-			new_rate = config.av.autores_25p.value.split(",")[0]
-		else:
-			new_rate = config.av.autores_25p.value.split(",")[1]
-	elif vid_rate == 30:
-		if int(new_res) <= 720:
-			new_rate = config.av.autores_30p.value.split(",")[0]
-		else:
-			new_rate = config.av.autores_30p.value.split(",")[1]
-	if int(new_res) >= int(config_res) and config_rate not in ("auto", "multi") and int(config_rate) < int(new_rate):
-		new_rate = config_rate
-	return new_rate
-
-
 class VideoSetup(Setup):
 	def __init__(self, session):
 		Setup.__init__(self, session, None)
