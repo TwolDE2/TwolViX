@@ -143,7 +143,7 @@ class AVSwitch:
 		except (IOError, OSError):
 			print("[AVSwitch] cannot open /proc/stb/video/videomode_50hz or videomode_60hz")
 			try:
-				print(f"[AVSwitch][videomode] set to: {mode_50}") # fallback if no possibility to setup 50/60 hz mode
+				print(f"[AVSwitch][videomode] set to: {mode_50}")  # fallback if no possibility to setup 50/60 hz mode
 				eAVSwitch.getInstance().setVideoMode(mode_50)
 			except (IOError, OSError):
 				print("[AVSwitch] fallback to mode 50 failed.")
@@ -225,7 +225,7 @@ class AVSwitch:
 				ratelist = []
 				for rate in rates:
 					if rate == "auto":
-						if BoxInfo.getItem("Has24hz"):
+						if SystemInfo["Has24hz"]:
 							ratelist.append((rate, mode == "2160p30" and "auto (25Hz/30Hz/24Hz)" or "auto (50Hz/60Hz/24Hz)"))
 					else:
 						ratelist.append((rate, rate == "multi" and (mode == "2160p30" and "multi (25Hz/30Hz)" or "multi (50Hz/60Hz)") or rate))
