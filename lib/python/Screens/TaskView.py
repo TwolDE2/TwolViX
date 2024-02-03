@@ -123,7 +123,7 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 				self.backgroundable = False
 				self["key_blue"].setText("")
 				self["backgroundActions"].setEnabled(False)
-			try:	
+			try:
 				if j.status == j.FINISHED:
 					self["key_green"].setText(_("OK"))
 					self["okActions"].setEnabled(True)
@@ -135,7 +135,7 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 					self["key_red"].setText(_("Cancel"))
 					self["abortActions"].setEnabled(True)
 			except:
-				print("[TaskView]{state_changed] . close issue again")				
+				print("[TaskView]{state_changed] . close issue again")
 
 	def background(self):
 		if self.backgroundable:
