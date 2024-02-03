@@ -58,7 +58,7 @@ class CurrentService(PerServiceBase, Source):
 			self.info = eServiceCenter.getInstance().info(ref)
 		else:
 			self.srv = ref
-			
+
 		for x in self.onManualNewService:
 			x()
 
