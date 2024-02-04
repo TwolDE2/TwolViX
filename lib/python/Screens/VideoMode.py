@@ -449,7 +449,12 @@ class AutoVideoMode(Screen):
 def autostart(session):
 	global resolutionlabel
 	print("[VideoMode][autostart] AutoVideoMode entered")
-	if config.av.autores.value != "disabled":
+	if not isPluginInstalled("AutoResolution"):
 		if resolutionlabel is None:
 			resolutionlabel = session.instantiateDialog(AutoVideoModeLabel)
+		AutoVideoMode(session)
+	else:
+		config.av.autores.setValue(False)
+		config.av.autores.save()
+		configfile.save()
 		AutoVideoMode(session)
