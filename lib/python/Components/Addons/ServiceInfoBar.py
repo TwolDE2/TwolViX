@@ -1,21 +1,15 @@
-from Components.Addons.GUIAddon import GUIAddon
-
 from enigma import eListbox, eListboxPythonMultiContent, BT_ALIGN_CENTER, iPlayableService, iRecordableService, eServiceReference, iServiceInformation, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER, RT_VALIGN_TOP, RT_HALIGN_CENTER, eTimer, getDesktop, eSize, eStreamServer
-
 from skin import parseScale, applySkinFactor, parseColor, parseFont
 
-from Components.MultiContent import MultiContentEntryPixmapAlphaBlend, MultiContentEntryText
-from Components.ServiceEventTracker import ServiceEventTracker
+from Components.Addons.GUIAddon import GUIAddon
+from Components.Converter.PliExtraInfo import createCurrentCaidLabel
 from Components.Converter.ServiceInfo import getVideoHeight
 from Components.Converter.VAudioInfo import StdAudioDesc
-from Components.Converter.PliExtraInfo import createCurrentCaidLabel
 from Components.Label import Label
+from Components.MultiContent import MultiContentEntryPixmapAlphaBlend, MultiContentEntryText
+from Components.ServiceEventTracker import ServiceEventTracker
 from Components.Sources.StreamService import StreamServiceList
-
-from Components.config import config
-
 from Screens.InfoBarGenerics import hasActiveSubservicesForCurrentChannel
-
 from Tools.Directories import resolveFilename, SCOPE_GUISKIN
 from Tools.LoadPixmap import LoadPixmap
 

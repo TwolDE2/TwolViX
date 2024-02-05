@@ -1,6 +1,5 @@
 from enigma import iServiceInformation, iPlayableService
 
-from Components.config import config
 from Components.Converter.Converter import Converter
 from Components.Converter.Poll import Poll
 from Components.Converter.VAudioInfo import StdAudioDesc
