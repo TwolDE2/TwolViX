@@ -368,7 +368,7 @@ def runScreenTest():
 			session.scart = AutoScartControl(session)
 
 		profile("Init:AutoVideoMode")
-		if config.av.autores.value != "disabled":
+		if config.av.fixres.value != "disabled":
 			import Screens.VideoMode
 			Screens.VideoMode.autostart(session)
 
