@@ -368,7 +368,8 @@ def runScreenTest():
 			session.scart = AutoScartControl(session)
 
 		profile("Init:AutoVideoMode")
-		if config.av.fixres.value != "disabled":
+		from Tools.Directories import isPluginInstalled  # noqa: E402  don't move this import		
+		if config.av.fixres.value != "disabled" and not isPluginInstalled("AutoResolution")::
 			import Screens.VideoMode
 			Screens.VideoMode.autostart(session)
 

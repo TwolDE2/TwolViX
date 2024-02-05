@@ -448,11 +448,6 @@ class forceVideoMode(Screen):
 def autostart(session):
 	global resolutionlabel
 	print("[VideoMode][autostart] forceVideoMode entered")
-	if not isPluginInstalled("AutoResolution"):
-		if resolutionlabel is None:
-			resolutionlabel = session.instantiateDialog(forceVideoModeLabel)
-		forceVideoMode(session)
-	else:
-		config.av.fixres.setValue("disabled")
-		config.av.fixres.save()
-		configfile.save()
+	if resolutionlabel is None:
+		resolutionlabel = session.instantiateDialog(forceVideoModeLabel)
+	forceVideoMode(session)
