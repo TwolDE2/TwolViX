@@ -99,7 +99,7 @@ class AVSwitch:
 		print("[AVSwitch] reading preferred modes", modes)
 		if not modes:
 			self.modes_preferred = SystemInfo["AvailableVideomodes"]
-			print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred]}")
+			print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred}")
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI")  # Must be HDMI.
