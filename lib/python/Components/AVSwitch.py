@@ -90,7 +90,7 @@ class AVSwitch:
 
 	def readAvailableModes(self):
 		SystemInfo["AvailableVideomodes"] = []
-		SystemInfo["AvailableVideomodes"] = eAVSwitch.getInstance().getAvailableModes().split(" ")
+		SystemInfo["AvailableVideomodes"] = eAVSwitch.getInstance().readAvailableModes().split(" ")
 		print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
 
 	def readPreferredModes(self):
