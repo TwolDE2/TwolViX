@@ -146,7 +146,7 @@ int eAVSwitch::getAspect(int defaultVal, int flags) const
 
 // read the preferred video modes
 // parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
-std::string eAVControl::getPreferredModes(int flags) const
+std::string eAVSwitch::getPreferredModes(int flags) const
 {
 
 	const char *fileName = "/proc/stb/video/videomode_edid";
@@ -177,7 +177,7 @@ std::string eAVControl::getPreferredModes(int flags) const
 
 // readAvailableModes
 // parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
-std::string eAVControl::readAvailableModes(int flags) const
+std::string eAVSwitch::readAvailableModes(int flags) const
 {
 
 	const char *fileName = "/proc/stb/video/videomode_choices";
