@@ -90,25 +90,16 @@ class AVSwitch:
 
 	def readAvailableModes(self):
 		SystemInfo["AvailableVideomodes"] = []
-		try:
-			with open("/proc/stb/video/videomode_choices", "r") as fd:
-				SystemInfo["AvailableVideomodes"] = fd.read()[:-1].split(" ")
-				# print(f"[AVSwitch] read available videomodes:{SystemInfo['AvailableVideomodes']}")
-		except (IOError, OSError):
-			print("[AVSwitch] couldn't read available videomodes.")
+		SystemInfo["AvailableVideomodes"] = eAVSwitch.getInstance().getAvailableModes().split(" ")
+		print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
 
 	def readPreferredModes(self):
 		modes = []
-		try:
-			with open("/proc/stb/video/videomode_preferred", "r") as fd:
-				modes = fd.read()[:-1]
-			self.modes_preferred = modes.split(" ")
-		except (IOError, OSError):
-			print("[AVSwitch] reading preferred modes failed, using all modes")
+		modes = eAVSwitch.getInstance().getPreferredModes(1)
+		print("[AVSwitch] reading preferred modes", modes)
 		if not modes:
-			# print(f"[AVSwitch][readPreferredModes] videomodes:{SystemInfo['AvailableVideomodes']}")
 			self.modes_preferred = SystemInfo["AvailableVideomodes"]
-			# print("[AVSwitch] reading preferred modes found null using readAvailableModes", modes)
+			print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred]}")
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI")  # Must be HDMI.

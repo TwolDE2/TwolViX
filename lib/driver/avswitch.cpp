@@ -134,10 +134,7 @@ bool eAVSwitch::isActive()
 	return m_active;
 }
 
-// @brief Get video aspect
-// @param defaultVal
-// @param flags
-// @return
+// Get video aspect
 int eAVSwitch::getAspect(int defaultVal, int flags) const
 {
 	int value = 0;
@@ -147,9 +144,59 @@ int eAVSwitch::getAspect(int defaultVal, int flags) const
 	return defaultVal;
 }
 
-// @brief Get progressive
-// @param flags
-// @return
+// read the preferred video modes
+// parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+std::string eAVControl::getPreferredModes(int flags) const
+{
+
+	const char *fileName = "/proc/stb/video/videomode_edid";
+	const char *fileName2 = "/proc/stb/video/videomode_preferred";
+
+	std::string result = "";
+
+	if (access(fileName, R_OK) == 0)
+	{
+		result = CFile::read(fileName, __MODULE__, flags);
+		if (!result.empty() && result[result.length() - 1] == '\n')
+		{
+			result.erase(result.length() - 1);
+		}
+	}
+
+	if (result.empty() && access(fileName2, R_OK) == 0)
+	{
+		result = CFile::read(fileName2, __MODULE__, flags);
+		if (!result.empty() && result[result.length() - 1] == '\n')
+		{
+			result.erase(result.length() - 1);
+		}
+	}
+
+	return result;
+}
+
+// readAvailableModes
+// parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+std::string eAVControl::readAvailableModes(int flags) const
+{
+
+	const char *fileName = "/proc/stb/video/videomode_choices";
+	std::string result = "";
+	if (access(fileName, R_OK) == 0)
+	{
+		result = CFile::read(fileName, __MODULE__, flags);
+	}
+
+	if (!result.empty() && result[result.length() - 1] == '\n')
+	{
+		result.erase(result.length() - 1);
+	}
+	if (flags & FLAGS_DEBUG)
+		eDebug("[%s] %s: %s", __MODULE__, "readAvailableModes", result.c_str());
+	return result;
+}
+
+// Get progressive
 bool eAVSwitch::getProgressive(int flags) const
 {
 	int value = 0;
@@ -159,9 +206,9 @@ bool eAVSwitch::getProgressive(int flags) const
 	return value == 1;
 }
 
-// @brief Get screen resolution X
-// @param defaultVal = 0
-// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// Get screen resolution X
+// parameters defaultVal = 0
+// parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 // @return resolution value
 int eAVSwitch::getResolutionX(int defaultVal, int flags) const
 {
@@ -178,9 +225,9 @@ int eAVSwitch::getResolutionX(int defaultVal, int flags) const
 	return value;
 }
 
-// @brief Get screen resolution Y
-// @param defaultVal = 0
-// @param flags bit (1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// Get screen resolution Y
+// parameters defaultVal = 0
+// parameters flags bit (1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 // @return resolution value
 int eAVSwitch::getResolutionY(int defaultVal, int flags) const
 {
@@ -197,9 +244,9 @@ int eAVSwitch::getResolutionY(int defaultVal, int flags) const
 	return value;
 }
 
-// @brief Get FrameRate
-// @param defaultVal
-// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// Get FrameRate
+// parameters defaultVal
+// parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 // @return
 int eAVSwitch::getFrameRate(int defaultVal, int flags) const
 {
@@ -217,9 +264,9 @@ int eAVSwitch::getFrameRate(int defaultVal, int flags) const
 	return value;
 }
 
-// @brief Get VideoMode
-// @param defaultVal
-// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// Get VideoMode
+// parameters defaultVal
+// parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 // @return
 std::string eAVSwitch::getVideoMode(const std::string &defaultVal, int flags) const
 {
@@ -260,8 +307,7 @@ void eAVSwitch::setInput(int val)
 	close(fd);
 }
 
-// @param setVideoMode --> newMode
-// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// set VideoMode --> newMode
 void eAVSwitch::setVideoMode(const std::string &newMode, int flags) const
 {
 	CFile::writeStr(proc_videomode, newMode, __MODULE__, flags);
@@ -270,8 +316,8 @@ void eAVSwitch::setVideoMode(const std::string &newMode, int flags) const
 }
 
 // @brief setAspect
-// @param newFormat (auto, 4:3, 16:9, 16:10)
-// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// parameters newFormat (auto, 4:3, 16:9, 16:10)
+// parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
 void eAVSwitch::setAspect(const std::string &newFormat, int flags) const
 {
 	CFile::writeStr(proc_videoaspect_w, newFormat, __MODULE__, flags);
@@ -333,9 +379,7 @@ void eAVSwitch::setWSS(int val) // 0 = auto, 1 = auto(4:3_off)
 	close(fd);
 }
 
-// @brief setPolicy43
-// @param newPolicy
-// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// set Policy43
 void eAVSwitch::setPolicy43(const std::string &newPolicy, int flags) const
 {
 
@@ -345,9 +389,8 @@ void eAVSwitch::setPolicy43(const std::string &newPolicy, int flags) const
 		eDebug("[%s] %s: %s", __MODULE__, "setPolicy43", newPolicy.c_str());
 }
 
-// @brief setPolicy169
-// @param newPolicy
-// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// set Policy169
+// parameters newPolicy
 void eAVSwitch::setPolicy169(const std::string &newPolicy, int flags) const
 {
 
@@ -357,12 +400,8 @@ void eAVSwitch::setPolicy169(const std::string &newPolicy, int flags) const
 		eDebug("[%s] %s: %s", __MODULE__, "setPolicy169", newPolicy.c_str());
 }
 
-// @brief setVideoSize
-// @param top 
-// @param left 
-// @param width 
-// @param height 
-// @param flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
+// set VideoSize
+// param top, left, width, height 
 void eAVSwitch::setVideoSize(int top, int left, int width, int height, int flags) const
 {
 
