@@ -392,7 +392,7 @@ class HdmiCec:
 			ctrl1 = message.getControl1()
 			ctrl2 = message.getControl2()
 			msgaddress = message.getAddress()  # 0 = TV, 5 = receiver 15 = broadcast
-			print(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd=%X, ctrl0={cmd}, length={ctrl0}")
+			print(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, length={length}")
 			if config.hdmicec.debug.value != "0":
 				self.debugRx(length, cmd, ctrl0)
 			if msgaddress > 15:  # workaround for wrong address from driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
@@ -414,7 +414,7 @@ class HdmiCec:
 					self.volumeForwardingDestination = 0  # off: send volume keys to tv
 				print(f"[HdmiCEC][messageReceived4]: volume forwarding={self.volumeForwardingDestination}, msgaddress={msgaddress}")
 				if config.hdmicec.volume_forwarding.value:
-					print(f"[HdmiCEC][messageReceived5]: volume forwarding to device {self.volumeForwardingDestination:02x}enabled")
+					print(f"[HdmiCEC][messageReceived5]: volume forwarding to device {self.volumeForwardingDestination:02x} enabled")
 					self.volumeForwardingEnabled = True
 			elif cmd == 0x83:  # request address
 				self.sendMessage(msgaddress, "reportaddress")
