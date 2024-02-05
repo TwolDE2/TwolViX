@@ -327,6 +327,7 @@ class AVSwitch:
 			config.av.videorate[mode].setValue(rate)
 			config.av.videorate[mode].save()
 
+
 iAVSwitch = AVSwitch()
 
 
