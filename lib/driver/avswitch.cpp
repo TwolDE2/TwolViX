@@ -177,7 +177,7 @@ std::string eAVSwitch::getPreferredModes(int flags) const
 
 // readAvailableModes
 // parameters flags bit ( 1 = DEBUG , 2 = SUPPRESS_NOT_EXISTS , 4 = SUPPRESS_READWRITE_ERROR)
-std::string eAVSwitch::readAvailableModes(int flags) const
+std::string eAVSwitch::getAvailableModes(int flags) const
 {
 
 	const char *fileName = "/proc/stb/video/videomode_choices";

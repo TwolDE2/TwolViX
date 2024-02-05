@@ -28,13 +28,13 @@ public:
 	bool haveScartSwitch();
 	int getVCRSlowBlanking();
 	int getAspect(int defaultVal = 0, int flags = 0) const;
-	std::string getPreferredModes(int flags = 0) const;
-	std::string getAvailableModes() const;		
 	int getFrameRate(int defaultVal = 50000, int flags = 0) const;
 	bool getProgressive(int flags = 0) const;
 	int getResolutionX(int defaultVal = 0, int flags = 0) const;
 	int getResolutionY(int defaultVal = 0, int flags = 0) const;
 	std::string getVideoMode(const std::string &defaultVal = "", int flags = 0) const;
+	std::string getPreferredModes(int flags = 0) const;
+	std::string readAvailableModes(int flags = 0) const;
 	void setAspect(const std::string &newFormat, int flags = 0) const;
 	void setColorFormat(int format);
 	void setInput(int val);
