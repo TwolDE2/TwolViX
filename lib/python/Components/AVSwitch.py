@@ -85,18 +85,18 @@ class AVSwitch:
 		self.current_mode = None
 		self.current_port = None
 		self.readAvailableModes()
-		self.createConfig()
 		self.readPreferredModes()
+		self.createConfig()
 
 	def readAvailableModes(self):
 		SystemInfo["AvailableVideomodes"] = []
 		SystemInfo["AvailableVideomodes"] = eAVSwitch.getInstance().readAvailableModes().split(" ")
-		print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
+		# print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
 
 	def readPreferredModes(self):
 		modes = []
 		modes = eAVSwitch.getInstance().getPreferredModes(1)
-		print("[AVSwitch] reading preferred modes", modes)
+		# print("[AVSwitch] reading preferred modes", modes)
 		if not modes:
 			self.modes_preferred = SystemInfo["AvailableVideomodes"]
 			print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred}")
@@ -109,8 +109,7 @@ class AVSwitch:
 	def isModeAvailable(self, port, mode, rate):
 		rateNew = self.rates[mode][rate]
 		for modeNew in rateNew.values():
-			# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew}")
-			# print(f"[AVSwitch][isModeAvailable] videomodes:{SystemInfo['AvailableVideomodes']}")
+			# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} videomodes:{SystemInfo['AvailableVideomodes']}")
 			if modeNew not in SystemInfo["AvailableVideomodes"]:
 				# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} not available")
 				return False
@@ -122,8 +121,6 @@ class AVSwitch:
 
 	def setMode(self, port, mode, rate, force=None):
 		print(f"[AVSwitch] setMode - port: {port}, mode: {mode}, rate: {rate}")
-		# config.av.videoport.setValue(port)
-		# we can ignore "port"
 		self.current_mode = mode
 		self.current_port = port
 		modes = self.rates[mode][rate]
@@ -143,15 +140,15 @@ class AVSwitch:
 		try:
 			with open("/proc/stb/video/videomode_50hz", "w") as fd:
 				fd.write(mode_50)
-			print(f"[AVSwitch][setMode][videomode_50hz] set to {mode_50}")
+				print(f"[AVSwitch][setMode][videomode_50hz] set to {mode_50}")
 			with open("/proc/stb/video/videomode_60hz", "w") as fd:
 				fd.write(mode_60)
-			print(f"[AVSwitch][setMode][videomode_60hz] set to {mode_60}")
+				print(f"[AVSwitch][setMode][videomode_60hz] set to {mode_60}")
 		except (IOError, OSError):
 			print("[AVSwitch] cannot open /proc/stb/video/videomode_50hz or videomode_60hz")
 			try:
-				print(f"[AVSwitch][videomode] set to: {mode_50}")  # fallback if no possibility to setup 50/60 hz mode
 				eAVSwitch.getInstance().setVideoMode(mode_50)
+				print(f"[AVSwitch][videomode] set to: {mode_50}")  # fallback if no possibility to setup 50/60 hz mode
 			except (IOError, OSError):
 				print("[AVSwitch] fallback to mode 50 failed.")
 
@@ -184,19 +181,15 @@ class AVSwitch:
 			config.av.videorate[mode].setValue(rate)
 			config.av.videorate[mode].save()
 
-	def isPortAvailable(self, port):
-		# fixme
-		return True
-
-	def isPortUsed(self, port):
+	def isPortUsed(self, port):  # used by VideoWizard
 		if port == "HDMI":
 			self.readPreferredModes()
 			return len(self.modes_preferred) != 0
 		else:
 			return True
 
-	def getPortList(self):
-		return [port for port in self.modes if self.isPortAvailable(port)]
+	def getPortList(self):  # used by VideoWizard
+		return [port for port in self.modes]
 
 	# Get a list with all modes, with all rates, for a given port.
 	def getModeList(self, port):
@@ -207,7 +200,7 @@ class AVSwitch:
 			# If at least one rate is ok, add this mode.
 			if len(rates):
 				res.append((mode, rates))
-		print(f"[AVSwitch][getModeList] ModeList:{res}")
+		# print(f"[AVSwitch][getModeList] ModeList:{res}")
 		return res
 
 	def createConfig(self, *args):
@@ -215,7 +208,7 @@ class AVSwitch:
 		config.av.videomode = ConfigSubDict()
 		config.av.videorate = ConfigSubDict()
 		# create list of output ports
-		portlist = self.getPortList()
+		portlist = [port for port in self.modes]
 		print(f"[AVSwitch][createConfig] portlist is {portlist}")
 		for port in portlist:
 			print(f"[AVSwitch] port is {port}")
@@ -340,7 +333,6 @@ class AVSwitch:
 		elif valstr == "16_9_letterbox":
 			val = 6
 		return val
-
 
 
 iAVSwitch = AVSwitch()
