@@ -91,12 +91,12 @@ class AVSwitch:
 	def readAvailableModes(self):
 		SystemInfo["AvailableVideomodes"] = []
 		SystemInfo["AvailableVideomodes"] = eAVSwitch.getInstance().readAvailableModes().split(" ")
-		# print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
+		print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
 
 	def readPreferredModes(self):
 		modes = []
 		modes = eAVSwitch.getInstance().getPreferredModes(1)
-		# print("[AVSwitch] reading preferred modes", modes)
+		print("[AVSwitch] reading preferred modes", modes)
 		if not modes:
 			self.modes_preferred = SystemInfo["AvailableVideomodes"]
 			print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred}")
@@ -109,142 +109,16 @@ class AVSwitch:
 	def isModeAvailable(self, port, mode, rate):
 		rateNew = self.rates[mode][rate]
 		for modeNew in rateNew.values():
-			# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} videomodes:{SystemInfo['AvailableVideomodes']}")
+			# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew}")
+			# print(f"[AVSwitch][isModeAvailable] videomodes:{SystemInfo['AvailableVideomodes']}")
 			if modeNew not in SystemInfo["AvailableVideomodes"]:
 				# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} not available")
 				return False
-		print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} available")
+		# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} available")
 		return True
-
-	def createConfig(self, *args):
-		lst = []
-		config.av.videomode = ConfigSubDict()
-		config.av.videorate = ConfigSubDict()
-		# create list of output ports
-		portlist = [port for port in self.modes]
-		print(f"[AVSwitch][createConfig] portlist is {portlist}")
-		for port in portlist:
-			print(f"[AVSwitch] port is {port}")
-			descr = port
-			if "HDMI" in port:
-				print(f"[AVSwitch][createConfig] port:{port} descr:{descr}")
-				lst.insert(0, (port, descr))
-			else:
-				lst.append((port, descr))
-			modes = self.getModeList(port)
-			if len(modes):
-				config.av.videomode[port] = ConfigSelection(choices=[mode for (mode, rates) in modes])
-			for (mode, rates) in modes:
-				ratelist = []
-				for rate in rates:
-					if rate == "auto":
-						if SystemInfo["Has24hz"]:
-							ratelist.append((rate, mode == "2160p30" and "auto (25Hz/30Hz/24Hz)" or "auto (50Hz/60Hz/24Hz)"))
-					else:
-						ratelist.append((rate, rate == "multi" and (mode == "2160p30" and "multi (25Hz/30Hz)" or "multi (50Hz/60Hz)") or rate))
-				config.av.videorate[mode] = ConfigSelection(choices=ratelist)
-				print(f"[AVSwitch][createConfig] mode:{mode} rates:{ratelist}")
-		config.av.videoport = ConfigSelection(choices=lst)
-
-	def getFramebufferScale(self):
-		return (1, 1)
-
-	# Get a list with all modes, with all rates, for a given port.
-	def getModeList(self, port):
-		res = []
-		for mode in self.modes[port]:
-			rates = [rate for rate in self.rates[mode] if self.isModeAvailable(port, mode, rate)]  # List all rates which are completely valid.
-			if len(rates):  # If at least one rate is ok, add this mode.
-				res.append((mode, rates))
-		print(f"[AVSwitch][getModeList] ModeList:{res}")
-		return res
-
-	def getPortList(self):
-		return [port for port in self.modes]
 
 	def isWidescreenMode(self, port, mode):
 		return mode in self.widescreen_modes
-
-	def setAspect(self, configElement):
-		eAVSwitch.getInstance().setAspect(configElement.value, 1)
-		print(f"[AVSwitch] setting aspect:{configElement.value}")
-		with open("/proc/stb/video/aspect", "w") as fd:
-			fd.write(configElement.value)
-
-	def getOutputAspect(self):
-		ret = (16, 9)
-		port = config.av.videoport.value
-		if port not in config.av.videomode:
-			print(f"[AVSwitch] current port:{port} not available in config.av.videomode:{config.av.videomode} force 16:9")
-		else:
-			mode = config.av.videomode[port].value
-			force_widescreen = self.isWidescreenMode(port, mode)
-			is_widescreen = force_widescreen or config.av.aspect.value in ("16:9", "16:10")
-			is_auto = config.av.aspect.value == "auto"
-			if is_widescreen:
-				if force_widescreen:
-					pass
-				else:
-					aspect = {"16:9": "16:9", "16:10": "16:10"}[config.av.aspect.value]
-					if aspect == "16:10":
-						ret = (16, 10)
-			elif is_auto:
-				try:
-					if "1" in open("/proc/stb/vmpeg/0/aspect", "r").read():  # 4:3
-						return (4, 3)
-				except (IOError, OSError):
-					pass
-			else:  # 4:3
-				ret = (4, 3)
-		return ret
-
-	def getAspectRatioSetting(self):
-		valstr = config.av.aspectratio.value
-		if valstr == "4_3_letterbox":
-			val = 0
-		elif valstr == "4_3_panscan":
-			val = 1
-		elif valstr == "16_9":
-			val = 2
-		elif valstr == "16_9_always":
-			val = 3
-		elif valstr == "16_10_letterbox":
-			val = 4
-		elif valstr == "16_10_panscan":
-			val = 5
-		elif valstr == "16_9_letterbox":
-			val = 6
-		return val
-
-	def setColorFormat(self, value):
-		if not self.current_port:
-			self.current_port = config.av.videoport.value
-		if self.current_port in ("YPbPr", "Scart-YPbPr"):
-			eAVSwitch.getInstance().setColorFormat(3)
-		elif self.current_port in ("RCA"):
-			eAVSwitch.getInstance().setColorFormat(0)
-		else:
-			eAVSwitch.getInstance().setColorFormat(value)
-
-	def setConfiguredMode(self):
-		port = config.av.videoport.value
-		if port not in config.av.videomode:
-			print(f"[AVSwitch] current port: {port} not available, not setting videomode:{config.av.videomode}")
-			return
-		mode = config.av.videomode[port].value
-		if mode not in config.av.videorate:
-			print(f"[AVSwitch] current mode:{mode} not available in config.av.videorate:{config.av.videorate}")
-			return
-		rate = config.av.videorate[mode].value
-		self.setMode(port, mode, rate)
-
-	def setInput(self, input):
-		INPUT = {
-			"ENCODER": 0,
-			"SCART": 1,
-			"AUX": 2
-		}
-		eAVSwitch.getInstance().setInput(INPUT[input])
 
 	def setMode(self, port, mode, rate, force=None):
 		print(f"[AVSwitch] setMode - port: {port}, mode: {mode}, rate: {rate}")
@@ -300,13 +174,107 @@ class AVSwitch:
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
-	def setPolicy43(self, configElement):
-		print(f"[AVSwitch] setting policy43:{configElement.value}")
-		eAVSwitch.getInstance().setPolicy43(configElement.value, 1)
+	def saveMode(self, port, mode, rate):
+		config.av.videoport.setValue(port)
+		config.av.videoport.save()
+		if port in config.av.videomode:
+			config.av.videomode[port].setValue(mode)
+			config.av.videomode[port].save()
+		if mode in config.av.videorate:
+			config.av.videorate[mode].setValue(rate)
+			config.av.videorate[mode].save()
 
-	def setPolicy169(self, configElement):
-		print(f"[AVSwitch] setting policy169:{configElement.value}")
-		eAVSwitch.getInstance().setPolicy169(configElement.value, 1)
+	def isPortAvailable(self, port):
+		# fixme
+		return True
+
+	def isPortUsed(self, port):
+		if port == "HDMI":
+			self.readPreferredModes()
+			return len(self.modes_preferred) != 0
+		else:
+			return True
+
+	def getPortList(self):
+		return [port for port in self.modes if self.isPortAvailable(port)]
+
+	# Get a list with all modes, with all rates, for a given port.
+	def getModeList(self, port):
+		res = []
+		for mode in self.modes[port]:
+			# List all rates which are completely valid.
+			rates = [rate for rate in self.rates[mode] if self.isModeAvailable(port, mode, rate)]
+			# If at least one rate is ok, add this mode.
+			if len(rates):
+				res.append((mode, rates))
+		print(f"[AVSwitch][getModeList] ModeList:{res}")
+		return res
+
+	def createConfig(self, *args):
+		lst = []
+		config.av.videomode = ConfigSubDict()
+		config.av.videorate = ConfigSubDict()
+		# create list of output ports
+		portlist = self.getPortList()
+		print(f"[AVSwitch][createConfig] portlist is {portlist}")
+		for port in portlist:
+			print(f"[AVSwitch] port is {port}")
+			descr = port
+			if "HDMI" in port:
+				print(f"[AVSwitch][createConfig] port:{port} descr:{descr}")
+				lst.insert(0, (port, descr))
+			else:
+				lst.append((port, descr))
+			modes = self.getModeList(port)
+			if len(modes):
+				config.av.videomode[port] = ConfigSelection(choices=[mode for (mode, rates) in modes])
+			for (mode, rates) in modes:
+				ratelist = []
+				for rate in rates:
+					if rate == "auto":
+						if SystemInfo["Has24hz"]:
+							ratelist.append((rate, mode == "2160p30" and "auto (25Hz/30Hz/24Hz)" or "auto (50Hz/60Hz/24Hz)"))
+					else:
+						ratelist.append((rate, rate == "multi" and (mode == "2160p30" and "multi (25Hz/30Hz)" or "multi (50Hz/60Hz)") or rate))
+				config.av.videorate[mode] = ConfigSelection(choices=ratelist)
+				print(f"[AVSwitch][createConfig] mode:{mode} rates:{ratelist}")
+		config.av.videoport = ConfigSelection(choices=lst)
+
+	def setInput(self, input):
+		INPUT = {
+			"ENCODER": 0,
+			"SCART": 1,
+			"AUX": 2
+		}
+		eAVSwitch.getInstance().setInput(INPUT[input])
+
+	def setColorFormat(self, value):
+		if not self.current_port:
+			self.current_port = config.av.videoport.value
+		if self.current_port in ("YPbPr", "Scart-YPbPr"):
+			eAVSwitch.getInstance().setColorFormat(3)
+		elif self.current_port in ("RCA"):
+			eAVSwitch.getInstance().setColorFormat(0)
+		else:
+			eAVSwitch.getInstance().setColorFormat(value)
+
+	def setConfiguredMode(self):
+		port = config.av.videoport.value
+		if port not in config.av.videomode:
+			print(f"[AVSwitch] current port: {port} not available, not setting videomode:{config.av.videomode}")
+			return
+		mode = config.av.videomode[port].value
+		if mode not in config.av.videorate:
+			print(f"[AVSwitch] current mode:{mode} not available in config.av.videorate:{config.av.videorate}")
+			return
+		rate = config.av.videorate[mode].value
+		self.setMode(port, mode, rate)
+
+	def setAspect(self, configElement):
+		eAVSwitch.getInstance().setAspect(configElement.value, 1)
+		print(f"[AVSwitch] setting aspect:{configElement.value}")
+		with open("/proc/stb/video/aspect", "w") as fd:
+			fd.write(configElement.value)
 
 	def setWss(self, configElement):
 		if not configElement.value:
@@ -317,15 +285,62 @@ class AVSwitch:
 		with open("/proc/stb/denc/0/wss", "w") as fd:
 			fd.write(wss)
 
-	def saveMode(self, port, mode, rate):
-		config.av.videoport.setValue(port)
-		config.av.videoport.save()
-		if port in config.av.videomode:
-			config.av.videomode[port].setValue(mode)
-			config.av.videomode[port].save()
-		if mode in config.av.videorate:
-			config.av.videorate[mode].setValue(rate)
-			config.av.videorate[mode].save()
+	def setPolicy43(self, configElement):
+		print(f"[AVSwitch] setting policy43:{configElement.value}")
+		eAVSwitch.getInstance().setPolicy43(configElement.value, 1)
+
+	def setPolicy169(self, configElement):
+		print(f"[AVSwitch] setting policy169:{configElement.value}")
+		eAVSwitch.getInstance().setPolicy169(configElement.value, 1)
+
+	def getOutputAspect(self):
+		ret = (16, 9)
+		port = config.av.videoport.value
+		if port not in config.av.videomode:
+			print(f"[AVSwitch] current port:{port} not available in config.av.videomode:{config.av.videomode} force 16:9")
+		else:
+			mode = config.av.videomode[port].value
+			force_widescreen = self.isWidescreenMode(port, mode)
+			is_widescreen = force_widescreen or config.av.aspect.value in ("16:9", "16:10")
+			is_auto = config.av.aspect.value == "auto"
+			if is_widescreen:
+				if force_widescreen:
+					pass
+				else:
+					aspect = {"16:9": "16:9", "16:10": "16:10"}[config.av.aspect.value]
+					if aspect == "16:10":
+						ret = (16, 10)
+			elif is_auto:
+				try:
+					if "1" in open("/proc/stb/vmpeg/0/aspect", "r").read():  # 4:3
+						return (4, 3)
+				except (IOError, OSError):
+					pass
+			else:  # 4:3
+				ret = (4, 3)
+		return ret
+
+	def getFramebufferScale(self):
+		return (1, 1)
+
+	def getAspectRatioSetting(self):
+		valstr = config.av.aspectratio.value
+		if valstr == "4_3_letterbox":
+			val = 0
+		elif valstr == "4_3_panscan":
+			val = 1
+		elif valstr == "16_9":
+			val = 2
+		elif valstr == "16_9_always":
+			val = 3
+		elif valstr == "16_10_letterbox":
+			val = 4
+		elif valstr == "16_10_panscan":
+			val = 5
+		elif valstr == "16_9_letterbox":
+			val = 6
+		return val
+
 
 
 iAVSwitch = AVSwitch()
