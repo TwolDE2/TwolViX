@@ -77,7 +77,7 @@ class AVSwitch:
 	if SystemInfo["hasScart"]:
 		modes["Scart"] = ["PAL", "NTSC", "Multi"]
 
-	print("[AVSwitch] Modes found are %s" % modes)
+	print(f"[AVSwitch] Modes found are: {modes}")
 
 	def __init__(self):
 		self.last_modes_preferred = []
@@ -136,7 +136,6 @@ class AVSwitch:
 			mode_24 = mode_60
 			if force == 50:
 				mode_24 = mode_50
-
 		try:
 			with open("/proc/stb/video/videomode_50hz", "w") as fd:
 				fd.write(mode_50)
@@ -167,7 +166,6 @@ class AVSwitch:
 					fd.write(mode_50)
 			except (IOError, OSError):
 				print("[AVSwitch] GigaBlue writing initial videomode to /etc/videomode failed.")
-
 		map = {"cvbs": 0, "rgb": 1, "svideo": 2, "yuv": 3}
 		self.setColorFormat(map[config.av.colorformat.value])
 
@@ -211,10 +209,10 @@ class AVSwitch:
 		portlist = [port for port in self.modes]
 		print(f"[AVSwitch][createConfig] portlist is {portlist}")
 		for port in portlist:
-			print(f"[AVSwitch] port is {port}")
+			# print(f"[AVSwitch] port is {port}")
 			descr = port
 			if "HDMI" in port:
-				print(f"[AVSwitch][createConfig] port:{port} descr:{descr}")
+				# print(f"[AVSwitch][createConfig] port:{port} descr:{descr}")
 				lst.insert(0, (port, descr))
 			else:
 				lst.append((port, descr))
@@ -266,8 +264,6 @@ class AVSwitch:
 	def setAspect(self, configElement):
 		eAVSwitch.getInstance().setAspect(configElement.value, 1)
 		print(f"[AVSwitch] setting aspect:{configElement.value}")
-		with open("/proc/stb/video/aspect", "w") as fd:
-			fd.write(configElement.value)
 
 	def setWss(self, configElement):
 		if not configElement.value:
@@ -682,6 +678,7 @@ def InitAVSwitch():
 		config.av.autovolume.addNotifier(setAutoVolume)
 	else:
 		config.av.autovolume = ConfigNothing()
+
 	if SystemInfo["supportPcmMultichannel"]:
 		def setPCMMultichannel(configElement):
 			open(SystemInfo["supportPcmMultichannel"], "w").write(configElement.value and "enable" or "disable")
