@@ -40,6 +40,7 @@ public:
 	void setColorFormat(int format);
 	void setInput(int val);
 	void setWSS(int val);
+	void setVideomode(int mode);
 	void setVideoMode(const std::string &newMode, int flags = 0) const;
 	void setPolicy43(const std::string &newPolicy, int flags = 0) const;
 	void setPolicy169(const std::string &newPolicy, int flags = 0) const;
