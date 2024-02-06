@@ -36,6 +36,7 @@ public:
 	std::string getPreferredModes(int flags = 0) const;
 	std::string readAvailableModes(int flags = 0) const;
 	void setAspect(const std::string &newFormat, int flags = 0) const;
+	void setAspectRatio(int ratio);
 	void setColorFormat(int format);
 	void setInput(int val);
 	void setWSS(int val);

@@ -359,6 +359,106 @@ void eAVSwitch::setColorFormat(int format)
 	close(fd);
 }
 
+void eAVSwitch::setAspectRatio(int ratio)
+{
+	/*
+	0-4:3 Letterbox
+	1-4:3 PanScan
+	2-16:9
+	3-16:9 forced ("panscan")
+	4-16:10 Letterbox
+	5-16:10 PanScan
+	6-16:9 forced ("letterbox")
+	*/
+	const char *aspect[] = {"4:3", "4:3", "any", "16:9", "16:10", "16:10", "16:9", "16:9"};
+	const char *policy[] = {"letterbox", "panscan", "bestfit", "panscan", "letterbox", "panscan", "letterbox"};
+
+	int fd;
+	if((fd = open("/proc/stb/video/aspect", O_WRONLY)) < 0) {
+		eDebug("[eAVSwitch] cannot open /proc/stb/video/aspect: %m");
+		return;
+	}
+//	eDebug("set aspect to %s", aspect[ratio]);
+	if (write(fd, aspect[ratio], strlen(aspect[ratio])) < 1)
+	{
+		eDebug("[eAVSwitch] setAspectRatio failed %m");
+	}
+	close(fd);
+
+	if((fd = open("/proc/stb/video/policy", O_WRONLY)) < 0) {
+		eDebug("[eAVSwitch] cannot open /proc/stb/video/policy: %m");
+		return;
+	}
+//	eDebug("set ratio to %s", policy[ratio]);
+	if (write(fd, policy[ratio], strlen(policy[ratio])) < 1)
+	{
+		eDebug("[eAVSwitch] setAspectRatio policy failed %m");
+	}
+	close(fd);
+
+}
+
+void eAVSwitch::setVideomode(int mode)
+{
+	const char *pal="pal";
+	const char *ntsc="ntsc";
+
+	if (mode == m_video_mode)
+		return;
+
+	if (mode == 2)
+	{
+		int fd1 = open("/proc/stb/video/videomode_50hz", O_WRONLY);
+		if(fd1 < 0) {
+			eDebug("[eAVSwitch] cannot open /proc/stb/video/videomode_50hz: %m");
+			return;
+		}
+		int fd2 = open("/proc/stb/video/videomode_60hz", O_WRONLY);
+		if(fd2 < 0) {
+			eDebug("[eAVSwitch] cannot open /proc/stb/video/videomode_60hz: %m");
+			close(fd1);
+			return;
+		}
+		if (write(fd1, pal, strlen(pal)) < 1)
+		{
+			eDebug("[eAVSwitch] setVideomode pal failed %m");
+		}
+		if (write(fd2, ntsc, strlen(ntsc)) < 1)
+		{
+			eDebug("[eAVSwitch] setVideomode ntsc failed %m");
+		}
+		close(fd1);
+		close(fd2);
+	}
+	else
+	{
+		int fd = open("/proc/stb/video/videomode", O_WRONLY);
+		if(fd < 0) {
+			eDebug("[eAVSwitch] cannot open /proc/stb/video/videomode: %m");
+			return;
+		}
+		switch(mode) {
+			case 0:
+				if (write(fd, pal, strlen(pal)) < 1)
+				{
+					eDebug("[eAVSwitch] setVideomode pal failed %m");
+				}
+				break;
+			case 1:
+				if (write(fd, ntsc, strlen(ntsc)) < 1)
+				{
+					eDebug("[eAVSwitch] setVideomode ntsc failed %m");
+				}
+				break;
+			default:
+				eDebug("[eAVSwitch] unknown videomode %d", mode);
+		}
+		close(fd);
+	}
+
+	m_video_mode = mode;
+}
+
 void eAVSwitch::setWSS(int val) // 0 = auto, 1 = auto(4:3_off)
 {
 	int fd;
