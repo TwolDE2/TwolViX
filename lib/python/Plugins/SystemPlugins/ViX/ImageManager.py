@@ -538,7 +538,6 @@ class VIXImageManager(Screen):
 		if idx:
 			dialog["list"].moveToIndex(idx)
 		
-
 	def keyRestore2(self, retval):
 		if retval:
 			if SystemInfo["canMultiBoot"]:
