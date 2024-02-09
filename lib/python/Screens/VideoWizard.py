@@ -134,9 +134,13 @@ class VideoWizard(WizardLanguage, Rc):
 	def modeSelect(self, mode):
 		ratesList = self.listRates(mode)
 		print("[VideoWizard] ratesList:", ratesList)
-		if self.port == "HDMI" and mode in ("720p", "1080i", "1080p", "2160p"):
-			self.rate = "auto"
-			self.avSwitch.setMode(port=self.port, mode=mode, rate="auto")
+		if self.port == "HDMI" and mode in ("720p", "1080i", "1080p", "2160p", "2160p30"):
+			if SystemInfo["Has24hz"]:
+				self.rate = "auto"
+				self.avSwitch.setMode(port=self.port, mode=mode, rate="auto")
+			else:
+				self.rate = "multi"
+				self.avSwitch.setMode(port=self.port, mode=mode, rate="multi")
 		else:
 			self.avSwitch.setMode(port=self.port, mode=mode, rate=ratesList[0][0])
 
