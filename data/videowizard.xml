@@ -41,4 +41,14 @@ self.selectKey("UP")
 self.selectKey("DOWN")
 		</code>
 	</step>
+	<step id="end">
+		<code>
+from Components.AVSwitch import iAVSwitch as avSwitch		
+avSwitch.saveMode(self.port, self.mode, self.rate)
+from Components.config import configfile
+configfile.save()
+self.markDone()
+self.close()
+		</code>
+	</step>
 </wizard>
