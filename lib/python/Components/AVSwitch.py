@@ -94,7 +94,7 @@ class AVSwitch:
 		SystemInfo["AvailableVideomodes"] = eAVSwitch.getInstance().readAvailableModes().split(" ")
 		print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
 		if isPluginInstalled("AutoResolution"):
-			return SystemInfo["AvailableVideomodes"] 		
+			return SystemInfo["AvailableVideomodes"]
 
 	def readPreferredModes(self):
 		self.modes_preferred = eAVSwitch.getInstance().getPreferredModes(1)
