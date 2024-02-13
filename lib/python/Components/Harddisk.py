@@ -873,12 +873,11 @@ class HarddiskManager:
 	def HDDList(self):
 		list = []
 		for hd in self.hdd:
-			hdd = "%s - %s" % (hd.model(), hd.bus())
+			hdd = f"{hd.model()} {hd.bus()} /dev/{hd.device}"			
 			cap = hd.capacity()
 			if cap != "":
-				hdd += " (%s)" % cap
+				hdd += f" {cap}"
 			list.append((hdd, hd))
-		# print("[Harddisk] HDDlist = %s." % list)
 		return list
 
 	def getCD(self):
