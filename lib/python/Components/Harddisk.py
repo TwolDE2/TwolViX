@@ -873,7 +873,7 @@ class HarddiskManager:
 	def HDDList(self):
 		list = []
 		for hd in self.hdd:
-			hdd = f"{hd.model()} {hd.bus()} /dev/{hd.device}"			
+			hdd = f"{hd.model()} {hd.bus()} /dev/{hd.device}"
 			cap = hd.capacity()
 			if cap != "":
 				hdd += f" {cap}"

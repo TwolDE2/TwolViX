@@ -8,6 +8,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 import Screens.InfoBar
 
+
 def getProcMounts():
 	try:
 		with open("/proc/mounts", "r") as fd:
@@ -29,8 +30,8 @@ def getProcMounts():
 				item[2] = res.stdout.strip().decode()
 	print("[Harddisk][getProcMounts] ProcMounts", result)
 	return result
-	
-	
+
+
 class HarddiskSetup(Screen):
 	def __init__(self, session, hdd, action, text, question):
 		Screen.__init__(self, session)
@@ -96,6 +97,7 @@ class HarddiskSetup(Screen):
 	def JobViewCB(self, in_background):
 		job_manager.in_background = in_background
 
+
 class HarddiskSelection(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
@@ -126,6 +128,7 @@ class HarddiskSelection(Screen):
 			self.doIt(selection[1])
 			self.close(True)
 
+
 class HarddiskPartitionSelect(HarddiskSelection):
 	def __init__(self, session):
 		HarddiskSelection.__init__(self, session)
@@ -133,47 +136,45 @@ class HarddiskPartitionSelect(HarddiskSelection):
 		self.setTitle(_("Initialize Devices"))
 		tlist = []
 		self.skinName = "HarddiskSelection"  # For derived classes
-		procMounts = getProcMounts()		
-		partitions = harddiskmanager.getMountedPartitions()		
+		procMounts = getProcMounts()
+		partitions = harddiskmanager.getMountedPartitions()
 		for partition in partitions:
-			# print(f"[HarddiskSetup][HarddiskPartitionSelect]1 partition.mountpoint:{partition.mountpoint}")		
+			# print(f"[HarddiskSetup][HarddiskPartitionSelect]1 partition.mountpoint:{partition.mountpoint}")
 			if partition.mountpoint == "/":
-				continue 			
+				continue
 			capacity = partition.total() // 1000 // 1000 // 1000
 			filesystem = partition.filesystem()
 			description = partition.description
-			device = partition.device
-			# print(f"[HarddiskSetup][HarddiskPartitionSelect]2 partition.mountpoint:{partition.mountpoint} description:{description} device:{device}")
+			# print(f"[HarddiskSetup][HarddiskPartitionSelect]2 partition.mountpoint:{partition.mountpoint} description:{description} device:{partition.device}")
 			partitionDesc = f"{description} {capacity}GB  {filesystem}"
 			# print(f"[HarddiskSetup][HarddiskPartitionSelect]3 partition:{partition} partitionDesc:{partitionDesc}")
 			for dev in procMounts:
 				if "dev" not in dev[0]:
 					continue
 				# print(f"[HarddiskSetup][HarddiskPartitionSelect]4 dev0:{dev[0]} dev1:{dev[1]} partition.mountpoint:{partition.mountpoint}")
-				if dev[1] == partition.mountpoint[0:-1]:  
+				if dev[1] == partition.mountpoint[0:-1]:
 					tlist.append((partitionDesc, dev[0]))
-					# print(f"[HarddiskSetup][HarddiskPartitionSelect]5 tlist:{tlist}")					
-		self["hddlist"] = MenuList(tlist)					
+					# print(f"[HarddiskSetup][HarddiskPartitionSelect]5 tlist:{tlist}")
+		self["hddlist"] = MenuList(tlist)
 		self["actions"] = ActionMap(["OkCancelActions"],
 		{
 			"ok": self.doPart,
 			"cancel": self.close
 		})
 
-			
+
 	def doPart(self):
 		selection = self["hddlist"].getCurrent()
-		# print(f"[HarddiskSetup][doPart] selection:{selection[1]}")		
+		# print(f"[HarddiskSetup][doPart] selection:{selection[1]}")
 		if selection[1] == 0:
-			self.close()	
+			self.close()
 		self.Header = "Initialize Devices"
 		cmdlist = []
-		cmdlist.append(f"umount {selection[1]}")					
-		cmdlist.append(f"mkfs.ext4 -T largefile -N 262144 {selection[1]}") 
+		cmdlist.append(f"umount {selection[1]}")
+		cmdlist.append(f"mkfs.ext4 -T largefile -N 262144 {selection[1]}")
 		cmdlist.append(f"partprobe {selection[1]}")
-		# print(f"[HarddiskSetup][okbuttonClick] cmdlist:{cmdlist}")		
-		self.session.open(Console, title = self.Header, cmdlist = cmdlist, closeOnSuccess = True)
-			
+		# print(f"[HarddiskSetup][okbuttonClick] cmdlist:{cmdlist}")
+		self.session.open(Console, title=self.Header, cmdlist=cmdlist, closeOnSuccess=True)
 
 # This is actually just HarddiskSelection but with correct type
 
