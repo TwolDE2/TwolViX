@@ -106,9 +106,7 @@ class AVSwitch:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI")  # Must be HDMI.
 
-	# Check if a high-level mode with a given rate is available.
-	#
-	def isModeAvailable(self, port, mode, rate):
+	def isModeAvailable(self, port, mode, rate):  # Check if a high-level mode with a given rate is available.
 		rateNew = self.rates[mode][rate]
 		for modeNew in rateNew.values():
 			# print(f"[AVSwitch][isModeAvailable] modeNew:{modeNew} videomodes:{SystemInfo['AvailableVideomodes']}")
@@ -120,6 +118,25 @@ class AVSwitch:
 
 	def isWidescreenMode(self, port, mode):
 		return mode in self.widescreen_modes
+
+	def isPortUsed(self, port):  # used by VideoWizard
+		if port == "HDMI":
+			self.readPreferredModes()
+			return len(self.modes_preferred) != 0
+		else:
+			return True
+
+	def getPortList(self):  # used by VideoWizard
+		return [port for port in self.modes]
+
+	def getModeList(self, port):  	# Get a list with all modes, with all rates, for a given port.
+		res = []
+		for mode in self.modes[port]:
+			rates = [rate for rate in self.rates[mode] if self.isModeAvailable(port, mode, rate)]  # List all rates which are completely valid.
+			if len(rates):
+				res.append((mode, rates))  # If at least one rate is ok, add this mode.
+		# print(f"[AVSwitch][getModeList] ModeList:{res}")
+		return res
 
 	def setMode(self, port, mode, rate, force=None):
 		print(f"[AVSwitch] setMode - port: {port}, mode: {mode}, rate: {rate}")
@@ -180,28 +197,6 @@ class AVSwitch:
 		if mode in config.av.videorate:
 			config.av.videorate[mode].setValue(rate)
 			config.av.videorate[mode].save()
-
-	def isPortUsed(self, port):  # used by VideoWizard
-		if port == "HDMI":
-			self.readPreferredModes()
-			return len(self.modes_preferred) != 0
-		else:
-			return True
-
-	def getPortList(self):  # used by VideoWizard
-		return [port for port in self.modes]
-
-	# Get a list with all modes, with all rates, for a given port.
-	def getModeList(self, port):
-		res = []
-		for mode in self.modes[port]:
-			# List all rates which are completely valid.
-			rates = [rate for rate in self.rates[mode] if self.isModeAvailable(port, mode, rate)]
-			# If at least one rate is ok, add this mode.
-			if len(rates):
-				res.append((mode, rates))
-		# print(f"[AVSwitch][getModeList] ModeList:{res}")
-		return res
 
 	def createConfig(self, *args):
 		lst = []
