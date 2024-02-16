@@ -162,7 +162,6 @@ class HarddiskPartitionSelect(HarddiskSelection):
 			"cancel": self.close
 		})
 
-
 	def doPart(self):
 		selection = self["hddlist"].getCurrent()
 		# print(f"[HarddiskSetup][doPart] selection:{selection[1]}")
