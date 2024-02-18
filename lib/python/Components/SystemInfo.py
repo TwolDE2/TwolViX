@@ -151,9 +151,9 @@ def getBoxDisplayName():  # This function returns a tuple like ("BRANDNAME", "BO
 
 
 def getRCFile(ext):
-	filename = resolveFilename(SCOPE_SKIN, pathjoin(f"hardware", "{BoxInfo.getItem('rcname')}.{ext}"))
+	filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", f"{BoxInfo.getItem('rcname')}.{ext}"))
 	if not isfile(filename):
-		filename = resolveFilename(SCOPE_SKIN, pathjoin(f"hardware", "dmm1.{ext}"))
+		filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", f"dmm1.{ext}"))
 	return filename
 
 
@@ -202,7 +202,6 @@ def hasInitCam():
 
 SystemInfo["CanKexecVu"] = SystemInfo["boxtype"] in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]
 SystemInfo["HasUsbhdd"] = {}
-SystemInfo["RRecoveryMode"] = SystemInfo["RecoveryMode"] and not SystemInfo["HasKexecMultiboot"]
 SystemInfo["HasInitCam"] = hasInitCam()
 SystemInfo["MachineBrand"] = DISPLAYBRAND
 SystemInfo["MachineName"] = SystemInfo["machinename"]
