@@ -28,9 +28,9 @@ class BoxInformation:
 				elif item:
 					self.setItem(item, self.processValue(value), immutable=True)
 			if self.boxInfo["checksumerror"]:
-				print("[BoxInfo] Data integrity of %s could not be verified." % file)
+				print(f"[BoxInfo] Data integrity of {file} could not be verified.")
 		else:
-			print("[BoxInfo] ERROR: %s is not available!  The system is unlikely to boot or operate correctly." % file)
+			print(f"[BoxInfo] ERROR: {file} is not available!  The system is unlikely to boot or operate correctly.")
 
 	def processValue(self, value):
 		try:
@@ -54,7 +54,7 @@ class BoxInformation:
 
 	def setItem(self, item, value, immutable=False):
 		if item in self.immutableList:
-			print("[BoxInfo] Error: Item '%s' is immutable and can not be %s!" % (item, "changed" if item in self.boxInfo else "added"))
+			print("[BoxInfo] Error: Item '{item}' is immutable and can not be %s!" % ("changed" if item in self.boxInfo else "added"))
 			return False
 		if immutable and item not in self.immutableList:
 			self.immutableList.append(item)
@@ -63,7 +63,7 @@ class BoxInformation:
 
 	def deleteItem(self, item):
 		if item in self.immutableList:
-			print("[BoxInfo] Error: Item '%s' is immutable and can not be deleted!" % item)
+			print(f"[BoxInfo] Error: Item '{item}' is immutable and can not be deleted!")
 		elif item in self.boxInfo:
 			del self.boxInfo[item]
 			return True
@@ -151,9 +151,9 @@ def getBoxDisplayName():  # This function returns a tuple like ("BRANDNAME", "BO
 
 
 def getRCFile(ext):
-	filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", "%s.%s" % (BoxInfo.getItem("rcname"), ext)))
+	filename = resolveFilename(SCOPE_SKIN, pathjoin(f"hardware", "{BoxInfo.getItem('rcname')}.{ext}"))
 	if not isfile(filename):
-		filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", "dmm1.%s" % ext))
+		filename = resolveFilename(SCOPE_SKIN, pathjoin(f"hardware", "dmm1.{ext}"))
 	return filename
 
 
@@ -184,14 +184,14 @@ SystemInfo["canMultiBoot"] = getMultibootslots()
 
 def getNumVideoDecoders():
 	numVideoDecoders = 0
-	while fileExists("/dev/dvb/adapter0/video%d" % numVideoDecoders, "f"):
+	while fileExists(f"/dev/dvb/adapter0/video{numVideoDecoders}", "f"):
 		numVideoDecoders += 1
 	return numVideoDecoders
 
 
 def countFrontpanelLEDs():
 	numLeds = fileExists("/proc/stb/fp/led_set_pattern") and 1 or 0
-	while fileExists("/proc/stb/fp/led%d_pattern" % numLeds):
+	while fileExists(f"/proc/stb/fp/led{numLeds}_pattern"):
 		numLeds += 1
 	return numLeds
 
@@ -217,15 +217,15 @@ SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().c
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
 for cislot in range(0, SystemInfo["CommonInterface"]):
-	SystemInfo["CI%dSupportsHighBitrates" % cislot] = fileCheck("/proc/stb/tsmux/ci%d_tsclk" % cislot)
-	SystemInfo["CI%dRelevantPidsRoutingSupport" % cislot] = fileCheck("/proc/stb/tsmux/ci%d_relevant_pids_routing" % cislot)
+	SystemInfo[f"CI{cislot}SupportsHighBitrates"] = fileCheck(f"/proc/stb/tsmux/ci{cislot}_tsclk")
+	SystemInfo[f"CI{cislot}RelevantPidsRoutingSupport" cislot] = fileCheck(f"/proc/stb/tsmux/ci{cislot}_relevant_pids_routing")
 SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
 SystemInfo["PIPAvailable"] = MODEL not in ("i55plus") and SystemInfo["NumVideoDecoders"] > 1
 # General Hardware
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
 SystemInfo["HasInfoButton"] = SystemInfo["brand"] in ("airdigital", "broadmedia", "ceryon", "dags", "dinobot", "edision", "formuler", "gfutures", "gigablue", "ini", "maxytec", "octagon", "odin", "skylake", "tiviar", "xcore", "xp", "xtrend")
 SystemInfo["HasFullHDSkinSupport"] = SystemInfo["boxtype"] not in ("vipertwin",)
-SystemInfo["hasXcoreVFD"] = SystemInfo["boxtype"] in ("osmega", "spycat4k", "spycat4kmini", "spycat4kcomb") and fileCheck("/sys/module/brcmstb_%s/parameters/pt6302_cgram" % SystemInfo["boxtype"])
+SystemInfo["hasXcoreVFD"] = SystemInfo["boxtype"] in ("osmega", "spycat4k", "spycat4kmini", "spycat4kcomb") and fileCheck(f"/sys/module/brcmstb_{SystemInfo['boxtype']}/parameters/pt6302_cgram")
 SystemInfo["DeepstandbySupport"] = HardwareInfo().has_deepstandby()
 SystemInfo["Fan"] = fileCheck("/proc/stb/fp/fan")
 SystemInfo["FanPWM"] = SystemInfo["Fan"] and fileCheck("/proc/stb/fp/fan_pwm")
@@ -333,7 +333,7 @@ SystemInfo["CanBTAudio"] = fileHas("/proc/stb/audio/btaudio_choices", "off")
 SystemInfo["CanBTAudioDelay"] = fileCheck("/proc/stb/audio/btaudio_delay") or fileCheck("/proc/stb/audio/btaudio_delay_pcm")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 # Multiboot/bootmode options	The following entries need to be in this sequence to avoid a SystemInfo failure.
-SystemInfo["canBackupEMC"] = MODEL in ("hd51", "h7") and ("disk.img", "%s" % SystemInfo["MBbootdevice"]) or MODEL in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "%s" % SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ("usb_update.bin", "none")
+SystemInfo["canBackupEMC"] = MODEL in ("hd51", "h7") and ("disk.img", "{SystemInfo['MBbootdevice']}") or MODEL in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "{SystemInfo['MBbootdevice']}") or SystemInfo["HasHiSi"] and ("usb_update.bin", "none")
 SystemInfo["canMode12"] = MODEL in ("hd51", "h7") and ("brcm_cma=440M@328M brcm_cma=192M@768M", "brcm_cma=520M@248M brcm_cma=200M@768M")
 SystemInfo["HasH9SD"] = MODEL in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
 SystemInfo["HasSDnomount"] = MODEL in ("h9", "i55plus") and (False, "none") or MODEL in ("multibox", "h9combo", "h9combose", "h9twin", "h9se", "pulse4kmini", "hd61", "pulse4k", "h11") and (True, "mmcblk0")
