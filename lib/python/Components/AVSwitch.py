@@ -429,7 +429,7 @@ def InitAVSwitch():
 			choiceslist = procChoices.split(" ")
 			choices = [(item, _(item)) for item in choiceslist]
 			default = choiceslist[0]
-			# print("[AVSwitch][readChoices from Proc] choices=%s, default=%s" % (choices, default))
+			# print(f"[AVSwitch][readChoices from Proc] choices={choices}, default={default}"))
 		return (choices, default)
 
 	iAVSwitch.setInput("ENCODER")  # Init on startup.
@@ -818,7 +818,7 @@ def InitAVSwitch():
 		def setScaler_sharpness(configElement):
 			myval = int(configElement.value)
 			try:
-				print("[AVSwitch] setting scaler_sharpness to: %0.8X" % myval)
+				print(f"[AVSwitch] setting scaler_sharpness to: {myval:0.8X}")
 				open("/proc/stb/vmpeg/0/pep_scaler_sharpness", "w").write("%0.8X" % myval)
 				open("/proc/stb/vmpeg/0/pep_apply", "w").write("1")
 			except (IOError, OSError):
@@ -845,20 +845,20 @@ class VideomodeHotplug:
 		iAVSwitch.on_hotplug.remove(self.hotplug)
 
 	def hotplug(self, what):
-		print("[AVSwitch][VideomodeHotplug] hotplug detected on port '%s'" % what)
+		print(f"[AVSwitch][VideomodeHotplug] hotplug detected on port {what}")
 		port = config.av.videoport.value
 		mode = config.av.videomode[port].value
 		rate = config.av.videorate[mode].value
 
 		if not iAVSwitch.isModeAvailable(port, mode, rate):
-			print("[AVSwitch][VideomodeHotplug] mode %s/%s/%s went away!" % (port, mode, rate))
+			print(f"[AVSwitch][VideomodeHotplug] mode {port}/{mode}/{rate} went away!")
 			modelist = iAVSwitch.getModeList(port)
 			if not len(modelist):
 				print("[AVSwitch][VideomodeHotplug] sorry, no other mode is available (unplug?). Doing nothing.")
 				return
 			mode = modelist[0][0]
 			rate = modelist[0][1]
-			print("[AVSwitch][VideomodeHotplug] setting %s/%s/%s" % (port, mode, rate))
+			print(f"[AVSwitch][VideomodeHotplug] setting mode {port}/{mode}/{rate}")
 			iAVSwitch.setMode(port, mode, rate)
 
 
