@@ -703,7 +703,7 @@ class RecordTimerEntry(TimerEntry):
 			old_end = self.end
 			self.ts_dialog = None
 			if self.setAutoincreaseEnd():
-				self.log(12, f"autoincrease recording {int(self.end - old_end) / 60} minute(s)") 
+				self.log(12, f"autoincrease recording {int(self.end - old_end) / 60} minute(s)")
 				self.state -= 1
 				return True
 			self.log_tuner(12, "stop")
@@ -921,7 +921,7 @@ class RecordTimerEntry(TimerEntry):
 			# TODO: this has to be done.
 		elif event == iRecordableService.evStart:
 			RecordingsState(1)
-			text = _(f"A recording has been started:\n{self.name}") 
+			text = _(f"A recording has been started:\n{self.name}")
 			notify = config.usage.show_message_when_recording_starts.value and not Screens.Standby.inStandby and self.InfoBarInstance and self.InfoBarInstance.execing
 			if self.dirnameHadToFallback:
 				text = "\n".join((text, _("Please note that the previously selected media could not be accessed and therefore the default directory is being used instead.")))
@@ -1101,7 +1101,7 @@ class RecordTimer(Timer):
 			if conflict_list:
 				checkit = True
 				if newTimer in conflict_list:
-					timer_text += _(f"\nTimer '{newTimer.name}' disabled!") 
+					timer_text += _(f"\nTimer '{newTimer.name}' disabled!")
 		if checkit:
 			from Tools.Notifications import AddPopup
 			from Screens.MessageBox import MessageBox

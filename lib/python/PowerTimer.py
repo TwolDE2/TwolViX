@@ -479,7 +479,7 @@ class PowerTimer(Timer):
 				checkit = False  # at moment it is enough when the message is displayed one time
 
 	def saveTimer(self):
-		timerTypes = {
+		timerTypes = {  # noqa: F841
 			TIMERTYPE.WAKEUP: "wakeup",
 			TIMERTYPE.WAKEUPTOSTANDBY: "wakeuptostandby",
 			TIMERTYPE.AUTOSTANDBY: "autostandby",
@@ -489,7 +489,7 @@ class PowerTimer(Timer):
 			TIMERTYPE.REBOOT: "reboot",
 			TIMERTYPE.RESTART: "restart"
 		}
-		afterEvents = {
+		afterEvents = {  # noqa: F841
 			AFTEREVENT.NONE: "nothing",
 			AFTEREVENT.WAKEUPTOSTANDBY: "wakeuptostandby",
 			AFTEREVENT.STANDBY: "standby",
