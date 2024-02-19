@@ -903,7 +903,7 @@ class RecordTimerEntry(TimerEntry):
 		self.backoff = 0
 
 		if int(old_prepare) > 60 and int(old_prepare) != int(self.start_prepare):
-			self.log(15, f"record time changed, start prepare is now: {ctime(self.start_prepare}")
+			self.log(15, f"record time changed, start prepare is now: {ctime(self.start_prepare)}")
 
 	def gotRecordEvent(self, record, event):
 		# TODO: this is not working (never true), please fix. (comparing two swig wrapped ePtrs)
