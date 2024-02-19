@@ -703,7 +703,7 @@ class RecordTimerEntry(TimerEntry):
 			old_end = self.end
 			self.ts_dialog = None
 			if self.setAutoincreaseEnd():
-				self.log(12, f"autoincrease recording {int((self.end - old_end) / 60))} minute(s)" 
+				self.log(12, f"autoincrease recording {int(self.end - old_end) / 60} minute(s)" 
 				self.state -= 1
 				return True
 			self.log_tuner(12, "stop")

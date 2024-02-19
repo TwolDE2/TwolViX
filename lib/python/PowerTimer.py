@@ -107,7 +107,7 @@ class PowerTimerEntry(TimerEntry):
 			self.backoff *= 2
 			if self.backoff > 1800:
 				self.backoff = 1800
-		self.log(10, f"backoff: retry in {int(self.backoff) / 60)} minutes")
+		self.log(10, f"backoff: retry in {int(self.backoff) / 60} minutes")
 		#
 		# If this is the first backoff of a repeat timer remember the original
 		# begin/end times, so that we can use *these* when setting up the repeat.
