@@ -515,7 +515,7 @@ class RecordTimerEntry(TimerEntry):
 				print("[RecordTimer] import 'Screens.InfoBar' failed")
 
 		next_state = self.state + 1
-		self.log(5, f"activating state {next_state,} ({( TimerEntry.States.get(next_state, "?")})")
+		self.log(5, f"activating state {next_state} {TimerEntry.States.get(next_state, "?")}")
 
 		if next_state == self.StatePrepared:
 			if not self.justplay and not self.freespace():
