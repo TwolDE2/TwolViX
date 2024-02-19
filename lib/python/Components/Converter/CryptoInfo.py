@@ -69,7 +69,7 @@ class CryptoInfo(Poll, Converter):
 									else:
 										source = "net"
 									# hops
-									# hops = ecm_info.get("hops", "")
+									hops = ecm_info.get("hops", "")
 									# system
 									# system = ecm_info.get("system", "")
 									# provider
@@ -77,21 +77,21 @@ class CryptoInfo(Poll, Converter):
 									# reader
 									reader = ecm_info.get("reader", "")
 									if source == "emu":
-										textvalue = "%s - %s (Caid: %s, Prov: %s,)" % (source, caid, caid, prov)
+										textvalue = f"{source} - {caid} (Caid: {caid}, Prov: {prov},)"
 									# new oscam ecm.info with port parametr
 									elif reader != "" and source == "net" and port != "":
-										textvalue = "%s - Caid: %s, Prov: %s, Reader: %s, %s (%s:%s@%s) - %s" % (source, caid, prov, reader, protocol, server, port, hops, ecm_time.replace('msec', 'ms'))
+										textvalue = f"{source} - Caid: {caid}, Prov: {prov}, Reader: {reader}, {protocol} ({server}:{port}@{hops}) - {ecm_time.replace('msec', 'ms')}"
 									elif reader != "" and source == "net":
-										textvalue = "%s - Caid: %s, Prov: %s, Reader: %s, %s (%s@%s) - %s" % (source, caid, prov, reader, protocol, server, hops, ecm_time.replace('msec', 'ms'))
+										textvalue = f"{source} - Caid: {caid}, Prov: {prov}, Reader: {reader}, {protocol} ({server}@{hops}) - {ecm_time.replace('msec', 'ms')}"
 									elif reader != "" and source != "net":
-										textvalue = "%s - Caid: %s, Prov: %s, Reader: %s, %s (local) - %s" % (source, caid, prov, reader, protocol, ecm_time.replace('msec', 'ms'))
+										textvalue = f"{source} - Caid: {caid}, Prov: {prov}, Reader: {reader}, {protocol} (local) - {ecm_time.replace('msec', 'ms')}"
 									elif server == "" and port == "" and protocol != "":
-										textvalue = "%s - Caid: %s, Prov: %s, %s - %s" % (source, caid, prov, protocol, ecm_time.replace('msec', 'ms'))
+										textvalue = f"{source} - Caid: {caid}, Prov: {prov}, {protocol} - {ecm_time.replace('msec', 'ms')}"
 									elif server == "" and port == "" and protocol == "":
-										textvalue = "%s - Caid: %s - %s, Prov: %s" % (source, prov, caid, ecm_time.replace('msec', 'ms'))
+										textvalue = f"{source} - Caid: {caid}- {ecm_time.replace('msec', 'ms')}, Prov: {prov}"
 									else:
 										try:
-											textvalue = "%s - Caid: %s, Prov: %s, %s (%s:%s) - %s" % (source, caid, prov, protocol, server, port, ecm_time.replace('msec', 'ms'))
+											textvalue = f"{source} - Caid: {caid}, Prov: {prov}, {protocol} ({server}:{port}) - {ecm_time.replace('msec', 'ms')}"
 										except:
 											pass
 								else:

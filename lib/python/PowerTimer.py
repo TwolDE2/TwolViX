@@ -88,9 +88,9 @@ class PowerTimerEntry(TimerEntry):
 			TIMERTYPE.RESTART: "restart"
 		}[self.timerType]
 		if not self.disabled:
-			return f"PowerTimerEntry(type={timertype}, begin={ctime(self.begin)})")
+			return f"PowerTimerEntry(type={timertype}, begin={ctime(self.begin)})"
 		else:
-			return f"PowerTimerEntry(type={timertype}, begin={ctime(self.begin)} Disabled)")
+			return f"PowerTimerEntry(type={timertype}, begin={ctime(self.begin)} Disabled)"
 
 	def log(self, code, msg):
 		self.log_entries.append((int(time()), code, msg))

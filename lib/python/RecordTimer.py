@@ -311,7 +311,7 @@ class RecordTimerEntry(TimerEntry):
 		self.MountPath = dirname
 		mountwriteable = access(dirname, W_OK)
 		if not mountwriteable:
-			self.log(0, (f"Mount '{dirname}' is not writeable.")
+			self.log(0, f"Mount '{dirname}' is not writeable.")
 			return False
 
 		s = statvfs(dirname)

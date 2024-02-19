@@ -46,9 +46,9 @@ def parseKeys(context, filename, actionmap, device, keys):
 
 		flags = sum(map(flag_ascii_to_id, flags))
 
-		assert mapto, f"[keymapparser] {filename}: must specify mapto in context {context}, id '{id}'")
-		assert id, f"[keymapparser] {filename}: must specify id in context {context}, mapto '{mapto}'")
-		assert flags, f"[keymapparser] {filename}: must specify at least one flag in context {context}, id '{id}'")
+		assert mapto, f"[keymapparser] {filename}: must specify mapto in context {context}, id '{id}'"
+		assert id, f"[keymapparser] {filename}: must specify id in context {context}, mapto '{mapto}'"
+		assert flags, f"[keymapparser] {filename}: must specify at least one flag in context {context}, id '{id}'"
 
 		keyid = getKeyId(id)
 		# print("[keymapparser] " + context + "::" + mapto + " -> " + device + "." + hex(keyid))
@@ -68,8 +68,8 @@ def parseTrans(filename, actionmap, device, keys):
 		keyin = get_attr("from")
 		keyout = get_attr("to")
 		toggle = get_attr("toggle") or "0"
-		assert keyin, f"[keymapparser] {filename}: must specify key to translate from '{keyin}'")
-		assert keyout, f"[keymapparser] {filename}: must specify key to translate to '{keyout}'")
+		assert keyin, f"[keymapparser] {filename}: must specify key to translate from '{keyin}'"
+		assert keyout, f"[keymapparser] {filename}: must specify key to translate to '{keyout}'"
 
 		keyin = getKeyId(keyin)
 		keyout = getKeyId(keyout)
