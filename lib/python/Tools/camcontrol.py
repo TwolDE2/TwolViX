@@ -49,7 +49,7 @@ class CamControl:
 		print(f"[CamControl]Selecting CAM:{cam}")
 		if not cam:
 			cam = "None"
-		dst = f"{self.name}.{cam}")
+		dst = f"{self.name}.{cam}"
 		print(f"[CamControl][select] dst:{dst}")
 		if not path.exists(f"/etc/init.d/{dst}"):
 			print(f"[CamControl][select] init script does not exist:{dst}")

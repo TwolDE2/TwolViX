@@ -644,7 +644,7 @@ class AttributeParser:
 				"block": self.guiObject.alignBlock
 			}[value])
 		except KeyError:
-			print(f"[Skin] Error: Invalid halign '{value}'!  Must be one of 'left', 'center', 'right' or 'block'."
+			print(f"[Skin] Error: Invalid halign '{value}'!  Must be one of 'left', 'center', 'right' or 'block'.")
 
 	def textOffset(self, value):
 		x, y = value.split(",")
