@@ -1249,7 +1249,7 @@ def readSkin(screen, skin, names, desktop):
 				# 	screen[wname].connectRelatedElement(wconnection, screen)
 				attributes = screen[wname].skinAttributes = []
 			except Exception:
-				raise SkinError(f"Component with name '{wname]' was not found in skin of screen '{name}'")
+				raise SkinError(f"Component with name '{wname}' was not found in skin of screen '{name}'")
 			# assert screen[wname] is not Source
 			collectAttributes(attributes, widget, context, skinPath, ignore=("name",))
 		elif wsource:
