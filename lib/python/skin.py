@@ -1188,7 +1188,7 @@ def readSkin(screen, skin, names, desktop):
 		myScreen = getattr(screen, "parsedSkin", None)
 	if myScreen is None and getattr(screen, "skin", None):  # Try uncompiled embedded skin.
 		if isinstance(screen.skin, list):
-			print(f"[Skin] Resizable embedded skin template found in '{namne]'.")
+			print(f"[Skin] Resizable embedded skin template found in '{name}'.")
 			skin = screen.skin[0] % tuple([int(x * getSkinFactor()) for x in screen.skin[1:]])
 		else:
 			skin = screen.skin
