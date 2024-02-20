@@ -3738,11 +3738,9 @@ class InfoBarSubserviceSelection:
 
 	def subserviceSelection(self):
 		serviceRef = self.session.nav.getCurrentlyPlayingServiceReference()
-		print(f"[InfoBarGenerics][InfoBarSubserviceSelection][subserviceSelection] Green pressed serviceRef:{serviceRef}")		
 		if serviceRef:
 			service = self.session.nav.getCurrentService()
 			subservices = getActiveSubservicesForCurrentChannel(service)
-			print(f"[InfoBarGenerics][InfoBarSubserviceSelection][subserviceSelection] Green pressed subservices:{subservices}")			
 			if subservices and len(subservices) > 1 and (serviceRef.toString() in [x[1] for x in subservices] or service.subServices()):
 				try:
 					selection = [x[1] for x in subservices].index(serviceRef.toString())
@@ -3763,7 +3761,7 @@ class InfoBarSubserviceSelection:
 					selection += 2
 				self.session.openWithCallback(self.subserviceSelected, ChoiceBox, title=_("Please select a sub service"), list=tlist, selection=selection, keys=keys, skin_name="SubserviceSelection")
 			else:
-				self.session.openWithCallback(self.subserviceSelected, ChoiceBox, title=_("No sub service available"), list=[], selection=0, keys=[], skin_name="SubserviceSelection")				
+				self.session.openWithCallback(self.subserviceSelected, ChoiceBox, title=_("No sub service available"), list=[], selection=0, keys=[], skin_name="SubserviceSelection")
 
 	def subserviceSelected(self, service):
 		if service and len(service) > 1:
