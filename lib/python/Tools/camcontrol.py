@@ -41,7 +41,7 @@ class CamControl:
 
 	def command(self, cmd):
 		if path.exists(self.link):
-			cmd = f"{self.link} {cmd}")
+			cmd = f"{self.link} {cmd}"
 			print(f"[CamControl][command]Executing {cmd}")
 			eConsoleAppContainer().execute(cmd)
 

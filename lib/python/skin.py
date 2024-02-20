@@ -342,7 +342,7 @@ def parseFont(s, scale=((1, 1), (1, 1))):
 	except KeyError:
 		if name not in getFontFaces():
 			f = fonts["Body"]
-			print(f"[Skin] Error: Font '[name}' (in '{s}') is not defined!  Using 'Body' font ('{f[0]}') instead.")
+			print(f"[Skin] Error: Font '{name}' (in '{s}') is not defined!  Using 'Body' font ('{f[0]}') instead.")
 			name = f[0]
 			size = f[1] if size is None else size
 	return gFont(name, int(size) * scale[0][0] // scale[0][1])

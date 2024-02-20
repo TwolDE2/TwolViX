@@ -214,7 +214,7 @@ def emptySlot(slot):
 	if SystemInfo["HasMultibootMTD"]:
 		Console(binary=True).ePopen(f"mount -t ubifs {SystemInfo['canMultiBoot'][slot]['root']} {tmp.dir}")
 	else:
-		Console(binary=True).ePopen(f"mount {SystemInfo['canMultiBoot'][slot]['root']} {tmp.dir})
+		Console(binary=True).ePopen(f"mount {SystemInfo['canMultiBoot'][slot]['root']} {tmp.dir}")
 	imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 	if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
 		rename((path.join(imagedir, "usr/bin/enigma2")), (path.join(imagedir, "usr/bin/enigmax")))
