@@ -162,7 +162,7 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 						scrnID = element.attrib.get("id", None)
 						if scrnID is None or scrnID == screenID:  # If there is a screen ID is it for this display.
 							# print(f"[Skin] DEBUG: Extracting screen '{name}' from '{filename}'.  (scope='{scope}')")
-							domScreens[name] = (element, f"{dirname(filename)]/")
+							domScreens[name] = (element, f"{dirname(filename)}/")
 				elif element.tag == "windowstyle":  # Process the windowstyle element.
 					scrnID = element.attrib.get("id", None)
 					if scrnID is not None:  # Without an scrnID, it is useless!
