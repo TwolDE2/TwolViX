@@ -14,7 +14,7 @@ if fileHas("/proc/cmdline", "kexec=1"):
 	from PIL import ImageFont
 
 MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
-MbootList2 = ("/dev/%s" % SystemInfo["mtdrootfs"], )  # kexec kernel Vu+ multiboot
+MbootList2 = (f"/dev/{SystemInfo['mtdrootfs']}")  # kexec kernel Vu+ multiboot
 
 
 class tmp:
@@ -36,11 +36,11 @@ def getMultibootslots():
 		if len(bootslots) != 0:
 			break
 		if path.exists(device):
-			Console(binary=True).ePopen("mount %s %s" % (device, tmpname))
+			Console(binary=True).ePopen(f"mount {device} {tmpname}")
 			if path.isfile(path.join(tmpname, "STARTUP")):
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
-				print("[Multiboot][[getMultibootslots]1 Bootdevice found: %s" % device2)
+				print(f"[Multiboot][[getMultibootslots]1 Bootdevice found: {device2}")
 				SystemInfo["BootDevice"] = device2
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
 					slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
@@ -71,7 +71,7 @@ def getMultibootslots():
 								UUIDnum += 1
 								if slotx is not None:
 									slot["root"] = slotx
-								slot["kernel"] = "/linuxrootfs%s/zImage" % slotnumber
+								slot["kernel"] = f"/linuxrootfs{slotnumber}/zImage"
 							if path.exists(slot["root"]) or slot["root"] == "ubi0:ubifs":
 								slot["startupfile"] = path.basename(file)
 								slot["slotname"] = slotname
@@ -83,7 +83,7 @@ def getMultibootslots():
 									SystemInfo["HasRootSubdir"] = slot.get("rootsubdir")
 
 								if "kernel" not in slot.keys():
-									slot["kernel"] = "%sp%s" % (slot["root"].split("p")[0], int(slot["root"].split("p")[1]) - 1)  # oldstyle MB kernel = root-1
+									slot["kernel"] = f"{slot['root'].split('p')[0]}p{int(slot["root"].split("p")[1]) - 1}"  # oldstyle MB kernel = root-1
 							else:
 								continue
 							bootslots[int(slotnumber)] = slot
@@ -91,7 +91,7 @@ def getMultibootslots():
 							bootslots[int(slotnumber)] = slot
 						else:
 							continue
-			Console(binary=True).ePopen("umount %s" % tmpname)
+			Console(binary=True).ePopen(f"umount {tmpname}")
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	if bootslots:
@@ -151,9 +151,9 @@ def GetImagelist(Recovery=None):
 		imagedir = "/"
 		if SystemInfo["MultiBootSlot"] != slot or SystemInfo["HasHiSi"]:
 			if SystemInfo["HasMultibootMTD"]:
-				Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))
+				Console(binary=True).ePopen(f"mount -t ubifs {SystemInfo['canMultiBoot'][slot]['root']} {tmpname}")
 			else:
-				Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmpname))
+				Console(binary=True).ePopen(f"mount {SystemInfo['canMultiBoot'][slot]['root']} {tmpname}")
 			imagedir = sep.join([_f for _f in [tmpname, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 		if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
 			if path.isfile(path.join(imagedir, "usr/lib/enigma.info")):
@@ -161,26 +161,26 @@ def GetImagelist(Recovery=None):
 				BuildVersion = createInfo(slot, imagedir=imagedir)
 			else:
 				print("[multiboot] [GetImagelist] using BoxInfo")
-				Creator = open("%s/etc/issue" % imagedir).readlines()[-2].capitalize().strip()[:-6]
+				Creator = open(f"{imagedir}/etc/issue").readlines()[-2].capitalize().strip()[:-6]
 				if fileHas("/proc/cmdline", "kexec=1") and path.isfile(path.join(imagedir, "etc/vtiversion.info")):
 					Vti = open(path.join(imagedir, "etc/vtiversion.info")).read()
 					date = VerDate(imagedir)
 					Creator = Vti[0:3]
 					Build = Vti[-8:-1]
-					BuildVersion = "%s %s (%s) " % (Creator, Build, date)
+					BuildVersion = f"{Creator} {Build} ({date}) "
 				else:
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
-					BuildVersion = "%s (%s)" % (Creator, date)
+					BuildVersion = f"{Creator} ({date})"
 			if fileHas("/proc/cmdline", "kexec=1") and Recovery and config.usage.bootlogo_identify.value:
 				bootmviSlot(imagedir=imagedir, text=BuildVersion, slot=slot)
-			Imagelist[slot] = {"imagename": "%s" % BuildVersion}
+			Imagelist[slot] = {f"imagename": "{BuildVersion}"}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):
 			Imagelist[slot] = {"imagename": _("Deleted image")}
 		else:
 			Imagelist[slot] = {"imagename": _("Empty slot")}
 		if SystemInfo["MultiBootSlot"] != slot:
-			Console(binary=True).ePopen("umount %s" % tmpname)
+			Console(binary=True).ePopen(f"umount {tmpname}")
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	return Imagelist
@@ -212,16 +212,16 @@ def VerDate(imagedir):
 def emptySlot(slot):
 	tmp.dir = tempfile.mkdtemp(prefix="emptySlot")
 	if SystemInfo["HasMultibootMTD"]:
-		Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
+		Console(binary=True).ePopen(f"mount -t ubifs {SystemInfo['canMultiBoot'][slot]['root']} {tmp.dir}")
 	else:
-		Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
+		Console(binary=True).ePopen(f"mount {SystemInfo['canMultiBoot'][slot]['root']} {tmp.dir})
 	imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 	if path.isfile(path.join(imagedir, "usr/bin/enigma2")):
 		rename((path.join(imagedir, "usr/bin/enigma2")), (path.join(imagedir, "usr/bin/enigmax")))
 		ret = 0
 	else:
 		ret = 4  # NO enigma2 found to rename
-	Console(binary=True).ePopen("umount %s" % tmp.dir)
+	Console(binary=True).ePopen(f"umount {tmp.dir}")
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	return ret
@@ -231,11 +231,11 @@ def bootmviSlot(imagedir="/", text=" ", slot=0):
 	inmviPath = path.join(imagedir, "usr/share/bootlogo.mvi")
 	outmviPath = path.join(imagedir, "usr/share/enigma2/bootlogo.mvi")
 	txtPath = path.join(imagedir, "usr/share/enigma2/bootlogo.txt")
-	text = "booting slot %s %s" % (slot, text)
+	text = f"booting slot {slot} {text}"
 	if path.exists(inmviPath):
 		if path.exists(outmviPath) and path.exists(txtPath) and open(txtPath).read() == text:
 			return
-		Console(binary=True).ePopen("cp %s /tmp/bootlogo.m1v" % inmviPath)
+		Console(binary=True).ePopen(f"cp {inmviPath} /tmp/bootlogo.m1v")
 		Console(binary=True).ePopen("ffmpeg -skip_frame nokey -i /tmp/bootlogo.m1v -vsync 0  -y  /tmp/out1.png 2>/dev/null")
 		Console(binary=True).ePopen("rm -f /tmp/mypicture.m1v")
 		if path.exists("/tmp/out1.png"):
@@ -248,7 +248,7 @@ def bootmviSlot(imagedir="/", text=" ", slot=0):
 		I1.text((50, 10), text, font=myFont, fill=(255, 255, 255))
 		img.save("/tmp/out1.png")									# Save the edited image
 		Console(binary=True).ePopen("ffmpeg -i /tmp/out1.png -r 25 -b 20000 -y /tmp/mypicture.m1v  2>/dev/null")
-		Console(binary=True).ePopen("cp /tmp/mypicture.m1v %s" % outmviPath)
+		Console(binary=True).ePopen(f"cp /tmp/mypicture.m1v {outmviPath}")
 		with open(txtPath, "w") as f:
 			f.write(text)
 
@@ -257,12 +257,12 @@ def restoreSlots():
 	for slot in SystemInfo["canMultiBoot"]:
 		tmp.dir = tempfile.mkdtemp(prefix="restoreSlot")
 		if SystemInfo["HasMultibootMTD"]:
-			Console(binary=True).ePopen("mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
+			Console(binary=True).ePopen(f"mount -t ubifs %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
 		else:
-			Console(binary=True).ePopen("mount %s %s" % (SystemInfo["canMultiBoot"][slot]["root"], tmp.dir))
+			Console(binary=True).ePopen(f"mount {SystemInfo['canMultiBoot'][slot]['root']} {tmp.dir}")
 		imagedir = sep.join([_f for _f in [tmp.dir, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
 		if path.isfile(path.join(imagedir, "usr/bin/enigmax")):
 			rename((path.join(imagedir, "usr/bin/enigmax")), (path.join(imagedir, "usr/bin/enigma2")))
-		Console(binary=True).ePopen("umount %s" % tmp.dir)
+		Console(binary=True).ePopen(f"umount {tmp.dir}")
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
