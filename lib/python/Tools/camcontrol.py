@@ -27,7 +27,7 @@ class CamControl:
 		configs = []
 		if path.exists("/etc/tuxbox/config/%s" % prefix):
 			configs = listdir(f"/etc/tuxbox/config/{prefix}")
-		print(f"[CamControl][getList] configs=%s" % configs)
+		print(f"[CamControl][getList] configs={configs}")
 		return configs
 
 	def current(self):

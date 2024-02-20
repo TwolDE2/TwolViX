@@ -150,7 +150,7 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 		# print(f"[Skin] Loading skin file '{skin}'.")
 		domSkin = fileReadXML(filename)
 		if domSkin:
-			scpe = {SCOPE_CONFIG: "SCOPE_CONFIG", SCOPE_CURRENT_LCDSKIN: "SCOPE_CURRENT_LCDSKIN", SCOPE_CURRENT_SKIN: "SCOPE_CURRENT_SKIN", SCOPE_FONTS: "SCOPE_FONTS", SCOPE_SKIN: "SCOPE_SKIN", SCOPE_SKIN_IMAGE: "SCOPE_SKIN_IMAGE"}.get(scope, scope)
+			# scpe = {SCOPE_CONFIG: "SCOPE_CONFIG", SCOPE_CURRENT_LCDSKIN: "SCOPE_CURRENT_LCDSKIN", SCOPE_CURRENT_SKIN: "SCOPE_CURRENT_SKIN", SCOPE_FONTS: "SCOPE_FONTS", SCOPE_SKIN: "SCOPE_SKIN", SCOPE_SKIN_IMAGE: "SCOPE_SKIN_IMAGE"}.get(scope, scope)  # noqa: F841
 			# print(f"[Skin] DEBUG: Extracting non screen blocks from '{filename}'.  (scope='{scpe}')")
 			# For loadSingleSkinData colors, bordersets etc. are applied one after
 			# the other in order of ascending priority.
@@ -330,7 +330,7 @@ def parseFont(s, scale=((1, 1), (1, 1))):
 				size = size.replace("f", str(getSkinFactor()))
 				size = int(eval(size))
 			except Exception as err:
-				print(f"[Skin] {type(err).__name__,} '{err}': font size formula '{orig}', processed to '{s}', cannot be evaluated!")
+				print(f"[Skin] {type(err).__name__} '{err}': font size formula '{orig}', processed to '{s}', cannot be evaluated!")
 				size = None
 	else:
 		name = s
@@ -1183,7 +1183,7 @@ def readSkin(screen, skin, names, desktop):
 				print(f"[Skin] Warning: Skin screen '{n}' rejected as it does not offer all the mandatory widgets '{", ".join(screen.mandatoryWidgets)}'!")
 				myScreen = None
 	else:
-		name = f"<embedded-in-{screen.__class__.__name__}>" 
+		name = f"<embedded-in-{screen.__class__.__name__}>"
 	if myScreen is None:  # Otherwise try embedded skin.
 		myScreen = getattr(screen, "parsedSkin", None)
 	if myScreen is None and getattr(screen, "skin", None):  # Try uncompiled embedded skin.
@@ -1377,7 +1377,7 @@ def readSkin(screen, skin, names, desktop):
 			p = processors.get(w.tag, processNone)
 			try:
 				p(w, context)
-			except SkinError as err:
+			except SkinError as err:  # noqa: F841
 				print("f[Skin] Error in screen '{name}' widget '{w.tag}' {str(err)}!")
 				import traceback
 				traceback.print_exc()
