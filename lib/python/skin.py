@@ -193,7 +193,7 @@ class SkinError(Exception):
 		self.msg = message
 
 	def __str__(self):
-		return f"[Skin] {config.skin.primary_skin.value}: {self.msg}!  Please contact the skin's author!")
+		return f"[Skin] {config.skin.primary_skin.value}: {self.msg}!  Please contact the skin's author!"
 
 # Convert a coordinate string into a number.  Used to convert object position and
 # size attributes into a number.
