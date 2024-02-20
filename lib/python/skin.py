@@ -1099,7 +1099,7 @@ class SkinContext:
 				self.h = None
 
 	def __str__(self):
-		return f"Context ({self.x},{self.y})+({self.w},{self.h}) ")
+		return f"Context ({self.x},{self.y})+({self.w},{self.h}) "
 
 	def parse(self, pos, size, font):
 		if pos == "fill":
