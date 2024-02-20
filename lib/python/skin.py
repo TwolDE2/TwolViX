@@ -1423,7 +1423,7 @@ def readSkin(screen, skin, names, desktop):
 		context.y = 0
 		processScreen(myScreen, context)
 	except Exception as err:
-		print(f"[Skin] Error in screen '{name]', {type(err).__name__}: {str(err)}!")
+		print(f"[Skin] Error in screen '{name}', {type(err).__name__}: {str(err)}!")
 		import traceback
 		traceback.print_exc()
 
