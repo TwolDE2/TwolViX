@@ -174,7 +174,7 @@ def GetImagelist(Recovery=None):
 					BuildVersion = f"{Creator} ({date})"
 			if fileHas("/proc/cmdline", "kexec=1") and Recovery and config.usage.bootlogo_identify.value:
 				bootmviSlot(imagedir=imagedir, text=BuildVersion, slot=slot)
-			Imagelist[slot] = {"imagename": "{BuildVersion}"}
+			Imagelist[slot] = {"imagename": f"{BuildVersion}"}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):
 			Imagelist[slot] = {"imagename": _("Deleted image")}
 		else:
