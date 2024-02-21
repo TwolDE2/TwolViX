@@ -14,7 +14,7 @@ if fileHas("/proc/cmdline", "kexec=1"):
 	from PIL import ImageFont
 
 MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
-MbootList2 = (f"/dev/{SystemInfo['mtdrootfs']}")  # kexec kernel Vu+ multiboot
+MbootList2 = ("/dev/%s" % SystemInfo["mtdrootfs"], )  # kexec kernel Vu+ multiboot
 
 
 class tmp:
@@ -40,7 +40,7 @@ def getMultibootslots():
 			if path.isfile(path.join(tmpname, "STARTUP")):
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
-				print(f"[Multiboot][[getMultibootslots]1 Bootdevice found: {device2}")
+				print(f"[Multiboot][[getMultibootslots]1 *** Bootdevice found: {device2}")
 				SystemInfo["BootDevice"] = device2
 				for file in glob.glob(path.join(tmpname, "STARTUP_*")):
 					slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
@@ -83,7 +83,7 @@ def getMultibootslots():
 									SystemInfo["HasRootSubdir"] = slot.get("rootsubdir")
 
 								if "kernel" not in slot.keys():
-									slot["kernel"] = f"{slot['root'].split('p')[0]}p{int(slot["root"].split("p")[1]) - 1}"  # oldstyle MB kernel = root-1
+									slot["kernel"] = f"{slot['root'].split('p')[0]}p{int(slot['root'].split('p')[1]) - 1}"  # oldstyle MB kernel = root-1
 							else:
 								continue
 							bootslots[int(slotnumber)] = slot

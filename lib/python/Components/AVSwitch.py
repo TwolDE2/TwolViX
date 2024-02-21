@@ -818,7 +818,6 @@ def InitAVSwitch():
 		def setScaler_sharpness(configElement):
 			myval = int(configElement.value)
 			try:
-				print(f"[AVSwitch] setting scaler_sharpness to: {myval:0.8X}")
 				open("/proc/stb/vmpeg/0/pep_scaler_sharpness", "w").write("%0.8X" % myval)
 				open("/proc/stb/vmpeg/0/pep_apply", "w").write("1")
 			except (IOError, OSError):

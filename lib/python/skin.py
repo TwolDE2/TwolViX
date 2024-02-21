@@ -1180,7 +1180,7 @@ def readSkin(screen, skin, names, desktop):
 				name = n  # Use this name for debug output.
 				break
 			else:
-				print(f"[Skin] Warning: Skin screen '{n}' rejected as it does not offer all the mandatory widgets '{", ".join(screen.mandatoryWidgets)}'!")
+				print(f"[Skin] Warning: Skin screen '{n}' rejected as it does not offer all the mandatory widgets '{''', '''.join(screen.mandatoryWidgets)}'!")
 				myScreen = None
 	else:
 		name = f"<embedded-in-{screen.__class__.__name__}>"
@@ -1399,7 +1399,7 @@ def readSkin(screen, skin, names, desktop):
 		try:
 			c = cc(context, widget.attrib.get("position"), widget.attrib.get("size"), widget.attrib.get("font"))
 		except Exception as err:
-			raise SkinError(f"Failed to create skin context (position='{widget.attrib.get("position")}', size='{widget.attrib.get("size")}', font='{widget.attrib.get("font")}') in context '{context}': {err}")
+			raise SkinError("Failed to create skin context (position='%s', size='%s', font='%s') in context '%s': %s" % (widget.attrib.get("position"), widget.attrib.get("size"), widget.attrib.get("font"), context, err))
 		processScreen(widget, c)
 
 	processors = {
