@@ -6,15 +6,12 @@ from os import path, rmdir, rename, sep, stat
 
 from Components.Console import Console
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation
-from Tools.Directories import fileHas, fileExists
+from Tools.Directories import fileExists
 
-if fileHas("/proc/cmdline", "kexec=1"):
-	from PIL import Image
-	from PIL import ImageDraw
-	from PIL import ImageFont
+if SystemInfo["HasKexecMultiboot"]:
+	from PIL import Image, ImageDraw, ImageFont
 
-MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
-MbootList2 = ("/dev/%s" % SystemInfo["mtdrootfs"], )  # kexec kernel Vu+ multiboot
+MbootList = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
 
 
 class tmp:
@@ -31,7 +28,7 @@ def getMultibootslots():
 	UUIDnum = 0
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
-	MbootList = MbootList2 if fileHas("/proc/cmdline", "kexec=1") else MbootList1
+	MbootList = MbootList if not SystemInfo["HasKexecMultiboot"] else (f"/dev/{SystemInfo['mtdrootfs']}", )  # kexec kernel Vu+ multiboot
 	for device in MbootList:
 		if len(bootslots) != 0:
 			break
@@ -62,7 +59,7 @@ def getMultibootslots():
 							slot["startupfile"] = path.basename(file)
 						else:
 							slot["slotType"] = "eMMC" if "mmc" in slot["root"] else "USB"
-						if fileHas("/proc/cmdline", "kexec=1") and int(slotnumber) > 3:
+						if SystemInfo["HasKexecMultiboot"] and int(slotnumber) > 3:
 							SystemInfo["HasKexecUSB"] = True
 						if "root" in slot.keys():
 							if "UUID=" in slot["root"]:
@@ -76,7 +73,7 @@ def getMultibootslots():
 								slot["startupfile"] = path.basename(file)
 								slot["slotname"] = slotname
 								SystemInfo["HasMultibootMTD"] = slot.get("mtd")
-								if not fileHas("/proc/cmdline", "kexec=1") and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
+								if not SystemInfo["HasKexecMultiboot"] and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
 									slot["rootsubdir"] = None
 									slot["slotType"] = "SDCARD"
 								else:
@@ -96,7 +93,7 @@ def getMultibootslots():
 		rmdir(tmp.dir)
 	if bootslots:
 		bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
-		if fileHas("/proc/cmdline", "kexec=1") and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
+		if SystemInfo["HasKexecMultiboot"] and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
 			rootsubdir = [x for x in bootArgs.split() if x.startswith("rootsubdir")]
 			char = "/" if "/" in rootsubdir[0] else "="
 			SystemInfo["MultiBootSlot"] = int(rootsubdir[0].rsplit(char, 1)[1][11:])
@@ -111,15 +108,14 @@ def getMultibootslots():
 					continue
 				if bootslots[slot]["root"] == root:
 					SystemInfo["MultiBootSlot"] = slot
-					print("[Multiboot][MultiBootSlot]2 current slot used:", SystemInfo["MultiBootSlot"])
+					print(f"[Multiboot][MultiBootSlot]2 current slot used:{SystemInfo['MultiBootSlot']}")
 					break
 	return bootslots
 
 
 def getUUIDtoSD(UUID):  # returns None on failure
-	# print("[multiboot][getUUIDtoSD2] UUID = ", UUID)
-	check = "/sbin/blkid"
-	if fileExists(check):
+	# print(f"[multiboot][getUUIDtoSD2] UUID:{UUID}")
+	if fileExists("/sbin/blkid"):
 		lines = subprocess.check_output([check]).decode(encoding="utf8", errors="ignore").split("\n")
 		for line in lines:
 			if UUID in line.replace('"', ''):
@@ -162,7 +158,7 @@ def GetImagelist(Recovery=None):
 			else:
 				print("[multiboot] [GetImagelist] using BoxInfo")
 				Creator = open(f"{imagedir}/etc/issue").readlines()[-2].capitalize().strip()[:-6]
-				if fileHas("/proc/cmdline", "kexec=1") and path.isfile(path.join(imagedir, "etc/vtiversion.info")):
+				if SystemInfo["HasKexecMultiboot"] and path.isfile(path.join(imagedir, "etc/vtiversion.info")):
 					Vti = open(path.join(imagedir, "etc/vtiversion.info")).read()
 					date = VerDate(imagedir)
 					Creator = Vti[0:3]
@@ -172,7 +168,7 @@ def GetImagelist(Recovery=None):
 					date = VerDate(imagedir)
 					Creator = Creator.replace("-release", " ")
 					BuildVersion = f"{Creator} ({date})"
-			if fileHas("/proc/cmdline", "kexec=1") and Recovery and config.usage.bootlogo_identify.value:
+			if SystemInfo["HasKexecMultiboot"] and Recovery and config.usage.bootlogo_identify.value:
 				bootmviSlot(imagedir=imagedir, text=BuildVersion, slot=slot)
 			Imagelist[slot] = {"imagename": f"{BuildVersion}"}
 		elif path.isfile(path.join(imagedir, "usr/bin/enigmax")):
