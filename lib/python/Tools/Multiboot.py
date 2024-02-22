@@ -11,7 +11,7 @@ from Tools.Directories import fileExists
 if SystemInfo["HasKexecMultiboot"]:
 	from PIL import Image, ImageDraw, ImageFont
 
-MbootList = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
+MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions")
 
 
 class tmp:
@@ -28,7 +28,7 @@ def getMultibootslots():
 	UUIDnum = 0
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
-	MbootList = MbootList if not SystemInfo["HasKexecMultiboot"] else (f"/dev/{SystemInfo['mtdrootfs']}", )  # kexec kernel Vu+ multiboot
+	MbootList = MbootList1 if not SystemInfo["HasKexecMultiboot"] else (f"/dev/{SystemInfo['mtdrootfs']}", )  # kexec kernel Vu+ multiboot
 	for device in MbootList:
 		if len(bootslots) != 0:
 			break
@@ -115,7 +115,8 @@ def getMultibootslots():
 
 def getUUIDtoSD(UUID):  # returns None on failure
 	# print(f"[multiboot][getUUIDtoSD2] UUID:{UUID}")
-	if fileExists("/sbin/blkid"):
+	check = "/sbin/blkid"
+	if fileExists(check):
 		lines = subprocess.check_output([check]).decode(encoding="utf8", errors="ignore").split("\n")
 		for line in lines:
 			if UUID in line.replace('"', ''):
