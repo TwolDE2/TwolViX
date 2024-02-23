@@ -10,7 +10,7 @@ from time import time, localtime, strftime
 from pickle import load as pickle_load, dump as pickle_dump, HIGHEST_PROTOCOL as pickle_HIGHEST_PROTOCOL
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from keyids import KEYIDS
-#  from keyids import KEYFLAGS, KEYIDNAMES  # used by print debug
+from keyids import KEYFLAGS, KEYIDNAMES  # used by print debug
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap
 from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection, ACTIONKEY_RIGHT
@@ -339,7 +339,7 @@ class InfoBarUnhandledKey:
 			self.unhandledKeyDialog = None
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
-		print(f"[InfoBarGenerics] Key: {key} ({KEYFLAGS.get(flag, _('Unknown'))}) KeyID='{KEYIDNAMES.get(key, _('Unknown'))}' Binding='{getKeyDescription(key)}'.")
+		# print(f"[InfoBarGenerics] Key: {key} ({KEYFLAGS.get(flag, _('Unknown'))}) KeyID='{KEYIDNAMES.get(key, _('Unknown'))}' Binding='{getKeyDescription(key)}'.")
 		if flag != 2:  # don't hide on repeat
 			self.unhandledKeyDialog.hide()
 			if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
