@@ -114,10 +114,9 @@ def getMultibootslots():
 
 
 def getUUIDtoSD(UUID):  # returns None on failure
-	# print(f"[multiboot][getUUIDtoSD2] UUID:{UUID}")
-	check = "/sbin/blkid"
-	if fileExists(check):
-		lines = subprocess.check_output([check]).decode(encoding="utf8", errors="ignore").split("\n")
+	if fileExists("/sbin/blkid"):
+		lines = subprocess.check_output(["/sbin/blkid"]).decode(encoding="utf8", errors="ignore").split("\n")
+		# print(f"[multiboot][getUUIDtoSD2] lines:{lines}")		
 		for line in lines:
 			if UUID in line.replace('"', ''):
 				return line.split(":")[0].strip()
