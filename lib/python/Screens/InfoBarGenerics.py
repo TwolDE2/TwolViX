@@ -136,7 +136,7 @@ def saveResumePoints():
 		pickle_dump(resumePointCache, f, pickle_HIGHEST_PROTOCOL)
 		f.close()
 	except Exception as ex:
-		print("[InfoBarGenerics] Failed to write resumepoints:%s" % ex)
+		print(f"[InfoBarGenerics] Failed to write resumepoints:{ex}")
 	resumePointCacheLast = int(time())
 
 
@@ -147,7 +147,7 @@ def loadResumePoints():
 		file.close()
 		return PickleFile
 	except Exception as ex:
-		print("[InfoBarGenerics] Failed to load resumepoints:%s" % ex)
+		print(f"[InfoBarGenerics] Failed to load resumepoints:{ex}")
 		return {}
 
 
@@ -339,7 +339,7 @@ class InfoBarUnhandledKey:
 			self.unhandledKeyDialog = None
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
-		# print("[InfoBarGenerics] Key: %s (%s) KeyID='%s' Binding='%s'." % (key, KEYFLAGS.get(flag, _("Unknown")), KEYIDNAMES.get(key, _("Unknown")), getKeyDescription(key)))
+		print(f"[InfoBarGenerics] Key: {key} ({KEYFLAGS.get(flag, _('Unknown'))}) KeyID='{KEYIDNAMES.get(key, _('Unknown'))}' Binding='{getKeyDescription(key)}'.")
 		if flag != 2:  # don't hide on repeat
 			self.unhandledKeyDialog.hide()
 			if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
@@ -1882,7 +1882,7 @@ class InfoBarEPG:
 			if action:
 				action()
 			else:
-				print("[InfoBarGenerics][UserDefinedButtons] Missing action method %s" % str(args[1]))
+				print(f"[InfoBarGenerics][UserDefinedButtons] Missing action method {str(args[1])}")
 		if len(args) == 6 and args[0] == "open":
 			# open another EPG screen
 			self.session.openWithCallback(self.epgClosed, args[1], self.zapToService,
@@ -3306,7 +3306,7 @@ class InfoBarInstantRecord:
 				self.recording = InfoBarInstance.recording
 
 	def moveToTrash(self, entry):
-		print("[InfoBarGenerics] instantRecord stop and delete recording: %s" % entry.name)
+		print(f"[InfoBarGenerics] instantRecord stop and delete recording: {entry.name}")
 		import Tools.Trashcan
 		trash = Tools.Trashcan.createTrashFolder(entry.Filename)
 		from Screens.MovieSelection import moveServiceFiles
@@ -3415,7 +3415,7 @@ class InfoBarInstantRecord:
 			if len(simulTimerList) > 1:  # with other recording
 				name = simulTimerList[1].name
 				name_date = ' '.join((name, strftime('%F %T', localtime(simulTimerList[1].begin))))
-				# print("[InfoBarGenerics][TIMER] conflicts with %s" % name_date)
+				# print(f"[InfoBarGenerics][TIMER] conflicts with {name_date}")
 				recording.autoincrease = True  # start with max available length, then increment
 				if recording.setAutoincreaseEnd():
 					self.session.nav.RecordTimer.record(recording)
@@ -3428,7 +3428,7 @@ class InfoBarInstantRecord:
 			recording.autoincrease = False
 
 	def isInstantRecordRunning(self):
-		# print("[InfoBarGenerics]self.recording:%s" % self.recording)
+		# print(f"[InfoBarGenerics]self.recording:{self.recording}")
 		if self.recording:
 			for x in self.recording:
 				if x.isRunning():
@@ -3437,7 +3437,7 @@ class InfoBarInstantRecord:
 
 	def recordQuestionCallback(self, answer):
 		# print("[InfoBarGenerics]recordQuestionCallback")
-		# print("pre:\n %s" % self.recording)
+		# print(f"pre:\n {self.recording}")
 
 		# print("[InfoBarGenerics]test1")
 		if answer is None or answer[1] == "no":
@@ -3544,7 +3544,7 @@ class InfoBarInstantRecord:
 
 	def inputAddRecordingTime(self, value):
 		if value:
-			print("[InfoBarInstantRecord] added %s minutes for recording." % int(value))
+			print(f"[InfoBarInstantRecord] added {int(value)} minutes for recording.")
 			entry = self.recording[self.selectedEntry]
 			if int(value) != 0:
 				entry.autoincrease = False
@@ -3554,7 +3554,7 @@ class InfoBarInstantRecord:
 	def inputCallback(self, value):
 		entry = self.recording[self.selectedEntry]
 		if value is not None:
-			print("[InfoBarInstantRecord] stopping recording after %s minutes." % int(value))
+			print(f"[InfoBarInstantRecord] stopping recording after {int(value)} minutes.")
 			if int(value) != 0:
 				entry.autoincrease = False
 			entry.end = int(time()) + 60 * int(value)
@@ -3646,13 +3646,13 @@ class InfoBarAudioSelection:
 		self.session.openWithCallback(self.audioSelected, AudioSelection, infobar=self)
 
 	def audioSelected(self, ret=None):
-		print("[InfoBarGenerics][audioSelected] %s" % ret)
+		print(f"[InfoBarGenerics][audioSelected] {ret}")
 
 	def audioSelectionLong(self):
 		if SystemInfo["CanDownmixAC3"]:
 			config.av.downmix_ac3.handleKey(ACTIONKEY_RIGHT)
-			message = _("Dolby Digital downmix is now %s") % config.av.downmix_ac3.getText()
-			print("[InfoBarGenerics] [Audio] Dolby Digital downmix is now %s" % config.av.downmix_ac3.value)
+			message = _(f"Dolby Digital downmix is now {config.av.downmix_ac3.getText()}")
+			print(f"[InfoBarGenerics] [Audio] Dolby Digital downmix is now {config.av.downmix_ac3.value}")
 			Notifications.AddPopup(text=message, type=MessageBox.TYPE_INFO, timeout=5, id="DDdownmixToggle")
 
 
@@ -3669,7 +3669,7 @@ class InfoBarVideoSetup:
 		self.session.openWithCallback(self.videoSetupDone, VideoSetup)
 
 	def videoSetupDone(self, ret=None):
-		print("[InfoBarGenerics][videoSetupDone] %s" % ret)
+		print(f"[InfoBarGenerics][videoSetupDone] {ret}")
 
 
 class InfoBarSubserviceSelection:
@@ -4559,8 +4559,8 @@ class InfoBarZoom:
 			zoomval = abs(self.zoomrate) + 10
 		else:
 			zoomval = self.zoomrate
-		# print("[InfoBarGenerics]zoomRate:%s" % self.zoomrate)
-		# print("[InfoBarGenerics]zoomval:%s" % zoomval)
+		# print(f"[InfoBarGenerics]zoomRate:{self.zoomrate}")
+		# print(f"[InfoBarGenerics]zoomval:{zooval}")
 		file = open("/proc/stb/vmpeg/0/zoomrate", "w")
 		file.write('%d' % int(zoomval))
 		file.close()
