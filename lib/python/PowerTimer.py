@@ -466,6 +466,7 @@ class PowerTimer(Timer):
 		# TODO: PATH!
 		if not Directories.fileExists(self.Filename):
 			return
+
 		root = Directories.fileReadXML(self.Filename, "<timers />")
 
 		# put out a message when at least one timer overlaps
