@@ -33,7 +33,7 @@ def getTrashFolder(path=None):
 
 def createTrashFolder(path=None):
 	trash = getTrashFolder(path)
-	print("[Trashcan] Debug path %s => %s" % (path, trash))
+	print(f"[Trashcan] Debug path {path} => {trash}")
 	if trash and access(ospath.split(trash)[0], W_OK):
 		if not ospath.isdir(trash):
 			try:

@@ -82,7 +82,7 @@ class CIHelper:
 		if len(providers):
 			serviceHandler = eServiceCenter.getInstance()
 			for x in providers:
-				refstr = '1:7:0:0:0:0:0:0:0:0:(provider == "%s") && (type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 31) || (type == 134) || (type == 195) ORDER BY name:%s' % (x, x)
+				refstr = f'1:7:0:0:0:0:0:0:0:0:(provider == "{x}") && (type == 1) || (type == 17) || (type == 22) || (type == 25) || (type == 31) || (type == 134) || (type == 195) ORDER BY name:{x}'
 				myref = eServiceReference(refstr)
 				servicelist = serviceHandler.list(myref)
 				if servicelist is not None:

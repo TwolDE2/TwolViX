@@ -78,7 +78,7 @@ class Geolocation:
 	def getGeolocationData(self, fields=None):
 		fields = self.fieldsToNumber(fields)
 		try:
-			response = urlopen("http://ip-api.com/json/?fields=%s" % fields, data=None, timeout=10).read()
+			response = urlopen(f"http://ip-api.com/json/?fields={fields}", data=None, timeout=10).read()
 			# print("[Geolocation] DEBUG: '%s'." % str(response))
 			if response:
 				geolocation = loads(response)
@@ -89,12 +89,12 @@ class Geolocation:
 					self.geolocation[key] = geolocation[key]
 				return self.geolocation
 			else:
-				print("[Geolocation] Error: Geolocation lookup returned a '%s' status!  Message '%s' returned." % (status, geolocation.get("message", None)))
+				print(f"[Geolocation] Error: Geolocation lookup returned a '{status}' status!  Message '{geolocation.get('message', None)}' returned.")
 		except URLError as err:
 			if hasattr(err, 'code'):
-				print("[Geolocation] Error: Geolocation data not available! (Code: %s)" % err.code)
+				print(f"[Geolocation] Error: Geolocation data not available! (Code: {err.code})")
 			if hasattr(err, 'reason'):
-				print("[Geolocation] Error: Geolocation data not available! (Reason: %s)" % err.reason)
+				print(f"[Geolocation] Error: Geolocation data not available! (Reason: {err.reason})")
 		except ValueError:
 			print("[Geolocation] Error: Geolocation data returned can not be processed!")
 		except Exception:
@@ -115,8 +115,8 @@ class Geolocation:
 				if value:
 					number |= value
 				else:
-					print("[Geolocation] Warning: Ignoring invalid geolocation field '%s'!" % field)
-		# print("[Geolocation] DEBUG: Fields='%s' -> Number=%d." % (fields, number))
+					print(f"[Geolocation] Warning: Ignoring invalid geolocation field '{field}'!")
+		# print("[Geolocation] DEBUG: Fields='{fields}' -> Number={number}.")
 		return number
 
 	def clearGeolocationData(self):

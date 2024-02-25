@@ -24,7 +24,7 @@ class DeleteFolderTask(PythonTask):
 class CopyFileJob(Job):
 	def __init__(self, srcfile, destfile, name):
 		Job.__init__(self, _("Copying files"))
-		cmdline = 'cp -Rf "%s" "%s"' % (srcfile, destfile)
+		cmdline = f'cp -Rf "{srcfile}" "{destfile}"'
 		AddFileProcessTask(self, cmdline, srcfile, destfile, name)
 
 
@@ -64,7 +64,7 @@ class AddFileProcessTask(Task):
 
 class DownloadProcessTask(Job):
 	def __init__(self, url, filename, file, **kwargs):
-		Job.__init__(self, _("%s") % file)
+		Job.__init__(self, _(f"{file}"))
 		DownloadTask(self, url, filename, **kwargs)
 
 
