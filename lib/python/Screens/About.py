@@ -79,7 +79,8 @@ class About(AboutBase):
 			with open("/proc/stb/sensors/temp/value", "r") as f:
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			AboutText += (_("System temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n")
+			Temperature = tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
+			AboutText += (_("System temperature:") + f"{Temperature}")
 
 		tempinfo = ""
 		if path.exists("/proc/stb/fp/temp_sensor_avs"):
@@ -98,12 +99,13 @@ class About(AboutBase):
 			except:
 				tempinfo = ""
 		if tempinfo and int(tempinfo) > 0:
-			AboutText += (_("Processor temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n")
+			Temperature = tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"		
+			AboutText += (_("Processor temp:\t") + f"{Temperature}")
 
 		imageSubBuild = ""
 		if SystemInfo["imagetype"] != "release":
 			imageSubBuild = f'.{SystemInfo["imagedevbuild"]}'
-		AboutText += (_("Image:\t") + f'{SystemInfo["imageversion"]}.{SystemInfo["imagebuild"]}{imageSubBuild} ({SystemInfo["imagetype"].title()}' + "\n")
+		AboutText += (_("Image:\t") + f'{SystemInfo["imageversion"]}.{SystemInfo["imagebuild"]}{imageSubBuild} ({SystemInfo["imagetype"].title()})' + "\n")
 
 		VuPlustxt = "Vu+ Multiboot - " if SystemInfo["HasKexecMultiboot"] else ""
 		if fileHas("/proc/cmdline", "rootsubdir=linuxrootfs0"):
@@ -128,7 +130,7 @@ class About(AboutBase):
 					image -= 1
 			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
 			part = _(f"slot {slot} ({slotType})")
-			bootmode = _("bootmode = %s") % GetCurrentImageMode() if SystemInfo["canMode12"] else ""
+			bootmode = "" if not SystemInfo["canMode12"] else (_("bootmode = ") + f'{GetCurrentImageMode()}')
 			AboutText += (_("Image Slot:\tStartup") + f"{str(slot)} - {part} {bootmode}" + "\n")
 
 		if SystemInfo["MachineName"] in ("ET8500") and path.exists("/proc/mtd"):
