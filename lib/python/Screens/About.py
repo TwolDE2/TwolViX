@@ -54,19 +54,19 @@ class About(AboutBase):
 
 	def populate(self):
 		AboutText = ""
-		AboutText += _("Model:\t%s %s\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"])
+		AboutText += _('Model:\t' + f'{SystemInfo["MachineBrand"]} {SystemInfo["MachineName"]}' + '\n')
 
 		if about.getChipSetString() != _("unavailable"):
 			if SystemInfo["HasHiSi"]:
-				AboutText += _("Chipset:\tHiSilicon %s\n") % about.getChipSetString().upper()
+				AboutText += (_("Chipset:\tHiSilicon") + f"{about.getChipSetString().upper()}" + "\n")
 			elif about.getIsBroadcom():
-				AboutText += _("Chipset:\tBroadcom %s\n") % about.getChipSetString().upper()
+				AboutText += (_("Chipset:\tBroadcom") + f"{about.getChipSetString().upper()}" + "\n")
 			else:
-				AboutText += _("Chipset:\t%s\n") % about.getChipSetString().upper()
+				AboutText += (_("Chipset:\t") + f"{about.getChipSetString().upper()}" + "\n")
 
-		AboutText += _("CPU:\t%s %s %s\n") % (about.getCPUArch(), about.getCPUSpeedString(), about.getCpuCoresString())
+		AboutText += (_("CPU:\t") + f"{about.getCPUArch()} {about.getCPUSpeedString()} {about.getCpuCoresString()}" + "\n")
 
-		AboutText += _("SoC:\t%s\n") % SystemInfo["socfamily"].upper()
+		AboutText += (_('SoC:\t') + f'{SystemInfo["socfamily"].upper()}' + '\n')
 
 		tempinfo = ""
 		if path.exists("/proc/stb/sensors/temp0/value"):
@@ -79,7 +79,7 @@ class About(AboutBase):
 			with open("/proc/stb/sensors/temp/value", "r") as f:
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			AboutText += _("System temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
+			AboutText += (_("System temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n")
 
 		tempinfo = ""
 		if path.exists("/proc/stb/fp/temp_sensor_avs"):
@@ -98,26 +98,26 @@ class About(AboutBase):
 			except:
 				tempinfo = ""
 		if tempinfo and int(tempinfo) > 0:
-			AboutText += _("Processor temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
+			AboutText += (_("Processor temp:\t%s") % tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n")
 
 		imageSubBuild = ""
 		if SystemInfo["imagetype"] != "release":
-			imageSubBuild = ".%s" % SystemInfo["imagedevbuild"]
-		AboutText += _("Image:\t%s.%s%s (%s)\n") % (SystemInfo["imageversion"], SystemInfo["imagebuild"], imageSubBuild, SystemInfo["imagetype"].title())
+			imageSubBuild = f'.{SystemInfo["imagedevbuild"]}'
+		AboutText += (_("Image:\t") + f'{SystemInfo["imageversion"]}.{SystemInfo["imagebuild"]}{imageSubBuild} ({SystemInfo["imagetype"].title()}' + "\n")
 
 		VuPlustxt = "Vu+ Multiboot - " if SystemInfo["HasKexecMultiboot"] else ""
 		if fileHas("/proc/cmdline", "rootsubdir=linuxrootfs0"):
 			AboutText += _("Boot Device: \tRecovery Slot\n")
 		else:
 			if "BootDevice" in SystemInfo and SystemInfo["BootDevice"]:
-				AboutText += _("Boot Device:\t%s%s\n") % (VuPlustxt, SystemInfo["BootDevice"])
+				AboutText += (_('Boot Device:\t') + f'{VuPlustxt}{SystemInfo["BootDevice"]}' + '\n')
 
 		if SystemInfo["HasH9SD"]:
 			if "rootfstype=ext4" in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read():
 				part = "        - SD card in use for Image root \n"
 			else:
 				part = "        - eMMC slot in use for Image root \n"
-			AboutText += _("%s") % part
+			AboutText += _(f"{part}")
 
 		if SystemInfo["canMultiBoot"]:
 			slot = image = SystemInfo["MultiBootSlot"]
@@ -127,9 +127,9 @@ class About(AboutBase):
 				else:
 					image -= 1
 			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
-			part = _("slot %s (%s)") % (slot, slotType)
+			part = _(f"slot {slot} ({slotType})")
 			bootmode = _("bootmode = %s") % GetCurrentImageMode() if SystemInfo["canMode12"] else ""
-			AboutText += (_("Image Slot:\tStartup %s - %s %s") % (str(slot), part, bootmode)) + "\n"
+			AboutText += (_("Image Slot:\tStartup") + f"{str(slot)} - {part} {bootmode}" + "\n")
 
 		if SystemInfo["MachineName"] in ("ET8500") and path.exists("/proc/mtd"):
 			self.dualboot = self.dualBoot()
@@ -139,32 +139,32 @@ class About(AboutBase):
 		skinWidth = getDesktop(0).size().width()
 		skinHeight = getDesktop(0).size().height()
 
-		AboutText += _("Drivers:\t%s\n") % about.driversDate()
-		AboutText += _("Kernel:\t%s\n") % about.getKernelVersionString()
-		AboutText += _("GStreamer:\t%s\n") % about.getGStreamerVersionString().replace("GStreamer ", "")
+		AboutText += (_("Drivers:\t") + f"{about.driversDate()}" + "\n")
+		AboutText += (_("Kernel:\t") + f"{about.getKernelVersionString()}" + "\n")
+		AboutText += (_('GStreamer:\t') + f'{about.getGStreamerVersionString()}' + '\n')
 		if isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value:
-			AboutText += _("4097 iptv player:\t%s\n") % config.plugins.serviceapp.servicemp3.player.value
+			AboutText += (_("4097 iptv player:\t") + f"{config.plugins.serviceapp.servicemp3.player.value}" + "\n")
 		else:
 			AboutText += _("4097 iptv player:\tDefault player\n")
-		AboutText += _("Python:\t%s\n") % about.getPythonVersionString()
+		AboutText += (_("Python:\t") + f"{about.getPythonVersionString()}" + "\n")
 		flashDate = about.getFlashDateString()
-		AboutText += _("Installed:\t%s\n") % flashDate
+		AboutText += (_("Installed:\t") + f"{flashDate}" + "\n")
 		lastUpdate = about.getLastUpdate()
-		AboutText += _("Last update:\t%s\n") % lastUpdate
-		AboutText += _("E2 (re)starts:\t%s\n") % config.misc.startCounter.value
+		AboutText += (_("Last update:\t") + f"{lastUpdate}" + "\n")
+		AboutText += (_("E2 (re)starts:\t") + f"{config.misc.startCounter.value}" + "\n")
 		uptime = about.getBoxUptime()
 		if uptime:
-			AboutText += _("Uptime:\t%s\n") % uptime
+			AboutText += (_("Uptime:\t") + f"{uptime}" + "\n")
 		e2uptime = about.getEnigmaUptime()
 		if e2uptime:
-			AboutText += _("Enigma2 uptime:\t%s\n") % e2uptime
-		AboutText += _("Skin:\t%s") % config.skin.primary_skin.value[0:-9] + _("  (%s x %s)") % (skinWidth, skinHeight) + "\n"
+			AboutText += (_("Enigma2 uptime:\t") + f"{e2uptime}" + "\n") 
+		AboutText += (_("Skin:\t") + f"{config.skin.primary_skin.value[0:-9]}" + f"({skinWidth} x {skinHeight})" + "\n")
 
 		fp_version = getFPVersion()
 		if fp_version is None:
 			fp_version = ""
 		elif fp_version != 0:
-			fp_version = _("FP version:\t%s") % fp_version
+			fp_version = _("FP version:\t") + f"{fp_version}"
 			AboutText += fp_version + "\n"
 
 		bootloader = ""
@@ -172,7 +172,7 @@ class About(AboutBase):
 			f = open('/sys/firmware/devicetree/base/bolt/tag', 'r')
 			bootloader = f.readline().replace('\x00', '').replace('\n', '')
 			f.close()
-			AboutText += _("Bootloader:\t%s\n") % (bootloader)
+			AboutText += (_("Bootloader:\t") + f"{bootloader}" + "\n")
 
 		self["AboutScrollLabel"].setText(AboutText)
 
@@ -273,9 +273,9 @@ class Devices(Screen):
 			for count in range(4):
 				if count < len(desc_list):
 					if desc_list[count]["start"] == desc_list[count]["end"]:
-						text = "%s %s: %s" % (_("Tuner"), desc_list[count]["start"], desc_list[count]["desc"])
+						text = f'{_("Tuner")} {desc_list[count]["start"]}: {desc_list[count]["desc"]}'
 					else:
-						text = "%s %s-%s: %s" % (_("Tuner"), desc_list[count]["start"], desc_list[count]["end"], desc_list[count]["desc"])
+						text = f'{_("Tuner")} {desc_list[count]["start"]}-{desc_list[count]["end"]}: {desc_list[count]["desc"]}'
 				else:
 					text = ""
 
@@ -284,7 +284,7 @@ class Devices(Screen):
 		self.hddlist = harddiskmanager.HDDList()
 		self.list = []
 		if self.hddlist:
-			print("[About] hddlist = %s" % (self.hddlist))
+			print(f"[About] hddlist = {self.hddlist}")
 			for count in range(len(self.hddlist)):
 				hdd = self.hddlist[count][1]
 				hddp = self.hddlist[count][0]
@@ -299,7 +299,7 @@ class Devices(Screen):
 					continue
 				else:
 					freeline = _("Free: ") + _("full")
-				line = "%s      %s" % (hddp, freeline)
+				line = f"{hddp}      {freeline}"
 				self.list.append(line)
 		self.list = "\n".join(self.list)
 		self["hdd"].setText(self.list)
@@ -318,11 +318,11 @@ class Devices(Screen):
 				mountfree = line[3]
 				if self.mountinfo:
 					self.mountinfo += "\n"
-				self.mountinfo += "%s (%sB, %sB %s)" % (ipaddress, mounttotal, mountfree, _("free"))
+				self.mountinfo += f'{ipaddress} ({mounttotal}B, {mountfree}B {_("free")}'
 		if pathExists("/media/autofs"):
 			for entry in sorted(listdir("/media/autofs")):
 				mountEntry = path.join("/media/autofs", entry)
-				self.mountinfo += _("\n %s is also enabled for autofs network mount") % (mountEntry)
+				self.mountinfo += ("\n" + f"{mountEntry}" + _("is also enabled for autofs network mount"))
 		if self.mountinfo:
 			self["mounts"].setText(self.mountinfo)
 		else:
@@ -471,13 +471,13 @@ class SystemNetworkInfo(AboutBase):
 		rx_bytes, tx_bytes = about.getIfTransferredData(self.iface)
 		self.AboutText += "\n" + _("Bytes received:") + "\t" + bytesToHumanReadable(int(rx_bytes)) + "\n"
 		self.AboutText += _("Bytes sent:") + "\t" + bytesToHumanReadable(int(tx_bytes)) + "\n"
-		for line in popen("ethtool %s |grep Speed" % self.iface, "r"):
+		for line in popen(f"ethtool {self.iface} |grep Speed", "r"):
 			line = line.strip().split(":")
 			line = line[1].replace(" ", "")
 			if "Speed:" in line:
 				self.AboutText += _("Speed:") + "\t" + line + _("Mb/s")
 		hostname = open("/proc/sys/kernel/hostname").read()
-		self.AboutText += "\n" + _("Hostname:") + "\t" + hostname + "\n"
+		self.AboutText += ("\n" + _("Hostname:") + "\t" + hostname + "\n")
 		self["AboutScrollLabel"].setText(self.AboutText)
 
 	def cleanup(self):
@@ -621,9 +621,9 @@ class AboutSummary(ScreenSummary):
 		self.skinName = "AboutSummary"
 		self.aboutText = []
 		self["AboutText"] = StaticText()
-		self.aboutText.append(_("OpenViX: %s") % SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + "\n")
-		self.aboutText.append(_("Model: %s %s\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
-		self.aboutText.append(_("Updated: %s") % about.getLastUpdate() + "\n")
+		self.aboutText.append(_("OpenViX:") + f'{SystemInfo["imageversion"]}' + "." + f'{SystemInfo["imagebuild"]}' + "\n")
+		self.aboutText.append(_("Model:") + f'{SystemInfo["MachineBrand"]} {SystemInfo["MachineName"]}' + "\n")
+		self.aboutText.append(_("Updated:") + f"{about.getLastUpdate()}" + "\n")
 		tempinfo = ""
 		if path.exists("/proc/stb/sensors/temp0/value"):
 			with open("/proc/stb/sensors/temp0/value", "r") as f:
@@ -635,12 +635,13 @@ class AboutSummary(ScreenSummary):
 			with open("/proc/stb/sensors/temp/value", "r") as f:
 				tempinfo = f.read()
 		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			self.aboutText.append(_("System temperature: %s") % tempinfo.replace("\n", "") + "\xb0" + "C\n")
+			Temperature = tempinfo.replace("\n", "") + "\xb0" + "C\n"
+			self.aboutText.append(_("System temperature:") + f"{Temperature}")
 		if path.exists("/proc/stb/info/chipset"):
-			chipset = open("/proc/stb/info/chipset", "r").read()
-			self.aboutText.append(_("Chipset: %s") % chipset.replace("\n", "") + "\n")
-		self.aboutText.append(_("Kernel: %s") % about.getKernelVersionString() + "\n")
-		self.aboutText.append(_("Drivers: %s") % about.driversDate() + "\n")
+			chipset = open("/proc/stb/info/chipset", "r").read().replace("\n", "")
+			self.aboutText.append(_("Chipset:") + f"{chipset}" + "\n")
+		self.aboutText.append(_("Kernel:") + f"{about.getKernelVersionString()}" + "\n")
+		self.aboutText.append(_("Drivers:") + f"{about.driversDate()}" + "\n")
 		self["AboutText"].text = "".join(self.aboutText)
 		self.timer = eTimer()
 		self.timer.callback.append(self.update)
