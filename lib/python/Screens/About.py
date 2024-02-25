@@ -157,7 +157,7 @@ class About(AboutBase):
 			AboutText += (_("Uptime:\t") + f"{uptime}" + "\n")
 		e2uptime = about.getEnigmaUptime()
 		if e2uptime:
-			AboutText += (_("Enigma2 uptime:\t") + f"{e2uptime}" + "\n") 
+			AboutText += (_("Enigma2 uptime:\t") + f"{e2uptime}" + "\n")
 		AboutText += (_("Skin:\t") + f"{config.skin.primary_skin.value[0:-9]}" + f"({skinWidth} x {skinHeight})" + "\n")
 
 		fp_version = getFPVersion()
