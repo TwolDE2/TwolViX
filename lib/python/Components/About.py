@@ -179,7 +179,7 @@ def getIfTransferredData(ifname):
 	with open("/proc/net/dev", "r") as f:
 		for line in f:
 			if ifname in line:
-				data = line.split(f"{ifname[1].split()}:")
+				data = line.split(f"{ifname}:")[1].split()
 				rx_bytes, tx_bytes = (data[0], data[8])
 				return rx_bytes, tx_bytes
 
