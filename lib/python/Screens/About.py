@@ -99,7 +99,7 @@ class About(AboutBase):
 			except:
 				tempinfo = ""
 		if tempinfo and int(tempinfo) > 0:
-			Temperature = tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"		
+			Temperature = tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
 			AboutText += (_("Processor temp:\t") + f"{Temperature}")
 
 		imageSubBuild = ""
