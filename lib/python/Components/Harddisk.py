@@ -698,7 +698,7 @@ class HarddiskManager:
 					if len(partitions) != 0:
 						if removable:
 							SystemInfo["HasUsbhdd"][device] = len(partitions)
-						print(f"[Harddisk]2 Found storage device '{device}' (Removable={removable}) Number of Partitions = {len(partitions)}.")	# [Harddisk] Found storage device 'sdb' (Removable=True) NoPartitions = 1.
+						print(f"[Harddisk]2 Found storage device '{device}' (Removable={removable}) Number of Partitions = {len(partitions)}.")  # [Harddisk] Found storage device 'sdb' (Removable=True) NoPartitions = 1.
 						print(f"[Harddisk]1 SystemInfo['HasUsbhdd']= {SystemInfo['HasUsbhdd']}")
 						self.hdd.append(Harddisk(device, removable))
 						SystemInfo["Harddisk"] = True

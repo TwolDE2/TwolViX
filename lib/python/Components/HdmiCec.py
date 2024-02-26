@@ -682,7 +682,6 @@ class HdmiCec:
 							self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 					else:
 						# print(f"[HdmiCEC][keyEvent3]: forwarding dest={self.volumeForwardingDestination}, cmd={cmd:X}, data={data}")
-									# print(f"[HdmiCEC][sendMsgQ1]: msgaddress={msgaddress}, CECcmd={CECcmd} cmd={cmd:X},data={data}" + "\n")
 						if config.hdmicec.force_volume_forwarding.value:
 							eHdmiCEC.getInstance().sendMessage(0, cmd, data, len(data))
 							eHdmiCEC.getInstance().sendMessage(5, cmd, data, len(data))
@@ -740,7 +739,7 @@ class HdmiCec:
 			send = ">"
 		opCode = ""
 		if cmd in cmdList:
-			opCode += f"{cmdList[cmd]}" 
+			opCode += f"{cmdList[cmd]}"
 		opCode += 30 * " "
 		return opCode[:28] + send + " "
 
