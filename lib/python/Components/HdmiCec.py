@@ -425,7 +425,7 @@ class HdmiCec:
 			elif cmd == 0x86:
 				physicaladdress = ctrl0 * 256 + ctrl1  # request streaming path
 				ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
-				print("[HdmiCEC][messageReceived6]:cmd 134 physical address=%s ouraddress=%s" % (physicaladdress, ouraddress))
+				print(f"[HdmiCEC][messageReceived6]:cmd 134 physical address={physicaladdress} ouraddress={ouraddress}")
 				if physicaladdress == ouraddress:
 					if not Screens.Standby.inStandby:
 						if config.hdmicec.report_active_source.value:
@@ -467,7 +467,7 @@ class HdmiCec:
 				elif ((cmd == 0x80 and config.hdmicec.handle_tv_wakeup.value == "routingrequest") or (cmd == 0x86 and config.hdmicec.handle_tv_wakeup.value == "streamrequest")):
 					physicaladdress = ctrl0 * 256 + ctrl1
 					ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
-					print("[HdmiCEC][messageReceived8]:cmd 128 physical address=%s ouraddress=%s" % (physicaladdress, ouraddress))
+					print(f"[HdmiCEC][messageReceived8]:cmd 128 physical address={physicaladdress} ouraddress={ouraddress}")
 					if physicaladdress == ouraddress:
 						self.wakeup()
 				elif cmd == 0x84 and config.hdmicec.tv_wakeup_detection.value == "tvreportphysicaladdress":
@@ -521,7 +521,7 @@ class HdmiCec:
 			if data:
 				encoder = chardet.detect(data)["encoding"]
 				data = data.decode(encoding=encoder, errors="ignore")
-			print("[HdmiCec][sendMessage]: CECcmd=%s  cmd=%X, data=struct.pack" % (CECcmd, cmd))
+			print(f"[HdmiCec][sendMessage]: CECcmd={CECcmd}  cmd={cmd:X}, data=struct.pack")
 		elif message == "wakeup":
 			if config.hdmicec.tv_wakeup_command.value == "textview":
 				cmd = 0x0d
@@ -545,7 +545,7 @@ class HdmiCec:
 			msgaddress = 0x0f  # use broadcast msgaddress => boxes will send info
 		if cmd != 0:
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
-			# print("[HdmiCEC][sendMessage3]: CECcmd=%s cmd=%X, msgaddress=%s data=%s" % (CECcmd, cmd, msgaddress, data))
+			# print(f"[HdmiCEC][sendMessage3]: CECcmd={CECcmd} cmd={cmd:X}, msgaddress={msgaddress} data={data}")
 			if config.hdmicec.minimum_send_interval.value != "0":
 				self.queue.append((msgaddress, cmd, data))
 				if not self.wait.isActive():
@@ -559,7 +559,7 @@ class HdmiCec:
 		if len(self.queue):
 			(msgaddress, cmd, data) = self.queue.pop(0)
 			CECcmd = cmdList.get(cmd, "<Polling Message>")  # noqa: F841
-			# print("[HdmiCEC][sendMsgQ1]: msgaddress=%s, CECcmd=%s cmd=%X,data=%s \n" % (msgaddress, CECcmd, cmd, data))
+			# print(f"[HdmiCEC][sendMsgQ1]: msgaddress={msgaddress}, CECcmd={CECcmd} cmd={cmd:X},data={data}" + "\n")
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 			self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
@@ -681,7 +681,8 @@ class HdmiCec:
 						if not self.waitKeyEvent.isActive():
 							self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 					else:
-						# print("[HdmiCEC][keyEvent3]: forwarding dest=%s, cmd=%X, data=%s" % (self.volumeForwardingDestination, cmd, data))
+						# print(f"[HdmiCEC][keyEvent3]: forwarding dest={self.volumeForwardingDestination}, cmd={cmd:X}, data={data}")
+									# print(f"[HdmiCEC][sendMsgQ1]: msgaddress={msgaddress}, CECcmd={CECcmd} cmd={cmd:X},data={data}" + "\n")
 						if config.hdmicec.force_volume_forwarding.value:
 							eHdmiCEC.getInstance().sendMessage(0, cmd, data, len(data))
 							eHdmiCEC.getInstance().sendMessage(5, cmd, data, len(data))
@@ -700,7 +701,7 @@ class HdmiCec:
 	def sendKeyEventQ(self):
 		if len(self.queueKeyEvent):
 			(msgaddress, cmd, data) = self.queueKeyEvent.pop(0)
-			# print("[HdmiCEC][sendKeyEventQ]: msgaddress=%s, cmd=%X, data=%s" % (msgaddress, cmd, data))
+			# print(f"[HdmiCEC][sendKeyEventQ]: msgaddress={msgaddress}, cmd={cmd:X}, data={data}")
 			eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 			self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 
@@ -710,7 +711,7 @@ class HdmiCec:
 		if len(data):
 			if cmd in [0x32, 0x47]:
 				for i in range(len(data)):
-					tmp += "%s" % data[i]
+					tmp += f"{data[i]}"
 			else:
 				for i in range(len(data)):
 					tmp += "%02X" % ord(data[i]) + " "
@@ -739,7 +740,7 @@ class HdmiCec:
 			send = ">"
 		opCode = ""
 		if cmd in cmdList:
-			opCode += "%s" % cmdList[cmd]
+			opCode += f"{cmdList[cmd]}" 
 		opCode += 30 * " "
 		return opCode[:28] + send + " "
 
