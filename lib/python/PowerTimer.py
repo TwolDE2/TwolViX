@@ -265,7 +265,7 @@ class PowerTimerEntry(TimerEntry):
 			NavigationInstance.instance.PowerTimer.saveTimer()
 			if self.afterEvent == AFTEREVENT.STANDBY:
 				if not Screens.Standby.inStandby:  # not already in standby
-					Notifications.AddNotificationWithUniqueIDCallback(self.sendStandbyNotification, "PT_StateChange", MessageBox, (_("A finished powertimer wants to set your\n" + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + _(" to standby. Do that now?")), timeout=180)
+					Notifications.AddNotificationWithUniqueIDCallback(self.sendStandbyNotification, "PT_StateChange", MessageBox, (_("A finished powertimer wants to set your\n") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + _(" to standby. Do that now?")), timeout=180)
 			elif self.afterEvent == AFTEREVENT.DEEPSTANDBY:
 				if NavigationInstance.instance.RecordTimer.isRecording() or abs(NavigationInstance.instance.RecordTimer.getNextRecordingTime() - time()) <= 900 or abs(NavigationInstance.instance.RecordTimer.getNextZapTime() - time()) <= 900:
 					self.do_backoff()
