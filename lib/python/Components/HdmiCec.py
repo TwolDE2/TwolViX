@@ -475,12 +475,11 @@ class HdmiCec:
 						if (ctrl0 * 256 + ctrl1) == 0 and ctrl2 == 0:
 							self.wakeup()
 			else:
-				print(f"[HdmiCEC][messageReceived99]: Unrecognised command -> msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")				
-
+				print(f"[HdmiCEC][messageReceived99]: Unrecognised command -> msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")
 
 	def sendMessage(self, msgaddress, message):
 		cmd = 0
-		dataStructpack = ""		
+		dataStructpack = ""
 		if message == "keypoweroff":
 			cmd = 0x44  # 68
 			dataStructpack = struct.pack("B", 0x6c)
@@ -527,7 +526,7 @@ class HdmiCec:
 			data = dataStructpack.decode(encoding=encoder, errors="ignore")
 			print(f"[HdmiCec][sendMessage]: CECcmd={CECcmd}  cmd={cmd:X}, encoder={encoder}, data={data}" + "\n")
 		else:
-			data = ""			
+			data = ""
 			if message == "wakeup":
 				if config.hdmicec.tv_wakeup_command.value == "textview":
 					cmd = 0x0d
