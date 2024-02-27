@@ -392,157 +392,163 @@ class HdmiCec:
 			ctrl1 = message.getControl1()
 			ctrl2 = message.getControl2()
 			msgaddress = message.getAddress()  # 0 = TV, 5 = receiver 15 = broadcast
-			print(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, length={length}")
-			if config.hdmicec.debug.value != "0":
-				self.debugRx(length, cmd, ctrl0)
-			if msgaddress > 15:  # workaround for wrong address from driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
-				print("[HdmiCEC][messageReceived1a]: msgaddress > 15 reset to 0")
-				msgaddress = 0
-			if cmd == 0x00:
-				if length == 0:  # only polling message ( it's same as ping )
-					print("[HdmiCEC][messageReceived1b]: received polling message")
-				else:
-					if ctrl0 == 68:  # feature abort
-						print(f"[HdmiCEC][messageReceived2]: volume forwarding not supported by device {msgaddress:02x}")
-						self.volumeForwardingEnabled = False
-			elif cmd == 0x46:  # request name
-				self.sendMessage(msgaddress, "osdname")
-			elif cmd == 0x72 or cmd == 0x7e:  # system audio mode status 114 or 126
-				if ctrl0 == 1:
-					self.volumeForwardingDestination = 5  # on: send volume keys to receiver
-				else:
-					self.volumeForwardingDestination = 0  # off: send volume keys to tv
-				print(f"[HdmiCEC][messageReceived4]: volume forwarding={self.volumeForwardingDestination}, msgaddress={msgaddress}")
-				if config.hdmicec.volume_forwarding.value:
-					print(f"[HdmiCEC][messageReceived5]: volume forwarding to device {self.volumeForwardingDestination:02x} enabled")
-					self.volumeForwardingEnabled = True
-			elif cmd == 0x83:  # request address
-				self.sendMessage(msgaddress, "reportaddress")
-			elif cmd == 0x85:  # request active source
-				if not Screens.Standby.inStandby:
-					if config.hdmicec.report_active_source.value:
-						self.sendMessage(msgaddress, "sourceactive")
-			elif cmd == 0x86:
-				physicaladdress = ctrl0 * 256 + ctrl1  # request streaming path
-				ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
-				print(f"[HdmiCEC][messageReceived6]:cmd 134 physical address={physicaladdress} ouraddress={ouraddress}")
-				if physicaladdress == ouraddress:
+			if CECcmd != "<Polling Message>":
+				print(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")
+				if config.hdmicec.debug.value != "0":
+					self.debugRx(length, cmd, ctrl0)
+				if msgaddress > 15:  # workaround for wrong address from driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
+					print("[HdmiCEC][messageReceived1a]: msgaddress > 15 reset to 0")
+					msgaddress = 0
+				if cmd == 0x00:
+					if length == 0:  # only polling message ( it's same as ping )
+						print("[HdmiCEC][messageReceived1b]: received polling message")
+					else:
+						if ctrl0 == 68:  # feature abort
+							print(f"[HdmiCEC][messageReceived2]: volume forwarding not supported by device {msgaddress:02x}")
+							self.volumeForwardingEnabled = False
+				elif cmd == 0x46:  # request name
+					self.sendMessage(msgaddress, "osdname")
+				elif cmd == 0x72 or cmd == 0x7e:  # system audio mode status 114 or 126
+					if ctrl0 == 1:
+						self.volumeForwardingDestination = 5  # on: send volume keys to receiver
+					else:
+						self.volumeForwardingDestination = 0  # off: send volume keys to tv
+					print(f"[HdmiCEC][messageReceived4]: volume forwarding={self.volumeForwardingDestination}, msgaddress={msgaddress}")
+					if config.hdmicec.volume_forwarding.value:
+						print(f"[HdmiCEC][messageReceived5]: volume forwarding to device {self.volumeForwardingDestination:02x} enabled")
+						self.volumeForwardingEnabled = True
+				elif cmd == 0x83:  # request address
+					self.sendMessage(msgaddress, "reportaddress")
+				elif cmd == 0x85:  # request active source
 					if not Screens.Standby.inStandby:
 						if config.hdmicec.report_active_source.value:
 							self.sendMessage(msgaddress, "sourceactive")
-			elif cmd == 0x8c:  # request vendor id
-				self.sendMessage(msgaddress, "vendorid")
-			elif cmd == 0x8d:  # menu request
-				if ctrl0 == 1:  # query
-					if Screens.Standby.inStandby:
-						self.sendMessage(msgaddress, "menuinactive")
-					else:
-						self.sendMessage(msgaddress, "menuactive")
-			elif cmd == 0x8f:  # request power status
-				if Screens.Standby.inStandby:
-					self.sendMessage(msgaddress, "powerinactive")
-				else:
-					self.sendMessage(msgaddress, "poweractive")
-			elif cmd == 0x90:  # receive powerstatus report
-				if ctrl0 == 0: 			# some box is powered
-					if config.hdmicec.next_boxes_detect.value:
-						self.useStandby = False
-					print("[HDMI-CEC][messageReceived7] powered box found")
-			elif cmd == 0x9F:  # request get CEC version
-				self.sendMessage(msgaddress, "sendcecversion")
-
-			if cmd == 0x36 and config.hdmicec.handle_tv_standby.value:  # handle standby request from the tv
-				self.handlingStandbyFromTV = True  # avoid echoing the "System Standby" command back to the tv
-				self.standby()  # handle standby
-				self.handlingStandbyFromTV = False  # after handling the standby command, we are free to send "standby" ourselves again
-
-			if Screens.Standby.inStandby and config.hdmicec.handle_tv_wakeup.value:  # handle wakeup requests from the tv
-				if ((cmd == 0x04 and config.hdmicec.tv_wakeup_detection.value == "wakeup") or
-					(cmd == 0x83 and config.hdmicec.tv_wakeup_detection.value == "requestphysicaladdress") or
-					(cmd == 0x85 and config.hdmicec.tv_wakeup_detection.value == "sourcerequest") or
-					(cmd == 0x8C and config.hdmicec.tv_wakeup_detection.value == "requestvendor") or
-					(cmd == 0x46 and config.hdmicec.tv_wakeup_detection.value == "osdnamerequest") or
-					(cmd != 0x36 and config.hdmicec.tv_wakeup_detection.value == "activity")):
-					self.wakeup()
-				elif ((cmd == 0x80 and config.hdmicec.handle_tv_wakeup.value == "routingrequest") or (cmd == 0x86 and config.hdmicec.handle_tv_wakeup.value == "streamrequest")):
-					physicaladdress = ctrl0 * 256 + ctrl1
+				elif cmd == 0x86:
+					physicaladdress = ctrl0 * 256 + ctrl1  # request streaming path
 					ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
-					print(f"[HdmiCEC][messageReceived8]:cmd 128 physical address={physicaladdress} ouraddress={ouraddress}")
+					print(f"[HdmiCEC][messageReceived6]:cmd 134 physical address={physicaladdress} ouraddress={ouraddress}")
 					if physicaladdress == ouraddress:
+						if not Screens.Standby.inStandby:
+							if config.hdmicec.report_active_source.value:
+								self.sendMessage(msgaddress, "sourceactive")
+				elif cmd == 0x8c:  # request vendor id
+					self.sendMessage(msgaddress, "vendorid")
+				elif cmd == 0x8d:  # menu request
+					if ctrl0 == 1:  # query
+						if Screens.Standby.inStandby:
+							self.sendMessage(msgaddress, "menuinactive")
+						else:
+							self.sendMessage(msgaddress, "menuactive")
+				elif cmd == 0x8f:  # request power status
+					if Screens.Standby.inStandby:
+						self.sendMessage(msgaddress, "powerinactive")
+					else:
+						self.sendMessage(msgaddress, "poweractive")
+				elif cmd == 0x90:  # receive powerstatus report
+					if ctrl0 == 0: 			# some box is powered
+						if config.hdmicec.next_boxes_detect.value:
+							self.useStandby = False
+						print("[HDMI-CEC][messageReceived7] powered box found")
+				elif cmd == 0x9F:  # request get CEC version
+					self.sendMessage(msgaddress, "sendcecversion")
+
+				if cmd == 0x36 and config.hdmicec.handle_tv_standby.value:  # handle standby request from the tv
+					self.handlingStandbyFromTV = True  # avoid echoing the "System Standby" command back to the tv
+					self.standby()  # handle standby
+					self.handlingStandbyFromTV = False  # after handling the standby command, we are free to send "standby" ourselves again
+
+				if Screens.Standby.inStandby and config.hdmicec.handle_tv_wakeup.value:  # handle wakeup requests from the tv
+					if ((cmd == 0x04 and config.hdmicec.tv_wakeup_detection.value == "wakeup") or
+						(cmd == 0x83 and config.hdmicec.tv_wakeup_detection.value == "requestphysicaladdress") or
+						(cmd == 0x85 and config.hdmicec.tv_wakeup_detection.value == "sourcerequest") or
+						(cmd == 0x8C and config.hdmicec.tv_wakeup_detection.value == "requestvendor") or
+						(cmd == 0x46 and config.hdmicec.tv_wakeup_detection.value == "osdnamerequest") or
+						(cmd != 0x36 and config.hdmicec.tv_wakeup_detection.value == "activity")):
 						self.wakeup()
-				elif cmd == 0x84 and config.hdmicec.tv_wakeup_detection.value == "tvreportphysicaladdress":
-					if (ctrl0 * 256 + ctrl1) == 0 and ctrl2 == 0:
-						self.wakeup()
+					elif ((cmd == 0x80 and config.hdmicec.handle_tv_wakeup.value == "routingrequest") or (cmd == 0x86 and config.hdmicec.handle_tv_wakeup.value == "streamrequest")):
+						physicaladdress = ctrl0 * 256 + ctrl1
+						ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
+						print(f"[HdmiCEC][messageReceived8]:cmd 128 physical address={physicaladdress} ouraddress={ouraddress}")
+						if physicaladdress == ouraddress:
+							self.wakeup()
+					elif cmd == 0x84 and config.hdmicec.tv_wakeup_detection.value == "tvreportphysicaladdress":
+						if (ctrl0 * 256 + ctrl1) == 0 and ctrl2 == 0:
+							self.wakeup()
+			else:
+				print(f"[HdmiCEC][messageReceived99]: Unrecognised command -> msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")				
+
 
 	def sendMessage(self, msgaddress, message):
 		cmd = 0
-		data = ""
+		dataStructpack = ""		
 		if message == "keypoweroff":
 			cmd = 0x44  # 68
-			data = struct.pack("B", 0x6c)
+			dataStructpack = struct.pack("B", 0x6c)
 		elif message == "keypoweron":
 			cmd = 0x44  # 68
-			data = struct.pack("B", 0x6d)
+			dataStructpack = struct.pack("B", 0x6d)
 		elif message == "setsystemaudiomode":
 			cmd = 0x70  # 112
 			msgaddress = 0x05
-			data = self.packDevAddr()
+			dataStructpack = self.packDevAddr()
 		elif message == "sourceactive":
 			msgaddress = 0x0f  # use broadcast for active source command
 			cmd = 0x82  # 130
-			data = self.packDevAddr()
+			dataStructpack = self.packDevAddr()
 		elif message == "reportaddress":
 			msgaddress = 0x0f  # use broadcast address
 			cmd = 0x84  # 132
-			data = self.packDevAddr(True)
+			dataStructpack = self.packDevAddr(True)
 		elif message == "vendorid":
 			cmd = 0x87
-			data = b"\x00\x00\x00"
+			dataStructpack = b"\x00\x00\x00"
 		elif message == "menuactive":
 			cmd = 0x8e  # 142
-			data = struct.pack("B", 0x00)
+			dataStructpack = struct.pack("B", 0x00)
 		elif message == "menuinactive":
 			cmd = 0x8e  # 142
-			data = struct.pack("B", 0x01)
+			dataStructpack = struct.pack("B", 0x01)
 		elif message == "poweractive":
 			cmd = 0x90  # 144
-			data = struct.pack("B", 0x00)
+			dataStructpack = struct.pack("B", 0x00)
 		elif message == "powerinactive":
 			cmd = 0x90  # 144
-			data = struct.pack("B", 0x01)
+			dataStructpack = struct.pack("B", 0x01)
 		elif message == "sourceinactive":
 			cmd = 0x9d  # 157
-			data = self.packDevAddr()
+			dataStructpack = self.packDevAddr()
 		elif message == "sendcecversion":
 			cmd = 0x9E  # 158
-			data = struct.pack("B", 0x04)  # v1.3a
-		if data:				# keep cmd+data calls above this line so binary data converted
-			CECcmd = cmdList.get(cmd, "<Polling Message>")
-			if data:
-				encoder = chardet.detect(data)["encoding"]
-				data = data.decode(encoding=encoder, errors="ignore")
-			print(f"[HdmiCec][sendMessage]: CECcmd={CECcmd}  cmd={cmd:X}, data=struct.pack")
-		elif message == "wakeup":
-			if config.hdmicec.tv_wakeup_command.value == "textview":
-				cmd = 0x0d
-			else:
-				cmd = 0x04
-		elif message == "standby":
-			cmd = 0x36
-		elif message == "osdname":
-			cmd = 0x47
-			data = uname()[1]
-			data = data[:14]
-		elif message == "givesystemaudiostatus":
-			cmd = 0x7d
-			msgaddress = 0x05
-		elif message == "requestactivesource":
-			cmd = 0x85
-			msgaddress = 0x0f  # use broadcast address
-		elif message == "getpowerstatus":
-			self.useStandby = True
-			cmd = 0x8f
-			msgaddress = 0x0f  # use broadcast msgaddress => boxes will send info
+			dataStructpack = struct.pack("B", 0x04)  # v1.3a
+		if dataStructpack:				# keep cmd+data calls above this line so binary data converted
+			CECcmd = cmdList.get(cmd, "<Polling Message>").replace("<", "'").replace(">", "'")
+			print(f"[HdmiCec][sendMessage]: CECcmd={CECcmd}, dataStructpack=", dataStructpack)
+			encoder = chardet.detect(dataStructpack)["encoding"]
+			data = dataStructpack.decode(encoding=encoder, errors="ignore")
+			print(f"[HdmiCec][sendMessage]: CECcmd={CECcmd}  cmd={cmd:X}, encoder={encoder}, data={data}" + "\n")
+		else:
+			data = ""			
+			if message == "wakeup":
+				if config.hdmicec.tv_wakeup_command.value == "textview":
+					cmd = 0x0d
+				else:
+					cmd = 0x04
+			elif message == "standby":
+				cmd = 0x36
+			elif message == "osdname":
+				cmd = 0x47
+				data = uname()[1]
+				data = data[:14]
+			elif message == "givesystemaudiostatus":
+				cmd = 0x7d
+				msgaddress = 0x05
+			elif message == "requestactivesource":
+				cmd = 0x85
+				msgaddress = 0x0f  # use broadcast address
+			elif message == "getpowerstatus":
+				self.useStandby = True
+				cmd = 0x8f
+				msgaddress = 0x0f  # use broadcast msgaddress => boxes will send info
 		if cmd != 0:
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
 			# print(f"[HdmiCEC][sendMessage3]: CECcmd={CECcmd} cmd={cmd:X}, msgaddress={msgaddress} data={data}")
