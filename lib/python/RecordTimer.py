@@ -652,7 +652,7 @@ class RecordTimerEntry(TimerEntry):
 								self.InfoBarInstance.session.pip.servicePath = self.InfoBarInstance.servicelist and self.InfoBarInstance.servicelist.getCurrentServicePath()
 								self.log(11, "zapping as PiP")
 								if notify:
-									Notifications.AddPopup(text=(_("Zapped to timer service ")+ f"{self.service_ref.getServiceName()}" + _(" as PiP!")), type=MessageBox.TYPE_INFO, timeout=5)
+									Notifications.AddPopup(text=(_("Zapped to timer service ") + f"{self.service_ref.getServiceName()}" + _(" as PiP!")), type=MessageBox.TYPE_INFO, timeout=5)
 								return True
 							else:
 								del self.InfoBarInstance.session.pip
@@ -736,7 +736,7 @@ class RecordTimerEntry(TimerEntry):
 			if self.afterEvent == AFTEREVENT.STANDBY or (not wasRecTimerWakeup and self.autostate and self.afterEvent == AFTEREVENT.AUTO) or self.wasInStandby:
 				self.keypress()  # this unbinds the keypress detection
 				if not Screens.Standby.inStandby:  # not already in standby
-					Notifications.AddNotificationWithCallback(self.sendStandbyNotification, MessageBox, (_("A finished record timer wants to set your\n") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" +_(" to standby. Do that now?")), timeout=180)
+					Notifications.AddNotificationWithCallback(self.sendStandbyNotification, MessageBox, (_("A finished record timer wants to set your\n") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + _(" to standby. Do that now?")), timeout=180)
 			elif self.afterEvent == AFTEREVENT.DEEPSTANDBY or (wasRecTimerWakeup and self.afterEvent == AFTEREVENT.AUTO and Screens.Standby.inStandby):
 				if (abs(NavigationInstance.instance.RecordTimer.getNextRecordingTime() - time()) <= 900 or abs(NavigationInstance.instance.RecordTimer.getNextZapTime() - time()) <= 900) or NavigationInstance.instance.RecordTimer.getStillRecording():
 					print("[RecordTimer] Recording or Recording due is next 15 mins, not return to deepstandby")
