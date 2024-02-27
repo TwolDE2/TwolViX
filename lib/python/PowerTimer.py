@@ -282,21 +282,21 @@ class PowerTimerEntry(TimerEntry):
 		if not self.autoincrease:
 			return False
 		if entry is None:
-			new_end=int(time()) + self.autoincreasetime
+			new_end = int(time()) + self.autoincreasetime
 		else:
-			new_end=entry.begin - 30
+			new_end = entry.begin - 30
 
-		dummyentry=PowerTimerEntry(self.begin, new_end, disabled=True, afterEvent=self.afterEvent, timerType=self.timerType)
-		dummyentry.disabled=self.disabled
-		timersanitycheck=TimerSanityCheck(NavigationInstance.instance.PowerManager.timer_list, dummyentry)
+		dummyentry = PowerTimerEntry(self.begin, new_end, disabled=True, afterEvent=self.afterEvent, timerType=self.timerType)
+		dummyentry.disabled = self.disabled
+		timersanitycheck = TimerSanityCheck(NavigationInstance.instance.PowerManager.timer_list, dummyentry)
 		if not timersanitycheck.check():
-			simulTimerList=timersanitycheck.getSimulTimerList()
+			simulTimerList = timersanitycheck.getSimulTimerList()
 			if simulTimerList is not None and len(simulTimerList) > 1:
-				new_end=simulTimerList[1].begin
+				new_end = simulTimerList[1].begin
 				new_end -= 30				# 30 Sekunden Prepare-Zeit lassen
 		if new_end <= time():
 			return False
-		self.end=new_end
+		self.end = new_end
 		return True
 
 	def sendStandbyNotification(self, answer):
@@ -316,15 +316,15 @@ class PowerTimerEntry(TimerEntry):
 			Notifications.AddNotification(Screens.Standby.TryQuitMainloop, 3)
 
 	def keyPressed(self, key, tag):
-		self.begin=time() + int(self.autosleepdelay) * 60
+		self.begin = time() + int(self.autosleepdelay) * 60
 		if self.end <= self.begin:
-			self.end=self.begin
+			self.end = self.begin
 
 	def getNextActivation(self):
 		if self.state == self.StateEnded or self.state == self.StateFailed:
 			return self.end
 
-		next_state=self.state + 1
+		next_state = self.state + 1
 
 		return {self.StatePrepared: self.start_prepare,
 				self.StateRunning: self.begin,
@@ -338,23 +338,23 @@ class PowerTimerEntry(TimerEntry):
 			return -1
 		elif self.timerType != TIMERTYPE.WAKEUP and self.timerType != TIMERTYPE.WAKEUPTOSTANDBY and self.afterEvent:
 			return self.end
-		next_state=self.state + 1
+		next_state = self.state + 1
 		return {self.StatePrepared: self.start_prepare,
 				self.StateRunning: self.begin,
 				self.StateEnded: self.end}[next_state]
 
 	def timeChanged(self):
-		old_prepare=self.start_prepare
-		self.start_prepare=self.begin - self.prepare_time
-		self.backoff=0
+		old_prepare = self.start_prepare
+		self.start_prepare = self.begin - self.prepare_time
+		self.backoff = 0
 
 		if int(old_prepare) > 60 and int(old_prepare) != int(self.start_prepare):
 			self.log(15, f"time changed, start prepare is now: {ctime(self.start_prepare)}")
 
 
 def createTimer(xml):
-	timertype=str(xml.get("timertype") or "wakeup")
-	timertype={
+	timertype = str(xml.get("timertype") or "wakeup")
+	timertype = {
 		"wakeup": TIMERTYPE.WAKEUP,
 		"wakeuptostandby": TIMERTYPE.WAKEUPTOSTANDBY,
 		"autostandby": TIMERTYPE.AUTOSTANDBY,
@@ -364,20 +364,20 @@ def createTimer(xml):
 		"reboot": TIMERTYPE.REBOOT,
 		"restart": TIMERTYPE.RESTART
 		}[timertype]  # noqa: E123
-	begin=int(xml.get("begin"))
-	end=int(xml.get("end"))
-	repeated=str(xml.get("repeated"))
-	disabled=int(xml.get("disabled") or "0")
-	afterevent=str(xml.get("afterevent") or "nothing")
-	afterevent={
+	begin = int(xml.get("begin"))
+	end = int(xml.get("end"))
+	repeated = str(xml.get("repeated"))
+	disabled = int(xml.get("disabled") or "0")
+	afterevent = str(xml.get("afterevent") or "nothing")
+	afterevent = {
 		"nothing": AFTEREVENT.NONE,
 		"wakeuptostandby": AFTEREVENT.WAKEUPTOSTANDBY,
 		"standby": AFTEREVENT.STANDBY,
 		"deepstandby": AFTEREVENT.DEEPSTANDBY
 		}[afterevent]  # noqa: E123
-	autosleepinstandbyonly=str(xml.get("autosleepinstandbyonly") or "no")
-	autosleepdelay=str(xml.get("autosleepdelay") or "0")
-	autosleeprepeat=str(xml.get("autosleeprepeat") or "once")
+	autosleepinstandbyonly = str(xml.get("autosleepinstandbyonly") or "no")
+	autosleepdelay = str(xml.get("autosleepdelay") or "0")
+	autosleeprepeat = str(xml.get("autosleeprepeat") or "once")
 	#
 	# If this is a repeating auto* timer then start it in 30 secs,
 	# which means it will start its repeating countdown from when enigma2
@@ -385,23 +385,23 @@ def createTimer(xml):
 	# last enigma2 running.
 	#
 	if autosleeprepeat == "repeated":
-		begin=end=time() + 30
+		begin = end = time() + 30
 
-	entry=PowerTimerEntry(begin, end, disabled, afterevent, timertype)
-	entry.autosleepinstandbyonly=autosleepinstandbyonly
-	entry.autosleepdelay=int(autosleepdelay)
-	entry.autosleeprepeat=autosleeprepeat
+	entry = PowerTimerEntry(begin, end, disabled, afterevent, timertype)
+	entry.autosleepinstandbyonly = autosleepinstandbyonly
+	entry.autosleepdelay = int(autosleepdelay)
+	entry.autosleeprepeat = autosleeprepeat
 	# Ensure that the timer repeated is cleared if we have an autosleeprepeat
 	if entry.autosleeprepeat == "repeated":
-		entry.repeated=0
+		entry.repeated = 0
 	else:
-		entry.repeated=int(repeated)
+		entry.repeated = int(repeated)
 
 	for lxml in xml.findall("log"):
-		ltime=int(lxml.get("time"))
-		lcode=int(lxml.get("code"))
+		ltime = int(lxml.get("time"))
+		lcode = int(lxml.get("code"))
 		# print("[PowerManager]: ltext, time, code", l.text, "   ", lxml.get("time"), "   ", lxml.get("code"))
-		msg=lxml.text.strip()
+		msg = lxml.text.strip()
 		entry.log_entries.append((ltime, lcode, msg))
 	return entry
 
@@ -410,7 +410,7 @@ class PowerTimer(Timer):
 	def __init__(self):
 		Timer.__init__(self)
 
-		self.Filename=Directories.resolveFilename(Directories.SCOPE_CONFIG, "pm_timers.xml")
+		self.Filename = Directories.resolveFilename(Directories.SCOPE_CONFIG, "pm_timers.xml")
 
 		try:
 			self.loadTimer()
@@ -421,7 +421,7 @@ class PowerTimer(Timer):
 		# when activating a timer which has already passed,
 		# simply abort the timer. don't run trough all the stages.
 		if w.shouldSkip():
-			w.state=PowerTimerEntry.StateEnded
+			w.state = PowerTimerEntry.StateEnded
 		else:
 			# when active returns true, this means "accepted".
 			# otherwise, the current state is kept.
@@ -444,13 +444,13 @@ class PowerTimer(Timer):
 				# If we have saved original begin/end times for a backed off timer
 				# restore those values now
 				if hasattr(w, "real_begin"):
-					w.begin=w.real_begin
-					w.end=w.real_end
+					w.begin = w.real_begin
+					w.end = w.real_end
 					# Now remove the temporary holding attributes...
 					del w.real_begin
 					del w.real_end
 				w.processRepeated()
-				w.state=PowerTimerEntry.StateWaiting
+				w.state = PowerTimerEntry.StateWaiting
 				self.addTimerEntry(w)
 			else:
 				insort(self.processed_timers, w)
@@ -467,20 +467,20 @@ class PowerTimer(Timer):
 		if not Directories.fileExists(self.Filename):
 			return
 
-		root=Directories.fileReadXML(self.Filename, "<timers />")
+		root = Directories.fileReadXML(self.Filename, "<timers />")
 
 		# put out a message when at least one timer overlaps
-		checkit=True
+		checkit = True
 		for timer in root.findall("timer"):
-			newTimer=createTimer(timer)
+			newTimer = createTimer(timer)
 			if (self.record(newTimer, True, dosave=False) is not None) and (checkit is True):
 				from Tools.Notifications import AddPopup
 				from Screens.MessageBox import MessageBox
 				AddPopup(_("Timer overlap in pm_timers.xml detected!\nPlease recheck it!"), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerLoadFailed")
-				checkit=False  # at moment it is enough when the message is displayed one time
+				checkit = False  # at moment it is enough when the message is displayed one time
 
 	def saveTimer(self):
-		timerTypes={  # noqa: F841
+		timerTypes = {  # noqa: F841
 			TIMERTYPE.WAKEUP: "wakeup",
 			TIMERTYPE.WAKEUPTOSTANDBY: "wakeuptostandby",
 			TIMERTYPE.AUTOSTANDBY: "autostandby",
@@ -490,14 +490,14 @@ class PowerTimer(Timer):
 			TIMERTYPE.REBOOT: "reboot",
 			TIMERTYPE.RESTART: "restart"
 		}
-		afterEvents={  # noqa: F841
+		afterEvents = {  # noqa: F841
 			AFTEREVENT.NONE: "nothing",
 			AFTEREVENT.WAKEUPTOSTANDBY: "wakeuptostandby",
 			AFTEREVENT.STANDBY: "standby",
 			AFTEREVENT.DEEPSTANDBY: "deepstandby"
 		}
 
-		list=['<?xml version="1.0" ?>\n<timers>\n']
+		list = ['<?xml version="1.0" ?>\n<timers>\n']
 		for timer in self.timer_list + self.processed_timers:
 			if timer.dontSave:
 				continue
@@ -522,7 +522,7 @@ class PowerTimer(Timer):
 
 		list.append('</timers>\n')
 
-		file=open(self.Filename + ".writing", "w")
+		file = open(self.Filename + ".writing", "w")
 		file.writelines(list)
 		file.flush()
 
@@ -531,7 +531,7 @@ class PowerTimer(Timer):
 		rename(self.Filename + ".writing", self.Filename)
 
 	def getNextZapTime(self):
-		now=time()
+		now = time()
 		for timer in self.timer_list:
 			if timer.begin < now:
 				continue
@@ -539,18 +539,18 @@ class PowerTimer(Timer):
 		return -1
 
 	def getNextPowerManagerTimeOld(self):
-		now=time()
+		now = time()
 		for timer in self.timer_list:
 			if timer.timerType != TIMERTYPE.AUTOSTANDBY and timer.timerType != TIMERTYPE.AUTODEEPSTANDBY:
-				next_act=timer.getNextWakeup()
+				next_act = timer.getNextWakeup()
 				if next_act < now:
 					continue
 				return next_act
 		return -1
 
 	def getNextPowerManagerTime(self):
-		nextrectime=self.getNextPowerManagerTimeOld()
-		faketime=time() + 300
+		nextrectime = self.getNextPowerManagerTimeOld()
+		faketime = time() + 300
 		if config.timeshift.isRecording.value:
 			if 0 < nextrectime < faketime:
 				return nextrectime
@@ -568,7 +568,7 @@ class PowerTimer(Timer):
 	def record(self, entry, ignoreTSC=False, dosave=True):  # as called by loadTimer with dosave=False
 		entry.timeChanged()
 		# print("[PowerTimer]", str(entry))
-		entry.Timer=self
+		entry.Timer = self
 		self.addTimerEntry(entry)
 		if dosave:
 			self.saveTimer()
@@ -578,11 +578,11 @@ class PowerTimer(Timer):
 		# print("[PowerTimer] Remove", str(entry))
 
 		# avoid re-enqueuing
-		entry.repeated=False
+		entry.repeated = False
 
 		# abort timer.
 		# this sets the end time to current time, so timer will be stopped.
-		entry.autoincrease=False
+		entry.autoincrease = False
 		entry.abort()
 
 		if entry.state != entry.StateEnded:
