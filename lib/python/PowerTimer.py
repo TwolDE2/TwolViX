@@ -275,7 +275,7 @@ class PowerTimerEntry(TimerEntry):
 					if Screens.Standby.inStandby:  # in standby
 						quitMainloop(1)
 					else:
-						Notifications.AddNotificationWithUniqueIDCallback(self.sendTryQuitMainloopNotification, "PT_StateChange", MessageBox, (_("A finished powertimer wants to shutdown your ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + _(.\nDo that now?")), timeout=180)
+						Notifications.AddNotificationWithUniqueIDCallback(self.sendTryQuitMainloopNotification, "PT_StateChange", MessageBox, (_("A finished powertimer wants to shutdown your ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + _(".\nDo that now?")), timeout=180)
 			return True
 
 	def setAutoincreaseEnd(self, entry=None):
