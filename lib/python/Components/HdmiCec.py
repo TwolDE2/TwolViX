@@ -477,7 +477,6 @@ class HdmiCec:
 			else:
 				print(f"[HdmiCEC][messageReceived99]: Unrecognised command -> msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")				
 
-
 	def sendMessage(self, msgaddress, message):
 		cmd = 0
 		dataStructpack = ""		
