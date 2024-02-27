@@ -218,9 +218,9 @@ class PowerTimerEntry(TimerEntry):
 							eActionMap.getInstance().unbindAction('', self.keyPressed)
 							return True
 						else:
-							self.begin=time() + int(self.autosleepdelay) * 60
+							self.begin = time() + int(self.autosleepdelay) * 60
 							if self.end <= self.begin:
-								self.end=self.begin
+								self.end = self.begin
 
 			elif self.timerType == TIMERTYPE.DEEPSTANDBY and self.wasPowerTimerWakeup:
 				return True
