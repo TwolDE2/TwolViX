@@ -351,14 +351,14 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 	def __evAudioDecodeError(self):
 		currPlay = self.session.nav.getCurrentService()
 		sTagAudioCodec = currPlay.info().getInfoString(iServiceInformation.sTagAudioCodec)
-		print("[__evAudioDecodeError] audio-codec %s can't be decoded by hardware" % sTagAudioCodec)
-		self.session.open(MessageBox, _("This %s %s cannot decode %s streams!") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], sTagAudioCodec), type=MessageBox.TYPE_INFO, timeout=20)
+		print(f"[__evAudioDecodeError] audio-codec {sTagAudioCodec} can't be decoded by hardware")
+		self.session.open(MessageBox, (_("This ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + _(" cannot decode ") + f"{sTagAudioCodec]" + _(" streams!")), type=MessageBox.TYPE_INFO, timeout=20)
 
 	def __evVideoDecodeError(self):
 		currPlay = self.session.nav.getCurrentService()
 		sTagVideoCodec = currPlay.info().getInfoString(iServiceInformation.sTagVideoCodec)
-		print("[__evVideoDecodeError] video-codec %s can't be decoded by hardware" % sTagVideoCodec)
-		self.session.open(MessageBox, _("This %s %s cannot decode %s streams!") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], sTagVideoCodec), type=MessageBox.TYPE_INFO, timeout=20)
+		print(f"[__evVideoDecodeError] video-codec {sTagVideoCodec} can't be decoded by hardware")
+		self.session.open(MessageBox, (_("This ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + _(" cannot decode ") + f"{sTagVideoCodec]" + _(" streams!")), type=MessageBox.TYPE_INFO, timeout=20)
 
 	def __evPluginError(self):
 		currPlay = self.session.nav.getCurrentService()
