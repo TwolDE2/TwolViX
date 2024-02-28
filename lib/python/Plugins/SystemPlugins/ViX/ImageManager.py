@@ -783,7 +783,7 @@ class AutoImageManagerTimer:
 			from Screens.Standby import inStandby
 
 			if not inStandby and config.imagemanager.query.value:
-				message = _(f"Your {SystemInfo['displaybrand']} {SystemInfo['machinename']} is about to create a full image backup, this can take about 6 minutes to complete.\nDo you want to allow this?")
+				message = _("Your ") + f"{SystemInfo['displaybrand']} {SystemInfo['machinename']}" + _(" is about to create a full image backup, this can take about 6 minutes to complete.\nDo you want to allow this?")
 				ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Scheduled backup.")
 			else:
