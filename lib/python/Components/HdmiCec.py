@@ -711,17 +711,17 @@ class HdmiCec:
 			self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 
 	def debugTx(self, msgaddress, cmd, data):
-		txt = self.now(True) + self.opCode(cmd, True) + " " + "%02X" % (cmd) + " "
+		txt = self.now(True) + self.opCode(cmd, True) + " " + f"{cmd:02X}" + " "
 		tmp = ""
 		if len(data):
-			if cmd in [0x32, 0x47]:
-				for i in range(len(data)):
-					tmp += f"{data[i]}"
+			if cmd in [0x32, 0x47]:  # set Menu Language/OSD Name
+				for info in data:
+					tmp += f"{info}"
 			else:
-				for i in range(len(data)):
-					tmp += "%02X" % ord(data[i]) + " "
+				for bytes in data:
+					tmp += f"{ord(bytes):02X}" + " "
 		tmp += 48 * " "
-		self.fdebug(txt + tmp[:48] + "[0x%02X]" % (msgaddress) + "\n")
+		self.fdebug(txt + tmp[:48] + f"[0x{msgaddress:02X}]")
 
 	def debugRx(self, length, cmd, ctrl0):
 		txt = self.now()
