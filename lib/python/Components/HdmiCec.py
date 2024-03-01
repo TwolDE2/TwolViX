@@ -13,8 +13,7 @@ from Tools.Directories import pathExists
 from Tools import Notifications
 from Tools.StbHardware import getFPWasTimerWakeup
 
-
-CEC = ["1.1", "1.2", "1.2a", "1.3", "1.3a", "1.4", "2.0?", "unknown"]  # CEC Version's table,  cmdList from http://www.cec-o-matic.com
+CEC = ["1.1", "1.2", "1.2a", "1.3", "1.3a", "1.4", "2.0", "unknown"]  # CEC Version's table,  cmdList from http://www.cec-o-matic.com
 cmdList = {
 	0x00: "<Feature Abort>",
 	0x04: "<Image View On>",
@@ -392,6 +391,7 @@ class HdmiCec:
 			ctrl1 = message.getControl1()
 			ctrl2 = message.getControl2()
 			msgaddress = message.getAddress()  # 0 = TV, 5 = receiver 15 = broadcast
+			# if CECcmd != "<Polling Message>" or CECcmd != "<Reporting Device Vendor ID>":
 			if CECcmd != "<Polling Message>":
 				print(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")
 				if config.hdmicec.debug.value != "0":
@@ -475,7 +475,8 @@ class HdmiCec:
 						if (ctrl0 * 256 + ctrl1) == 0 and ctrl2 == 0:
 							self.wakeup()
 			else:
-				print(f"[HdmiCEC][messageReceived99]: Unrecognised command -> msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")
+				return
+				# print(f"[HdmiCEC][messageReceived99]: Unrecognised command -> msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")
 
 	def sendMessage(self, msgaddress, message):
 		cmd = 0
@@ -722,19 +723,20 @@ class HdmiCec:
 		tmp += 48 * " "
 		self.fdebug(txt + tmp[:48] + "[0x%02X]" % (msgaddress) + "\n")
 
-	def debugRx(self, length, cmd, ctrl):
+	def debugRx(self, length, cmd, ctrl0):
 		txt = self.now()
 		if cmd == 0 and length == 0:
-			txt += self.opCode(cmd) + " - "
+			txt += "<Polling Message> -"		
 		else:
+		
 			if cmd == 0:
-				txt += "<Feature Abort>" + 13 * " " + "<  " + "%02X" % (cmd) + " "
+				txt += "<Feature Abort>" + 13 * " " + "<  " + f"{cmd:02X}" + " "
 			else:
-				txt += self.opCode(cmd) + " " + "%02X" % (cmd) + " "
-			if cmd == 0x9e:
-				txt += "%02X" % ctrl + 3 * " " + "[version: %s]" % CEC[ctrl]
+				txt += self.opCode(cmd) + f" {cmd:02X} "
+			if cmd == 0x9e and ctrl0 < len(CEC):
+				txt += f"{ctrl0:02X}" + 3 * " " + f"[version: {CEC[ctrl0]}]"
 			else:
-				txt += "%02X" % ctrl + " "
+				txt += f"{ctrl0:02X}"				 				
 		txt += "\n"
 		self.fdebug(txt)
 
