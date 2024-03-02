@@ -1,5 +1,5 @@
 from os import path
-from time import time, sleep
+from time import time
 
 from enigma import eAVSwitch, eDVBVolumecontrol, eTimer, eDVBLocalTimeHandler, eServiceReference, eStreamServer, iRecordableService, quitMainloop
 
@@ -306,10 +306,8 @@ class TryQuitMainloop(MessageBox):
 
 	def sendCEC(self):
 		print("[Standby][sendCEC] entered ")
-		import struct
 		from enigma import eHdmiCEC  # noqa: E402
-		physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
-		msgaddress= 0x00
+		msgaddress = 0x00
 		cmd = 0x36  # 54 standby
 		data = ""
 		eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
