@@ -2,11 +2,12 @@ from os import listdir, path, system
 import xml.sax
 
 from enigma import eConsoleAppContainer, eDVBDB
-from Tools.Directories import crawlDirectory, resolveFilename, SCOPE_CONFIG, SCOPE_SKIN, copyfile, copytree
-from boxbranding import getBoxType
+
 from Components.config import config, configfile
 from Components.Ipkg import IpkgComponent
 from Components.NimManager import nimmanager
+from Components.SystemInfo import SystemInfo
+from Tools.Directories import crawlDirectory, resolveFilename, SCOPE_CONFIG, SCOPE_SKIN, copyfile, copytree
 
 
 class InfoHandlerParseError(Exception):
@@ -191,7 +192,7 @@ class PackageInfoHandler:
 			self.directory = [self.directory]
 
 		for directory in self.directory:
-			packages += crawlDirectory(directory, ".*\.info$")  # noqa: W605
+			packages += crawlDirectory(directory, r".*\.info$")  # noqa: W605
 
 		for package in packages:
 			self.readInfo(package[0] + "/", package[0] + "/" + package[1])
@@ -272,7 +273,7 @@ class PackageInfoHandler:
 		if "hardware" in prerequisites:
 			hardware_found = False
 			for hardware in prerequisites["hardware"]:
-				if hardware == getBoxType():
+				if hardware == SystemInfo["boxtype"]:
 					hardware_found = True
 			if not hardware_found:
 				return False

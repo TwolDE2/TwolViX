@@ -5,7 +5,6 @@ import tarfile
 import glob
 from enigma import eTimer, eEnv, eDVBDB, quitMainloop
 
-from boxbranding import getImageType, getImageDistro, getImageVersion, getImageBuild, getImageDevBuild, getMachineBrand, getMachineMake, getMachineName
 from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button
@@ -16,6 +15,7 @@ from Components.Harddisk import harddiskmanager
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.Sources.StaticText import StaticText
+from Components.SystemInfo import SystemInfo
 import Components.Task
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
@@ -27,7 +27,7 @@ autoBackupManagerTimer = None
 SETTINGSRESTOREQUESTIONID = "RestoreSettingsNotification"
 PLUGINRESTOREQUESTIONID = "RestorePluginsNotification"
 NOPLUGINS = "NoPluginsNotification"
-defaultprefix = getImageDistro()[4:]
+defaultprefix = SystemInfo["distro"][4:]
 
 
 def getMountChoices():
@@ -139,12 +139,7 @@ BackupTime = 0
 
 class VIXBackupManager(Screen):
 	skin = ["""<screen name="VIXBackupManager" position="center,center" size="%d,%d">
-		<ePixmap pixmap="skin_default/buttons/red.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" />
-		<ePixmap pixmap="skin_default/buttons/green.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" />
-		<ePixmap pixmap="skin_default/buttons/yellow.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" />
-		<widget name="key_red" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#9f1313" transparent="1" />
-		<widget name="key_green" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#1f771f" transparent="1" />
-		<widget name="key_yellow" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#a08500" transparent="1" />
+		<panel name="__DynamicColorButtonTemplate__"/>
 		<ePixmap pixmap="skin_default/buttons/key_menu.png" position="%d,%d" size="%d,%d" alphatest="blend" transparent="1" zPosition="3" scale="1" />
 		<ePixmap pixmap="skin_default/buttons/key_info.png" position="%d,%d" size="%d,%d" alphatest="blend" transparent="1" zPosition="3" scale="1" />
 		<widget name="lab1" position="%d,%d" size="%d,%d" font="Regular; %d" zPosition="2" transparent="0" halign="center"/>
@@ -155,12 +150,6 @@ class VIXBackupManager(Screen):
 		</applet>
 	</screen>""",
 		560, 400,  # screen
-		0, 0, 140, 40,  # red
-		140, 0, 140, 40,  # green
-		280, 0, 140, 40,  # yellow
-		0, 0, 140, 40, 20,  # red
-		140, 0, 140, 40, 20,  # green
-		280, 0, 140, 40, 20,  # yellow
 		0, 45, 35, 25,  # menu key
 		40, 45, 35, 25,  # info key
 		0, 50, 560, 50, 18,  # lab1
@@ -581,7 +570,7 @@ class VIXBackupManager(Screen):
 			self.kernelcheck = False
 			AddPopupWithCallback(
 				self.Stage6,
-				_("Your %s %s is not connected to a network. Please check your network settings and try again.") % (getMachineBrand(), getMachineName()),
+				_("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
 				MessageBox.TYPE_INFO,
 				15,
 				NOPLUGINS
@@ -601,7 +590,7 @@ class VIXBackupManager(Screen):
 			self.kernelcheck = False
 			AddPopupWithCallback(
 				self.Stage6,
-				_("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (getMachineBrand(), getMachineName()),
+				_("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
 				MessageBox.TYPE_INFO,
 				15,
 				NOPLUGINS
@@ -760,21 +749,10 @@ class VIXBackupManager(Screen):
 class BackupSelection(Screen):
 	skin = ["""
 		<screen name="BackupSelection" position="center,center" size="%d,%d">
-			<ePixmap pixmap="skin_default/buttons/red.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-			<ePixmap pixmap="skin_default/buttons/green.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-			<ePixmap pixmap="skin_default/buttons/yellow.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-			<widget source="key_red" render="Label" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#9f1313" transparent="1"/>
-			<widget source="key_green" render="Label" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#1f771f" transparent="1"/>
-			<widget source="key_yellow" render="Label" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#a08500" transparent="1"/>
+			<panel name="__DynamicColorButtonTemplate__"/>
 			<widget name="checkList" position="%d,%d" size="%d,%d" itemHeight="%d" font="Regular;%d" transparent="1" scrollbarMode="showOnDemand"/>
 		</screen>""",
 			560, 400,  # screen
-			0, 0, 140, 40,  # colors
-			140, 0, 140, 40,
-			280, 0, 140, 40,
-			0, 0, 140, 40, 20,
-			140, 0, 140, 40, 20,
-			280, 0, 140, 40, 20,
 			5, 50, 550, 250, 25, 19,
 			]  # noqa: E124
 
@@ -862,17 +840,10 @@ class BackupSelection(Screen):
 class XtraPluginsSelection(Screen):
 	skin = ["""
 		<screen name="BackupSelection" position="center,center" size="%d,%d">
-			<ePixmap pixmap="skin_default/buttons/red.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-			<ePixmap pixmap="skin_default/buttons/green.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-			<widget source="key_red" render="Label" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#9f1313" transparent="1"/>
-			<widget source="key_green" render="Label" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#1f771f" transparent="1"/>
+			<panel name="__DynamicColorButtonTemplate__"/>
 			<widget name="checkList" position="%d,%d" size="%d,%d" itemHeight="%d" font="Regular;%d" transparent="1" scrollbarMode="showOnDemand"/>
 		</screen>""",
 			560, 400,  # screen
-			0, 0, 140, 40,  # red
-			140, 0, 140, 40,  # green
-			0, 0, 140, 40, 20,  # red
-			140, 0, 140, 40, 20,  # green
 			5, 50, 550, 250, 25, 19,
 			]  # noqa: E124
 
@@ -1067,7 +1038,7 @@ class AutoBackupManagerTimer:
 			print("[BackupManager] Backup onTimer occured at", strftime("%c", localtime(now)))
 			from Screens.Standby import inStandby
 			if not inStandby and config.backupmanager.query.value:  # Check for querying enabled
-				message = _("Your %s %s is about to run a backup of your settings and to detect your plugins.\nDo you want to allow this?") % (getMachineBrand(), getMachineName())
+				message = _("Your %s %s is about to run a backup of your settings and to detect your plugins.\nDo you want to allow this?") % (SystemInfo["displaybrand"], SystemInfo["machinename"])
 				ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Scheduled backup.")
 			else:
@@ -1342,12 +1313,12 @@ class BackupFiles(Screen):
 		elif self.backuptype == self.TYPE_FACTORYRESET:
 			backupType = "-FR-"
 		imageSubBuild = ""
-		if getImageType() != "release":
-			imageSubBuild = ".%s" % getImageDevBuild()
+		if SystemInfo["imagetype"] != "release":
+			imageSubBuild = ".%s" % SystemInfo["imagedevbuild"]
 		boxname = ""
 		if config.backupmanager.showboxname.value:
-			boxname = "-" + getMachineMake()
-		self.Backupfile = self.BackupDirectory + config.backupmanager.folderprefix.value + boxname + "-" + getImageType()[0:3] + backupType + getImageVersion() + "." + getImageBuild() + imageSubBuild + "-" + backupdate.strftime("%Y%m%d-%H%M") + ".tar.gz"
+			boxname = "-" + SystemInfo["machinebuild"]
+		self.Backupfile = self.BackupDirectory + config.backupmanager.folderprefix.value + boxname + "-" + SystemInfo["imagetype"][0:3] + backupType + SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + imageSubBuild + "-" + backupdate.strftime("%Y%m%d-%H%M") + ".tar.gz"
 		with open(BackupFiles.tar_flist, "w") as tfl:			# Need to create a list of what to backup, so that spaces and special characters don't get lost on, or mangle, the command line
 			for fn in tmplist:
 				tfl.write(fn + "\n")

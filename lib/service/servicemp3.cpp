@@ -261,7 +261,7 @@ eStaticServiceMP3Info::eStaticServiceMP3Info()
 
 RESULT eStaticServiceMP3Info::getName(const eServiceReference &ref, std::string &name)
 {
-	if ( ref.name.length() )
+	if (ref.name.length())
 		name = ref.name;
 	else
 	{
@@ -271,10 +271,12 @@ RESULT eStaticServiceMP3Info::getName(const eServiceReference &ref, std::string 
 		else
 			name = ref.path;
 	}
-	if (!name.empty()) {
-	 	std::vector<std::string> name_split = split(name, "•");
-	 	name = name_split[0];
-	 }
+
+	std::string res_name = "";
+	std::string res_provider = "";
+	eServiceReference::parseNameAndProviderFromName(name, res_name, res_provider);
+	name = res_name;
+
 	return 0;
 }
 
@@ -289,7 +291,7 @@ int eStaticServiceMP3Info::getInfo(const eServiceReference &ref, int w)
 	{
 	case iServiceInformation::sTimeCreate:
 		{
-			struct stat s;
+			struct stat s = {};
 			if (stat(ref.path.c_str(), &s) == 0)
 			{
 				return s.st_mtime;
@@ -298,7 +300,7 @@ int eStaticServiceMP3Info::getInfo(const eServiceReference &ref, int w)
 		break;
 	case iServiceInformation::sFileSize:
 		{
-			struct stat s;
+			struct stat s = {};
 			if (stat(ref.path.c_str(), &s) == 0)
 			{
 				return s.st_size;
@@ -311,7 +313,7 @@ int eStaticServiceMP3Info::getInfo(const eServiceReference &ref, int w)
 
 long long eStaticServiceMP3Info::getFileSize(const eServiceReference &ref)
 {
-	struct stat s;
+	struct stat s = {};
 	if (stat(ref.path.c_str(), &s) == 0)
 	{
 		return s.st_size;
@@ -653,11 +655,12 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	eDebug("[eServiceMP3] playbin uri=%s", uri);
 	if (suburi != NULL)
 		eDebug("[eServiceMP3] playbin suburi=%s", suburi);
-	bool useplaybin3 = eConfigManager::getConfigBoolValue("config.misc.usegstplaybin3", false);
+/*	bool useplaybin3 = eConfigManager::getConfigBoolValue("config.misc.usegstplaybin3", false);
 	if(useplaybin3)
 		m_gst_playbin = gst_element_factory_make("playbin3", "playbin");
 	else
-		m_gst_playbin = gst_element_factory_make("playbin", "playbin");
+*/
+	m_gst_playbin = gst_element_factory_make("playbin", "playbin");
 	if ( m_gst_playbin )
 	{
 		/*
@@ -1213,13 +1216,8 @@ RESULT eServiceMP3::getName(std::string &name)
 	else
 		name = title;
 
-	if (!name.empty()) {
-	 	std::vector<std::string> name_split = split(name, "•");
-	 	name = name_split[0];
-		if (name_split.size() > 1) {
-			m_prov = name_split[1];
-		}
-	 }
+	m_prov = m_ref.prov;
+
 	return 0;
 }
 

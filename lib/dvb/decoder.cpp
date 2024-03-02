@@ -45,7 +45,7 @@ eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
-		tmp_fd = -1;	
+		tmp_fd = -1;
 		fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
 		/* eDebug("[decoder][eDVBAudio] opening null fd returned: %d", fd0lock); */
 	}

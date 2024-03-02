@@ -7,6 +7,7 @@ from Components.Converter.Converter import Converter
 from Components.Element import cached
 from ServiceReference import resolveAlternate
 from Tools.Directories import fileExists
+from Tools.Transponder import ConvertToHumanReadable
 
 
 class ServiceName(Converter):
@@ -16,7 +17,8 @@ class ServiceName(Converter):
 	PROVIDER = 3
 	REFERENCE = 4
 	EDITREFERENCE = 5
-	FORMAT_STRING = 6
+	STREAM_URL = 6
+	FORMAT_STRING = 7
 
 	def __init__(self, type):
 		Converter.__init__(self, type)
@@ -36,6 +38,8 @@ class ServiceName(Converter):
 				self.type = self.NAME_ONLY
 			elif type == "NameAndEvent":
 				self.type = self.NAME_EVENT
+			elif type == "StreamUrl":
+				self.type = self.STREAM_URL
 			else:
 				self.type = self.NAME
 
@@ -87,12 +91,24 @@ class ServiceName(Converter):
 			if nref:
 				service = nref
 			return service.toString()
+		elif self.type == self.STREAM_URL:
+			srpart = "//%s:%s/" % (config.misc.softcam_streamrelay_url.getHTML(), config.misc.softcam_streamrelay_port.value)
+			if not service:
+				refstr = info.getInfoString(iServiceInformation.sServiceref)
+				path = refstr and eServiceReference(refstr).getPath()
+				if not path.startswith("//") and path.find(srpart) == -1:
+					return path
+				else:
+					return ""
+			path = service.getPath()
+			return "" if path.startswith("//") and path.find(srpart) == -1 else path
 		elif self.type == self.FORMAT_STRING:
 			name = self.getName(service, info)
-			numservice = self.source.serviceref
-			num = self.getNumber(numservice, info)
+			numservice = hasattr(self.source, "serviceref") and self.source.serviceref
+			num = numservice and self.getNumber(numservice, info) or ""
 			orbpos, tp_data = self.getOrbitalPos(service, info)
 			provider = self.getProvider(service, info, tp_data)
+			tuner_system = service and info and self.getServiceSystem(service, info, tp_data)
 			res_str = ""
 			for x in self.parts[1:]:
 				if x == "NUMBER" and num:
@@ -103,6 +119,8 @@ class ServiceName(Converter):
 					res_str = self.appendToStringWithSeparator(res_str, orbpos)
 				if x == "PROVIDER" and provider:
 					res_str = self.appendToStringWithSeparator(res_str, provider)
+				if x == "TUNERSYSTEM" and tuner_system:
+					res_str = self.appendToStringWithSeparator(res_str, tuner_system)
 			return res_str
 
 	text = property(getText)
@@ -137,12 +155,6 @@ class ServiceName(Converter):
 		else:
 			tp_data = info.getInfoObject(iServiceInformation.sTransponderData)
 
-		if not tp_data and not ref:
-			service = self.source.service
-			if service:
-				feraw = service.frontendInfo()
-				tp_data = feraw and feraw.getAll(config.usage.infobar_frontend_source.value == "settings")
-
 		if tp_data is not None:
 			try:
 				position = tp_data["orbital_position"]
@@ -153,3 +165,19 @@ class ServiceName(Converter):
 			except:
 				pass
 		return orbitalpos, tp_data
+
+	def getServiceSystem(self, ref, info, feraw):
+		if ref:
+			sref = info.getInfoObject(ref, iServiceInformation.sServiceref)
+		else:
+			sref = info.getInfoObject(iServiceInformation.sServiceref)
+
+		if not sref:
+			sref = ref.toString()
+
+		if sref and "%3a//" in sref:
+			return "IPTV"
+
+		fedata = ConvertToHumanReadable(feraw)
+
+		return fedata.get("system") or ""

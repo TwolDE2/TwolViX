@@ -1,4 +1,3 @@
-from boxbranding import getMachineBrand, getMachineName
 from Components.ActionMap import ActionMap
 from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry  # noqa: F401
 from Components.ConfigList import ConfigListScreen
@@ -120,19 +119,23 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 			self["summary_job_task"].text = j.getStatustext()
 		if j.status in (j.FINISHED, j.FAILED):
 			self.performAfterEvent()
-			self.backgroundable = False
-			self["key_blue"].setText("")
-			self["backgroundActions"].setEnabled(False)
-			if j.status == j.FINISHED:
-				self["key_green"].setText(_("OK"))
-				self["okActions"].setEnabled(True)
-				self.cancelable = False
-				self["key_red"].setText("")
-				self["abortActions"].setEnabled(False)
-			elif j.status == j.FAILED:
-				self.cancelable = True
-				self["key_red"].setText(_("Cancel"))
-				self["abortActions"].setEnabled(True)
+			if self.backgroundable:
+				self.backgroundable = False
+				self["key_blue"].setText("")
+				self["backgroundActions"].setEnabled(False)
+			try:
+				if j.status == j.FINISHED:
+					self["key_green"].setText(_("OK"))
+					self["okActions"].setEnabled(True)
+					self.cancelable = False
+					self["key_red"].setText("")
+					self["abortActions"].setEnabled(False)
+				elif j.status == j.FAILED:
+					self.cancelable = True
+					self["key_red"].setText(_("Cancel"))
+					self["abortActions"].setEnabled(True)
+			except:
+				print("[TaskView]{state_changed] . close issue again")
 
 	def background(self):
 		if self.backgroundable:
@@ -159,12 +162,12 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 			return
 		elif self.settings.afterEvent.value == "close" and self.job.status == self.job.FINISHED:
 			self.close(False)
-		if self.settings.afterEvent.value == "deepstandby":
+		elif self.settings.afterEvent.value == "deepstandby":
 			if not Screens.Standby.inTryQuitMainloop:
-				Tools.Notifications.AddNotificationWithCallback(self.sendTryQuitMainloopNotification, MessageBox, _("A sleep timer wants to shut down\nyour %s %s. Proceed?") % (getMachineBrand(), getMachineName()), timeout=20)
+				Tools.Notifications.AddNotificationWithCallback(self.sendTryQuitMainloopNotification, MessageBox, _("A sleep timer wants to shut down\nyour %s %s. Proceed?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), timeout=20)
 		elif self.settings.afterEvent.value == "standby":
 			if not Screens.Standby.inStandby:
-				Tools.Notifications.AddNotificationWithCallback(self.sendStandbyNotification, MessageBox, _("A sleep timer wants to set your\n%s %s to standby. Proceed?") % (getMachineBrand(), getMachineName()), timeout=20)
+				Tools.Notifications.AddNotificationWithCallback(self.sendStandbyNotification, MessageBox, _("A sleep timer wants to set your\n%s %s to standby. Proceed?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), timeout=20)
 
 	def checkNotifications(self):
 		InfoBarNotifications.checkNotifications(self)

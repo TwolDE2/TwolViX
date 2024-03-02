@@ -5,13 +5,12 @@ import socket
 import fcntl
 import struct
 
-from boxbranding import getDriverDate, getImageVersion, getMachineBuild, getBoxType
-
 from enigma import getEnigmaVersionString
 
 
 def getVersionString():
-	return getImageVersion()
+	from Components.SystemInfo import SystemInfo
+	return SystemInfo["imageversion"]
 
 
 def getFlashDateString():
@@ -23,7 +22,8 @@ def getFlashDateString():
 
 
 def driversDate():
-	return _formatDate(getDriverDate())
+	from Components.SystemInfo import SystemInfo
+	return _formatDate(SystemInfo["driversdate"])
 
 
 def getLastUpdate():
@@ -42,7 +42,7 @@ def getGStreamerVersionString():
 	try:
 		from glob import glob
 		gst = [x.split("Version: ") for x in open(glob("/var/lib/opkg/info/gstreamer[0-9].[0-9].control")[0], "r") if x.startswith("Version:")][0]
-		return "%s" % gst[1].split("+")[0].split("-")[0].replace("\n", "")
+		return gst[1].split("+")[0].split("-")[0].replace("\n", "")
 	except:
 		return _("unknown")
 
@@ -84,7 +84,8 @@ def getCPUSpeedMHzInt():
 		print("[About] getCPUSpeedMHzInt, /proc/cpuinfo not available")
 
 	if cpu_speed == 0:
-		if getMachineBuild() in ("h7", "hd51", "sf4008", "osmio4k", "osmio4kplus", "osmini4k"):
+		from Components.SystemInfo import MODEL
+		if MODEL in ("h7", "hd51", "sf4008", "osmio4k", "osmio4kplus", "osmini4k"):
 			try:
 				import binascii
 				with open("/sys/firmware/devicetree/base/cpus/cpu@0/clock-frequency", "rb") as f:
@@ -105,15 +106,16 @@ def getCPUSpeedString():
 	cpu_speed = float(getCPUSpeedMHzInt())
 	if cpu_speed > 0:
 		if cpu_speed >= 1000:
-			cpu_speed = "%s GHz" % str(round(cpu_speed / 1000, 1))
+			cpu_speed = f"{str(round(cpu_speed / 1000, 1))} GHz"
 		else:
-			cpu_speed = "%s MHz" % str(int(cpu_speed))
+			cpu_speed = f"{str(int(cpu_speed))} MHz"
 		return cpu_speed
 	return _("n/a GHz")
 
 
 def getCPUArch():
-	if getBoxType() in ("osmio4k", ):
+	from Components.SystemInfo import MODEL
+	if MODEL.startswith("osmio4k"):
 		return "ARM V7"
 	if "ARM" in getCPUString():
 		return getCPUString()
@@ -122,7 +124,7 @@ def getCPUArch():
 
 def getCPUString():
 	try:
-		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if (x.startswith("system type") or x.startswith("model name") or x.startswith("Processor")) and len(x.split(": ")) > 1][0]
+		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if x.startswith(("system type", "model name", "Processor")) and len(x.split(": ")) > 1][0]
 	except:
 		return _("unavailable")
 
@@ -142,7 +144,7 @@ def getCpuCoresString():
 		2: _("Dual core"),
 		4: _("Quad core"),
 		8: _("Octo core")
-	}.get(cores, _("%d cores") % cores)
+	}.get(cores, _(f"{cores} cores"))
 
 
 def _ifinfo(sock, addr, ifname):
@@ -177,13 +179,13 @@ def getIfTransferredData(ifname):
 	with open("/proc/net/dev", "r") as f:
 		for line in f:
 			if ifname in line:
-				data = line.split("%s:" % ifname)[1].split()
+				data = line.split(f"{ifname}:")[1].split()
 				rx_bytes, tx_bytes = (data[0], data[8])
 				return rx_bytes, tx_bytes
 
 
 def getPythonVersionString():
-	return "%s.%s.%s" % (version_info.major, version_info.minor, version_info.micro)
+	return f"{version_info.major}.{version_info.minor}.{version_info.micro}"
 
 
 def getBoxUptime():
@@ -207,15 +209,15 @@ def formatUptime(seconds):
 	out = ''
 	if seconds > 86400:
 		days = int(seconds / 86400)
-		out += (_("1 day") if days == 1 else _("%d days") % days) + ", "
+		out += (_("1 day") if days == 1 else _(f"{days} days")) + ", "
 	if seconds > 3600:
 		hours = int((seconds % 86400) / 3600)
-		out += (_("1 hour") if hours == 1 else _("%d hours") % hours) + ", "
+		out += (_("1 hour") if hours == 1 else _(f"{hours} hours")) + ", "
 	if seconds > 60:
 		minutes = int((seconds % 3600) / 60)
-		out += (_("1 minute") if minutes == 1 else _("%d minutes") % minutes) + " "
+		out += (_("1 minute") if minutes == 1 else _(f"{minutes} minutes")) + " "
 	else:
-		out += (_("1 second") if seconds == 1 else _("%d seconds") % seconds) + " "
+		out += (_("1 second") if seconds == 1 else _(f"{seconds} seconds")) + " "
 	return out
 
 

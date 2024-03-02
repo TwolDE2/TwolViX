@@ -79,14 +79,7 @@ def spinnerSkin(skinName):
 class VIXSoftcamManager(Screen):
 	skin = ["""
 	<screen name="VIXSoftcamManager" position="center,center" size="%d,%d">
-		<ePixmap pixmap="skin_default/buttons/red.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-		<ePixmap pixmap="skin_default/buttons/green.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-		<ePixmap pixmap="skin_default/buttons/yellow.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-		<ePixmap pixmap="skin_default/buttons/blue.png" position="%d,%d" size="%d,%d" alphatest="blend" scale="1"/>
-		<widget name="key_red" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#9f1313" transparent="1"/>
-		<widget name="key_green" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#1f771f" transparent="1"/>
-		<widget name="key_yellow" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#a08500" transparent="1"/>
-		<widget name="key_blue" position="%d,%d" zPosition="1" size="%d,%d" font="Regular;%d" halign="center" valign="center" backgroundColor="#18188b" transparent="1"/>
+		<panel name="__DynamicColorButtonTemplate__"/>
 		<ePixmap pixmap="skin_default/buttons/key_menu.png" position="%d,%d" size="%d,%d" alphatest="blend" transparent="1" zPosition="3" scale="1" />
 		<ePixmap pixmap="skin_default/buttons/key_info.png" position="%d,%d" size="%d,%d" alphatest="blend" transparent="1" zPosition="3" scale="1" />
 		<widget name="lab1" position="%d,%d" size="%d,%d" font="Regular;%d" halign="right" zPosition="2" transparent="0"/>
@@ -98,14 +91,6 @@ class VIXSoftcamManager(Screen):
 		</applet>
 	</screen>""",
 		560, 400,  # screen
-		0, 0, 140, 40,  # colors
-		140, 0, 140, 40,
-		280, 0, 140, 40,
-		420, 0, 140, 40,
-		0, 0, 140, 40, 20,
-		140, 0, 140, 40, 20,
-		280, 0, 140, 40, 20,
-		420, 0, 140, 40, 20,
 		0, 45, 35, 25,  # menu key
 		40, 45, 35, 25,  # info key
 		40, 110, 170, 20, 22,  # lab1
@@ -356,7 +341,7 @@ class VIXSoftcamManager(Screen):
 					self.session.open(MessageBox, _("MGcamd can't run whilst CCcam is running."), MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 			elif selectedcam.lower().startswith("scam"):
 				self.session.openWithCallback(self.showActivecam, VIXStartCam, self.sel[0])
-			elif not selectedcam.lower().startswith("cccam") or selectedcam.lower().startswith("oscam") or selectedcam.lower().startswith("ncam") or selectedcam.lower().startswith("mgcamd"):
+			elif not selectedcam.lower().startswith(("cccam", "oscam", "ncam", "mgcamd")):
 				self.session.open(MessageBox, _("Found non-standard softcam, trying to start, this may fail."), MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 				self.session.openWithCallback(self.showActivecam, VIXStartCam, self.sel[0])
 
@@ -750,7 +735,7 @@ class SoftcamAutoPoller:
 						now = datetime.now()
 						output.write(now.strftime("%Y-%m-%d %H:%M") + ": " + softcamcheck + " running OK\n")
 						output.close()
-						if softcamcheck.lower().startswith("oscam") or softcamcheck.lower().startswith("ncam"):
+						if softcamcheck.lower().startswith(("oscam", "ncam")):
 							if path.exists("/tmp/status.html"):
 								remove("/tmp/status.html")
 							camconf = port = ""
@@ -887,7 +872,7 @@ class SoftcamAutoPoller:
 						now = datetime.now()
 						output.write(now.strftime("%Y-%m-%d %H:%M") + ": Couldn't find " + softcamcheck + " running, Starting " + softcamcheck + "\n")
 						output.close()
-						if softcamcheck.lower().startswith("oscam") or softcamcheck.lower().startswith("ncam"):
+						if softcamcheck.lower().startswith(("oscam", "ncam")):
 							self.Console.ePopen("ps.procps | grep softcams | grep -v grep | awk 'NR==1' | awk '{print $5}'| awk  -F'[/]' '{print $4}' > /tmp/softcamRuningCheck.tmp")
 							sleep(2)
 							file = open("/tmp/softcamRuningCheck.tmp")

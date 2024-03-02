@@ -4,7 +4,6 @@ from time import localtime, strftime, time
 from datetime import datetime
 from traceback import print_exc
 
-from boxbranding import getImageArch, getImageBuild, getImageDevBuild, getImageType, getImageVersion
 from Tools.Profile import profile, profile_final
 import Tools.RedirectOutput  # noqa: F401 # Don't remove this line. It may seem to do nothing, but if removed it will break output redirection for crash logs.
 import eConsoleImpl
@@ -209,7 +208,7 @@ class Session:
 		# close all open dialogs by emptying the dialog stack
 		# remove any return values and callbacks for a swift exit
 		while self.current_dialog is not None and type(self.current_dialog) is not InfoBar.InfoBar:
-			print("[SkinReloader] closing %s" % type(self.current_dialog))
+			print(f"[SkinReloader] closing {type(self.current_dialog)}")
 			self.current_dialog.returnValue = None
 			self.current_dialog.callback = None
 			self.execEnd()
@@ -368,10 +367,6 @@ def runScreenTest():
 			# we need session.scart to access it from within menu.xml
 			session.scart = AutoScartControl(session)
 
-		profile("Init:AutoVideoMode")
-		import Screens.VideoMode
-		Screens.VideoMode.autostart(session)
-
 	profile("RunReactor")
 	profile_final()
 	runReactor()
@@ -441,12 +436,14 @@ def runScreenTest():
 
 
 profile("PYTHON_START")
+from Components.SystemInfo import SystemInfo  # noqa: E402  don't move this import
+
 print("[StartEnigma]  Starting Python Level Initialisation.")
-print("[StartEnigma]  Image Type -> '%s'" % getImageType())
-print("[StartEnigma]  Image Version -> '%s'" % getImageVersion())
-print("[StartEnigma]  Image Build -> '%s'" % getImageBuild())
-if getImageType() != "release":
-	print("[StartEnigma]  Image DevBuild -> '%s'" % getImageDevBuild())
+print(f"[StartEnigma]  Image Type -> {SystemInfo['imagetype']}")
+print(f"[StartEnigma]  Image Version -> {SystemInfo['imageversion']}")
+print(f"[StartEnigma]  Image Build -> {SystemInfo['imagebuild']}")
+if SystemInfo["imagetype"] != "release":
+	print(f"[StartEnigma]  Image DevBuild -> {SystemInfo['imagedevbuild']}")
 
 
 # SetupDevices sets up defaults:- language, keyboard, parental & expert config.
@@ -457,7 +454,7 @@ print("[StartEnigma]  Initialising SetupDevices.")
 from Components.SetupDevices import InitSetupDevices  # noqa: E402
 InitSetupDevices()
 
-if getImageArch() in ("aarch64"):
+if SystemInfo["architecture"] in ("aarch64"):  # something not right here
 	from usb.backend import libusb1  # noqa: E402
 	libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")
 
@@ -471,7 +468,7 @@ profile("InfoBar")
 print("[StartEnigma]  Initialising InfoBar.")
 from Screens import InfoBar  # noqa: E402
 
-from Components.SystemInfo import SystemInfo  # noqa: E402  don't move this import
+# from Components.SystemInfo import SystemInfo  # noqa: E402  don't move this import
 VuRecovery = SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0
 # print("[StartEnigma]  Is this VuRecovery?. Recovery = ", VuRecovery)
 

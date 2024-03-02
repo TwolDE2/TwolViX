@@ -1,6 +1,6 @@
 import time
 
-from Tools.Directories import resolveFilename, SCOPE_CONFIG
+from Tools.Directories import resolveFilename, SCOPE_CONFIG  # , fileExists, SCOPE_LIBDIR
 
 PERCENTAGE_START = 0
 PERCENTAGE_END = 100
@@ -10,6 +10,15 @@ profile_start = time.time()
 profile_data = {}
 total_time = 1
 profile_file = None
+
+
+# def getModel():  # Here because we can't call SystemInfo this early in the boot process
+# 	if fileExists(f := pathjoin(resolveFilename(SCOPE_LIBDIR), "enigma.info")):
+# 		return (m := [x.split("=")[1].strip() for x in open(f).readlines() if x.startswith("machinebuild=")]) and m[0] or None
+
+
+# MODEL = getModel()
+
 
 try:
 	f = open(resolveFilename(SCOPE_CONFIG, "profile"), "r")
@@ -33,7 +42,6 @@ except IOError:
 
 def profile(id):
 	now = time.time() - profile_start
-
 	(dev, fmt) = ("/proc/progress", "%d \n")
 
 	if profile_file:

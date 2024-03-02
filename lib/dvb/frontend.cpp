@@ -1176,7 +1176,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 		ret = snr;
 	}
 
-	else if (!strcmp(m_description, "ATBM7821 DVB-T2/C")) //SF8008	
+	else if (!strcmp(m_description, "ATBM7821 DVB-T2/C")) //SF8008
 	{
 		ret = snr*10;
 		ter_max = 4200;
@@ -1310,7 +1310,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 				break;
 		}
 	}
-	else if (!strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")) // dual plug & play tuner GB UE/Quad UHD 4K 
+	else if (!strcmp(m_description, "GIGA DVB-T2/C NIM (TT3L10)")) // dual plug & play tuner GB UE/Quad UHD 4K
 	{
 		ret = (int)(snr / 15);
 	}
@@ -1361,7 +1361,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	}
 	else if (!strcmp(m_description, "Vuplus DVB-S NIM(Si2166)")) // VU+ Zero4K
 	{
-		ret = snr;
+		ret = snr / 40;
 	}
 	else if (!strncmp(m_description, "Si216", 5)) // New models with SI tuners
 	{
@@ -1397,7 +1397,7 @@ void eDVBFrontend::calculateSignalQuality(int snr, int &signalquality, int &sign
 	{
 		ret = snr;
 	}
-	
+
 	signalqualitydb = ret;
 	if (ret == 0x12345678) // no snr db calculation avail.. return untouched snr value..
 	{
@@ -1482,6 +1482,22 @@ int eDVBFrontend::readFrontendData(int type)
 	LSB = 0.01 dB.
 	Values derived from the legacy API are likely to be unreliable.
 */
+			if (m_state != stateLock)
+			{
+				uint16_t snr = 0;
+				int signalquality = 0;
+				int signalqualitydb = 0;
+				if (!m_simulate)
+					ioctl(m_fd, FE_READ_SNR, &snr);
+				if (snr > 0 && snr < 65535)
+				{
+					calculateSignalQuality(snr, signalquality, signalqualitydb);
+					if (type == iFrontendInformation_ENUMS::signalQuality)
+						return signalquality;
+					else
+						return signalqualitydb;
+				}
+			}
 			if (m_state == stateLock)
 			{
 				int signalquality = 0;

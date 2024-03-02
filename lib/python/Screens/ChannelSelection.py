@@ -357,7 +357,8 @@ class ChannelContextMenu(Screen):
 		self.close()
 
 	def toggleStreamrelay(self):
-		Screens.InfoBar.InfoBar.instance.ToggleStreamrelay(self.csel.getCurrentSelection())
+		from Screens.InfoBarGenerics import streamrelay
+		streamrelay.toggle(self.session.nav, self.csel.getCurrentSelection())
 		self.close()
 
 	def addCenterDVBSubsFlag(self):
@@ -1336,7 +1337,7 @@ service_types_radio = "1:7:2:0:0:0:0:0:0:0:(type == 2) || (type == 10)"
 
 class ChannelSelectionBase(Screen, HelpableScreen):
 
-	orbposReStr = "\(satellitePosition *== *(\d+)"  # noqa: W605
+	orbposReStr = r"\(satellitePosition *== *(\d+)"  # noqa: W605
 	orbposRe = None  # Lazy compilation
 
 	def __init__(self, session):
@@ -2456,7 +2457,7 @@ class ChannelSelection(ChannelSelectionEdit, ChannelSelectionBase, ChannelSelect
 			tmp = self.history[pos]
 			del self.history[pos]
 			self.history.append(tmp)
-			self.history_pos = len(self.history)-1  # noqa: E226
+			self.history_pos = len(self.history) - 1  # noqa: E226
 			self.setHistoryPath()
 
 	def saveRoot(self):

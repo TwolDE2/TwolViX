@@ -48,7 +48,7 @@ eServiceReference.isRecordable = lambda serviceref: serviceref.flags & eServiceR
 def __repr(serviceref):
 	chnum = serviceref.getChannelNum()
 	chnum = ", ChannelNum=" + str(chnum) if chnum else ""
-	return "eServiceReference(Name=%s%s, String=%s)" % (serviceref.getServiceName(), chnum, serviceref.toString())
+	return f"eServiceReference(Name={serviceref.getServiceName()}{chnum}, String={serviceref.toString()})"
 
 
 eServiceReference.__repr__ = __repr

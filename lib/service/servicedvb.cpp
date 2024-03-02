@@ -388,13 +388,14 @@ RESULT eStaticServiceDVBPVRInformation::getName(const eServiceReference &ref, st
 		}
 		m_parser.m_name = name;
 	}
-	if (!name.empty()) {
-	 	std::vector<std::string> name_split = split(name, "•");
-	 	name = name_split[0];
-		if (name_split.size() > 1) {
-			m_parser.m_prov = name_split[1];
-		}
-	 }
+
+	std::string res_name = "";
+	std::string res_provider = "";
+	eServiceReference::parseNameAndProviderFromName(name, res_name, res_provider);
+	name = res_name;
+	m_parser.m_name = name;
+	if (m_parser.m_prov.empty() && !ref.prov.empty()) m_parser.m_prov = ref.prov;
+
 	return 0;
 }
 
@@ -1204,7 +1205,7 @@ void eDVBServicePlay::serviceEvent(int event)
 		updateEpgCacheNowNext();
 
 		/* default behaviour is to start an eit reader, and wait for now/next info, unless this is disabled */
-		if (m_dvb_service && m_dvb_service->useEIT() && eConfigManager::getConfigBoolValue("config.usage.show_eit_nownext", true))
+		if (m_dvb_service && m_dvb_service->useEIT() || eConfigManager::getConfigBoolValue("config.usage.show_eit_nownext", true))
 		{
 			ePtr<iDVBDemux> m_demux;
 			if (!m_service_handler.getDataDemux(m_demux))
@@ -2488,7 +2489,7 @@ bool eDVBServiceBase::tryFallbackTuner(eServiceReferenceDVB &service, bool &is_s
 	service = eServiceReferenceDVB(remote_service_ref.str());
 
 	is_stream = true;
-	
+
 //	m_is_streamx = true;	// used by decoder.cpp to stop tuxtxt logging on text pid for streams
 
 	return true;
@@ -3098,7 +3099,7 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 		{
 			selectAudioStream();
 		}
-		
+
 		if (!(m_is_pvr || m_is_stream || m_timeshift_active))
 			m_decoder->setSyncPCR(pcrpid);
 		else
@@ -3645,7 +3646,7 @@ void eDVBServicePlay::newDVBSubtitlePage(const eDVBSubtitlePage &p)
 
 		// Where subtitles are delivered out of sync with video, only treat subtitles in the past as having bad timing.
 		// Those that are delivered too early are cached for displaying at the appropriate later time
-		// Note that this can be due to buggy drivers, as well as problems with the broadcast 
+		// Note that this can be due to buggy drivers, as well as problems with the broadcast
 		if (pos-p.m_show_time > 1800000 && (m_is_pvr || m_timeshift_enabled))
 		{
 			// Subtitles delivered over 20 seconds too late

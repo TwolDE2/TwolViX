@@ -99,7 +99,6 @@ class Element:
 			changed = self.__suspended != suspended
 		except AttributeError:
 			print("[Element][setSuspend]self.__suspended - No attribute __suspended")
-			return
 		else:
 			if not self.__suspended and suspended:
 				self.doSuspend(1)

@@ -1,9 +1,9 @@
 from os import listdir, path, remove
 
 from enigma import eConsoleAppContainer
-from boxbranding import getImageDistro
 
 from Components.Harddisk import harddiskmanager
+from Components.SystemInfo import SystemInfo
 from Tools.Directories import resolveFilename, SCOPE_LIBDIR
 
 opkgDestinations = []
@@ -94,7 +94,7 @@ class IpkgComponent:
 	def startCmd(self, cmd, args=None):
 		if cmd == self.CMD_UPDATE:
 			for fn in listdir('/var/lib/opkg'):
-				if fn.startswith(getImageDistro()):
+				if fn.startswith(SystemInfo["distro"]):
 					remove('/var/lib/opkg/' + fn)
 			self.runCmdEx("update")
 		elif cmd == self.CMD_UPGRADE:

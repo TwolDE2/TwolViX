@@ -33,7 +33,7 @@ def getTrashFolder(path=None):
 
 def createTrashFolder(path=None):
 	trash = getTrashFolder(path)
-	print("[Trashcan] Debug path %s => %s" % (path, trash))
+	print(f"[Trashcan] Debug path {path} => {trash}")
 	if trash and access(ospath.split(trash)[0], W_OK):
 		if not ospath.isdir(trash):
 			try:
@@ -152,8 +152,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 			if parts[1] == "/media/autofs":
 				continue
 			# skip network mounts unless the option to clean them is set
-			if (not config.usage.movielist_trashcan_network_clean.value and
-				(parts[1].startswith("/media/net") or parts[1].startswith("/media/autofs"))):
+			if not config.usage.movielist_trashcan_network_clean.value and parts[1].startswith(("/media/net", "/media/autofs")):
 				continue
 			# one trashcan in the root, one in movie subdirectory
 			trashcanLocations.add(parts[1])
@@ -187,9 +186,7 @@ class CleanTrashTask(Components.Task.PythonTask):
 						else:
 							candidates.append((st.st_ctime, fn, st.st_size))
 							size += st.st_size
-					# print("[Trashcan][CleanTrashTask][work] lets look at directories")
 					for name in dirs:		# Remove empty directories if possible
-						# print("[Trashcan][CleanTrashTask][work] dir name", dirs, "   ", name)
 						try:
 							rmdir(ospath.join(root, name))
 						except Exception as e:
