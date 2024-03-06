@@ -393,7 +393,7 @@ class HdmiCec:
 			msgaddress = message.getAddress()  # 0 = TV, 5 = receiver 15 = broadcast
 			# if CECcmd != "<Polling Message>" or CECcmd != "<Reporting Device Vendor ID>":
 			if CECcmd != "<Polling Message>":
-				print(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd}, ctrl0={ctrl0}, datalength={length}")
+				print(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd:02X}, ctrl0={ctrl0}, datalength={length}")
 				if config.hdmicec.debug.value != "0":
 					self.debugRx(length, cmd, ctrl0)
 				if msgaddress > 15:  # workaround for wrong address from driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
@@ -533,7 +533,7 @@ class HdmiCec:
 					cmd = 0x0d
 				else:
 					cmd = 0x04
-			elif message == "standby":
+			elif message == "standby" and not getFPWasTimerWakeup():
 				cmd = 0x36
 			elif message == "osdname":
 				cmd = 0x47
