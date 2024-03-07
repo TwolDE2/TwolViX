@@ -66,6 +66,9 @@ class Navigation:
 			f = open("/tmp/was_rectimer_wakeup", "w")
 			f.write("1")
 			f.close()
+			f = open("/tmp/was_cectimer_wakeup", "w")
+			f.write("1")
+			f.close()			
 			# as we woke the box to record, place the box in standby.
 			self.standbytimer = eTimer()
 			self.standbytimer.callback.append(self.gotostandby)

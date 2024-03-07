@@ -1,6 +1,6 @@
 import chardet
 import datetime
-from os import path, uname
+from os import path, uname, remove
 import struct
 from sys import maxsize
 
@@ -533,8 +533,16 @@ class HdmiCec:
 					cmd = 0x0d
 				else:
 					cmd = 0x04
-			elif message == "standby" and not getFPWasTimerWakeup():
-				cmd = 0x36
+			elif message == "standby":
+				cecTimerWakeup = False
+				if path.exists("/tmp/was_cectimer_wakeup",):
+					with open("/tmp/was_cectimer_wakeup", "r") as f:
+						file = f.read()
+						cecTimerWakeup = int(file) and True or False
+					remove("/tmp/was_cectimer_wakeup")						
+				print(f"[HdmiCec][sendMessage]: send message={message}  cecTimerWakeup=", cecTimerWakeup)			
+				if not cecTimerWakeup:
+					cmd = 0x36
 			elif message == "osdname":
 				cmd = 0x47
 				data = uname()[1]

@@ -37,6 +37,16 @@ def setLCDMiniTVMode(value):
 	except:
 		pass
 
+def sendCEC():
+	print("[Standby][sendCEC] entered ")
+	from enigma import eHdmiCEC  # noqa: E402
+	msgaddress = 0x00
+	cmd = 0x36  # 54 standby
+	data = ""
+	eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
+	print("[Standby][sendCEC] departed ")
+
+
 
 class Standby2(Screen):
 	def Power(self):
@@ -304,22 +314,13 @@ class TryQuitMainloop(MessageBox):
 			elif event == iRecordableService.evStart:
 				self.stopTimer()
 
-	def sendCEC(self):
-		print("[Standby][sendCEC] entered ")
-		from enigma import eHdmiCEC  # noqa: E402
-		msgaddress = 0x00
-		cmd = 0x36  # 54 standby
-		data = ""
-		eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
-		print("[Standby][sendCEC] departed ")
-
 	def close(self, value):
 		if self.connected:
 			self.connected = False
 			self.session.nav.record_event.remove(self.getRecordEvent)
 		print("[Standby][TryQuitMainloop][close] hdmicece enabled, retval", config.hdmicec.enabled.value, "   ", self.retval)
 		if config.hdmicec.enabled.value and self.retval == 1:
-			self.sendCEC()
+			sendCEC()
 		if value:
 			self.hide()
 			if self.retval == 1:
