@@ -37,6 +37,7 @@ def setLCDMiniTVMode(value):
 	except:
 		pass
 
+
 def sendCEC():
 	print("[Standby][sendCEC] entered ")
 	from enigma import eHdmiCEC  # noqa: E402
@@ -45,7 +46,6 @@ def sendCEC():
 	data = ""
 	eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 	print("[Standby][sendCEC] departed ")
-
 
 
 class Standby2(Screen):
