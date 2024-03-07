@@ -539,8 +539,8 @@ class HdmiCec:
 					with open("/tmp/was_cectimer_wakeup", "r") as f:
 						file = f.read()
 						cecTimerWakeup = int(file) and True or False
-					remove("/tmp/was_cectimer_wakeup")						
-				print(f"[HdmiCec][sendMessage]: send message={message}  cecTimerWakeup=", cecTimerWakeup)			
+					remove("/tmp/was_cectimer_wakeup")
+				print(f"[HdmiCec][sendMessage]: send message={message}  cecTimerWakeup=", cecTimerWakeup)
 				if not cecTimerWakeup:
 					cmd = 0x36
 			elif message == "osdname":
