@@ -67,7 +67,7 @@ class Navigation:
 			self.setwastimerWakeup("/tmp/was_powertimer_wakeup")  # set wakeup flags as a PowerTimer WakeToStandby was actioned.
 
 	def setwastimerWakeup(self, wakeup):
-		fwakeup = open(f"{wakeup}", "w")  # set wakeup timer type 
+		fwakeup = open(f"{wakeup}", "w")  # set wakeup timer type
 		fwakeup.write("1")
 		fwakeup.close()
 		if path.exists(f"{wakeup}"):
@@ -77,7 +77,7 @@ class Navigation:
 		fcec.close()
 		self.standbytimer = eTimer()
 		self.standbytimer.callback.append(self.gotostandby)
-		self.standbytimer.start(15000, True)			
+		self.standbytimer.start(15000, True)
 
 	def wasTimerWakeup(self):
 		return self.__wasTimerWakeup
