@@ -52,6 +52,7 @@ class Navigation:
 
 	def _processTimerWakeup(self):
 		now = time()
+		wakeup = ""
 		timeHandlerCallbacks = eDVBLocalTimeHandler.getInstance().m_timeUpdated.get()
 		if self.__nextRecordTimerAfterEventActionAuto and now < eDVBLocalTimeHandler.timeOK:  # 01.01.2004
 			print("[Navigation] RECTIMER: wakeup to standby but system time not set.")
@@ -62,22 +63,21 @@ class Navigation:
 			timeHandlerCallbacks.remove(self._processTimerWakeup)
 
 		if self.__nextRecordTimerAfterEventActionAuto and abs(self.RecordTimer.getNextRecordingTime() - now) <= 360:
-			self.setwastimerWakeup("/tmp/was_rectimer_wakeup")  # set wakeup flags as RecordTimer woke the box to record, place the box in standby.
+			wakeup = "/tmp/was_rectimer_wakeup"  # set wakeup flags as RecordTimer woke the box to record, place the box in standby.
 		elif self.__nextPowerManagerAfterEventActionAuto:
-			self.setwastimerWakeup("/tmp/was_powertimer_wakeup")  # set wakeup flags as a PowerTimer WakeToStandby was actioned.
-
-	def setwastimerWakeup(self, wakeup):
-		fwakeup = open(f"{wakeup}", "w")  # set wakeup timer type
-		fwakeup.write("1")
-		fwakeup.close()
-		if path.exists(f"{wakeup}"):
-			print(f"[Navigation] TIMER: wakeup to standby detected, flag set: {wakeup}.")
-		fcec = open("/tmp/was_cectimer_wakeup", "w")  # tell Cec was timer wakeup, so don't issue Standby to TV
-		fcec.write("1")
-		fcec.close()
-		self.standbytimer = eTimer()
-		self.standbytimer.callback.append(self.gotostandby)
-		self.standbytimer.start(15000, True)
+			wakeup = "/tmp/was_powertimer_wakeup"  # set wakeup flags as a PowerTimer WakeToStandby was actioned.
+		if wakeup:
+			fwakeup = open(f"{wakeup}", "w")  # set wakeup timer type
+			fwakeup.write("1")
+			fwakeup.close()
+			if path.exists(f"{wakeup}"):
+				print(f"[Navigation] TIMER: wakeup to standby detected, flag set: {wakeup}.")
+			fcec = open("/tmp/was_cectimer_wakeup", "w")  # tell Cec was timer wakeup, so don't issue Standby to TV
+			fcec.write("1")
+			fcec.close()
+			self.standbytimer = eTimer()
+			self.standbytimer.callback.append(self.gotostandby)
+			self.standbytimer.start(15000, True)
 
 	def wasTimerWakeup(self):
 		return self.__wasTimerWakeup
