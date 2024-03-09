@@ -66,7 +66,6 @@ class Navigation:
 		elif self.__nextPowerManagerAfterEventActionAuto:
 			self.setwastimerWakeup("/tmp/was_powertimer_wakeup")  # set wakeup flags as a PowerTimer WakeToStandby was actioned.
 
-
 	def setwastimerWakeup(self, wakeup):
 		fwakeup = open(f"{wakeup}", "w")  # set wakeup timer type 
 		fwakeup.write("1")
