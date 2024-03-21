@@ -279,7 +279,6 @@ def getActiveSubservicesForCurrentChannel(service):
 				activeSubservices.append((subservice.getName(), subservice.toString()))
 	return activeSubservices
 
-
 def hasActiveSubservicesForCurrentChannel(service):
 	activeSubservices = getActiveSubservicesForCurrentChannel(service)
 	return bool(activeSubservices and len(activeSubservices))
@@ -363,7 +362,6 @@ class InfoBarUnhandledKey:
 		if self.flags == self.uflags:
 			self.unhandledKeyDialog.show()
 			self.hideUnhandledKeySymbolTimer.start(2000, True)
-
 
 class InfoBarScreenSaver:
 	def __init__(self):
@@ -979,9 +977,10 @@ class InfoBarShowHide(InfoBarScreenSaver):
 
 	def avChange(self):
 		service = self.session.nav.getCurrentService()
-		ref_p = self.session.nav.getCurrentlyPlayingServiceReference()
-		isStream = isIPTV(ref_p)
-		x = ref_p and ref_p.toString().split(":")
+		info = service and service.info()
+		ref_p = info and info.getInfoString(iServiceInformation.sServiceref)
+		isStream = ref_p and ref_p.find("%3a//") > -1
+		x = ref_p and ref_p.split(":")
 		x_play = x and ":".join(x[:10]) or ""
 		if isStream:
 			try:
@@ -1329,6 +1328,7 @@ class InfoBarChannelSelection:
 		self.servicelist = self.session.instantiateDialog(ChannelSelection)
 		self.servicelist2 = self.session.instantiateDialog(PiPZapSelection)
 		self.tscallback = None
+		self.servicelist.onZapping.append(self.serviceStarted)
 		self["ChannelSelectActions"] = HelpableActionMap(self, "InfobarChannelSelection",
 			{
 				"switchChannelUp": (self.switchChannelUp, _("Open service list and select the previous channel")),
@@ -1350,6 +1350,9 @@ class InfoBarChannelSelection:
 				"ChannelMinusPressedLong": (self.zapUpPip, _("Switch the PiP to the previous channel")),
 			}, description=_("Channel selection"))
 		self.onClose.append(self.__onClose)
+		
+	def newService(self, ref):
+		self["Service"].newService(ref)
 
 	def __onClose(self):
 		if self.servicelist:
@@ -3856,7 +3859,7 @@ class VideoMode(Screen):
 
 		self["actions"] = NumberActionMap(["InfobarVmodeButtonActions"],
 			{
-			"vmodeSelection": self.selectVMode
+				"vmodeSelection": self.selectVMode
 			})  # noqa: E123
 
 		self.Timer = eTimer()
