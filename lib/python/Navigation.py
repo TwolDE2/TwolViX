@@ -1,7 +1,7 @@
 from os import path
 from time import time
 
-from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr
+from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference,iServiceInformation, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr
 
 from Components.config import config
 from Components.ParentalControl import parentalControl
@@ -244,6 +244,11 @@ class Navigation:
 
 	def getCurrentlyPlayingServiceOrGroup(self):
 		return self.currentlyPlayingServiceOrGroup
+	
+	def getCurrentServiceRef(self):
+		curPlayService = self.getCurrentService()
+		info = curPlayService and curPlayService.info()
+		return info and info.getInfoString(iServiceInformation.sServiceref)
 
 	def recordService(self, ref, simulate=False):
 		service = None
