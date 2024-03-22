@@ -371,9 +371,9 @@ def parseParameter(s):
 		return colors[s].argb()
 	elif s.find(";") != -1:  # Font.
 		font, size = [x.strip() for x in s.split(";", 1)]
-		return [font, int(size)]
+		return [font, parseScale(size)]
 	else:  # Integer.
-		return int(s)
+		return parseScale(s)
 
 
 def parseScale(s):
@@ -947,9 +947,9 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 		for alias in tag.findall("alias"):
 			name = alias.attrib.get("name")
 			font = alias.attrib.get("font")
-			size = int(alias.attrib.get("size"))
-			height = int(alias.attrib.get("height", size))  # To be calculated some day.
-			width = int(alias.attrib.get("width", size))  # To be calculated some day.
+			size = parseScale(alias.attrib.get("size"))
+			height = parseScale(alias.attrib.get("height", size))  # To be calculated some day.
+			width = parseScale(alias.attrib.get("width", size))  # To be calculated some day.
 			if name and font and size:
 				fonts[name] = (font, size, height, width)
 				# print(f"[Skin] Add font alias: name='{nanme}', font='{font}', size={size}, height={height}, width={width}.")
