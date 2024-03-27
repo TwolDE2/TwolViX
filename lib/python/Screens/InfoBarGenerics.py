@@ -64,7 +64,6 @@ from Tools import Notifications
 from Tools.Directories import pathExists, fileExists, isPluginInstalled
 from Tools.KeyBindings import getKeyBindingKeys
 # from Tools.KeyBindings import getKeyDescription  # Used by Debug
-from Tools.General import isIPTV
 
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
