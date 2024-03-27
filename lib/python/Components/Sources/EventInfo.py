@@ -9,6 +9,7 @@ from Components.Sources.Source import Source
 
 
 class pServiceEvent: # Fake eServiceEvent to fill Event_Now and Event_Next in Infobar for Streams
+
 	NOW = 0
 	NEXT = 1
 
