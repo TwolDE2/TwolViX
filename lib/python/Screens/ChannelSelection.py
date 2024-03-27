@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import listdir, rename, remove, path as os_path
 import re
-from time import localtime, strftime
+from time import localtime, strftime, time
 
 from enigma import eActionMap, eServiceReference, eEPGCache, eServiceCenter, eRCInput, eTimer, ePoint, eDVBDB, iPlayableService, iServiceInformation, getPrevAsciiCode, eDVBLocalTimeHandler
 
