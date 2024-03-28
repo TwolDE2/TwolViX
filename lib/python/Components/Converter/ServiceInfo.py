@@ -168,7 +168,7 @@ class ServiceInfo(Poll, Converter):
 			"IsHLG": (self.IS_HLG, (iPlayableService.evVideoGammaChanged, iPlayableService.evUpdatedInfo, iPlayableService.evStart)),
 			"IsVideoMPEG2": (self.IS_VIDEO_MPEG2, (iPlayableService.evUpdatedInfo, iPlayableService.evStart)),
 			"IsVideoAVC": (self.IS_VIDEO_AVC, (iPlayableService.evUpdatedInfo, iPlayableService.evStart)),
-			"IsVideoHEVC": (self.IS_VIDEO_HEVC, (iPlayableService.evUpdatedInfo, iPlayableService.evStart)),
+			"IsVideoHEVC": (self.IS_VIDEO_HEVC, (iPlayableService.evUpdatedInfo, iPlayableService.evVideoSizeChanged)),
 		}[type]
 
 	def isVideoService(self, info, service):
@@ -241,7 +241,10 @@ class ServiceInfo(Poll, Converter):
 		elif self.type == self.EDITMODE:
 			return hasattr(self.source, "editmode") and not not self.source.editmode
 		elif self.type == self.IS_STREAM and not isRef:
-			return service.streamed() is not None
+			refstr = info.getInfoString(iServiceInformation.sServiceref)
+			if "%3a//" in refstr.lower() and "127.0.0.1" not in refstr and "localhost" not in refstr:
+				return service.streamed() is not None
+			return False
 		elif self.isVideoService(info, service):
 			if self.type == self.IS_WIDESCREEN:
 				return video_aspect in WIDESCREEN
