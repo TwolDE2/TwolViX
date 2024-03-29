@@ -2,7 +2,6 @@ from time import time
 
 from enigma import iPlayableService, iServiceInformation, eServiceReference, eEPGCache, eServiceCenter
 
-from Components.Converter.ServiceName import getRealServiceRef
 from Components.Element import cached
 from Components.PerServiceDisplay import PerServiceBase
 from Components.Sources.Source import Source
@@ -167,5 +166,5 @@ class EventInfo(PerServiceBase, Source):
 			self.service = None
 			self.changed((self.CHANGED_CLEAR,))
 			return
-		self.service = getRealServiceRef(ref)
+		self.service = ref
 		self.changed((self.CHANGED_ALL,))
