@@ -10,6 +10,7 @@ from Tools.Directories import fileExists
 from Tools.Transponder import ConvertToHumanReadable
 from Session import SessionObject
 
+
 class ServiceName(Converter):
 	NAME = 0
 	NAME_ONLY = 1
