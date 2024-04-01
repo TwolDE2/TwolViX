@@ -7,7 +7,7 @@ from re import match
 from sys import maxsize
 from time import time, localtime, strftime
 
-from pickle import load as pickle_load, dump as pickle_dump, HIGHEST_PROTOCOL as pickle_HIGHEST_PROTOCOL
+from pickle import load as pickle_load, loads as pickle_loads, dump as pickle_dump, HIGHEST_PROTOCOL as pickle_HIGHEST_PROTOCOL
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from keyids import KEYIDS
 # from keyids import KEYFLAGS, KEYIDNAMES  # used by print debug
@@ -64,7 +64,6 @@ from Tools import Notifications
 from Tools.Directories import pathExists, fileExists, isPluginInstalled
 from Tools.KeyBindings import getKeyBindingKeys
 # from Tools.KeyBindings import getKeyDescription  # Used by Debug
-
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
 from Screens.Setup import Setup
@@ -994,10 +993,10 @@ class InfoBarShowHide(InfoBarScreenSaver):
 					audio_pid = None
 					if av_val.find("|") > -1:
 						split = av_val.split("|")
-						audio_pid = pickle_load(split[0].encode())
-						subs_pid = pickle_load(split[1].encode())
+						audio_pid = pickle_loads(split[0].encode())
+						subs_pid = pickle_loads(split[1].encode())
 					elif av_val and av_val != "":
-						audio_pid = pickle_load(av_val.encode())
+						audio_pid = pickle_loads(av_val.encode())
 					audio = service and service.audioTracks()
 					playinga_idx = audio and audio.getCurrentTrack()
 					if audio_pid and audio_pid != -1 and playinga_idx != audio_pid:
