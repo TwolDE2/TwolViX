@@ -1594,9 +1594,10 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			"movieoff": config.usage.on_movie_eof.value})  # noqa: E122
 			self.saveLocalSettings()
 			self._updateButtonTexts()
-			self["list"].setItemsPerPage()
-			self["list"].setFontsize()
 			self.reloadList()
+			self["list"].setFontsize()
+			self["list"].setItemsPerPage()
+			self["list"].refreshDisplay()
 			self.updateDescription()
 
 	def can_sortby(self, item):
