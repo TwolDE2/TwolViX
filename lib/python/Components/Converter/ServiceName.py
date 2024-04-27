@@ -127,7 +127,7 @@ class ServiceName(Converter):
 			try:
 				name = info.getName()
 			except TypeError:
-				print(f"[ServiceName][getName] ref:{ref.toString()}")			
+				print(f"[ServiceName][getName] ref:{ref.toString()}")
 		return name.replace('\xc2\x86', '').replace('\xc2\x87', '').replace('_', ' ')
 
 	def getNumber(self):
