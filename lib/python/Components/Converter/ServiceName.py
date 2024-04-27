@@ -55,7 +55,7 @@ class ServiceName(Converter):
 
 		if self.type == self.NAME or self.type == self.NAME_ONLY or self.type == self.NAME_EVENT:
 			name = self.getName(service, info)
-			if self.type == self.NAME_EVENT:
+			if name and self.type == self.NAME_EVENT:
 				act_event = info and info.getEvent(0)
 				if not act_event and info:
 					refstr = info.getInfoString(iServiceInformation.sServiceref)
@@ -64,7 +64,7 @@ class ServiceName(Converter):
 					return "%s - " % name
 				else:
 					return "%s - %s" % (name, act_event.getEventName())
-			elif self.type != self.NAME_ONLY and config.usage.show_infobar_channel_number.value and hasattr(self.source, "serviceref") and self.source.serviceref and '0:0:0:0:0:0:0:0:0' not in self.source.serviceref.toString():
+			elif name and self.type != self.NAME_ONLY and config.usage.show_infobar_channel_number.value and hasattr(self.source, "serviceref") and self.source.serviceref and '0:0:0:0:0:0:0:0:0' not in self.source.serviceref.toString():
 				num = self.getNumber()
 				if num is not None:
 					return str(num) + '   ' + name
@@ -120,11 +120,15 @@ class ServiceName(Converter):
 			Converter.changed(self, what)
 
 	def getName(self, ref, info):
+		print (f"[ServiceName][getName] ref:{ref.toString()}")	
 		name = ref and info.getName(ref)
 		if not name:
 			name = ref and hasattr(self.source, "serviceref") and self.source.serviceref and info.getName(self.source.serviceref)
 		if not name:
-			name = info.getName()
+			try:
+				name = info.getName()
+			except TypeError:
+				name = None
 		return name.replace('\xc2\x86', '').replace('\xc2\x87', '').replace('_', ' ')
 
 	def getNumber(self):
