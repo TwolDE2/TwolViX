@@ -120,7 +120,6 @@ class ServiceName(Converter):
 			Converter.changed(self, what)
 
 	def getName(self, ref, info):
-		print (f"[ServiceName][getName] ref:{ref.toString()}")	
 		name = ref and info.getName(ref)
 		if not name:
 			name = ref and hasattr(self.source, "serviceref") and self.source.serviceref and info.getName(self.source.serviceref)
@@ -128,7 +127,7 @@ class ServiceName(Converter):
 			try:
 				name = info.getName()
 			except TypeError:
-				name = None
+				print(f"[ServiceName][getName] ref:{ref.toString()}")			
 		return name.replace('\xc2\x86', '').replace('\xc2\x87', '').replace('_', ' ')
 
 	def getNumber(self):
