@@ -33,7 +33,6 @@ import NavigationInstance
 from Plugins.Plugin import PluginDescriptor
 from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT, findSafeRecordPath
 from Screens import ScreenSaver
-from Screens.AudioSelection import getAVDict
 from Screens.ChannelSelection import ChannelSelection, PiPZapSelection, BouquetSelector, EpgBouquetSelector, service_types_tv
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Dish import Dish
@@ -661,19 +660,12 @@ class InfoBarShowHide(InfoBarScreenSaver):
 		self.__event_tracker = ServiceEventTracker(screen=self,
 			eventmap={
 				iPlayableService.evStart: self.serviceStarted,
-				iPlayableService.evEnd: self.serviceEnded,
-				iPlayableService.evUpdatedInfo: self.queueChange,
 			}
 		)
 
 		InfoBarScreenSaver.__init__(self)
 		self.__state = self.STATE_SHOWN
 		self.__locked = 0
-
-		self.av_config = getAVDict()
-
-		self._waitForEventInfoTimer = eTimer()
-		self._waitForEventInfoTimer.callback.append(self.avChange)
 
 		self.hideTimer = eTimer()
 		self.hideTimer.callback.append(self.doTimerHide)
@@ -808,9 +800,6 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			if config.usage.show_infobar_on_zap.value:
 				self.doShow()
 		self.showHideVBI()
-
-	def serviceEnded(self):
-		self._waitForEventInfoTimer.stop()
 
 	def startHideTimer(self):
 		if self.__state == self.STATE_SHOWN and not self.__locked:
@@ -975,6 +964,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 	def checkStreamrelay(self, service):
 		return streamrelay.checkService(service)
 
+<<<<<<< HEAD
 	def queueChange(self):
 		self._waitForEventInfoTimer.stop()
 		self._waitForEventInfoTimer.start(50, True)
@@ -1006,6 +996,8 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			except:
 				self._waitForEventInfoTimer.stop()
 
+=======
+>>>>>>> d0d77022ac ([Added] Proper handling for iptv stream subtitles storing)
 
 class BufferIndicator(Screen):
 	def __init__(self, session):
