@@ -29,6 +29,7 @@ FOCUS_CONFIG, FOCUS_STREAMS = range(2)
 
 selectionpng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "selections/selectioncross.png"))  # for use in the future
 
+
 class AudioSelection(ConfigListScreen, Screen):
 	def __init__(self, session, infobar=None, page=PAGE_AUDIO):
 		Screen.__init__(self, session)
