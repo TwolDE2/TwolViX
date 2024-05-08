@@ -1,3 +1,4 @@
+from enigma import iPlayableService, eTimer, eSize, eDVBDB, eServiceReference, eServiceCenter, iServiceInformation
 from Components.ActionMap import NumberActionMap
 from Components.config import config, ConfigSubsection, getConfigListEntry, ConfigNothing, ConfigSelection, ConfigOnOff, ConfigYesNo
 from Components.ConfigList import ConfigListScreen
@@ -22,17 +23,11 @@ from Tools.ISO639 import LanguageCodes
 from Tools.General import isIPTV
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
-from pickle import load as pickle_load, dump as pickle_dump, dumps as pickle_dumps
-from os import path as os_path
-
-from enigma import iPlayableService, eTimer, eSize, eDVBDB, eServiceReference, eServiceCenter, iServiceInformation
 
 FOCUS_CONFIG, FOCUS_STREAMS = range(2)
 [PAGE_AUDIO, PAGE_SUBTITLES] = ["audio", "subtitles"]
 
 selectionpng = LoadPixmap(cached=True, path=resolveFilename(SCOPE_CURRENT_SKIN, "selections/selectioncross.png"))  # for use in the future
-
-
 
 class AudioSelection(ConfigListScreen, Screen):
 	def __init__(self, session, infobar=None, page=PAGE_AUDIO):
@@ -595,7 +590,7 @@ class AudioSelection(ConfigListScreen, Screen):
 	def keyOk(self):
 		if self.focus == FOCUS_STREAMS and self["streams"].list:
 			cur = self["streams"].getCurrent()
-			service = self.session.nav.getCurrentService()
+			# service = self.session.nav.getCurrentService()
 			ref = self.session.nav.getCurrentServiceRef()
 			ref = ref and eServiceReference(ref)
 			if self.settings.menupage.value == PAGE_AUDIO and cur[0] is not None:
