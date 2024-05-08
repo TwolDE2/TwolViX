@@ -964,40 +964,6 @@ class InfoBarShowHide(InfoBarScreenSaver):
 	def checkStreamrelay(self, service):
 		return streamrelay.checkService(service)
 
-<<<<<<< HEAD
-	def queueChange(self):
-		self._waitForEventInfoTimer.stop()
-		self._waitForEventInfoTimer.start(50, True)
-
-	def avChange(self):
-		service = self.session.nav.getCurrentService()
-		ref_p = self.session.nav.getCurrentServiceRef()
-		isStream = ref_p and ref_p.find("%3a//") > -1
-		x = ref_p and ref_p.split(":")
-		x_play = x and ":".join(x[:10]) or ""
-		if isStream:
-			try:
-				if x_play in self.av_config:
-					av_val = self.av_config[x_play]
-					subs_pid = None
-					audio_pid = None
-					if av_val.find("|") > -1:
-						split = av_val.split("|")
-						audio_pid = pickle_loads(split[0].encode())
-						subs_pid = pickle_loads(split[1].encode())
-					elif av_val and av_val != "":
-						audio_pid = pickle_loads(av_val.encode())
-					audio = service and service.audioTracks()
-					playinga_idx = audio and audio.getCurrentTrack()
-					if audio_pid and audio_pid != -1 and playinga_idx != audio_pid:
-						audio.selectTrack(audio_pid)
-					self.enableSubtitle(subs_pid)
-				self._waitForEventInfoTimer.stop()
-			except:
-				self._waitForEventInfoTimer.stop()
-
-=======
->>>>>>> d0d77022ac ([Added] Proper handling for iptv stream subtitles storing)
 
 class BufferIndicator(Screen):
 	def __init__(self, session):
