@@ -46,6 +46,7 @@ def getProgressive(info):
 def getProgressiveStr(info):
 	return "p" if eAVSwitch.getInstance().getProgressive() else "i"
 
+
 class ServiceInfo(Poll, Converter):
 	HAS_TELETEXT = 1
 	IS_MULTICHANNEL = 2
