@@ -6,7 +6,7 @@ from Components.Element import cached
 from Screens.InfoBarGenerics import hasActiveSubservicesForCurrentChannel
 from Tools.Transponder import ConvertToHumanReadable
 
-WIDESCREEN = [3, 4, 7, 8, 0xB, 0xC, 0xF, 0x10]
+WIDESCREEN = [1, 3, 4, 7, 8, 0xB, 0xC, 0xF, 0x10]
 
 
 def getVideoHeight(info):
@@ -173,33 +173,8 @@ class ServiceInfo(Poll, Converter):
 		video_height = getVideoHeight(info)
 		video_width = getVideoWidth(info)  # noqa: F841
 		# print(f"[ServiceInfo] video_height:{video_height} video_width:{video_width}")
-		# if not video_height:
-		# 	video_height = info.getInfo(iServiceInformation.sVideoHeight)
-
 		if not isRef:
 			video_aspect = info.getInfo(iServiceInformation.sAspect)
-
-		# print(f"[ServiceInfo] video_aspect:{video_aspect}")
-		# sXRES = getVideoWidthStr(info, instance=self)
-		# print(f"[ServiceInfo] sXRES:{sXRES}")
-		# sYRES = getVideoHeightStr(info, instance=self)
-		# print(f"[ServiceInfo] sYRES:{sYRES}")
-		# sFramerate = f"{(eAVSwitch.getInstance().getFrameRate(0) + 500) // 1000} fps"
-		# print(f"[ServiceInfo] sFramerate:{sFramerate}")
-		# sProgressive = getProgressiveStr(info)
-		# print(f"[ServiceInfo] sProgressive:{sProgressive}")
-		# sfieldrate = getFrameRate(info)
-		# print(f"[ServiceInfo] sfieldrate:{sfieldrate}")
-		# sWidth = getVideoWidthStr(info, instance=self)
-		# print(f"[ServiceInfo] sWidth:{sWidth}")
-		# sHeight = getVideoHeightStr(info, instance=self)
-		# print(f"[ServiceInfo] sHeight:{sHeight}")
-		# svideo_width = str(eAVSwitch.getInstance().getResolutionX(0))
-		# print(f"[ServiceInfo] svideo_width:{svideo_width}")
-		# svideo_height = str(eAVSwitch.getInstance().getResolutionY(0))
-		# print(f"[ServiceInfo] svideo_height:{svideo_height}")
-		# sframerate = str(eAVSwitch.getInstance().getFrameRate(0))
-		# print(f"[ServiceInfo] sframerate:{sframerate}")
 
 		if self.type == self.HAS_TELETEXT and not isRef:
 			tpid = info.getInfo(iServiceInformation.sTXTPID)
@@ -251,26 +226,26 @@ class ServiceInfo(Poll, Converter):
 				return video_aspect in WIDESCREEN
 			elif self.type == self.IS_NOT_WIDESCREEN:
 				return video_aspect not in WIDESCREEN
-			elif self.type == self.IS_SD:
-				return video_height < 720
 			elif self.type == self.IS_HD:
-				return video_height >= 720 and video_height < 1500
+				return video_width > 1025 and video_width <= 1920 and video_height >= 481 and video_height < 1440 or video_width >= 960 and video_height == 720
+			elif self.type == self.IS_SD:
+				return video_width > 1 and video_width <= 1024 and video_height > 1 and video_height <= 578
 			elif self.type == self.IS_SD_AND_WIDESCREEN:
-				return video_height < 720 and video_aspect in WIDESCREEN
+				return video_height < 578 and video_aspect in WIDESCREEN
 			elif self.type == self.IS_SD_AND_NOT_WIDESCREEN:
-				return video_height < 720 and video_aspect not in WIDESCREEN
+				return video_height < 578 and video_aspect not in WIDESCREEN
 			elif self.type == self.IS_1080:
-				return video_height > 1000 and video_height <= 1080
+				return video_width >= 1367 and video_width <= 1920 and video_height >= 768 and video_height <= 1440
 			elif self.type == self.IS_720:
-				return video_height > 700 and video_height <= 720
+				return video_width >= 1025 and video_width <= 1366 and video_height >= 481 and video_height <= 768 or video_width >= 960 and video_height == 720
 			elif self.type == self.IS_576:
-				return video_height > 500 and video_height <= 576
+				return video_width > 1 and video_width <= 1024 and video_height > 481 and video_height <= 578
 			elif self.type == self.IS_480:
-				return video_height > 0 and video_height <= 480
+ 				return video_width > 1 and video_width <= 1024 and video_height > 1 and video_height <= 480
 			elif self.type == self.IS_4K:
-				return video_height >= 1500
+				return video_width >= 1921 and video_height >= 1440
 			elif self.type == self.PROGRESSIVE and not isRef:
-				return bool(getProgressive(info))
+				return bool(self._getProgressive(info))
 			elif self.type == self.IS_SDR and not isRef:
 				return info.getInfo(iServiceInformation.sGamma) == 0
 			elif self.type == self.IS_HDR and not isRef:
