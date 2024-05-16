@@ -167,11 +167,11 @@ class ServiceInfo(Poll, Converter):
 		if not info:
 			return False
 		video_height = 0
-		video_width = 0
+		video_width = 0  # noqa: F841
 		video_aspect = None
 
 		video_height = getVideoHeight(info)
-		video_width = getVideoWidth(info)
+		video_width = getVideoWidth(info)  # noqa: F841
 		# print(f"[ServiceInfo] video_height:{video_height} video_width:{video_width}")
 		# if not video_height:
 		# 	video_height = info.getInfo(iServiceInformation.sVideoHeight)
