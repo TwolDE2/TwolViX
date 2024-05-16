@@ -996,7 +996,7 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 			return self.text
 
 	def setValue(self, val):
-#		print(f"[Config][setValue] val:{val}")	
+#		print(f"[Config][setValue] val:{val}")
 		prev = self.text if hasattr(self, "text") else None
 		if val != prev:
 			self.text = val
