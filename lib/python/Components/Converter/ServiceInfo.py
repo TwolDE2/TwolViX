@@ -166,16 +166,15 @@ class ServiceInfo(Poll, Converter):
 		isRef = isinstance(service, eServiceReference)
 		if not info:
 			return False
-		video_height = None
-		video_width = None
+		video_height = 0
+		video_width = 0
 		video_aspect = None
 
 		video_height = getVideoHeight(info)
-		video_width = str(getVideoWidth(info))
+		video_width = getVideoWidth(info)
 		# print(f"[ServiceInfo] video_height:{video_height} video_width:{video_width}")
-		if not video_height:
-			video_height = info.getInfo(iServiceInformation.sVideoHeight)
-		video_width = str(getVideoWidth(info))
+		# if not video_height:
+		# 	video_height = info.getInfo(iServiceInformation.sVideoHeight)
 
 		if not isRef:
 			video_aspect = info.getInfo(iServiceInformation.sAspect)
