@@ -2049,10 +2049,10 @@ class ConfigSubDict(dict):
 		dict.__init__(self)
 		self.stored_values = {}
 
-
 	def load(self):
 		for item in self.values():
 			item.load()
+
 	def save(self):
 		for item in self.values():
 			item.save()
@@ -2230,6 +2230,7 @@ class Config(ConfigSubsection):
 			rename(filename + ".writing", filename)
 		except OSError:
 			print("[Config] Couldn't write %s" % filename)
+
 
 config = Config()
 config.misc = ConfigSubsection()
