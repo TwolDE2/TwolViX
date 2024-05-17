@@ -323,17 +323,12 @@ class ServiceInfo(Poll, Converter):
 			fec = fedata.get("fec_inner")
 			if fec is None:
 				fec = ""
-			out = "Freq: %s %s %s %s %s" % (frequency, polarization, sr_txt, symbolrate, fec)
+			out = f"Freq: {frequency} {polarization} {sr_txt} {symbolrate} {fec}"
 			return out
 		elif self.type == self.VIDEO_INFO:
-			progressive = getProgressiveStr(info)
-			fieldrate = getFrameRate(info)
-			fieldrate = "%dfps" % ((fieldrate + 500) // 1000,)
-			Width = getVideoWidthStr(info, instance=self)
-			Height = getVideoHeightStr(info, instance=self)
-			return "%sx%s%s %s" % (Width, Height, progressive, fieldrate)
+			return f"{getVideoWidthStr(info, instance=self)}x{getVideoHeightStr(info, instance=self)}{getProgressiveStr(info)}{(getFrameRate(info) + 500) // 1000}"
 		return ""
-
+		
 	text = property(getText)
 
 	@cached
