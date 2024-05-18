@@ -328,7 +328,7 @@ class ServiceInfo(Poll, Converter):
 		elif self.type == self.VIDEO_INFO:
 			return f"{getVideoWidthStr(info, instance=self)}x{getVideoHeightStr(info, instance=self)}{getProgressiveStr(info)}{(getFrameRate(info) + 500) // 1000}"
 		return ""
-		
+
 	text = property(getText)
 
 	@cached
