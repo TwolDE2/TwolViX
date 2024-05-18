@@ -1524,9 +1524,9 @@ class ConfigNumber(ConfigText):
 		return int(self.text) if len(self.text) else self.text
 
 	def setValue(self, val):
-		prev = self.text if hasattr(self, "text") else None
-		if val != prev:
-			self.text = val
+		prev = str(self.text) if hasattr(self, "text") else None
+		self.text = str(val)
+		if str(self.text) != prev:
 			self.changed()
 
 	value = property(getValue, setValue)
