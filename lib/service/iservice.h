@@ -425,6 +425,7 @@ public:
 		sCenterDVBSubs,
 
 		sGamma,
+		sVideoInfo,
 
 		sUser = 0x100
 	};
