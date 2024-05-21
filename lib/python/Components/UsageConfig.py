@@ -904,18 +904,18 @@ def InitUsageConfig():
 	config.crash.enabledebug = ConfigYesNo(default=False)
 	config.crash.e2_debug_level = ConfigSelection(default=4, choices=[(3, _("No Logs")), (4, _("Debug Logs")), (5, _("Debug+ Logs"))])
 	config.crash.debugloglimit = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=4, wraparound=True)
-	
+
 	def updateStackTracePrinter(configElement):
 		from Components.StackTrace import StackTracePrinter
 		if configElement.value:
-			if (os.path.isfile("/tmp/doPythonStackTrace")):
-				os.remove("/tmp/doPythonStackTrace")
+			if (path.isfile("/tmp/doPythonStackTrace")):
+				remove("/tmp/doPythonStackTrace")
 			from threading import current_thread
 			StackTracePrinter.getInstance().activate(current_thread().ident)
 		else:
 			StackTracePrinter.getInstance().deactivate()
 
-	config.crash.pystackonspinner = ConfigYesNo(default=True)
+	config.crash.pystackonspinner = ConfigYesNo(default=False)
 	config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback=False, initial_call=True)
 
 # Just echo CHANGE var=val for the logger process to find.
