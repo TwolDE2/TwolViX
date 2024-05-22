@@ -56,7 +56,7 @@ KEY_9 = ACTIONKEY_9
 
 # ConfigElement, the base class of all ConfigElements.
 #
-# it stores:
+# ConfigElement stores:
 #   value       The current value, usually encoded.
 #               A property which retrieves _value, and maybe does some reformatting.
 #   _value      A value to be saved in the configfile, though still in non-string form.
@@ -64,9 +64,9 @@ KEY_9 = ACTIONKEY_9
 #   default     The initial value. If _value is equal to default, it will not be stored in the config file
 #   saved_value Is a text representation of _value, stored in the config file
 #
-# It has (at least) the following methods:
-#   load()   loads _value from saved_value, or loads
-#            the default if saved_value is 'None' (default) or invalid.
+# ConfigElement has (at least) the following methods:
+#   load()   loads _value from saved_value, or 
+#            loads the default if saved_value is 'None' (default) or invalid.
 #   save()   stores _value into saved_value, or stores 'None' if it should not be stored.
 #
 class ConfigElement:
@@ -988,12 +988,8 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 		self.changed()
 
 	def getValue(self):
-		try:
-			print(f"[Config][getValue] {self.text}")
-			return str(self.text)
-		except UnicodeDecodeError:
-			print("[Config] Broken UTF8!")
-			return self.text
+		print(f"[Config][getValue] {self.text}")
+		return str(self.text)
 
 	def setValue(self, val):
 		# print(f"[Config][setValue] val:{val}")
@@ -2040,8 +2036,8 @@ class ConfigSubList(list):
 	def dict(self):
 		return dict([(str(index), value) for index, value in enumerate(self)])
 
-# Same as ConfigSubList, just as a dictionary. # Care must be taken that the 'key' has a proper
-# str() method, because it will be used in the config file.
+# Same as ConfigSubList, just as a dictionary.
+# Care must be taken that the 'key' has a proper str() method, because it will be used in the config file.
 
 
 class ConfigSubDict(dict):
@@ -2153,13 +2149,10 @@ class ConfigSubsection:
 	def dict(self):
 		return self.content.items
 
-# The root config object, which also can "pickle" (=serialize)
-# down the whole config tree.
+# The root config object, which also can "pickle" (=serialize) down the whole config tree.
 #
-# We try to keep non-existing config entries, to apply them whenever
-# a new config entry is added to a subsection
-# Also, non-existing config entries will be saved, so they won't be
-# lost when a config entry disappears.
+# We try to keep non-existing config entries, to apply them whenever a new config entry is added to a subsection
+# Also, non-existing config entries will be saved, so they won't be lost when a config entry disappears.
 
 
 class Config(ConfigSubsection):
@@ -2216,10 +2209,6 @@ class Config(ConfigSubsection):
 		if "config" in tree:
 			self.setSavedValue(tree["config"])
 
-	def loadFromFile(self, filename, base_file=True):
-		with open(filename, "r", encoding="UTF-8") as f:
-			self.unpickle(f, base_file)
-
 	def saveToFile(self, filename):
 		text = self.pickle()
 		try:
@@ -2230,6 +2219,10 @@ class Config(ConfigSubsection):
 			rename(filename + ".writing", filename)
 		except OSError:
 			print("[Config] Couldn't write %s" % filename)
+
+	def loadFromFile(self, filename, base_file=True):
+		with open(filename, "r", encoding="UTF-8") as f:
+			self.unpickle(f, base_file)
 
 
 config = Config()
