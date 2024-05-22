@@ -566,7 +566,7 @@ class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 
 		return checkRecursiveConnect(self.slotid)
 
-	def keyOk(self):
+	def keySelect(self):
 		self.stopService()
 		if self["config"].getCurrent() == self.advancedSelectSatsEntry:
 			conf = self.nimConfig.advanced.sat[int(self.nimConfig.advanced.sats.value)].userSatellitesList
@@ -575,7 +575,7 @@ class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 			conf = self.nimConfig.userSatellitesList
 			self.session.openWithCallback(boundFunction(self.updateConfUserSatellitesList, conf), SelectSatsEntryScreen, userSatlist=conf.value)
 		else:
-			self.keySave()
+			ConfigListScreen.keySelect(self)
 
 	def updateConfUserSatellitesList(self, conf, val=None):
 		if val is not None:
@@ -642,7 +642,7 @@ class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 		self["description"] = Label("")
 		self["actions"] = ActionMap(["SetupActions", "SatlistShortcutAction"],
 		{
-			"ok": self.keyOk,
+			"ok": self.keySelect,
 			"save": self.keySave,
 			"cancel": self.keyCancel,
 			"changetype": self.changeConfigurationMode,
@@ -660,7 +660,7 @@ class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 			return
 		ConfigListScreen.keyLeft(self)
 		if self["config"].getCurrent() in (self.advancedSelectSatsEntry, self.selectSatsEntry):
-			self.keyOk()
+			self.keySelect()
 		else:
 			self.newConfig()
 
@@ -675,7 +675,7 @@ class NimSetup(ConfigListScreen, ServiceStopScreen, Screen):
 			return
 		ConfigListScreen.keyRight(self)
 		if self["config"].getCurrent() in (self.advancedSelectSatsEntry, self.selectSatsEntry):
-			self.keyOk()
+			self.keySelect()
 		else:
 			self.newConfig()
 
