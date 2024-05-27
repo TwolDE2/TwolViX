@@ -1,11 +1,6 @@
-import time
 import datetime
-from Components.ActionMap import NumberActionMap
+import time
 from Components.config import config, ConfigClock, ConfigDateTime, getConfigListEntry
-from Components.ConfigList import ConfigListScreen
-from Components.Label import Label
-from Components.Pixmap import Pixmap
-from Screens.Screen import Screen
 from Screens.Setup import Setup
 
 
