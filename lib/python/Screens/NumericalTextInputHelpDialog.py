@@ -10,7 +10,7 @@ class NumericalTextInputHelpDialog(Screen):
 		self["help1"] = Label(text="<")
 		self["help2"] = Label(text=">")
 		for x in range(0, 10):
-			text = textinput.mapping[x].decode() if isinstance(textinput.mapping[x], binary) else str(textinput.mapping[x])
+			text = textinput.mapping[x].decode() if isinstance(textinput.mapping[x], bytes) else str(textinput.mapping[x])
 			self["key%d" % x] = Label(text)
 		self.last_marked = 0
 		self.onLayoutFinish.append(self.resizeFont)
