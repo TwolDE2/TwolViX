@@ -167,7 +167,7 @@ class Input(VariableText, GUIComponent, NumericalTextInput):
 
 	def insertChar(self, ch, pos=False, owr=False, ins=False):
 		if isinstance(ch, bytes):
-			ch = ch.decode(encoding ="utf-8", errors="ignore")
+			ch = ch.decode(encoding="utf-8", errors="ignore")
 		if not pos:
 			pos = self.currPos
 		if ins and not self.maxSize:
