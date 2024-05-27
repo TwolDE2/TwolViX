@@ -28,13 +28,10 @@ class parseXML(ContentHandler, LexicalHandler):
 
 
 parser = make_parser()
-
 attrlist = set()
-
 contentHandler = parseXML(attrlist)
 parser.setContentHandler(contentHandler)
-if not no_comments:
-	parser.setProperty(property_lexical_handler, contentHandler)
+parser.setProperty(property_lexical_handler, contentHandler)
 
 for arg in argv[1:]:
 	if isdir(arg):
