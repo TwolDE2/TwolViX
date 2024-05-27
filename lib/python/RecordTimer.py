@@ -15,7 +15,7 @@ from Screens.MessageBox import MessageBox
 from Screens.PictureInPicture import PictureInPicture
 import Screens.Standby
 from Tools import Notifications, Trashcan
-from Tools.Directories import fileReadXML, getRecordingFilename, isPluginInstalled, resolveFilename, sanitizeFilename, SCOPE_TIMESHIF
+from Tools.Directories import fileReadXML, getRecordingFilename, isPluginInstalled, resolveFilename, sanitizeFilename, SCOPE_CONFIG
 from Tools.XMLTools import stringToXML
 
 import NavigationInstance
