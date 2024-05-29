@@ -198,12 +198,13 @@ class CableTransponderSearchSupport:
 		print("[ScanSetup] cableTransponderSearch finished", retval)
 		self.cable_search_session.close(True)
 
-	def getCableTransponderData(self, str):
-		print("[getCableTransponderData] ", str)
+	def getCableTransponderData(self, dataString):
+		dataString = str(dataString)
+		print("[getCableTransponderData] ", dataString)
 		# prepend any remaining data from the previous call
-		str = self.remainingdata + str
-		lines = str.split('\n')
-		# 'str' should end with '\n', so when splitting, the last line should be empty. If this is not the case, we received an incomplete line
+		dataString = self.remainingdata + dataString
+		lines = dataString.split('\n')
+		# 'dataString' should end with '\n', so when splitting, the last line should be empty. If this is not the case, we received an incomplete line
 		if len(lines[-1]):
 			# remember this data for next time
 			self.remainingdata = lines[-1]
@@ -407,11 +408,12 @@ class TerrestrialTransponderSearchSupport:
 				(freq, bandWidth) = opt
 				self.terrestrialTransponderSearch(freq, bandWidth)
 
-	def getTerrestrialTransponderData(self, str):
-		print("[getTerrestrialTransponderData] ", str)
+	def getTerrestrialTransponderData(self, dataString):
+		dataString = str(dataString)
+		print("[getTerrestrialTransponderData] ", dataString)
 		if self.terrestrial_tunerName.startswith("Sundtek"):
-			str = self.remaining_data + str
-			lines = str.split('\n')
+			dataString = self.remaining_data + dataString
+			lines = dataString.split('\n')
 			if len(lines[-1]):
 				self.remaining_data = lines[-1]
 				lines = lines[0:-1]
