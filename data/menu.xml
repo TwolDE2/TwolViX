@@ -157,9 +157,7 @@ self.session.open(SABnzbdSetupScreen)
 		<menu key="harddisk" level="0" text="Storage" weight="10" requires="Harddisk">
 			<item key="harddisk_setup" level="1" text="Settings"><setup id="harddisk" /></item>
 			<item key="harddisk_init" level="0" text="Initialize Devices"><screen module="HarddiskSetup" screen="HarddiskSelection" /></item>
-			<item key="partition_init" level="0" text="Initialize Partition"><screen module="HarddiskSetup" screen="HarddiskPartitionSelect" /></item>
 			<item key="harddisk_check" level="0" text="Filesystem Check"><screen module="HarddiskSetup" screen="HarddiskFsckSelection" /></item>
-			<item key="flash_expander" level="0" text="Flash Expander"><screen module="FlashExpander" screen="FlashExpander" /></item>			
 		</menu>
 
 		<!-- Menu / Setup / Recordings, Playback & Timeshift -->
