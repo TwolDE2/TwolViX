@@ -1,9 +1,12 @@
-from sys import modules, version_info
-from os import path as ospath
-from time import time
-import socket
 import fcntl
+import socket
 import struct
+
+from os import path as ospath
+from os.path import join as pathjoin
+from sys import modules, version_info
+from time import time
+from Tools.Directories import fileExists, resolveFilename, SCOPE_LIBDIR
 
 from enigma import getEnigmaVersionString
 
@@ -65,11 +68,17 @@ def getIsBroadcom():
 	return False
 
 
+def getModel():  # Because we can't call SystemInfo here
+	if fileExists(f := pathjoin(resolveFilename(SCOPE_LIBDIR), "enigma.info")):
+		return (m := [x.split("=")[1].strip() for x in open(f).readlines() if x.startswith("machinebuild=")]) and m[0] or None
+
 def getChipSetString():
 	try:
 		return str(open("/proc/stb/info/chipset").read().lower().replace("\n", "").replace("brcm", "").replace("bcm", ""))
 	except:
-		return _("unavailable")
+		if getModel() == "dm920":
+			return "7252s"
+		return "unknown"
 
 
 def getCPUSpeedMHzInt():
@@ -110,7 +119,11 @@ def getCPUSpeedString():
 		else:
 			cpu_speed = f"{str(int(cpu_speed))} MHz"
 		return cpu_speed
+<<<<<<< HEAD
 	return _("n/a GHz")
+=======
+	return "unknown"
+>>>>>>> 4a155c820d ([Added] Support for Dreambox DM920)
 
 
 def getCPUArch():

@@ -386,11 +386,10 @@ if test "$BOXTYPE" == "sf8008" -o "$BOXTYPE" == "sf8008m" -o "$BOXTYPE" == "sx98
 fi
 
 if test "$BOXTYPE" == "dm900" -o "$BOXTYPE" == "dm920"; then
+	AC_DEFINE(CONFIG_ION, 1,[define BOX use ION Allocator])
 	AC_DEFINE(HAVE_HDMIIN_DM, 1,[has hdmi in dm])
-fi
-
-if test "$BOXTYPE" == "dm900" -o "$BOXTYPE" == "dm920"; then
 	AC_DEFINE(LCD_DM900_Y_OFFSET, 4,[define LCD Y offset for dm900 and dm920])
+	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration does not have alphablending support, though the autodetection might indicate that it does])
 fi
 
 AC_ARG_WITH(libsdl,
