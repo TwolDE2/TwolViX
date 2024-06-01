@@ -741,6 +741,8 @@ class NimSetup(Setup, ServiceStopScreen):
 		elif self.configMode:
 			self.nimConfig.configMode.selectNext()
 			self["config"].invalidate(self.configMode)
+
+
 << << << < HEAD
 			self.setTextKeyBlue()
 			self.changedEntry()

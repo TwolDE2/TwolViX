@@ -120,6 +120,8 @@ def getCPUSpeedString():
 		else:
 			cpu_speed = f"{str(int(cpu_speed))} MHz"
 		return cpu_speed
+
+
 << << << < HEAD
 	return _("n/a GHz")
 == == == =
