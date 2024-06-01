@@ -746,7 +746,7 @@ class NimSetup(Setup, ServiceStopScreen):
 			self.changedEntry()
 =======
 			self.createSetup()
->>>>>>> 467934d962 ([Satconfig] inherit UI from Setup)
+>>>>>>> 467934d962([Satconfig] inherit UI from Setup)
 
 	def key_blue(self):
 		if self.isChanged():
@@ -757,7 +757,7 @@ class NimSetup(Setup, ServiceStopScreen):
 			self.changedEntry()
 =======
 			self.createSetup()
->>>>>>> 467934d962 ([Satconfig] inherit UI from Setup)
+>>>>>>> 467934d962([Satconfig] inherit UI from Setup)
 
 	def countrycodeToCountry(self, cc):
 		if not hasattr(self, 'countrycodes'):
