@@ -17,6 +17,7 @@ from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.ServiceStopScreen import ServiceStopScreen
+from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileExists
 
