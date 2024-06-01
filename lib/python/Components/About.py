@@ -120,11 +120,13 @@ def getCPUSpeedString():
 		else:
 			cpu_speed = f"{str(int(cpu_speed))} MHz"
 		return cpu_speed
-<<<<<<< HEAD
+
+
+<< << << < HEAD
 	return _("n/a GHz")
-=======
+== == == =
 	return "unknown"
->>>>>>> 4a155c820d ([Added] Support for Dreambox DM920)
+>>>>>> > 4a155c820d([Added] Support for Dreambox DM920)
 
 
 def getCPUArch():
