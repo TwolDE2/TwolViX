@@ -741,23 +741,23 @@ class NimSetup(Setup, ServiceStopScreen):
 		elif self.configMode:
 			self.nimConfig.configMode.selectNext()
 			self["config"].invalidate(self.configMode)
-<<<<<<< HEAD
+<< << << < HEAD
 			self.setTextKeyBlue()
 			self.changedEntry()
-=======
+== == == =
 			self.createSetup()
->>>>>>> 467934d962([Satconfig] inherit UI from Setup)
+>>>>>> > 467934d962([Satconfig] inherit UI from Setup)
 
 	def key_blue(self):
 		if self.isChanged():
 			for x in self["config"].list:
 				x[1].cancel()
-<<<<<<< HEAD
+<< << << < HEAD
 			self.setTextKeyBlue()
 			self.changedEntry()
-=======
+== == == =
 			self.createSetup()
->>>>>>> 467934d962([Satconfig] inherit UI from Setup)
+>>>>>> > 467934d962([Satconfig] inherit UI from Setup)
 
 	def countrycodeToCountry(self, cc):
 		if not hasattr(self, 'countrycodes'):
