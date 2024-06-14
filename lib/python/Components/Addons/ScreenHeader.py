@@ -56,7 +56,7 @@ class ScreenHeader(GUIAddon):
 		isOneItem = textItemsCount == 1
 		
 		for idx, x in enumerate(sequence):
-			if not isinstance(x, StaticText): # assume it is Pixmap
+			if not isinstance(x, StaticText):  # assume it is Pixmap
 				itemHeight = self.instance.size().height()
 				pix_size = x.pixmap.size()
 				pixWidth = pix_size.width()
