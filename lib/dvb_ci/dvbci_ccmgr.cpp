@@ -177,7 +177,7 @@ void eDVBCICcSession::cc_data_req(const uint8_t *data, unsigned int len)
 
 	dt_nr = data[rp++];
 	rp += data_get_loop(&data[rp], len - rp, dt_nr);
-	eDebug("[dvbci_ccmgr][cc_data_req][CI%d RCC] rp %u\n", , m_slot->getSlotID(), rp);
+	eDebug("[dvbci_ccmgr][cc_data_req][CI%d RCC] rp %u\n",  m_slot->getSlotID(), rp);
 	if (len < rp + 1)
 		return;
 
@@ -201,7 +201,7 @@ void eDVBCICcSession::cc_data_req(const uint8_t *data, unsigned int len)
 	}
 
 	answ_len += 2;
-	eDebug("[dvbci_ccmgr][cc_data_req][CI%d RCC] answ_len %x\n", , m_slot->getSlotID(), answ_len);
+	eDebug("[dvbci_ccmgr][cc_data_req][CI%d RCC] answ_len %x\n",  m_slot->getSlotID(), answ_len);
 	send(cc_data_cnf_tag, dest, answ_len);
 }
 
@@ -240,7 +240,7 @@ void eDVBCICcSession::cc_sac_data_req(const uint8_t *data, unsigned int len)
 		return;
 	}
 	serial = UINT32(&data[rp], 4);
-	eDebug("[dvbci_ccmgr]CI%d RCC] serial %u\n", , m_slot->getSlotID(), serial);
+	eDebug("[dvbci_ccmgr]CI%d RCC] serial %u\n",  m_slot->getSlotID(), serial);
 
 	/* skip serial & header */
 	rp += 8;
@@ -250,7 +250,7 @@ void eDVBCICcSession::cc_sac_data_req(const uint8_t *data, unsigned int len)
 	/* handle data loop */
 	dt_nr = data[rp++];
 	rp += data_get_loop(&data[rp], len - rp, dt_nr);
-	eDebug("[dvbci_ccmgr][cc_sac_data_req(][CI%d RCC] rp %x\n", , m_slot->getSlotID(), rp);
+	eDebug("[dvbci_ccmgr][cc_sac_data_req(][CI%d RCC] rp %x\n",  m_slot->getSlotID(), rp);
 	if (len < rp + 1)
 	{
 		eWarning("[dvbci_ccmgr][CI%d RCC] check_auth of message too short", m_slot->getSlotID());
@@ -281,7 +281,7 @@ void eDVBCICcSession::cc_sac_data_req(const uint8_t *data, unsigned int len)
 		return;
 	}
 	pos += answ_len;
-	eDebug("[dvbci_ccmgr][cc_data_req][CI%d RCC] pos %x\n", , m_slot->getSlotID(), pos);
+	eDebug("[dvbci_ccmgr][cc_data_req][CI%d RCC] pos %x\n",  m_slot->getSlotID(), pos);
 	cc_sac_send(data_cnf_tag, dest, pos);
 }
 
@@ -355,7 +355,7 @@ int eDVBCICcSession::data_get_loop(const uint8_t *data, unsigned int datalen, un
 
 		pos += dt_len;
 	}
-	eDebug("[dvbci_ccmgr][data_get_loop][CI%d RCC] pos %u\n", , m_slot->getSlotID(), pos);
+	eDebug("[dvbci_ccmgr][data_get_loop][CI%d RCC] pos %u\n",  m_slot->getSlotID(), pos);
 	return pos;
 }
 
@@ -365,7 +365,7 @@ int eDVBCICcSession::data_req_loop(uint8_t *dest, unsigned int dest_len, const u
 	unsigned int i;
 	int pos = 0;
 	unsigned int len;
-	eDebug("[dvbci_ccmgr][data_req_loop][CI%d RCC]1 pos %u\n", , m_slot->getSlotID(), pos);
+	eDebug("[dvbci_ccmgr][data_req_loop][CI%d RCC]1 pos %u\n",  m_slot->getSlotID(), pos);
 	if (items > data_len)
 		return -1;
 
@@ -392,7 +392,7 @@ int eDVBCICcSession::data_req_loop(uint8_t *dest, unsigned int dest_len, const u
 		dest += len;
 		dest_len -= len;
 	}
-	eDebug("[dvbci_ccmgr][data_req_loop][CI%d RCC]2 pos %u\n", , m_slot->getSlotID(), pos);
+	eDebug("[dvbci_ccmgr][data_req_loop][CI%d RCC]2 pos %u\n",  m_slot->getSlotID(), pos);
 	return pos;
 }
 
