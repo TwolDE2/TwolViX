@@ -989,9 +989,9 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 			image = screen.attrib.get("image")
 			if key and image:
 				screens[key] = image
-				# print("f[Skin] DEBUG: Screen key='{key}, image='{image}''.")				
+				# print("f[Skin] DEBUG: Screen key='{key}, image='{image}''.")
 			else:
-				raise SkinError(f"Tag 'screen' needs key and image, got key='{key} and image='{image}'")				
+				raise SkinError(f"Tag 'screen' needs key and image, got key='{key} and image='{image}'")
 	for tag in domSkin.findall("setups"):
 		for setup in tag.findall("setup"):
 			key = setup.attrib.get("key")
