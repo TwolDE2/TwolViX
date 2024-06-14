@@ -46,15 +46,15 @@ class ScreenHeader(GUIAddon):
 		textItemsOffset = 0
 
 		res = [None]
-		
+
 		for idx, x in enumerate(sequence):
 			if isinstance(x, StaticText):
 				textItemsCount += 1
 				if idx > 0 and textItemsOffset == 0:
 					textItemsOffset = idx
-		
+
 		isOneItem = textItemsCount == 1
-		
+
 		for idx, x in enumerate(sequence):
 			if not isinstance(x, StaticText):  # assume it is Pixmap
 				itemHeight = self.instance.size().height()
@@ -77,7 +77,7 @@ class ScreenHeader(GUIAddon):
 				elif idx == 1 + textItemsOffset:
 					yPos = self.instance.size().height() * 2 // 3 - 5
 					itemHeight = self.instance.size().height() // 3
-					
+
 				fontIndex = 2 if isOneItem and idx == textItemsOffset else idx - textItemsOffset
 
 				res.append(MultiContentEntryText(
