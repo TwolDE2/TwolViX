@@ -58,7 +58,7 @@ class ScreenHeader(GUIAddon):
 		itemHeight = self.instance.size().height()
 		
 		for idx, x in enumerate(sequence):
-			if not isinstance(x, StaticText): # assume it is Pixmap
+			if not isinstance(x, StaticText):  # assume it is Pixmap
 				if x.pixmap:
 					itemHeight = self.instance.size().height()
 					pix_size = x.pixmap.size()
