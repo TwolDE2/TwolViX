@@ -74,7 +74,6 @@ AM_CONDITIONAL(GIGABLUE, test `echo "$BOXTYPE" | cut -b 1-2` == "gb")
 AM_CONDITIONAL(VUPLUS, test `echo "$BOXTYPE" | cut -b 1-2` == "vu")
 AM_CONDITIONAL(XTREND, test `echo "$BOXTYPE" | cut -b 1-2` == "et")
 AM_CONDITIONAL(DREAMBOX, test `echo "$BOXTYPE" | cut -b 1-2` == "dm" -o `echo "$BOXTYPE" | cut -b 1-5` == "dream")
-
 AM_CONDITIONAL(DM900, test "$BOXTYPE" == dm900)
 AM_CONDITIONAL(DM920, test "$BOXTYPE" == dm920)
 AM_CONDITIONAL(ET7X00, test "$BOXTYPE" == et7x00)
@@ -386,9 +385,12 @@ if test "$BOXTYPE" == "sf8008" -o "$BOXTYPE" == "sf8008m" -o "$BOXTYPE" == "sx98
 fi
 
 if test "$BOXTYPE" == "dm900" -o "$BOXTYPE" == "dm920"; then
+	AC_DEFINE(DREAMBOX, 1, [Dreambox hardware])
 	AC_DEFINE(CONFIG_ION, 1,[define BOX use ION Allocator])
 	AC_DEFINE(HAVE_HDMIIN_DM, 1,[has hdmi in dm])
+	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
 	AC_DEFINE(LCD_DM900_Y_OFFSET, 4,[define LCD Y offset for dm900 and dm920])
+	AC_DEFINE(DREAMBOX_DUAL_TUNER, 1,[define it is dreambox dual tuner present])
 	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration does not have alphablending support, though the autodetection might indicate that it does])
 fi
 
@@ -490,6 +492,7 @@ data/7segment/Makefile
 data/display96/Makefile
 data/display128/Makefile
 data/display220/Makefile
+data/display390/Makefile
 data/display400/Makefile
 data/display480/Makefile
 data/display720/Makefile

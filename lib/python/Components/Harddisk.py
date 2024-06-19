@@ -4,7 +4,7 @@ from fcntl import ioctl
 from time import sleep, time
 
 from enigma import eTimer
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BoxInfo
 import Components.Task
 from Tools.CList import CList
 
@@ -637,6 +637,8 @@ class HarddiskManager:
 			rootMajor = None
 			# rootMinor = None
 		# print(f"[Harddisk] DEBUG: rootMajor = '{rootMajor}', rootMinor = '{rootMinor}'")
+		print(f"[Harddisk] Box model:{BoxInfo.getItem('model')}")
+		boxModel = BoxInfo.getItem("model")
 		for device in sorted(listdir("/sys/block")):
 			try:
 				physicalDevice = ospath.realpath(ospath.join("/sys/block", device, "device"))
@@ -645,22 +647,30 @@ class HarddiskManager:
 				continue
 			devicePath = ospath.join("/sys/block/", device)
 			data = readFile(ospath.join(devicePath, "dev"))  # This is the device's major and minor device numbers.
+			# print(f"[Harddisk] DEBUG: boxModel:{boxModel} device:{device} data:{data}")
 			if data is None:
 				print(f"[Harddisk] Error: Device '{device}' ({physicalDevice}) does not appear to have valid device numbers!")
 				continue
 			devMajor = int(data.split(":")[0])
+			devMinor = int(data.split(":")[1])
+			# print(f"[Harddisk] DEBUG: devMajor:{devMajor} for device '{device,}' blacklisted:{blacklistedDisks}")
 			if devMajor in blacklistedDisks:
 				# print(f"[Harddisk] DEBUG: Major device number '{devMajor}' for device '{device,}' ({physicalDevice}) is blacklisted.")
 				continue
-			if devMajor == 179 and not SystemInfo["HasSDnomount"]:		# Lets handle Zgemma SD card mounts - uses SystemInfo to determine SDcard status
-				# print(f"[Harddisk] DEBUG: Major device number '{devMajor,}' for device '{device}' ({physicalDevice}) doesn't have 'HasSDnomount' set.")
-				continue
-			if devMajor == 179 and devMajor == rootMajor and not SystemInfo["HasSDnomount"][0]:
-				# print(f"[Harddisk] DEBUG: Major device number '{devMajor} for device '{device} ({physicalDevice}) is the root disk.")
-				continue
-			if SystemInfo["HasSDnomount"] and device.startswith(f"{SystemInfo['HasSDnomount'][1]}") and SystemInfo["HasSDnomount"][0]:
-				# print("f[Harddisk] DEBUG: Major device number '{devMajor} for device '{device}' ({physicalDevice}) starts with 'mmcblk0' and has 'HasSDnomount' set.")
-				continue
+			print(f"[Harddisk] DEBUG: boxModel:{boxModel} device:{device} devMajor = '{devMajor}', devMinor = '{devMinor}'")
+			if devMajor == 179 and boxModel in ("dm900", "dm920"):
+				if devMinor != 0:
+					continue
+			else:
+				if devMajor == 179 and not SystemInfo["HasSDnomount"]:		# Lets handle Zgemma SD card mounts - uses SystemInfo to determine SDcard status
+					# print(f"[Harddisk] DEBUG: Major device number '{devMajor,}' for device '{device}' ({physicalDevice}) doesn't have 'HasSDnomount' set.")
+					continue
+				if devMajor == 179 and devMajor == rootMajor and not SystemInfo["HasSDnomount"][0]:
+					# print(f"[Harddisk] DEBUG: Major device number '{devMajor} for device '{device} ({physicalDevice}) is the root disk.")
+					continue
+				if SystemInfo["HasSDnomount"] and device.startswith(f"{SystemInfo['HasSDnomount'][1]}") and SystemInfo["HasSDnomount"][0]:
+					# print("f[Harddisk] DEBUG: Major device number '{devMajor} for device '{device}' ({physicalDevice}) starts with 'mmcblk0' and has 'HasSDnomount' set.")
+					continue
 			description = self.getUserfriendlyDeviceName(device, physicalDevice)
 			isCdrom = devMajor in opticalDisks or device.startswith("sr")
 			if isCdrom:
@@ -705,6 +715,8 @@ class HarddiskManager:
 						# self.partitions.append(Partition(mountpoint = self.getMountpoint(device), description = description, force_mounted, device = device))
 						# print(f"[Harddisk] DEBUG: Partition(mountpoint={self.getMountpoint(device)}, description={description}, force_mounted=True, device={device}")
 						for partition in partitions:
+							if devMajor == 179 and boxModel in ("dm900", "dm920") and partition != "mmcblk0p3":
+								continue
 							description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 							print(f"[Harddisk] Found partition '{partition}', description='{description}', device='{physicalDevice}'.")
 							# part = Partition(mountpoint=self.getMountpoint(partition), description=description, force_mounted=True, device=partition)

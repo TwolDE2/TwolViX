@@ -235,8 +235,8 @@ SystemInfo["Blindscan_t2_available"] = fileCheck("/proc/stb/info/vumodel") and S
 SystemInfo["HasPhysicalLoopthrough"] = ["Vuplus DVB-S NIM(AVL2108)", "GIGA DVB-S2 NIM (Internal)"]
 if getBoxType() in ("et7500", "et8500"):
 	SystemInfo["HasPhysicalLoopthrough"].append("AVL6211")
-SystemInfo["FbcTunerPowerAlwaysOn"] = SystemInfo["boxtype"] in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse")
-SystemInfo["HasFBCtuner"] = ["Vuplus DVB-C NIM(BCM3158)", "Vuplus DVB-C NIM(BCM3148)", "Vuplus DVB-S NIM(7376 FBC)", "Vuplus DVB-S NIM(45308X FBC)", "Vuplus DVB-S NIM(45208 FBC)", "DVB-S2 NIM(45208 FBC)", "DVB-S2X NIM(45308X FBC)", "DVB-S2 NIM(45308 FBC)", "DVB-C NIM(3128 FBC)", "BCM45208", "BCM45308X", "BCM3158"]
+SystemInfo["FbcTunerPowerAlwaysOn"] = SystemInfo["boxtype"] in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "dm900", "dm920")
+SystemInfo["HasFBCtuner"] = ["Vuplus DVB-C NIM(BCM3158)", "Vuplus DVB-C NIM(BCM3148)", "Vuplus DVB-S NIM(7376 FBC)", "Vuplus DVB-S NIM(45308X FBC)", "Vuplus DVB-S NIM(45208 FBC)", "DVB-S2 NIM(45208 FBC)", "DVB-S2X NIM(45308X FBC)", "DVB-S2 NIM(45308 FBC)", "DVB-C NIM(3128 FBC)", "BCM45208", "BCM45308X", "BCM45308X FBC", "BCM3158"]
 # LED/LCD
 SystemInfo["NumFrontpanelLEDs"] = countFrontpanelLEDs()
 SystemInfo["7segment"] = SystemInfo["displaytype"] in ("7segment")

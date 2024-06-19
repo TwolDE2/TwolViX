@@ -598,7 +598,8 @@ class VIXImageManager(Screen):
 				CMD = "/usr/bin/ofgwrite -rmmcblk0p1 '%s'" % MAINDEST
 			elif fileExists("%s/rootfs.ubi" % MAINDEST) and fileExists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 no SD card - build has both roots causes ofgwrite issue
 				rename("%s/rootfs.tar.bz2" % MAINDEST, "%s/xx.txt" % MAINDEST)
-		print("[ImageManager] running commnd:", CMD)
+		elif SystemInfo["machinebuild"] in ("dm900", "dm920"):  # kernel:mmcblk0p1 root:mmcblk0p2
+			CMD = "/usr/bin/ofgwrite -r%s '%s'" % (self.MTDROOTFS, MAINDEST)  # No ofgwrite auto detection, so only flash root NOT kernel
 		self.Console.ePopen(CMD, self.ofgwriteResult)
 		fbClass.getInstance().lock()
 

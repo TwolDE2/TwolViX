@@ -1,4 +1,4 @@
-name: Enigma2 Py3
+name: Enigma2 Python 3
 
 on:
   push:

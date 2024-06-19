@@ -7,15 +7,17 @@ from Components.config import config, configfile, getConfigListEntry, ConfigSele
 from Components.ConfigList import ConfigListScreen
 from Components.Console import Console
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BRAND
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from Tools.Directories import fileCheck, fileExists
 
 
 def getFilePath(setting):
-	return "/proc/stb/fb/dst_%s" % (setting)
-
+	if BRAND in ("dreambox", ):
+		return "/proc/stb/vmpeg/0/dst_%s" % (setting)
+	else:
+		return "/proc/stb/fb/dst_%s" % (setting)
 
 def setPositionParameter(parameter, configElement):
 	f = open(getFilePath(parameter), "w")
@@ -66,7 +68,7 @@ def InitOsd():
 
 def InitOsdPosition():
 	SystemInfo["CanChangeOsdAlpha"] = access('/proc/stb/video/alpha', R_OK) and True or False
-	SystemInfo["CanChangeOsdPosition"] = access('/proc/stb/fb/dst_left', R_OK) and True or False
+	SystemInfo["CanChangeOsdPosition"] = (access('/proc/stb/fb/dst_left', R_OK) or access('/proc/stb/vmpeg/0/dst_left', R_OK)) and True or False
 	SystemInfo["OsdSetup"] = SystemInfo["CanChangeOsdPosition"]
 
 	if SystemInfo["CanChangeOsdAlpha"] is True or SystemInfo["CanChangeOsdPosition"] is True:
