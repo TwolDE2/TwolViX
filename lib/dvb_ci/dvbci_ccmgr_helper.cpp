@@ -176,7 +176,7 @@ bool write_authdata(unsigned int slot, const uint8_t *host_id, const uint8_t *dh
 		{
 			eDebug("[dvbci_ccmgr_helper][CI%d RCC] PAIR_SIZE: %d MAX_PAIRS: %d entries: %s", slot, PAIR_SIZE, MAX_PAIRS, entries);		
 			break;
-
+		}
 		/* check if we got this pair already */
 		if (!memcmp(&buf[offset + 8 + 256], akh, 32))
 		{
