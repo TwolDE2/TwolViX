@@ -486,54 +486,6 @@ int eDVBCICcSession::generate_akh()
 	return 0;
 }
 
-int eDVBCICcSession::compute_dh_key()
-{
-	int len = DH_size(m_dh);
-	if (len > 256)
-	{
-		eWarning("[dvbci_ccmgr][CI%d RCC] too long shared key", m_slot->getSlotID());
-		return -1;
-	}
-
-	BIGNUM *bn_in = BN_bin2bn(m_ci_elements.get_ptr(DHPM), 256, NULL);
-
-#if 0
-	// verify DHPM
-	BN_CTX *ctx = BN_CTX_new();
-	BIGNUM *out = BN_new();
-
-	if (BN_cmp(BN_value_one(), bn_in) >= 0)
-		eWarning("[dvbci_ccmgr][CI%d RCC] DHPM <= 1!!!", m_slot->getSlotID());
-
-	if (BN_cmp(bn_in, m_dh->p) >= 0)
-		eWarning("[dvbci_ccmgr][CI%d RCC] DHPM >= dh_p!!!", m_slot->getSlotID());
-
-	BN_mod_exp(out, bn_in, m_dh->q, m_dh->p, ctx);
-	if (BN_cmp(out, BN_value_one()) != 0)
-		eWarning("[dvbci_ccmgr][CI%d RCC] DHPM ^ dh_q mod dh_p != 1!!!", m_slot->getSlotID());
-
-	BN_free(out);
-	BN_CTX_free(ctx);
-#endif
-
-	int codes = 0;
-	int ok = DH_check_pub_key(m_dh, bn_in, &codes);
-	if (ok == 0)
-		eDebug("[dvbci_ccmgr][CI%d RCC] check_pub_key failed", m_slot->getSlotID());
-	if (codes & DH_CHECK_PUBKEY_TOO_SMALL)
-		eDebug("[dvbci_ccmgr][CI%d RCC] too small public key", m_slot->getSlotID());
-	if (codes & DH_CHECK_PUBKEY_TOO_LARGE)
-		eDebug("[dvbci_ccmgr][CI%d RCC] too large public key", m_slot->getSlotID());
-
-	int gap = 256 - len;
-	memset(m_dhsk, 0, gap);
-	DH_compute_key(m_dhsk + gap, bn_in, m_dh);
-
-	BN_free(bn_in);
-
-	return 0;
-}
-
 bool eDVBCICcSession::check_dh_challenge()
 {
 	if (!m_ci_elements.valid(AUTH_NONCE))
@@ -730,6 +682,48 @@ int eDVBCICcSession::generate_sign_A()
 	eDebug("[dvbci_ccmgr][generate_sign_A][CI%d RCC]3 generated sign...", m_slot->getSlotID());
 	return 0;
 }
+
+int eDVBCICcSession::compute_dh_key()
+{
+	bool useThis=false;
+	int len = DH_size(m_dh);
+	eWarning("[dvbci_ccmgr][CI%d RCC][compute_dh_key()] DH_size(m_dh: %x", m_slot->getSlotID(), len);	
+	if (len > 256)
+	{
+		eWarning("[dvbci_ccmgr][CI%d RCC] too long shared key", m_slot->getSlotID());
+		return -1;
+	}
+
+	BIGNUM *bn_in = BN_bin2bn(m_ci_elements.get_ptr(DHPM), 256, NULL);
+
+	int codes = 0;
+	useThis= DH_check_pub_key(m_dh, bn_in, &codes);
+	if (!useThis)
+	{
+		unsigned long err;
+		while ((err = ERR_get_error()))
+		{
+			eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]b DH_check_pub_key failed, error: %d ", m_slot->getSlotID(), ERR_error_string(err, NULL));				   
+		}	
+//		eDebug("[dvbci_ccmgr][comput_dh_key][CI%d RCC]2b DH_check_pub_key failed error: %d ", m_slot->getSlotID(), ERR_error_string(ERR_get_error(), NULL));
+		return -1;
+	}	
+/*	if (ok == 0)
+		eDebug("[dvbci_ccmgr][CI%d RCC] check_pub_key failed", m_slot->getSlotID());
+	if (codes & DH_CHECK_PUBKEY_TOO_SMALL)
+		eDebug("[dvbci_ccmgr][CI%d RCC] too small public key", m_slot->getSlotID());
+	if (codes & DH_CHECK_PUBKEY_TOO_LARGE)
+		eDebug("[dvbci_ccmgr][CI%d RCC] too large public key", m_slot->getSlotID());
+*/
+	int gap = 256 - len;
+	memset(m_dhsk, 0, gap);
+	DH_compute_key(m_dhsk + gap, bn_in, m_dh);
+
+	BN_free(bn_in);
+
+	return 0;
+}
+
 
 int eDVBCICcSession::restart_dh_challenge()
 {
