@@ -604,10 +604,23 @@ int eDVBCICcSession::generate_dh_key()
 		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2 DH_new() failed...", m_slot->getSlotID());
 		return -1;
 	}
+#ifdef DREAMBOX
+	p = BN_bin2bn(dh1024_p,sizeof(dh1024_p), 0);
+	g = BN_bin2bn(dh1024_g,sizeof(dh1024_g), 0);
+	DH_set_length(m_dh, 160);
+	if (!p || !g)
+	{
+		DH_free(m_dh);
+		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2 p, g create failed...", m_slot->getSlotID());
+		return -1;
+	}
+	useThis = DH_set0_pqg(m_dh, p, 0, g);	
+#else		
 	p = BN_bin2bn(m_dh_p, sizeof(m_dh_p), 0);
 	g = BN_bin2bn(m_dh_g, sizeof(m_dh_g), 0);
 	q = BN_bin2bn(m_dh_q, sizeof(m_dh_q), 0);
 	useThis = DH_set0_pqg(m_dh, p, q, g);
+#endif
 	if (!useThis)
 	{
 		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2 DH_set0_pqg failed...", m_slot->getSlotID());
