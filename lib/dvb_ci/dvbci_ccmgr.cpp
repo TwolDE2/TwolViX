@@ -9,6 +9,7 @@
 #include <lib/dvb_ci/dvbci_ui.h>
 
 #include <openssl/aes.h>
+#include <openssl/err.h>
 
 
 eDVBCICcSession::eDVBCICcSession(eDVBCISlot *slot, int version):
@@ -182,7 +183,6 @@ void eDVBCICcSession::cc_data_req(const uint8_t *data, unsigned int len)
 
 	dt_nr = data[rp++];
 	rp += data_get_loop(&data[rp], len - rp, dt_nr);
-
 	if (len < rp + 1)
 		return;
 
@@ -283,7 +283,6 @@ void eDVBCICcSession::cc_sac_data_req(const uint8_t *data, unsigned int len)
 		return;
 	}
 	pos += answ_len;
-
 	cc_sac_send(data_cnf_tag, dest, pos);
 }
 
@@ -431,7 +430,6 @@ int eDVBCICcSession::data_get_handle_new(unsigned int id)
 			eWarning("[dvbci_ccmgr][data_get_handle_new][CI%d RCC] unhandled id %x", m_slot->getSlotID(), id);
 			break;
 	}
-
 	return 0;
 }
 
@@ -609,7 +607,6 @@ int eDVBCICcSession::generate_dh_key()
 	BN_bn2bin(pub_key, &dhph[gap]);
 
 	m_ci_elements.set(DHPH, dhph, sizeof(dhph));
-
 	return 0;
 }
 
@@ -619,7 +616,6 @@ int eDVBCICcSession::generate_sign_A()
 	uint8_t hash[20];
 	unsigned char dbuf[256];
 	unsigned char sign_A[256];
-
 	if (!m_ci_elements.valid(AUTH_NONCE))
 		return -1;
 
@@ -645,7 +641,6 @@ int eDVBCICcSession::generate_sign_A()
 	dest[0x2c] = 0x08;
 	dest[0x2d] = 0x00; /* len (bits) */
 	memcpy(&dest[0x2e], m_ci_elements.get_ptr(DHPH), 256);
-
 	SHA1(dest, 0x12e, hash);
 
 	m_rsa_device_key = rsa_privatekey_open("/etc/ciplus/device.pem");
@@ -659,7 +654,6 @@ int eDVBCICcSession::generate_sign_A()
 	RSA_private_encrypt(sizeof(dbuf), dbuf, sign_A, m_rsa_device_key, RSA_NO_PADDING);
 
 	m_ci_elements.set(SIGNATURE_A, sign_A, sizeof(sign_A));
-
 	return 0;
 }
 
@@ -685,7 +679,6 @@ int eDVBCICcSession::restart_dh_challenge()
 
 	m_cust_cert = certificate_load_and_check(m_root_ca_store, "/etc/ciplus/customer.pem");
 	m_device_cert = certificate_load_and_check(m_root_ca_store, "/etc/ciplus/device.pem");
-
 	if (!m_cust_cert || !m_device_cert)
 	{
 		eWarning("[dvbci_ccmgr][restart_dh_challenge][CI%d RCC] can not check loader certificates", m_slot->getSlotID());

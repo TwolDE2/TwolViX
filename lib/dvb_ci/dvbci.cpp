@@ -260,8 +260,8 @@ int eDVBCIInterfaces::getSlotState(int slotid)
 int eDVBCIInterfaces::reset(int slotid)
 {
 	eDVBCISlot *slot;
-
 	singleLock s(m_slot_lock);
+	eDebug("[dvbci][eDVBCIInterfaces::reset][CI]1 Slot %d: getslot %d", slot, slot->getSlotID());
 	if( (slot = getSlot(slotid)) == 0 )
 	{
 		eDebug("[dvbci][eDVBCIInterfaces::reset][CI]2 Slot %d: slot 0 NO reset", slot->getSlotID());	
@@ -1456,6 +1456,7 @@ void eDVBCISlot::closeDevice()
 	notifier->stop();
 	data(eSocketNotifier::Priority);
 	state = stateDisabled;
+	eTrace("[dvbci][closedevice][CI] has state %d", state);	
 }
 
 void eDVBCISlot::setAppManager(eDVBCIApplicationManagerSession *session)
@@ -1490,6 +1491,7 @@ int eDVBCISlot::getSlotID()
 
 int eDVBCISlot::getVersion()
 {
+	eTrace("[dvbci][getVersion][CI%d] m_ci_version %d", slotid, m_ci_version);
 	return m_ci_version;
 }
 

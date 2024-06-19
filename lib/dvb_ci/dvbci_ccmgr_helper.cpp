@@ -24,7 +24,7 @@ int get_random(uint8_t *dest, int len)
 	fd = open(urnd, O_RDONLY);
 	if (fd <= 0)
 	{
-		eWarning("[CI RCC]1 cannot open %s", urnd);
+		eWarning("[dvbci_ccmgr_helper][CI RCC]1 cannot open %s", urnd);
 		return -1;
 	}
 
