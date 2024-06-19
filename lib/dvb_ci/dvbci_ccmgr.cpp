@@ -705,16 +705,9 @@ int eDVBCICcSession::compute_dh_key()
 		{
 			eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]b DH_check_pub_key failed, error: %d ", m_slot->getSlotID(), ERR_error_string(err, NULL));				   
 		}	
-//		eDebug("[dvbci_ccmgr][comput_dh_key][CI%d RCC]2b DH_check_pub_key failed error: %d ", m_slot->getSlotID(), ERR_error_string(ERR_get_error(), NULL));
 		return -1;
-	}	
-/*	if (ok == 0)
-		eDebug("[dvbci_ccmgr][CI%d RCC] check_pub_key failed", m_slot->getSlotID());
-	if (codes & DH_CHECK_PUBKEY_TOO_SMALL)
-		eDebug("[dvbci_ccmgr][CI%d RCC] too small public key", m_slot->getSlotID());
-	if (codes & DH_CHECK_PUBKEY_TOO_LARGE)
-		eDebug("[dvbci_ccmgr][CI%d RCC] too large public key", m_slot->getSlotID());
-*/
+	}
+	eDebug("[dvbci_ccmgr][comput_dh_key][CI%d RCC] DH_check_pub_key OK", m_slot->getSlotID());		
 	int gap = 256 - len;
 	memset(m_dhsk, 0, gap);
 	DH_compute_key(m_dhsk + gap, bn_in, m_dh);

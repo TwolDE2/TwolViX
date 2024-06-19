@@ -168,11 +168,13 @@ bool write_authdata(unsigned int slot, const uint8_t *host_id, const uint8_t *dh
 	int fd;
 	uint8_t buf[PAIR_SIZE * MAX_PAIRS];
 	int entries;
-
+	eDebug("[dvbci_ccmgr_helper][CI%d RCC] PAIR_SIZE: %d MAX_PAIRS: %d filename: %s", slot, PAIR_SIZE, MAX_PAIRS, filename);
 	for (entries = 0; entries < MAX_PAIRS; entries++)
 	{
 		int offset = PAIR_SIZE * entries;
 		if (!get_authdata(&buf[offset], &buf[offset + 8], &buf[offset + 8 + 256], slot, entries))
+		{
+			eDebug("[dvbci_ccmgr_helper][CI%d RCC] PAIR_SIZE: %d MAX_PAIRS: %d entries: %s", slot, PAIR_SIZE, MAX_PAIRS, entries);		
 			break;
 
 		/* check if we got this pair already */
@@ -196,7 +198,7 @@ bool write_authdata(unsigned int slot, const uint8_t *host_id, const uint8_t *dh
 	memcpy(buf + 8 + 256, akh, 32);
 	entries++;
 
-	eDebug("[dvbci_ccmgr_helper][CI%d RCC] %d entries for writing", slot, entries);
+	eDebug("[dvbci_ccmgr_helper][CI%d RCC] %d entries for writing filename %s", slot, entries, filename);
 
 	get_authdata_filename(filename, sizeof(filename), slot);
 	fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
@@ -207,8 +209,9 @@ bool write_authdata(unsigned int slot, const uint8_t *host_id, const uint8_t *dh
 	}
 
 	if (write(fd, buf, PAIR_SIZE * entries) != PAIR_SIZE * entries)
+	{
 		eWarning("[dvbci_ccmgr_helper][CI%d RCC] error in write", slot);
-
+	}
 	close(fd);
 
 	return true;
