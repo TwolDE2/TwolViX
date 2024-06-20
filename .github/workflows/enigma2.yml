@@ -45,14 +45,14 @@ jobs:
         sudo apt-get install libgif-dev
         sudo apt-get install mm-common
 
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}
 
     - name: Install python ${{ matrix.python }} packages
       run: |
-        pip3 install six flake8
+        pip3 install flake8
 
 
 
@@ -101,7 +101,7 @@ jobs:
         echo "installing tuxbox"
         pushd .
         cd /tmp
-        git clone --depth 1 https://github.com/OpenPLi/tuxtxt.git
+        git clone --depth 1 https://github.com/TwolDE2/tuxtxt.git
         cd tuxtxt/libtuxtxt
         autoreconf -i
         ./configure --with-boxtype=generic DVB_API_VERSION=5

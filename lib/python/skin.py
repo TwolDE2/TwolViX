@@ -28,6 +28,7 @@ fonts = {}  # Dictionary of predefined and skin defined font aliases.
 menus = {}  # Dictionary of images associated with menu entries.
 menuicons = {}  # Dictionary of icons associated with menu items.
 parameters = {}  # Dictionary of skin parameters used to modify code behavior.
+screens = {}  # Dictionary of images associated with screen entries.
 setups = {}  # Dictionary of images associated with setup menus.
 switchPixmap = {}  # Dictionary of switch images.
 scrollbarStyle = None  # When set, a dictionary of scrollbar styles
@@ -64,7 +65,7 @@ onLoadCallbacks = []
 
 def InitSkins(booting=True):
 	global currentPrimarySkin, currentDisplaySkin
-	global domScreens, colors, BodyFont, fonts, menus, menuicons, parameters, setups, switchPixmap, scrollbarStyle, windowStyles, xres, yres
+	global domScreens, colors, BodyFont, fonts, menus, menuicons, parameters, screens, setups, switchPixmap, scrollbarStyle, windowStyles, xres, yres
 	# Reset skin dictionaries. We can reload skins without a restart
 	# Make sure we keep the original dictionaries as many modules now import skin globals explicitly
 	domScreens.clear()
@@ -76,6 +77,7 @@ def InitSkins(booting=True):
 	menus.clear()
 	menuicons.clear()
 	parameters.clear()
+	screens.clear()
 	setups.clear()
 	switchPixmap.clear()
 	scrollbarStyle = None
@@ -371,9 +373,9 @@ def parseParameter(s):
 		return colors[s].argb()
 	elif s.find(";") != -1:  # Font.
 		font, size = [x.strip() for x in s.split(";", 1)]
-		return [font, int(size)]
+		return [font, parseScale(size)]
 	else:  # Integer.
-		return int(s)
+		return parseScale(s)
 
 
 def parseScale(s):
@@ -808,7 +810,7 @@ def reloadWindowStyles():
 def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT_SKIN):
 	"""Loads skin data like colors, windowstyle etc."""
 	assert domSkin.tag == "skin", "root element in skin must be 'skin'!"
-	global colors, fonts, menus, menuicons, parameters, setups, switchPixmap, scrollbarStyle, xres, yres
+	global colors, fonts, menus, menuicons, parameters, screens, setups, switchPixmap, scrollbarStyle, xres, yres
 	for tag in domSkin.findall("output"):
 		scrnID = int(tag.attrib.get("id", GUI_SKIN_ID))
 		if scrnID == GUI_SKIN_ID:
@@ -947,9 +949,9 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 		for alias in tag.findall("alias"):
 			name = alias.attrib.get("name")
 			font = alias.attrib.get("font")
-			size = int(alias.attrib.get("size"))
-			height = int(alias.attrib.get("height", size))  # To be calculated some day.
-			width = int(alias.attrib.get("width", size))  # To be calculated some day.
+			size = parseScale(alias.attrib.get("size"))
+			height = parseScale(alias.attrib.get("height", size))  # To be calculated some day.
+			width = parseScale(alias.attrib.get("width", size))  # To be calculated some day.
 			if name and font and size:
 				fonts[name] = (font, size, height, width)
 				# print(f"[Skin] Add font alias: name='{nanme}', font='{font}', size={size}, height={height}, width={width}.")
@@ -981,6 +983,15 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 				# print("f[Skin] DEBUG: Menu key='{key}, image='{image}''.")
 			else:
 				raise SkinError(f"Tag 'menuicon' needs key and image, got key='{key} and image='{image}'")
+	for tag in domSkin.findall("screens"):
+		for screen in tag.findall("screen"):
+			key = screen.attrib.get("key")
+			image = screen.attrib.get("image")
+			if key and image:
+				screens[key] = image
+				# print("f[Skin] DEBUG: Screen key='{key}, image='{image}''.")
+			else:
+				raise SkinError(f"Tag 'screen' needs key and image, got key='{key} and image='{image}'")
 	for tag in domSkin.findall("setups"):
 		for setup in tag.findall("setup"):
 			key = setup.attrib.get("key")
@@ -1286,10 +1297,11 @@ def readSkin(screen, skin, names, desktop):
 					raise SkinError(f"For connection '{wconnection}' a renderer must be defined with a 'render=' attribute")
 			for converter in widget.findall("convert"):
 				ctype = converter.get("type")
+				nostrip = converter.get("nostrip") and converter.get("nostrip").lower() in ("1", "enabled", "nostrip", "on", "true", "yes")
 				assert ctype, "[Skin] The 'convert' tag needs a 'type' attribute!"
 				# print(f"[Skin] DEBUG: Converter='{ctype}'.")
 				try:
-					parms = converter.text.strip()
+					parms = converter.text if nostrip else converter.text.strip()
 				except Exception:
 					parms = ""
 				# print(f"[Skin] DEBUG: Params='{parms}'.")
@@ -1346,6 +1358,8 @@ def readSkin(screen, skin, names, desktop):
 			raise SkinError(f"Applet failed to compile: '{str(err)}")
 		if widgetType == "onLayoutFinish":
 			screen.onLayoutFinish.append(code)
+		elif widgetType == "onContentChanged":
+			screen.onContentChanged.append(code)
 		else:
 			raise SkinError(f"Applet type '{widgetType}' is unknown")
 

@@ -44,9 +44,9 @@ from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 import Screens.Standby
 from ServiceReference import ServiceReference
-from Tools import ASCIItranslit, Notifications
+from Tools import Notifications
 from Tools.BoundFunction import boundFunction
-from Tools.Directories import pathExists, fileExists, getRecordingFilename, copyfile, resolveFilename, SCOPE_TIMESHIFT
+from Tools.Directories import pathExists, fileExists, getRecordingFilename, copyfile, resolveFilename, sanitizeFilename, SCOPE_TIMESHIFT
 from Tools.TimeShift import CopyTimeshiftJob, MergeTimeshiftJob, CreateAPSCFilesJob
 
 
@@ -671,8 +671,7 @@ class InfoBarTimeshift:
 					except:
 						print("[Timeshift][TimeShift] Using default filename")
 
-					if config.recording.ascii_filenames.value:
-						ptsfilename = ASCIItranslit.legacyEncode(ptsfilename)
+					ptsfilename = sanitizeFilename(ptsfilename)
 
 					# print("[Timeshift]ptsfilename", ptsfilename)
 					fullname = getRecordingFilename(ptsfilename, config.usage.default_path.value)
@@ -703,8 +702,7 @@ class InfoBarTimeshift:
 					except:
 						print("[Timeshift][TimeShift] Using default filename")
 
-					if config.recording.ascii_filenames.value:
-						ptsfilename = ASCIItranslit.legacyEncode(ptsfilename)
+					ptsfilename = sanitizeFilename(ptsfilename)
 
 					fullname = getRecordingFilename(ptsfilename, config.usage.default_path.value)
 					oslink("%s%s" % (config.usage.timeshift_path.value, timeshiftfile), "%s.ts" % fullname)
@@ -951,7 +949,7 @@ class InfoBarTimeshift:
 					ptsgetnextfile = False
 					ptsmergeSRC = filename[0:-5]
 
-					if ASCIItranslit.legacyEncode(eventname) == ASCIItranslit.legacyEncode(ptsmergeeventname):
+					if sanitizeFilename(eventname) == sanitizeFilename(ptsmergeeventname):
 						# Copy EIT File
 						if fileExists("%s%s.eit" % (config.usage.default_path.value, ptsmergeSRC[0:-3])):
 							copyfile("%s%s.eit" % (config.usage.default_path.value, ptsmergeSRC[0:-3]), "%s%s.eit" % (config.usage.default_path.value, ptsmergeDEST[0:-3]))
@@ -1292,7 +1290,6 @@ class InfoBarTimeshift:
 		# ToDo: Only do this on PTS Events and not events from other jobs
 		if timer.state == TimerEntry.StateEnded and (len(JobManager.getPendingJobs()) >= 1 or self.pts_mergeRecords_timer.isActive()):
 			self.ptsFrontpanelActions("start")
-
 	# This will already be set if it needs to be set and otherwise it must
 	# *not* be set.
 	# config.timeshift.isRecording.value = True

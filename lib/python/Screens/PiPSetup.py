@@ -34,10 +34,10 @@ class PiPSetup(Screen):
 		self.orgpos = self.pos
 		self.orgsize = self.size
 		self.orgmode = self.mode
-
+		print(f"PIPSetup] mode:{self.mode}")
 		self.resize = 100
 
-		self.helptext = _("Please use the direction keys to move the PiP window.\nPress Bouquet +/- to resize the window.\nPress OK to go back to the TV mode or EXIT to cancel the moving.")
+		self.helptext = _("Direction keys move the PiP window.\nPress 4(smaller) or 6(bigger) to resize PiP.\nPress OK returns to TV mode or EXIT to cancel move.")
 		if SystemInfo["VideoDestinationConfigurable"] or SystemInfo["HasExternalPIP"]:
 			self.helptext += "\n" + _("Press '0' to toggle PiP mode")
 		self.modetext = _("Current mode: %s \n")
@@ -57,9 +57,9 @@ class PiPSetup(Screen):
 			"1": self.keyNumberGlobal,
 			"2": self.keyNumberGlobal,
 			"3": self.keyNumberGlobal,
-			"4": self.keyNumberGlobal,
+			"4": self.bigger,
 			"5": self.keyNumberGlobal,
-			"6": self.keyNumberGlobal,
+			"6": self.smaller,
 			"7": self.keyNumberGlobal,
 			"8": self.keyNumberGlobal,
 			"9": self.keyNumberGlobal,
@@ -120,11 +120,11 @@ class PiPSetup(Screen):
 		if self.mode == "standard":
 			self.moveRelative(x=+6)
 
-	def bigger(self):
+	def bigger(self, *args, **kwargs):
 		if self.mode in "cascade standard":
 			self.resizePiP(+10)
 
-	def smaller(self):
+	def smaller(self, *args, **kwargs):
 		if self.mode in "cascade standard":
 			self.resizePiP(-10)
 

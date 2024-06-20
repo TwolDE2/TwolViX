@@ -144,13 +144,23 @@ class ConfigList(GUIComponent):
 
 
 class ConfigListScreen:
-	def __init__(self, list, session=None, on_change=None, fullUI=False):
+	def __init__(self, list, session=None, on_change=None, fullUI=False, yellow_button=None, blue_button=None, *args, **kwargs):
 		self.entryChanged = on_change if on_change is not None else lambda: None
 		if fullUI:
 			if "key_red" not in self:
 				self["key_red"] = StaticText(_("Cancel"))
 			if "key_green" not in self:
 				self["key_green"] = StaticText(_("Save"))
+			if "key_yellow" not in self and yellow_button:
+				self["key_yellow"] = StaticText(yellow_button.get('text', ''))
+				self["key_yellowActions"] = HelpableActionMap(self, ["ColorActions"], {
+					"yellow": (yellow_button['function'], yellow_button.get('helptext', _("Yellow button function"))),
+				}, prio=1, description=_("Common Setup Actions"))
+			if "key_blue" not in self and blue_button:
+				self["key_blue"] = StaticText(blue_button.get('text', ''))
+				self["key_blueActions"] = HelpableActionMap(self, ["ColorActions"], {
+					"blue": (blue_button['function'], blue_button.get('helptext', _("Blue button function"))),
+				}, prio=1, description=_("Common Setup Actions"))
 			self["fullUIActions"] = HelpableActionMap(self, ["ConfigListActions"], {
 				"cancel": (self.keyCancel, _("Cancel any changed settings and exit")),
 				"close": (self.closeRecursive, _("Cancel any changed settings and exit all menus")),
@@ -216,6 +226,7 @@ class ConfigListScreen:
 		self.setRestartMessage(None)
 		self.onChangedEntry = []
 		self.onSave = []
+		self.manipulatedItems = []  # keep track of all manipulated items including ones that have been removed from self["config"].list (currently used by Setup.py)
 		if self.noNativeKeys not in self.onLayoutFinish:
 			self.onLayoutFinish.append(self.noNativeKeys)
 		if self.handleInputHelpers not in self["config"].onSelectionChanged:
@@ -319,7 +330,7 @@ class ConfigListScreen:
 
 	def keyMenu(self):
 		currConfig = self["config"].getCurrent()
-		if currConfig and currConfig[1].enabled and hasattr(currConfig[1], "description"):
+		if currConfig and currConfig[1].enabled and hasattr(currConfig[1], "description") and len(currConfig[1].choices.choices) > 1:
 			self.session.openWithCallback(
 				self.keyMenuCallback, ChoiceBox, title=currConfig[0],
 				list=list(zip(currConfig[1].description, currConfig[1].choices)),
@@ -396,7 +407,7 @@ class ConfigListScreen:
 
 	def saveAll(self):
 		restart = False
-		for item in self["config"].list:
+		for item in set(self["config"].list + self.manipulatedItems):
 			if len(item) > 1:
 				if item[0].endswith("*") and item[1].isChanged():
 					restart = True
@@ -424,7 +435,7 @@ class ConfigListScreen:
 		self.closeConfigList((True,))
 
 	def closeConfigList(self, closeParameters=()):
-		if self["config"].isChanged():
+		if self["config"].isChanged() or self.manipulatedItems:
 			self.closeParameters = closeParameters
 			self.session.openWithCallback(self.cancelConfirm, MessageBox, self.cancelMsg, default=False, type=MessageBox.TYPE_YESNO)
 		else:
@@ -433,7 +444,7 @@ class ConfigListScreen:
 	def cancelConfirm(self, result):
 		if not result:
 			return
-		for item in self["config"].list:
+		for item in set(self["config"].list + self.manipulatedItems):
 			if len(item) > 1:
 				item[1].cancel()
 		if not hasattr(self, "closeParameters"):

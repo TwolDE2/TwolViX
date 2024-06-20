@@ -172,7 +172,7 @@ int eListboxPythonStringContent::getMaxItemTextWidth()
 			}
 		}
 	}
-	
+
 	return m_max_text_width + (m_text_offset*2);
 }
 
@@ -290,7 +290,7 @@ void eListboxPythonStringContent::paint(gPainter &painter, eWindowStyle &style, 
 		if (item == Py_None)
 		{
 				/* seperator */
-			if (isverticallb) 
+			if (isverticallb)
 			{
 				int half_height = m_itemsize.height() / 2;
 				painter.fill(eRect(offset.x() + half_height, offset.y() + half_height - 2, m_itemsize.width() - m_itemsize.height(), 4));
@@ -1026,7 +1026,7 @@ int eListboxPythonMultiContent::getMaxItemTextWidth()
 		}
 
 	}
-	
+
 	return m_max_text_width + (m_text_offset*2);
 }
 
@@ -1052,7 +1052,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 		border_color = local_style->m_border_color;
 		isverticallb = m_listbox->getOrientation() == 1;
 	}
-	
+
 	painter.clip(itemregion);
 
 	if(local_style) {
@@ -1181,7 +1181,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 							pfnt = PyTuple_GET_ITEM(item, 5),
 							pflags = PyTuple_GET_ITEM(item, 6),
 							pstring = PyTuple_GET_ITEM(item, 7),
-							pforeColor, pforeColorSelected, pbackColor, pbackColorSelected, pborderWidth, pborderColor, pCornerRadius, pCornerEdges;
+							pforeColor, pforeColorSelected, pbackColor, pbackColorSelected, pborderWidth, pborderColor, pCornerRadius, pCornerEdges, pTextBorderWidth, pTextBorderColor;
 
 				if (!(px && py && pwidth && pheight && pfnt && pflags && pstring))
 				{
@@ -1216,6 +1216,12 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 				if (size > 15)
 					pCornerEdges = PyTuple_GET_ITEM(item, 15);
 
+				if (size > 16)
+					pTextBorderWidth = PyTuple_GET_ITEM(item, 16);
+
+				if (size > 17)
+					pTextBorderColor = lookupColor(PyTuple_GET_ITEM(item, 17), data);
+
 				if (PyLong_Check(pstring) && data) /* if the string is in fact a number, it refers to the 'data' list. */
 					pstring = PyTuple_GetItem(data, PyLong_AsLong(pstring));
 
@@ -1231,6 +1237,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 				int flags = PyLong_AsLong(pflags);
 				int fnt = PyLong_AsLong(pfnt);
 				int bwidth = pborderWidth ? PyLong_AsLong(pborderWidth) : 0;
+				int btwidth = pTextBorderWidth ? PyLong_AsLong(pTextBorderWidth) : 0;
 
 				int cornerRadius = pCornerRadius ? PyLong_AsLong(pCornerRadius) : 0;
 				int cornerEdges = pCornerEdges ? PyLong_AsLong(pCornerEdges) : 0;
@@ -1256,7 +1263,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 						painter.setBackgroundColor(gRGB(color));
 						painter.drawRectangle(rect);
 					}
-					else 
+					else
 					{
 						gRegion rc(rect);
 						bool mustClear = (selected && pbackColorSelected) || (!selected && pbackColor);
@@ -1264,8 +1271,9 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 					}
 				}
 
+				unsigned int textBColor = pTextBorderColor ? PyLong_AsUnsignedLongMask(pTextBorderColor) : 0x000000;
 				painter.setFont(m_font[fnt]);
-				painter.renderText(rect, string, flags, border_color, border_size);
+				painter.renderText(rect, string, flags, gRGB(textBColor), btwidth);
 				painter.clippop();
 
 				// draw border
@@ -1503,7 +1511,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 		}
 	}
 
-	
+
 
 error_out:
 	if (buildfunc_ret)

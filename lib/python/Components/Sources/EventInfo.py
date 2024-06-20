@@ -1,14 +1,14 @@
 from time import time
 
-from enigma import eEPGCache, eServiceReference, iPlayableService, iServiceInformation
+from enigma import iPlayableService, iServiceInformation, eServiceReference, eEPGCache, eServiceCenter
 
 from Components.Element import cached
 from Components.PerServiceDisplay import PerServiceBase
 from Components.Sources.Source import Source
 
 
-# Fake eServiceEvent to fill Event_Now and Event_Next in Infobar for Streams
-class pServiceEvent:
+class pServiceEvent:  # Fake eServiceEvent to fill Event_Now and Event_Next in Infobar for Streams
+
 	NOW = 0
 	NEXT = 1
 
@@ -20,10 +20,10 @@ class pServiceEvent:
 		self.m_ShortDescriptionNext = ""
 		self.m_ExtendedDescriptionNow = ""
 		self.m_ExtendedDescriptionNext = ""
-		self.m_Begin = time()
 		self.m_Duration = 0
-
-		sTagTitle = info.getInfoString(iServiceInformation.sTagTitle)
+		self.m_Begin = time()
+		isPtr = not isinstance(service, eServiceReference)
+		sTagTitle = info.getInfoString(iServiceInformation.sTagTitle) if isPtr else info.getInfoString(service, iServiceInformation.sTagTitle)
 		if sTagTitle:
 			sTagTitleList = sTagTitle.split(" - ")
 			element1 = sTagTitleList[0] if len(sTagTitleList) >= 1 else ""
@@ -36,22 +36,22 @@ class pServiceEvent:
 				self.m_EventNameNow = element1 + " - " + element2
 				self.m_EventNameNext = element3
 
-		sTagGenre = info.getInfoString(iServiceInformation.sTagGenre)
+		sTagGenre = info.getInfoString(iServiceInformation.sTagGenre) if isPtr else info.getInfoString(service, iServiceInformation.sTagGenre)
 		if sTagGenre:
 			element4 = sTagGenre
 			self.m_ShortDescriptionNow = element4
 
-		sTagOrganization = info.getInfoString(iServiceInformation.sTagOrganization)
+		sTagOrganization = info.getInfoString(iServiceInformation.sTagOrganization) if isPtr else info.getInfoString(service, iServiceInformation.sTagOrganization)
 		if sTagOrganization:
 			element5 = sTagOrganization
 			self.m_ExtendedDescriptionNow = element5
 
-		sTagLocation = info.getInfoString(iServiceInformation.sTagLocation)
+		sTagLocation = info.getInfoString(iServiceInformation.sTagLocation) if isPtr else info.getInfoString(service, iServiceInformation.sTagLocation)
 		if sTagLocation:
 			element6 = sTagLocation
 			self.m_ExtendedDescriptionNow += "\n\n" + element6
 
-		seek = service and service.seek()
+		seek = service and isPtr and service.seek()
 		if seek:
 			length = seek.getLength()
 			if length[0] == 0:
@@ -127,15 +127,21 @@ class EventInfo(PerServiceBase, Source):
 			}, with_event=True)
 		self.now_or_next = now_or_next
 		self.epgQuery = eEPGCache.getInstance().lookupEventTime
+		self.__service = None
 
 	@cached
 	def getEvent(self):
-		service = self.navcore.getCurrentService()
-		info = service and service.info()
-		ret = info and info.getEvent(self.now_or_next)
+		isPtr = not isinstance(self.__service, eServiceReference)
+		service = self.navcore.getCurrentService() if isPtr else self.__service
+		if isPtr:
+			info = service and service.info()
+			ret = info and info.getEvent(self.now_or_next)
+		else:
+			info = eServiceCenter.getInstance().info(self.__service)
+			ret = info and info.getEvent(self.__service, self.now_or_next)
 		if info:
 			if not ret or ret.getEventName() == "":
-				refstr = info.getInfoString(iServiceInformation.sServiceref)
+				refstr = info.getInfoString(iServiceInformation.sServiceref) if isPtr else self.__service.toString()
 				ret = self.epgQuery(eServiceReference(refstr), -1, self.now_or_next and 1 or 0)
 				if not ret and refstr.split(':')[0] in ['4097', '5001', '5002', '5003']:  # No EPG Try to get Meta
 					ev = pServiceEvent(info, self.now_or_next, service)
@@ -154,3 +160,11 @@ class EventInfo(PerServiceBase, Source):
 	def destroy(self):
 		PerServiceBase.destroy(self)
 		Source.destroy(self)
+
+	def updateSource(self, ref):
+		if not ref:
+			self.__service = None
+			self.changed((self.CHANGED_CLEAR,))
+			return
+		self.__service = ref
+		self.changed((self.CHANGED_ALL,))

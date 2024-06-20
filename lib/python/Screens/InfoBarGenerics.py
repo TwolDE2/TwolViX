@@ -33,7 +33,6 @@ import NavigationInstance
 from Plugins.Plugin import PluginDescriptor
 from RecordTimer import RecordTimerEntry, parseEvent, AFTEREVENT, findSafeRecordPath
 from Screens import ScreenSaver
-from Screens.AudioSelection import getAVDict
 from Screens.ChannelSelection import ChannelSelection, PiPZapSelection, BouquetSelector, EpgBouquetSelector, service_types_tv
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Dish import Dish
@@ -64,8 +63,6 @@ from Tools import Notifications
 from Tools.Directories import pathExists, fileExists, isPluginInstalled
 from Tools.KeyBindings import getKeyBindingKeys
 # from Tools.KeyBindings import getKeyDescription  # Used by Debug
-from Tools.General import isIPTV
-
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
 from Screens.Setup import Setup
@@ -185,8 +182,12 @@ class InfoBarStreamRelay:
 		self.__srefs.sort(key=lambda ref: (int((x := ref.split(":"))[6], 16), int(x[5], 16), int(x[4], 16), int(x[3], 16)))
 		open(self.FILENAME, 'w').write('\n'.join(self.__srefs))
 
+	def splitref(self, ref):
+		ref = ref.split(":")
+		return ":".join(ref[:11]), len(ref) > 11 and ref[-1]
+
 	def toggle(self, nav, service):
-		if (servicestring := (service and service.toString())):
+		if (servicestring := (service and self.splitref(service.toString())[0])):
 			if servicestring in self.__srefs:
 				self.__srefs.remove(servicestring)
 			else:
@@ -205,19 +206,19 @@ class InfoBarStreamRelay:
 	data = property(getData, setData)
 
 	def streamrelayChecker(self, playref):
-		playrefstring = playref.toString()
+		playrefstring, renamestring = self.splitref(playref.toString())
 		if '%3a//' not in playrefstring and playrefstring in self.__srefs:
 			url = "http://%s:%s/" % (config.misc.softcam_streamrelay_url.getHTML(), config.misc.softcam_streamrelay_port.value)
 			if "127.0.0.1" in url:
 				playrefmod = ":".join([("%x" % (int(x[1], 16) + 1)).upper() if x[0] == 6 else x[1] for x in enumerate(playrefstring.split(':'))])
 			else:
 				playrefmod = playrefstring
-			playref = eServiceReference("%s%s%s:%s" % (playrefmod, url.replace(":", "%3a"), playrefstring.replace(":", "%3a"), ServiceReference(playref).getServiceName()))
+			playref = eServiceReference("%s%s%s:%s" % (playrefmod, url.replace(":", "%3a"), playrefstring.replace(":", "%3a"), renamestring or ServiceReference(playref).getServiceName()))
 			print(f"[{self.__class__.__name__}] Play service {playref.toString()} via streamrelay")
 		return playref
 
 	def checkService(self, service):
-		return service and service.toString() in self.__srefs
+		return service and self.splitref(service.toString())[0] in self.__srefs
 
 
 streamrelay = InfoBarStreamRelay()
@@ -249,17 +250,16 @@ def getPossibleSubservicesForCurrentChannel(current_service):
 
 
 def getActiveSubservicesForCurrentChannel(service):
-	info = service and service.info()
-	sRef = info and info.getInfoString(iServiceInformation.sServiceref)
-	url = "http://%s:%s/" % (config.misc.softcam_streamrelay_url.getHTML(), config.misc.softcam_streamrelay_port.value)
-	splittedRef = sRef.split(url.replace(":", "%3a"))
-	if len(splittedRef) > 1:
-		sRef = splittedRef[1].split(":")[0].replace("%3a", ":")
-	current_service = ':'.join(sRef.split(':')[:11])
-	if info:
+	activeSubservices = []
+	if info := service and service.info():
+		sRef = info.getInfoString(iServiceInformation.sServiceref)
+		url = "http://%s:%s/" % (config.misc.softcam_streamrelay_url.getHTML(), config.misc.softcam_streamrelay_port.value)
+		splittedRef = sRef.split(url.replace(":", "%3a"))
+		if len(splittedRef) > 1:
+			sRef = splittedRef[1].split(":")[0].replace("%3a", ":")
+		current_service = ':'.join(sRef.split(':')[:11])
 		if current_service:
 			possibleSubservices = getPossibleSubservicesForCurrentChannel(current_service)
-			activeSubservices = []
 			epgCache = eEPGCache.getInstance()
 			for subservice in possibleSubservices:
 				events = epgCache.lookupEvent(['BDTS', (subservice, 0, -1)])
@@ -660,19 +660,12 @@ class InfoBarShowHide(InfoBarScreenSaver):
 		self.__event_tracker = ServiceEventTracker(screen=self,
 			eventmap={
 				iPlayableService.evStart: self.serviceStarted,
-				iPlayableService.evEnd: self.serviceEnded,
-				iPlayableService.evUpdatedInfo: self.queueChange,
 			}
 		)
 
 		InfoBarScreenSaver.__init__(self)
 		self.__state = self.STATE_SHOWN
 		self.__locked = 0
-
-		self.av_config = getAVDict()
-
-		self._waitForEventInfoTimer = eTimer()
-		self._waitForEventInfoTimer.callback.append(self.avChange)
 
 		self.hideTimer = eTimer()
 		self.hideTimer.callback.append(self.doTimerHide)
@@ -807,9 +800,6 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			if config.usage.show_infobar_on_zap.value:
 				self.doShow()
 		self.showHideVBI()
-
-	def serviceEnded(self):
-		self._waitForEventInfoTimer.stop()
 
 	def startHideTimer(self):
 		if self.__state == self.STATE_SHOWN and not self.__locked:
@@ -973,37 +963,6 @@ class InfoBarShowHide(InfoBarScreenSaver):
 
 	def checkStreamrelay(self, service):
 		return streamrelay.checkService(service)
-
-	def queueChange(self):
-		self._waitForEventInfoTimer.stop()
-		self._waitForEventInfoTimer.start(50, True)
-
-	def avChange(self):
-		service = self.session.nav.getCurrentService()
-		ref_p = self.session.nav.getCurrentlyPlayingServiceReference()
-		isStream = isIPTV(ref_p)
-		x = ref_p and ref_p.toString().split(":")
-		x_play = x and ":".join(x[:10]) or ""
-		if isStream:
-			try:
-				if x_play in self.av_config:
-					av_val = self.av_config[x_play]
-					subs_pid = None
-					audio_pid = None
-					if av_val.find("|") > -1:
-						split = av_val.split("|")
-						audio_pid = pickle_load(split[0].encode())
-						subs_pid = pickle_load(split[1].encode())
-					elif av_val and av_val != "":
-						audio_pid = pickle_load(av_val.encode())
-					audio = service and service.audioTracks()
-					playinga_idx = audio and audio.getCurrentTrack()
-					if audio_pid and audio_pid != -1 and playinga_idx != audio_pid:
-						audio.selectTrack(audio_pid)
-					self.enableSubtitle(subs_pid)
-				self._waitForEventInfoTimer.stop()
-			except:
-				self._waitForEventInfoTimer.stop()
 
 
 class BufferIndicator(Screen):
@@ -1330,6 +1289,7 @@ class InfoBarChannelSelection:
 		self.servicelist = self.session.instantiateDialog(ChannelSelection)
 		self.servicelist2 = self.session.instantiateDialog(PiPZapSelection)
 		self.tscallback = None
+		self.servicelist.onZapping.append(self.serviceStarted)
 		self["ChannelSelectActions"] = HelpableActionMap(self, "InfobarChannelSelection",
 			{
 				"switchChannelUp": (self.switchChannelUp, _("Open service list and select the previous channel")),
@@ -1351,6 +1311,9 @@ class InfoBarChannelSelection:
 				"ChannelMinusPressedLong": (self.zapUpPip, _("Switch the PiP to the previous channel")),
 			}, description=_("Channel selection"))
 		self.onClose.append(self.__onClose)
+
+	def newService(self, ref):
+		self["Service"].newService(ref)
 
 	def __onClose(self):
 		if self.servicelist:
@@ -3857,7 +3820,7 @@ class VideoMode(Screen):
 
 		self["actions"] = NumberActionMap(["InfobarVmodeButtonActions"],
 			{
-			"vmodeSelection": self.selectVMode
+				"vmodeSelection": self.selectVMode
 			})  # noqa: E123
 
 		self.Timer = eTimer()

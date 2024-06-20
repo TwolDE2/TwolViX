@@ -138,10 +138,14 @@ bool eAVSwitch::isActive()
 int eAVSwitch::getAspect(int defaultVal, int flags) const
 {
 	int value = 0;
-	CFile::parseIntHex(&value, proc_videoaspect_r, __MODULE__, flags);
-	if (flags & FLAGS_DEBUG)
+	int ret = CFile::parseIntHex(&value, proc_videoaspect_r, __MODULE__, flags);
+	if (ret != 0)
+	{
+		value = defaultVal;
+	}
+	else if (flags & FLAGS_DEBUG)
 		eDebug("[%s] %s: %d", __MODULE__, "getAspect", value);
-	return defaultVal;
+	return value;
 }
 
 // read the preferred video modes
@@ -251,7 +255,12 @@ int eAVSwitch::getResolutionY(int defaultVal, int flags) const
 int eAVSwitch::getFrameRate(int defaultVal, int flags) const
 {
 
+#ifdef DREAMBOX
+	const char *fileName = "/proc/stb/vmpeg/0/fallback_framerate";
+#else
 	const char *fileName = "/proc/stb/vmpeg/0/framerate";
+#endif
+
 	int value = 0;
 	int ret = CFile::parseInt(&value, fileName, __MODULE__, flags);
 	if (ret != 0)

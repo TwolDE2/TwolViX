@@ -4,6 +4,7 @@ from Components.Element import cached
 from Components.config import config
 from enigma import iServiceInformation
 from Tools.GetEcmInfo import GetEcmInfo
+from Tools.Directories import pathExists
 
 
 class CryptoInfo(Poll, Converter):
@@ -13,10 +14,10 @@ class CryptoInfo(Poll, Converter):
 
 		self.type = type
 		self.active = False
-		if int(config.usage.show_cryptoinfo.value) > 0:
-			self.visible = True
-		else:
+		if config.usage.show_cryptoinfo.value == "0":
 			self.visible = False
+		else:
+			self.visible = True
 		self.textvalue = ""
 		self.poll_interval = 1000
 		self.poll_enabled = True
@@ -24,7 +25,7 @@ class CryptoInfo(Poll, Converter):
 
 	@cached
 	def getText(self):
-		if int(config.usage.show_cryptoinfo.value) < 1:
+		if config.usage.show_cryptoinfo.value == "0":
 			self.visible = False
 			data = ''
 		else:
@@ -39,7 +40,7 @@ class CryptoInfo(Poll, Converter):
 					info = service and service.info()
 					if info:
 						try:
-							if info.getInfoObject(iServiceInformation.sCAIDs):
+							if info.getInfoObject(iServiceInformation.sCAIDs) or pathExists("/tmp/ecm.info"):
 								ecm_info = self.ecmdata.getInfoRaw()
 								if ecm_info:
 									# caid
@@ -64,7 +65,11 @@ class CryptoInfo(Poll, Converter):
 									# port
 									port = from_splitted[1].strip() if len(from_splitted) > 1 else ""
 									# source
-									if from_splitted[0].strip() == "local":
+									if protocol == "emu":
+										source = "emu"
+									elif protocol == "constcw":
+										source = "constcw"
+									elif from_splitted[0].strip() == "local":
 										source = "sci"
 									else:
 										source = "net"
@@ -77,25 +82,27 @@ class CryptoInfo(Poll, Converter):
 									# reader
 									reader = ecm_info.get("reader", "")
 									if source == "emu":
-										textvalue = f"{source} - {caid} (Caid: {caid}, Prov: {prov},)"
+										textvalue = f"{source} - {caid} ({caid}:{prov})- {reader} - {ecm_time.replace('msec', 'ms')}"
+									elif source == "constcw":
+										textvalue = f"{source} - {caid} ({caid}:{prov})- {reader} - {ecm_time.replace('msec', 'ms')}"
 									# new oscam ecm.info with port parametr
 									elif reader != "" and source == "net" and port != "":
-										textvalue = f"{source} - Caid: {caid}, Prov: {prov}, Reader: {reader}, {protocol} ({server}:{port}@{hops}) - {ecm_time.replace('msec', 'ms')}"
+										textvalue = f"{source} - {caid}:{prov} - {reader}, {protocol} ({server}:{port}@{hops}) - {ecm_time.replace('msec', 'ms')}"
 									elif reader != "" and source == "net":
-										textvalue = f"{source} - Caid: {caid}, Prov: {prov}, Reader: {reader}, {protocol} ({server}@{hops}) - {ecm_time.replace('msec', 'ms')}"
+										textvalue = f"{source} - {caid}:{prov} - {reader}, {protocol} ({server}@{hops}) - {ecm_time.replace('msec', 'ms')}"
 									elif reader != "" and source != "net":
-										textvalue = f"{source} - Caid: {caid}, Prov: {prov}, Reader: {reader}, {protocol} (local) - {ecm_time.replace('msec', 'ms')}"
+										textvalue = f"{source} - {caid}:{prov} - {reader}, {protocol} (local) - {ecm_time.replace('msec', 'ms')}"
 									elif server == "" and port == "" and protocol != "":
-										textvalue = f"{source} - Caid: {caid}, Prov: {prov}, {protocol} - {ecm_time.replace('msec', 'ms')}"
+										textvalue = f"{source} - {caid}:{prov}, {protocol} - {ecm_time.replace('msec', 'ms')}"
 									elif server == "" and port == "" and protocol == "":
-										textvalue = f"{source} - Caid: {caid}- {ecm_time.replace('msec', 'ms')}, Prov: {prov}"
+										textvalue = f"{source} - {caid}- {ecm_time.replace('msec', 'ms')}, Prov: {prov}"
 									else:
 										try:
-											textvalue = f"{source} - Caid: {caid}, Prov: {prov}, {protocol} ({server}:{port}) - {ecm_time.replace('msec', 'ms')}"
+											textvalue = f"{source} - {caid}:{prov}, {protocol} ({server}:{port}) - {ecm_time.replace('msec', 'ms')}"
 										except:
 											pass
 								else:
-									textvalue = "No parse cannot emu"
+									textvalue = "No parse cannot Emu"
 							else:
 								textvalue = "Free-to-air"
 						except:

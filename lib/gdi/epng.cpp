@@ -1,9 +1,13 @@
 #define PNG_SKIP_SETJMP_CHECK
-#include <zlib.h>
+#include <map>
 #include <png.h>
 #include <stdio.h>
+#include <string>
+#include <zlib.h>
 #include <lib/base/cfile.h>
+#include <lib/base/elock.h>
 #include <lib/base/estring.h>
+#include <lib/base/wrappers.h>
 #include <lib/gdi/epng.h>
 #include <lib/gdi/pixmapcache.h>
 #include <unistd.h>
@@ -131,6 +135,18 @@ int loadPNG(ePtr<gPixmap> &result, const char *filename, int accel, int cached)
 
 	delete [] rowptr;
 
+	if (color_type == PNG_COLOR_TYPE_RGBA || color_type == PNG_COLOR_TYPE_GA)
+		surface->transparent = true;
+	else
+	{
+		png_bytep trans_alpha = NULL;
+		int num_trans = 0;
+		png_color_16p trans_color = NULL;
+
+		png_get_tRNS(png_ptr, info_ptr, &trans_alpha, &num_trans, &trans_color);
+		surface->transparent = (trans_alpha != NULL);
+	}
+	
 	int num_palette = -1, num_trans = -1;
 	if (color_type == PNG_COLOR_TYPE_PALETTE) {
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_PLTE)) {
@@ -254,7 +270,7 @@ int loadJPG(ePtr<gPixmap> &result, const char *filename, ePtr<gPixmap> alpha, in
 	}
 
 	result = new gPixmap(cinfo.output_width, cinfo.output_height, grayscale ? 8 : 32, cached ? PixmapCache::PixmapDisposed : NULL);
-
+	result->surface->transparent = false;
 	row_stride = cinfo.output_width * cinfo.output_components;
 	buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 	while (cinfo.output_scanline < cinfo.output_height) {

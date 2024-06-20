@@ -52,6 +52,18 @@ AC_SUBST(LIBJPEG_LIBS)
 AC_CHECK_LIB([ungif], [DGifOpen], [LIBGIF_LIBS="-lungif"], [AC_CHECK_LIB([gif], [DGifOpen], [LIBGIF_LIBS="-lgif"], [AC_MSG_ERROR([Could not find libgif or libungif])])])
 AC_SUBST(LIBGIF_LIBS)
 
+AC_ARG_WITH(e2rev,
+	AS_HELP_STRING([--with-e2rev],[value of E2REV, $withval]),
+	[E2REV="$withval"],[E2REV=""])
+AC_SUBST(E2REV)
+AC_DEFINE_UNQUOTED(E2REV,"$E2REV",[enigma2 revision])
+
+AC_ARG_WITH(oarev,
+	AS_HELP_STRING([--with-oarev],[value of OAREV, $withval]),
+	[OAREV="$withval"],[OAREV=""])
+AC_SUBST(OAREV)
+AC_DEFINE_UNQUOTED(OAREV,"$OAREV",[oa-core revision])
+
 AC_ARG_WITH(boxtype,
 	[  --with-boxtype=NAME box type [[none,dm800...]]],
 	[BOXTYPE="$withval"],[BOXTYPE="dm800"])
@@ -61,7 +73,10 @@ AC_DEFINE_UNQUOTED(BOXTYPE,"$BOXTYPE",[box type])
 AM_CONDITIONAL(GIGABLUE, test `echo "$BOXTYPE" | cut -b 1-2` == "gb")
 AM_CONDITIONAL(VUPLUS, test `echo "$BOXTYPE" | cut -b 1-2` == "vu")
 AM_CONDITIONAL(XTREND, test `echo "$BOXTYPE" | cut -b 1-2` == "et")
+AM_CONDITIONAL(DREAMBOX, test `echo "$BOXTYPE" | cut -b 1-2` == "dm" -o `echo "$BOXTYPE" | cut -b 1-5` == "dream")
 
+AM_CONDITIONAL(DM900, test "$BOXTYPE" == dm900)
+AM_CONDITIONAL(DM920, test "$BOXTYPE" == dm920)
 AM_CONDITIONAL(ET7X00, test "$BOXTYPE" == et7x00)
 AM_CONDITIONAL(ET8000, test "$BOXTYPE" == "et8000")
 AM_CONDITIONAL(ET10000, test "$BOXTYPE" == "et10000")
@@ -153,6 +168,11 @@ fi
 AM_CONDITIONAL(HAVE_OSDANIMATION, test x"$withosdanimation" != xno)
 
 
+if test `echo "$BOXTYPE" | cut -b 1-2` == "dm" -o `echo "$BOXTYPE" | cut -b 1-5` == "dream"; then
+	AC_DEFINE(DREAMBOX, 1, [Dreambox hardware])
+	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
+fi
+
 AC_ARG_WITH(nolcd,
 	AS_HELP_STRING([--with-nolcd], [disable ascii based lcd, yes or no]),
 	[[withnolcd=$withval]],
@@ -213,6 +233,27 @@ if test x"$withcolorlcd220" != xno ; then
 fi
 AM_CONDITIONAL(HAVE_COLORLCD220, test x"$withcolorlcd220" != xno)
 
+AC_ARG_WITH(colorlcd240,
+	AS_HELP_STRING([--with-colorlcd240], [use 240x80 16bpp color display, yes or no]),
+	[[withcolorlcd240=$withval]],
+	[[withcolorlcd240=no]]
+)
+if test x"$withcolorlcd240" != xno ; then
+	AC_DEFINE(HAVE_COLORLCD240, 1,[Define when using a 240x80 color display device])
+fi
+AM_CONDITIONAL(HAVE_COLORLCD240, test x"$withcolorlcd240" != xno)
+
+AC_ARG_WITH(colorlcd390,
+	AS_HELP_STRING([--with-colorlcd390], [use 390x240 16bpp color display, yes or no]),
+	[[withcolorlcd390=$withval]],
+	[[withcolorlcd390=no]]
+)
+if test x"$withcolorlcd390" != xno ; then
+	AC_DEFINE(HAVE_COLORLCD390, 1,[Define when using a 390x240 color display device])
+fi
+
+AM_CONDITIONAL(HAVE_COLORLCD390, test x"$withcolorlcd390" != xno)
+
 AC_ARG_WITH(colorlcd400,
 	AS_HELP_STRING([--with-colorlcd400], [use 400x176 16bpp color display, yes or no]),
 	[[withcolorlcd400=$withval]],
@@ -221,6 +262,7 @@ AC_ARG_WITH(colorlcd400,
 if test x"$withcolorlcd400" != xno ; then
 	AC_DEFINE(HAVE_COLORLCD400, 1,[Define when using a 400x176 color display device])
 fi
+
 AM_CONDITIONAL(HAVE_COLORLCD400, test x"$withcolorlcd400" != xno)
 
 AC_ARG_WITH(colorlcd480,
@@ -231,6 +273,7 @@ AC_ARG_WITH(colorlcd480,
 if test x"$withcolorlcd480" != xno ; then
 	AC_DEFINE(HAVE_COLORLCD480, 1,[Define when using a 480x320 color display device])
 fi
+
 AM_CONDITIONAL(HAVE_COLORLCD480, test x"$withcolorlcd480" != xno)
 
 AC_ARG_WITH(colorlcd720,
@@ -342,11 +385,18 @@ if test "$BOXTYPE" == "sf8008" -o "$BOXTYPE" == "sf8008m" -o "$BOXTYPE" == "sx98
 	AC_DEFINE(FORCE_ALPHABLENDING_ACCELERATION, 1,[define when the framebuffer acceleration has alphablending support, but detection slow down all])	
 fi
 
+if test "$BOXTYPE" == "dm900" -o "$BOXTYPE" == "dm920"; then
+	AC_DEFINE(CONFIG_ION, 1,[define BOX use ION Allocator])
+	AC_DEFINE(HAVE_HDMIIN_DM, 1,[has hdmi in dm])
+	AC_DEFINE(LCD_DM900_Y_OFFSET, 4,[define LCD Y offset for dm900 and dm920])
+	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration does not have alphablending support, though the autodetection might indicate that it does])
+fi
+
 AC_ARG_WITH(libsdl,
 	AS_HELP_STRING([--with-libsdl],[use libsdl, yes or no]),
 	[with_libsdl=$withval],[with_libsdl=no])
 if test "$with_libsdl" = "yes"; then
-	PKG_CHECK_MODULES(LIBSDL, sdl)
+	PKG_CHECK_MODULES(LIBSDL, sdl2)
 fi
 AM_CONDITIONAL(HAVE_LIBSDL, test "$with_libsdl" = "yes")
 
