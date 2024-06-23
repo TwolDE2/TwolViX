@@ -1618,6 +1618,7 @@ RESULT eDVBServicePlay::setTarget(int target, bool noaudio = false)
 		}
 		return -1;
 	}
+
 	m_is_primary = !target;
 	m_decoder_index = target;
 	m_noaudio = noaudio;
