@@ -352,20 +352,20 @@ class VIXSwap(Screen):
 		mounts = getProcMounts()
 		for partition in harddiskmanager.getMountedPartitions(False, mounts):
 			if partition.filesystem(mounts) in supported_filesystems:
-				print(f"[SwapManager][doCreateSwap] partition.description: {partition.description}")			
+				print(f"[SwapManager][doCreateSwap] partition.description: {partition.description}")
 				if "Partition {part}" in partition.description:
-					candidates.append((partition.mountpoint, partition.mountpoint))			
+					candidates.append((partition.mountpoint, partition.mountpoint))
 				else:
 					candidates.append((partition.description, partition.mountpoint))
 		if len(candidates):
-			print(f"[SwapManager][doCreateSwap] candidates: {candidates}")		
+			print(f"[SwapManager][doCreateSwap] candidates: {candidates}")
 			self.session.openWithCallback(self.doCSname, ChoiceBox, title=_("Please select device to use as SWAP file location."), list=candidates)
 		else:
 			self.session.open(MessageBox, _("Sorry, no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems."), MessageBox.TYPE_INFO, timeout=10)
 
 	def doCSname(self, name):
 		if name:
-			print(f"[SwapManager][doCreateSwap] name: {name}")			
+			print(f"[SwapManager][doCreateSwap] name: {name}")
 			self.new_name = name[1]
 			myoptions = [[_("512 Mb"), "524288"], [_("756 Mb"), "774144"], [_("1024 Mb"), "1048576"], [_("4096 Mb"), "4194304"]]
 			self.session.openWithCallback(self.doCSsize, ChoiceBox, title=_("Select the SWAP file size:"), list=myoptions)
