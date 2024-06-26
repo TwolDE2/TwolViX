@@ -137,7 +137,7 @@ int descrambler_set_pid(int desc_fd, int index, int enable, int pid)
 {
 	struct ca_pid p;
 	unsigned int flags = 0x80;
-
+	eDebug("[CI descrambler]1 index: %x enable: %x pid: %x", index, enable, pid);
 	if (desc_fd < 0)
 		return -1;
 
@@ -149,7 +149,7 @@ int descrambler_set_pid(int desc_fd, int index, int enable, int pid)
 
 	p.pid = pid;
 	p.index = flags;
-
+	eDebug("[CI descrambler]2 index: %x enable: %x flags: %x pid: %x", index, enable, flags, pid);
 	if (ioctl(desc_fd, CA_SET_PID, &p) == -1) {
 		eWarning("[CI%d descrambler] set pid failed", index);
 		return -1;
