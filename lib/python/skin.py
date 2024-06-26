@@ -28,6 +28,7 @@ fonts = {}  # Dictionary of predefined and skin defined font aliases.
 menus = {}  # Dictionary of images associated with menu entries.
 menuicons = {}  # Dictionary of icons associated with menu items.
 parameters = {}  # Dictionary of skin parameters used to modify code behavior.
+screens = {}  # Dictionary of images associated with screen entries.
 setups = {}  # Dictionary of images associated with setup menus.
 switchPixmap = {}  # Dictionary of switch images.
 scrollbarStyle = None  # When set, a dictionary of scrollbar styles
@@ -46,6 +47,7 @@ config.skin.display_skin = ConfigText(default=DEFAULT_DISPLAY_SKIN)
 
 currentPrimarySkin = None
 currentDisplaySkin = None
+currentLoadingSkin = None
 onLoadCallbacks = []
 
 # Skins are loaded in order of priority.  Skin with highest priority is
@@ -64,7 +66,7 @@ onLoadCallbacks = []
 
 def InitSkins(booting=True):
 	global currentPrimarySkin, currentDisplaySkin
-	global domScreens, colors, BodyFont, fonts, menus, menuicons, parameters, setups, switchPixmap, scrollbarStyle, windowStyles, xres, yres
+	global domScreens, colors, BodyFont, fonts, menus, menuicons, parameters, screens, setups, switchPixmap, scrollbarStyle, windowStyles, xres, yres
 	# Reset skin dictionaries. We can reload skins without a restart
 	# Make sure we keep the original dictionaries as many modules now import skin globals explicitly
 	domScreens.clear()
@@ -76,6 +78,7 @@ def InitSkins(booting=True):
 	menus.clear()
 	menuicons.clear()
 	parameters.clear()
+	screens.clear()
 	setups.clear()
 	switchPixmap.clear()
 	scrollbarStyle = None
@@ -144,10 +147,12 @@ def loadSkinData(desktop):
 
 
 def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screenID=GUI_SKIN_ID):
-	global windowStyles
+	global windowStyles, currentLoadingSkin
+	retval = False
 	filename = resolveFilename(scope, filename)
 	if isfile(filename):
-		# print(f"[Skin] Loading skin file '{skin}'.")
+		currentLoadingSkin = filename
+		print("[Skin] Loading skin file '%s'." % filename)
 		domSkin = fileReadXML(filename)
 		if domSkin:
 			# scpe = {SCOPE_CONFIG: "SCOPE_CONFIG", SCOPE_CURRENT_LCDSKIN: "SCOPE_CURRENT_LCDSKIN", SCOPE_CURRENT_SKIN: "SCOPE_CURRENT_SKIN", SCOPE_FONTS: "SCOPE_FONTS", SCOPE_SKIN: "SCOPE_SKIN", SCOPE_SKIN_IMAGE: "SCOPE_SKIN_IMAGE"}.get(scope, scope)  # noqa: F841
@@ -174,8 +179,9 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 				# Element is not a screen or windowstyle element so no need for it any longer.
 			reloadWindowStyles()  # Reload the window style to ensure all skin changes are taken into account.
 			# print(f"[Skin] Loading skin file '{filename}' complete.")
-			return True
-	return False
+			retval = True
+	currentLoadingSkin = None
+	return retval
 
 
 def addOnLoadCallback(callback):
@@ -808,7 +814,7 @@ def reloadWindowStyles():
 def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT_SKIN):
 	"""Loads skin data like colors, windowstyle etc."""
 	assert domSkin.tag == "skin", "root element in skin must be 'skin'!"
-	global colors, fonts, menus, menuicons, parameters, setups, switchPixmap, scrollbarStyle, xres, yres
+	global colors, fonts, menus, menuicons, parameters, screens, setups, switchPixmap, scrollbarStyle, xres, yres
 	for tag in domSkin.findall("output"):
 		scrnID = int(tag.attrib.get("id", GUI_SKIN_ID))
 		if scrnID == GUI_SKIN_ID:
@@ -978,9 +984,18 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 			image = menuicon.attrib.get("image")
 			if key and image:
 				menuicons[key] = image
-				# print("f[Skin] DEBUG: Menu key='{key}, image='{image}''.")
+				# print("f[Skin] DEBUG: Menu key='{key}, image='{image}'.")
 			else:
-				raise SkinError(f"Tag 'menuicon' needs key and image, got key='{key} and image='{image}'")
+				raise SkinError("Tag 'menuicon' needs key and image, got key='%s' and image='%s'" % (key, image))
+	for tag in domSkin.findall("screens"):
+		for screen in tag.findall("screen"):
+			key = screen.attrib.get("key")
+			image = screen.attrib.get("image")
+			if key and image:
+				screens[key] = image
+				# print("[Skin] DEBUG: Screen key='%s', image='%s'." % (key, image))
+			else:
+				raise SkinError(f"Tag 'screen' needs key and image, got key='{key}' and image='{image}'")
 	for tag in domSkin.findall("setups"):
 		for setup in tag.findall("setup"):
 			key = setup.attrib.get("key")
@@ -989,7 +1004,7 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 				setups[key] = image
 				# print(f"[Skin] DEBUG: Setup key='{key}', image='{image}''.")
 			else:
-				raise SkinError(f"Tag 'setup' needs key and image, got key='{key}' and image='{image}''")
+				raise SkinError(f"Tag 'setup' needs key and image, got key='{key}' and image='{image}'")
 	for tag in domSkin.findall("subtitles"):
 		from enigma import eSubtitleWidget
 		scale = ((1, 1), (1, 1))
