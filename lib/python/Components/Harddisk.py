@@ -764,7 +764,7 @@ class HarddiskManager:
 				# print(f"[Harddisk] Error: Couldn't read harddisk model on '{device}' ('{physicalDevice}')!")
 				description = _(f"Device {dev}")
 		if part:  # and part != 1:  # Not wholedisk and not partition 1.
-			description = f"{_('(Partition {part})')}"
+			description = "%s %s" % (description, _("(Partition %d)") % part)
 		return description
 
 	def splitDeviceName(self, devName):
