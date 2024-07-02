@@ -13,6 +13,7 @@ from Components.SystemInfo import SystemInfo
 from Tools.camcontrol import CamControl
 from Tools.Directories import resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation
 
+VuRecovery = SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0
 
 # A raw writer for config changes to be read by the logger without
 # getting a time-stamp prepended.
@@ -914,9 +915,9 @@ def InitUsageConfig():
 			StackTracePrinter.getInstance().activate(current_thread().ident)
 		else:
 			StackTracePrinter.getInstance().deactivate()
-
-	config.crash.pystackonspinner = ConfigYesNo(default=False)
-	config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback=False, initial_call=True)
+	if not VuRecovery:
+		config.crash.pystackonspinner = ConfigYesNo(default=False)
+		config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback=False, initial_call=True)
 
 # Just echo CHANGE var=val for the logger process to find.
 # Send a newline at the start in case some background process hasn't
