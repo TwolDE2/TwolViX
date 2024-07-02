@@ -19,6 +19,8 @@ VuRecovery = SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 
 # getting a time-stamp prepended.
 # stderr expect unicode, not str, so we decode as utf-8
 #
+
+
 def raw_stderr_print(text):
 	with io.open(2, mode="wt", closefd=False) as myerr:
 		myerr.write(text)
