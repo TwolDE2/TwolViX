@@ -529,40 +529,40 @@ int eDVBCICcSession::generate_dh_key()
 	p = BN_bin2bn(m_dh_p, sizeof(m_dh_p), 0);
 	g = BN_bin2bn(m_dh_g, sizeof(m_dh_g), 0);
 	q = BN_bin2bn(m_dh_q, sizeof(m_dh_q), 0);
-#ifdef DREAMBOX
+#ifdef DM900
 	useThis = DH_set0_pqg(m_dh, p, 0, g);
 #else	
 	useThis = DH_set0_pqg(m_dh, p, q, g);
 #endif
 	if (!useThis)
 	{
-		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2 DH_set0_pqg failed...", m_slot->getSlotID());
+		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC] DH_set0_pqg failed...", m_slot->getSlotID());
 		return -1;
 	}
-	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2a DH_set0_pqg succeeded...", m_slot->getSlotID());	
+	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC] DH_set0_pqg succeeded...", m_slot->getSlotID());	
 	useThis = DH_generate_key(m_dh);
 	if (!useThis)
 	{
 		unsigned long err;
 		while ((err = ERR_get_error()))
 		{
-			eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2b DH_generate_key failed, errors: %s", m_slot->getSlotID(), ERR_error_string(err, NULL));				   
+			eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC] DH_generate_key failed, errors: %s", m_slot->getSlotID(), ERR_error_string(err, NULL));				   
 		}	
-//		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2b DH_generate_key failed error: %s ", m_slot->getSlotID(), ERR_error_string(ERR_get_error(), NULL));
+//		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC] DH_generate_key failed error: %s ", m_slot->getSlotID(), ERR_error_string(ERR_get_error(), NULL));
 		return -1;
 	}
-	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2c DH_generate_key OK generated key!...", m_slot->getSlotID());
+	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC] DH_generate_key OK generated key!...", m_slot->getSlotID());
 	DH_get0_key(m_dh, &pub_key, NULL);
-	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2d got generated key, pub_key %u ", m_slot->getSlotID(), pub_key);
+	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC] got generated key, pub_key %u ", m_slot->getSlotID(), pub_key);
 	len = 0;
 	if (pub_key == NULL)
 	{
-		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2e DH_get0_key returned pub_key = NULL ..", m_slot->getSlotID());
+		eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC] DH_get0_key returned pub_key = NULL ..", m_slot->getSlotID());
 		return -1;
 	}
 	else		
 		len = BN_num_bytes(pub_key);
-	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]2f generate key.len %x ..", m_slot->getSlotID(), len);
+	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC] generate key.len %x ..", m_slot->getSlotID(), len);
 	if (len > 256)
 	{
 		eWarning("[dvbci_ccmgr][CI%d RCC] too long public key", m_slot->getSlotID());
