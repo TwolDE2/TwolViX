@@ -6,6 +6,7 @@
 #include <lib/base/init.h>
 #include <lib/base/nconfig.h>
 #include <lib/base/object.h>
+#include <lib/base/esimpleconfig.h>
 #include <lib/dvb/epgcache.h>
 #include <lib/dvb/decoder.h>
 #include <lib/dvb/dvb.h>
@@ -2821,11 +2822,15 @@ RESULT eServiceMP3::disableSubtitles()
 RESULT eServiceMP3::getCachedSubtitle(struct SubtitleTrack &track)
 {
 
-	bool autoturnon = eConfigManager::getConfigBoolValue("config.subtitles.pango_autoturnon", true);
+//	bool autoturnon = eConfigManager::getConfigBoolValue("config.subtitles.pango_autoturnon", true);
+	bool autoturnon = eSimpleConfig::getBool("config.subtitles.pango_autoturnon", true);
 	int m_subtitleStreams_size = (int)m_subtitleStreams.size();
 	if (!autoturnon)
+	{
+		eDebug("[eServiceMP3] autorun subtitles not set");	
 		return -1;
-
+	}
+	eDebug("[eServiceMP3] autorun subtitles set");
 	if (m_cachedSubtitleStream == -2 && m_subtitleStreams_size)
 	{
 		m_cachedSubtitleStream = 0;
