@@ -2078,7 +2078,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 
 			for (i = 0; i < n_audio; i++)
 			{
-				audioStream audio;
+				audioStream audio = {};
 				gchar *g_codec, *g_lang;
 				GstTagList *tags = NULL;
 				GstPad* pad = 0;
@@ -2775,8 +2775,10 @@ exit:
 
 RESULT eServiceMP3::enableSubtitles(iSubtitleUser *user, struct SubtitleTrack &track)
 {
+	eDebug ("[eServiceMP3][enableSubtitles] entered: subtitle stream %i track.pid %i", m_currentSubtitleStream, track.pid);
 	if (m_currentSubtitleStream != track.pid)
 	{
+		eDebug ("[eServiceMP3][enableSubtitles] m_currentSubtitleStream != track.pid)");
 		g_object_set (G_OBJECT (m_gst_playbin), "current-text", -1, NULL);
 		m_subtitle_sync_timer->stop();
 		m_subtitle_pages.clear();
@@ -2822,17 +2824,17 @@ RESULT eServiceMP3::disableSubtitles()
 RESULT eServiceMP3::getCachedSubtitle(struct SubtitleTrack &track)
 {
 
-//	bool autoturnon = eConfigManager::getConfigBoolValue("config.subtitles.pango_autoturnon", true);
-	bool autoturnon = eSimpleConfig::getBool("config.subtitles.pango_autoturnon", true);
+	bool autoturnon = eConfigManager::getConfigBoolValue("config.subtitles.pango_autoturnon", true);
 	int m_subtitleStreams_size = (int)m_subtitleStreams.size();
 	if (!autoturnon)
 	{
-		eDebug("[eServiceMP3] autorun subtitles not set");	
+		eDebug("[eServiceMP3][getCachedSubtitle] autorun subtitles not set");	
 		return -1;
 	}
-	eDebug("[eServiceMP3] autorun subtitles set");
+	eDebug("[eServiceMP3][getCachedSubtitle] autorun subtitles set");
 	if (m_cachedSubtitleStream == -2 && m_subtitleStreams_size)
 	{
+		eDebug("[eServiceMP3][getCachedSubtitle] m_cachedSubtitleStream == -2 && m_subtitleStreams_size)");
 		m_cachedSubtitleStream = 0;
 		int autosub_level = 5;
 		std::string configvalue;
@@ -2869,6 +2871,7 @@ RESULT eServiceMP3::getCachedSubtitle(struct SubtitleTrack &track)
 
 	if (m_cachedSubtitleStream >= 0 && m_cachedSubtitleStream < m_subtitleStreams_size)
 	{
+		eDebug("[eServiceMP3][getCachedSubtitle] (m_cachedSubtitleStream >= 0 && m_cachedSubtitleStream < m_subtitleStreams_size)");
 		track.type = 2;
 		track.pid = m_cachedSubtitleStream;
 		track.page_number = int(m_subtitleStreams[m_cachedSubtitleStream].type);
@@ -2894,7 +2897,7 @@ RESULT eServiceMP3::getSubtitleList(std::vector<struct SubtitleTrack> &subtitlel
 			break;
 		default:
 		{
-			struct SubtitleTrack track;
+			struct SubtitleTrack track = {};
 			track.type = 2;
 			track.pid = stream_idx;
 			track.page_number = int(type);
