@@ -2777,7 +2777,7 @@ RESULT eServiceMP3::enableSubtitles(iSubtitleUser *user, struct SubtitleTrack &t
 {
 	eDebug ("[eServiceMP3][enableSubtitles] entered: subtitle stream %i track.pid %i", m_currentSubtitleStream, track.pid);
 	bool autoturnon = eConfigManager::getConfigBoolValue("config.subtitles.pango_autoturnon", true);
-	if (m_currentSubtitleStream != track.pid || autoturnon))
+	if (m_currentSubtitleStream != track.pid || autoturnon)
 	{
 		eDebug ("[eServiceMP3][enableSubtitles] m_currentSubtitleStream != track.pid)");
 		g_object_set (G_OBJECT (m_gst_playbin), "current-text", -1, NULL);
