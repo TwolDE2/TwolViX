@@ -1396,7 +1396,7 @@ def readSkin(screen, skin, names, desktop):
 			try:
 				p(w, context)
 			except SkinError as err:  # noqa: F841
-				print("f[Skin] Error in screen '{name}' widget '{w.tag}' {str(err)}!")
+				print(f"[Skin] Error in screen '{name}' widget '{w.tag}' {str(err)}!")
 				import traceback
 				traceback.print_exc()
 
