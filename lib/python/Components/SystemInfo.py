@@ -172,6 +172,7 @@ SystemInfo["HasRootSubdir"] = False  # This needs to be here so it can be reset 
 SystemInfo["RecoveryMode"] = False  # This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["AndroidMode"] = False  # This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["HasMultibootMTD"] = False  # This needs to be here so it can be reset by getMultibootslots!
+SystemInfo["resetMBoot"] = False  # This needs to be here so it can be reset by getMultibootslots if required!
 SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")  # This needs to be here so it can be tested by getMultibootslots!
 SystemInfo["HasKexecUSB"] = False  # This needs to be here so it can be reset by getMultibootslots!
 from Tools.Multiboot import getMultibootslots  # noqa: E402  This import needs to be here to avoid a SystemInfo load loop!
