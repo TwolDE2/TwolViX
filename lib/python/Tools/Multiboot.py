@@ -41,7 +41,7 @@ def getMultibootslots():
 				device2 = device.rsplit("/", 1)[1]
 				print(f"[Multiboot][[getMultibootslots]2 *** Bootdevice found: {device2}")
 				SystemInfo["BootDevice"] = device2
-				if path.exists("/sys/firmware/devicetree/base/chosen/bootargs"):	# check no kernel corruption
+				if path.exists("/sys/firmware/devicetree/base/chosen/bootargs"):  # check no kernel corruption
 					for file in glob.glob(path.join(tmpname, "STARTUP_*")):
 						slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
 						slotname = file.rsplit("_", 3 if "BOXMODE" in file else 1)[0]
@@ -91,7 +91,7 @@ def getMultibootslots():
 								bootslots[int(slotnumber)] = slot
 							else:
 								continue
-				else:	# kernel corruption set corruption flask
+				else:  # kernel corruption set corruption flask
 					print(f"[multiboot][getMultibootslots]3 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
 					SystemInfo["resetMBoot"] = True					
 					bootslots = {}
