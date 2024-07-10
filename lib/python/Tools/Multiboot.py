@@ -34,9 +34,9 @@ def getMultibootslots():
 			break
 		if path.exists(device):
 			Console(binary=True).ePopen(f"mount {device} {tmpname}")
-			print(f"[multiboot][getMultibootslots]0 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")			
+			print(f"[multiboot][getMultibootslots]0 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
 			if path.isfile(path.join(tmpname, "STARTUP")):
-				print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")						
+				print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
 				print(f"[Multiboot][[getMultibootslots]2 *** Bootdevice found: {device2}")
@@ -93,7 +93,7 @@ def getMultibootslots():
 								continue
 				else:  # kernel corruption set corruption flask
 					print(f"[multiboot][getMultibootslots]3 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
-					SystemInfo["resetMBoot"] = True					
+					SystemInfo["resetMBoot"] = True
 					bootslots = {}
 			Console(binary=True).ePopen(f"umount {tmpname}")
 	if not path.ismount(tmp.dir):
@@ -102,7 +102,7 @@ def getMultibootslots():
 		bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 		print(f"[multiboot][getMultibootslots]4 bootArgs: {bootArgs}")
 		if "rootsubdir" not in bootArgs:
-			reCharge()		
+			reCharge()
 		if SystemInfo["HasKexecMultiboot"] and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
 			rootsubdir = [x for x in bootArgs.split() if x.startswith("rootsubdir")]
 			char = "/" if "/" in rootsubdir[0] else "="
