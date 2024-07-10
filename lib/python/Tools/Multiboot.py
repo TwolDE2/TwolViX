@@ -34,9 +34,9 @@ def getMultibootslots():
 			break
 		if path.exists(device):
 			Console(binary=True).ePopen(f"mount {device} {tmpname}")
-			print(f"[multiboot][getMultibootslots]0 bootargs?: {path.exists("/sys/firmware/devicetree/base/chosen/bootargs")}")			
+			print(f"[multiboot][getMultibootslots]0 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")			
 			if path.isfile(path.join(tmpname, "STARTUP")):
-				print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists("/sys/firmware/devicetree/base/chosen/bootargs")}")						
+				print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")						
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
 				print(f"[Multiboot][[getMultibootslots]2 *** Bootdevice found: {device2}")
@@ -92,7 +92,7 @@ def getMultibootslots():
 							else:
 								continue
 				else:	# kernel corruption set corruption flask
-					print(f"[multiboot][getMultibootslots]3 bootargs?: {path.exists("/sys/firmware/devicetree/base/chosen/bootargs")}")
+					print(f"[multiboot][getMultibootslots]3 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
 					SystemInfo["resetMBoot"] = True					
 					bootslots = {}
 			Console(binary=True).ePopen(f"umount {tmpname}")
