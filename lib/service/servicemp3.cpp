@@ -448,6 +448,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_currentAudioStream = -1;
 	m_currentSubtitleStream = -1;
 	m_cachedSubtitleStream = -2; /* report subtitle stream to be 'cached'. TODO: use an actual cache. */
+	m_autoturnon = eConfigManager::getConfigBoolValue("config.subtitles.pango_autoturnon", true);
 	m_subtitle_widget = 0;
 	m_currentTrickRatio = 1.0;
 	m_buffer_size = 5 * 1024 * 1024;
@@ -469,7 +470,9 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_decoder = NULL;
 
 	std::string sref = ref.toString();
+	eDebug("[eServiceMP3] Init start %s", ref.toString());	
 	if (!sref.empty()) {
+		eDebug("[eServiceMP3] Init start !sref.empty()");	
 		std::vector<eIPTVDBItem> &iptv_services = eDVBDB::getInstance()->iptv_services;
 		for(std::vector<eIPTVDBItem>::iterator it = iptv_services.begin(); it != iptv_services.end(); ++it) {
 			if (sref.find(it->s_ref) != std::string::npos) {
@@ -2776,8 +2779,7 @@ exit:
 RESULT eServiceMP3::enableSubtitles(iSubtitleUser *user, struct SubtitleTrack &track)
 {
 	eDebug ("[eServiceMP3][enableSubtitles] entered: subtitle stream %i track.pid %i", m_currentSubtitleStream, track.pid);
-	bool autoturnon = eConfigManager::getConfigBoolValue("config.subtitles.pango_autoturnon", true);
-	if (m_currentSubtitleStream != track.pid || autoturnon)
+	if (m_currentSubtitleStream != track.pid || m_autoturnon)
 	{
 		eDebug ("[eServiceMP3][enableSubtitles] m_currentSubtitleStream != track.pid)");
 		g_object_set (G_OBJECT (m_gst_playbin), "current-text", -1, NULL);
@@ -2825,9 +2827,8 @@ RESULT eServiceMP3::disableSubtitles()
 RESULT eServiceMP3::getCachedSubtitle(struct SubtitleTrack &track)
 {
 
-	bool autoturnon = eConfigManager::getConfigBoolValue("config.subtitles.pango_autoturnon", true);
 	int m_subtitleStreams_size = (int)m_subtitleStreams.size();
-	if (!autoturnon)
+	if (!m_autoturnon)
 	{
 		eDebug("[eServiceMP3][getCachedSubtitle] autorun subtitles not set");	
 		return -1;
