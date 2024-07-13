@@ -470,7 +470,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_decoder = NULL;
 
 	std::string sref = ref.toString();
-	eDebug("[eServiceMP3] Init start %d", ref.toString());	
+	eDebug("[eServiceMP3] Init start %s", ref.toString().c_str());	
 	if (!sref.empty()) {
 		eDebug("[eServiceMP3] Init start !sref.empty()");	
 		std::vector<eIPTVDBItem> &iptv_services = eDVBDB::getInstance()->iptv_services;
