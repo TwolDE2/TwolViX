@@ -101,8 +101,6 @@ def getMultibootslots():
 	if bootslots:
 		bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 		print(f"[multiboot][getMultibootslots]4 bootArgs: {bootArgs}")
-		if "rootsubdir" not in bootArgs:
-			reCharge()
 		if SystemInfo["HasKexecMultiboot"] and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
 			rootsubdir = [x for x in bootArgs.split() if x.startswith("rootsubdir")]
 			char = "/" if "/" in rootsubdir[0] else "="
