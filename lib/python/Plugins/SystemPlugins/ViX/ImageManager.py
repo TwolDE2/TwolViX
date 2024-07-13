@@ -1732,7 +1732,7 @@ class ImageManagerSetup(Setup):
 class KexecWarning(TextBox):
 	def __init__(self, session):
 		TextBox.__init__(self, session, text=self.warningText(), title="Kexec warning title")
-	
+
 	def warningText(self):
 		return "\n\n".join([
 			_("Kexec message"),
