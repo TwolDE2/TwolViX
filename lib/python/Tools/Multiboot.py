@@ -35,7 +35,7 @@ def getMultibootslots():
 		if path.exists(device):
 			Console(binary=True).ePopen(f"mount {device} {tmpname}")
 			print(f"[multiboot][getMultibootslots]0 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
-			if path.isfile(path.join(tmpname, "STARTUP")):
+			if path.isfile(path.join(tmpname, "STARTUP")):	# Multiboot receiver
 				print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
