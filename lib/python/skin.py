@@ -1290,8 +1290,8 @@ def readSkin(screen, skin, names, desktop):
 					wsource = source.new_source
 				else:
 					break  # Otherwise, use the source.
-			if source is None:
-				raise SkinError(f"The source '{wsource}' was not found in screen '{name}'")
+			# if source is None:
+				# raise SkinError(f"The source '{wsource}' was not found in screen '{name}'")
 
 			wrender = widget.attrib.get("render")
 			if not wrender:
@@ -1312,7 +1312,7 @@ def readSkin(screen, skin, names, desktop):
 				try:
 					converterClass = my_import(".".join(("Components", "Converter", ctype))).__dict__.get(ctype)
 				except ImportError:
-					raise SkinError(f"Converter '{ctype}' not found")
+					raise SkinError(f"Converter {ctype} not found")
 				c = None
 				for i in source.downstream_elements:
 					if isinstance(i, converterClass) and i.converter_arguments == parms:
@@ -1324,7 +1324,7 @@ def readSkin(screen, skin, names, desktop):
 			try:
 				rendererClass = my_import(".".join(("Components", "Renderer", wrender))).__dict__.get(wrender)
 			except ImportError:
-				raise SkinError(f"Renderer '{wrender}' not found")
+				raise SkinError(f"Renderer {wrender} not found")
 			renderer = rendererClass()  # Instantiate renderer.
 			if source:
 				renderer.connect(source)  # Connect to source.
