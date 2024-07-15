@@ -1742,5 +1742,5 @@ class KexecWarning(TextBox):
 			_("4. Login into the Recovery image using SSH or telnet."),
 			_("5. Enter 'opkg install vuplus-kexec --force-reinstall' "),
 			_("6. Enter 'dd if=/usr/bin/kernel_auto.bin of=/dev/mmcblk0pX' where X is 1 for Uno4k, Uno4KSE, Solo4K, Ultimo4k 4 for Zero4K 6 for Duo4K, Duo4KSE"),
-			_("7. Enter 'mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz' ")
-			_("8. Enter init 6"),])
+			_("7. Enter 'mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz' "),
+			_("8. Enter init 6")])
