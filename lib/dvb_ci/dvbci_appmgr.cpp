@@ -66,7 +66,7 @@ int eDVBCIApplicationManagerSession::receivedAPDU(const unsigned char *tag,const
 			}
 			catch(std::exception ex)
 			{   
-			eDebug("[CI%d AM] catch in AM for utf-8 %d", slot->getSlotID(), ex.what());
+			eDebug("[CI%d AM] catch in AM for utf-8 %s", slot->getSlotID(), ex.what());
  			} 			
 		}
 		default:
