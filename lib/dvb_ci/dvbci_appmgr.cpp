@@ -5,9 +5,7 @@
 #include <lib/dvb_ci/dvbci_ui.h>
 #include <lib/base/estring.h>
 #include <stdexcept>
-
-
-
+#include <exception>
 
 eDVBCIApplicationManagerSession::eDVBCIApplicationManagerSession(eDVBCISlot *tslot)
 {
