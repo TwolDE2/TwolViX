@@ -470,20 +470,25 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_decoder = NULL;
 
 	std::string sref = ref.toString();
-	eDebug("[eServiceMP3] Init start %s", ref.toString().c_str());	
-	if (!sref.empty() && m_ref.path.compare(0, 29, "4097:0:0:0:0:0:0:0:0:0:/media") != 0) {
-		eDebug("[eServiceMP3] Init start !sref.empty()");	
-		std::vector<eIPTVDBItem> &iptv_services = eDVBDB::getInstance()->iptv_services;
-		for(std::vector<eIPTVDBItem>::iterator it = iptv_services.begin(); it != iptv_services.end(); ++it) {
-			if (sref.find(it->s_ref) != std::string::npos) {
-				m_currentAudioStream = it->ampeg_pid;
-				m_currentSubtitleStream = it->subtitle_pid;
-				m_cachedSubtitleStream = m_currentSubtitleStream;
-				eDebug("[eServiceMP3] Init start overwrite iptv_services");				
+	eDebug("[eServiceMP3] Init start %s", ref.toString().c_str());
+	if (ref.toString().c_str().compare(23, 6, "/media") != 0)
+	{	
+		if (!sref.empty() && m_ref.path.compare(23, 6, "/media") != 0)
+		{
+			eDebug("[eServiceMP3] Init start !sref.empty()");	
+			std::vector<eIPTVDBItem> &iptv_services = eDVBDB::getInstance()->iptv_services;
+			for(std::vector<eIPTVDBItem>::iterator it = iptv_services.begin(); it != iptv_services.end(); ++it)
+			{
+				if (sref.find(it->s_ref) != std::string::npos)
+				{
+					m_currentAudioStream = it->ampeg_pid;
+					m_currentSubtitleStream = it->subtitle_pid;
+					m_cachedSubtitleStream = m_currentSubtitleStream;
+					eDebug("[eServiceMP3] Init start overwrite iptv_services");				
+				}
 			}
 		}
 	}
-
 	CONNECT(m_subtitle_sync_timer->timeout, eServiceMP3::pushSubtitles);
 	CONNECT(m_pump.recv_msg, eServiceMP3::gstPoll);
 	CONNECT(m_nownext_timer->timeout, eServiceMP3::updateEpgCacheNowNext);
