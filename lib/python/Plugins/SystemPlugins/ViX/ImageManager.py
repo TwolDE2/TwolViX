@@ -1737,7 +1737,7 @@ class KexecWarning(TextBox):
 		return "\n\n".join([
 			_("Alert - the system has found an issue with the Vu+ Kexec Multiboot images - read the following information carefully"),
 			_("1. If you only have one multiboot images installed, it is faster to USB flash the receiver and re install Vu+ Multiboot"),
-			_("2. If you wish to try and recover your Multiboot system then proceed as follows.......),
+			_("2. If you wish to try and recover your Multiboot system then proceed as follows......."),
 			_("3. Create an empty 'STARTUP_RECOVERY' file at the root of your HDD/USB drive and hold the the Power button for more than 12 seconds to reboot into Recovery mode"),
 			_("4. Login into the Recovery image using SSH or telnet."),
 			_("5. Enter 'opkg install vuplus-kexec --force-reinstall' "),
