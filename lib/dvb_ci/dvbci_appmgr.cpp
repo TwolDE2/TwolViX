@@ -64,7 +64,7 @@ int eDVBCIApplicationManagerSession::receivedAPDU(const unsigned char *tag,const
 				/* emit */ eDVBCI_UI::getInstance()->m_messagepump.send(eDVBCIInterfaces::Message(eDVBCIInterfaces::Message::slotStateChanged, slot->getSlotID(), 2));
 				break;
 			}
-			catch(std:exception ex)
+			catch(std::exception ex)
 			{   
 			eDebug("[CI%d AM] catch in AM for utf-8 %d", slot->getSlotID(), ex.what());
  			} 			
