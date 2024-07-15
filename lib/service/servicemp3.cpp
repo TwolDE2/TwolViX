@@ -471,7 +471,8 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 
 	std::string sref = ref.toString();
 	eDebug("[eServiceMP3] Init start %s", ref.toString().c_str());
-	if (ref.toString().c_str().compare(23, 6, "/media") != 0)
+//	if (m_ref.path.compare.compare(23, 6, "/media") != 0)
+	if (m_ref.path.compare.compare(0, 4, "4097") != 0)	
 	{	
 		if (!sref.empty() && m_ref.path.compare(23, 6, "/media") != 0)
 		{
