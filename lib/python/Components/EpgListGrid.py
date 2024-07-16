@@ -386,13 +386,12 @@ class EPGListGrid(EPGListBase):
 		else:
 			res.append(MultiContentEntryText(
 				pos=(r1.left(), r1.top()),
-				size=(r1.width(), r1.height()),
+				size=(r1.width() + self.serviceBorderWidth, r1.height() + self.serviceBorderWidth),
 				font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
 				text="",
 				color=serviceForeColor, color_sel=serviceForeColor,
 				backcolor=serviceBackColor, backcolor_sel=serviceBackColor,
 				border_width=self.serviceBorderWidth, border_color=self.borderColorService))
-
 		colX = r1.left() + self.serviceBorderWidth
 		for titleItem in self.serviceTitleMode:
 			if titleItem == "picon":
@@ -515,7 +514,7 @@ class EPGListGrid(EPGListBase):
 					flags=BT_SCALE))
 		else:
 			res.append(MultiContentEntryText(
-				pos=(left, top), size=(width, height),
+				pos=(left, top), size=(width + self.eventBorderWidth, height + self.eventBorderWidth),
 				font=1, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
 				text="", color=None, color_sel=None,
 				backcolor=self.backColor, backcolor_sel=self.backColorSelected,
@@ -603,7 +602,7 @@ class EPGListGrid(EPGListBase):
 						flags=BT_SCALE))
 				else:
 					res.append(MultiContentEntryText(
-						pos=(left + xpos, top), size=(ewidth, height),
+						pos=(left + xpos, top), size=(ewidth + self.eventBorderWidth, height + self.eventBorderWidth),
 						font=1, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
 						text="", color=None, color_sel=None,
 						backcolor=backColor, backcolor_sel=backColorSel,
@@ -883,6 +882,7 @@ class TimelineText(GUIComponent):
 		self.timelineFontName = "Regular"
 		self.timelineFontSize = 20
 		self.datefmt = ""
+		self.fullBorder = True
 
 	GUI_WIDGET = eListbox
 
@@ -904,6 +904,8 @@ class TimelineText(GUIComponent):
 					self.timelineFontSize = font.pointSize
 				elif attrib == "itemHeight":
 					self.itemHeight = parseScale(value)
+				elif attrib == "fullBorder":
+					self.fullBorder = value == "1"
 				else:
 					attribs.append((attrib, value))
 			self.skinAttributes = attribs
@@ -979,12 +981,14 @@ class TimelineText(GUIComponent):
 					png=bgpng,
 					flags=BT_SCALE))
 			else:
-				res.append(MultiContentEntryText(
-					pos=(0, 0),
-					size=(serviceRect.width(), self.listHeight),
-					color=foreColor,
-					backcolor=backColor,
-					border_width=self.borderWidth, border_color=self.borderColor))
+				if self.fullBorder:
+					res.append(MultiContentEntryText(
+						pos=(0, 0),
+						size=(serviceRect.width(), self.listHeight),
+						color=foreColor,
+						backcolor=backColor,
+						border_width=self.borderWidth, border_color=self.borderColor))
+				
 
 			res.append(MultiContentEntryText(
 				pos=(5, 0),
@@ -993,6 +997,15 @@ class TimelineText(GUIComponent):
 				text=_(datestr),
 				color=foreColor,
 				backcolor=backColor))
+				
+			if not self.fullBorder:
+				res.append(MultiContentEntryText(
+					pos=(serviceRect.width() - self.borderWidth*2, 0),
+					size=(self.borderWidth, self.listHeight + self.borderWidth*2),
+					text=" ",
+					color=foreColor,
+					backcolor=self.borderColor,
+					border_width=self.borderWidth, border_color=self.borderColor))
 
 			bgpng = self.timelineTime
 			xpos = 0
@@ -1004,12 +1017,13 @@ class TimelineText(GUIComponent):
 					png=bgpng,
 					flags=BT_SCALE))
 			else:
-				res.append(MultiContentEntryText(
-					pos=(serviceRect.width(), 0),
-					size=(eventRect.width(), self.listHeight),
-					color=foreColor,
-					backcolor=backColor,
-					border_width=self.borderWidth, border_color=self.borderColor))
+				if self.fullBorder:
+					res.append(MultiContentEntryText(
+						pos=(serviceRect.width(), 0),
+						size=(eventRect.width(), self.listHeight),
+						color=foreColor,
+						backcolor=backColor,
+						border_width=self.borderWidth, border_color=self.borderColor))
 
 			for x in range(0, numLines):
 				ttime = localtime(timeBase + (x * timeStepsCalc))
@@ -1024,7 +1038,7 @@ class TimelineText(GUIComponent):
 						else:
 							timetext = strftime("%-I:%M", ttime) + _("am")
 				res.append(MultiContentEntryText(
-					pos=(serviceRect.width() + xpos, 0),
+					pos=(serviceRect.width() + xpos + 5, 0),
 					size=(incWidth, self.listHeight),
 					font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
 					text=timetext,
