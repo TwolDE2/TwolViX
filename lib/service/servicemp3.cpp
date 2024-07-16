@@ -484,7 +484,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 					m_currentAudioStream = it->ampeg_pid;
 					m_currentSubtitleStream = it->subtitle_pid;
 					m_cachedSubtitleStream = m_currentSubtitleStream;
-					eDebug("[eServiceMP3] Init start overwrite iptv_services");				
+					eDebug("[eServiceMP3] Init start iptv_service use sref pid's");				
 				}
 			}
 		}
