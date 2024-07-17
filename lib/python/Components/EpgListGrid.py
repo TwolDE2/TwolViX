@@ -989,7 +989,6 @@ class TimelineText(GUIComponent):
 						backcolor=backColor,
 						border_width=self.borderWidth, border_color=self.borderColor))
 				
-
 			res.append(MultiContentEntryText(
 				pos=(5, 0),
 				size=(serviceRect.width() - 15, self.listHeight),

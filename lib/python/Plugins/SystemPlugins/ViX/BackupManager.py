@@ -950,7 +950,6 @@ class VIXBackupManagerMenu(Setup):
 		Setup.keySave(self)
 		
 
-
 class VIXBackupManagerLogView(TextBox):
 	skin = ["""
 <screen name="VIXBackupManagerLogView" position="center,center" size="%d,%d">
