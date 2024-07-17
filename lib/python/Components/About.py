@@ -7,7 +7,7 @@ from sys import modules, version_info
 from time import time
 from Tools.Directories import fileExists
 
-from enigma import getEnigmaVersionString
+from enigma import getEnigmaLastCommitDate, getEnigmaLastCommitHash
 
 
 def getVersionString():
@@ -28,8 +28,12 @@ def driversDate():
 	return _formatDate(SystemInfo["driversdate"])
 
 
-def getLastUpdate():
-	return _formatDate(getEnigmaVersionString().replace("-", ""))
+def getLastCommitDate():
+	return _formatDate(getEnigmaLastCommitDate().replace("-", ""))
+
+
+def getLastCommitHash():
+	return getEnigmaLastCommitHash()[:7]
 
 
 def _formatDate(Date):
