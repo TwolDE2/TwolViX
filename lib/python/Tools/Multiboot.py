@@ -34,10 +34,10 @@ def getMultibootslots():
 			break
 		if path.exists(device):
 			Console(binary=True).ePopen(f"mount {device} {tmpname}")
-			print(f"[multiboot][getMultibootslots]0 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
+			# print(f"[multiboot][getMultibootslots]0 bootargs?: {path.exists("/sys/firmware/devicetree/base/chosen/bootargs")}")
 			if path.isfile(path.join(tmpname, "STARTUP")):  # Multiboot receiver
-				print(f"[multiboot][getMultibootslots]A boot kexec?: {path.isfile(path.join(tmpname, "kexec - multiboot - recovery.sh"))}")
-				print(f"[multiboot][getMultibootslots]B slot kexec?: {path.isfile(" / etc / init.d / kexec - multiboot - recovery.sh")}")
+				# print(f"[multiboot][getMultibootslots]A boot kexec?: {path.isfile(path.join(tmpname, "kexec - multiboot - recovery.sh"))}")
+				# print(f"[multiboot][getMultibootslots]B slot kexec?: {path.isfile("/etc/init.d/kexec - multiboot - recovery.sh")}")
 				if SystemInfo["HasKexecMultiboot"] and not path.isfile(path.join(tmpname, "kexec-multiboot-recovery.sh")) and path.isfile("/etc/init.d/kexec-multiboot-recovery.sh"):
 					copyfile("/etc/init.d/kexec-multiboot-recovery.sh", "%s" % path.join(tmpname, "kexec-multiboot-recovery.sh"))
 				print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
@@ -96,7 +96,7 @@ def getMultibootslots():
 							else:
 								continue
 				else:  # kernel corruption set corruption flag
-					print(f"[multiboot][getMultibootslots]3 bootargs?: {path.exists(" / sys / firmware / devicetree / base / chosen / bootargs")}")
+					# print(f"[multiboot][getMultibootslots]3 bootargs?: {path.exists("/sys/firmware/devicetree/base/chosen/bootargs")}")
 					SystemInfo["resetMBoot"] = True
 					bootslots = {}
 			Console(binary=True).ePopen(f"umount {tmpname}")
