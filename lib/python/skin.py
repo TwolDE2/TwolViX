@@ -48,6 +48,7 @@ config.skin.display_skin = ConfigText(default=DEFAULT_DISPLAY_SKIN)
 currentPrimarySkin = None
 currentDisplaySkin = None
 currentLoadingSkin = None
+currentScreenName = None
 onLoadCallbacks = []
 
 # Skins are loaded in order of priority.  Skin with highest priority is
@@ -199,7 +200,7 @@ class SkinError(Exception):
 		self.msg = message
 
 	def __str__(self):
-		return f"[Skin] {config.skin.primary_skin.value}: {self.msg}!  Please contact the skin's author!"
+		return "[Skin] {%s}: %s!  Please contact the skin's author!" % (currentLoadingSkin or (currentDisplaySkin if currentScreenName and currentScreenName.lower().endswith("summary") else currentPrimarySkin), self.msg)
 
 # Convert a coordinate string into a number.  Used to convert object position and
 # size attributes into a number.
@@ -1198,7 +1199,9 @@ def readSkin(screen, skin, names, desktop):
 				print(f"[Skin] Warning: Skin screen '{n}' rejected as it does not offer all the mandatory widgets '{''', '''.join(screen.mandatoryWidgets)}'!")
 				myScreen = None
 	else:
-		name = f"<embedded-in-{screen.__class__.__name__}>"
+		name = "<embedded-in-%s>" % screen.__class__.__name__
+	global currentScreenName
+	currentScreenName = name
 	if myScreen is None:  # Otherwise try embedded skin.
 		myScreen = getattr(screen, "parsedSkin", None)
 	if myScreen is None and getattr(screen, "skin", None):  # Try uncompiled embedded skin.
@@ -1453,6 +1456,7 @@ def readSkin(screen, skin, names, desktop):
 	# things around.
 	screen = None
 	usedComponents = None
+	currentScreenName = None
 
 
 def findWidgets(name):
