@@ -999,8 +999,8 @@ class TimelineText(GUIComponent):
 
 			if not self.fullBorder:
 				res.append(MultiContentEntryText(
-					pos =(serviceRect.width() - self.borderWidth * 2, 0),
-					size =(self.borderWidth, self.listHeight + self.borderWidth * 2),
+					pos=(serviceRect.width() - self.borderWidth * 2, 0),
+					size=(self.borderWidth, self.listHeight + self.borderWidth * 2),
 					text=" ",
 					color=foreColor,
 					backcolor=self.borderColor,
