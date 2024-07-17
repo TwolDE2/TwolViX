@@ -471,9 +471,11 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 
 	std::string sref = ref.toString();
 	eDebug("[eServiceMP3] Init start %s", ref.toString().c_str());
-	size_t pos = m_ref.path.find('media');	
+	size_t pos = m_ref.path.find('media');
+	size_t pos2 = m_ref.path.find('mkv');
+	if (pos == std::string::npos && pos2 == std::string::npos)		
 	{	
-		if (!sref.empty() && pos == std::string::npos)
+		if (!sref.empty())
 		{
 			eDebug("[eServiceMP3] Init start !sref.empty()");	
 			std::vector<eIPTVDBItem> &iptv_services = eDVBDB::getInstance()->iptv_services;
