@@ -1736,11 +1736,10 @@ class KexecWarning(TextBox):
 	def warningText(self):
 		return "\n\n".join([
 			_("Alert - the system has found an issue with the Vu+ Kexec Multiboot images - read the following information carefully"),
-			_("1. If you only have one multiboot images installed, it is faster to USB flash the receiver and re install Vu+ Multiboot"),
+			_("1. If you only have one multiboot image installed, it is probably faster to USB flash the receiver and re install Vu+ Multiboot"),
 			_("2. If you wish to try and recover your Multiboot system then proceed as follows......."),
 			_("3. Create an empty 'STARTUP_RECOVERY' file at the root of your HDD/USB drive and hold the the Power button for more than 12 seconds to reboot into Recovery mode"),
 			_("4. Login into the Recovery image using SSH or telnet."),
-			_("5. Enter 'opkg install vuplus-kexec --force-reinstall' "),
-			_("6. Enter 'dd if=/usr/bin/kernel_auto.bin of=/dev/mmcblk0pX' where X is 1 for Uno4k, Uno4KSE, Solo4K, Ultimo4k 4 for Zero4K 6 for Duo4K, Duo4KSE"),
-			_("7. Enter 'mv /usr/bin/STARTUP.cpio.gz /STARTUP.cpio.gz' "),
-			_("8. Enter init 6")])
+			_("5. If you wish to backup eMMC slots 1,2,3 then enter 'tar -cvzf /media/hdd/linuxrootfs1.tar.gz /linuxrootfsX' where X is the slot number"),
+			_("6. Then enter 'kexec-multiboot-recovery.sh ' "),
+			_("7. The script will copy the required files and then reboot")
