@@ -154,7 +154,7 @@ class About(AboutBase):
 		flashDate = about.getFlashDateString()
 		AboutText += (_("Installed:\t") + f"{flashDate}" + "\n")
 		lastUpdate = about.getLastCommitDate()
-		lastCommitHash = about.getLastCommitHash()		
+		lastCommitHash = about.getLastCommitHash()
 		AboutText += (_("Last E2 update:\t") + f"{lastCommitHash}" + f"{lastUpdate}" + "\n")
 		AboutText += (_("E2 (re)starts:\t") + f"{config.misc.startCounter.value}" + "\n")
 		uptime = about.getBoxUptime()
