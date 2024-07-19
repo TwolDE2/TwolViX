@@ -1735,7 +1735,7 @@ class KexecWarning(TextBox):
 	def warningText(self):
 		return "\n\n".join([
 			_("Alert - the system has found an issue with the Vu+ Kexec Multiboot images - read the following information carefully"),
-			_("1. Try to reboot the box and check if this warning would disappear"),
+			_("1. Try to reboot the box and check if this warning disappears"),
 			_("2. Try to re install Vu+ Multiboot as usual"),
 			_("3. If you wish to try and recover your Multiboot system then proceed as follows......."),
 			_("4. Login into the Recovery image using SSH or telnet."),
