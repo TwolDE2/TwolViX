@@ -122,6 +122,7 @@ def getMultibootslots():
 					SystemInfo["MultiBootSlot"] = slot
 					print(f"[Multiboot][MultiBootSlot]2 current slot used:{SystemInfo['MultiBootSlot']}")
 					break
+	print(f"[multiboot][getMultibootslots] bootSlots: {bootSlots}")
 	return bootslots
 
 
