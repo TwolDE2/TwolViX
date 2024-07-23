@@ -169,7 +169,7 @@ def GetImagelist(Recovery=None):
 				print("[multiboot] [GetImagelist] using enigma.info")
 				BuildVersion = createInfo(slot, imagedir=imagedir)
 			else:
-				print("[multiboot] [GetImagelist] using BoxInfo")
+				print("[multiboot] [GetImagelist] using /etc/issue")
 				try:
 					Creator = open(f"{imagedir}/etc/issue").readlines()[-2].capitalize().strip()[:-6]
 				except IndexError:  # /etc/issue no standard file content
