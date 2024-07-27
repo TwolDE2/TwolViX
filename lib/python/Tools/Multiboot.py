@@ -34,21 +34,17 @@ def getMultibootslots():
 			break
 		if path.exists(device):
 			Console(binary=True).ePopen(f"mount {device} {tmpname}")
-			# print(f"[multiboot][getMultibootslots]0 bootargs?: {path.exists("/sys/firmware/devicetree/base/chosen/bootargs")}")
 			if path.isfile(path.join(tmpname, "STARTUP")):  # Multiboot receiver
-				print(f"[multiboot][getMultibootslots]A boot kexec?: {path.isfile(path.join(tmpname, 'etc/init.d/kexec-multiboot-recovery.sh'))}")
-				print(f"[multiboot][getMultibootslots]B slot kexec?: {path.isfile('/etc/init.d/kexec-multiboot-recovery.sh')}")
-				if SystemInfo["HasKexecMultiboot"] and not path.isfile(path.join(tmpname, "etc/init.d/kexec-multiboot-recovery.sh")) and path.isfile("/etc/init.d/kexec-multiboot-recovery.sh"):  # check Recovery & slot image for recovery script
-					print(f"[multiboot][getMultibootslots] check Creator?")
-					if path.isfile(path.join(tmpname, "etc/issue")):
-						print(f"[multiboot][getMultibootslots] Yes check Creator")
+				print(f"[multiboot][getMultibootslots]A boot kexec?: {path.isfile(path.join(tmpname, 'etc/init.d/kexec-multiboot-recovery'))}")
+				print(f"[multiboot][getMultibootslots]B slot kexec?: {path.isfile('/etc/init.d/kexec-multiboot-recovery')}")
+				if SystemInfo["HasKexecMultiboot"] and not path.isfile(dest := path.join(tmpname, "etc/init.d/kexec-multiboot-recovery")) and path.isfile("/etc/init.d/kexec-multiboot-recovery"):  # check Recovery & slot image for recovery script
+					if path.isfile(etc_issue := path.join(tmpname, "etc/issue")):
 						try:
-							Creator = open(path.join(tmpname, "etc/issue")).readlines()[-2].lower()
-						except IndexError:  # /etc/issue no standard file content
-							Creator = _("Unknown image")
-						print(f"[multiboot][getMultibootslots] Creator?: {Creator[0:6]}")											
-						if Creator[0:6] in ("openvi", "openbh"):
-							copyfile("/etc/init.d/kexec-multiboot-recovery.sh", "%s" % path.join(tmpname, "etc/init.d/kexec-multiboot-recovery.sh"))
+							Creator = open(etc_issue).readlines()[-2].lower().split(maxsplit=1)[0]
+						except IndexError:  # /etc/issue non standard file content
+							Creator = ""
+						if Creator in ("openvix", "openbh"):
+							copyfile("/etc/init.d/kexec-multiboot-recovery", dest)
 				# print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists('/sys/firmware/devicetree/base/chosen/bootargs')}")
 				SystemInfo["MBbootdevice"] = device
 				device2 = device.rsplit("/", 1)[1]
