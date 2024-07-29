@@ -1740,4 +1740,4 @@ class KexecWarning(TextBox):
 			_("4. Login into the Recovery image using SSH or telnet."),
 			_("5. If you wish to backup eMMC slots 1,2,3 then enter 'tar -cvzf /media/hdd/linuxrootfsX.tar.gz /linuxrootfsX' where X is the slot number and repeat the command for each installed image slot in flash (so you have backup of installed flash images)"),
 			_("6. Then enter '/etc/init.d/kexec-multiboot-recovery start' "),
-			_("7. The script will copy the required files and then reboot"),])
+			_("7. The script will copy the required files and then will automatically reboot the box"),])
