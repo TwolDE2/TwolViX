@@ -1,4 +1,4 @@
-from Components.ActionMap import ActionMap, HelpableActionMap
+from Components.ActionMap import HelpableActionMap
 from Components.config import config, ConfigYesNo, getConfigListEntry, ConfigSelection
 from Components.ConfigList import ConfigListScreen
 from Components.InputDevice import iInputDevices, iRcTypeControl
