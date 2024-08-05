@@ -4,9 +4,30 @@ SUBDIRS = PositionerSetup Satfinder \
 	VideoTune Hotplug OpentvZapper \
 	DefaultServicesScanner CommonInterfaceAssignment \
 	ForceFbcLNBpower \
-	VideoClippingSetup \
+	VideoClippingSetup TerrestrialBouquet \
 	VideoEnhancement WirelessLan ViX \
 	FastScan SatelliteEquipmentControl DiseqcTester
+
+if VUSOLO2
+SUBDIRS += CableScan
+endif
+
+if VUSOLOSE
+SUBDIRS += CableScan
+endif
+
+if VUDUO2
+SUBDIRS += CableScan
+endif
+
+if VUUNO
+SUBDIRS += CableScan
+endif
+
+if VUULTIMO
+SUBDIRS += CableScan
+endif
+>>>>>>> ac58ffae14 ([TerrestrialBouquet] add plugin)
 
 if VUZERO4K
 SUBDIRS += CableScan
