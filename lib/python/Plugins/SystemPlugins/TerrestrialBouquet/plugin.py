@@ -35,7 +35,7 @@ class TerrestrialBouquet:
 		if (servicelist := ServiceReference.list(ServiceReference(query))) is not None:
 			while (service := servicelist.getNext()) and service.valid():
 				if service.getUnsignedData(4) >> 16 == 0xeeee:  # filter (only terrestrial)
-					stype, sid, tsid, onid, ns = [int(x, 16) for x in service.toString().split(":",7)[2:7]]
+					stype, sid, tsid, onid, ns = [int(x, 16) for x in service.toString().split(":", 7)[2:7]]
 					name = ServiceReference.getServiceName(service)
 					terrestrials["%04x:%04x:%04x" % (onid, tsid, sid)] = {"name": name, "namespace": ns, "onid": onid, "tsid": tsid, "sid": sid, "type": stype}
 		return terrestrials
@@ -55,7 +55,7 @@ class TerrestrialBouquet:
 				lcn, signal = tuple([int(x) for x in line[24:].split(":", 1)])
 				key = line[9:23]
 				LCNs[key] = {"lcn": lcn, "signal": signal}
-		return {k:v for k,v in sorted(list(LCNs.items()), key=lambda x: (x[1]["lcn"], abs(x[1]["signal"] - 65535)))}
+		return {k: v for k, v in sorted(list(LCNs.items()), key=lambda x: (x[1]["lcn"], abs(x[1]["signal"] - 65535)))}
 
 	def rebuild(self):
 		if not self.config.enabled.value:
@@ -70,7 +70,7 @@ class TerrestrialBouquet:
 				if k in LCNs:
 					terrestrials[k] |= LCNs[k]
 			self.services |= terrestrials
-		self.services = {k:v for k,v in sorted(list(self.services.items()),key=lambda x: ("lcn" in x[1] and x[1]["lcn"] or 65535, "signal" in x[1] and abs(x[1]["signal"] - 65536) or 65535))}
+		self.services = {k: v for k, v in sorted(list(self.services.items()), key=lambda x: ("lcn" in x[1] and x[1]["lcn"] or 65535, "signal" in x[1] and abs(x[1]["signal"] - 65536) or 65535))}
 		LCNsUsed = []  # duplicates (we are already ordered by highest signal strength)
 		for k in list(self.services.keys()):  # use list to avoid RuntimeError: dictionary changed size during iteration
 			if not "lcn" in self.services[k] or self.services[k]["lcn"] in LCNsUsed:
@@ -106,7 +106,7 @@ class TerrestrialBouquet:
 
 	def writeBouquet(self, mode):
 		allowed_service_types = not self.config.makeradiobouquet.value and self.VIDEO_ALLOWED_TYPES + self.AUDIO_ALLOWED_TYPES or self.getAllowedTypes(mode)
-		lcnindex = {v["lcn"]:k for k,v in self.services.items() if not v.get("duplicate") and v.get("lcn") and v.get("type") in allowed_service_types}
+		lcnindex = {v["lcn"]: k for k, v in self.services.items() if not v.get("duplicate") and v.get("lcn") and v.get("type") in allowed_service_types}
 		highestLCN = max(list(lcnindex.keys()))
 		duplicates = {} if self.config.skipduplicates.value else {i + 1 + highestLCN: v for i, v in enumerate(sorted([v for v in self.services.values() if v.get("duplicate") and v.get("type") in allowed_service_types], key=lambda x: x["name"].lower()))}
 		sections = providers[self.config.providers.value].get("sections", {})
@@ -140,7 +140,7 @@ class TerrestrialBouquet:
 			if mode == MODE_RADIO and (not radio_services or not self.config.makeradiobouquet.value):
 				break
 			bouquetIndexContent = self.readBouquetIndex(mode)
-			if '"' + self.bouquetFilename[:-2] + ("tv" if mode == MODE_TV else "radio") + '"' not in bouquetIndexContent: # only edit the index if bouquet file is not present
+			if '"' + self.bouquetFilename[:-2] + ("tv" if mode == MODE_TV else "radio") + '"' not in bouquetIndexContent:  # only edit the index if bouquet file is not present
 				self.writeBouquetIndex(bouquetIndexContent, mode)
 			self.writeBouquet(mode)
 		eDVBDB.getInstance().reloadBouquets()
