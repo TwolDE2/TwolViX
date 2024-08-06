@@ -460,7 +460,7 @@ void eEPGCache::timeUpdated()
 void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *channel)
 {
 	const eit_t *eit = (const eit_t*) data;
-	// eDebug("[eEPGCache:sectionRead] source is [%d])", source);
+	eDebug("[eEPGCache:sectionRead]1 source is [%d])", source);
 	int len = eit->getSectionLength() - 1;
 	int ptr = EIT_SIZE;
 	if ( ptr >= len )
@@ -503,7 +503,6 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 	EventCacheItem &servicemap = eventDB[service];
 	eventMap &eventmap = servicemap.byEvent;
 	timeMap &timemap = servicemap.byTime;
-
 	while (ptr < len)
 	{
 		uint16_t event_hash;
@@ -516,6 +515,8 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 					goto next;
 		if (source == NOWNEXT && !getIsWhitelisted(service))
 					goto next;			
+		if (getIsBrownlisted(service)) 
+			eDebug("[eEPGCache:sectionRead]2 Brownlisted source=[%d] source=0x%X)", source, source);
 		if ((start_time != 3599) &&  // NVOD Service
 			(now <= (start_time+duration)) &&  // skip old events
 			(start_time < (now+28*24*60*60)) &&  // no more than 4 weeks in future
@@ -541,7 +542,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 				goto next;
 			}
 
-			// eDebug("[eEPGCache] Created event %04X at %ld.", new_evt->getEventID(), new_start);
+			eDebug("[eEPGCache] Created event %04X at %ld.", new_evt->getEventID(), new_start);
 
 			// Remove existing event if the id matches
 			eventMap::iterator ev_it = eventmap.find(event_id);
@@ -549,7 +550,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 			{
 				if ((source & ~EPG_IMPORT) > (ev_it->second->type & ~EPG_IMPORT))
 				{
-					// eDebug("[eEPGCache] Event %04X skip update: source=0x%X > type=0x%X.", event_id, source, ev_it->second->type);
+					eDebug("[eEPGCache] Event %04X skip update: source=0x%X > type=0x%X.", event_id, source, ev_it->second->type);
 					delete new_evt;
 					goto next;
 				}
@@ -583,7 +584,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 				time_t old_start = it->second->getStartTime();
 				time_t old_end = old_start + it->second->getDuration();
 
-				// eDebug("[eEPGCache] Checking against event %04X at %ld.", it->second->getEventID(), it->second->getStartTime());
+				eDebug("[eEPGCache] Checking against event %04X at %ld.", it->second->getEventID(), it->second->getStartTime());
 
 				if ((old_start < new_end) && (old_end > new_start))
 				{
@@ -609,7 +610,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 					break;
 			}
 
-			// eDebug("[eEPGCache] Inserting event %04X at %ld.", event_id, new_start);
+			eDebug("[eEPGCache] Inserting event %04X at %ld.", event_id, new_start);
 
 			eventmap[event_id] = new_evt;
 			timemap[new_start] = new_evt;
@@ -2030,6 +2031,14 @@ bool eEPGCache::getIsWhitelisted(const uniqueEPGKey epgKey)
 	return false;
 }
 
+bool eEPGCache::getIsBrownlisted(const uniqueEPGKey epgKey)
+{
+	if (std::find(eit_brownlist.begin(), eit_brownlist.end(), epgKey) != eit_brownlist.end()) {
+		return true;
+	}
+	return false;
+}
+
 void eEPGCache::reloadEITConfig(int listType)
 {
 	if (listType == ALL || listType == WHITELIST) {
@@ -2067,7 +2076,24 @@ void eEPGCache::reloadEITConfig(int listType)
 		}
 		eitblacklist_file.close();
 	}
-	
+
+	if (listType == ALL || listType == BROWNLIST) {
+		eit_brownlist.clear();
+		std::ifstream eitbrownlist_file;
+		eitbrownlist_file.open("/etc/enigma2/brownlist.eit");
+		std::string line = "";
+		while(getline(eitbrownlist_file, line))
+		{
+			std::string srefStr = replace_all(line, "\n", "");
+			eServiceReferenceDVB sref = eServiceReferenceDVB(srefStr);
+			eDVBChannelID chid;
+			sref.getChannelID(chid);
+			uniqueEPGKey serviceKey(sref.getServiceID().get(), chid.original_network_id.get(), chid.transport_stream_id.get());
+			eit_brownlist.push_back(serviceKey);
+			line = "";
+		}
+		eitbrownlist_file.close();
+	}	
 }
 
 static const char* getStringFromPython(ePyObject obj)

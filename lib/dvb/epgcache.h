@@ -151,6 +151,7 @@ private:
 	PSignal0<void> epgCacheStarted;
 	std::vector<uniqueEPGKey> eit_blacklist;
 	std::vector<uniqueEPGKey> eit_whitelist;
+	std::vector<uniqueEPGKey> eit_brownlist;	
 
 #ifdef ENABLE_PRIVATE_EPG
 	contentMaps content_time_tables;
@@ -236,7 +237,7 @@ public:
 	SWIG_VOID(RESULT) lookupEventTime(const eServiceReference &service, time_t, ePtr<eServiceEvent> &SWIG_OUTPUT, int direction=0);
 	SWIG_VOID(RESULT) getNextTimeEntry(ePtr<eServiceEvent> &SWIG_OUTPUT);
 
-	enum {ALL=0, WHITELIST=1, BLACKLIST=2};
+	enum {ALL=0, WHITELIST=1, BLACKLIST=2, BROWNLIST=3};
 	enum {PRIVATE=0, NOWNEXT=1, SCHEDULE=2, SCHEDULE_OTHER=4
 #ifdef ENABLE_MHW_EPG
 	,MHW=8
@@ -268,7 +269,8 @@ public:
 	unsigned int getEpgSources();
 	bool getIsBlacklisted(const uniqueEPGKey epgKey);
 	bool getIsWhitelisted(const uniqueEPGKey epgKey);
-
+	bool getIsBrownlisted(const uniqueEPGKey epgKey);
+	
 	void submitEventData(const std::vector<eServiceReferenceDVB>& serviceRefs, long start, long duration, const char* title, const char* short_summary, const char* long_description, std::vector<uint8_t> event_types, std::vector<eit_parental_rating> parental_ratings, uint16_t eventId=0);
 
 	void importEvents(SWIG_PYOBJECT(ePyObject) serviceReferences, SWIG_PYOBJECT(ePyObject) list);
