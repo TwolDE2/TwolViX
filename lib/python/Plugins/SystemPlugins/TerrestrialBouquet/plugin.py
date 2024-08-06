@@ -17,6 +17,7 @@ config.plugins.terrestrialbouquet.providers = ConfigSelection(default=choices[0]
 config.plugins.terrestrialbouquet.makeradiobouquet = ConfigYesNo()
 config.plugins.terrestrialbouquet.skipduplicates = ConfigYesNo(True)
 
+
 class TerrestrialBouquet:
 	def __init__(self):
 		self.config = config.plugins.terrestrialbouquet
@@ -186,11 +187,14 @@ def PluginCallback(close, answer=None):
 	if close and answer:
 		close(True)
 
+
 def PluginMain(session, close=None, **kwargs):
 	session.openWithCallback(boundFunction(PluginCallback, close), PluginSetup)
 
+
 def PluginStart(menuid, **kwargs):
 	return menuid == "scan" and [(_("Terrestrial Bouquet"), PluginMain, "PluginMain", 1)] or []
+
 
 def Plugins(**kwargs):
 	from Components.NimManager import nimmanager
