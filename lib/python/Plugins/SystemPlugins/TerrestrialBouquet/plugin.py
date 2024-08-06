@@ -63,14 +63,14 @@ class TerrestrialBouquet:
 		msg = _("Try running a manual scan of terrestrial frequencies. If this fails maybe there is no lcn data available in your area.") 
 		self.services.clear()
 		if not (LCNs := self.readLcnDb()):
-			return self.lcndb + _("empty or missing.") + " " +  msg
+			return self.lcndb + _("empty or missing.") + " " + msg
 		for mode in (MODE_TV, MODE_RADIO):
 			terrestrials = self.getTerrestrials(mode)
 			for k in terrestrials:
 				if k in LCNs:
 					terrestrials[k] |= LCNs[k]
 			self.services |= terrestrials
-		self.services = {k:v for k,v in sorted(list(self.services.items()),key=lambda x: ("lcn" in x[1] and x[1]["lcn"] or 65535, "signal" in x[1] and abs(x[1]["signal"]-65536) or 65535))}
+		self.services = {k:v for k,v in sorted(list(self.services.items()),key=lambda x: ("lcn" in x[1] and x[1]["lcn"] or 65535, "signal" in x[1] and abs(x[1]["signal"] - 65536) or 65535))}
 		LCNsUsed = []  # duplicates (we are already ordered by highest signal strength)
 		for k in list(self.services.keys()):  # use list to avoid RuntimeError: dictionary changed size during iteration
 			if not "lcn" in self.services[k] or self.services[k]["lcn"] in LCNsUsed:
@@ -81,7 +81,7 @@ class TerrestrialBouquet:
 			else:
 				LCNsUsed.append(self.services[k]["lcn"])
 		if not self.services:
-			return _("No corresponding terrestrial services found.") + " " +  msg
+			return _("No corresponding terrestrial services found.") + " " + msg
 		self.createBouquet()
 
 	def readBouquetIndex(self, mode):
