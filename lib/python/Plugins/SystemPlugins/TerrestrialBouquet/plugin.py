@@ -43,7 +43,7 @@ class TerrestrialBouquet:
 
 	def getAllowedTypes(self, mode):
 		return self.VIDEO_ALLOWED_TYPES if mode == MODE_TV else self.AUDIO_ALLOWED_TYPES  # tv (live and NVOD) and radio allowed service types
-	
+
 	def readLcnDb(self):
 		try:  # may not exist
 			f = open(self.lcndb)
@@ -61,7 +61,7 @@ class TerrestrialBouquet:
 	def rebuild(self):
 		if not self.config.enabled.value:
 			return _("Terrestrial Bouquet plugin is not enabled.")
-		msg = _("Try running a manual scan of terrestrial frequencies. If this fails maybe there is no lcn data available in your area.") 
+		msg = _("Try running a manual scan of terrestrial frequencies. If this fails maybe there is no lcn data available in your area.")
 		self.services.clear()
 		if not (LCNs := self.readLcnDb()):
 			return self.lcndb + _("empty or missing.") + " " + msg
@@ -131,7 +131,7 @@ class TerrestrialBouquet:
 
 	def bouquetServiceLine(self, service):
 		return "#SERVICE 1:0:%x:%x:%x:%x:%x:0:0:0:\n" % (service["type"], service["sid"], service["tsid"], service["onid"], service["namespace"])
-	
+
 	def bouquetMarker(self, text):
 		return "#SERVICE 1:64:0:0:0:0:0:0:0:0:\n#DESCRIPTION %s\n" % text
 
@@ -170,7 +170,7 @@ class PluginSetup(Setup, TerrestrialBouquet):
 
 	def updatebluetext(self):
 		self["key_blue"].text = _("Rebuild bouquet") if self.config.enabled.value else ""
-	
+
 	def startrebuild(self):
 		if self.config.enabled.value:
 			self.saveAll()
