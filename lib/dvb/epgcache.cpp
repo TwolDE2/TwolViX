@@ -515,7 +515,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 			goto next;
 		if (source == NOWNEXT && !getIsWhitelisted(service))
 			goto next;			
-		if (source ==FREESAT_SCHEDULE_OTHER && !getIsBrownlisted(service))
+		if (source ==FREESAT_SCHEDULE_OTHER && getIsBrownlisted(service))
 			eDebug("[eEPGCache:sectionRead]2 reject Brownlisted source=[%d] source=0x%X)", source, source);
 			goto next;
 		if ((start_time != 3599) &&  // NVOD Service
