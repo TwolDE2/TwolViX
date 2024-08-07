@@ -512,11 +512,12 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 		start_time = parseDVBtime((const uint8_t*)eit_event + 2, &event_hash);
 
 		if (source != EPG_IMPORT && getIsBlacklisted(service)) // Check is the service blacklisted/whitelisted for getting data from EIT or now/next
-					goto next;
+			goto next;
 		if (source == NOWNEXT && !getIsWhitelisted(service))
-					goto next;			
-		if (getIsBrownlisted(service)) 
-			eDebug("[eEPGCache:sectionRead]2 Brownlisted source=[%d] source=0x%X)", source, source);
+			goto next;			
+		if (source ==FREESAT_SCHEDULE_OTHER && !getIsBrownlisted(service))
+			eDebug("[eEPGCache:sectionRead]2 reject Brownlisted source=[%d] source=0x%X)", source, source);
+			goto next;
 		if ((start_time != 3599) &&  // NVOD Service
 			(now <= (start_time+duration)) &&  // skip old events
 			(start_time < (now+28*24*60*60)) &&  // no more than 4 weeks in future
