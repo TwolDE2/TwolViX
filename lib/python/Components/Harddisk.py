@@ -674,7 +674,7 @@ class HarddiskManager:
 			description = self.getUserfriendlyDeviceName(device, physicalDevice)
 			isCdrom = devMajor in opticalDisks or device.startswith("sr")
 			if isCdrom:
-				self.cd = devicePath
+				self.cd = ospath.join("/dev", device) if device.startswith("sr") else devicePath
 				self.partitions.append(Partition(mountpoint=self.getMountpoint(device), description=description, force_mounted=True, device=device))
 				# print(f"[Harddisk] DEBUG: Partition(mountpoint={self.getMountpoint(device)}, description={description}, force_mounted=True, device={device})")
 				# print(f"[Harddisk] Found optical disk '{device}' ({physicalDevice}).")
@@ -822,7 +822,7 @@ class HarddiskManager:
 			isCdrom = devMajor in opticalDisks or device.startswith("sr")
 			if isCdrom:
 				print(f"[Harddisk] Found optical disk '{device}' ({physicalDevice}).")
-				self.cd = devicePath
+				self.cd = ospath.join("/dev", device) if device.startswith("sr") else devicePath
 				self.partitions.append(Partition(mountpoint=self.getMountpoint(hddDev), description=description, force_mounted=True, device=hddDev))
 			else:  # Lets get to work on real HDD.
 				data = readFile(ospath.join(devicePath, "removable"))
