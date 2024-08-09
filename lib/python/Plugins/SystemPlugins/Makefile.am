@@ -4,7 +4,7 @@ SUBDIRS = PositionerSetup Satfinder \
 	VideoTune Hotplug OpentvZapper \
 	DefaultServicesScanner CommonInterfaceAssignment \
 	ForceFbcLNBpower \
-	VideoClippingSetup TerrestrialBouquet \
+	VideoClippingSetup \
 	VideoEnhancement WirelessLan ViX \
 	FastScan SatelliteEquipmentControl DiseqcTester
 
