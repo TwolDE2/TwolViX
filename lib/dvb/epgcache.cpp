@@ -460,7 +460,7 @@ void eEPGCache::timeUpdated()
 void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *channel)
 {
 	const eit_t *eit = (const eit_t*) data;
-	// eDebug("[eEPGCache:sectionRead]1 source is [%d])", source);
+	eDebug("[eEPGCache:sectionRead]1 source=[%d] source=0x%X)", source, source);
 	int len = eit->getSectionLength() - 1;
 	int ptr = EIT_SIZE;
 	if ( ptr >= len )
