@@ -515,7 +515,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 		if (source == NOWNEXT && !getIsWhitelisted(service))  // if Whitelist and NOWNEXT update 
 			goto next;			
 		if (source > NOWNEXT && getIsBrownlisted(service))  // if Brownlist and not EPG import or NowNext reject
-			goto next;						
+			goto next;
 		if ((start_time != 3599) &&  // NVOD Service
 			(now <= (start_time+duration)) &&  // skip old events
 			(start_time < (now+28*24*60*60)) &&  // no more than 4 weeks in future
