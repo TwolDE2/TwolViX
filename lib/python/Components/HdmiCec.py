@@ -399,7 +399,7 @@ class HdmiCec:
 			# if CECcmd != "<Polling Message>" or CECcmd != "<Reporting Device Vendor ID>":
 			if CECcmd != "<Polling Message>":
 				printX(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmd={cmd:02X}, ctrl0={ctrl0}, datalength={length}")
-				if config.hdmicec.debug.value in ["2", "3", "4"]:				
+				if config.hdmicec.debug.value in ["2", "3", "4"]:
 					self.debugRx(length, cmd, ctrl0)
 				if msgaddress > 15:  # workaround for wrong address from driver (e.g. hd51, message comes from tv -> address is only sometimes 0, dm920, same tv -> address is always 0)
 					printX("[HdmiCEC][messageReceived1a]: msgaddress > 15 reset to 0")
