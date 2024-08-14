@@ -67,7 +67,7 @@ eDVBDemux::eDVBDemux(int adapter, int demux):
 	m_dvr_source_offset(DMX_SOURCE_DVR0)
 {
 	if (CFile::parseInt(&m_dvr_source_offset, "/proc/stb/frontend/dvr_source_offset") == 0)
-		eDebug("[eDVBDemux] using %d for PVR DMX_SET_SOURCE", m_dvr_source_offset);
+		eTrace("[eDVBDemux] using %d for PVR DMX_SET_SOURCE", m_dvr_source_offset);
 
 }
 
@@ -82,13 +82,13 @@ int eDVBDemux::openDemux(void)
 	eTrace("[eDVBDemux] open demux %s", filename);
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-	/* eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd); */
+	/* eTrace("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
 		fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-		/* eDebug("[eDVBDemux] opening null fd returned: %d", fd0lock); */
+		/* eTrace("[eDVBDemux] opening null fd returned: %d", fd0lock); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -107,13 +107,13 @@ int eDVBDemux::openDVR(int flags)
 	eTrace("[eDVBDemux] open dvr %s", filename);
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-	/* eDebug("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd); */
+	/* eTrace("[eDVBDemux] Twol00 Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
 		fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-		/* eDebug("[eDVBDemux] opening null fd returned: %d", fd0lock); */
+		/* eTrace("[eDVBDemux] opening null fd returned: %d", fd0lock); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -132,7 +132,7 @@ RESULT eDVBDemux::setSourceFrontend(int fenum)
 	int n = DMX_SOURCE_FRONT0 + fenum;
 	int res = ::ioctl(fd, DMX_SET_SOURCE, &n);
 	if (res)
-		eDebug("[eDVBDemux] DMX_SET_SOURCE Frontend%d failed: %m", fenum);
+		eTrace("[eDVBDemux] DMX_SET_SOURCE Frontend%d failed: %m", fenum);
 	else
 		source = fenum;
 	::close(fd);
@@ -146,7 +146,7 @@ RESULT eDVBDemux::setSourcePVR(int pvrnum)
 	int n = m_dvr_source_offset + pvrnum;
 	int res = ::ioctl(fd, DMX_SET_SOURCE, &n);
 	if (res)
-		eDebug("[eDVBDemux] DMX_SET_SOURCE dvr%d failed: %m", pvrnum);
+		eTrace("[eDVBDemux] DMX_SET_SOURCE dvr%d failed: %m", pvrnum);
 	source = -1;
 	m_dvr_id = pvrnum;
 	::close(fd);
@@ -198,14 +198,14 @@ RESULT eDVBDemux::getSTC(pts_t &pts, int num)
 
 	if (ioctl(fd, DMX_GET_STC, &stc) < 0)
 	{
-		eDebug("[eDVBDemux] DMX_GET_STC failed: %m");
+		eTrace("[eDVBDemux] DMX_GET_STC failed: %m");
 		::close(fd);
 		return -1;
 	}
 
 	pts = stc.stc;
 
-	eDebug("[eDVBDemux] DMX_GET_STC - %lld", pts);
+	eTrace("[eDVBDemux] DMX_GET_STC - %lld", pts);
 
 	::close(fd);
 	return 0;
@@ -241,14 +241,14 @@ void eDVBSectionReader::data(int)
 		unsigned int c;
 		if ((c = crc32((unsigned)-1, data, r)))
 		{
-			//eDebug("[eDVBDemux][eDVBSectionReader] section crc32 failed! is %x\n", c);
+			//eTrace("[eDVBDemux][eDVBSectionReader] section crc32 failed! is %x\n", c);
 			return;
 		}
 	}
 	if (active)
 		read(data);
 	else
-		eDebug("[eDVBDemux][eDVBSectionReader] data.. but not active");
+		eTrace("[eDVBDemux][eDVBSectionReader] data.. but not active");
 }
 
 eDVBSectionReader::eDVBSectionReader(eDVBDemux *demux, eMainloop *context, RESULT &res): demux(demux), active(0)
@@ -279,7 +279,7 @@ RESULT eDVBSectionReader::setBufferSize(int size)
 {
 	int res=::ioctl(fd, DMX_SET_BUFFER_SIZE, size);
 	if (res < 0)
-		eDebug("[eDVBDemux][eDVBSectionReader] DMX_SET_BUFFER_SIZE %d failed: %m", size);
+		eTrace("[eDVBDemux][eDVBSectionReader] DMX_SET_BUFFER_SIZE %d failed: %m", size);
 	return res;
 }
 
@@ -289,7 +289,7 @@ RESULT eDVBSectionReader::start(const eDVBSectionFilterMask &mask)
 	if (fd < 0)
 		return -ENODEV;
 
-	eDebug("[eDVBDemux][eDVBSectionReader] DMX_SET_FILTER pid=%d", mask.pid);
+	eTrace("[eDVBDemux][eDVBSectionReader] DMX_SET_FILTER pid=%d", mask.pid);
 	notifier->start();
 
 	dmx_sct_filter_params sct = {};
@@ -364,7 +364,7 @@ void eDVBPESReader::data(int)
 
 eDVBPESReader::eDVBPESReader(eDVBDemux *demux, eMainloop *context, RESULT &res): m_demux(demux), m_active(0)
 {
-	eDebug("[eDVBDemux][eDVBPESReader] Created. Opening demux");
+	eTrace("[eDVBDemux][eDVBPESReader] Created. Opening demux");
 	m_fd = m_demux->openDemux();
 	if (m_fd >= 0)
 	{
@@ -384,7 +384,7 @@ RESULT eDVBPESReader::setBufferSize(int size)
 {
 	int res = ::ioctl(m_fd, DMX_SET_BUFFER_SIZE, size);
 	if (res < 0)
-		eDebug("[eDVBDemux][eDVBPESReader] DMX_SET_BUFFER_SIZE %d failed: %m", size);
+		eTrace("[eDVBDemux][eDVBPESReader] DMX_SET_BUFFER_SIZE %d failed: %m", size);
 	return res;
 }
 
@@ -402,7 +402,7 @@ RESULT eDVBPESReader::start(int pid)
 	if (m_fd < 0)
 		return -ENODEV;
 
-	eDebug("[eDVBDemux][eDVBPESReader] DMX_SET_PES_FILTER pid=%04x", pid);
+	eTrace("[eDVBDemux][eDVBPESReader] DMX_SET_PES_FILTER pid=%04x", pid);
 	m_notifier->start();
 
 	dmx_pes_filter_params flt = {};
@@ -512,7 +512,7 @@ int eDVBRecordFileThread::AsyncIO::wait()
 	{
 		while (aio_error(&aio) == EINPROGRESS)
 		{
-			eDebug("[eDVBDemux][eDVBRecordFileThread] Waiting for I/O to complete");
+			eTrace("[eDVBDemux][eDVBRecordFileThread] Waiting for I/O to complete");
 			struct aiocb* paio = &aio;
 			int r = aio_suspend(&paio, 1, NULL);
 			if (r < 0)
@@ -537,7 +537,7 @@ int eDVBRecordFileThread::AsyncIO::cancel(int fd)
 	int r = poll();
 	if (r <= 0)
 		return r; // Either no need to cancel, or error return
-	eDebug("[eDVBDemux][eDVBRecordFileThread] cancelling");
+	eTrace("[eDVBDemux][eDVBRecordFileThread] cancelling");
 	return aio_cancel(fd, &aio);
 }
 
@@ -583,7 +583,7 @@ int eDVBRecordFileThread::asyncWrite(int len)
 #ifdef SHOW_WRITE_TIME
 	gettimeofday(&now, NULL);
 	diff = (1000000 * (now.tv_sec - starttime.tv_sec)) + now.tv_usec - starttime.tv_usec;
-	eDebug("[eDVBDemux][eFilePushThreadRecorder] m_ts_parser.parseData: %9u us", (unsigned int)diff);
+	eTrace("[eDVBDemux][eFilePushThreadRecorder] m_ts_parser.parseData: %9u us", (unsigned int)diff);
 	gettimeofday(&starttime, NULL);
 #endif
 
@@ -598,7 +598,7 @@ int eDVBRecordFileThread::asyncWrite(int len)
 #ifdef SHOW_WRITE_TIME
 	gettimeofday(&now, NULL);
 	diff = (1000000 * (now.tv_sec - starttime.tv_sec)) + now.tv_usec - starttime.tv_usec;
-	eDebug("[eDVBDemux][eFilePushThreadRecorder] aio_write: %9u us", (unsigned int)diff);
+	eTrace("[eDVBDemux][eFilePushThreadRecorder] aio_write: %9u us", (unsigned int)diff);
 #endif
 	// Count how many buffers are still "busy". Move backwards from current,
 	// because they can reasonably be expected to finish in that order.
@@ -677,21 +677,21 @@ int eDVBRecordFileThread::writeData(int len)
 
 void eDVBRecordFileThread::flush()
 {
-	eDebug("[[eDVBDemux]eDVBRecordFileThread] waiting for aio to complete");
+	eTrace("[[eDVBDemux]eDVBRecordFileThread] waiting for aio to complete");
 	for (AsyncIOvector::iterator it = m_aio.begin(); it != m_aio.end(); ++it)
 	{
 		it->wait();
 	}
 	int bufferCount = m_aio.size();
-	eDebug("[eDVBDemux][eDVBRecordFileThread] buffer usage histogram (%d buffers of %jd kB)", bufferCount, (intmax_t)m_buffersize>>10);
+	eTrace("[eDVBDemux][eDVBRecordFileThread] buffer usage histogram (%d buffers of %jd kB)", bufferCount, (intmax_t)m_buffersize>>10);
 	for (int i=0; i <= bufferCount; ++i)
 	{
 		if (m_buffer_use_histogram[i] != 0)
-			eDebug("[eDVBDemux][eDVBRecordFileThread]  %2d: %6d", i, m_buffer_use_histogram[i]);
+			eTrace("[eDVBDemux][eDVBRecordFileThread]  %2d: %6d", i, m_buffer_use_histogram[i]);
 	}
 	if (m_overflow_count)
 	{
-		eDebug("[eDVBDemux][eDVBRecordFileThread] Demux buffer overflows: %d", m_overflow_count);
+		eTrace("[eDVBDemux][eDVBRecordFileThread] Demux buffer overflows: %d", m_overflow_count);
 	}
 	if (m_fd_dest >= 0)
 	{
@@ -702,7 +702,7 @@ void eDVBRecordFileThread::flush()
 eDVBRecordStreamThread::eDVBRecordStreamThread(int packetsize, int buffersize, bool sync_mode) :
 	eDVBRecordFileThread(packetsize, recordingBufferCount, buffersize, sync_mode)
 {
-	eDebug("[eDVBDemux][eDVBRecordStreamThread] allocated %zu buffers of %zu kB", m_aio.size(), m_buffersize>>10);
+	eTrace("[eDVBDemux][eDVBRecordStreamThread] allocated %zu buffers of %zu kB", m_aio.size(), m_buffersize>>10);
 }
 
 int eDVBRecordStreamThread::writeData(int len)
@@ -747,7 +747,7 @@ int eDVBRecordStreamThread::writeData(int len)
 			case AIO_ALLDONE:
 				break;
 			case AIO_NOTCANCELED:
-				eDebug("[eDVBDemux][eDVBRecordStreamThread] failed to cancel, killing all waiting IO");
+				eTrace("[eDVBDemux][eDVBRecordStreamThread] failed to cancel, killing all waiting IO");
 				aio_cancel(m_fd_dest, NULL);
 				// Poll all open requests, because they are all in error state now.
 				for (AsyncIOvector::iterator it = m_aio.begin(); it != m_aio.end(); ++it)
@@ -756,14 +756,14 @@ int eDVBRecordStreamThread::writeData(int len)
 				}
 				break;
 			case -1:
-				eDebug("[eDVBDemux][eDVBRecordStreamThread] failed: %m");
+				eTrace("[eDVBDemux][eDVBRecordStreamThread] failed: %m");
 				return r;
 		}
 		// we want to have a consistent state, so wait for completion, just to be sure
 		r = m_current_buffer->wait();
 		if (r < 0)
 		{
-			eDebug("[eDVBRecordStreamThread] wait failed: %m");
+			eTrace("[eDVBRecordStreamThread] wait failed: %m");
 			return -1;
 		}
 	}
@@ -773,23 +773,23 @@ int eDVBRecordStreamThread::writeData(int len)
 
 void eDVBRecordStreamThread::flush()
 {
-	eDebug("[eDVBDemux][eDVBRecordStreamThread] cancelling aio");
+	eTrace("[eDVBDemux][eDVBRecordStreamThread] cancelling aio");
 	switch (aio_cancel(m_fd_dest, NULL))
 	{
 		case AIO_CANCELED:
-			eDebug("[eDVBDemux][eDVBRecordStreamThread] ok");
+			eTrace("[eDVBDemux][eDVBRecordStreamThread] ok");
 			break;
 		case AIO_NOTCANCELED:
-			eDebug("[eDVBDemux][eDVBRecordStreamThread] not all cancelled");
+			eTrace("[eDVBDemux][eDVBRecordStreamThread] not all cancelled");
 			break;
 		case AIO_ALLDONE:
-			eDebug("[eDVBDemux][eDVBRecordStreamThread] all done");
+			eTrace("[eDVBDemux][eDVBRecordStreamThread] all done");
 			break;
 		case -1:
-			eDebug("[eDVBDemux][eDVBRecordStreamThread] failed: %m");
+			eTrace("[eDVBDemux][eDVBRecordStreamThread] failed: %m");
 			break;
 		default:
-			eDebug("[eDVBDemux][eDVBRecordStreamThread] unexpected return code");
+			eTrace("[eDVBDemux][eDVBRecordStreamThread] unexpected return code");
 			break;
 	}
 	// Call inherited flush to clean up the rest.
@@ -831,13 +831,13 @@ RESULT eDVBTSRecorder::start()
 	snprintf(filename, 128, "/dev/dvb/adapter%d/demux%d", m_demux->adapter, m_demux->demux);
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-	/* eDebug("[eDVBTSRecorder] Opened tmp_fd: %d", tmp_fd); */
+	/* eTrace("[eDVBTSRecorder] Opened tmp_fd: %d", tmp_fd); */
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;	
 		fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-		/* eDebug("[eDVBTSRecorder] opening null fd returned: %d", fd0lock); */
+		/* eTrace("[eDVBTSRecorder] opening null fd returned: %d", fd0lock); */
 	}
 	if (tmp_fd != -1)
 	{
@@ -852,7 +852,7 @@ RESULT eDVBTSRecorder::start()
 
 	if (m_source_fd < 0)
 	{
-		eDebug("[eDVBDemux][eDVBTSRecorder] FAILED to open demux %s: %m", filename);
+		eTrace("[eDVBDemux][eDVBTSRecorder] FAILED to open demux %s: %m", filename);
 		return -3;
 	}
 
@@ -870,7 +870,7 @@ RESULT eDVBTSRecorder::start()
 	int res = ::ioctl(m_source_fd, DMX_SET_PES_FILTER, &flt);
 	if (res)
 	{
-		eDebug("[eDVBDemux][eDVBTSRecorder] DMX_SET_PES_FILTER pid=%04x: %m", flt.pid);
+		eTrace("[eDVBDemux][eDVBTSRecorder] DMX_SET_PES_FILTER pid=%04x: %m", flt.pid);
 		::close(m_source_fd);
 		m_source_fd = -1;
 		return -3;
@@ -896,7 +896,7 @@ RESULT eDVBTSRecorder::setBufferSize(int size)
 {
 	int res = ::ioctl(m_source_fd, DMX_SET_BUFFER_SIZE, size);
 	if (res < 0)
-		eDebug("[eDVBDemux][eDVBTSRecorder] DMX_SET_BUFFER_SIZE %d failed: %m", size);
+		eTrace("[eDVBDemux][eDVBTSRecorder] DMX_SET_BUFFER_SIZE %d failed: %m", size);
 	return res;
 }
 
@@ -1028,7 +1028,7 @@ RESULT eDVBTSRecorder::startPID(int pid)
 		if (::ioctl(m_source_fd, DMX_ADD_PID, &p) < 0) {
 			eWarning("[eDVBDemux][eDVBTSRecorder] DMX_ADD_PID pid=%04x: %m", pid);
 			if (errno == EAGAIN || errno == EINTR) {
-				eDebug("[eDVBTSRecorder] retry!");
+				eTrace("[eDVBTSRecorder] retry!");
 				continue;
 			}
 		} else
@@ -1047,7 +1047,7 @@ void eDVBTSRecorder::stopPID(int pid)
 			if (::ioctl(m_source_fd, DMX_REMOVE_PID, &p) < 0) {
 				eWarning("[eDVBDemux][eDVBTSRecorder] DMX_REMOVE_PID pid=%04x: %m", pid);
 				if (errno == EAGAIN || errno == EINTR) {
-					eDebug("[eDVBTSRecorder] retry!");
+					eTrace("[eDVBTSRecorder] retry!");
 					continue;
 				}
 			}
