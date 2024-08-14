@@ -333,9 +333,11 @@ def setFixedPhysicalAddress(address):
 	hexstring = address[0] + address[2] + address[4] + address[6]
 	eHdmiCEC.getInstance().setFixedPhysicalAddress(int(float.fromhex(hexstring)))
 
+
 def printX(msg):
 	if config.hdmicec.debug.value == "1":
 		print(msg)
+
 
 class HdmiCec:
 	instance = None
