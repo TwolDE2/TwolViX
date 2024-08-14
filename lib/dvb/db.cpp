@@ -1541,7 +1541,7 @@ eDVBDB::eDVBDB()
 		std::string s_ref = buffer;
 		makeUpper(s_ref);
 
-		eDebug("[eDVBDB] Readed from config_av ref: %s", s_ref.c_str());
+		eDebug("[eDVBDB] Read from config_av ref: %s", s_ref.c_str());
 		
 		eIPTVDBItem iptvDBItem(s_ref, ampeg_pid, aac3_pid, aac4_pid, addp_pid, aaach_pid, aaac_pid, adra_pid, subtitle_pid, video_pid);
 		iptv_services.push_back(iptvDBItem);
