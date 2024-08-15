@@ -98,7 +98,7 @@ class AVSwitch:
 	def readAvailableModes(self):
 		SystemInfo["AvailableVideomodes"] = []
 		SystemInfo["AvailableVideomodes"] = eAVSwitch.getInstance().readAvailableModes().split(" ")
-		print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
+		# print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
 		if isPluginInstalled("AutoResolution"):
 			return SystemInfo["AvailableVideomodes"]
 
@@ -107,7 +107,7 @@ class AVSwitch:
 		# print("[AVSwitch] reading preferred modes", modes)
 		if not self.modes_preferred:
 			self.modes_preferred = SystemInfo["AvailableVideomodes"]
-			print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred}")
+			# print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred}")
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI")  # Must be HDMI.
@@ -210,7 +210,7 @@ class AVSwitch:
 		config.av.videorate = ConfigSubDict()
 		# create list of output ports
 		portlist = [port for port in self.modes]
-		print(f"[AVSwitch][createConfig] portlist is {portlist}")
+		# print(f"[AVSwitch][createConfig] portlist is {portlist}")
 		for port in portlist:
 			# print(f"[AVSwitch] port is {port}")
 			descr = port
