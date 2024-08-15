@@ -153,7 +153,7 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 	filename = resolveFilename(scope, filename)
 	if isfile(filename):
 		currentLoadingSkin = filename
-		print("[Skin] Loading skin file '%s'." % filename)
+		# print("[Skin] Loading skin file '%s'." % filename)
 		domSkin = fileReadXML(filename)
 		if domSkin:
 			# scpe = {SCOPE_CONFIG: "SCOPE_CONFIG", SCOPE_CURRENT_LCDSKIN: "SCOPE_CURRENT_LCDSKIN", SCOPE_CURRENT_SKIN: "SCOPE_CURRENT_SKIN", SCOPE_FONTS: "SCOPE_FONTS", SCOPE_SKIN: "SCOPE_SKIN", SCOPE_SKIN_IMAGE: "SCOPE_SKIN_IMAGE"}.get(scope, scope)  # noqa: F841
