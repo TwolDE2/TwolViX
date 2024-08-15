@@ -137,6 +137,7 @@ eHdmiCEC::eHdmiCEC()
 #endif
 
 		hdmiFd = ::open(HDMIDEV, O_RDWR | O_NONBLOCK | O_CLOEXEC);
+		eDebug("[eHdmiCEC] ****** open HDMIDEV: %d hdmiFd: %d", HDMIDEV, hdmiFd);		
 		if (hdmiFd >= 0)
 		{
 
@@ -555,6 +556,7 @@ void eHdmiCEC::sendMessage(struct cec_message &message)
 			::ioctl(hdmiFd, 3, &message);
 #else
 			ssize_t ret = ::write(hdmiFd, &message, 2 + message.length);
+			eDebug("[eHdmiCEC] ****** sendMessage ret: %d", ret);			
 			if (ret < 0) eDebug("[eHdmiCEC] write failed: %m");
 #endif
 		}
