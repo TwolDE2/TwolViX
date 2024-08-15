@@ -609,15 +609,15 @@ int eDVBFrontend::openFrontend()
 				::close(tmp_fd);
 				tmp_fd = -1;
 				fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-				/* eTraceNoSimulate("[eDVBFrontend] 0 opening null fd returned: %d", fd0lock); */
+				/* eDebugNoSimulate("[eDVBFrontend] 0 opening null fd returned: %d", fd0lock); */
 			}
 			if (tmp_fd != -1)
 			{
 				::close(tmp_fd);
 			}
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
-			eTraceNoSimulate("[eDVBFrontend] opened frontend m_filename: %s", m_filename.c_str());
-			eTraceNoSimulate("[eDVBFrontend] opened frontend m_fd: %d", m_fd);
+			eDebugNoSimulate("[eDVBFrontend] opened frontend m_filename: %s", m_filename.c_str());
+			eDebugNoSimulate("[eDVBFrontend] opened frontend m_fd: %d", m_fd);
 			if (m_fd < 0)
 			{
 				eWarning("[eDVBFrontend] opening %s failed: %m", m_filename.c_str());
