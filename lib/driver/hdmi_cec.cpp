@@ -11,6 +11,7 @@
 #include <lib/driver/input_fake.h>
 #include <lib/driver/hdmi_cec.h>
 #include <lib/driver/avswitch.h>
+#define CEC_LOG_ADDR_TYPE_TUNER		2
 
 eHdmiCEC *eHdmiCEC::instance = NULL;
 
