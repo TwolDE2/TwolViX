@@ -66,24 +66,20 @@ eHdmiCEC::eHdmiCEC()
 	hdmiFd = ::open(HDMIDEV, O_RDWR | O_NONBLOCK | O_CLOEXEC);
 	if (hdmiFd >= 0)
 	{
-
 #ifdef DREAMBOX
 		unsigned int val = 0;
 		::ioctl(hdmiFd, 4, &val);
 #else
 		::ioctl(hdmiFd, 0); /* flush old messages */
 #endif
-	}
-	if (hdmiFd >= 0)
-	{
 		messageNotifier = eSocketNotifier::create(eApp, hdmiFd, eSocketNotifier::Read | eSocketNotifier::Priority);
 		CONNECT(messageNotifier->activated, eHdmiCEC::hdmiEvent);
+		getAddressInfo();
 	}
 	else
 	{
 		eDebug("[eHdmiCEC] cannot open %s: %m", HDMIDEV);
 	}
-	getAddressInfo();
 }
 
 eHdmiCEC::~eHdmiCEC()
