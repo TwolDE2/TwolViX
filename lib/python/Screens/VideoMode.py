@@ -64,6 +64,7 @@ class VideoSetup(Setup):
 			self.list.append(getConfigListEntry(_("HDR10 Support"), config.av.hdr10_support, _("Enable or disable to force HDR10 Modes for UHD")))
 			self.list.append(getConfigListEntry(_("Allow 12bit"), config.av.allow_12bit, _("Enable or disable the 12 Bit Color Mode")))
 			self.list.append(getConfigListEntry(_("Allow 10bit"), config.av.allow_10bit, _("Enable or disable the 10 Bit Color Mode")))
+<<<<<<< HEAD
 		if SystemInfo["CanDownmixAC3"]:
 			self.list.append(getConfigListEntry(_("AC3 downmix"), config.av.downmix_ac3, _("Choose whether multi channel ac3 sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixDTS"]:
@@ -94,6 +95,7 @@ class VideoSetup(Setup):
 			self.list.append(getConfigListEntry(_("3D Surround"), config.av.surround_3d, _("This option allows you to enable 3D Surround Sound for an output.")))
 		if SystemInfo["Can3DSpeaker"] and config.av.surround_3d.value != "none":
 			self.list.append(getConfigListEntry(_("3D Surround Speaker Position"), config.av.surround_3d_speaker, _("This option allows you to change the virtual loudspeaker position.")))
+		self.list.append((_("Audio volume step size"), config.av.volume_stepsize, _("Configure the general audio volume step size (limit 1-10).")))			
 		if SystemInfo["CanAutoVolume"]:
 			self.list.append(getConfigListEntry(_("Auto Volume Level"), config.av.autovolume, _("This option configures output for Auto Volume Level.")))
 		if SystemInfo["Canedidchecking"]:
