@@ -64,6 +64,7 @@ eHdmiCEC::eHdmiCEC()
 #endif
 
 	hdmiFd = ::open(HDMIDEV, O_RDWR | O_NONBLOCK | O_CLOEXEC);
+	eDebug("[eHdmiCEC] ****** open HDMIDEV: %s hdmiFd: %d", HDMIDEV, hdmiFd);		
 	if (hdmiFd >= 0)
 	{
 #ifdef DREAMBOX
