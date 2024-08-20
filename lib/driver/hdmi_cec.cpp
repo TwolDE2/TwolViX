@@ -64,7 +64,7 @@ eHdmiCEC::eHdmiCEC()
 #endif
 
 	hdmiFd = ::open(HDMIDEV, O_RDWR | O_NONBLOCK | O_CLOEXEC);
-	eDebug("[eHdmiCEC] ****** open HDMIDEV: %s hdmiFd: %d", HDMIDEV, hdmiFd);		
+	eTrace("[eHdmiCEC] ****** open HDMIDEV: %s hdmiFd: %d", HDMIDEV, hdmiFd);		
 	if (hdmiFd >= 0)
 	{
 #ifdef DREAMBOX
@@ -79,7 +79,7 @@ eHdmiCEC::eHdmiCEC()
 	}
 	else
 	{
-		eDebug("[eHdmiCEC] cannot open %s: %m", HDMIDEV);
+		eLog(1, "[eHdmiCEC] cannot open %s: %m", HDMIDEV); /* Error - should not happen */
 	}
 }
 
@@ -146,7 +146,7 @@ void eHdmiCEC::getAddressInfo()
 			{
 				if (memcmp(physicalAddress, addressinfo.physical, sizeof(physicalAddress)))
 				{
-					eDebug("[eHdmiCEC] detected physical address change: %02X%02X --> %02X%02X", physicalAddress[0], physicalAddress[1], addressinfo.physical[0], addressinfo.physical[1]);
+					eTrace("[eHdmiCEC] detected physical address change: %02X%02X --> %02X%02X", physicalAddress[0], physicalAddress[1], addressinfo.physical[0], addressinfo.physical[1]);
 					memcpy(physicalAddress, addressinfo.physical, sizeof(physicalAddress));
 					reportPhysicalAddress();
 					/* emit */ addressChanged((physicalAddress[0] << 8) | physicalAddress[1]);
@@ -230,13 +230,13 @@ void eHdmiCEC::hdmiEvent(int what)
 			bool keypressed = false;
 			static unsigned char pressedkey = 0;
 
-			eDebugNoNewLineStart("[eHdmiCEC] received message");
-			eDebugNoNewLine(" %02X", rxmessage.address);
+			eTraceNoNewLineStart("[eHdmiCEC] received message");
+			eTraceNoNewLine(" %02X", rxmessage.address);
 			for (int i = 0; i < rxmessage.length; i++)
 			{
-				eDebugNoNewLine(" %02X", rxmessage.data[i]);
+				eTraceNoNewLine(" %02X", rxmessage.data[i]);
 			}
-			eDebugNoNewLine("\n");
+			eTraceNoNewLine("\n");
 			bool hdmicec_report_active_menu = eConfigManager::getConfigBoolValue("config.hdmicec.report_active_menu", false);
 			if (hdmicec_report_active_menu)
 			{
@@ -376,7 +376,7 @@ long eHdmiCEC::translateKey(unsigned char code)
 			break;
 		default:
 			key = 0x8b;
-			eDebug("eHdmiCEC: unknown code 0x%02X", (unsigned int)(code & 0xFF));
+			eTrace("eHdmiCEC: unknown code 0x%02X", (unsigned int)(code & 0xFF));
 			break;
 	}
 	return key;
@@ -386,13 +386,13 @@ void eHdmiCEC::sendMessage(struct cec_message &message)
 {
 	if (hdmiFd >= 0)
 	{
-		eDebugNoNewLineStart("[eHdmiCEC] send message");
-		eDebugNoNewLine(" %02X", message.address);
+		eTraceNoNewLineStart("[eHdmiCEC] send message");
+		eTraceNoNewLine(" %02X", message.address);
 		for (int i = 0; i < message.length; i++)
 		{
-			eDebugNoNewLine(" %02X", message.data[i]);
+			eTraceNoNewLine(" %02X", message.data[i]);
 		}
-		eDebugNoNewLine("\n");
+		eTraceNoNewLine("\n");
 #ifdef DREAMBOX
 		message.flag = 1;
 		::ioctl(hdmiFd, 3, &message);
