@@ -52,7 +52,7 @@ void eServiceReference::eServiceReferenceBase(const std::string &string)
 
 	if (isalpha(*c))
 	{
-		eDebug("[eServiceReference] May be unencoded URL: %s", c);
+		eTrace("[eServiceReference] May be unencoded URL: %s", c);
 		const char *colon = strchr(c, ':');
 		if ((colon) && !strncmp(colon, "://", 3))
 		{
