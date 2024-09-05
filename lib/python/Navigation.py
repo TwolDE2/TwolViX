@@ -126,7 +126,7 @@ class Navigation:
 			self.currentlyPlayingServiceReference = ref
 			self.currentlyPlayingServiceOrGroup = ref
 			self.originalPlayingServiceReference = ref
-			
+
 			if InfoBarInstance:
 				InfoBarInstance.session.screen["CurrentService"].newService(ref)
 				InfoBarInstance.session.screen["Event_Now"].updateSource(ref)
