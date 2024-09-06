@@ -16,7 +16,7 @@ providers = {
 			'flags': 0,
 			'transport_stream_id': 2004,
 			'modulation': eDVBFrontendParametersSatellite.Modulation_QPSK,
-			},  # noqa: E123
+						},  # noqa: E123
 
 		"service": {
 			'service_name': 'IEPG data 1',
@@ -29,6 +29,6 @@ providers = {
 			'service_provider': 'BSkyB',
 			'service_cachedpids': [(1, 0x0288), (3, 0x1ffe)],
 			'service_capids': None,
-			},  # noqa: E123
-		}
-	}
+						},  # noqa: E123
+					}  # noqa: E123
+			}  # noqa: E123
