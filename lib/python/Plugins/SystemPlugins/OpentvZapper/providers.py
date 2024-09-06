@@ -15,9 +15,7 @@ providers = {
 			'frequency': 11778000,
 			'flags': 0,
 			'transport_stream_id': 2004,
-			'modulation': eDVBFrontendParametersSatellite.Modulation_QPSK,
-						},  # noqa: E123
-
+			'modulation': eDVBFrontendParametersSatellite.Modulation_QPSK, },  # noqa: E126
 		"service": {
 			'service_name': 'IEPG data 1',
 			'namespace': 18481152,
@@ -28,7 +26,5 @@ providers = {
 			'transport_stream_id': 2004,
 			'service_provider': 'BSkyB',
 			'service_cachedpids': [(1, 0x0288), (3, 0x1ffe)],
-			'service_capids': None,
-						},  # noqa: E123
-					}  # noqa: E123
-			}  # noqa: E123
+			'service_capids': None, }, }  # noqa: E126
+			}  # noqa: E126
