@@ -14,7 +14,6 @@ config.misc.firstrun = ConfigBoolean(default=True)
 config.misc.languageselected = ConfigBoolean(default=True)
 config.misc.videowizardenabled = ConfigBoolean(default=True)
 config.misc.networkenabled = ConfigBoolean(default=False)
-config.misc.networkenabled_negative = ConfigBoolean(default=False)
 config.misc.Vuwizardenabled = ConfigBoolean(default=False)
 config.misc.restorewizardrun = ConfigBoolean(default=False)
 
