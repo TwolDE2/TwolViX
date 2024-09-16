@@ -1,4 +1,4 @@
-## Build Status - branch 7.0  Py3D: ##
+## Build Status - branch Py3D: ##
 [![Py3D build](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml/badge.svg?branch=Py3D)](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml?branch=Py3D)
 
 ## OpenViX buildserver requirements: ##
@@ -14,9 +14,9 @@
 
 ## TwolDE (OpenViX) python3 is built using oe-alliance build-environment and several git repositories: ##
 
-> [https://github.com/oe-alliance/oe-alliance-core/tree/5.3](https://github.com/oe-alliance/oe-alliance-core/tree/5.3 "OE-Alliance")
+> [https://github.com/oe-alliance/oe-alliance-core/tree/5.5](https://github.com/oe-alliance/oe-alliance-core/tree/5.3 "OE-Alliance")
 >
-> [https://github.com/TwolDE/enigma2/tree/Py3](https://github.com/OpenViX/enigma2/tree/Py3 "openViX E2")
+> [https://github.com/TwolDE/enigma2/tree/Py3D](https://github.com/OpenViX/enigma2/tree/Py3D "openViX E2")
 
 
 ----------
