@@ -222,21 +222,24 @@ class SkinError(Exception):
 #         %      : Take given percentage of parent size/width.
 #         w      : Multiply by current font width. (Only to be used in elements where the font attribute is available, i.e. not "None")
 #         h      : Multiply by current font height. (Only to be used in elements where the font attribute is available, i.e. not "None")
-#         f      : Replace with getSkinFactor().
+#         f      : Replace with getSkinFactor(). Not to be mixed with scaling screens based on screen.resolution attribute.
 #
 
 
-def parseCoordinate(s, e, size=0, font=None):
+def parseCoordinate(s, e, size=0, font=None, scale=(1, 1)):
 	orig = s = s.strip()
 	if s.isdigit():  # For speed try a simple number first as these are the most common.
 		val = int(s)
 	elif s == "center":  # For speed as this can be common case.
-		val = 0 if not size else (e - size) // 2
+		return 0 if not size else (e - size) // 2
 	elif s == "e":
-		val = e
+		return e
 	elif s == "*":
 		return None
 	else:
+		if scale[0] != scale[1]:
+			e *= scale[1] / scale[0]
+			size *= scale[1] / scale[0]
 		if font is None and ("w" in s or "h" in s):
 			print(f"[Skin] Error: 'w' or 'h' is being used in a field where neither is valid. Input string: '{orig}'")
 			return 0
@@ -247,24 +250,24 @@ def parseCoordinate(s, e, size=0, font=None):
 			c = e / 2  # noqa: F841 do not remove c variable
 		if "w" in s:
 			s = s.replace("w", "*w")
-			w = float(font in fonts and fonts[font][3] or 0)  # noqa: F841
+			w = float(fonts[font][3] * scale[1] / scale[0] if font in fonts else 0)  # noqa: F841
 		if "h" in s:
 			s = s.replace("h", "*h")
-			h = float(font in fonts and fonts[font][2] or 0)  # noqa: F841
+			h = float(fonts[font][2] * scale[1] / scale[0] if font in fonts else 0)  # noqa: F841
 		if "%" in s:
 			s = s.replace("%", "*e / 100")  # noqa: F841
 		if "f" in s:
-			f = getSkinFactor()  # noqa: F841
+			f = getSkinFactor() if scale[0] == scale[1] else 1 # noqa: F841, only use getSkinFactor when screen.scale attribute is not present
 		# Don't bother trying an int() conversion,
 		# because at this point that's almost certainly
 		# going to throw an exception.
 		try:  # protects against junk in the input
-			val = int(eval(s))
+			val = eval(s)
 		except Exception as err:
 			print(f"[Skin] {type(err).__name__} '{err}': Coordinate '{orig}', processed to '{s}', cannot be evaluated!")
 			val = 0
 	# print(f"[Skin] DEBUG: parseCoordinate s='{s}', e='{e}', size={size}, font='{font}', val='{val}'.")
-	return val
+	return int(val * scale[0] / scale[1] if scale[0] != scale[1] else val)
 
 
 def getParentSize(object, desktop):
