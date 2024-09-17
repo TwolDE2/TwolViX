@@ -389,8 +389,8 @@ def parseScale(s):
 	try:
 		val = int(s)
 	except ValueError:
+		f = getSkinFactor()  # noqa: F841
 		try:
-			s = s.replace("f", str(getSkinFactor()))
 			val = int(eval(s))
 		except Exception as err:
 			print(f"[Skin] {type(err).__name__} '{err}': size formula '{orig}', processed to '{s}', cannot be evaluated!")
