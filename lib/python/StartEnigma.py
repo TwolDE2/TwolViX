@@ -476,10 +476,12 @@ from Components.config import config, configfile, ConfigInteger, ConfigSelection
 if not VuRecovery:
 	profile("Bouquets")
 	print("[StartEnigma]  Initialising Bouquets.")
-	config.misc.load_unlinked_userbouquets = ConfigYesNo(default=False)
+	config.misc.load_unlinked_userbouquets = ConfigSelection(default="0", choices=[("0", _("Off")), ("1", _("Top")), ("2", _("Bottom"))])
+	if config.misc.load_unlinked_userbouquets.value.lower() in ("true", "false"):
+		config.misc.load_unlinked_userbouquets.value = "1" if config.misc.load_unlinked_userbouquets.value.lower() == "true" else "0"
 
 	def setLoadUnlinkedUserbouquets(configElement):
-		enigma.eDVBDB.getInstance().setLoadUnlinkedUserbouquets(configElement.value)
+		enigma.eDVBDB.getInstance().setLoadUnlinkedUserbouquets(int(configElement.value))
 
 	config.misc.load_unlinked_userbouquets.addNotifier(setLoadUnlinkedUserbouquets)
 	if config.clientmode.enabled.value is False:
@@ -643,6 +645,7 @@ if not VuRecovery:
 	StackTracePrinterInst = StackTracePrinter()
 
 profile("Init:skin")
+config.skin.pixmap_force_alphablending = ConfigSelection(default="0", choices=[("2", _("Always")), ("1", _("Only alpha test to alpha blend")), ("0", _("Use skin setting"))])
 print("[StartEnigma]  Initialising Skins.")
 from skin import InitSkins  # noqa: E402
 InitSkins()

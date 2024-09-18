@@ -60,13 +60,7 @@ static gLookup &getColor(const gPalette &pal, const gRGB &start, const gRGB &end
 	if (i != colorcache.end())
 		return i->second;
 	gLookup &n=colorcache.insert(std::pair<fntColorCacheKey,gLookup>(key,gLookup())).first->second;
-//	eDebug("[Font] Creating new font color cache entry %02x%02x%02x%02x .. %02x%02x%02x%02x.", start.a, start.r, start.g, start.b,
-//		end.a, end.r, end.g, end.b);
 	n.build(16, pal, start, end);
-//	eDebugNoNewLineStart("[Font] ");
-//	for (int i=0; i<16; i++)
-//		eDebugNoNewLine("%02x|%02x%02x%02x%02x ", (int)n.lookup[i], pal.data[n.lookup[i]].a, pal.data[n.lookup[i]].r, pal.data[n.lookup[i]].g, pal.data[n.lookup[i]].b);
-//	eDebugNoNewLine("\n");
 	return n;
 }
 
@@ -89,13 +83,10 @@ FT_Error fontRenderClass::FTC_Face_Requester(FTC_FaceID	face_id, FT_Face* aface)
 	fontListEntry *font=(fontListEntry *)face_id;
 	if (!font)
 		return -1;
-
-//	eDebug("[Font] FTC_Face_Requester (%s)", font->face.c_str());
-
 	int error;
 	if ((error=FT_New_Face(library, font->filename.c_str(), 0, aface)))
 	{
-		eDebug("[Font] Failed: %m");
+		eTrace("[Font] Failed: %m");
 		return error;
 	}
 	FT_Select_Charmap(*aface, ft_encoding_unicode);
@@ -149,14 +140,12 @@ inline FT_Error fontRenderClass::getGlyphImage(FTC_Image_Desc *font, GlyphIndex 
 
 std::string fontRenderClass::AddFont(const std::string &filename, const std::string &name, int scale, int renderflags)
 {
-//	eDebugNoNewLineStart("[Font] Adding font '%s'", filename.c_str());
 	int error;
 	FT_Face face;
 
 	singleLock s(ftlock);
 	if ((error=FT_New_Face(library, filename.c_str(), 0, &face)))
 	{
-//		eWarning("[Font] Failed: %m");
 		return std::string();
 	}
 	FT_Done_Face(face);
@@ -168,9 +157,6 @@ std::string fontRenderClass::AddFont(const std::string &filename, const std::str
 	n->renderflags = renderflags;
 	n->next=font;
 	font=n;
-
-//	eDebugNoNewLine(" -> '%s'.\n", n->face.c_str());
-
 	return n->face;
 }
 
@@ -181,43 +167,43 @@ fontRenderClass::fontListEntry::~fontListEntry()
 fontRenderClass::fontRenderClass(): fb(fbClass::getInstance())
 {
 	instance=this;
-	eDebug("[Font] Initializing lib...");
+	eTrace("[Font] Initializing lib...");
 	{
 		if (FT_Init_FreeType(&library))
 		{
-			eDebug("[Font] Initializing failed!");
+			eTrace("[Font] Initializing failed!");
 			return;
 		}
 	}
-	eDebug("[Font] Loading fonts...");
+	eTrace("[Font] Loading fonts...");
 	font=0;
 
 	int maxbytes=4*1024*1024;
-	eDebug("[Font] Intializing font cache, using max. %dMB.", maxbytes/1024/1024);
+	eTrace("[Font] Intializing font cache, using max. %dMB.", maxbytes/1024/1024);
 	fflush(stdout);
 	{
 		if (FTC_Manager_New(library, 8, 8, maxbytes, myFTC_Face_Requester, this, &cacheManager))
 		{
-			eDebug("[Font] Initializing font cache failed!");
+			eTrace("[Font] Initializing font cache failed!");
 			return;
 		}
 		if (!cacheManager)
 		{
-			eDebug("[Font] Initializing font cache manager error!");
+			eTrace("[Font] Initializing font cache manager error!");
 			return;
 		}
 		if (FTC_SBit_Cache_New(cacheManager, &sbitsCache))
 		{
-			eDebug("[Font] Initializing font cache sbit failed!");
+			eTrace("[Font] Initializing font cache sbit failed!");
 			return;
 		}
 		if (FTC_Image_Cache_New(cacheManager, &imageCache))
 		{
-			eDebug("[Font] Initializing font cache imagecache failed!");
+			eTrace("[Font] Initializing font cache imagecache failed!");
 		}
 		if (FT_Stroker_New(library, &stroker))
 		{
-			eDebug("[Font] Initializing font stroker failed!");
+			eTrace("[Font] Initializing font stroker failed!");
 		}
 	}
 	strokerRadius = -1;
@@ -237,7 +223,7 @@ float fontRenderClass::getLineHeight(const gFont& font)
 	if ((FTC_Manager_LookupFace(cacheManager, fnt->scaler.face_id, &current_face) < 0) ||
 	    (FTC_Manager_LookupSize(cacheManager, &fnt->scaler, &fnt->size) < 0))
 	{
-		eDebug("[Font] FTC_Manager_Lookup_Size failed!");
+		eTrace("[Font] FTC_Manager_Lookup_Size failed!");
 		return 0;
 	}
 	int height = current_face->size->metrics.height;
@@ -259,9 +245,6 @@ fontRenderClass::~fontRenderClass()
 		font=font->next;
 		delete f;
 	}
-//	auskommentiert weil freetype und enigma die kritische masse des suckens ueberschreiten.
-//	FTC_Manager_Done(cacheManager);
-//	FT_Done_FreeType(library);
 }
 
 int fontRenderClass::getFont(ePtr<Font> &font, const std::string &face, int size, int tabwidth)
@@ -314,7 +297,6 @@ Font::Font(fontRenderClass *render, FTC_FaceID faceid, int isize, int tw, int re
 	height=isize;
 	if (tabwidth==-1)
 		tabwidth=8*isize;
-//	font.image_type |= ftc_image_flag_autohinted;
 }
 
 Font::~Font()
@@ -536,7 +518,6 @@ void eTextPara::calc_bbox()
 	}
 	boundBox.setTop(area.y());
 	boundBox.setBottom(area.y() + totalheight);
-//	eDebug("[eTextPara] boundBox left = %i, top = %i, right = %i, bottom = %i", boundBox.left(), boundBox.top(), boundBox.right(), boundBox.bottom() );
 }
 
 void eTextPara::newLine(int flags)
@@ -603,7 +584,7 @@ void eTextPara::setFont(Font *fnt, Font *replacement, Font *fallback)
 					    &replacement_font->scaler,
 					    &replacement_font->size) < 0))
 		{
-			eDebug("[eTextPara] setFont: FTC_Manager_Lookup_Size replacement_font failed!");
+			eTrace("[eTextPara] setFont: FTC_Manager_Lookup_Size replacement_font failed!");
 			return;
 		}
 	}
@@ -616,7 +597,7 @@ void eTextPara::setFont(Font *fnt, Font *replacement, Font *fallback)
 					    &current_font->scaler,
 					    &current_font->size) < 0))
 		{
-			eDebug("[eTextPara] setFont: FTC_Manager_Lookup_Size current_font failed!");
+			eTrace("[eTextPara] setFont: FTC_Manager_Lookup_Size current_font failed!");
 			return;
 		}
 	}
@@ -629,7 +610,7 @@ void eTextPara::setFont(Font *fnt, Font *replacement, Font *fallback)
 					    &fallback_font->scaler,
 					    &fallback_font->size) < 0))
 		{
-			eDebug("[eTextPara] FTC_Manager_Lookup_Size failed!");
+			eTrace("[eTextPara] FTC_Manager_Lookup_Size failed!");
 			return;
 		}
 	}
@@ -691,7 +672,7 @@ int eTextPara::renderString(const char *string, int rflags, int border)
 				    &current_font->scaler,
 				    &current_font->size) < 0))
 	{
-		eDebug("[eTextPara] renderString: FTC_Manager_Lookup_Size current_font failed!");
+		eTrace("[eTextPara] renderString: FTC_Manager_Lookup_Size current_font failed!");
 		return -1;
 	}
 
@@ -881,7 +862,7 @@ nprint:				isprintable=0;
 					if (fallback_face)
 						index=(rflags&RS_DIRECT)? chr : FT_Get_Char_Index(fallback_face, chr);
 					if (!index)
-						eDebug("[eTextPara] unicode U+%4lx not present", chr);
+						eTrace("[eTextPara] unicode U+%4lx not present", chr);
 					else
 						appendGlyph(fallback_font, fallback_face, index, flags, rflags, border, i == uc_visual.end() - 1, activate_newcolor, newcolor);
 				}
@@ -926,7 +907,7 @@ void eTextPara::blit(gDC &dc, const ePoint &offset, const gRGB &background, cons
 				    &current_font->scaler,
 				    &current_font->size) < 0))
 	{
-		eDebug("[eTextPara] FTC_Manager_Lookup_Size failed!");
+		eTrace("[eTextPara] FTC_Manager_Lookup_Size failed!");
 		return;
 	}
 

@@ -655,7 +655,7 @@ std::string convertDVBUTF8(const unsigned char *data, int len, int table, int ts
 		{
 			int n = data[++i] << 8;
 			n |= (data[++i]);
-			eTrace("[convertDVBUTF8] (0x10)text encoded in ISO-8859-%d", n);
+/*			eTrace("[convertDVBUTF8] (0x10)text encoded in ISO-8859-%d", n);  */
 			++i;
 			switch(n)
 			{

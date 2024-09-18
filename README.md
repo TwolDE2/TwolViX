@@ -1,9 +1,9 @@
-## Build Status - branch 7.0  Py3D: ##
+## Build Status - branch Py3D: ##
 [![Py3D build](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml/badge.svg?branch=Py3D)](https://github.com/TwolDE/TwolViX/actions/workflows/enigma2.yml?branch=Py3D)
 
 ## OpenViX buildserver requirements: ##
 
-> Ubuntu 22.04.1 LTS (Kernel 5.15.0) 64-bit
+>Ubuntu 24.04 LTS (GNU/Linux 6.8.0-39-generic x86_64)
 
 ## minimum hardware requirement for image build (building feeds may require more):
 
@@ -14,9 +14,9 @@
 
 ## TwolDE (OpenViX) python3 is built using oe-alliance build-environment and several git repositories: ##
 
-> [https://github.com/oe-alliance/oe-alliance-core/tree/5.3](https://github.com/oe-alliance/oe-alliance-core/tree/5.3 "OE-Alliance")
+> [https://github.com/oe-alliance/oe-alliance-core/tree/5.5](https://github.com/oe-alliance/oe-alliance-core/tree/5.3 "OE-Alliance")
 >
-> [https://github.com/TwolDE/enigma2/tree/Py3](https://github.com/OpenViX/enigma2/tree/Py3 "openViX E2")
+> [https://github.com/TwolDE/enigma2/tree/Py3D](https://github.com/OpenViX/enigma2/tree/Py3D "openViX E2")
 
 
 ----------
@@ -38,9 +38,7 @@
 ----------
 3 - Set your shell to /bin/bash.
 
-    sudo dpkg-reconfigure dash
-    When asked: Install dash as /bin/sh?
-    select "NO"
+    sudo ln -sf /bin/bash /bin/sh
 
 ----------
 4 - modify max_user_watches
@@ -50,69 +48,83 @@
     sudo sysctl -n -w fs.inotify.max_user_watches=524288
 
 ----------
-5 - Add user openvixbuilder
+5. Disable apparmor profile
+   Currently due to this Ubuntu/bitbake issue..https://bugs.launchpad.net/ubuntu/+source/apparmor/+bug/2056555
+   This command must be entered after every restart of the build PC....
+   
+   sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+----------
+6 - Add user openvixbuilder
 
     sudo adduser openvixbuilder
 
 ----------
-6 - Switch to user openvixbuilder
+7. Add your git user and email
+
+     git config --global user.email "you@example.com"
+
+    git config --global user.name "Your Name"
+
+----------
+8 - Switch to user openvixbuilder
 
     su openvixbuilder
 
 ----------
-7 - Switch to home of openvixbuilder
+9 - Switch to home of openvixbuilder
 
     cd ~
 
 ----------
-8 - Create folder openvix
+10 - Create folder openvix
 
     mkdir -p ~/openvix
 
 ----------
-9 - Switch to folder openvix
+11 - Switch to folder openvix
 
     cd openvix
 
 ----------
-10 - Clone oe-alliance git
+12 - Clone oe-alliance git
 
     git clone https://github.com/oe-alliance/build-enviroment.git -b 5.3
 
 ----------
-11 - Switch to folder build-enviroment
+13 - Switch to folder build-enviroment
 
     cd build-enviroment
 
 ----------
-12 - Update build-enviroment
+14 - Update build-enviroment
 
     make update
 
 ----------
-13 - Initialise the first machine so site.conf gets created
+15 - Initialise the first machine so site.conf gets created
 
     MACHINE=zgemmah9combo DISTRO=openvix DISTRO_TYPE=release make init
 
 ----------
-14 - Update site.conf
+16 - Update site.conf
 
     - BB_NUMBER_THREADS, PARALLEL_MAKE set to number of threads supported by the CPU
     - add/modify DL_DIR = " location for build sources " to point to a location where you can save derived build sources,
     this will reduce build time in fetching these sources again.
 
 ----------
-15 - Building image with feeds  e.g.:-
+17 - Building image with feeds  e.g.:-
 
 	MACHINE=vuultimo4k DISTRO=openvix DISTRO_TYPE=release make image
 
 ----------
-16 - Building an image without feeds (Build time 1-2h)
+18 - Building an image without feeds (Build time 1-2h)
 
     MACHINE=zgemmah9combo DISTRO=openvix DISTRO_TYPE=release make enigma2-image
 
 ----------
-17 - Building feeds only
+19 - Building feeds only
 
     MACHINE=zgemmah9combo DISTRO=openvix DISTRO_TYPE=release make feeds
 

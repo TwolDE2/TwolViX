@@ -7,7 +7,7 @@ from enigma import eDVBFrontendParametersSatellite, eDVBSatelliteEquipmentContro
 
 from Components.About import about
 from Components.config import config, ConfigSubsection, ConfigSelection, ConfigFloat, ConfigSatlist, ConfigYesNo, ConfigInteger, ConfigSubList, ConfigNothing, ConfigSubDict, ConfigOnOff, ConfigDateTime, ConfigText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, MODEL
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileReadXML
 
@@ -533,8 +533,8 @@ class NIM:
 			sattype = None
 
 		self.slot = slot
-		self.type = sattype
-		self.description = description
+		self.type = "DVB-S2X" if "45308X" in description.upper() and MODEL in ("dm900", "dm920") else sattype
+		self.description = "%s FBC" % description if "45308X" in description.upper() and MODEL in ("dm900", "dm920") else description
 		self.number_of_slots = number_of_slots
 		self.has_outputs = has_outputs
 		self.internally_connectable = internally_connectable
@@ -960,7 +960,7 @@ class NimManager:
 				entry["supports_blind_scan"] = False
 
 			entry["fbc"] = [0, 0, 0]  # not fbc
-			if entry["name"] and ("fbc" in entry["name"].lower() or (entry["name"] in SystemInfo["HasFBCtuner"] and entry["frontend_device"] is not None and access("/proc/stb/frontend/%d/fbc_id" % entry["frontend_device"], F_OK))):
+			if entry["name"] and ("fbc" in entry["name"].lower() or ("45308X" in entry["name"].upper() and MODEL in ("dm900", "dm920")) or (entry["name"] in SystemInfo["HasFBCtuner"] and entry["frontend_device"] is not None and access("/proc/stb/frontend/%d/fbc_id" % entry["frontend_device"], F_OK))):
 				fbc_number += 1
 				if fbc_number <= (entry["type"] and "DVB-C" in entry["type"] and 1 or 2):
 					entry["fbc"] = [1, fbc_number, fbc_tuner]  # fbc root
@@ -1189,6 +1189,21 @@ class NimManager:
 
 	def getNimListForSat(self, orb_pos):
 		return [nim.slot for nim in self.nim_slots if nim.isCompatible("DVB-S") and not nim.isFBCLink() and orb_pos in [sat[0] for sat in self.getSatListForNim(nim.slot)]]
+
+	def getTunableReferences(self):
+		referenceList = []
+		for nim in self.nim_slots:
+			if nim.isCompatible("DVB-S") and not nim.isFBCLink():
+				for reference in [f"{satellite[0]:04x}" for satellite in self.getSatListForNim(nim.slot)]:
+					if reference not in referenceList:
+						referenceList.append(reference)
+			elif nim.isCompatible("DVB-C") and not nim.isFBCLink() and 'ffff' not in referenceList:
+				referenceList.append('ffff')
+			elif nim.isCompatible("DVB-T") and not nim.isFBCLink() and 'eeee' not in referenceList:
+				referenceList.append('eeee')
+			elif nim.isCompatible("ATSC") and not nim.isFBCLink() and 'dddd' not in referenceList:
+				referenceList.append('dddd')
+		return referenceList
 
 	def rotorLastPositionForNim(self, slotid, number=True):
 		available_slot = False
@@ -1755,7 +1770,10 @@ def InitNimManager(nimmgr, update_slots=[]):
 		slot_id = slot.slot
 		if slot.isCombined() and slot.canBeCompatible("DVB-S") or slot.isCompatible("DVB-S"):
 			if slot.isFBCLink():
-				config_mode_choices = {"nothing": _("FBC automatic"), "advanced": _("FBC SCR (Unicable/JESS)")}
+				if MODEL in ("dm900", "dm920"):
+					config_mode_choices = {"loopthrough": _("FBC automatic"), "advanced": _("FBC SCR (Unicable/JESS)")}
+				else:
+					config_mode_choices = {"nothing": _("FBC automatic"), "advanced": _("FBC SCR (Unicable/JESS)")}
 			else:
 				# Just define all and redefine them in Satconfig.py as here all tuners are not defined yet
 				config_mode_choices = {"nothing": _("Disabled"), "simple": _("Simple"), "advanced": _("Advanced"), "equal": _("Equal to"), "satposdepends": _("Second cable of motorized LNB"), "loopthrough": _("Loop through from")}

@@ -172,6 +172,14 @@ class InfoBarTimeshift:
 
 		# Init PTS Infobar
 
+		self.onClose.append(self.__infoBarTimeshiftOnClose)
+
+	def __infoBarTimeshiftOnClose(self):
+		# on close remove Record Event Tracker from RecordTimer.on_state_change (otherwise callback will persist for destroyed instance after calling skin reloader)
+		print("[InfoBarTimeshift] __infoBarTimeshiftOnClose, remove Record Event Tracker from RecordTimer.on_state_change")
+		if self.ptsTimerEntryStateChange in self.session.nav.RecordTimer.on_state_change:
+			self.session.nav.RecordTimer.on_state_change.remove(self.ptsTimerEntryStateChange)
+
 	def __seekableStatusChanged(self):
 		# print("[Timeshift]__seekableStatusChanged")
 		self["TimeshiftActivateActions"].setEnabled(not self.isSeekable() and self.timeshiftEnabled() and int(config.timeshift.startdelay.value))
@@ -671,9 +679,6 @@ class InfoBarTimeshift:
 					except:
 						print("[Timeshift][TimeShift] Using default filename")
 
-					ptsfilename = sanitizeFilename(ptsfilename)
-
-					# print("[Timeshift]ptsfilename", ptsfilename)
 					fullname = getRecordingFilename(ptsfilename, config.usage.default_path.value)
 					# print("[Timeshift]fullname", fullname)
 					oslink("%s%s" % (config.usage.timeshift_path.value, savefilename), "%s.ts" % fullname)
@@ -701,8 +706,6 @@ class InfoBarTimeshift:
 								ptsfilename = "%s - %s" % (strftime("%Y%m%d", localtime(int(begintime))), eventname)
 					except:
 						print("[Timeshift][TimeShift] Using default filename")
-
-					ptsfilename = sanitizeFilename(ptsfilename)
 
 					fullname = getRecordingFilename(ptsfilename, config.usage.default_path.value)
 					oslink("%s%s" % (config.usage.timeshift_path.value, timeshiftfile), "%s.ts" % fullname)

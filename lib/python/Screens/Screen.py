@@ -2,7 +2,7 @@ from os.path import isfile
 
 from enigma import eRCInput, eTimer, eWindow  # , getDesktop
 
-from skin import GUI_SKIN_ID, applyAllAttributes, menus, screens, setups
+from skin import GUI_SKIN_ID, applyAllAttributes, menus, screens, setups  # noqa: F401
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components.Pixmap import Pixmap
@@ -130,7 +130,7 @@ class Screen(dict):
 			self.session.close(self, *retval)
 
 	def show(self):
-		# print("[Screen] Showing screen '%s'." % self.skinName)  # To ease identification of screens.
+		pass  # print("[Screen] Showing screen '%s'." % self.skinName)  # To ease identification of screens.
 		# DEBUG: if (self.shown and self.alreadyShown) or not self.instance:
 		if (self.shown and self.already_shown) or not self.instance:
 			return
@@ -275,7 +275,7 @@ class Screen(dict):
 				if not updateonly:
 					val.GUIcreate(parent)
 				if not val.applySkin(desktop, self):
-					print("[Screen] Warning: Skin is missing renderer '%s' in %s." % (val, str(self)))
+					pass  # print("[Screen] Warning: Skin is missing renderer '%s' in %s." % (val, str(self)))
 		for key in self:
 			val = self[key]
 			if isinstance(val, GUIComponent):
@@ -284,10 +284,10 @@ class Screen(dict):
 				depr = val.deprecationInfo
 				if val.applySkin(desktop, self):
 					if depr:
-						print("[Screen] WARNING: OBSOLETE COMPONENT '%s' USED IN SKIN. USE '%s' INSTEAD!" % (key, depr[0]))
-						print("[Screen] OBSOLETE COMPONENT WILL BE REMOVED %s, PLEASE UPDATE!" % depr[1])
+						pass  # print("[Screen] WARNING: OBSOLETE COMPONENT '%s' USED IN SKIN. USE '%s' INSTEAD!" % (key, depr[0]))
+						pass  # print("[Screen] OBSOLETE COMPONENT WILL BE REMOVED %s, PLEASE UPDATE!" % depr[1])
 				elif not depr and key not in self.handledWidgets:
-					print("[Screen] Warning: Skin is missing element '%s' in %s." % (key, str(self)))
+					pass  # print("[Screen] Warning: Skin is missing element '%s' in %s." % (key, str(self)))
 		for w in self.additionalWidgets:
 			if not updateonly:
 				w.instance = w.widget(parent)
@@ -333,9 +333,9 @@ class ScreenSummary(Screen):
 		names = parent.skinName
 		if not isinstance(names, list):
 			names = [names]
-		self.skinName = ["%s_summary" % x for x in names]
+		self.skinName = [f"{x}Summary" for x in names]
 		className = self.__class__.__name__
 		if className != "ScreenSummary" and className not in self.skinName:  # e.g. if a module uses Screens.Setup.SetupSummary the skin needs to be available directly
 			self.skinName.append(className)
-		self.skinName.append("SimpleSummary")
+		self.skinName.append("ScreenSummary")
 		self.skin = parent.__dict__.get("skinSummary", self.skin)  # If parent has a "skinSummary" defined, use that as default.

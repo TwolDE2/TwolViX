@@ -1,3 +1,6 @@
+from enigma import eDVBFrontendParametersSatellite
+
+
 providers = {
 	"Astra 28.2": {
 		"transponder": {
@@ -12,18 +15,16 @@ providers = {
 			'frequency': 11778000,
 			'flags': 0,
 			'transport_stream_id': 2004,
-			'dvb_type': 'dvbs',
-			'services': {},
-			},  # noqa: E123
+			'modulation': eDVBFrontendParametersSatellite.Modulation_QPSK, },  # noqa: E126
 		"service": {
 			'service_name': 'IEPG data 1',
 			'namespace': 18481152,
-			'service_line': 'p:BSkyB,c:010288,c:031ffe',
 			'original_network_id': 2,
 			'flags': 0,
 			'service_id': 4189,
 			'service_type': 1,
 			'transport_stream_id': 2004,
-			},  # noqa: E123
-		}  # noqa: E123
-	}  # noqa: E123
+			'service_provider': 'BSkyB',
+			'service_cachedpids': [(1, 0x0288), (3, 0x1ffe)],
+			'service_capids': None, }, }  # noqa: E126
+			}  # noqa: E126

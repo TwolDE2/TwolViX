@@ -1,6 +1,6 @@
 from os import path
 
-from enigma import eAVSwitch
+from enigma import eAVSwitch, eDVBVolumecontrol
 
 from Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
 from Components.SystemInfo import SystemInfo
@@ -43,6 +43,12 @@ class AVSwitch:
 				"60Hz": {60: "2160p"},
 				"multi": {50: "2160p50", 60: "2160p"},
 				"auto": {50: "2160p50", 60: "2160p", 24: "2160p24"}}
+
+	if SystemInfo["boxtype"] in ("dm900", "dm920"):
+		rates["2160p"] = {"50Hz": {50: "2160p50"},
+				"60Hz": {60: "2160p60"},
+				"multi": {50: "2160p50", 60: "2160p60"},
+				"auto": {50: "2160p50", 60: "2160p60", 24: "2160p24"}}
 
 	rates["PC"] = {
 		"1024x768": {60: "1024x768"},  # not possible on DM7025
@@ -92,7 +98,7 @@ class AVSwitch:
 	def readAvailableModes(self):
 		SystemInfo["AvailableVideomodes"] = []
 		SystemInfo["AvailableVideomodes"] = eAVSwitch.getInstance().readAvailableModes().split(" ")
-		print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
+		# print(f"[AVSwitch][readAvailableModes] {SystemInfo['AvailableVideomodes']}")
 		if isPluginInstalled("AutoResolution"):
 			return SystemInfo["AvailableVideomodes"]
 
@@ -101,7 +107,7 @@ class AVSwitch:
 		# print("[AVSwitch] reading preferred modes", modes)
 		if not self.modes_preferred:
 			self.modes_preferred = SystemInfo["AvailableVideomodes"]
-			print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred}")
+			# print(f"[AVSwitch][readPreferredModes]none, so using {self.modes_preferred}")
 		if self.modes_preferred != self.last_modes_preferred:
 			self.last_modes_preferred = self.modes_preferred
 			self.on_hotplug("HDMI")  # Must be HDMI.
@@ -204,7 +210,7 @@ class AVSwitch:
 		config.av.videorate = ConfigSubDict()
 		# create list of output ports
 		portlist = [port for port in self.modes]
-		print(f"[AVSwitch][createConfig] portlist is {portlist}")
+		# print(f"[AVSwitch][createConfig] portlist is {portlist}")
 		for port in portlist:
 			# print(f"[AVSwitch] port is {port}")
 			descr = port
@@ -220,7 +226,7 @@ class AVSwitch:
 				ratelist = []
 				for rate in rates:
 					if rate == "auto":
-						if SystemInfo["Has24hz"]:
+						if SystemInfo["Has24hz"] or SystemInfo["boxtype"] in ("dm900", "dm920"):
 							ratelist.append((rate, mode == "2160p30" and "auto (25Hz/30Hz/24Hz)" or "auto (50Hz/60Hz/24Hz)"))
 					else:
 						ratelist.append((rate, rate == "multi" and (mode == "2160p30" and "multi (25Hz/30Hz)" or "multi (50Hz/60Hz)") or rate))
@@ -391,6 +397,7 @@ def InitAVSwitch():
 	config.av.wss = ConfigEnableDisable(default=True)
 	config.av.generalAC3delay = ConfigSelectionNumber(-1000, 1000, 5, default=0)
 	config.av.generalPCMdelay = ConfigSelectionNumber(-1000, 1000, 5, default=0)
+	config.av.volume_hide_mute = ConfigYesNo(default=True)
 	config.av.vcrswitch = ConfigEnableDisable(default=False)
 	config.av.aspect.setValue("16:9")
 	config.av.aspect.addNotifier(iAVSwitch.setAspect)
@@ -639,6 +646,11 @@ def InitAVSwitch():
 			open(SystemInfo["supportPcmMultichannel"], "w").write(configElement.value and "enable" or "disable")
 		config.av.pcm_multichannel = ConfigYesNo(default=False)
 		config.av.pcm_multichannel.addNotifier(setPCMMultichannel)
+
+	def setVolumeStepsize(configElement):
+		eDVBVolumecontrol.getInstance().setVolumeSteps(int(configElement.value))
+	config.av.volume_stepsize = ConfigSelectionNumber(1, 10, 1, default=5)
+	config.av.volume_stepsize.addNotifier(setVolumeStepsize)
 
 	if SystemInfo["CanDownmixAC3"]:
 		def setAC3Downmix(configElement):

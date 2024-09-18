@@ -318,7 +318,7 @@ eventData::~eventData()
 			DescriptorPair &p = it->second;
 			if (p.reference_count == 0)
 			{
-				eDebug("[eEPGCache] Eventdata reference count is already zero!");
+				eTrace("[eEPGCache] Eventdata reference count is already zero!");
 			}
 			if (!--p.reference_count) // no more used descriptor
 			{
@@ -406,7 +406,7 @@ DEFINE_REF(eEPGCache)
 eEPGCache::eEPGCache()
 	:messages(this,1, "eEPGCache"), m_running(false), m_enabledEpgSources(0), cleanTimer(eTimer::create(this)), m_timeQueryRef(nullptr)
 {
-	eDebug("[eEPGCache] Initialized EPGCache (wait for setCacheFile call now)");
+	eTrace("[eEPGCache] Initialized EPGCache (wait for setCacheFile call now)");
 
 	load_epg = eSimpleConfig::getString("config.usage.remote_fallback_import", "").find("epg") == std::string::npos;
 
@@ -427,7 +427,7 @@ void eEPGCache::setCacheFile(const char *path)
 	m_filename = path;
 	if (!inited)
 	{
-		eDebug("[eEPGCache] setCacheFile read/write epg data from/to '%s'", m_filename.c_str());
+		eTrace("[eEPGCache] setCacheFile read/write epg data from/to '%s'", m_filename.c_str());
 		if (eDVBLocalTimeHandler::getInstance()->ready())
 			timeUpdated();
 	}
@@ -439,14 +439,14 @@ void eEPGCache::timeUpdated()
 	{
 		if (!m_running)
 		{
-			eDebug("[eEPGCache] time updated.. start EPG Mainloop");
+			eTrace("[eEPGCache] time updated.. start EPG Mainloop");
 			run();
 			m_running = true;
 		} else
 			messages.send(Message(Message::timeChanged));
 	}
 	else
-		eDebug("[eEPGCache] time updated.. but cache file not set yet.. do not start epg!!");
+		eTrace("[eEPGCache] time updated.. but cache file not set yet.. do not start epg!!");
 }
 
 /**
@@ -460,7 +460,7 @@ void eEPGCache::timeUpdated()
 void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *channel)
 {
 	const eit_t *eit = (const eit_t*) data;
-	// eDebug("[eEPGCache:sectionRead] source is [%d])", source);
+	// eDebug("[eEPGCache:sectionRead]1 source=[%d] source=0x%X)", source, source);
 	int len = eit->getSectionLength() - 1;
 	int ptr = EIT_SIZE;
 	if ( ptr >= len )
@@ -503,7 +503,6 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 	EventCacheItem &servicemap = eventDB[service];
 	eventMap &eventmap = servicemap.byEvent;
 	timeMap &timemap = servicemap.byTime;
-
 	while (ptr < len)
 	{
 		uint16_t event_hash;
@@ -511,11 +510,12 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 
 		duration = fromBCD(eit_event->duration_1)*3600+fromBCD(eit_event->duration_2)*60+fromBCD(eit_event->duration_3);
 		start_time = parseDVBtime((const uint8_t*)eit_event + 2, &event_hash);
-
-		if (source != EPG_IMPORT && getIsBlacklisted(service)) // Check is the service blacklisted/whitelisted for getting data from EIT or now/next
-					goto next;
-		if (source == NOWNEXT && !getIsWhitelisted(service))
-					goto next;			
+		if (source != EPG_IMPORT && getIsBlacklisted(service)) // if service blacklisted and not EPG import/CrossEPG
+			goto next;
+		if (source == NOWNEXT && !getIsWhitelisted(service))  // if Whitelist and NOWNEXT update 
+			goto next;			
+		if (source > NOWNEXT && getIsBrownlisted(service))  // if Brownlist and not EPG import or NowNext reject
+			goto next;
 		if ((start_time != 3599) &&  // NVOD Service
 			(now <= (start_time+duration)) &&  // skip old events
 			(start_time < (now+28*24*60*60)) &&  // no more than 4 weeks in future
@@ -596,7 +596,7 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 
 					if (eventmap.erase(it->second->getEventID()) == 0)
 					{
-						eDebug("[eEPGCache] Event %04X not found in event map at %ld.", it->second->getEventID(), it->second->getStartTime());
+						eTrace("[eEPGCache] Event %04X not found in event map at %ld.", it->second->getEventID(), it->second->getStartTime());
 					}
 					delete it->second;
 					timemap.erase(it++);
@@ -618,7 +618,7 @@ next:
 #ifdef EPG_DEBUG
 		if (eventmap.size() != timemap.size())
 		{
-			eDebug("[eEPGCache] Service (%04X:%04X:%04X) eventmap.size(%d) != timemap.size(%d)!",
+			eTrace("[eEPGCache] Service (%04X:%04X:%04X) eventmap.size(%d) != timemap.size(%d)!",
 					service.onid, service.tsid, service.sid, eventmap.size(), timemap.size());
 			{
 				CFile f("/media/hdd/event_map.txt", "w+");
@@ -670,7 +670,7 @@ void eEPGCache::clearCompleteEPGCache()
 
 void eEPGCache::flushEPG(const uniqueEPGKey & s, bool lock) // lock only affects complete flush
 {
-	eDebug("[eEPGCache] flushEPG %d", (int)(bool)s);
+	eTrace("[eEPGCache] flushEPG %d", (int)(bool)s);
 	if (s)  // clear only this service
 	{
 		singleLock l(cache_lock);
@@ -726,15 +726,15 @@ void eEPGCache::cleanLoop()
 					if ( b != DBIt->second.byEvent.end() )
 					{
 						// release Heap Memory for this entry   (new ....)
-						// eDebug("[eEPGCache] delete old event (evmap)");
+						// eTrace("[eEPGCache] delete old event (evmap)");
 						DBIt->second.byEvent.erase(b);
 					}
 
 					// remove entry from timeMap
-					// eDebug("[eEPGCache] release heap mem");
+					// eTrace("[eEPGCache] release heap mem");
 					delete It->second;
 					DBIt->second.byTime.erase(It++);
-					// eDebug("[eEPGCache] delete old event (timeMap)");
+					// eTrace("[eEPGCache] delete old event (timeMap)");
 					updated = true;
 				}
 				else
@@ -796,7 +796,7 @@ void eEPGCache::gotMessage( const Message &msg )
 			cleanLoop();
 			break;
 		default:
-			eDebug("[eEPGCache] unhandled EPGCache Message!!");
+			eTrace("[eEPGCache] unhandled EPGCache Message!!");
 			break;
 	}
 }
@@ -806,7 +806,7 @@ void eEPGCache::thread()
 	hasStarted();
 	if (nice(4) == -1)
 	{
-		eDebug("[eEPGCache] thread failed to modify scheduling priority (%m)");
+		eTrace("[eEPGCache] thread failed to modify scheduling priority (%m)");
 	}
 	if (load_epg) { load(); }
 	/*emit*/ epgCacheStarted();
@@ -966,12 +966,12 @@ void eEPGCache::load()
 					time_t end_time = start_time + It->second->getDuration();
 					if (start_time < last_end || start_time == end_time)
 					{
-						/* eDebug("[eEPGCache][load] load: Service (%04X:%04X:%04X) delete overlapping/zero-length event %04X at time %ld.",
+						/* eTrace("[eEPGCache][load] load: Service (%04X:%04X:%04X) delete overlapping/zero-length event %04X at time %ld.",
 							it->onid, it->tsid, it->sid,
 							It->second->getEventID(), (long)start_time); */
 						if (eventmap.erase(It->second->getEventID()) == 0)
 						{
-							eDebug("[eEPGCache][load] Event %04X not found in time map at %ld.", It->second->getEventID(), start_time);
+							eTrace("[eEPGCache][load] Event %04X not found in time map at %ld.", It->second->getEventID(), start_time);
 						}
 						delete It->second;
 						timemap.erase(It++);
@@ -2030,6 +2030,14 @@ bool eEPGCache::getIsWhitelisted(const uniqueEPGKey epgKey)
 	return false;
 }
 
+bool eEPGCache::getIsBrownlisted(const uniqueEPGKey epgKey)
+{
+	if (std::find(eit_brownlist.begin(), eit_brownlist.end(), epgKey) != eit_brownlist.end()) {
+		return true;
+	}
+	return false;
+}
+
 void eEPGCache::reloadEITConfig(int listType)
 {
 	if (listType == ALL || listType == WHITELIST) {
@@ -2067,7 +2075,24 @@ void eEPGCache::reloadEITConfig(int listType)
 		}
 		eitblacklist_file.close();
 	}
-	
+
+	if (listType == ALL || listType == BROWNLIST) {
+		eit_brownlist.clear();
+		std::ifstream eitbrownlist_file;
+		eitbrownlist_file.open("/etc/enigma2/brownlist.eit");
+		std::string line = "";
+		while(getline(eitbrownlist_file, line))
+		{
+			std::string srefStr = replace_all(line, "\n", "");
+			eServiceReferenceDVB sref = eServiceReferenceDVB(srefStr);
+			eDVBChannelID chid;
+			sref.getChannelID(chid);
+			uniqueEPGKey serviceKey(sref.getServiceID().get(), chid.original_network_id.get(), chid.transport_stream_id.get());
+			eit_brownlist.push_back(serviceKey);
+			line = "";
+		}
+		eitbrownlist_file.close();
+	}	
 }
 
 static const char* getStringFromPython(ePyObject obj)
@@ -2429,22 +2454,22 @@ PyObject *eEPGCache::search(ePyObject arg)
 					switch (querytype)
 					{
 						case 1:
-							eDebug("[eEPGCache] lookup events with '%s' as title (%s)", str, casetype?"ignore case":"case sensitive");
+							eTrace("[eEPGCache] lookup events with '%s' as title (%s)", str, casetype?"ignore case":"case sensitive");
 							break;
 						case 2:
-							eDebug("[eEPGCache] lookup events with '%s' in title (%s)", str, casetype?"ignore case":"case sensitive");
+							eTrace("[eEPGCache] lookup events with '%s' in title (%s)", str, casetype?"ignore case":"case sensitive");
 							break;
 						case 3:
-							eDebug("[eEPGCache] lookup events, title starting with '%s' (%s)", str, casetype?"ignore case":"case sensitive");
+							eTrace("[eEPGCache] lookup events, title starting with '%s' (%s)", str, casetype?"ignore case":"case sensitive");
 							break;
 						case 4:
-							eDebug("[eEPGCache] lookup events, title ending with '%s' (%s)", str, casetype?"ignore case":"case sensitive");
+							eTrace("[eEPGCache] lookup events, title ending with '%s' (%s)", str, casetype?"ignore case":"case sensitive");
 							break;
 						case 5:
-							eDebug("[eEPGCache] lookup events with '%s' in the description (%s)", str, casetype?"ignore case":"case sensitive");
+							eTrace("[eEPGCache] lookup events with '%s' in the description (%s)", str, casetype?"ignore case":"case sensitive");
 							break;
 						case 6:
-							eDebug("[eEPGCache] lookup events with '%s' in CRID %02x", str, casetype);
+							eTrace("[eEPGCache] lookup events with '%s' in CRID %02x", str, casetype);
 							break;
 					}
 					Py_BEGIN_ALLOW_THREADS; /* No Python code in this section, so other threads can run */
@@ -2644,7 +2669,7 @@ PyObject *eEPGCache::search(ePyObject arg)
 							if (needServiceEvent)
 							{
 								if (lookupEventId(ref, evit->second->getEventID(), ev_data))
-									eDebug("[eEPGCache] event not found !!!!!!!!!!!");
+									eTrace("[eEPGCache] event not found !!!!!!!!!!!");
 								else
 								{
 									const eServiceReferenceDVB &dref = (const eServiceReferenceDVB&)ref;

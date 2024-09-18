@@ -13,11 +13,14 @@ from Components.SystemInfo import SystemInfo
 from Tools.camcontrol import CamControl
 from Tools.Directories import resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation
 
+VuRecovery = SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0
 
 # A raw writer for config changes to be read by the logger without
 # getting a time-stamp prepended.
 # stderr expect unicode, not str, so we decode as utf-8
 #
+
+
 def raw_stderr_print(text):
 	with io.open(2, mode="wt", closefd=False) as myerr:
 		myerr.write(text)
@@ -57,11 +60,11 @@ def InitUsageConfig():
 	config.usage.hide_number_markers = ConfigYesNo(default=True)
 	config.usage.hide_number_markers.addNotifier(refreshServiceList, initial_call=False, immediate_feedback=False)
 
-	config.usage.servicetype_icon_mode = ConfigSelection(default="0", choices=[("0", _("None")), ("1", _("Left from servicename (only available in single line mode)")), ("2", _("Right from servicename"))])
+	config.usage.servicetype_icon_mode = ConfigSelection(default="0", choices=[("0", _("None")), ("1", _("Left from servicename")), ("2", _("Right from servicename"))])
 	config.usage.servicetype_icon_mode.addNotifier(refreshServiceList, initial_call=False, immediate_feedback=False)
-	config.usage.crypto_icon_mode = ConfigSelection(default="0", choices=[("0", _("None")), ("1", _("Left from servicename (only available in single line mode)")), ("2", _("Right from servicename"))])
+	config.usage.crypto_icon_mode = ConfigSelection(default="0", choices=[("0", _("None")), ("1", _("Left from servicename")), ("2", _("Right from servicename"))])
 	config.usage.crypto_icon_mode.addNotifier(refreshServiceList, initial_call=False, immediate_feedback=False)
-	config.usage.record_indicator_mode = ConfigSelection(default="3", choices=[("0", _("None")), ("1", _("Left from servicename (only available in single line mode)")), ("2", _("Right from servicename")), ("3", _("Red colored"))])
+	config.usage.record_indicator_mode = ConfigSelection(default="3", choices=[("0", _("None")), ("1", _("Left from servicename")), ("2", _("Right from servicename")), ("3", _("Red colored"))])
 	config.usage.record_indicator_mode.addNotifier(refreshServiceList, initial_call=False, immediate_feedback=False)
 
 	choicelist = [("-1", _("Disable"))]
@@ -315,9 +318,9 @@ def InitUsageConfig():
 	config.usage.show_bouquetalways = ConfigYesNo(default=False)
 	config.usage.show_event_progress_in_servicelist = ConfigSelection(default='barright', choices=[
 		('barleft', _("Progress bar left")),
-		('barright', _("Progress bar right (only available in single line mode)")),
+		('barright', _("Progress bar right")),
 		('percleft', _("Percentage left")),
-		('percright', _("Percentage right (only available in single line mode)")),
+		('percright', _("Percentage right")),
 		('no', _("No"))])
 	config.usage.show_channel_numbers_in_servicelist = ConfigYesNo(default=True)
 	config.usage.show_channel_jump_in_servicelist = ConfigSelection(default="alpha", choices=[
@@ -725,8 +728,6 @@ def InitUsageConfig():
 
 	config.usage.boolean_graphic = ConfigSelection(default="no", choices={"no": _("no"), "yes": _("yes"), "only_bool": _("yes, but not in multi selections")})
 	config.usage.fast_skin_reload = ConfigYesNo(default=False)
-	if not SystemInfo["DeveloperImage"]:
-		config.usage.fast_skin_reload.value = False
 
 	if SystemInfo["hasXcoreVFD"]:
 		def set12to8characterVFD(configElement):
@@ -914,9 +915,9 @@ def InitUsageConfig():
 			StackTracePrinter.getInstance().activate(current_thread().ident)
 		else:
 			StackTracePrinter.getInstance().deactivate()
-
-	config.crash.pystackonspinner = ConfigYesNo(default=False)
-	config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback=False, initial_call=True)
+	if not VuRecovery:
+		config.crash.pystackonspinner = ConfigYesNo(default=False)
+		config.crash.pystackonspinner.addNotifier(updateStackTracePrinter, immediate_feedback=False, initial_call=True)
 
 # Just echo CHANGE var=val for the logger process to find.
 # Send a newline at the start in case some background process hasn't
@@ -1259,7 +1260,7 @@ def InitUsageConfig():
 	for i in [3] + list(range(5, 65, 5)):
 		choicelist.append(("%d" % i, _("%d sec") % i))
 	config.hdmicec.repeat_wakeup_timer = ConfigSelection(default="3", choices=[("0", _("Disabled"))] + choicelist)
-	config.hdmicec.debug = ConfigSelection(default="0", choices=[("0", _("Disabled")), ("1", _("Messages")), ("2", _("Key Events")), ("3", _("All"))])
+	config.hdmicec.debug = ConfigSelection(default="0", choices=[("0", _("Disabled")), ("1", _("print debug")), ("2", _("Log Messages")), ("3", _("Log Key Events")), ("4", _("Log All"))])
 	config.hdmicec.bookmarks = ConfigLocations(default="/hdd/")
 	config.hdmicec.log_path = ConfigDirectory("/hdd/")
 	config.hdmicec.next_boxes_detect = ConfigYesNo(default=False)  # Before switching the TV to standby, receiver tests if any devices plugged to TV are in standby. If they are not, the 'sourceinactive' command will be sent to the TV instead of the 'standby' command.

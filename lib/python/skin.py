@@ -47,6 +47,8 @@ config.skin.display_skin = ConfigText(default=DEFAULT_DISPLAY_SKIN)
 
 currentPrimarySkin = None
 currentDisplaySkin = None
+currentLoadingSkin = None
+currentScreenName = None
 onLoadCallbacks = []
 
 # Skins are loaded in order of priority.  Skin with highest priority is
@@ -146,10 +148,12 @@ def loadSkinData(desktop):
 
 
 def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screenID=GUI_SKIN_ID):
-	global windowStyles
+	global windowStyles, currentLoadingSkin
+	retval = False
 	filename = resolveFilename(scope, filename)
 	if isfile(filename):
-		# print(f"[Skin] Loading skin file '{skin}'.")
+		currentLoadingSkin = filename
+		# print("[Skin] Loading skin file '%s'." % filename)
 		domSkin = fileReadXML(filename)
 		if domSkin:
 			# scpe = {SCOPE_CONFIG: "SCOPE_CONFIG", SCOPE_CURRENT_LCDSKIN: "SCOPE_CURRENT_LCDSKIN", SCOPE_CURRENT_SKIN: "SCOPE_CURRENT_SKIN", SCOPE_FONTS: "SCOPE_FONTS", SCOPE_SKIN: "SCOPE_SKIN", SCOPE_SKIN_IMAGE: "SCOPE_SKIN_IMAGE"}.get(scope, scope)  # noqa: F841
@@ -176,8 +180,9 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 				# Element is not a screen or windowstyle element so no need for it any longer.
 			reloadWindowStyles()  # Reload the window style to ensure all skin changes are taken into account.
 			# print(f"[Skin] Loading skin file '{filename}' complete.")
-			return True
-	return False
+			retval = True
+	currentLoadingSkin = None
+	return retval
 
 
 def addOnLoadCallback(callback):
@@ -195,7 +200,7 @@ class SkinError(Exception):
 		self.msg = message
 
 	def __str__(self):
-		return f"[Skin] {config.skin.primary_skin.value}: {self.msg}!  Please contact the skin's author!"
+		return "[Skin] {%s}: %s!  Please contact the skin's author!" % (currentLoadingSkin or (currentDisplaySkin if currentScreenName and currentScreenName.lower().endswith("summary") else currentPrimarySkin), self.msg)
 
 # Convert a coordinate string into a number.  Used to convert object position and
 # size attributes into a number.
@@ -237,9 +242,9 @@ def parseCoordinate(s, e, size=0, font=None):
 			return 0
 		# No test on "e" because it's already a variable
 		if "center" in s:
-			center = (e - size) / 2.0  # noqa: F841
+			center = (e - size) / 2  # noqa: F841
 		if "c" in s:
-			c = e / 2.0  # noqa: F841 do not remove c variable
+			c = e / 2  # noqa: F841 do not remove c variable
 		if "w" in s:
 			s = s.replace("w", "*w")
 			w = float(font in fonts and fonts[font][3] or 0)  # noqa: F841
@@ -247,7 +252,7 @@ def parseCoordinate(s, e, size=0, font=None):
 			s = s.replace("h", "*h")
 			h = float(font in fonts and fonts[font][2] or 0)  # noqa: F841
 		if "%" in s:
-			s = s.replace("%", "*e / 100.0")  # noqa: F841
+			s = s.replace("%", "*e / 100")  # noqa: F841
 		if "f" in s:
 			f = getSkinFactor()  # noqa: F841
 		# Don't bother trying an int() conversion,
@@ -384,8 +389,8 @@ def parseScale(s):
 	try:
 		val = int(s)
 	except ValueError:
+		f = getSkinFactor()  # noqa: F841
 		try:
-			s = s.replace("f", str(getSkinFactor()))
 			val = int(eval(s))
 		except Exception as err:
 			print(f"[Skin] {type(err).__name__} '{err}': size formula '{orig}', processed to '{s}', cannot be evaluated!")
@@ -427,8 +432,8 @@ def collectAttributes(skinAttributes, node, context, skinPath=None, ignore=(), f
 			if attrib in filenames:
 				# DEBUG: Why does a SCOPE_CURRENT_LCDSKIN image replace the GUI image?!?!?!
 				pngfile = resolveFilename(SCOPE_CURRENT_SKIN, value, path_prefix=skinPath)
-				if not isfile(pngfile) and isfile(resolveFilename(SCOPE_CURRENT_LCDSKIN, value, path_prefix=skinPath)):
-					pngfile = resolveFilename(SCOPE_CURRENT_LCDSKIN, value, path_prefix=skinPath)
+				if not isfile(pngfile) and isfile(resolved := resolveFilename(SCOPE_CURRENT_LCDSKIN, value, path_prefix=skinPath)):
+					pngfile = resolved
 				value = pngfile
 			# Bit of a hack this, really.  When a window has a flag (e.g. wfNoBorder)
 			# it needs to be set at least before the size is set, in order for the
@@ -980,18 +985,18 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 			image = menuicon.attrib.get("image")
 			if key and image:
 				menuicons[key] = image
-				# print("f[Skin] DEBUG: Menu key='{key}, image='{image}''.")
+				# print("f[Skin] DEBUG: Menu key='{key}, image='{image}'.")
 			else:
-				raise SkinError(f"Tag 'menuicon' needs key and image, got key='{key} and image='{image}'")
+				raise SkinError("Tag 'menuicon' needs key and image, got key='%s' and image='%s'" % (key, image))
 	for tag in domSkin.findall("screens"):
 		for screen in tag.findall("screen"):
 			key = screen.attrib.get("key")
 			image = screen.attrib.get("image")
 			if key and image:
 				screens[key] = image
-				# print("f[Skin] DEBUG: Screen key='{key}, image='{image}''.")
+				# print("[Skin] DEBUG: Screen key='%s', image='%s'." % (key, image))
 			else:
-				raise SkinError(f"Tag 'screen' needs key and image, got key='{key} and image='{image}'")
+				raise SkinError(f"Tag 'screen' needs key and image, got key='{key}' and image='{image}'")
 	for tag in domSkin.findall("setups"):
 		for setup in tag.findall("setup"):
 			key = setup.attrib.get("key")
@@ -1000,7 +1005,7 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 				setups[key] = image
 				# print(f"[Skin] DEBUG: Setup key='{key}', image='{image}''.")
 			else:
-				raise SkinError(f"Tag 'setup' needs key and image, got key='{key}' and image='{image}''")
+				raise SkinError(f"Tag 'setup' needs key and image, got key='{key}' and image='{image}'")
 	for tag in domSkin.findall("subtitles"):
 		from enigma import eSubtitleWidget
 		scale = ((1, 1), (1, 1))
@@ -1194,7 +1199,9 @@ def readSkin(screen, skin, names, desktop):
 				print(f"[Skin] Warning: Skin screen '{n}' rejected as it does not offer all the mandatory widgets '{''', '''.join(screen.mandatoryWidgets)}'!")
 				myScreen = None
 	else:
-		name = f"<embedded-in-{screen.__class__.__name__}>"
+		name = "<embedded-in-%s>" % screen.__class__.__name__
+	global currentScreenName
+	currentScreenName = name
 	if myScreen is None:  # Otherwise try embedded skin.
 		myScreen = getattr(screen, "parsedSkin", None)
 	if myScreen is None and getattr(screen, "skin", None):  # Try uncompiled embedded skin.
@@ -1286,8 +1293,8 @@ def readSkin(screen, skin, names, desktop):
 					wsource = source.new_source
 				else:
 					break  # Otherwise, use the source.
-			if source is None:
-				raise SkinError(f"The source '{wsource}' was not found in screen '{name}'")
+			# if source is None:
+				# raise SkinError(f"The source '{wsource}' was not found in screen '{name}'")
 
 			wrender = widget.attrib.get("render")
 			if not wrender:
@@ -1308,7 +1315,7 @@ def readSkin(screen, skin, names, desktop):
 				try:
 					converterClass = my_import(".".join(("Components", "Converter", ctype))).__dict__.get(ctype)
 				except ImportError:
-					raise SkinError(f"Converter '{ctype}' not found")
+					raise SkinError(f"Converter {ctype} not found")
 				c = None
 				for i in source.downstream_elements:
 					if isinstance(i, converterClass) and i.converter_arguments == parms:
@@ -1320,7 +1327,7 @@ def readSkin(screen, skin, names, desktop):
 			try:
 				rendererClass = my_import(".".join(("Components", "Renderer", wrender))).__dict__.get(wrender)
 			except ImportError:
-				raise SkinError(f"Renderer '{wrender}' not found")
+				raise SkinError(f"Renderer {wrender} not found")
 			renderer = rendererClass()  # Instantiate renderer.
 			if source:
 				renderer.connect(source)  # Connect to source.
@@ -1392,7 +1399,7 @@ def readSkin(screen, skin, names, desktop):
 			try:
 				p(w, context)
 			except SkinError as err:  # noqa: F841
-				print("f[Skin] Error in screen '{name}' widget '{w.tag}' {str(err)}!")
+				print(f"[Skin] Error in screen '{name}' widget '{w.tag}' {str(err)}!")
 				import traceback
 				traceback.print_exc()
 
@@ -1406,10 +1413,7 @@ def readSkin(screen, skin, names, desktop):
 			else:
 				processScreen(s[0], context)
 		layout = widget.attrib.get("layout")
-		if layout == "stack":
-			cc = SkinContextStack
-		else:
-			cc = SkinContext
+		cc = SkinContextStack if layout == "stack" else SkinContext
 		try:
 			c = cc(context, widget.attrib.get("position"), widget.attrib.get("size"), widget.attrib.get("font"))
 		except Exception as err:
@@ -1449,6 +1453,7 @@ def readSkin(screen, skin, names, desktop):
 	# things around.
 	screen = None
 	usedComponents = None
+	currentScreenName = None
 
 
 def findWidgets(name):

@@ -3,7 +3,6 @@ from skin import findSkinScreen, parameters, menuicons
 from Components.ActionMap import HelpableNumberActionMap, HelpableActionMap
 from Components.config import config, ConfigDictionarySet, configfile, NoSave
 from Components.NimManager import nimmanager  # noqa: F401  # used in menu.xml conditionals
-from Components.Pixmap import Pixmap
 from Components.PluginComponent import plugins
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
@@ -14,7 +13,7 @@ from Plugins.Plugin import PluginDescriptor
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.ParentalControlSetup import ProtectedScreen
-from Screens.Screen import Screen, ScreenSummary
+from Screens.Screen import Screen
 
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import resolveFilename, SCOPE_SKINS, SCOPE_CURRENT_SKIN
@@ -42,11 +41,6 @@ def MenuEntryPixmap(key, png_cache):
 		if pngPath:
 			png = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, pngPath), cached=True, width=w, height=0 if pngPath.endswith(".svg") else h)
 	return png
-
-
-class MenuSummary(ScreenSummary):
-	def __init__(self, session, parent):
-		ScreenSummary.__init__(self, session, parent=parent)
 
 
 class Menu(Screen, HelpableScreen, ProtectedScreen):
@@ -254,12 +248,20 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 		if self.layoutFinished not in self.onLayoutFinish:
 			self.onLayoutFinish.append(self.layoutFinished)
 
+		self["description"] = StaticText("")
+		if self.updateDescription not in self["menu"].onSelectionChanged:
+			self["menu"].onSelectionChanged.append(self.updateDescription)
+
+	def updateDescription(self):
+		self["description"].text = self["menu"].getCurrent() and len(self["menu"].getCurrent()) > 4 and self["menu"].getCurrent()[4] or ""
+
 	def __onExecBegin(self):
 		self.onExecBegin.remove(self.__onExecBegin)
 		self.okbuttonClick()
 
 	def layoutFinished(self):
 		self.screenContentChanged()
+		self.updateDescription()
 
 	def createMenuList(self):
 		if self.__class__.__name__ != "MenuSort":
@@ -350,9 +352,6 @@ class Menu(Screen, HelpableScreen, ProtectedScreen):
 	def closeRecursive(self):
 		self.resetNumberKey()
 		self.close(True)
-
-	def createSummary(self):
-		return MenuSummary
 
 	def isProtected(self):
 		if config.ParentalControl.setuppinactive.value:

@@ -346,7 +346,7 @@ def InitLcd():
 			ilcd.setFlipped(configElement.value)
 
 		def setLCDmode(configElement):
-			ilcd.setMode(configElement.value)
+			ilcd.setMode("1" if configElement.value else "0")
 
 		def setLCDpower(configElement):
 			ilcd.setPower(configElement.value)
@@ -363,7 +363,10 @@ def InitLcd():
 		def setLCDminitvfps(configElement):
 			ilcd.setLCDMiniTVFPS(configElement.value)
 
-		standby_default = 5
+		if SystemInfo["boxtype"] in ('dm900', 'dm920'):
+			standby_default = 4
+		else:
+			standby_default = 0
 
 		if not ilcd.isOled():
 			config.lcd.contrast = ConfigSlider(default=5, limits=(0, 20))
@@ -488,7 +491,7 @@ def InitLcd():
 			config.usage.vfd_final_scroll_delay.addNotifier(final_scroll_delay, immediate_feedback=False)
 
 		if fileExists("/proc/stb/lcd/show_symbols"):
-			config.lcd.mode = ConfigSelection([("0", _("no")), ("1", _("yes"))], "1")
+			config.lcd.mode = ConfigYesNo(default=True)
 			config.lcd.mode.addNotifier(setLCDmode)
 		else:
 			config.lcd.mode = ConfigNothing()
