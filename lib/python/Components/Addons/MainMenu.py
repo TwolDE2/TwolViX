@@ -5,6 +5,7 @@ from Components.Label import Label
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaBlend
 from skin import applySkinFactor, parseFont, parseColor, parseScale
 
+
 class MainMenu(GUIAddon):
 	def __init__(self):
 		GUIAddon.__init__(self)
