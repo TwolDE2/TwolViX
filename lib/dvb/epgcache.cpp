@@ -510,15 +510,15 @@ void eEPGCache::sectionRead(const uint8_t *data, int source, eEPGChannelData *ch
 
 		duration = fromBCD(eit_event->duration_1)*3600+fromBCD(eit_event->duration_2)*60+fromBCD(eit_event->duration_3);
 		start_time = parseDVBtime((const uint8_t*)eit_event + 2, &event_hash);
-		eDebug("[eEPGCache:sectionRead]1 source=[%d] source=0x%X)", source, source);
-		if (source != EPG_IMPORT && getIsBlacklisted(service)) // if service blacklisted and not EPG import/CrossEPG
+		// eDebug("[eEPGCache:sectionRead]1 source=[%d] source=0x%X)", source, source);
+		if (source != EPG_IMPORT && getIsBlacklisted(service)) // if service blacklisted and not EPG import/CrossEPG ---> no update
 			goto next;
 		if (source == NOWNEXT && !getIsWhitelisted(service))  // if Whitelist and NOWNEXT ---> update 
 			goto next;			
-		if (source > NOWNEXT && getIsBrownlisted(service))  // if Brownlist and not EPG import or NowNext reject
+/*		if (source > NOWNEXT && getIsBrownlisted(service))  // if Brownlist and not EPG import or NowNext reject
 			goto next;
 		if (source != EPG_IMPORT)
-			eDebug("[eEPGCache:sectionRead]2 source=[%d] source=0x%X)", source, source);
+			eDebug("[eEPGCache:sectionRead]2 source=[%d] source=0x%X)", source, source); */
 		if ((start_time != 3599) &&  // NVOD Service
 			(now <= (start_time+duration)) &&  // skip old events
 			(start_time < (now+28*24*60*60)) &&  // no more than 4 weeks in future
