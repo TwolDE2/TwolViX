@@ -121,8 +121,8 @@ class EPGListSingle(EPGListBase):
 
 	def fillEPG(self, service):
 		now = int(time())
-		epgTime = now - config.epg.histminutes.value * SECS_IN_MIN
-		test = ['RIBDT', (service.toString(), 0, int(epgTime), -1)]
+		epgTime = now - int(config.epg.histminutes.value) * SECS_IN_MIN
+		test = ['RIBDT', (service.toString(), 0, epgTime, -1)]
 		self.list = self.queryEPG(test)
 
 		odds = chr(0xc2) + chr(0x86)
