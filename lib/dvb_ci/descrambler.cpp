@@ -135,7 +135,7 @@ int descrambler_set_key(int& desc_fd, eDVBCISlot *slot, int parity, unsigned cha
 
 int descrambler_set_pid(int desc_fd, int index, int enable, int pid)
 {
-	struct ca_pid p;
+	struct ca_pid p = {};
 	unsigned int flags = 0x80;
 	eDebug("[CI descrambler]1 index: %x enable: %x pid: %x", index, enable, pid);
 	if (desc_fd < 0)

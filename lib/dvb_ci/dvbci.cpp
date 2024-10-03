@@ -260,6 +260,7 @@ int eDVBCIInterfaces::getSlotState(int slotid)
 int eDVBCIInterfaces::reset(int slotid)
 {
 	eDVBCISlot *slot;
+
 	singleLock s(m_slot_lock);
 	eDebug("[dvbci][eDVBCIInterfaces::reset][CI]1 Slot %d: getslot %d", slot, slot->getSlotID());
 	if( (slot = getSlot(slotid)) == 0 )
@@ -277,7 +278,9 @@ int eDVBCIInterfaces::initialize(int slotid)
 	singleLock s(m_slot_lock);
 	if( (slot = getSlot(slotid)) == 0 )
 		return -1;
+
 	slot->removeService();
+
 	return sendCAPMT(slotid);
 }
 
@@ -1304,27 +1307,13 @@ void eDVBCISlot::data(int what)
 	{
 		if(state != stateRemoved)
 		{
-			eDebug("[dvbci][data][CI%d] eSocketNotifier::Priority stateRemoved state= %d", slotid, state);				
+			eDebug("[dvbci][data][CI%d] eSocketNotifier::Priority stateRemoved state= %d", slotid, state);
+			state = stateRemoved;
 			while(sendqueue.size())
 			{
 				delete [] sendqueue.top().data;
 				sendqueue.pop();
 			}
-		}
-#ifdef DREAMBOX			
-		if (state == stateInvalid)
-		{
-			unsigned char buf[256];
-			eDebug("[dvbci][data][CI%d] flush", slotid);
-			while(::read(fd, buf, 256)>0);
-			state = stateResetted;
-			ioctl(fd, 0);
-			eDebug("[dvbci][data][CI%d] reset ioctl requested, state = %d", slotid, state);
-		}
-#endif
-		if(state != stateRemoved)
-		{			
-			state = stateRemoved;			
 			eDVBCISession::deleteSessions(this);
 			eDVBCIInterfaces::getInstance()->ciRemoved(this);
 			notifier->setRequested(eSocketNotifier::Read);
@@ -1332,6 +1321,7 @@ void eDVBCISlot::data(int what)
 		}
 		return;
 	}
+
 	if (state == stateInvalid)
 	{
 		eDebug("[dvbci][data][CI%d] non Dreambox stateInvalid .....reset requested", slotid);	
@@ -1418,7 +1408,7 @@ void eDVBCISlot::openDevice()
 	char filename[128];
 
 	plugged = true;
-	
+
 	sprintf(filename, "/dev/ci%d", slotid);
 
 //	possible_caids.insert(0x1702);
@@ -1579,6 +1569,7 @@ int eDVBCISlot::reset()
 		while(::read(fd, buf, 256)>0);
 		state = stateResetted;
 	}
+
 	while(sendqueue.size())
 	{
 		delete [] sendqueue.top().data;
