@@ -166,11 +166,7 @@ int descrambler_init(int slot, uint8_t ca_demux_id)
 {
 	int desc_fd;
 	
-#ifdef USE_ALTERNATE_CA_HANDLING
-	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id + 1);
-#else
 	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id);
-#endif
 
 	desc_fd = open(filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 	if (desc_fd == -1) {
