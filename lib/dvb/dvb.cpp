@@ -186,14 +186,14 @@ void eDVBAdapterLinux::scanDevices()
 		if (::access(filename, R_OK) < 0) break;
 		ePtr<eDVBDemux> demux;
 
-#ifdef DM900
+#ifdef DM920
 		++num_demux;
 #endif
 
 		demux = new eDVBDemux(m_nr, num_demux);
 		m_demux.push_back(demux);
 
-#ifndef DM900
+#ifndef DM920
 		++num_demux;
 #endif
 	}
