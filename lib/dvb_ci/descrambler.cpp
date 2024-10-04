@@ -68,7 +68,7 @@ struct vu_ca_descr_data {
 int descrambler_set_key(int& desc_fd, eDVBCISlot *slot, int parity, unsigned char *data)
 {
 	bool vuIoctlSuccess = false;
-
+	eDebug("[CI%d descrambler][descrambler_set_key] ***** TunerNum %d", slot->getTunerNum());
 	if (slot->getTunerNum() > 7) // might be VU box with 2 FBC tuners -> try to use VU ioctl
 	{
 		struct vu_ca_descr_data d;
@@ -94,6 +94,7 @@ int descrambler_set_key(int& desc_fd, eDVBCISlot *slot, int parity, unsigned cha
 		if (ret == 0)
 		{
 			vuIoctlSuccess = true;
+			eDebug("[CI%d descrambler]***** don't set pids for VU ioctl %d", slot->getSlotID());
 			descrambler_deinit(desc_fd); // don't set pids for VU ioctl
 			desc_fd = -1;
 		}
@@ -166,24 +167,25 @@ int descrambler_init(int slot, uint8_t ca_demux_id)
 {
 	int desc_fd;
 	
-#ifdef USE_ALTERNATE_CA_HANDLING
-	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id + 1);
-#else
 	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id);
-#endif
 
 	desc_fd = open(filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 	if (desc_fd == -1) {
 		eWarning("[CI%d descrambler] can not open %s", slot, filename.c_str());
 	}
-	eDebug("[CI%d descrambler] using ca device %s", slot, filename.c_str());
+	eDebug("[CI%d descrambler][descrambler_init] ***** using ca device %s", slot, filename.c_str());
 
 	return desc_fd;
 }
 
 void descrambler_deinit(int desc_fd)
 {
+	if (desc_fd == -1)
+		eDebug("[CI descrambler][descrambler_deinit] ***** fd already closed");
 	if (desc_fd >= 0)
+	{
+		eDebug("[CI descrambler][descrambler_deinit] ***** close ca %d", desc_fd);
 		close(desc_fd);
+	}
 	desc_fd = -1;
 }
