@@ -64,7 +64,7 @@ eDVBCICcSession::eDVBCICcSession(eDVBCISlot *slot, int version):
 eDVBCICcSession::~eDVBCICcSession()
 {
 	m_slot->setCCManager(0);
-	eDebug("[dvbci_ccmgr][eDVBCICcSession][CI%d]0 ***** free up ca device %d",  m_slot->getSlotID(), m_descrambler_fd)
+	eDebug("[dvbci_ccmgr][eDVBCICcSession][CI%d]0 ***** free up ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
 	descrambler_deinit(m_descrambler_fd);
 
 	if (m_root_ca_store)
@@ -783,7 +783,7 @@ void eDVBCICcSession::set_descrambler_key()
 
 	if (m_descrambler_fd != -1 && m_current_ca_demux_id != m_slot->getCADemuxID())
 	{
-		eDebug("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]2 ***** open, so close & reinit ca device %d",  m_slot->getSlotID(), m_descrambler_fd)
+		eDebug("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]2 ***** open, so close & reinit ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
 		descrambler_deinit(m_descrambler_fd);
 		m_descrambler_fd = descrambler_init(m_slot->getSlotID(), m_slot->getCADemuxID());
 		m_current_ca_demux_id = m_slot->getCADemuxID();
@@ -791,7 +791,7 @@ void eDVBCICcSession::set_descrambler_key()
 
 	if (m_descrambler_fd == -1 && m_slot->getCADemuxID() > -1)
 	{
-		eDebug("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]3 ***** closed, so init ca device %d",  m_slot->getSlotID(), m_descrambler_fd)
+		eDebug("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]3 ***** closed, so init ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
 		m_descrambler_fd = descrambler_init(m_slot->getSlotID(), m_slot->getCADemuxID());
 		m_current_ca_demux_id = m_slot->getCADemuxID();
 	}
