@@ -169,11 +169,11 @@ int descrambler_init(int slot, uint8_t ca_demux_id)
 	
 	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id);
 
-	desc_fd = open(filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+	desc_fd = open(filename.c_str(), O_RDWR);
 	if (desc_fd == -1) {
 		eWarning("[CI%d descrambler] can not open %s", slot, filename.c_str());
 	}
-	eDebug("[CI%d descrambler][descrambler_init] ***** using ca device %s", slot, filename.c_str());
+	eDebug("[CI%d descrambler][descrambler_init] ***** using desc_fd %dca device %s", slot, desc_fd, filename.c_str());
 
 	return desc_fd;
 }
