@@ -68,7 +68,7 @@ struct vu_ca_descr_data {
 int descrambler_set_key(int& desc_fd, eDVBCISlot *slot, int parity, unsigned char *data)
 {
 	bool vuIoctlSuccess = false;
-
+	eTrace("[CI%d descrambler][descrambler_set_key] ***** TunerNum %d", slot->getTunerNum());
 	if (slot->getTunerNum() > 7) // might be VU box with 2 FBC tuners -> try to use VU ioctl
 	{
 		struct vu_ca_descr_data d;
@@ -94,10 +94,11 @@ int descrambler_set_key(int& desc_fd, eDVBCISlot *slot, int parity, unsigned cha
 		if (ret == 0)
 		{
 			vuIoctlSuccess = true;
+			eTrace("[CI%d descrambler]***** don't set pids for VU ioctl %d", slot->getSlotID());
 			descrambler_deinit(desc_fd); // don't set pids for VU ioctl
 			desc_fd = -1;
 		}
-		eDebug("[CI%d] descrambler_set_key vu ret %u", slot->getSlotID(), ret);
+		eTrace("[CI%d] descrambler_set_key vu ret %u", slot->getSlotID(), ret);
 	}
 
 	if (!vuIoctlSuccess)
@@ -137,7 +138,7 @@ int descrambler_set_pid(int desc_fd, int index, int enable, int pid)
 {
 	struct ca_pid p = {};
 	unsigned int flags = 0x80;
-	eDebug("[CI descrambler]1 index: %x enable: %x pid: %x", index, enable, pid);
+	eTrace("[CI descrambler]1 index: %x enable: %x pid: %x", index, enable, pid);
 	if (desc_fd < 0)
 		return -1;
 
@@ -149,7 +150,7 @@ int descrambler_set_pid(int desc_fd, int index, int enable, int pid)
 
 	p.pid = pid;
 	p.index = flags;
-	eDebug("[CI descrambler]2 index: %x enable: %x flags: %x pid: %x", index, enable, flags, pid);
+	eTrace("[CI descrambler]2 index: %x enable: %x flags: %x pid: %x", index, enable, flags, pid);
 	if (ioctl(desc_fd, CA_SET_PID, &p) == -1) {
 #ifdef USE_ALTERNATE_CA_HANDLING
 		return 0;
@@ -172,18 +173,23 @@ int descrambler_init(int slot, uint8_t ca_demux_id)
 	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id);
 #endif
 
-	desc_fd = open(filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
+	desc_fd = open(filename.c_str(), O_RDWR);
 	if (desc_fd == -1) {
 		eWarning("[CI%d descrambler] can not open %s", slot, filename.c_str());
 	}
-	eDebug("[CI%d descrambler] using ca device %s", slot, filename.c_str());
+	eTrace("[CI%d descrambler][descrambler_init] ***** using desc_fd %dca device %s", slot, desc_fd, filename.c_str());
 
 	return desc_fd;
 }
 
 void descrambler_deinit(int desc_fd)
 {
+	if (desc_fd == -1)
+		eTrace("[CI descrambler][descrambler_deinit] ***** fd already closed");
 	if (desc_fd >= 0)
+	{
+		eTrace("[CI descrambler][descrambler_deinit] ***** close ca %d", desc_fd);
 		close(desc_fd);
+	}
 	desc_fd = -1;
 }

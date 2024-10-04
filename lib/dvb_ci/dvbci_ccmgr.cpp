@@ -64,6 +64,7 @@ eDVBCICcSession::eDVBCICcSession(eDVBCISlot *slot, int version):
 eDVBCICcSession::~eDVBCICcSession()
 {
 	m_slot->setCCManager(0);
+	eTrace("[dvbci_ccmgr][eDVBCICcSession][CI%d]0 ***** free up ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
 	descrambler_deinit(m_descrambler_fd);
 
 	if (m_root_ca_store)
@@ -151,6 +152,8 @@ void eDVBCICcSession::removeProgram(uint16_t program_number, std::vector<uint16_
 
 	for (std::vector<uint16_t>::iterator it = pids.begin(); it != pids.end(); ++it)
 		descrambler_set_pid(m_descrambler_fd, m_slot->getSlotID(), 0, *it);
+	// eTrace("[dvbci_ccmgr][eDVBCICcSession][removeProgram][CI%d]1 ***** free up ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
+	// descrambler_deinit(m_descrambler_fd); // removing program free up the ca device
 
 	// removing program means probably decoding on this slot is ending. So mark this slot as not descrambling
 	eDVBCI_UI::getInstance()->setDecodingState(m_slot->getSlotID(), 0);
@@ -171,7 +174,7 @@ void eDVBCICcSession::cc_data_req(const uint8_t *data, unsigned int len)
 	int id_bitmask;
 	int answ_len;
 	unsigned int rp = 0;
-	eDebug("[dvbci_ccmgr][cc_data_req][CI%d RCC]0 rp %u\n",  m_slot->getSlotID(), rp);
+	eTrace("[dvbci_ccmgr][cc_data_req][CI%d RCC]0 rp %u\n",  m_slot->getSlotID(), rp);
 	if (len < 2)
 	{
 		eWarning("[dvbci_ccmgr][cc_data_req][CI%d RCC] too short data", m_slot->getSlotID());
@@ -246,7 +249,7 @@ void eDVBCICcSession::cc_sac_data_req(const uint8_t *data, unsigned int len)
 	}
 
 	serial = UINT32(&data[rp], 4);
-	eDebug("[dvbci_ccmgr]CI%d RCC] serial %u\n",  m_slot->getSlotID(), serial);
+	eTrace("[dvbci_ccmgr]CI%d RCC] serial %u\n",  m_slot->getSlotID(), serial);
 
 	/* skip serial & header */
 	rp += 8;
@@ -548,7 +551,7 @@ bool eDVBCICcSession::check_dh_challenge()
 
 	m_akh_index = 5;
 
-	eDebug("[dvbci_ccmgr][check_dh_challenge][CI%d RCC] writing auth...", m_slot->getSlotID());
+	eTrace("[dvbci_ccmgr][check_dh_challenge][CI%d RCC] writing auth...", m_slot->getSlotID());
 	write_authdata(m_slot->getSlotID(), m_ci_elements.get_ptr(HOST_ID), m_dhsk, m_ci_elements.get_ptr(AKH));
 
 	return true;
@@ -579,9 +582,9 @@ int eDVBCICcSession::generate_dh_key()
 		eWarning("[dvbci_ccmgr][CI%d RCC] too long public key", m_slot->getSlotID());
 		return -1;
 	}
-	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]3 generate key len %x...", m_slot->getSlotID(), len);
+	eTrace("[dvbci_ccmgr][generate_dh_key][CI%d RCC]3 generate key len %x...", m_slot->getSlotID(), len);
 #if 0
-	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]4 generate key...", m_slot->getSlotID());
+	eTrace("[dvbci_ccmgr][generate_dh_key][CI%d RCC]4 generate key...", m_slot->getSlotID());
 	// verify DHPH
 	BN_CTX *ctx = BN_CTX_new();
 	BIGNUM *out = BN_new();
@@ -603,7 +606,7 @@ int eDVBCICcSession::generate_dh_key()
 	BN_bn2bin(pub_key, &dhph[gap]);
 
 	m_ci_elements.set(DHPH, dhph, sizeof(dhph));
-	eDebug("[dvbci_ccmgr][generate_dh_key][CI%d RCC]5 generate key...", m_slot->getSlotID());
+	eTrace("[dvbci_ccmgr][generate_dh_key][CI%d RCC]5 generate key...", m_slot->getSlotID());
 	return 0;
 }
 
@@ -653,7 +656,7 @@ int eDVBCICcSession::generate_sign_A()
 	RSA_private_encrypt(sizeof(dbuf), dbuf, sign_A, m_rsa_device_key, RSA_NO_PADDING);
 
 	m_ci_elements.set(SIGNATURE_A, sign_A, sizeof(sign_A));
-	eDebug("[dvbci_ccmgr][generate_sign_A][CI%d RCC]3 generated sign...", m_slot->getSlotID());
+	eTrace("[dvbci_ccmgr][generate_sign_A][CI%d RCC]3 generated sign...", m_slot->getSlotID());
 	return 0;
 }
 
@@ -662,7 +665,7 @@ int eDVBCICcSession::restart_dh_challenge()
 	if (!m_ci_elements.valid(AUTH_NONCE))
 		return -1;
 
-//	eDebug("[dvbci_ccmgr][restart_dh_challenge][CI%d RCC] rechecking...", m_slot->getSlotID());
+//	eTrace("[dvbci_ccmgr][restart_dh_challenge][CI%d RCC] rechecking...", m_slot->getSlotID());
 
 	m_root_ca_store = X509_STORE_new();
 	if (!m_root_ca_store)
@@ -699,9 +702,9 @@ int eDVBCICcSession::restart_dh_challenge()
 	m_ci_elements.invalidate(DHPM);
 	m_ci_elements.invalidate(SIGNATURE_B);
 	m_ci_elements.invalidate(AKH);
-	eDebug("[dvbci_ccmgr][restart_dh_challenge][CI%d RCC] generate key...", m_slot->getSlotID());
+	eTrace("[dvbci_ccmgr][restart_dh_challenge][CI%d RCC] generate key...", m_slot->getSlotID());
 	generate_dh_key();
-	eDebug("[dvbci_ccmgr][restart_dh_challenge][CI%d RCC] generate sign...", m_slot->getSlotID());
+	eTrace("[dvbci_ccmgr][restart_dh_challenge][CI%d RCC] generate sign...", m_slot->getSlotID());
 	generate_sign_A();
 
 	return 0;
@@ -713,7 +716,7 @@ int eDVBCICcSession::generate_uri_confirm()
 	uint8_t uck[32];
 	uint8_t uri_confirm[32];
 
-//	eDebug("[dvbci_ccmgr][CI%d RCC] uri_confirm...", m_slot->getSlotID());
+//	eTrace("[dvbci_ccmgr][CI%d RCC] uri_confirm...", m_slot->getSlotID());
 
 	// UCK
 	SHA256_Init(&sha);
@@ -745,7 +748,7 @@ void eDVBCICcSession::check_new_key()
 	if (!m_ci_elements.valid(KEY_REGISTER))
 		return;
 
-//	eDebug("[dvbci_ccmgr][CI%d RCC] key checking...", m_slot->getSlotID());
+//	eTrace("[dvbci_ccmgr][CI%d RCC] key checking...", m_slot->getSlotID());
 
 	kp = m_ci_elements.get_ptr(KP);
 	m_ci_elements.get_buf(&slot, KEY_REGISTER);
@@ -775,11 +778,12 @@ void eDVBCICcSession::check_new_key()
  * Sets new key or old one if /dev/caX device has changed */
 void eDVBCICcSession::set_descrambler_key()
 {
-	eDebug("[dvbci_ccmgr][CI%d RCC] set_descrambler_key", m_slot->getSlotID());
+	eTrace("[dvbci_ccmgr][CI%d RCC] set_descrambler_key", m_slot->getSlotID());
 	bool set_key = (m_current_ca_demux_id != m_slot->getCADemuxID()) || (m_slot->getTunerNum() > 7);
 
 	if (m_descrambler_fd != -1 && m_current_ca_demux_id != m_slot->getCADemuxID())
 	{
+		eTrace("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]2 ***** open, so close & reinit ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
 		descrambler_deinit(m_descrambler_fd);
 		m_descrambler_fd = descrambler_init(m_slot->getSlotID(), m_slot->getCADemuxID());
 		m_current_ca_demux_id = m_slot->getCADemuxID();
@@ -787,13 +791,14 @@ void eDVBCICcSession::set_descrambler_key()
 
 	if (m_descrambler_fd == -1 && m_slot->getCADemuxID() > -1)
 	{
+		eTrace("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]3 ***** closed, so init ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
 		m_descrambler_fd = descrambler_init(m_slot->getSlotID(), m_slot->getCADemuxID());
 		m_current_ca_demux_id = m_slot->getCADemuxID();
 	}
 
 	if  (m_descrambler_fd != -1 && (set_key || m_descrambler_new_key))
 	{
-		eDebug("[dvbci_ccmgr][CI%d RCC] setting key: new ca device: %d, new key: %d", m_slot->getSlotID(), set_key, m_descrambler_new_key);
+		eTrace("[dvbci_ccmgr][CI%d RCC] setting key: new ca device: %d, new key: %d", m_slot->getSlotID(), set_key, m_descrambler_new_key);
 		descrambler_set_key(m_descrambler_fd, m_slot, m_descrambler_odd_even, m_descrambler_key_iv);
 		if (m_descrambler_new_key)
 		{
@@ -863,7 +868,7 @@ bool eDVBCICcSession::sac_check_auth(const uint8_t *data, unsigned int len)
 		return false;
 	}
 
-	//eDebug("[CI RCC] auth ok!");
+	//eTrace("[CI RCC] auth ok!");
 
 	return true;
 }
@@ -988,7 +993,7 @@ bool eDVBCICcSession::ci_element_set_hostid_from_certificate(unsigned int id, X5
 		return false;
 	}
 
-//	eDebug("[dvbci_ccmgr][CI%d RCC] DEVICE_ID: %s", m_slot->getSlotID(), hostid);
+//	eTrace("[dvbci_ccmgr][CI%d RCC] DEVICE_ID: %s", m_slot->getSlotID(), hostid);
 
 	str2bin(bin_hostid, hostid, 16);
 
