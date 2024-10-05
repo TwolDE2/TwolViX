@@ -134,15 +134,15 @@ int descrambler_set_key(int& desc_fd, eDVBCISlot *slot, int parity, unsigned cha
 	return 0;
 }
 
-int descrambler_set_pid(int desc_fd, int index, int enable, int pid)
+int descrambler_set_pid(int desc_fd, eDVBCISlot *slot, int enable, int pid)
 {
 	struct ca_pid p = {};
 	unsigned int flags = 0x80;
-	eTrace("[CI descrambler]1 index: %x enable: %x pid: %x", index, enable, pid);
+	eTrace("[CI descrambler]1 index: %x enable: %x pid: %x", slot->getSlotID(), enable, pid);
 	if (desc_fd < 0)
 		return -1;
 
-	if (index)
+	if (slot->getSlotID())
 		flags |= 0x40;
 
 	if (enable)
@@ -150,34 +150,31 @@ int descrambler_set_pid(int desc_fd, int index, int enable, int pid)
 
 	p.pid = pid;
 	p.index = flags;
-	eTrace("[CI descrambler]2 index: %x enable: %x flags: %x pid: %x", index, enable, flags, pid);
+	eTrace("[CI descrambler]2 index: %x enable: %x flags: %x pid: %x", slot->getSlotID(), enable, flags, pid);
 	if (ioctl(desc_fd, CA_SET_PID, &p) == -1) {
-#ifdef USE_ALTERNATE_CA_HANDLING
-		return 0;
-#else
-		eWarning("[CI%d descrambler] set pid failed", index);
+		if (slot->getDescramblingOptions() > 0)
+			return 0;
+		eWarning("[CI%d descrambler] set pid failed", slot->getSlotID());
 		return -1;
-#endif
 	}
 
 	return 0;
 }
 
-int descrambler_init(int slot, uint8_t ca_demux_id)
+int descrambler_init(eDVBCISlot *slot, uint8_t ca_demux_id)
 {
 	int desc_fd;
 	
-#ifdef USE_ALTERNATE_CA_HANDLING
-	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id + 1);
-#else
 	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id);
-#endif
+
+	if (slot->getDescramblingOptions() > 1)
+		filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id + 1);
 
 	desc_fd = open(filename.c_str(), O_RDWR);
 	if (desc_fd == -1) {
-		eWarning("[CI%d descrambler] can not open %s", slot, filename.c_str());
+		eWarning("[CI%d descrambler] can not open %s", slot->getSlotID(), filename.c_str());
 	}
-	eTrace("[CI%d descrambler][descrambler_init] ***** using desc_fd %dca device %s", slot, desc_fd, filename.c_str());
+	eTrace("[CI%d descrambler] using ca device %s", slot->getSlotID(), filename.c_str());
 
 	return desc_fd;
 }

@@ -140,7 +140,7 @@ void eDVBCICcSession::addProgram(uint16_t program_number, std::vector<uint16_t>&
 	eDebugNoNewLine("\n");
 
 	for (std::vector<uint16_t>::iterator it = pids.begin(); it != pids.end(); ++it)
-		descrambler_set_pid(m_descrambler_fd, m_slot->getSlotID(), 1, *it);
+		descrambler_set_pid(m_descrambler_fd, m_slot, 1, *it);
 }
 
 void eDVBCICcSession::removeProgram(uint16_t program_number, std::vector<uint16_t>& pids)
@@ -151,9 +151,10 @@ void eDVBCICcSession::removeProgram(uint16_t program_number, std::vector<uint16_
 	eDebugNoNewLine("\n");
 
 	for (std::vector<uint16_t>::iterator it = pids.begin(); it != pids.end(); ++it)
-		descrambler_set_pid(m_descrambler_fd, m_slot->getSlotID(), 0, *it);
-	// eTrace("[dvbci_ccmgr][eDVBCICcSession][removeProgram][CI%d]1 ***** free up ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
-	// descrambler_deinit(m_descrambler_fd); // removing program free up the ca device
+		descrambler_set_pid(m_descrambler_fd, m_slot, 0, *it);
+
+	if (m_slot->getDescramblingOptions() == 1 || m_slot->getDescramblingOptions() == 3)
+		descrambler_deinit(m_descrambler_fd);
 
 	// removing program means probably decoding on this slot is ending. So mark this slot as not descrambling
 	eDVBCI_UI::getInstance()->setDecodingState(m_slot->getSlotID(), 0);
@@ -785,14 +786,14 @@ void eDVBCICcSession::set_descrambler_key()
 	{
 		eTrace("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]2 ***** open, so close & reinit ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
 		descrambler_deinit(m_descrambler_fd);
-		m_descrambler_fd = descrambler_init(m_slot->getSlotID(), m_slot->getCADemuxID());
+		m_descrambler_fd = descrambler_init(m_slot, m_slot->getCADemuxID());
 		m_current_ca_demux_id = m_slot->getCADemuxID();
 	}
 
 	if (m_descrambler_fd == -1 && m_slot->getCADemuxID() > -1)
 	{
-		eTrace("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]3 ***** closed, so init ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
-		m_descrambler_fd = descrambler_init(m_slot->getSlotID(), m_slot->getCADemuxID());
+		eTrace("[dvbci_ccmgr][eDVBCICcSession::set_descrambler_key][CI%d]3 ***** closed, so init ca device",  m_slot->getSlotID());
+		m_descrambler_fd = descrambler_init(m_slot, m_slot->getCADemuxID());
 		m_current_ca_demux_id = m_slot->getCADemuxID();
 	}
 
