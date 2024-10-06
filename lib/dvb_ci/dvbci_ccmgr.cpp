@@ -65,8 +65,8 @@ eDVBCICcSession::~eDVBCICcSession()
 {
 	m_slot->setCCManager(0);
 	eTrace("[dvbci_ccmgr][eDVBCICcSession][CI%d]0 ***** free up ca device %d",  m_slot->getSlotID(), m_descrambler_fd);
-	descrambler_deinit(m_descrambler_fd);
-
+	if (m_slot->getDescramblingOptions() != 1 && m_slot->getDescramblingOptions() != 3)
+		descrambler_deinit(m_descrambler_fd);
 	if (m_root_ca_store)
 		X509_STORE_free(m_root_ca_store);
 	if (m_cust_cert)
