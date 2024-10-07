@@ -443,9 +443,9 @@ class CiSelection(Screen):
 		try:
 			self["entries"].handleKey(key)
 			self["entries"].getCurrent()[1].save()
-			if "*" in self["entries"].getCurrent()[0]:  # reboot requested 
+			if "*" in self["entries"].getCurrent()[0]:  # reboot requested
 				self.reBoot = True
-				# print(f"[CI][CiSelection][keyConfigEntry] reBoot option {self["entries"].getCurrent()[0]} ")							
+				# print(f"[CI][CiSelection][keyConfigEntry] reBoot option {self["entries"].getCurrent()[0]} ")
 		except:
 			pass
 
@@ -559,7 +559,7 @@ class CiSelection(Screen):
 			if state != -1:
 				CiHandler.unregisterCIMessageHandler(slot)
 		if self.reBoot:
-			print("[CI][CiSelection][cancel]")		
+			print("[CI][CiSelection][cancel]")
 			Notifications.AddNotification(TryQuitMainloop, 3)
 		self.close()
 
