@@ -8,8 +8,9 @@ from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-import Screens.Standby
+from Screens.Standby import inStandby, TryQuitMainloop
 from Tools.BoundFunction import boundFunction
+from Tools import Notifications
 
 
 forceNotShowCiMessages = False
@@ -369,7 +370,7 @@ class CiMessageHandler:
 							elif ci_tag == 'CLOSE' and self.auto_close:
 								show_ui = False
 								self.auto_close = False
-					if show_ui and not forceNotShowCiMessages and not Screens.Standby.inStandby:
+					if show_ui and not forceNotShowCiMessages and not inStandby:
 						try:
 							self.dlgs[slot] = self.session.openWithCallback(self.dlgClosed, MMIDialog, slot, 3, screen_data=screen_data)
 						except:
@@ -402,8 +403,8 @@ class CiSelection(Screen):
 				"ok": self.okbuttonClick,
 				"cancel": self.cancel
 			}, -1)  # noqa: E123
-		self["key_red"] = StaticText(_("Cancel"))
-
+		self["key_red"] = StaticText(_("Save & Exit"))
+		self.reBoot = False
 		self.dlg = None
 		self.state = {}
 		self.list = []
@@ -442,6 +443,9 @@ class CiSelection(Screen):
 		try:
 			self["entries"].handleKey(key)
 			self["entries"].getCurrent()[1].save()
+			if "*" in self["entries"].getCurrent()[0]:  # reboot requested 
+				self.reBoot = True
+				# print(f"[CI][CiSelection][keyConfigEntry] reBoot option {self["entries"].getCurrent()[0]} ")							
 		except:
 			pass
 
@@ -554,6 +558,9 @@ class CiSelection(Screen):
 			state = eDVBCI_UI.getInstance().getState(slot)
 			if state != -1:
 				CiHandler.unregisterCIMessageHandler(slot)
+		if self.reBoot:
+			print("[CI][CiSelection][cancel]")		
+			Notifications.AddNotification(TryQuitMainloop, 3)
 		self.close()
 
 
