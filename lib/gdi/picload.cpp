@@ -446,7 +446,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_PLTE))
 		{
-			eDebug("[ePicLoad] png_get_valid");
+			eDebug("[ePicLoad] png_get_valid")
 			png_color *palette;
 			int num_palette;
 			png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
@@ -472,7 +472,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 		}
 		else
 		{
-			eDebug("[ePicLoad] else NOT png_get_valid");
+			eDebug("[ePicLoad] else NOT png_get_valid")
 			int c_cnt = 1 << bit_depth;
 			int c_step = (256 - 1) / (c_cnt - 1);
 			filepara->palette_size = c_cnt;
@@ -493,20 +493,20 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 	{
 		eDebug("[ePicLoad]2 NOT (bit_depth <= 8) && (color_type == PNG_COLOR_TYPE_GRAY || color_type & PNG_COLOR_MASK_PALETTE");
 		if (bit_depth == 16)
-			eDebug("[ePicLoad] bit_depth == 16");
+			eDebug("[ePicLoad] bit_depth == 16")
 			png_set_strip_16(png_ptr);
 
 		if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
-			eDebug("[ePicLoad] color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA");
+			eDebug("[ePicLoad] color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA")
 			png_set_gray_to_rgb(png_ptr);
 
 		if ((color_type == PNG_COLOR_TYPE_PALETTE) || (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) || (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)))
-			eDebug("[ePicLoad] color_type == PNG_COLOR_TYPE_PALETTE) || (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) || (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)");
+			eDebug("[ePicLoad] color_type == PNG_COLOR_TYPE_PALETTE) || (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) || (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)")
 			png_set_expand(png_ptr);
 
 		if (color_type & PNG_COLOR_MASK_ALPHA || png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
 		{
-			eDebug("[ePicLoad] (color_type & PNG_COLOR_MASK_ALPHA || png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)");
+			eDebug("[ePicLoad] (color_type & PNG_COLOR_MASK_ALPHA || png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)")
 			png_set_strip_alpha(png_ptr);
 			png_color_16 bg;
 			bg.red = (background >> 16) & 0xFF;
