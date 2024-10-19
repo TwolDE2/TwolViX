@@ -358,6 +358,11 @@ static unsigned char *bmp_load(const char *file,  int *x, int *y)
 //---------------------------------------------------------------------
 
 static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
+/*	PNG_COLOR_TYPE_GRAY 0 
+	PNG_COLOR_TYPE_RGB 2 
+	PNG_COLOR_TYPE_PALETTE 3 
+	PNG_COLOR_TYPE_GRAY_ALPHA 4 
+	PNG_COLOR_TYPE_RGB_ALPHA 6 */
 {
 	png_uint_32 width, height;
 	unsigned int i;
@@ -449,7 +454,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 			if (num_palette)
 				filepara->palette = new gRGB[num_palette];
 
-			for (unsigned int i = 0; i < num_palette; i++)
+			for (int i = 0; i < num_palette; i++)
 			{
 				filepara->palette[i].a = 0;
 				filepara->palette[i].r = palette[i].red;
@@ -461,14 +466,14 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 			{
 				png_byte *trans;
 				png_get_tRNS(png_ptr, info_ptr, &trans, &num_palette, 0);
-				for (unsigned int i = 0; i < num_palette; i++)
+				for (int i = 0; i < num_palette; i++)
 					filepara->palette[i].a = 255 - trans[i];
 			}
 		}
 		else
 		{
-			int c_cnt = 1 << bit_depth;
-			int c_step = (256 - 1) / (c_cnt - 1);
+			unsigned int c_cnt = 1 << bit_depth;
+			unsigned int c_step = (256 - 1) / (c_cnt - 1);
 			filepara->palette_size = c_cnt;
 			filepara->palette = new gRGB[c_cnt];
 			for (unsigned int i = 0; i < c_cnt; i++)
@@ -509,10 +514,10 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 		png_read_update_info(png_ptr, info_ptr);
 
 		int bpp = png_get_rowbytes(png_ptr, info_ptr) / width;
-		eDebug("[ePicLoad] RGB data from PNG file int bpp %x)", bpp);
+		eDebug("[ePicLoad][png_load] RGB data from PNG file int bpp %x)", bpp);
 		if ((bpp != 4) && (bpp != 3))
 		{
-			eDebug("[ePicLoad] Error processing (did not get RGB data from PNG file)");
+			eDebug("[ePicLoad][png_load] Error processing (did not get RGB data from PNG file)");
 			png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 			return;
 		}
@@ -520,7 +525,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 		unsigned char *pic_buffer = new unsigned char[pixel_cnt * bpp];
 		if (!pic_buffer)
 		{
-			eDebug("[ePicLoad] Error malloc");
+			eDebug("[ePicLoad][png_load] Error malloc");
 			png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 			return;
 		}
@@ -539,7 +544,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 			unsigned char *pic_buffer24 = new unsigned char[pixel_cnt * 3];
 			if (!pic_buffer24)
 			{
-				eDebug("[ePicLoad] Error malloc");
+				eDebug("[ePicLoad][png_load] Error malloc");
 				delete[] pic_buffer;
 				return;
 			}
@@ -1158,7 +1163,7 @@ void ePicLoad::gotMessage(const Message &msg)
 			quit(0);
 			break;
 		case Message::decode_finished: // called from main thread
-			//eDebug("[ePicLoad] decode finished... %s", m_filepara->file);
+			eDebug("[ePicLoad] decode finished... %s", m_filepara->file);
 			if((m_filepara != NULL) && (m_filepara->callback))
 			{
 				eDebug("[ePicLoad] picinfo... %s", m_filepara->picinfo.c_str());
