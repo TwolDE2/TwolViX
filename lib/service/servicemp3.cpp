@@ -444,6 +444,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_pump(eApp, 1, "Servicemp3")
 {
 	m_subtitle_sync_timer = eTimer::create(eApp);
+	m_dvb_subtitle_sync_timer = eTimer::create(eApp);
 	m_stream_tags = 0;
 	m_currentAudioStream = -1;
 	m_currentSubtitleStream = -1;
@@ -488,6 +489,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	}
 
 	CONNECT(m_subtitle_sync_timer->timeout, eServiceMP3::pushSubtitles);
+	CONNECT(m_dvb_subtitle_sync_timer->timeout, eServiceMP3::pushDVBSubtitles);
 	CONNECT(m_pump.recv_msg, eServiceMP3::gstPoll);
 	CONNECT(m_nownext_timer->timeout, eServiceMP3::updateEpgCacheNowNext);
 	m_aspect = m_width = m_height = m_framerate = m_progressive = m_gamma = -1;
@@ -1807,6 +1809,12 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 					subsink = gst_bin_get_by_name(GST_BIN(m_gst_playbin), "subtitle_sink");
 					if (subsink)
 					{
+						/*
+						 * FIX: Seems that subtitle sink have a delay of receiving subtitles buffer.
+						 * So we move ahead the PTS of the subtitle sink by 2 seconds.
+						 * Then we do aditional sync of subtitles if they arrive ahead of PTS
+						 */
+						g_object_set (G_OBJECT (subsink), "ts-offset", -2LL * GST_SECOND, NULL);
 #ifdef GSTREAMER_SUBTITLE_SYNC_MODE_BUG
 						/*
 						 * HACK: disable sync mode for now, gstreamer suffers from a bug causing sparse streams to loose sync, after pause/resume / skip
@@ -2693,6 +2701,487 @@ void eServiceMP3::gstTextpadHasCAPS_synced(GstPad *pad)
 	}
 }
 
+<<<<<<< HEAD
+=======
+void eServiceMP3::subtitle_redraw_all()
+{
+	subtitle_page *page = m_pages;
+
+	while(page)
+	{
+		subtitle_redraw(page->page_id);
+		page = page->next;
+	}
+}
+
+void eServiceMP3::subtitle_reset()
+{
+	while (subtitle_page *page = m_pages)
+	{
+			/* free page regions */
+		while (page->page_regions)
+		{
+			subtitle_page_region *p = page->page_regions->next;
+			delete page->page_regions;
+			page->page_regions = p;
+		}
+			/* free regions */
+		while (page->regions)
+		{
+			subtitle_region *region = page->regions;
+
+			while (region->objects)
+			{
+				subtitle_region_object *obj = region->objects;
+				region->objects = obj->next;
+				delete obj;
+			}
+
+			if (region->buffer)
+				region->buffer=0;
+
+			page->regions = region->next;
+			delete region;
+		}
+
+			/* free CLUTs */
+		while (page->cluts)
+		{
+			subtitle_clut *clut = page->cluts;
+			page->cluts = clut->next;
+			delete clut;
+		}
+
+		m_pages = page->next;
+		delete page;
+	}
+}
+
+void eServiceMP3::subtitle_redraw(int page_id)
+{
+	eDebug("REDRAWINGGGGGGGGGGG!!!!! %d", page_id);
+	subtitle_page *page = m_pages;
+
+	while (page)
+	{
+		if (page->page_id == page_id)
+			break;
+		page = page->next;
+	}
+	if (!page){
+		eDebug("NOT PAGE!!!!!");
+		return;
+	}
+
+	/* iterate all regions in this pcs */
+	subtitle_page_region *region = page->page_regions;
+
+	eDVBSubtitlePage Page;
+	Page.m_show_time = m_show_time;
+	for (; region; region=region->next)
+	{
+		/* find corresponding region */
+		subtitle_region *reg = page->regions;
+		while (reg)
+		{
+			eDebug("LOOP REGIONS!!!!!");
+			eDebug("REGION reg->region_id/region->region_id = %d/%d", reg->region_id, region->region_id);
+			if (reg->region_id == region->region_id){
+				eDebug("REGION FFFFFFOUND   reg->region_id == region->region_id");
+				break;
+			}
+				
+			reg = reg->next;
+		}
+		if (reg)
+		{
+			eDebug("FOUND REGION!!!!!");
+			int x0 = region->region_horizontal_address;
+			int y0 = region->region_vertical_address;
+
+			if ((x0 < 0) || (y0 < 0))
+				continue;
+
+			/* find corresponding clut */
+			subtitle_clut *clut = page->cluts;
+			while (clut)
+			{
+				if (clut->clut_id == reg->clut_id)
+					break;
+				clut = clut->next;
+			}
+
+			int clut_size = reg->buffer->surface->clut.colors = reg->depth == subtitle_region::bpp2 ?
+				4 : reg->depth == subtitle_region::bpp4 ? 16 : 256;
+
+			reg->buffer->surface->clut.data = new gRGB[clut_size];
+
+			gRGB *palette = reg->buffer->surface->clut.data;
+
+			subtitle_clut_entry *entries=0;
+			switch(reg->depth)
+			{
+				case subtitle_region::bpp2:
+					if (clut)
+						entries = clut->entries_2bit;
+					memset(static_cast<void*>(palette), 0, 4 * sizeof(gRGB));
+					// this table is tested on cyfra .. but in EN300743 the table palette[2] and palette[1] is swapped.. i dont understand this ;)
+					palette[0].a = 0xFF;
+					palette[2].r = palette[2].g = palette[2].b = 0xFF;
+					palette[3].r = palette[3].g = palette[3].b = 0x80;
+					break;
+				case subtitle_region::bpp4: // tested on cyfra... but the map is another in EN300743... dont understand this...
+					if (clut)
+						entries = clut->entries_4bit;
+					memset(static_cast<void*>(palette), 0, 16*sizeof(gRGB));
+					for (int i=0; i < 16; ++i)
+					{
+						if (!i)
+							palette[i].a = 0xFF;
+						else if (i & 8)
+						{
+							if (i & 1)
+								palette[i].r = 0x80;
+							if (i & 2)
+								palette[i].g = 0x80;
+							if (i & 4)
+								palette[i].b = 0x80;
+						}
+						else
+						{
+							if (i & 1)
+								palette[i].r = 0xFF;
+							if (i & 2)
+								palette[i].g = 0xFF;
+							if (i & 4)
+								palette[i].b = 0xFF;
+						}
+					}
+					break;
+				case subtitle_region::bpp8:  // completely untested.. i never seen 8bit DVB subtitles
+					if (clut)
+						entries = clut->entries_8bit;
+					memset(static_cast<void*>(palette), 0, 256*sizeof(gRGB));
+					for (int i=0; i < 256; ++i)
+					{
+						switch (i & 17)
+						{
+						case 0: // b1 == 0 && b5 == 0
+							if (!(i & 14)) // b2 == 0 && b3 == 0 && b4 == 0
+							{
+								if (!(i & 224)) // b6 == 0 && b7 == 0 && b8 == 0
+									palette[i].a = 0xFF;
+								else
+								{
+									if (i & 128) // R = 100% x b8
+										palette[i].r = 0xFF;
+									if (i & 64) // G = 100% x b7
+										palette[i].g = 0xFF;
+									if (i & 32) // B = 100% x b6
+										palette[i].b = 0xFF;
+									palette[i].a = 0xBF; // T = 75%
+								}
+								break;
+							}
+							[[fallthrough]];
+						case 16: // b1 == 0 && b5 == 1
+							if (i & 128) // R = 33% x b8
+								palette[i].r = 0x55;
+							if (i & 64) // G = 33% x b7
+								palette[i].g = 0x55;
+							if (i & 32) // B = 33% x b6
+								palette[i].b = 0x55;
+							if (i & 8) // R + 66,7% x b4
+								palette[i].r += 0xAA;
+							if (i & 4) // G + 66,7% x b3
+								palette[i].g += 0xAA;
+							if (i & 2) // B + 66,7% x b2
+								palette[i].b += 0xAA;
+							if (i & 16) // needed for fall through from case 0!!
+								palette[i].a = 0x80; // T = 50%
+							break;
+						case 1: // b1 == 1 && b5 == 0
+							palette[i].r =
+							palette[i].g =
+							palette[i].b = 0x80; // 50%
+							[[fallthrough]];
+						case 17: // b1 == 1 && b5 == 1
+							if (i & 128) // R += 16.7% x b8
+								palette[i].r += 0x2A;
+							if (i & 64) // G += 16.7% x b7
+								palette[i].g += 0x2A;
+							if (i & 32) // B += 16.7% x b6
+								palette[i].b += 0x2A;
+							if (i & 8) // R += 33% x b4
+								palette[i].r += 0x55;
+							if (i & 4) // G += 33% x b3
+								palette[i].g += 0x55;
+							if (i & 2) // B += 33% x b2
+								palette[i].b += 0x55;
+							break;
+						}
+					}
+					break;
+			}
+
+			int bcktrans = eConfigManager::getConfigIntValue("config.subtitles.dvb_subtitles_backtrans");
+			bool yellow = eConfigManager::getConfigBoolValue("config.subtitles.dvb_subtitles_yellow");
+
+			for (int i=0; i<clut_size; ++i)
+			{
+				if (entries && entries[i].valid)
+				{
+					int y = entries[i].Y,
+						cr = entries[i].Cr,
+						cb = entries[i].Cb;
+					if (y > 0)
+					{
+						y -= 16;
+						cr -= 128;
+						cb -= 128;
+						palette[i].r = MAX(MIN(((298 * y            + 460 * cr) / 256), 255), 0);
+						palette[i].g = MAX(MIN(((298 * y -  55 * cb - 137 * cr) / 256), 255), 0);
+						palette[i].b = yellow?0:MAX(MIN(((298 * y + 543 * cb  ) / 256), 255), 0);
+						if (bcktrans)
+						{
+							if (palette[i].r || palette[i].g || palette[i].b)
+								palette[i].a = (entries[i].T) & 0xFF;
+							else
+								palette[i].a = bcktrans;
+						}
+						else
+							palette[i].a = (entries[i].T) & 0xFF;
+					}
+					else
+					{
+						palette[i].r = 0;
+						palette[i].g = 0;
+						palette[i].b = 0;
+						palette[i].a = 0xFF;
+					}
+				}
+			}
+
+			eDVBSubtitleRegion Region;
+			Region.m_pixmap = reg->buffer;
+			Region.m_position.setX(x0);
+			Region.m_position.setY(y0);
+			Page.m_regions.push_back(Region);
+			reg->committed = true;
+		}
+	}
+	Page.m_display_size = m_display_size;
+	m_dvb_subtitle_pages.push_back(Page);
+	pushDVBSubtitles();
+	Page.m_regions.clear();
+}
+
+void eServiceMP3::subtitle_process_line(subtitle_region *region, subtitle_region_object *object, int line, uint8_t *data, int len)
+{
+	bool subcentered = eConfigManager::getConfigBoolValue("config.subtitles.dvb_subtitles_centered");
+	int x = subcentered ? (region->width - len) /2 : object->object_horizontal_position;
+	int y = object->object_vertical_position + line;
+	if (x + len > region->width)
+		len = region->width - x;
+	if (len < 0 || y >= region->height)
+		return;
+
+	memcpy((uint8_t*)region->buffer->surface->data + region->buffer->surface->stride * y + x, data, len);
+}
+
+static int map_2_to_4_bit_table[4];
+static int map_2_to_8_bit_table[4];
+static int map_4_to_8_bit_table[16];
+
+int eServiceMP3::subtitle_process_pixel_data(subtitle_region *region, subtitle_region_object *object, int *linenr, int *linep, uint8_t *data)
+{
+	int data_type = *data++;
+	static uint8_t line[1920];
+
+	bitstream bit;
+	bit.size=0;
+	switch (data_type)
+	{
+	case 0x10: // 2bit pixel data
+		bitstream_gs_init(&bit, data, 2);
+		while (1)
+		{
+			int len=0, col=0;
+			int code = bitstream_gs_get(&bit);
+			if (code)
+			{
+				col = code;
+				len = 1;
+			} else
+			{
+				code = bitstream_gs_get(&bit);
+				if (!code)
+				{
+					code = bitstream_gs_get(&bit);
+					if (code == 1)
+					{
+						col = 0;
+						len = 2;
+					} else if (code == 2)
+					{
+						len = bitstream_gs_get(&bit) << 2;
+						len |= bitstream_gs_get(&bit);
+						len += 12;
+						col = bitstream_gs_get(&bit);
+					} else if (code == 3)
+					{
+						len = bitstream_gs_get(&bit) << 6;
+						len |= bitstream_gs_get(&bit) << 4;
+						len |= bitstream_gs_get(&bit) << 2;
+						len |= bitstream_gs_get(&bit);
+						len += 29;
+						col = bitstream_gs_get(&bit);
+					} else
+						break;
+				} else if (code==1)
+				{
+					col = 0;
+					len = 1;
+				} else if (code&2)
+				{
+					if (code&1)
+						len = 3 + 4 + bitstream_gs_get(&bit);
+					else
+						len = 3 + bitstream_gs_get(&bit);
+					col = bitstream_gs_get(&bit);
+				}
+			}
+			uint8_t c = region->depth == subtitle_region::bpp4 ?
+				map_2_to_4_bit_table[col] :
+				region->depth == subtitle_region::bpp8 ?
+				map_2_to_8_bit_table[col] : col;
+			while (len && ((*linep) < m_display_size.width()))
+			{
+				line[(*linep)++] = c;
+				len--;
+			}
+		}
+		while (bit.avail != 8)
+			bitstream_gs_get(&bit);
+		return bit.consumed + 1;
+	case 0x11: // 4bit pixel data
+		bitstream_gs_init(&bit, data, 4);
+		while (1)
+		{
+			int len=0, col=0;
+			int code = bitstream_gs_get(&bit);
+			if (code)
+			{
+				col = code;
+				len = 1;
+			} else
+			{
+				code = bitstream_gs_get(&bit);
+				if (!code)
+					break;
+				else if (code == 0xC)
+				{
+					col = 0;
+					len = 1;
+				} else if (code == 0xD)
+				{
+					col = 0;
+					len = 2;
+				} else if (code < 8)
+				{
+					col = 0;
+					len = (code & 7) + 2;
+				} else if ((code & 0xC) == 0x8)
+				{
+					col = bitstream_gs_get(&bit);
+					len = (code & 3) + 4;
+				} else if (code == 0xE)
+				{
+					len = bitstream_gs_get(&bit) + 9;
+					col = bitstream_gs_get(&bit);
+				} else if (code == 0xF)
+				{
+					len  = bitstream_gs_get(&bit) << 4;
+					len |= bitstream_gs_get(&bit);
+					len += 25;
+					col  = bitstream_gs_get(&bit);
+				}
+			}
+			uint8_t c = region->depth == subtitle_region::bpp8 ?
+				map_4_to_8_bit_table[col] : col;
+			while (len && ((*linep) < m_display_size.width()))
+			{
+				line[(*linep)++] = c;
+				len--;
+			}
+		}
+		while (bit.avail != 8)
+			bitstream_gs_get(&bit);
+		return bit.consumed + 1;
+	case 0x12: // 8bit pixel data
+		bitstream_gs_init(&bit, data, 8);
+		while(1)
+		{
+			int len=0, col=0;
+			int code = bitstream_gs_get(&bit);
+			if (code)
+			{
+				col = code;
+				len = 1;
+			} else
+			{
+				code = bitstream_gs_get(&bit);
+				if ((code & 0x80) == 0x80)
+				{
+					len = code&0x7F;
+					col = bitstream_gs_get(&bit);
+				} else if (code&0x7F)
+				{
+					len = code&0x7F;
+					col = 0;
+				} else
+					break;
+			}
+			while (len && ((*linep) < m_display_size.width()))
+			{
+				line[(*linep)++] = col;
+				len--;
+			}
+		}
+		return bit.consumed + 1;
+	case 0x20:
+		bitstream_gs_init(&bit, data, 4);
+		for ( int i=0; i < 4; ++i )
+		{
+			map_2_to_4_bit_table[i] = bitstream_gs_get(&bit);
+		}
+		return bit.consumed + 1;
+	case 0x21:
+		bitstream_gs_init(&bit, data, 8);
+		for ( int i=0; i < 4; ++i )
+		{
+			map_2_to_8_bit_table[i] = bitstream_gs_get(&bit);
+		}
+		return bit.consumed + 1;
+	case 0x22:
+		bitstream_gs_init(&bit, data, 8);
+		for ( int i=0; i < 16; ++i )
+		{
+			map_4_to_8_bit_table[i] = bitstream_gs_get(&bit);
+		}
+		return bit.consumed + 1;
+	case 0xF0:
+		subtitle_process_line(region, object, *linenr, line, *linep);
+		(*linenr)+=2; // interlaced
+		*linep = 0;
+		return 1;
+	default:
+		return -1;
+	}
+	return 0;
+}
+
+>>>>>>> de0fab1ff3 ([Fixed] [eServiceMP3] DVB subtitles sync)
 void eServiceMP3::pullSubtitle(GstBuffer *buffer)
 {
 	if (buffer && m_currentSubtitleStream >= 0 && m_currentSubtitleStream < (int)m_subtitleStreams.size())
@@ -2740,6 +3229,48 @@ void eServiceMP3::pullSubtitle(GstBuffer *buffer)
 		gst_buffer_unmap(buffer, &map);
 	}
 }
+
+void eServiceMP3::pushDVBSubtitles()
+{
+	pts_t running_pts = 0;
+	int32_t next_timer = 0, decoder_ms;
+
+	if (getPlayPosition(running_pts) < 0)
+		eTrace("[eServiceMP3] Cant get current decoder time.");
+
+	while (1)
+	{
+		eDVBSubtitlePage dvb_page;
+		pts_t show_time;
+		if (!m_dvb_subtitle_pages.empty())
+		{
+			dvb_page = m_dvb_subtitle_pages.front();
+			show_time = dvb_page.m_show_time / 1000000ULL;
+		}
+		else
+			return;
+
+		decoder_ms = running_pts / 90LL;
+
+		// If subtitle is overdue or within 20ms the video timing then display it.
+		// If cant get decoder PTS then display the subtitles.
+		// If not, pause subtitle processing until the subtitle should be shown
+		pts_t diff = show_time - decoder_ms;
+		if (diff < 20 || decoder_ms == 0LL)
+		{
+			eTrace("[eServiceMP3] Showing subtitles at %u . Current decoder time: %lld", show_time, decoder_ms);
+			m_subtitle_widget->setPage(dvb_page);
+			m_dvb_subtitle_pages.pop_front();
+		}
+		else
+		{
+			eDebug("[eServiceMP3] Delay early subtitle by %.03fs. Page stack size %d", diff / 1000.0f, m_dvb_subtitle_pages.size());
+			m_dvb_subtitle_sync_timer->start(diff, 1);
+			break;
+		}
+	}
+}
+
 
 void eServiceMP3::pushSubtitles()
 {
@@ -2855,6 +3386,8 @@ RESULT eServiceMP3::enableSubtitles(iSubtitleUser *user, struct SubtitleTrack &t
 	eDebug ("[eServiceMP3][enableSubtitles] entered: subtitle stream %i track.pid %i", m_currentSubtitleStream, track.pid - 1);
 	g_object_set (G_OBJECT (m_gst_playbin), "current-text", -1, NULL);
 	m_subtitle_sync_timer->stop();
+	m_dvb_subtitle_sync_timer->stop();
+	m_dvb_subtitle_pages.clear();
 	m_subtitle_pages.clear();
 	m_prev_decoder_time = -1;
 	m_decoder_time_valid_state = 0;
@@ -2886,7 +3419,9 @@ RESULT eServiceMP3::disableSubtitles()
 	setCacheEntry(false, -1);
 	g_object_set (G_OBJECT (m_gst_playbin), "current-text", m_currentSubtitleStream, NULL);
 	m_subtitle_sync_timer->stop();
+	m_dvb_subtitle_sync_timer->stop();
 	m_subtitle_pages.clear();
+	m_dvb_subtitle_pages.clear();
 	m_prev_decoder_time = -1;
 	m_decoder_time_valid_state = 0;
 	if (m_subtitle_widget) m_subtitle_widget->destroy();

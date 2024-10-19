@@ -361,10 +361,18 @@ private:
 	typedef std::pair<uint32_t, subtitle_page_t> subtitle_pages_map_pair_t;
 	subtitle_pages_map_t m_subtitle_pages;
 	ePtr<eTimer> m_subtitle_sync_timer;
+	ePtr<eTimer> m_dvb_subtitle_sync_timer;
 
 	pts_t m_prev_decoder_time;
 	int m_decoder_time_valid_state;
 
+	void subtitle_redraw_all();
+	void subtitle_reset();
+	void subtitle_redraw(int page_id);
+	int subtitle_process_pixel_data(subtitle_region *region, subtitle_region_object *object, int *linenr, int *linep, uint8_t *data);
+	void subtitle_process_line(subtitle_region *region, subtitle_region_object *object, int line, uint8_t *data, int len);
+
+	void pushDVBSubtitles();
 	void pushSubtitles();
 	void pullSubtitle(GstBuffer *buffer);
 	void sourceTimeout();
