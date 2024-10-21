@@ -2,30 +2,39 @@
 	/* it's currently hardcoded to use a big-endian alsasink as sink. */
 #include <lib/base/ebase.h>
 #include <lib/base/eerror.h>
+#include <lib/base/estring.h>
 #include <lib/base/init_num.h>
 #include <lib/base/init.h>
 #include <lib/base/nconfig.h>
 #include <lib/base/object.h>
-#include <lib/base/esimpleconfig.h>
 #include <lib/dvb/epgcache.h>
 #include <lib/dvb/decoder.h>
 #include <lib/dvb/dvb.h>
 #include <lib/dvb/db.h>
+#include <lib/dvb/subtitle.h>
 #include <lib/components/file_eraser.h>
 #include <lib/gui/esubtitle.h>
 #include <lib/service/servicemp3.h>
 #include <lib/service/servicemp3record.h>
 #include <lib/service/service.h>
 #include <lib/gdi/gpixmap.h>
-
 #include <string>
-#include <lib/base/estring.h>
 
 #include <gst/gst.h>
 #include <gst/pbutils/missing-plugins.h>
 #include <sys/stat.h>
 
 #define HTTP_TIMEOUT 30
+
+#define DVB_SUB_SEGMENT_PAGE_COMPOSITION 0x10
+#define DVB_SUB_SEGMENT_REGION_COMPOSITION 0x11
+#define DVB_SUB_SEGMENT_CLUT_DEFINITION 0x12
+#define DVB_SUB_SEGMENT_OBJECT_DATA 0x13
+#define DVB_SUB_SEGMENT_DISPLAY_DEFINITION 0x14
+#define DVB_SUB_SEGMENT_END_OF_DISPLAY_SET 0x80
+#define DVB_SUB_SEGMENT_STUFFING 0xFF
+
+#define DVB_SUB_SYNC_BYTE 0x0f
 
 /*
  * UNUSED variable from service reference is now used as buffer flag for gstreamer
@@ -73,6 +82,28 @@ typedef enum
  */
 #undef GSTREAMER_SUBTITLE_SYNC_MODE_BUG
 /**/
+
+void bitstream_gs_init(bitstream *bit, const void *buffer, int size)
+{
+	bit->data = (uint8_t*) buffer;
+	bit->size = size;
+	bit->avail = 8;
+	bit->consumed = 0;
+}
+
+int bitstream_gs_get(bitstream *bit)
+{
+	int val;
+	bit->avail -= bit->size;
+	val = ((*bit->data) >> bit->avail) & ((1<<bit->size) - 1);
+	if (!bit->avail)
+	{
+		bit->data++;
+		bit->consumed++;
+		bit->avail = 8;
+	}
+	return val;
+}
 
 eServiceFactoryMP3::eServiceFactoryMP3()
 {
@@ -441,6 +472,8 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_cuesheet_changed(0),
 	m_cutlist_enabled(1),
 	m_ref(ref),
+	m_pages(0),
+	m_display_size(720,576),
 	m_pump(eApp, 1, "Servicemp3")
 {
 	m_subtitle_sync_timer = eTimer::create(eApp);
@@ -678,12 +711,11 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	eDebug("[eServiceMP3] playbin uri=%s", uri);
 	if (suburi != NULL)
 		eDebug("[eServiceMP3] playbin suburi=%s", suburi);
-/*	bool useplaybin3 = eConfigManager::getConfigBoolValue("config.misc.usegstplaybin3", false);
+	bool useplaybin3 = eConfigManager::getConfigBoolValue("config.misc.usegstplaybin3", false);
 	if(useplaybin3)
 		m_gst_playbin = gst_element_factory_make("playbin3", "playbin");
 	else
-*/
-	m_gst_playbin = gst_element_factory_make("playbin", "playbin");
+		m_gst_playbin = gst_element_factory_make("playbin", "playbin");
 	if ( m_gst_playbin )
 	{
 		/*
@@ -903,6 +935,7 @@ RESULT eServiceMP3::start()
 			eDebug("[eServiceMP3] failed to start pipeline");
 			stop();
 			return -1;
+			break;
 		case GST_STATE_CHANGE_SUCCESS:
 			m_is_live = false;
 			break;
@@ -2094,8 +2127,8 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 			if ( n_video + n_audio <= 0 )
 				stop();
 
-			m_audioStreams_temp.clear();
-			m_subtitleStreams_temp.clear();
+			std::vector<audioStream> audioStreams_temp;
+			std::vector<subtitleStream> subtitleStreams_temp;
 
 			for (i = 0; i < n_audio; i++)
 			{
@@ -2132,7 +2165,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 					gst_tag_list_free(tags);
 				}
 				eDebug("[eServiceMP3] audio stream=%i codec=%s language=%s", i, audio.codec.c_str(), audio.language_code.c_str());
-				m_audioStreams_temp.push_back(audio);
+				audioStreams_temp.push_back(audio);
 				gst_caps_unref(caps);
 			}
 
@@ -2164,65 +2197,20 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 				subs.type = getSubtitleType(pad, g_codec);
 				gst_object_unref(pad);
 				g_free(g_codec);
-				m_subtitleStreams_temp.push_back(subs);
+				subtitleStreams_temp.push_back(subs);
 			}
 
-			size_t aa_size = m_audioStreams.size();
-			size_t ab_size = m_audioStreams_temp.size();
-			size_t sa_size = m_subtitleStreams.size();
-			size_t sb_size = m_subtitleStreams_temp.size();
-			bool hasChanges = aa_size != ab_size || sa_size != sb_size;
+			bool hasChanges = m_audioStreams.size() != audioStreams_temp.size() || std::equal(m_audioStreams.begin(), m_audioStreams.end(), audioStreams_temp.begin());
 			if (!hasChanges)
-			{
-				for (size_t i = 0; i < ab_size; i++)
-				{
-					if (i < aa_size)
-					{
-						audioStream a = m_audioStreams[i];
-						audioStream b = m_audioStreams_temp[i];
-						if (a.type != b.type || a.language_code != b.language_code || a.codec != b.codec) 
-						{
-							eTrace("[eServiceMP3] audio stream difference -- stream=%i language=%s codec=%s", i, a.language_code.c_str(), a.codec.c_str());
-							hasChanges = true;
-							break;
-						}
-					}
-				}
-
-				if (!hasChanges) {
-					for (size_t i = 0; i < sb_size; i++)
-					{
-						if (i < sa_size)
-						{
-							subtitleStream a = m_subtitleStreams[i];
-							subtitleStream b = m_subtitleStreams_temp[i];
-							if (a.type != b.type || a.language_code != b.language_code) 
-							{
-								eTrace("[eServiceMP3] subtitle stream difference -- stream=%i language=%s", i, a.language_code.c_str());
-								hasChanges = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-			
+				hasChanges = m_subtitleStreams.size() != subtitleStreams_temp.size() || std::equal(m_subtitleStreams.begin(), m_subtitleStreams.end(), subtitleStreams_temp.begin());
 
 			if (hasChanges)
 			{
 				eTrace("[eServiceMP3] audio or subtitle stream difference -- re enumerating");
 				m_audioStreams.clear();
 				m_subtitleStreams.clear();
-				for (auto it = std::begin(m_audioStreams_temp); it != std::end(m_audioStreams_temp); ++it) 
-				{
-					audioStream stream = *it;
-					m_audioStreams.push_back(stream);
-				}
-				for (auto it = std::begin(m_subtitleStreams_temp); it != std::end(m_subtitleStreams_temp); ++it) 
-				{
-					subtitleStream stream = *it;
-					m_subtitleStreams.push_back(stream);
-				}
+				std::copy(audioStreams_temp.begin(), audioStreams_temp.end(), back_inserter(m_audioStreams));
+				std::copy(subtitleStreams_temp.begin(), subtitleStreams_temp.end(), back_inserter(m_subtitleStreams));
 				eTrace("[eServiceMP3] evUpdatedInfo called for audiosubs");
 				m_event((iPlayableService*)this, evUpdatedInfo);
 			}
@@ -2701,8 +2689,6 @@ void eServiceMP3::gstTextpadHasCAPS_synced(GstPad *pad)
 	}
 }
 
-<<<<<<< HEAD
-=======
 void eServiceMP3::subtitle_redraw_all()
 {
 	subtitle_page *page = m_pages;
@@ -3177,7 +3163,6 @@ int eServiceMP3::subtitle_process_pixel_data(subtitle_region *region, subtitle_r
 	return 0;
 }
 
->>>>>>> de0fab1ff3 ([Fixed] [eServiceMP3] DVB subtitles sync)
 void eServiceMP3::pullSubtitle(GstBuffer *buffer)
 {
 	if (buffer && m_currentSubtitleStream >= 0 && m_currentSubtitleStream < (int)m_subtitleStreams.size())
@@ -3188,15 +3173,551 @@ void eServiceMP3::pullSubtitle(GstBuffer *buffer)
 			eLog(3, "[eServiceMP3] pullSubtitle gst_buffer_map failed");
 			return;
 		}
-		gint64 buf_pos = GST_BUFFER_PTS(buffer);
+		int64_t buf_pos = GST_BUFFER_PTS(buffer);
+		m_show_time = buf_pos;
 		size_t len = map.size;
 		eTrace("[eServiceMP3] gst_buffer_get_size %zu map.size %zu", gst_buffer_get_size(buffer), len);
-		gint64 duration_ns = GST_BUFFER_DURATION(buffer);
+		int64_t duration_ns = GST_BUFFER_DURATION(buffer);
 		int subType = m_subtitleStreams[m_currentSubtitleStream].type;
 		eTrace("[eServiceMP3] pullSubtitle type=%d size=%zu", subType, len);
 		if ( subType )
 		{
-			if ( subType < stVOB )
+			if (subType == stDVB)
+			{
+				unsigned int pos = 0;
+				uint8_t * data = map.data;
+				if (len <= 3) {               /* len(0x20 0x00 end_of_PES_data_field_marker) */
+					eWarning("Data length too short");
+					return;
+				}
+
+				if (data[pos++] != 0x20) {
+					eWarning("Tried to handle a PES packet private data that isn't a subtitle packet (does not start with 0x20)");
+					return;
+				}
+
+				if (data[pos++] != 0x00) {
+					eWarning("'Subtitle stream in this PES packet' was not 0x00, so this is in theory not a DVB subtitle stream (but some other subtitle standard?); bailing out");
+					return;
+				}
+
+				while (data[pos++] == DVB_SUB_SYNC_BYTE) 
+				{
+					int segment_type, page_id, segment_len, processed_length;
+					if ((len - pos) < (2 * 2 + 1)) {
+						eWarning("Data after SYNC BYTE too short, less than needed to even get to segment_length");
+						break;
+					}
+					segment_type = data[pos++];
+					page_id = (data[pos] << 8) | data[pos + 1];
+					pos += 2;
+    				segment_len = (data[pos] << 8) | data[pos + 1];
+					pos += 2;
+					if ((len - pos) < segment_len) {
+						eWarning("segment_length was told to be %u, but we only have %d bytes left", segment_len, len - pos);
+						break;
+					}
+					subtitle_page *page, **ppage;
+					page = m_pages; ppage = &m_pages;
+
+					while (page)
+					{
+						if (page->page_id == page_id)
+							break;
+						ppage = &page->next;
+						page = page->next;
+					}
+
+					processed_length = 0;
+					uint8_t* segment = data+pos;
+					switch (segment_type) {
+						case DVB_SUB_SEGMENT_PAGE_COMPOSITION:
+						{
+							eTrace("Page composition segment at buffer pos %u", pos);
+							int page_time_out = *segment++;
+							processed_length++;
+							int page_version_number = *segment >> 4;
+							int page_state = ((*segment++) >> 2) & 3;
+							processed_length++;
+							if (!page)
+							{
+								page = new subtitle_page;
+								page->page_regions = 0;
+								page->regions = 0;
+								page->page_id = page_id;
+								page->cluts = 0;
+								page->next = 0;
+								*ppage = page;
+							} else
+							{
+								if (page->pcs_size != segment_len)
+									page->page_version_number = -1;
+								// if no update, just skip this data.
+								if (page->page_version_number == page_version_number)
+									break;
+							}
+
+							page->state = page_state;
+
+							// Clear page_region list before processing any type of PCS
+							while (page->page_regions)
+							{
+								subtitle_page_region *p = page->page_regions->next;
+								delete page->page_regions;
+								page->page_regions = p;
+							}
+							page->page_regions=0;
+
+							// when acquisition point or mode change: remove all displayed regions.
+							if ((page_state == 1) || (page_state == 2))
+							{
+								while (page->regions)
+								{
+									subtitle_region *p = page->regions->next;
+									while(page->regions->objects)
+									{
+										subtitle_region_object *ob = page->regions->objects->next;
+										delete page->regions->objects;
+										page->regions->objects = ob;
+									}
+									delete page->regions;
+									page->regions = p;
+								}
+
+							}
+
+							page->page_time_out = page_time_out;
+
+							page->page_version_number = page_version_number;
+
+							subtitle_page_region **r = &page->page_regions;
+
+							// go to last entry
+							while (*r)
+								r = &(*r)->next;
+
+							while (processed_length < segment_len)
+							{
+								uint8_t region_id = *segment++;
+    							segment += 1;
+								subtitle_page_region *pr;
+
+									// append new entry to list
+								pr = new subtitle_page_region;
+								pr->next = 0;
+								*r = pr;
+								r = &pr->next;
+
+								pr->region_id = region_id; 
+								processed_length++;
+								processed_length++;
+
+								pr->region_horizontal_address  = GST_READ_UINT16_BE (segment);
+								segment += 2;
+								processed_length += 2;
+
+								pr->region_vertical_address  = GST_READ_UINT16_BE (segment);
+								segment += 2;
+								processed_length += 2;
+							}
+
+							break;
+						}
+						case DVB_SUB_SEGMENT_REGION_COMPOSITION:
+						{
+							eDebug("Region composition segment at buffer pos %u", pos);
+							int region_id = *segment++; 
+							processed_length++;
+							int version_number = *segment >> 4;
+							int region_fill_flag = (*segment++ >> 3) & 1;
+							processed_length++;
+
+							// if we didn't yet received the pcs for this page, drop the region
+							if (!page)
+							{
+								eDebug("[eServiceMP3] ignoring region %x, since page %02x doesn't yet exist.", region_id, page_id);
+								break;
+							}
+
+							subtitle_region *region, **pregion;
+
+							region = page->regions; pregion = &page->regions;
+
+							while (region)
+							{
+								fflush(stdout);
+								if (region->region_id == region_id)
+									break;
+								pregion = &region->next;
+								region = region->next;
+							}
+
+							if (!region)
+							{
+								*pregion = region = new subtitle_region;
+								region->next = 0;
+								region->buffer=0;
+								region->committed = false;
+							}
+							else if (region->version_number != version_number)
+							{
+								subtitle_region_object *objects = region->objects;
+								while (objects)
+								{
+									subtitle_region_object *n = objects->next;
+									delete objects;
+									objects = n;
+								}
+							}
+							else
+								break;
+
+							region->region_id = region_id;
+							region->version_number = version_number;
+
+							region->width  = GST_READ_UINT16_BE(segment);
+							segment += 2;
+							processed_length += 2;
+
+							region->height  = GST_READ_UINT16_BE(segment);
+							segment += 2;
+							processed_length += 2;
+
+							//int depth = 1 << (((*segment++) >> 2) & 7);
+							int depth;
+							depth = (*segment++ >> 2) & 7;
+
+							region->depth = (subtitle_region::tDepth)depth;
+							processed_length++;
+
+							int CLUT_id = *segment++; processed_length++;
+
+							region->clut_id = CLUT_id;
+
+							int region_8bit_pixel_code, region_4bit_pixel_code, region_2bit_pixel_code;
+							region_8bit_pixel_code = *segment++; processed_length++;
+							region_4bit_pixel_code = *segment >> 4;
+							region_2bit_pixel_code = (*segment++ >> 2) & 3;
+							processed_length++;
+
+							if (!region_fill_flag)
+							{
+								region_2bit_pixel_code = region_4bit_pixel_code = region_8bit_pixel_code = 0;
+								region_fill_flag = 1;
+							}
+
+							//	create and initialise buffer only when buffer does not yet exist.
+
+							if (region->buffer==0) {
+								region->buffer = new gPixmap(eSize(region->width, region->height), 8, 1);
+								memset(region->buffer->surface->data, 0, region->height * region->buffer->surface->stride);
+
+								if (region_fill_flag)
+								{
+									if (depth == 1)
+										memset(region->buffer->surface->data, region_2bit_pixel_code, region->height * region->width);
+									else if (depth == 2)
+										memset(region->buffer->surface->data, region_4bit_pixel_code, region->height * region->width);
+									else if (depth == 3)
+										memset(region->buffer->surface->data, region_8bit_pixel_code, region->height * region->width);
+									else
+										eDebug("[eServiceMP3] !!!! invalid depth");
+								}
+							}
+
+							region->objects = 0;
+							subtitle_region_object **pobject = &region->objects;
+
+							while (processed_length < segment_len)
+							{
+								subtitle_region_object *object;
+
+								object = new subtitle_region_object;
+
+								*pobject = object;
+								object->next = 0;
+								pobject = &object->next;
+
+								object->object_id  = *segment++ << 8;
+								object->object_id |= *segment++; processed_length += 2;
+
+								object->object_type = *segment >> 6;
+								object->object_provider_flag = (*segment >> 4) & 3;
+								object->object_horizontal_position  = (*segment++ & 0xF) << 8;
+								object->object_horizontal_position |= *segment++;
+								processed_length += 2;
+
+								object->object_vertical_position  = (*segment++ & 0xF) << 8;
+								object->object_vertical_position |= *segment++ ;
+								processed_length += 2;
+
+								if ((object->object_type == 1) || (object->object_type == 2))
+								{
+									object->foreground_pixel_value = *segment++;
+									object->background_pixel_value = *segment++;
+									processed_length += 2;
+								}
+							}
+
+							if (processed_length != segment_len)
+								eDebug("[eServiceMP3] DVB subtitle too less data! (%d < %d)", segment_len, processed_length);
+
+							break;
+						}
+						case DVB_SUB_SEGMENT_CLUT_DEFINITION:
+						{
+							eDebug("CLUT definition segment at buffer pos %u", pos);
+							int CLUT_id, CLUT_version_number;
+							subtitle_clut *clut, **pclut;
+
+							if (!page)
+								break;
+
+							CLUT_id = *segment++;
+
+							CLUT_version_number = *segment++ >> 4;
+							processed_length += 2;
+
+							clut = page->cluts; pclut = &page->cluts;
+
+							while (clut)
+							{
+								if (clut->clut_id == CLUT_id)
+									break;
+								pclut = &clut->next;
+								clut = clut->next;
+							}
+
+							if (!clut)
+							{
+								*pclut = clut = new subtitle_clut;
+								clut->next = 0;
+								clut->clut_id = CLUT_id;
+							}
+							else if (clut->CLUT_version_number == CLUT_version_number)
+								break;
+
+							clut->CLUT_version_number=CLUT_version_number;
+
+							memset(clut->entries_2bit, 0, sizeof(clut->entries_2bit));
+							memset(clut->entries_4bit, 0, sizeof(clut->entries_4bit));
+							memset(clut->entries_8bit, 0, sizeof(clut->entries_8bit));
+
+							while (processed_length < segment_len)
+							{
+								int CLUT_entry_id, entry_CLUT_flag, full_range;
+								int v_Y, v_Cr, v_Cb, v_T;
+
+								CLUT_entry_id = *segment++;
+								full_range = *segment & 1;
+								entry_CLUT_flag = (*segment++ & 0xE0) >> 5;
+								processed_length += 2;
+
+								if (full_range)
+								{
+									v_Y  = *segment++;
+									v_Cr = *segment++;
+									v_Cb = *segment++;
+									v_T  = *segment++;
+									processed_length += 4;
+								} else
+								{
+									v_Y   = *segment & 0xFC;
+									v_Cr  = (*segment++ & 3) << 6;
+									v_Cr |= (*segment & 0xC0) >> 2;
+									v_Cb  = (*segment & 0x3C) << 2;
+									v_T   = (*segment++ & 3) << 6;
+									processed_length += 2;
+								}
+
+								if (entry_CLUT_flag & 1) // 8bit
+								{
+									clut->entries_8bit[CLUT_entry_id].Y = v_Y;
+									clut->entries_8bit[CLUT_entry_id].Cr = v_Cr;
+									clut->entries_8bit[CLUT_entry_id].Cb = v_Cb;
+									clut->entries_8bit[CLUT_entry_id].T = v_T;
+									clut->entries_8bit[CLUT_entry_id].valid = 1;
+								}
+								if (entry_CLUT_flag & 2) // 4bit
+								{
+									if (CLUT_entry_id < 16)
+									{
+										clut->entries_4bit[CLUT_entry_id].Y = v_Y;
+										clut->entries_4bit[CLUT_entry_id].Cr = v_Cr;
+										clut->entries_4bit[CLUT_entry_id].Cb = v_Cb;
+										clut->entries_4bit[CLUT_entry_id].T = v_T;
+										clut->entries_4bit[CLUT_entry_id].valid = 1;
+									}
+									else
+										eDebug("[eServiceMP3] DVB subtitle CLUT entry marked as 4 bit with id %d (>15)", CLUT_entry_id);
+								}
+								if (entry_CLUT_flag & 4) // 2bit
+								{
+									if (CLUT_entry_id < 4)
+									{
+										clut->entries_2bit[CLUT_entry_id].Y = v_Y;
+										clut->entries_2bit[CLUT_entry_id].Cr = v_Cr;
+										clut->entries_2bit[CLUT_entry_id].Cb = v_Cb;
+										clut->entries_2bit[CLUT_entry_id].T = v_T;
+										clut->entries_2bit[CLUT_entry_id].valid = 1;
+									}
+									else
+										eDebug("[eServiceMP3] DVB subtitle CLUT entry marked as 2 bit with id %d (>3)", CLUT_entry_id);
+								}
+							}
+							break;
+						}
+						case DVB_SUB_SEGMENT_OBJECT_DATA:
+						{
+							eDebug("Object data segment at buffer pos %u", pos);
+							int object_id;
+							int object_coding_method;
+
+							object_id  = *segment++ << 8;
+							object_id |= *segment++;
+							processed_length += 2;
+
+							object_coding_method  = (*segment >> 2) & 3;
+							segment++; // non_modifying_color_flag
+							processed_length++;
+
+							subtitle_region *region = page->regions;
+							while (region)
+							{
+								subtitle_region_object *object = region->objects;
+								while (object)
+								{
+									if (object->object_id == object_id)
+									{
+										if (object_coding_method == 0)
+										{
+											int top_field_data_blocklength, bottom_field_data_blocklength;
+											int i=1, line, linep;
+
+											top_field_data_blocklength  = *segment++ << 8;
+											top_field_data_blocklength |= *segment++;
+
+											bottom_field_data_blocklength  = *segment++ << 8;
+											bottom_field_data_blocklength |= *segment++;
+											processed_length += 4;
+
+											// its working on cyfra channels.. but hmm in EN300743 the default table is 0, 7, 8, 15
+											map_2_to_4_bit_table[0] = 0;
+											map_2_to_4_bit_table[1] = 8;
+											map_2_to_4_bit_table[2] = 7;
+											map_2_to_4_bit_table[3] = 15;
+
+											// this map is realy untested...
+											map_2_to_8_bit_table[0] = 0;
+											map_2_to_8_bit_table[1] = 0x88;
+											map_2_to_8_bit_table[2] = 0x77;
+											map_2_to_8_bit_table[3] = 0xff;
+
+											map_4_to_8_bit_table[0] = 0;
+											for (; i < 16; ++i)
+												map_4_to_8_bit_table[i] = i * 0x11;
+
+											i = 0;
+											line = 0;
+											linep = 0;
+											while (i < top_field_data_blocklength)
+											{
+												int len;
+												len = subtitle_process_pixel_data(region, object, &line, &linep, segment);
+												if (len < 0)
+													break;
+												segment += len;
+												processed_length += len;
+												i += len;
+											}
+
+											line = 1;
+											linep = 0;
+
+											if (bottom_field_data_blocklength)
+											{
+												i = 0;
+												while (i < bottom_field_data_blocklength)
+												{
+													int len;
+													len = subtitle_process_pixel_data(region, object, &line, &linep, segment);
+													if (len < 0)
+														break;
+													segment += len;
+														processed_length += len;
+													i += len;
+												}
+											}
+											else if (top_field_data_blocklength)
+												eDebug("[eDVBSubtitleParser] !!!! unimplemented: no bottom field! (%d : %d)", top_field_data_blocklength, bottom_field_data_blocklength);
+
+											if ((top_field_data_blocklength + bottom_field_data_blocklength) & 1)
+											{
+												segment++; processed_length++;
+											}
+										}
+										else if (object_coding_method == 1)
+											eDebug("[eDVBSubtitleParser] ---- object_coding_method 1 unsupported!");
+									}
+									object = object->next;
+								}
+								region = region->next;
+							}
+							break;
+						}
+						case DVB_SUB_SEGMENT_DISPLAY_DEFINITION:
+						{
+							eDebug("display definition segment at buffer pos %u", pos);
+							if (segment_len > 4)
+							{
+								int display_window_flag = (segment[0] >> 3) & 1;
+								int display_width = (segment[1] << 8) | (segment[2]);
+								int display_height = (segment[3] << 8) | (segment[4]);
+								processed_length += 5;
+								m_display_size = eSize(display_width+1, display_height+1);
+								if (display_window_flag)
+								{
+									if (segment_len > 12)
+									{
+										int display_window_horizontal_position_min = (segment[4] << 8) | segment[5];
+										int display_window_horizontal_position_max = (segment[6] << 8) | segment[7];
+										int display_window_vertical_position_min = (segment[8] << 8) | segment[9];
+										int display_window_vertical_position_max = (segment[10] << 8) | segment[11];
+										eDebug("[eServiceMP3] DVB subtitle NYI hpos min %d, hpos max %d, vpos min %d, vpos max %d",
+											display_window_horizontal_position_min,
+											display_window_horizontal_position_max,
+											display_window_vertical_position_min,
+											display_window_vertical_position_max);
+										processed_length += 8;
+									}
+									else
+										eDebug("[eServiceMP3] DVB subtitle display window flag set but display definition segment to short %d!", segment_len);
+								}
+							}
+							else
+								eDebug("[eServiceMP3] DVB subtitle display definition segment to short %d!", segment_len);
+							break;
+						}
+						case DVB_SUB_SEGMENT_END_OF_DISPLAY_SET:
+						{
+							eDebug("End of display set at buffer pos %u", pos);
+							subtitle_redraw_all();
+							m_seen_eod = true;
+							break;
+						}
+						default:
+							eWarning("Unhandled segment type 0x%x", segment_type);
+							break;
+					}
+					pos += segment_len;
+					if (pos == len) {
+						eWarning("Data ended without a PES data end marker");
+						return;
+					}
+				}
+
+			} 
+			else if ( subType < stVOB )
 			{
 				int delay = eConfigManager::getConfigIntValue("config.subtitles.pango_subtitles_delay");
 				int subtitle_fps = eConfigManager::getConfigIntValue("config.subtitles.pango_subtitles_fps");
@@ -3265,7 +3786,6 @@ void eServiceMP3::pushDVBSubtitles()
 		}
 	}
 }
-
 
 void eServiceMP3::pushSubtitles()
 {
