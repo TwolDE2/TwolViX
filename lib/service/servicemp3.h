@@ -220,6 +220,18 @@ public:
 			:pad(0), type(atUnknown)
 		{
 		}
+
+		bool operator == (const audioStream& rhs)
+		{
+			audioStream lhs = *this;
+			return (lhs.type == rhs.type) && (lhs.language_code == rhs.language_code) && (lhs.codec == rhs.codec);
+		}
+
+		bool operator != (const audioStream& rhs)
+		{
+			audioStream lhs = *this;
+			return !(lhs == rhs);
+		}
 	};
 	struct subtitleStream
 	{
@@ -229,6 +241,17 @@ public:
 		subtitleStream()
 			:pad(0)
 		{
+		}
+		bool operator == (const subtitleStream& rhs)
+		{
+			subtitleStream lhs = *this;
+			return (lhs.type == rhs.type) && (lhs.language_code == rhs.language_code);
+		}
+
+		bool operator != (const subtitleStream& rhs)
+		{
+			subtitleStream lhs = *this;
+			return !(lhs == rhs);
 		}
 	};
 	struct sourceStream
@@ -294,8 +317,6 @@ private:
 	int selectAudioStream(int i);
 	std::vector<audioStream> m_audioStreams;
 	std::vector<subtitleStream> m_subtitleStreams;
-	std::vector<audioStream> m_audioStreams_temp;
-	std::vector<subtitleStream> m_subtitleStreams_temp;
 	iSubtitleUser *m_subtitle_widget;
 	gdouble m_currentTrickRatio;
 	friend class eServiceFactoryMP3;
@@ -327,6 +348,11 @@ private:
 	GstElement *m_gst_playbin, *audioSink, *videoSink;
 	GstTagList *m_stream_tags;
 	bool m_coverart;
+	subtitle_page *m_pages;
+	eSize m_display_size;
+	bool m_seen_eod;
+	pts_t m_show_time;
+	std::list<eDVBSubtitlePage> m_dvb_subtitle_pages;
 
 	eFixedMessagePump<ePtr<GstMessageContainer> > m_pump;
 
