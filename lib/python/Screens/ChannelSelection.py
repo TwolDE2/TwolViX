@@ -122,6 +122,7 @@ class InsertService(Setup):
 	def selectService(self):
 		self.session.openWithCallback(self.channelSelectionCallback, SimpleChannelSelection, _("Select channel"))
 
+
 def getStreamRelayRef(sref):
 	try:
 		if "http" in sref:
