@@ -862,7 +862,7 @@ class ChannelSelectionEPG(InfoBarButtonSetup, HelpableScreen):
 		self["dialogactions"].setEnabled(False)
 
 	def getKeyFunctions(self, key):
-		selection = eval("config.misc.ButtonSetup." + key + ".value.split(", ")")
+		selection = eval("config.misc.ButtonSetup." + key + ".value.split(',')")
 		selected = []
 		for x in selection:
 			function = list(function for function in getButtonSetupFunctions() if function[1] == x and function[2] == "EPG")
@@ -1125,8 +1125,8 @@ class ChannelSelectionEdit:
 		serviceHandler = eServiceCenter.getInstance()
 		mutableBouquetList = serviceHandler.list(self.bouquet_root).startEdit()
 		if mutableBouquetList:
+			name = sanitizeFilename(bName.replace(" ", "_"))
 			bName += ' ' + (_("(TV)") if self.mode == MODE_TV else _("(Radio)"))
-			name = sanitizeFilename(bName)
 			while os_path.isfile((self.mode == MODE_TV and '/etc/enigma2/userbouquet.%s.tv' or '/etc/enigma2/userbouquet.%s.radio') % name):
 				name = name.rsplit('_', 1)
 				name = ('_').join((name[0], len(name) == 2 and name[1].isdigit() and str(int(name[1]) + 1) or '1'))
