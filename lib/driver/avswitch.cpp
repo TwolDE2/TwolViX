@@ -36,9 +36,10 @@ eAVSwitch::eAVSwitch()
 #else
 	m_b_has_proc_hdmi_rx_monitor = false;
 #endif
-
+	eModelInformation &modelinformation = eModelInformation::getInstance();
 	m_b_has_proc_videomode_50 = (stat(proc_videomode_50, &buffer) == 0);
-	m_b_has_proc_videomode_60 = (stat(proc_videomode_60, &buffer) == 0)
+	m_b_has_proc_videomode_60 = (stat(proc_videomode_60, &buffer) == 0);
+
 	m_b_hdmiin_fhd = modelinformation.getValue("hdmifhdin") == "True";
 
 	if (modelinformation.getValue("scart") == "True")
