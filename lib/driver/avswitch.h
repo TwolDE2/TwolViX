@@ -9,7 +9,7 @@ class eSocketNotifier;
 class eAVSwitch: public sigc::trackable
 {
 	static eAVSwitch *instance;
-	int m_video_mode;
+	int m_set_video_mode;
 	bool m_active;
 	ePtr<eSocketNotifier> m_fp_notifier;
 	void fp_event(int what);

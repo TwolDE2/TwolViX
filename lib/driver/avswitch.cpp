@@ -28,7 +28,7 @@ eAVSwitch::eAVSwitch()
 {
 	ASSERT(!instance);
 	instance = this;
-	m_video_mode = 0;
+	m_set_video_mode = 0;
 	m_active = false;
 	struct stat buffer = {};
 #ifdef HAVE_HDMIIN_DM
@@ -484,7 +484,7 @@ void eAVSwitch::setVideomode(int mode)
 	const char *pal="pal";
 	const char *ntsc="ntsc";
 
-	if (mode == m_video_mode)
+	if (mode == m_set_video_mode)
 		return;
 
 	if (mode == 2)
@@ -537,7 +537,7 @@ void eAVSwitch::setVideomode(int mode)
 		close(fd);
 	}
 
-	m_video_mode = mode;
+	m_set_video_mode = mode;
 }
 
 void eAVSwitch::setWSS(int val) // 0 = auto, 1 = auto(4:3_off)
