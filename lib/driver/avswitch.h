@@ -44,6 +44,11 @@ public:
 	void setWSS(int val);
 	void setVideomode(int mode);
 	void setVideoMode(const std::string &newMode, int flags = 0) const;
+	void startStopHDMIIn(bool on, bool audio, int flags = 0);
+	void disableHDMIIn(int flags = 0) const;
+	bool hasProcHDMIRXMonitor() const { return m_b_has_proc_hdmi_rx_monitor; }
+	bool hasProcVideoMode50() const { return m_b_has_proc_videomode_50; }
+	bool hasProcVideoMode60() const { return m_b_has_proc_videomode_60; }
 	void setPolicy43(const std::string &newPolicy, int flags = 0) const;
 	void setPolicy169(const std::string &newPolicy, int flags = 0) const;
 	void setVideoSize(int top, int left, int width, int height, int flags = 0) const;
