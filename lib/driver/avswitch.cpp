@@ -8,6 +8,7 @@
 #include <lib/base/init_num.h>
 #include <lib/base/eerror.h>
 #include <lib/base/ebase.h>
+#include <lib/base/modelinformation.h>
 #include <lib/driver/avswitch.h>
 
 const char *__MODULE__ = "eAVSwitch";
