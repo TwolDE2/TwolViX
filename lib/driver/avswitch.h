@@ -39,6 +39,7 @@ public:
 	std::string getVideoMode(const std::string &defaultVal = "", int flags = 0) const;
 	std::string getPreferredModes(int flags = 0) const;
 	std::string readAvailableModes(int flags = 0) const;
+	std::string m_video_mode;
 	std::string m_video_mode_50;
 	std::string m_video_mode_60;
 	void setAspect(const std::string &newFormat, int flags = 0) const;

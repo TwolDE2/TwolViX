@@ -30,6 +30,7 @@ eAVSwitch::eAVSwitch()
 	instance = this;
 	m_video_mode = 0;
 	m_active = false;
+	struct stat buffer = {};
 #ifdef HAVE_HDMIIN_DM
 	m_b_has_proc_hdmi_rx_monitor = (stat(proc_hdmi_rx_monitor, &buffer) == 0);
 #else
@@ -39,16 +40,20 @@ eAVSwitch::eAVSwitch()
 	m_b_has_proc_videomode_50 = (stat(proc_videomode_50, &buffer) == 0);
 	m_b_has_proc_videomode_60 = (stat(proc_videomode_60, &buffer) == 0)
 	m_b_hdmiin_fhd = modelinformation.getValue("hdmifhdin") == "True";
-	m_fp_fd = open("/dev/dbox/fp0", O_RDONLY|O_NONBLOCK);
-	if (m_fp_fd == -1)
+
+	if (modelinformation.getValue("scart") == "True")
 	{
-		eDebug("[eAVSwitch] failed to open /dev/dbox/fp0 to monitor vcr scart slow blanking changed: %m");
-		m_fp_notifier=0;
-	}
-	else
-	{
-		m_fp_notifier = eSocketNotifier::create(eApp, m_fp_fd, eSocketNotifier::Read|POLLERR);
-		CONNECT(m_fp_notifier->activated, eAVSwitch::fp_event);
+		m_fp_fd = open("/dev/dbox/fp0", O_RDONLY|O_NONBLOCK);
+		if (m_fp_fd == -1)
+		{
+			eDebug("[eAVSwitch] failed to open /dev/dbox/fp0 to monitor vcr scart slow blanking changed: %m");
+			m_fp_notifier=0;
+		}
+		else
+		{
+			m_fp_notifier = eSocketNotifier::create(eApp, m_fp_fd, eSocketNotifier::Read|POLLERR);
+			CONNECT(m_fp_notifier->activated, eAVSwitch::fp_event);
+		}
 	}
 }
 
