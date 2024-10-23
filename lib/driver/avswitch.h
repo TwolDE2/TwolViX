@@ -27,6 +27,8 @@ public:
 	static eAVSwitch *getInstance();
 	bool haveScartSwitch();
 	bool m_b_has_proc_hdmi_rx_monitor;
+	bool m_b_has_proc_videomode_50;
+	bool m_b_has_proc_videomode_60;
 	bool m_b_hdmiin_fhd;
 	int getVCRSlowBlanking();
 	int getAspect(int defaultVal = 0, int flags = 0) const;
@@ -37,6 +39,8 @@ public:
 	std::string getVideoMode(const std::string &defaultVal = "", int flags = 0) const;
 	std::string getPreferredModes(int flags = 0) const;
 	std::string readAvailableModes(int flags = 0) const;
+	std::string m_video_mode_50;
+	std::string m_video_mode_60;
 	void setAspect(const std::string &newFormat, int flags = 0) const;
 	void setAspectRatio(int ratio);
 	void setColorFormat(int format);
