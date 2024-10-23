@@ -30,6 +30,12 @@ eAVSwitch::eAVSwitch()
 	instance = this;
 	m_video_mode = 0;
 	m_active = false;
+#ifdef HAVE_HDMIIN_DM
+	m_b_has_proc_hdmi_rx_monitor = (stat(proc_hdmi_rx_monitor, &buffer) == 0);
+#else
+	m_b_has_proc_hdmi_rx_monitor = false;
+#endif
+	m_b_hdmiin_fhd = modelinformation.getValue("hdmifhdin") == "True";
 	m_fp_fd = open("/dev/dbox/fp0", O_RDONLY|O_NONBLOCK);
 	if (m_fp_fd == -1)
 	{
@@ -288,6 +294,64 @@ std::string eAVSwitch::getVideoMode(const std::string &defaultVal, int flags) co
 		eDebug("[%s] %s: %s", __MODULE__, "getVideoMode", result.c_str());
 
 	return result;
+}
+
+// startStopHDMIIn
+
+void eAVSwitch::startStopHDMIIn(bool on, bool audio, int flags)
+{
+
+	if (flags & FLAGS_DEBUG)
+		eDebug("[%s] %s: audio:%d on:%d", __MODULE__, "startStopHDMIIn", audio, on);
+
+	std::string state = on ? "on" : "off";
+
+	if (on)
+	{
+		m_video_mode = CFile::read(proc_videomode, __MODULE__, flags);
+		if (m_b_has_proc_videomode_50)
+			m_video_mode_50 = CFile::read(proc_videomode_50, __MODULE__, flags);
+		if (m_b_has_proc_videomode_60)
+			m_video_mode_60 = CFile::read(proc_videomode_60, __MODULE__, flags);
+
+		std::string mode = m_b_hdmiin_fhd ? "1080p" : "720p";
+
+		CFile::writeStr(proc_videomode, mode, __MODULE__, flags);
+		if (m_b_has_proc_videomode_50)
+			CFile::writeStr(proc_videomode_50, mode, __MODULE__, flags);
+		if (m_b_has_proc_videomode_60)
+			CFile::writeStr(proc_videomode_60, mode, __MODULE__, flags);
+
+		if (m_b_has_proc_hdmi_rx_monitor)
+		{
+			if (audio)
+				CFile::writeStr(proc_hdmi_rx_monitor_audio, state, __MODULE__, flags);
+			CFile::writeStr(proc_hdmi_rx_monitor, state, __MODULE__, flags);
+		}
+	}
+	else
+	{
+		if (m_b_has_proc_hdmi_rx_monitor)
+		{
+			CFile::writeStr(proc_hdmi_rx_monitor_audio, state, __MODULE__, flags);
+			CFile::writeStr(proc_hdmi_rx_monitor, state, __MODULE__, flags);
+		}
+		CFile::writeStr(proc_videomode, m_video_mode, __MODULE__, flags);
+		if (m_b_has_proc_videomode_50)
+			CFile::writeStr(proc_videomode_50, m_video_mode_50, __MODULE__, flags);
+		if (m_b_has_proc_videomode_60)
+			CFile::writeStr(proc_videomode_60, m_video_mode_60, __MODULE__, flags);
+	}
+}
+
+// disable HDMIIn / used in StartEnigma.py
+void eAVSwitch::disableHDMIIn(int flags) const
+{
+	if (!m_b_has_proc_hdmi_rx_monitor)
+		return;
+
+	CFile::writeStr(proc_hdmi_rx_monitor_audio, "off", __MODULE__, flags);
+	CFile::writeStr(proc_hdmi_rx_monitor, "off", __MODULE__, flags);
 }
 
 void eAVSwitch::setInput(int val)

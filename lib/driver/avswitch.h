@@ -26,6 +26,8 @@ public:
 #endif
 	static eAVSwitch *getInstance();
 	bool haveScartSwitch();
+	bool m_b_has_proc_hdmi_rx_monitor;
+	bool m_b_hdmiin_fhd;
 	int getVCRSlowBlanking();
 	int getAspect(int defaultVal = 0, int flags = 0) const;
 	int getFrameRate(int defaultVal = 50000, int flags = 0) const;
