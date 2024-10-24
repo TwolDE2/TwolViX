@@ -3,7 +3,7 @@ from Components.SystemInfo import SystemInfo
 
 
 def InitHdmiRecord():
-	full_hd = SystemInfo["Hdmifhd"]
+	full_hd = SystemInfo.get("hdmifhdin")
 
 	config.hdmirecord = ConfigSubsection()
 

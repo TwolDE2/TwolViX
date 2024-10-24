@@ -111,7 +111,7 @@ MACHINEBUILD = BoxInfo.getItem("machinebuild")
 SystemInfo["ArchIsARM"] = ARCHITECTURE.startswith(("arm", "cortex"))
 SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
 SystemInfo["HDMIin"] = BoxInfo.getItem("HDMIin")
-SystemInfo["Hdmifhd"] = BoxInfo.getItem("hdmifhdin")
+
 
 def getBoxType():  # this function mimics the function of the same name in branding module
 	if MACHINEBUILD == "sf8008":
