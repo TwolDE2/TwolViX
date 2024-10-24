@@ -276,8 +276,7 @@ RESULT eServiceHDMIRecord::stop()
 	if (m_state == statePrepared)
 	{
 		m_thread = NULL;
-		if (!m_simulate && eEncoder::getInstance())
-			eEncoder::getInstance()->freeEncoder(m_encoder_fd);
+		if (eEncoder::getInstance()) eEncoder::getInstance()->freeEncoder(m_encoder_fd);
 		m_encoder_fd = -1;
 		m_state = stateIdle;
 	}
@@ -287,7 +286,8 @@ RESULT eServiceHDMIRecord::stop()
 
 int eServiceHDMIRecord::doPrepare()
 {
-	if (!m_simulate && m_encoder_fd < 0)
+	eDebug("[eServiceHDMIRecord] Record to %s , encoder_fd is %d", m_filename.c_str(), m_encoder_fd);
+	if (m_encoder_fd < 0)
 	{
 		if (eEncoder::getInstance())
 		{
@@ -302,6 +302,7 @@ int eServiceHDMIRecord::doPrepare()
 			*/
 			m_encoder_fd = eEncoder::getInstance()->allocateHDMIEncoder(m_ref.toString(), m_buffersize);
 		}
+		eDebug("[eServiceHDMIRecord] et Hdmi encoder %s , encoder_fd is %d", m_filename.c_str(), m_encoder_fd);
 		if (m_encoder_fd < 0) return -1;
 	}
 	m_state = statePrepared;
