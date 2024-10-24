@@ -281,7 +281,7 @@ SystemInfo["CanNotDoSimultaneousTranscodeAndPIP"] = SystemInfo["boxtype"] in ("v
 SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["hasHdmiCec"] = fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")
 SystemInfo["HasHDMIin"] = SystemInfo["hdmifhdin"] or SystemInfo["hdmihdin"]
-SystemInfo("HDMIinPiP", SystemInfo[("HDMIin") and SystemInfo["MachineBrand"] != "dreambox")
+SystemInfo["HDMIinPiP"] = SystemInfo["HDMIin"] and SystemInfo["MachineBrand"] != "dreambox"
 # Audio/Video Configuration setup values
 SystemInfo["hasJack"] = SystemInfo["avjack"]
 SystemInfo["hasRCA"] = SystemInfo["rca"]
