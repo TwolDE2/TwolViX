@@ -127,6 +127,7 @@ RESULT eServiceHDMI::start()
 {
 	eAVSwitch::getInstance()->startStopHDMIIn(true, !m_noaudio, 1);
 #ifndef HAVE_HDMIIN_DM
+	eDebug("[eServiceHDMIRecord][Start] NOT Dreambox"
 	m_decoder = new eTSMPEGDecoder(NULL, m_decoder_index);
 	m_decoder->setVideoPID(1, 0);
 	if (!m_noaudio)
