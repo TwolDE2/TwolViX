@@ -202,4 +202,3 @@ class UserInterfacePositioner(ConfigListScreen, Screen):
 		config.osd.dst_height.save()
 		configfile.save()
 		self.close()
-
