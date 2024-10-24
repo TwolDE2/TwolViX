@@ -4538,7 +4538,7 @@ class InfoBarHdmi:
 		if SystemInfo['HasHDMIin']:
 			if not self.hdmi_enabled_full:
 				self.addExtension((self.getHDMIInFullScreen, self.HDMIInFull, lambda: True), "blue")
-			if SystemInfo("HDMIinPiP") and not self.hdmi_enabled_pip:
+			if SystemInfo["HDMIinPiP"] and not self.hdmi_enabled_pip:
 				self.addExtension((self.getHDMIInPiPScreen, self.HDMIInPiP, lambda: True), "green")
 
 		self["HDMIActions"] = HelpableActionMap(self, "InfobarHDMIActions",
@@ -4554,7 +4554,7 @@ class InfoBarHdmi:
 			self.session.pip.show()
 			self.session.pipshown = True
 			self.session.pip.servicePath = self.servicelist.getCurrentServicePath()
-		elif SystemInfo("HDMIinPiP"):
+		elif SystemInfo["HDMIinPiP"]:
 			curref = self.session.pip.getCurrentService()
 			if curref and curref.type != 8192:
 				self.session.pip.playService(eServiceReference('8192:0:1:0:0:0:0:0:0:0:'))
