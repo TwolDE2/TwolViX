@@ -97,9 +97,6 @@ class Element:
 	def setSuspend(self, suspended):
 		try:
 			changed = self.__suspended != suspended
-		except AttributeError:
-			print("[Element][setSuspend]self.__suspended - No attribute __suspended")
-		else:
 			if not self.__suspended and suspended:
 				self.doSuspend(1)
 			elif self.__suspended and not suspended:
@@ -109,6 +106,9 @@ class Element:
 			if changed:
 				for s in self.sources:
 					s.checkSuspend()
+		except AttributeError:
+			print("[Element][setSuspend]self.__suspended - No attribute __suspended")
+
 	suspended = property(lambda self: self.__suspended, setSuspend)
 
 	def checkSuspend(self):
