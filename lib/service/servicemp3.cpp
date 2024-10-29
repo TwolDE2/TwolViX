@@ -24,7 +24,7 @@
 #include <gst/pbutils/missing-plugins.h>
 #include <sys/stat.h>
 
-#define HTTP_TIMEOUT 30
+#define HTTP_TIMEOUT 60
 
 /*
  * UNUSED variable from service reference is now used as buffer flag for gstreamer
@@ -272,11 +272,6 @@ RESULT eStaticServiceMP3Info::getName(const eServiceReference &ref, std::string 
 		else
 			name = ref.path;
 	}
-
-	std::string res_name = "";
-	std::string res_provider = "";
-	eServiceReference::parseNameAndProviderFromName(name, res_name, res_provider);
-	name = res_name;
 
 	return 0;
 }
@@ -2436,6 +2431,7 @@ void eServiceMP3::playbinNotifySource(GObject *object, GParamSpec *unused, gpoin
 				if (!strcmp(sourcename, "souphttpsrc"))
 				{
 					g_object_set(G_OBJECT(source), "timeout", HTTP_TIMEOUT, NULL);
+					g_object_set(G_OBJECT(source), "retries", 20, NULL);
 				}
 			}
 		}
