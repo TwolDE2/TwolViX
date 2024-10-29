@@ -511,6 +511,7 @@ extern void resumeInit(void);
 extern void setAnimation_current(int a);
 extern void setAnimation_speed(int speed);
 #endif
+extern bool checkLogin(const char *user, const char *pwd);
 %}
 
 extern void addFont(const char *filename, const char *alias, int scale_factor, int is_replacement, int renderflags = 0);
@@ -530,6 +531,7 @@ extern void resumeInit(void);
 extern void setAnimation_current(int a);
 extern void setAnimation_speed(int speed);
 #endif
+extern bool checkLogin(const char *user, const char *pwd);
 
 %include <lib/python/python_console.i>
 %include <lib/python/python_base.i>
