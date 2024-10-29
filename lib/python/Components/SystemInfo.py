@@ -282,6 +282,7 @@ SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["hasHdmiCec"] = fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")
 SystemInfo["HasHDMIin"] = SystemInfo["hdmifhdin"] or SystemInfo["hdmihdin"]
 SystemInfo["HDMIinPiP"] = SystemInfo["HasHDMIin"] and BRAND != "dreambox"
+SystemInfo["CanHDMIinRecord"] = fileExists("/proc/stb/encoder/0/decoder")
 # Audio/Video Configuration setup values
 SystemInfo["hasJack"] = SystemInfo["avjack"]
 SystemInfo["hasRCA"] = SystemInfo["rca"]
