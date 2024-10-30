@@ -1562,7 +1562,6 @@ class InfoBarMenu:
 			self.session.openWithCallback(self.mainMenuClosed, Setup, 'HDMIRecord')
 
 
-
 class InfoBarSimpleEventView:
 	def __init__(self):
 		pass
