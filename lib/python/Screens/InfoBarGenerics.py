@@ -165,6 +165,7 @@ def saveResumePoints():  # legacy code
 def loadResumePoints():  # legacy code
 	resumePointsInstance.loadResumePoints()
 
+
 resumePointCache = resumePointsInstance.resumePointCache  # legacy code
 resumePointCacheLast = 0  # legacy code
 # End: temporary legacy resume point code
