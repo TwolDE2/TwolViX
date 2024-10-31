@@ -298,7 +298,7 @@ int eEncoder::allocateHDMIEncoder(const std::string &serviceref, int &buffersize
 	const char *vcodec_node;
 	const char *acodec_node;
 
-	eDebug("[eEncoder][allocateHDMIEncoder] bitrate=%d width=%d height=%d vcodec=%s acodec=%s", hdmi_encoding_bitrate, hdmi_encoding_width, hdmi_encoding_height, hdmi_encoding_vcodec.c_str(), hdmi_encoding_acodec.c_str());
+	eDebug("[eEncoder][allocateHDMIEncoder] framerate = %d bitrate=%d width=%d height=%d vcodec=%s acodec=%s", hdmi_encoding_framerate, hdmi_encoding_bitrate, hdmi_encoding_width, hdmi_encoding_height, hdmi_encoding_vcodec.c_str(), hdmi_encoding_acodec.c_str());
 
 	if(bcm_encoder)
 	{
