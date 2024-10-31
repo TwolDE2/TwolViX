@@ -1250,8 +1250,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			from Screens.InfoBar import MoviePlayer
 			MoviePlayerInstance = MoviePlayer.instance
 			if MoviePlayerInstance is not None:
-				from Screens.InfoBarGenerics import setResumePoint
-				setResumePoint(MoviePlayer.instance.session)
+				from Screens.InfoBarGenerics import resumePointsInstance
+				resumePointsInstance.setResumePoint(MoviePlayer.instance.session)
 			self.session.nav.stopService()
 			if playInBackground != current:
 				# come back to play the new one
@@ -1262,8 +1262,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			from Screens.InfoBar import MoviePlayer
 			MoviePlayerInstance = MoviePlayer.instance
 			if MoviePlayerInstance is not None:
-				from Screens.InfoBarGenerics import setResumePoint
-				setResumePoint(MoviePlayer.instance.session)
+				from Screens.InfoBarGenerics import resumePointsInstance
+				resumePointsInstance.setResumePoint(MoviePlayer.instance.session)
 			self.session.nav.stopService()
 			if playInForeground != current:
 				self.callLater(self.preview)
@@ -1288,8 +1288,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			from Screens.InfoBar import MoviePlayer
 			MoviePlayerInstance = MoviePlayer.instance
 			if MoviePlayerInstance is not None:
-				from Screens.InfoBarGenerics import setResumePoint
-				setResumePoint(MoviePlayer.instance.session)
+				from Screens.InfoBarGenerics import resumePointsInstance
+				resumePointsInstance.setResumePoint(MoviePlayer.instance.session)
 			self.session.nav.stopService()
 			if config.movielist.show_live_tv_in_movielist.value:
 				self.LivePlayTimer.start(100)
@@ -1299,8 +1299,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			from Screens.InfoBar import MoviePlayer
 			MoviePlayerInstance = MoviePlayer.instance
 			if MoviePlayerInstance is not None:
-				from Screens.InfoBarGenerics import setResumePoint
-				setResumePoint(MoviePlayer.instance.session)
+				from Screens.InfoBarGenerics import resumePointsInstance
+				resumePointsInstance.setResumePoint(MoviePlayer.instance.session)
 				self.closeMoviePlayerOnExit = True
 			self.session.nav.stopService()
 			if config.movielist.show_live_tv_in_movielist.value:
@@ -2365,8 +2365,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 					continue
 				try:
 					moveServiceFiles(itemRef, trash)
-					from Screens.InfoBarGenerics import delResumePoint
-					delResumePoint(itemRef)
+					from Screens.InfoBarGenerics import resumePointsInstance
+					resumePointsInstance.delResumePoint(itemRef)
 					deletedList.append(itemRef)
 				except Exception as ex:
 					print("[MovieSelection] Couldn't move to trash '%s'. %s" % (path, ex))
@@ -2409,8 +2409,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 				else:
 					if offline.deleteFromDisk(0):
 						raise Exception("Offline delete failed")
-				from Screens.InfoBarGenerics import delResumePoint
-				delResumePoint(itemRef)
+				from Screens.InfoBarGenerics import resumePointsInstance
+				resumePointsInstance.delResumePoint(itemRef)
 				deletedList.append(itemRef)
 			except Exception as ex:
 				print("[MovieSelection] Couldn't delete '%s'. %s" % (path, ex))
