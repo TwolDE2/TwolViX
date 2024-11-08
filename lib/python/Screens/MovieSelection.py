@@ -2418,9 +2418,13 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 
 		if deletedList:
 			path2 = path + ".del"
-			if offline is None and ospath.isdir(path2):		# directory not deleted by eraser and .del added to path name
+			if offline is None:		# directory not deleted by eraser and .del added to path name
 				# print("[MovieSelection][permanentDeleteListConfirmed] shutil path", path2)
-				shutil.rmtree(path2)
+				try:
+					shutil.rmtree(path2)
+				except FileNotFoundError:
+					pass
+				
 			self["list"].removeServices(deletedList)
 			deletedCount = len(deletedList)
 			self.showActionFeedback(_("Deleted '%s'") % name if deletedCount == 1 else _("Deleted %d items") % deletedCount)
