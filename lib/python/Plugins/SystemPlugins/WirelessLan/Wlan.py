@@ -492,7 +492,7 @@ class Status:
 				try:
 					for i in range(len(scanresults)):
 						bssid = scanresults[i].ssid
-						print(f"[NetworkWizard] scanresults[i] {scanresults[i]}")					
+						print(f"[NetworkWizard] scanresults[i] {scanresults[i]}")
 						aps[bssid] = {
 							'active': True,
 							'bssid': scanresults[i].ssid,
