@@ -160,7 +160,7 @@ self.session.open(SABnzbdSetupScreen)
 			<item key="harddisk_check" level="0" text="Filesystem Check"><screen module="HarddiskSetup" screen="HarddiskFsckSelection" /></item>
 		</menu>
 
-		<!-- Menu / Setup / Recordings, Playback, Timeshift (, Hdmi-In) -->
+		<!-- Menu / Setup / Recordings, Playback & Timeshift -->
 		<menu key="rec" level="1" text="Recordings, Playback &amp; Timeshift" weight="11">
 			<item key="recording_setup" level="0" text="Recording" weight="10"><screen module="Recordings" screen="RecordingSettings" /></item>
 			<item key="playback_setup" level="0" text="Playback" weight="12"><setup id="playback" /></item>
