@@ -1893,7 +1893,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 				break;
 			case eSecCommand::SEND_DISEQC:
 				sec_fe->sendDiseqc(m_sec_sequence.current()->diseqc);
-				eDebugNoSimulateNoNewLineStart("[eDVBFrontend%d] sendDiseqc: ", m_dvbid);
+/*				eDebugNoSimulateNoNewLineStart("[eDVBFrontend%d] sendDiseqc: ", m_dvbid);
 				for (int i=0; i < m_sec_sequence.current()->diseqc.len; ++i)
 					eDebugNoNewLine("%02x", m_sec_sequence.current()->diseqc.data[i]);
 
@@ -1903,6 +1903,7 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 					eDebugNoNewLine("(DiSEqC peripherial power on)\n");
 				else
 					eDebugNoNewLine("(?)\n");
+*/
 				++m_sec_sequence.current();
 				break;
 			case eSecCommand::SEND_TONEBURST:
