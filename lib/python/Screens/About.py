@@ -53,7 +53,7 @@ class About(AboutBase):
 		})
 
 	def populate(self):
-		Brands ={"meson":"MESON", "bcm":"Broadcom", "hisi":"Hisilicon"}
+		Brands = {"meson":"MESON", "bcm":"Broadcom", "hisi":"Hisilicon"}
 		AboutText = ""
 		AboutText += _("Model:\t%s %s\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"])
 
