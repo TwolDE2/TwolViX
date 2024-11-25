@@ -2,9 +2,9 @@ from ast import literal_eval
 from os import listdir
 from hashlib import md5
 from os.path import isfile, join as pathjoin
+from re import split
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
-from Components.About import getChipSetString
 from Components.RcModel import rc_model
 from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLines
 from Tools.HardwareInfo import HardwareInfo
@@ -80,6 +80,8 @@ ARCHITECTURE = BoxInfo.getItem("architecture")
 BRAND = BoxInfo.getItem("brand")
 MODEL = BoxInfo.getItem("model")
 SOC_FAMILY = BoxInfo.getItem("socfamily")
+SOC_BRAND = split('(\d.*)',SOC_FAMILY)[0]
+CHIPSET = split('(\d.*)',SOC_FAMILY)[1]
 DISPLAYTYPE = BoxInfo.getItem("displaytype")
 MTDROOTFS = BoxInfo.getItem("mtdrootfs")
 DISPLAYMODEL = BoxInfo.getItem("displaymodel")
@@ -153,7 +155,6 @@ SystemInfo["resetMBoot"] = False  # This needs to be here so it can be reset by 
 SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")  # This needs to be here so it can be tested by getMultibootslots!
 SystemInfo["HasKexecUSB"] = False  # This needs to be here so it can be reset by getMultibootslots!
 from Tools.Multiboot import getMultibootslots  # noqa: E402  This import needs to be here to avoid a SystemInfo load loop!
-SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and getBoxType() not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")  # This needs to be for later checks
 SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and SystemInfo["boxtype"] not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")  # This needs to be for later checks
 SystemInfo["canMultiBoot"] = getMultibootslots()
 # SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py
@@ -266,13 +267,13 @@ SystemInfo["hasScart"] = SystemInfo["scart"]
 SystemInfo["hasScartYUV"] = SystemInfo["scartyuv"]
 SystemInfo["hasYUV"] = SystemInfo["yuv"]
 # Videomodes
-SystemInfo["VideoModes"] = getChipSetString() in (  # 2160p and 1080p capable hardware...
-	"5272s", "7251", "7251s", "7252", "7252s", "7278", "7366", "7376", "7444s", "72604", "3798mv200", "3798cv200", "3798mv200h", "3798mv300", "hi3798mv200", "hi3798mv200h", "hi3798mv200advca", "hi3798cv200", "hi3798mv300"
+SystemInfo["VideoModes"] = CHIPSET in (  # 2160p and 1080p capable hardware...
+	"5272s", "7251", "7251s", "7252", "7252s", "7278", "7366", "7376", "7444s", "72604", "3798cv200", "3798mv200", "3798mv200advca", "3798mv200h", "3798mv300"
 ) and (
 	["720p", "1080p", "2160p", "2160p30", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
 	{"720p", "1080p", "2160p", "2160p30", "1080i"}  # Widescreen modes.
-) or getChipSetString() in (  # 1080p capable hardware...
-	"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "3716mv410", "3716mv430", "hi3716mv430"
+) or CHIPSET in (  # 1080p capable hardware...
+	"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "3716mv410", "3716mv430"
 ) and (
 	["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
 	{"720p", "1080p", "1080i"}  # Widescreen modes.
