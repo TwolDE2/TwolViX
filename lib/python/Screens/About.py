@@ -77,13 +77,13 @@ class About(AboutBase):
 		AboutText += _("SoC:\t%s\n") % SystemInfo["socfamily"].upper()
 		
 		try:
-			branch=getE2Rev()
+			branch = getE2Rev()
 			print(f"[About][populate]1 branch:{branch}")			
 			if "+" in branch:
-				branch=branch.split("+")[1]
-			branch=f"?sha={branch}"
+				branch = branch.split("+")[1]
+			branch = f"?sha={branch}"
 		except IndexError:
-			branch=""		
+			branch = ""		
 		print(f"[About][populate]2 branch:{branch}")		
 		print(f"[About][populate] OEA:{OEA} Commitlogs:{CommitLogs}")
 		print(f"[About][populate] XXCommitlogs:{XXCommitLogs}")		
