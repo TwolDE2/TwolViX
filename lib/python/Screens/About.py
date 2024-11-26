@@ -76,18 +76,18 @@ class About(AboutBase):
 		AboutText += _("CPU:\t%s %s %s\n") % (about.getCPUArch(), about.getCPUSpeedString(), about.getCpuCoresString())
 
 		AboutText += _("SoC:\t%s\n") % SystemInfo["socfamily"].upper()
-		
+
 		try:
 			branch = getE2Rev()
-			print(f"[About][populate]1 branch:{branch}")			
+			print(f"[About][populate]1 branch:{branch}")
 			if "+" in branch:
 				branch = branch.split("+")[1]
 			branch = f"?sha={branch}"
 		except IndexError:
-			branch = ""		
-		print(f"[About][populate]2 branch:{branch}")		
+			branch = ""
+		print(f"[About][populate]2 branch:{branch}")
 		print(f"[About][populate] OEA:{OEA} Commitlogs:{CommitLogs}")
-		print(f"[About][populate] XXCommitlogs:{XXCommitLogs}")		
+		print(f"[About][populate] XXCommitlogs:{XXCommitLogs}")
 		if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbx34k", "gbquad4kpro"):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
 				AboutText += _("Bolt:%s\n") % f.read().strip()[0:4]
