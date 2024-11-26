@@ -101,7 +101,7 @@ except IndexError:
 
 CommitLogs=[
 	(f"https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha={OEA}", "OE-A Core"),
-	(f"https://api.github.com/repos/TwolDE2/enigma2/commits{branch}"),
+	(f"https://api.github.com/repos/TwolDE2/enigma2/commits{branch}", "Enigma2"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
 	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
 	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),

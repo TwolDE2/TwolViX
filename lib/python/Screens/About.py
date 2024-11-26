@@ -1,6 +1,6 @@
 from os import listdir, path, popen
 from re import search
-from enigma import eTimer, getDesktop
+from enigma import eTimer, getDesktop, getE2Rev
 from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button
@@ -11,7 +11,7 @@ from Components.Network import iNetwork
 from Components.NimManager import nimmanager
 from Components.Pixmap import MultiPixmap
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, CHIPSET, SOC_BRAND
+from Components.SystemInfo import SystemInfo, CHIPSET, SOC_BRAND, OEA, CommitLogs
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
@@ -20,6 +20,19 @@ from Tools.Directories import fileHas, pathExists, isPluginInstalled
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
 
+E2Branches = {
+	'developer': 'Py3D',
+	'release': 'Py3'
+}
+
+XXCommitLogs = [
+	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=5.5", "OE-A Core"),
+	("https://api.github.com/repos/TwolDE2/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),
+	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
+	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
+	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
+	("https://api.github.com/repos/oe-alliance/branding-module/commits", "Branding Module"),
+]
 
 class AboutBase(TextBox):
 	def __init__(self, session, labels=None):
@@ -62,7 +75,18 @@ class About(AboutBase):
 		AboutText += _("CPU:\t%s %s %s\n") % (about.getCPUArch(), about.getCPUSpeedString(), about.getCpuCoresString())
 
 		AboutText += _("SoC:\t%s\n") % SystemInfo["socfamily"].upper()
-
+		
+		try:
+			branch=getE2Rev()
+			print(f"[About][populate]1 branch:{branch}")			
+			if "+" in branch:
+				branch=branch.split("+")[1]
+			branch=f"?sha={branch}"
+		except IndexError:
+			branch=""		
+		print(f"[About][populate]2 branch:{branch}")		
+		print(f"[About][populate] OEA:{OEA} Commitlogs:{CommitLogs}")
+		print(f"[About][populate] XXCommitlogs:{XXCommitLogs}")		
 		if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbx34k", "gbquad4kpro"):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
 				AboutText += _("Bolt:%s\n") % f.read().strip()[0:4]
