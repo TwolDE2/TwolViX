@@ -9,7 +9,7 @@ from Components.Button import Button
 from Components.Label import Label
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, CommitLogs
 from Screens.Screen import Screen, ScreenSummary
 
 # required methods: Request, urlopen, HTTPError, URLError
@@ -32,7 +32,7 @@ E2Branches = {
 
 
 project = 0
-projects = [
+CommitLogs = [
 	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=5.5", "OE-A Core"),
 	("https://api.github.com/repos/TwolDE2/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
@@ -46,7 +46,7 @@ cachedProjects = {}
 def readGithubCommitLogsSoftwareUpdate():
 	global ImageVer
 	gitstart = True
-	url = projects[project][0]
+	url = CommitLogs[project][0]
 	commitlog = ""
 	try:
 		try:
@@ -104,7 +104,7 @@ def readGithubCommitLogs():
 	cachedProjects = {}
 	blockstart = False
 	gitstart = True
-	url = projects[project][0]
+	url = CommitLogs[project][0]
 	commitlog = ""
 	try:
 		try:
@@ -162,17 +162,17 @@ def readGithubCommitLogs():
 
 
 def getScreenTitle():
-	return projects[project][1]
+	return CommitLogs[project][1]
 
 
 def left():
 	global project
-	project = project == 0 and len(projects) - 1 or project - 1
+	project = project == 0 and len(CommitLogs) - 1 or project - 1
 
 
 def right():
 	global project
-	project = project != len(projects) - 1 and project + 1 or 0
+	project = project != len(CommitLogs) - 1 and project + 1 or 0
 
 
 gitcommitinfo = modules[__name__]
