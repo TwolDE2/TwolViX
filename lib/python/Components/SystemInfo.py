@@ -108,6 +108,7 @@ CommitLogs = [
 	("https://api.github.com/repos/oe-alliance/branding-module/commits", "Branding Module"),
 ]
 
+
 def getBoxType():  # this function mimics the function of the same name in branding module
 	if MACHINEBUILD == "sf8008":
 		boxtype = open("/proc/stb/info/type").read().strip()
