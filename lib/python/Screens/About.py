@@ -34,6 +34,7 @@ XXCommitLogs = [
 	("https://api.github.com/repos/oe-alliance/branding-module/commits", "Branding Module"),
 ]
 
+
 class AboutBase(TextBox):
 	def __init__(self, session, labels=None):
 		TextBox.__init__(self, session, label="AboutScrollLabel")
