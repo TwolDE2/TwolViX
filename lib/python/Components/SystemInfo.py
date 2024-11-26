@@ -87,7 +87,7 @@ MTDROOTFS = BoxInfo.getItem("mtdrootfs")
 DISPLAYMODEL = BoxInfo.getItem("displaymodel")
 DISPLAYBRAND = BoxInfo.getItem("displaybrand")
 MACHINEBUILD = BoxInfo.getItem("machinebuild")
-OEA = split('(\d.*)', BoxInfo.getItem("oe")[1]
+OEA = split('(\d.*)', BoxInfo.getItem("oe"))[1]
 SystemInfo["ArchIsARM"]=ARCHITECTURE.startswith(("arm", "cortex"))
 SystemInfo["ArchIsARM64"]="64" in ARCHITECTURE
 
