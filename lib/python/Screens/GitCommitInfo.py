@@ -25,21 +25,7 @@ else:
 	# ImageVer = "%s.%s" % (SystemInfo["imagebuild"], SystemInfo["imagedevbuild"])
 	# ImageVer = float(ImageVer)
 
-E2Branches = {
-	'developer': 'Py3D',
-	'release': 'Py3'
-}
-
-
 project = 0
-XXCommitLogs = [
-	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=5.5", "OE-A Core"),
-	("https://api.github.com/repos/TwolDE2/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),
-	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
-	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
-	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
-	("https://api.github.com/repos/oe-alliance/branding-module/commits", "Branding Module"),
-]
 cachedProjects = {}
 
 

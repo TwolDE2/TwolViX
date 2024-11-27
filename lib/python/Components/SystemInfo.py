@@ -3,7 +3,7 @@ from os import listdir
 from hashlib import md5
 from os.path import isfile, join as pathjoin
 from re import split
-from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager, getE2Rev
+from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
 from Components.RcModel import rc_model
 from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLines
@@ -91,17 +91,13 @@ OEA = split('(\d.*)', BoxInfo.getItem("oe"))[1]
 SystemInfo["ArchIsARM"] = ARCHITECTURE.startswith(("arm", "cortex"))
 SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
 
-try:
-	branch = getE2Rev()
-	if "+" in branch:
-		branch = branch.split("+")[1]
-	branch = f"?sha={branch}"
-except IndexError:
-	branch = ""
-
+E2Branches = {
+	'developer': 'Py3E',
+	'release': 'Py3D'
+}
 CommitLogs = [
 	(f"https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha={OEA}", "OE-A Core"),
-	(f"https://api.github.com/repos/TwolDE2/enigma2/commits{branch}", "Enigma2"),
+	("https://api.github.com/repos/OpenViX/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),	
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
 	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
 	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
