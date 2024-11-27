@@ -97,7 +97,7 @@ E2Branches = {
 }
 CommitLogs = [
 	(f"https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha={OEA}", "OE-A Core"),
-	("https://api.github.com/repos/OpenViX/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),	
+	("https://api.github.com/repos/OpenViX/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
 	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
 	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
