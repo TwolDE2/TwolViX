@@ -20,6 +20,7 @@ from Tools.Directories import fileHas, pathExists, isPluginInstalled
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
 
+
 class AboutBase(TextBox):
 	def __init__(self, session, labels=None):
 		TextBox.__init__(self, session, label="AboutScrollLabel")
