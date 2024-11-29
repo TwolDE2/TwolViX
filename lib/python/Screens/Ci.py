@@ -52,8 +52,8 @@ def InitCiConfig():
 			config.ci[slot].show_ci_messages = ConfigYesNo(default=True)
 			config.ci[slot].disable_operator_profile = ConfigYesNo(default=False)
 			config.ci[slot].alternative_ca_handling = ConfigSelection(choices=[(0, _("off")), (1, _("Close CA device at programm end")), (2, _("Offset CA device index")), (3, _("Offset and close CA device"))], default=0)
-			if SystemInfo["CI%dSupportsHighBitrates" % slot]:
-				if SystemInfo[f"CI{cislot}SupportsHighBitratesChoices"]
+			if SystemInfo[f"CI{slot}SupportsHighBitrates"]:
+				if SystemInfo[f"CI{slot}SupportsHighBitratesChoices"]:
 					with open("/proc/stb/tsmux/ci%d_tsclk_choices" % slot) as fd:
 						procChoices = fd.read().strip()
 					if procChoices:
