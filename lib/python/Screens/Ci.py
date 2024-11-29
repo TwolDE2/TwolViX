@@ -34,6 +34,10 @@ def setRelevantPidsRouting(configElement):
 
 
 def InitCiConfig():
+	highBitrateChoices = [
+		("normal", _("Normal")),
+		("high", _("High")),
+	]
 	config.ci = ConfigSubList()
 	config.cimisc = ConfigSubsection()
 	if SystemInfo["CommonInterface"]:
@@ -49,17 +53,13 @@ def InitCiConfig():
 			config.ci[slot].disable_operator_profile = ConfigYesNo(default=False)
 			config.ci[slot].alternative_ca_handling = ConfigSelection(choices=[(0, _("off")), (1, _("Close CA device at programm end")), (2, _("Offset CA device index")), (3, _("Offset and close CA device"))], default=0)
 			if SystemInfo["CI%dSupportsHighBitrates" % slot]:
-				with open("/proc/stb/tsmux/ci%d_tsclk_choices" % slot) as fd:
-					procChoices = fd.read().strip()
-				if procChoices:
-					choiceslist = procChoices.split(" ")
-					highBitrateChoices = [(item, _(item.title())) for item in choiceslist]
-				else:
-					highBitrateChoices = [
-						("normal", _("Normal")),
-						("high", _("High")),
-					]
-				print("[CI][InitCiConfig] highBitrateChoices", highBitrateChoices)
+				if SystemInfo[f"CI{cislot}SupportsHighBitratesChoices"]
+					with open("/proc/stb/tsmux/ci%d_tsclk_choices" % slot) as fd:
+						procChoices = fd.read().strip()
+					if procChoices:
+						choiceslist = procChoices.split(" ")
+						highBitrateChoices = [(item, _(item.title())) for item in choiceslist]
+				print(f"[CI][InitCiConfig] highBitrateChoices {highBitrateChoices}")
 				config.ci[slot].highBitrate = ConfigSelection(default="high", choices=highBitrateChoices)
 				config.ci[slot].highBitrate.slotid = slot
 				config.ci[slot].highBitrate.addNotifier(setCIBitrate)
