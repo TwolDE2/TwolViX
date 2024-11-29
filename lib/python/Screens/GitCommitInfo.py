@@ -9,7 +9,7 @@ from Components.Button import Button
 from Components.Label import Label
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, CommitLogs
+from Components.SystemInfo import SystemInfo, CommitLogs, OEA
 from Screens.Screen import Screen, ScreenSummary
 
 # required methods: Request, urlopen, HTTPError, URLError
@@ -25,6 +25,18 @@ else:
 	# ImageVer = "%s.%s" % (SystemInfo["imagebuild"], SystemInfo["imagedevbuild"])
 	# ImageVer = float(ImageVer)
 
+E2Branches = {
+	'developer': 'Py3E',
+	'release': 'Py3D'
+}
+CommitLogs = [
+	(f"https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha={OEA}", "OE-A Core"),
+	("https://api.github.com/repos/OpenViX/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),
+	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
+	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
+	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
+	("https://api.github.com/repos/oe-alliance/branding-module/commits", "Branding Module"),
+]
 project = 0
 cachedProjects = {}
 
