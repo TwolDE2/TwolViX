@@ -1796,6 +1796,7 @@ class InfoBarEPG:
 		if self.servicelist is None:
 			from Screens.InfoBar import InfoBar 
 			self.servicelist = InfoBar.instance.servicelist
+
 		def openEPG(open, bouquet, bouquets):
 			if open:
 				bouquet = bouquet or self.servicelist.getRoot()
