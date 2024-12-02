@@ -12,32 +12,28 @@ class NetlinkSocket(socket.socket):
 
 	def parse(self):
 		data = self.recv(512)
-		# print("[netlink][parse] data", data)
-		if isinstance(data, bytes):
-			data = data.decode()
-		data = [x for x in data.split('\x00') if x] + [""]  # avoid empty strings in the output except the final one
-
-		event = {}
-		for item in data:
-			# print("[netlink][parse] item=%s" % item)
-			if not item:
-				# terminator
-				yield event
-				event = {}
-			else:
-				try:
-					k, v = item.split('=', 1)
-					# print("[netlink][parse] k=%s, v=%s" % (k,v))
-					event[k] = v
-				except:
-					# print("[netlink][parse] exception item=%s" % item)
-					event[None] = item
+		if isinstance(data, bytes) and not data.startswith(b"libudev"):
+			data = data.decode("utf-8", "ignore")
+			data = [x for x in data.split("\x00") if x] + [""]  # avoid empty strings in the output except the final one
+			event = {}
+			for item in data:
+				if not item:
+					# terminator
+					print(f"[netlink][parse] yield event:{event}, reset")
+					yield event
+					event = {}
+				else:
+					try:
+						k, v = item.split("=", 1)
+						event[k] = v
+					except:
+						event[None] = item
 
 
 # Quick unit test (you can run this on any Linux machine)
 if __name__ == '__main__':
 	nls = NetlinkSocket()
-	# print("socket no:", nls.fileno())
+	print("socket no:", nls.fileno())
 	while 1:
 		for item in nls.parse():
 			print(repr(item))
