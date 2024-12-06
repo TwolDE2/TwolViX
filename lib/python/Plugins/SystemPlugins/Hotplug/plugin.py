@@ -94,8 +94,10 @@ def autostart(reason, **kwargs):
 			pass
 		factory = Factory()
 		factory.protocol = Hotplug
-		reactor.listenUNIX("/tmp/hotplug.socket", factory)
-
+		try:
+			reactor.listenUNIX("/tmp/hotplug.socket", factory)
+		except Exception as error:
+			print(f"[Hotplug][autostart] error reason:{error}")			
 
 def Plugins(**kwargs):
 	return PluginDescriptor(name=_("Hotplug"), description=_("Listener for hotplug events."), where=[PluginDescriptor.WHERE_AUTOSTART], needsRestart=True, fnc=autostart)
