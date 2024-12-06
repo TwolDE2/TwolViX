@@ -99,5 +99,6 @@ def autostart(reason, **kwargs):
 		except Exception as error:
 			print(f"[Hotplug][autostart] error reason:{error}")			
 
+
 def Plugins(**kwargs):
 	return PluginDescriptor(name=_("Hotplug"), description=_("Listener for hotplug events."), where=[PluginDescriptor.WHERE_AUTOSTART], needsRestart=True, fnc=autostart)
