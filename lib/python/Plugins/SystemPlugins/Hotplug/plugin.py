@@ -97,7 +97,7 @@ def autostart(reason, **kwargs):
 		try:
 			reactor.listenUNIX("/tmp/hotplug.socket", factory)
 		except Exception as error:
-			print(f"[Hotplug][autostart] error reason:{error}")			
+			print(f"[Hotplug][autostart] error reason:{error}")
 
 
 def Plugins(**kwargs):
