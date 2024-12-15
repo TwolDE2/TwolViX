@@ -176,6 +176,7 @@ class LogManager(Screen):
 
 	def layoutFinished(self):
 		self["LogsSize"].update(config.crash.debug_path.value)
+		self.listReverse()
 		idx = 0
 		self["list"].moveToIndex(idx)
 		self.setWindowTitle(_("Crash Logs"))
@@ -228,6 +229,7 @@ class LogManager(Screen):
 			self.setWindowTitle(_("Crash Logs"))
 		self["list"].matchingPattern = re.compile(self.matchingPattern)
 		self["list"].changeDir(self.defaultDir)
+		self.listReverse()
 
 	def showLog(self):
 		try:
@@ -259,6 +261,10 @@ class LogManager(Screen):
 			self["LogsSize"].update(config.crash.debug_path.value)
 		else:
 			self.session.open(MessageBox, _("You have not selected any logs to delete."), MessageBox.TYPE_INFO, timeout=10)
+
+	def listReverse(self):
+		self["list"].list.reverse()
+		self["list"].l.setList(self["list"].list)
 
 
 class LogManagerViewLog(Screen):
