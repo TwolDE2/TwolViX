@@ -600,7 +600,6 @@ class VIXBackupManager(Screen):
 				self.feedscheck = True
 				self.Console.ePopen("opkg list-installed", self.Stage3Complete)
 
-
 	def Stage3Complete(self, result, retval, extra_args):
 		plugins = []
 		if path.exists("/tmp/ExtraInstalledPlugins") and self.feedscheck:
@@ -692,7 +691,6 @@ class VIXBackupManager(Screen):
 			else:
 				self.Stage5Completed = True
 			self.Stage4Completed = True
-
 
 	def Stage5(self):
 		if not self.Stage5Completed:	
