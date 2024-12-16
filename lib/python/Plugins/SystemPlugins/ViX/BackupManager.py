@@ -363,25 +363,11 @@ class VIXBackupManager(Screen):
 					remove("/tmp/ExtraInstalledPlugins")
 				if path.exists("/tmp/backupkernelversion"):
 					remove("/tmp/backupkernelversion")
-				self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion", self.settingsRestoreCheck)
+				self.keyResstore1()
 			else:
 				self.session.open(MessageBox, _("There is no backup to restore."), MessageBox.TYPE_INFO, timeout=10)
 		else:
 			self.session.open(MessageBox, _("Backup in progress,\nPlease wait for it to finish, before trying again."), MessageBox.TYPE_INFO, timeout=10)
-
-	def settingsRestoreCheck(self, result, retval, extra_args=None):
-		if path.exists("/tmp/backupimageversion"):
-			with open("/tmp/backupimageversion", "r") as fd:
-				imageversion = fd.read()
-			print("[BackupManager] Backup Image:", imageversion)
-			print("[BackupManager] Current Image:", about.getVersionString())
-			if imageversion == about.getVersionString() or isRestorableSettings(imageversion):
-				print("[BackupManager] Stage 1: Image ver OK")
-				self.keyResstore1()
-			else:
-				self.session.open(MessageBox, _("Sorry, but the file is not compatible with this image version."), MessageBox.TYPE_INFO, timeout=10)
-		else:
-			self.session.open(MessageBox, _("Sorry, but the file is not compatible with this image version."), MessageBox.TYPE_INFO, timeout=10)
 
 	def keyResstore1(self):
 		message = _("Are you sure you want to restore this backup:\n ") + self.sel
@@ -413,6 +399,8 @@ class VIXBackupManager(Screen):
 		self.Stage3Completed = False
 		self.Stage4Completed = False
 		self.Stage5Completed = False
+		self.feedscheck = False	
+		self.feeds = " "	
 		job = Components.Task.Job(_("Backup manager"))
 
 		task = Components.Task.PythonTask(job, _("Restoring backup..."))
@@ -423,7 +411,7 @@ class VIXBackupManager(Screen):
 		task.work = self.Stage1
 		task.weighting = 1
 
-		task = Components.Task.ConditionTask(job, _("Restoring backup..."), timeoutCount=30)
+		task = Components.Task.ConditionTask(job, _("Restoring backup..."), timeoutCount=600)
 		task.check = lambda: self.Stage1Completed
 		task.weighting = 1
 
@@ -474,16 +462,16 @@ class VIXBackupManager(Screen):
 			SETTINGSRESTOREQUESTIONID
 		)
 
-	def Stage1(self, answer=None):
-		print("[BackupManager] Restoring Stage 1:")
-		if answer is True:
-			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /", self.Stage1SettingsComplete)
-		elif answer is False:
-			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion  tmp/3rdPartyPlugins", self.Stage1PluginsComplete)
+	def Stage1(self, answer=False):
+		print(f"[BackupManager] Stage 1 Restoring settings question:{answer}")
+		if answer:
+			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /", self.Stage1SettingsComplete)			
+		else:
+			self.Stage1Completed = True
 
 	def Stage1SettingsComplete(self, result, retval, extra_args):
-		print("[BackupManager] Restoring Stage 1 RESULT:", result)
-		print("[BackupManager] Restoring Stage 1 retval:", retval)
+		result = result.decode()	
+		print(f"[BackupManager] Restoring Stage 1 settings retval:{retval} result:{result}")
 		if retval == 0:
 			print("[BackupManager] Restoring Stage 1 Complete:")
 			self.didSettingsRestore = True
@@ -495,108 +483,127 @@ class VIXBackupManager(Screen):
 			configfile.load()
 		else:
 			print("[BackupManager] Restoring Stage 1 Failed:")
+			self.Stage2Completed = True
+			self.Stage3Completed = True
+			self.Stage4Completed = True
+			self.Stage5Completed = True			
 			AddPopupWithCallback(
-				self.Stage2,
-				_("Sorry, but the restore failed."),
+				self.Stage6,
+				_("Sorry, but the restore failed, exiting."),
 				MessageBox.TYPE_INFO,
 				10,
 				"StageOneFailedNotification"
 			)
 
-	def Stage1PluginsComplete(self, result, retval, extra_args):
-		print("[BackupManager] Restoring Stage 1 Complete:")
-		self.Stage1Completed = True
-
 	def Stage2(self, result=False):
-		print("[BackupManager] Restoring Stage 2: Checking feeds")
-		self.Console.ePopen("opkg update", self.Stage2Complete)
+		print("[BackupManager] Restoring Stage 2: Checking plugins restore required")
+		if not self.Stage2Completed:
+			AddPopupWithCallback(
+					self.Stage2Plugins,
+					_("Do you want to restore your Enigma2 plugins ?"),
+					MessageBox.TYPE_YESNO,
+					5,
+					PLUGINRESTOREQUESTIONID
+				)
 
+	def Stage2Plugins(self, answer=False):
+		if not self.Stage2Completed:
+			print(f"[BackupManager] Stage 2 Plugins request check:{answer}")
+			if answer:
+				print("[BackupManager] Restoring Stage 2: plugin restore chosen")
+				self.doPluginsRestore = True
+				self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion  tmp/3rdPartyPlugins", self.Stage2PluginsComplete)			
+			else:
+				print("[BackupManager] Restoring Stage 2: plugin restore skipped by user")
+				self.Stage2Completed = True
+				self.Stage3Completed = True
+				self.Stage4Completed = True
+				self.Stage5Completed = True
+				AddPopupWithCallback(
+					self.Stage6,
+					_("Now skipping restore process"),
+					MessageBox.TYPE_INFO,
+					15,
+					NOPLUGINS
+				)		
+
+	def Stage2PluginsComplete(self, result, retval, extra_args):
+			print("[BackupManager] Restoring Plugins Stage 2: Feeds Check")	
+			self.Console.ePopen("opkg update", self.Stage2Complete)
+			
 	def Stage2Complete(self, result, retval, extra_args):
-		print("[BackupManager] Restoring Stage 2: Result ", result)
+		print(f"[BackupManager] Restoring Plugins Stage 2:Check Feeds Result:{result}")
 		if result.find("wget returned 4") != -1:  # probably no network adaptor connected
 			self.feeds = "NONETWORK"
-			self.Stage2Completed = True
 		if result.find("wget returned 8") != -1 or result.find("wget returned 1") != -1 or result.find("wget returned 255") != -1 or result.find("404 Not Found") != -1:  # Server issued an error response, or there was a wget generic error code.
 			self.feeds = "DOWN"
-			self.Stage2Completed = True
 		elif result.find("bad address") != -1:  # probably DNS lookup failed
 			self.feeds = "BAD"
-			self.Stage2Completed = True
 		elif result.find("Collected errors") != -1:  # none of the above errors. What condition requires this to loop? Maybe double key press.
+			self.Stage2Completed = True
+			self.Stage3Completed = True
+			self.Stage4Completed = True
+			self.Stage5Completed = True
 			AddPopupWithCallback(
-				self.Stage2,
+				self.Stage6,
 				_("A background update check is in progress, please try again."),
 				MessageBox.TYPE_INFO,
 				10,
 				NOPLUGINS
 			)
+
 		else:
-			print("[BackupManager] Restoring Stage 2: Complete")
+			print("[BackupManager] Restoring Stage 2: Feeds Check Complete")
 			self.feeds = "OK"
-			self.Stage2Completed = True
+		self.Stage2Completed = True
 
 	def Stage3(self):
-		print("[BackupManager] Restoring Stage 3: Kernel Version/Feeds Checks")
-		if self.feeds == "OK":
-			print("[BackupManager] Restoring Stage 3: Feeds are OK")
-			if path.exists("/tmp/backupkernelversion") and path.exists("/tmp/backupimageversion"):
-				with open("/tmp/backupimageversion", "r") as fd:
-					imageversion = fd.read()
-				with open("/tmp/backupkernelversion", "r") as fd:
-					kernelversion = fd.read()
-				print("[BackupManager] Backup Image:", imageversion)
-				print("[BackupManager] Current Image:", about.getVersionString())
-				print("[BackupManager] Backup Kernel:", kernelversion)
-				print("[BackupManager] Current Kernel:", about.getKernelVersionString())
-				if isRestorableKernel(kernelversion) and (imageversion == about.getVersionString() or isRestorablePlugins(imageversion)):
-					# print("[BackupManager] Restoring Stage 3: Kernel Version is same as backup")
-					self.kernelcheck = True
-					self.Console.ePopen("opkg list-installed", self.Stage3Complete)
+		print(f"[BackupManager] Restoring Stage 3: Feeds Checks:{self.feeds}")
+		if not self.Stage3Completed:
+			if self.feeds != "OK":
+				self.feedscheck = False
+				self.Stage3Completed = True
+				self.Stage4Completed = True
+				self.Stage5Completed = True
+				if self.feeds == "NONETWORK":
+					print("[BackupManager] Restoring Stage 3: No network connection, plugin restore not possible")
+					AddPopupWithCallback(
+						self.Stage6,
+						_("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
+						MessageBox.TYPE_INFO,
+						15,
+						NOPLUGINS
+					)
+				elif self.feeds == "DOWN":
+					print("[BackupManager] Restoring Stage 3: Feeds are down, plugin restore not possible")
+					AddPopupWithCallback(
+						self.Stage6,
+						_("Sorry the feeds are down for maintenance. Please try again later."),
+						MessageBox.TYPE_INFO,
+						15,
+						NOPLUGINS
+					)
+				elif self.feeds == "BAD":
+					print("[BackupManager] Restoring Stage 3: no network connection, plugin restore not possible")
+					AddPopupWithCallback(
+						self.Stage6,
+						_("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
+						MessageBox.TYPE_INFO,
+						15,
+						NOPLUGINS
+					)
 				else:
-					print("[BackupManager] Restoring Stage 3: Kernel or Image Version does not match, exiting")
-					self.kernelcheck = False
+					print("[BackupManager] Restoring Stage 3: Feeds state is unknown aborting")
 					self.Stage6()
-			else:
-				print("[BackupManager] Restoring Stage 3: Kernel or Image Version check failed")
-				self.kernelcheck = False
-				self.Stage6()
-		elif self.feeds == "NONETWORK":
-			print("[BackupManager] Restoring Stage 3: No network connection, plugin restore not possible")
-			self.kernelcheck = False
-			AddPopupWithCallback(
-				self.Stage6,
-				_("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
-				MessageBox.TYPE_INFO,
-				15,
-				NOPLUGINS
-			)
-		elif self.feeds == "DOWN":
-			print("[BackupManager] Restoring Stage 3: Feeds are down, plugin restore not possible")
-			self.kernelcheck = False
-			AddPopupWithCallback(
-				self.Stage6,
-				_("Sorry the feeds are down for maintenance. Please try again later."),
-				MessageBox.TYPE_INFO,
-				15,
-				NOPLUGINS
-			)
-		elif self.feeds == "BAD":
-			print("[BackupManager] Restoring Stage 3: no network connection, plugin restore not possible")
-			self.kernelcheck = False
-			AddPopupWithCallback(
-				self.Stage6,
-				_("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
-				MessageBox.TYPE_INFO,
-				15,
-				NOPLUGINS
-			)
-		else:
-			print("[BackupManager] Restoring Stage 3: Feeds state is unknown aborting")
-			self.Stage6()
+			else:	
+				print("[BackupManager] Restoring Stage 3: Feeds are OK")
+				self.feedscheck = True
+				self.Console.ePopen("opkg list-installed", self.Stage3Complete)
+
 
 	def Stage3Complete(self, result, retval, extra_args):
 		plugins = []
-		if path.exists("/tmp/ExtraInstalledPlugins") and self.kernelcheck:
+		if path.exists("/tmp/ExtraInstalledPlugins") and self.feedscheck:
 			self.pluginslist = []
 			for line in result.split("\n"):
 				if line:
@@ -610,7 +617,7 @@ class VIXBackupManager(Screen):
 					if len(parts) > 0 and parts[0] not in plugins:
 						self.pluginslist.append(parts[0])
 
-		if path.exists("/tmp/3rdPartyPlugins") and self.kernelcheck:
+		if path.exists("/tmp/3rdPartyPlugins") and self.feedscheck:
 			self.pluginslist2 = []
 			self.plugfiles = []
 			self.thirdpartyPluginsLocation = " "
@@ -669,65 +676,43 @@ class VIXBackupManager(Screen):
 		self.Stage3Completed = True
 
 	def Stage4(self):
-		if len(self.pluginslist) or len(self.pluginslist2):
-			if len(self.pluginslist):
-				self.pluginslist = " ".join(self.pluginslist)
+		if not self.Stage4Completed:	
+			if len(self.pluginslist) or len(self.pluginslist2):
+				if len(self.pluginslist):
+					self.pluginslist = " ".join(self.pluginslist)
+				else:
+					self.pluginslist = ""
+				if len(self.pluginslist2):
+					self.pluginslist2 = " ".join(self.pluginslist2)
+				else:
+					self.pluginslist2 = ""
+				print(f"[BackupManager] Restoring Stage 4: Plugins to restore (extra plugins):{self.pluginslist}")
+				print(f"[BackupManager] Restoring Stage 4: Plugins to restore (3rd party plugins): {self.pluginslist2}")
+				self.doPluginsRestore = True
 			else:
-				self.pluginslist = ""
-			if len(self.pluginslist2):
-				self.pluginslist2 = " ".join(self.pluginslist2)
-			else:
-				self.pluginslist2 = ""
-			print("[BackupManager] Restoring Stage 4: Plugins to restore (extra plugins)", self.pluginslist)
-			print("[BackupManager] Restoring Stage 4: Plugins to restore (3rd party plugins)", self.pluginslist2)
-			AddPopupWithCallback(
-				self.Stage4Complete,
-				_("Do you want to restore your Enigma2 plugins ?"),
-				MessageBox.TYPE_YESNO,
-				15,
-				PLUGINRESTOREQUESTIONID
-			)
-		else:
-			print("[BackupManager] Restoring Stage 4: plugin restore not required")
-			self.Stage6()
-
-	def Stage4Complete(self, answer=None):
-		if answer is True:
-			print("[BackupManager] Restoring Stage 4: plugin restore chosen")
-			self.doPluginsRestore = True
+				self.Stage5Completed = True
 			self.Stage4Completed = True
-		elif answer is False:
-			print("[BackupManager] Restoring Stage 4: plugin restore skipped by user")
-			AddPopupWithCallback(
-				self.Stage6,
-				_("Now skipping restore process"),
-				MessageBox.TYPE_INFO,
-				15,
-				NOPLUGINS
-			)
+
 
 	def Stage5(self):
-		if self.doPluginsRestore:
-			print("[BackupManager] Restoring Stage 5: starting plugin restore")
-			print("[BackupManager] Console command: ", "opkg install " + self.pluginslist + " " + self.pluginslist2)
-			self.ConsoleB.ePopen("opkg install " + self.pluginslist + " " + self.pluginslist2, self.Stage5Complete)
-		else:
-			print("[BackupManager] Restoring Stage 5: plugin restore not requested")
-			self.Stage6()
+		if not self.Stage5Completed:	
+			if self.doPluginsRestore:
+				print("[BackupManager] Stage 5 Restoring Plugins: starting plugin restore")
+				print("[BackupManager] Console command: ", "opkg install " + self.pluginslist + " " + self.pluginslist2)
+				self.ConsoleB.ePopen("opkg install " + self.pluginslist + " " + self.pluginslist2, self.Stage5Complete)
+			else:
+				print("[BackupManager] Stage 5 Restoring Plugins: plugin restore not required")
+				self.Stage6()
 
 	def Stage5Complete(self, result, retval, extra_args):
-		if result:
+		if not self.Stage5Completed and result:
+			result = result.decode()
 			print("[BackupManager] opkg install result:\n", result)
 			self.didPluginsRestore = True
 			self.Stage5Completed = True
 			print("[BackupManager] Restoring Stage 5: Completed")
 
 	def Stage6(self, result=None, retval=None, extra_args=None):
-		self.Stage1Completed = True
-		self.Stage2Completed = True
-		self.Stage3Completed = True
-		self.Stage4Completed = True
-		self.Stage5Completed = True
 		if self.didPluginsRestore or self.didSettingsRestore:
 			if self.didSettingsRestore:
 				self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /" + " etc/enigma2/settings")
@@ -735,12 +720,13 @@ class VIXBackupManager(Screen):
 				self.ConsoleB.ePopen("killall -9 enigma2 && init 6")
 			else:
 				print("[BackupManager] Stage 6 Restoring Completed rebooting")
-				quitMainloop(2)
+				quitMainloop(3)
 		else:
 			print("[BackupManager] Restoring failed or canceled")
-			self.close()
-
-
+			self.Stage6Completed = True
+			quitMainloop(2)
+			
+			
 class BackupSelection(Screen):
 	skin = ["""
 		<screen name="BackupSelection" position="center,center" size="%d,%d">
