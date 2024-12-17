@@ -134,11 +134,12 @@ class RestoreWizard(WizardLanguage, Rc):
 		elif self.NextStep == "settingsquestion" or self.NextStep == "settingsrestore" or self.NextStep == "pluginsquestion" or self.NextStep == "pluginsrestoredevice" or self.NextStep == "end" or self.NextStep == "noplugins":
 			self.buildListfinishedCB(False)
 		elif self.NextStep == "settingrestorestarted":
+			self.Console.ePopen("tar -xzvf " + self.fullbackupfilename + " -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion", self.settingsRestore_Started)
 			self.buildListRef = self.session.openWithCallback(self.buildListfinishedCB, MessageBox, _("Please wait while the system gathers information..."), type=MessageBox.TYPE_INFO, enable_input=False, wizard=True)
 			self.buildListRef.setTitle(_("Restore wizard"))
 		elif self.NextStep == "plugindetection":
 			print("[RestoreWizard] Stage 2: Restoring plugins")
-			self.Console.ePopen("tar -xzvf " + self.fullbackupfilename + "  -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion", self.doRestorePluginsTest)
+			self.Console.ePopen("tar -xzvf " + self.fullbackupfilename + "  -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion", self.pluginsRestore_Started)
 			self.buildListRef = self.session.openWithCallback(self.buildListfinishedCB, MessageBox, _("Please wait while the system gathers information..."), type=MessageBox.TYPE_INFO, enable_input=False, wizard=True)
 			self.buildListRef.setTitle(_("Restore wizard"))
 		elif self.NextStep == "pluginrestore":
@@ -166,13 +167,39 @@ class RestoreWizard(WizardLanguage, Rc):
 				self.buildListRef.setTitle(_("Restore wizard"))
 
 	def buildListfinishedCB(self, data):
-		self.currStep = self.getStepWithID(self.NextStep)
-		self.afterAsyncCode()
+		# self.buildListRef = None
+		if data is True:
+			self.currStep = self.getStepWithID(self.NextStep)
+			self.afterAsyncCode()
+		else:
+			self.currStep = self.getStepWithID(self.NextStep)
+			self.afterAsyncCode()
 
 	def settingsRestore_Started(self, result, retval, extra_args=None):
-		self.doRestoreSettings()
+		self.doRestoreSettings1()
 
-	def doRestoreSettings(self):
+	def doRestoreSettings1(self):
+		print("[RestoreWizard] Stage 1: Check Version")
+		if fileExists("/tmp/backupimageversion"):
+			imageversion = open("/tmp/backupimageversion").read()
+			print("[RestoreWizard] Backup Image:", imageversion)
+			print("[RestoreWizard] Current Image:", about.getVersionString())
+			if imageversion == about.getVersionString() or isRestorableSettings(imageversion):
+				print("[RestoreWizard] Stage 1: Image ver OK")
+				self.doRestoreSettings2()
+			else:
+				print("[RestoreWizard] Stage 1: Image ver different")
+				self.noVersion = self.session.openWithCallback(self.doNoVersion, MessageBox, _("Sorry, but the file is not compatible with this image version."), type=MessageBox.TYPE_INFO, timeout=30, wizard=True)
+				self.noVersion.setTitle(_("Restore wizard"))
+		else:
+			print("[RestoreWizard] Stage 1: No Image ver to check")
+			self.noVersion = self.session.openWithCallback(self.doNoVersion, MessageBox, _("Sorry, but the file is not compatible with this image version."), type=MessageBox.TYPE_INFO, timeout=30, wizard=True)
+			self.noVersion.setTitle(_("Restore wizard"))
+
+	def doNoVersion(self, result=None, retval=None, extra_args=None):
+		self.buildListRef.close(True)
+
+	def doRestoreSettings2(self):
 		print("[RestoreWizard] Stage 2: Restoring settings")
 		self.Console.ePopen("tar -xzvf " + self.fullbackupfilename + " -C /", self.settingRestore_Finished)
 		self.pleaseWait = self.session.open(MessageBox, _("Please wait while settings restore completes..."), type=MessageBox.TYPE_INFO, enable_input=False, wizard=True)
@@ -183,12 +210,42 @@ class RestoreWizard(WizardLanguage, Rc):
 		self.pleaseWait.close()
 		self.doRestorePlugins1()
 
+	def pluginsRestore_Started(self, result, retval, extra_args=None):
+		self.doRestorePlugins1()
+
 	def pluginsRestore_Finished(self, result, retval, extra_args=None):
 		if result:
 			print("[RestoreWizard] opkg install result:\n", result)
 		self.didPluginRestore = True
 		self.NextStep = "reboot"
 		self.buildListRef.close(True)
+
+	def doRestorePlugins1(self):
+		print("[RestoreWizard] Stage 3: Check Kernel")
+		if fileExists("/tmp/backupkernelversion") and fileExists("/tmp/backupimageversion"):
+			imageversion = open("/tmp/backupimageversion").read()
+			kernelversion = open("/tmp/backupkernelversion").read()
+			print("[RestoreWizard] Backup Image:", imageversion)
+			print("[RestoreWizard] Current Image:", about.getVersionString())
+			print("[RestoreWizard] Backup Kernel:", kernelversion)
+			print("[RestoreWizard] Current Kernel:", about.getKernelVersionString())
+			if isRestorableKernel(kernelversion) and (imageversion == about.getVersionString() or isRestorablePlugins(imageversion)):
+				print("[RestoreWizard] Stage 3: Kernel and image ver OK")
+				self.doRestorePluginsTest()
+			else:
+				print("[RestoreWizard] Stage 3: Kernel or image ver Different")
+				if self.didSettingsRestore:
+					self.NextStep = "reboot"
+				else:
+					self.NextStep = "noplugins"
+				self.buildListRef.close(True)
+		else:
+			print("[RestoreWizard] Stage 3: No Kernel to check")
+			if self.didSettingsRestore:
+				self.NextStep = "reboot"
+			else:
+				self.NextStep = "noplugins"
+			self.buildListRef.close(True)
 
 	def doRestorePluginsTest(self, result=None, retval=None, extra_args=None):
 		if self.delaymess:
