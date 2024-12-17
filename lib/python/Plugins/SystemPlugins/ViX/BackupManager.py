@@ -392,7 +392,7 @@ class VIXBackupManager(Screen):
 		self.didPluginsRestore = False
 		self.feedscheck = False
 		self.feeds = " "
-		self.RestoreRunning = True		
+		self.RestoreRunning = True
 		message = _("Do you want to restore your enigma2 settings ?")
 		ybox = self.session.openWithCallback(self.restoreSettings, MessageBox, message, MessageBox.TYPE_YESNO)
 		ybox.setTitle(_("Restore Settings Confirmation"))
@@ -417,12 +417,12 @@ class VIXBackupManager(Screen):
 			configfile.load()
 			message = _("Restoring Settings Complete - will check plugins install and then Reboot")
 			ybox = self.session.openWithCallback(self.checkPlugins, MessageBox, message, MessageBox.TYPE_INFO, timeout=3)
-			ybox.setTitle(_("Restore Plugins Confirmation"))			
+			ybox.setTitle(_("Restore Plugins Confirmation"))
 		else:
 			print("[BackupManager] Restoring settings Failed:")
 			self.session.open(MessageBox, _("Sorry, but the restore failed, exiting."), MessageBox.TYPE_INFO, timeout=3)
 			self.finaliseRestore()
-			
+
 	def checkPlugins(self, *args, **kwargs):
 		print("[BackupManager] Checking plugins restore required")
 		message = _("Do you want to restore your Enigma2 plugins ?")
@@ -448,19 +448,19 @@ class VIXBackupManager(Screen):
 	def feedsCheck(self, result, retval, extra_args):
 		print(f"[BackupManager][feedsCheck] Check Feeds Result:{result}")
 		self.feeds = "OK"
-		message = _("Feeds are OK, proceeding to restore plugins.") 				
+		message = _("Feeds are OK, proceeding to restore plugins.")
 		if result.find("wget returned 4") != -1:  # probably no network adaptor connected
 			self.feeds = "NONETWORK"
 			print("[BackupManager][feedsCheck] No network connection, plugin restore not possible")
-			message = _("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"])			
+			message = _("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"])
 		elif result.find("wget returned 8") != -1 or result.find("wget returned 1") != -1 or result.find("wget returned 255") != -1 or result.find("404 Not Found") != -1:  # Server issued an error response, or there was a wget generic error code.
 			self.feeds = "DOWN"
 			print("[BackupManager][feedsCheck] Feeds are down, plugin restore not possible")
-			message = _("Sorry the feeds are down for maintenance. Please try again later.")			
+			message = _("Sorry the feeds are down for maintenance. Please try again later.")
 		elif result.find("bad address") != -1:  # probably DNS lookup failed
 			self.feeds = "BAD"
 			print("[BackupManager][feedsCheck] no network connection, plugin restore not possible")
-			message = _("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),						
+			message = _("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
 		elif result.find("Collected errors") != -1:  # none of the above errors. What condition requires this to loop? Maybe double key press.
 			self.feeds = "Collected errors"
 			self.session.open(MessageBox, _("A background update check is in progress, please try again."), MessageBox.TYPE_INFO, timeout=5)
@@ -562,18 +562,18 @@ class VIXBackupManager(Screen):
 			self.doPluginsRestore = True
 			print("[BackupManager][feedsCheckComplete] Restoring Plugins: starting plugin restore")
 			# print("[BackupManager] Console command: ", "opkg install " + self.pluginslist + " " + self.pluginslist2)
-			self.ConsoleB.ePopen("opkg install " + self.pluginslist + " " + self.pluginslist2, self.pluginRestoreResult)			
+			self.ConsoleB.ePopen("opkg install " + self.pluginslist + " " + self.pluginslist2, self.pluginRestoreResult)
 		else:
 			print("[BackupManager][feedsCheckComplete] No Plugins to restore")
 			self.feedscheck = True
-			message = _("No plugins to restore") 
+			message = _("No plugins to restore")
 			ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=2)
-			ybox.setTitle(_("Restore Plugins result"))			
+			ybox.setTitle(_("Restore Plugins result"))
 
 	def pluginRestoreResult(self, result=None, retval=None, extra_args=None):
-		message = _("Restore of plugins completed ") 
+		message = _("Restore of plugins completed ")
 		ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=2)
-		ybox.setTitle(_("Restore Plugins result"))	
+		ybox.setTitle(_("Restore Plugins result"))
 
 	def finaliseRestore(self, result=None, retval=None, extra_args=None):
 		if self.didSettingsRestore:
@@ -585,7 +585,7 @@ class VIXBackupManager(Screen):
 			quitMainloop(3)
 		else:
 			print("[BackupManager][finaliseRestore] Restoring not completed - check messages or debug log - restart")
-			self.session.open(MessageBox, _("Restoring not completed - check messages or debug log"), MessageBox.TYPE_INFO, timeout=5)			
+			self.session.open(MessageBox, _("Restoring not completed - check messages or debug log"), MessageBox.TYPE_INFO, timeout=5)
 			# quitMainloop(3)
 
 
