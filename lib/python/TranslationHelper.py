@@ -13,24 +13,24 @@
 # but this code itself will NEVER be used by, or included in, any
 # Enigma2 image.
 #
-# This file will allow code like this to work and the strings be
-# correctly translated:
-#
-# delay = 32
-# displayAnswer(delay, ("%d Second", "%d Seconds"))
-#
-# def displayAnswer(value, units):
-# 	print(ngettext(units[0], units[1], value) % value)
-#
-translate = ngettext("%d Second", "%d Seconds", 1) % 1
-translate = ngettext("%d Minute", "%d Minutes", 1) % 1
-translate = ngettext("%d Min", "%d Mins", 1) % 1
-translate = ngettext("%d Hour", "%d Hours",1) % 1
-translate = ngettext("%d Day", "%d Days",1) % 1
-translate = ngettext("%d Week", "%d Weeks",1) % 1
-translate = ngettext("%d Month", "%d Months",1) % 1
-translate = ngettext("%d Year", "%d Years",1) % 1
-translate = ngettext("%d Digit", "%d Digits", 1) % 1
-translate = ngettext("%d Event", "%d Events", 1) % 1
-translate = ngettext("%d Pixel", "%d Pixels", 1) % 1
-translate = ngettext("%d Pixel wide", "%d Pixels wide", 1) % 1
+
+translate = _("Front panel USB")
+translate = _("Front USB")
+translate = _("Front USB 3.0")
+translate = _("Rear USB-C")
+translate = _("MicroSD")
+translate = _("Rear MicroSD")
+translate = _("Lower USB")
+translate = _("Upper USB")
+translate = _("Rear USB")
+translate = _("Rear Right USB"
+translate = _("Rear Left USB")
+translate = _("Rear Left USB 3.0")
+translate = _("Rear Lower USB")
+translate = _("Rear Lower USB 3.0")
+translate = _("Rear Upper USB")
+translate = _("Rear Upper USB 3.0")
+translate = _("SATA")
+translate = _("SD")
+translate = _("eMMC")
+translate = _("eSATA")
