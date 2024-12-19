@@ -405,7 +405,7 @@ class VIXBackupManager(Screen):
 			self.checkPlugins()
 
 	def restoreSettingsComplete(self, result, retval, extra_args):
-		print(f"[BackupManager][restoreSettings] Restore - retval:{retval} result:{result.decode()}")
+		print(f"[BackupManager][restoreSettings] Restore - retval:{retval}")
 		if retval == 0:
 			print("[BackupManager] Restoring Settings Complete:")
 			self.didSettingsRestore = True
@@ -523,10 +523,13 @@ class VIXBackupManager(Screen):
 						else:
 							devmounts = []
 							self.plugfile = self.plugfiles[3]
-							# print("[BackupManager][BackupManager][feedsCheckComplete] self.plugfile, self.plugfiles", self.plugfile, self.plugfiles)
-							for dir in ["/media/%s/%s" % (media, self.plugfile) for media in listdir("/media/") if path.isdir(path.join("/media/", media)) and path.exists("/media/%s/%s" % (media, self.plugfile))]:
-								if media not in ("autofs", "net"):  # noqa: F821
-									devmounts.append(dir)
+							print("[BackupManager][BackupManager][feedsCheckComplete] self.plugfile, self.plugfiles", self.plugfile, self.plugfiles)
+							try:
+								for dir in ["/media/%s/%s" % (media, self.plugfile) for media in listdir("/media/") if path.isdir(path.join("/media/", media)) and path.exists("/media/%s/%s" % (media, self.plugfile))]:
+									if media not in ("autofs", "net"):  # noqa: F821
+										devmounts.append(dir)
+							except:
+								pass
 							if len(devmounts):
 								for x in devmounts:
 									print("[BackupManager][BackupManager][feedsCheckComplete] search dir = %s" % devmounts)
@@ -562,7 +565,7 @@ class VIXBackupManager(Screen):
 			self.doPluginsRestore = True
 			print("[BackupManager][feedsCheckComplete] Restoring Plugins: starting plugin restore")
 			# print("[BackupManager] Console command: ", "opkg install " + self.pluginslist + " " + self.pluginslist2)
-			self.ConsoleB.ePopen("opkg install " + self.pluginslist + " " + self.pluginslist2, self.pluginRestoreResult)
+			self.ConsoleB.ePopen("opkg install " + self.pluginslist + " " + self.pluginslist2, self.finaliseRestore)
 		else:
 			print("[BackupManager][feedsCheckComplete] No Plugins to restore")
 			self.feedscheck = True
