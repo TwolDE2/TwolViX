@@ -155,7 +155,6 @@ class EventInfo(PerServiceBase, Source):
 
 	def gotEvent(self, what, from_timer=False):
 		self.timer.stop()
-		print("[EventInfo] gotEvent, type:", ("'now'" if self.now_or_next == self.NOW else "'next'") + ",", "what:", "'%s'" % str({iPlayableService.evStart: "evStart", iPlayableService.evUpdatedInfo: "evUpdatedInfo", iPlayableService.evUpdatedEventInfo: "evUpdatedEventInfo", iPlayableService.evEnd: "evEnd"}.get(what, "Unknown")) + ",", "is timed repeat:", str(from_timer))
 		if what == iPlayableService.evEnd:
 			self.changed((self.CHANGED_CLEAR,))
 		else:
