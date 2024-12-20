@@ -12,7 +12,7 @@ class NetlinkSocket(socket.socket):
 
 	def parse(self):
 		data = self.recv(512)
-		print(f"[Netlink][parse] data:{data.decode("utf-8", "ignore")}")
+		print(f"[Netlink][parse] data:{data.decode("utf-8", "ignore")} \n")
 		if isinstance(data, bytes) and not data.startswith(b"libudev"):
 			data = data.decode("utf-8", "ignore")
 			data = [x for x in data.split("\x00") if x] + [""]  # avoid empty strings in the output except the final one
