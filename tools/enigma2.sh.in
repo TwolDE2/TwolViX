@@ -306,12 +306,11 @@ else
 fi
 
 
-# If we are here there was not a power outage so return "config.usage.power.was_controlled_shutdown" to default state.
-if [ -f /etc/enigma2/settings ]; then
-    grep -v "^config\.usage\.power\.was_controlled_shutdown=" /etc/enigma2/settings > /etc/enigma2/settings.tmp
-    mv /etc/enigma2/settings.tmp /etc/enigma2/settings
-fi
-
+# If enigma2 exited from an OS signal the was_controlled_shutdown flag
+# will not have been cleared.
+# So ensure that it is.
+#
+sed -i '/^config\.usage\.power\.was_controlled_shutdown=/d' /etc/enigma2/settings
 
 # enigma2 exit codes:
 #
