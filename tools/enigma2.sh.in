@@ -11,8 +11,8 @@ datarootdir=@datarootdir@
 #fi
 
 # hook to execute user startup script before enigma2 start
-if [ -x @sysconfdir@/enigma2/startup.sh ]; then
-	@sysconfdir@/enigma2/startup.sh
+if [ -x /etc/enigma2/startup.sh ]; then
+	/etc/enigma2/startup.sh
 fi
 
 do_reader_kill=0
@@ -34,14 +34,14 @@ if [ -e /proc/stb/info/boxtype ]; then
 fi
 
 if [ -x @bindir@/showiframe ]; then
-	SKIN=`sed -En 's|config\.skin\.primary_skin=(.+)/skin\.xml|\1|p' @sysconfdir@/enigma2/settings`
+	SKIN=`sed -En 's|config\.skin\.primary_skin=(.+)/skin\.xml|\1|p' /etc/enigma2/settings`
 	if [ -z "$SKIN" ]; then
 		SKIN=`strings -n 10 @prefix@/lib/enigma2/python/skin.pyc | egrep -o -m 1 ".+/skin.xml" | sed 's|/skin.xml.*||'`
 	fi
 	if [ -n "${SKIN}" ]; then
-		SEARCHDIRS="@sysconfdir@/enigma2/${SKIN} @sysconfdir@/enigma2/skin_common @sysconfdir@/enigma2 @datadir@/enigma2/${SKIN} @datadir@/enigma2/skin_default @datadir@/enigma2 @datadir@"
+		SEARCHDIRS="/etc/enigma2/${SKIN} /etc/enigma2/skin_common /etc/enigma2 @datadir@/enigma2/${SKIN} @datadir@/enigma2/skin_default @datadir@/enigma2 @datadir@"
 	else
-		SEARCHDIRS="@sysconfdir@/enigma2/skin_common @sysconfdir@/enigma2 @datadir@/enigma2/skin_default @datadir@/enigma2 @datadir@"
+		SEARCHDIRS="/etc/enigma2/skin_common /etc/enigma2 @datadir@/enigma2/skin_default @datadir@/enigma2 @datadir@"
 	fi
 	for DIR in ${SEARCHDIRS}; do
 		if [ -d "${DIR}" ] && [ -f "${DIR}/backdrop.mvi" ]; then
@@ -80,8 +80,8 @@ export LC_CTYPE="en_US.UTF-8"
 
 # set time format used to prefix each line in the debug logs
 #
-if grep -q 'config\.crash\.logtimeformat' @sysconfdir@/enigma2/settings; then
-	export ENIGMA_DEBUG_TIME=`grep "config\.crash\.logtimeformat" @sysconfdir@/enigma2/settings | sed -E "s/^.*=(.*)$/\1/" -`
+if grep -q 'config\.crash\.logtimeformat' /etc/enigma2/settings; then
+	export ENIGMA_DEBUG_TIME=`grep "config\.crash\.logtimeformat" /etc/enigma2/settings | sed -E "s/^.*=(.*)$/\1/" -`
 fi
 
 # If we are running with a log then we need to set up a sub-process to
@@ -89,7 +89,7 @@ fi
 # becomes too large.
 # So, we define various functions for use
 #
-if grep -q 'config\.crash\.enabledebug=True' @sysconfdir@/enigma2/settings; then
+if grep -q 'config\.crash\.enabledebug=True' /etc/enigma2/settings; then
 	DEBUG_LVL='4'
 
 # Generate a random message for the logger to know that enigma2 has
@@ -207,7 +207,7 @@ EOP
         debugloglimit=`awk -F= '
  BEGIN{res=4};
  $1 == "config.crash.debugloglimit" {res=$2; exit};
- END{print res}' @sysconfdir@/enigma2/settings`
+ END{print res}' /etc/enigma2/settings`
 
         new_limit $debugloglimit
 
@@ -295,7 +295,7 @@ EOP
 	ret=${PIPESTATUS[0]}    # enigma2 exit code, not dblogger's
 else
 	# if debug logs are disabled
-	if grep -q 'config\.misc\.firstrun=False' @sysconfdir@/enigma2/settings; then
+	if grep -q 'config\.misc\.firstrun=False' /etc/enigma2/settings; then
 		# Write unwanted output to /dev/null. Do not write output to the serial port or the receiver will run slow.
 		LD_PRELOAD=$LIBS @bindir@/enigma2 &> /dev/null
 	else
@@ -304,6 +304,14 @@ else
 	fi
 	ret=$?
 fi
+
+
+# If we are here there was not a power outage so return "config.usage.power.was_controlled_shutdown" to default state.
+if [ -f /etc/enigma2/settings ]; then
+    grep -v "^config\.usage\.power\.was_controlled_shutdown=" /etc/enigma2/settings > /etc/enigma2/settings.tmp
+    mv /etc/enigma2/settings.tmp /etc/enigma2/settings
+fi
+
 
 # enigma2 exit codes:
 #
@@ -321,7 +329,7 @@ if [ "$ret" -ne "1" ]; then
 fi
 
 # hook to execute user standby script before enigma2 exits
-if [ -x @sysconfdir@/enigma2/standby.sh ]; then
+if [ -x /etc/enigma2/standby.sh ]; then
 	/etc/enigma2/standby.sh
 fi
 
