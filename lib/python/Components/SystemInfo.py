@@ -70,7 +70,7 @@ class BoxInformation:
 
 BoxInfo = BoxInformation()
 
-#This line makes the BoxInfo backwards compatible with SystemInfo without duplicating the dictionary.
+# This line makes the BoxInfo backwards compatible with SystemInfo without duplicating the dictionary.
 SystemInfo = BoxInfo.boxInfo
 
 

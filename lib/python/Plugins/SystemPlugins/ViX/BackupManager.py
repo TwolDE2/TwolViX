@@ -21,7 +21,6 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Setup import Setup
 from Screens.TextBox import TextBox
-from Tools.Notifications import AddPopupWithCallback
 
 autoBackupManagerTimer = None
 SETTINGSRESTOREQUESTIONID = "RestoreSettingsNotification"
@@ -442,8 +441,8 @@ class VIXBackupManager(Screen):
 			self.finaliseRestore()
 
 	def pluginsRestore(self, result, retval, extra_args):
-			print("[BackupManager] Restoring Plugins:Feeds Check")
-			self.Console.ePopen("opkg update", self.feedsCheck)
+		print("[BackupManager] Restoring Plugins:Feeds Check")
+		self.Console.ePopen("opkg update", self.feedsCheck)
 
 	def feedsCheck(self, result, retval, extra_args):
 		print(f"[BackupManager][feedsCheck] Check Feeds Result:{result}")

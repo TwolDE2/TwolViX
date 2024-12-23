@@ -1,6 +1,5 @@
 from time import time
 import socket
-import sys
 from urllib.request import urlopen, Request
 
 from enigma import eTimer
