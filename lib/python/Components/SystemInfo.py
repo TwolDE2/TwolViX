@@ -78,14 +78,14 @@ ARCHITECTURE = BoxInfo.getItem("architecture")
 BRAND = BoxInfo.getItem("brand")
 MODEL = BoxInfo.getItem("model")
 SOC_FAMILY = BoxInfo.getItem("socfamily")
-SOC_BRAND = split('(\d.*)', SOC_FAMILY)[0]
-CHIPSET = split('(\d.*)', SOC_FAMILY)[1]
+SOC_BRAND = split(r'(\d.*)', SOC_FAMILY)[0]
+CHIPSET = split(r'(\d.*)', SOC_FAMILY)[1]
 DISPLAYTYPE = BoxInfo.getItem("displaytype")
 MTDROOTFS = BoxInfo.getItem("mtdrootfs")
 DISPLAYMODEL = BoxInfo.getItem("displaymodel")
 DISPLAYBRAND = BoxInfo.getItem("displaybrand")
 MACHINEBUILD = BoxInfo.getItem("machinebuild")
-OEA = split('(\d.*)', BoxInfo.getItem("oe"))[1]
+OEA = split(r'(\d.*)', BoxInfo.getItem("oe"))[1]
 SystemInfo["ArchIsARM"] = ARCHITECTURE.startswith(("arm", "cortex"))
 SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
 
