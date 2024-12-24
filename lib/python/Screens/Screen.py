@@ -318,8 +318,10 @@ class Screen(dict):
 
 	def removeSummary(self, summary):
 		if summary is not None and summary in self.summaries:
-			self.summaries.remove(summary)
-
+			try:
+				self.summaries.remove(summary)
+			except ValueError:
+				pass
 
 class ScreenSummary(Screen):
 	skin = """
