@@ -323,6 +323,7 @@ class Screen(dict):
 			except ValueError:
 				pass
 
+
 class ScreenSummary(Screen):
 	skin = """
 	<screen position="fill" flags="wfNoBorder">
