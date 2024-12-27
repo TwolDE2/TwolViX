@@ -321,6 +321,7 @@ class Screen(dict):
 			try:
 				self.summaries.remove(summary)
 			except ValueError:
+				print(f"[Screen][removeSummary] summary delete crash summary: {summary}")
 				pass
 
 
