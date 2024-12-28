@@ -1,12 +1,16 @@
 import errno
 from os import listdir, major, path as ospath, rmdir, sep as ossep, stat, statvfs, system as ossystem, unlink  # minor
 from fcntl import ioctl
+from glob import glob
+from re import search, sub
 from time import sleep, time
 
 from enigma import eTimer
+from Components.Console import Console
 from Components.SystemInfo import SystemInfo, BoxInfo
 import Components.Task
 from Tools.CList import CList
+from Tools.Directories import fileReadLines, fileReadLine, fileWriteLines
 
 # : REMINDER: This comment needs to be expanded for the benefit of readers.
 # Removable if 1 --> With motor
@@ -78,6 +82,14 @@ def runCommand(command):
 	if exitStatus:
 		print(f"[Harddisk][runCommand] '{command}' returned error code {exitStatus}!")
 	return exitStatus
+
+def getProcMountsNew():
+	lines = fileReadLines("/proc/mounts", default=[])
+	result = []
+	for line in [x for x in lines if x and x.startswith("/dev/")]:
+		# Replace encoded space (\040) and newline (\012) characters with actual space and newline
+		result.append([s.replace("\\040", " ").replace("\\012", "\n") for s in line.strip(" \n").split(" ")])
+	return result
 
 
 def getProcMounts():
@@ -621,8 +633,86 @@ class HarddiskManager:
 		self.partitions = []
 		self.cd = ""
 		self.on_partition_list_change = CList()
+		self.console = Console()
+		self.enumerateHotPlugDevices(self.init)
+
+	def init(self):
 		self.enumerateBlockDevices()
 		self.enumerateNetworkMounts()
+
+	def enumerateHotPlugDevices(self, callback):
+		def parseDeviceData(inputData):
+			eventData = {}
+			if "\n" in inputData:
+				data = inputData[:-1].split("\n")
+				eventData["mode"] = 1
+			else:
+				data = inputData.split("\0")[:-1]
+				eventData["mode"] = 0
+			for values in data:
+				variable, value = values.split("=", 1)
+				eventData[variable] = value
+			return eventData
+
+		print("[Harddisk] Enumerating hotplug devices.")
+		fileNames = glob("/tmp/hotplug_dev_*")
+		devices = []
+		for fileName in fileNames:
+			with open(fileName) as f:
+				data = f.read()
+				eventData = parseDeviceData(data)
+				device = eventData["DEVNAME"].replace("/dev/", "")
+				shortDevice = device[:7] if device.startswith("mmcblk") else sub(r"[\d]", "", device)
+				removable = fileReadLine(f"/sys/block/{shortDevice}/removable")
+				eventData["SORT"] = 0 if ("pci" in eventData["DEVPATH"] or "ahci" in eventData["DEVPATH"]) and removable == "0" else 1
+				devices.append(eventData)
+				#remove(fileName)
+
+		if devices:
+			devices.sort(key=lambda x: (x["SORT"], x["ID_PART_ENTRY_SIZE"]))
+			mounts = getProcMountsNew()
+			devmounts = [x[0] for x in mounts]
+			mounts = [x[1] for x in mounts if "/media/" in x[1]]
+			possibleMountPoints = [f"/media/{x}" for x in ("usb8", "usb7", "usb6", "usb5", "usb4", "usb3", "usb2", "usb", "hdd") if f"/media/{x}" not in mounts]
+
+			for device in devices:
+				if device["DEVNAME"] not in devmounts:
+					device["MOUNT"] = possibleMountPoints.pop()
+
+			knownDevices = fileReadLines("/etc/udev/known_devices", default=[])
+			newFstab = fileReadLines("/etc/fstab")
+			commands = []
+			for device in devices:
+				ID_FS_UUID = device.get("ID_FS_UUID")
+				DEVNAME = device.get("DEVNAME")
+				if [x for x in newFstab if DEVNAME in x]:
+					print(f"[Harddisk] Add hotplug device: {DEVNAME} ignored because device is already in fstab")
+					continue
+				if [x for x in newFstab if ID_FS_UUID in x]:
+					print(f"[Harddisk] Add hotplug device: {DEVNAME} ignored because uuid is already in fstab")
+					continue
+				mountPoint = device.get("MOUNT")
+				if mountPoint:
+					commands.append(f"/bin/umount -lf {DEVNAME.replace("/dev/", "/media/")}")
+					ID_FS_TYPE = "auto"  # eventData.get("ID_FS_TYPE")
+					knownDevices.append(f"{ID_FS_UUID}:{mountPoint}")
+					newFstab.append(f"UUID={ID_FS_UUID} {mountPoint} {ID_FS_TYPE} defaults 0 0")
+					if not exists(mountPoint):
+						mkdir(mountPoint, 0o755)
+					print(f"[Harddisk] Add hotplug device: {DEVNAME} mount: {mountPoint} to fstab")
+				else:
+					print(f"[Harddisk] Warning! hotplug device: {DEVNAME} has no mountPoint")
+
+			if commands:
+				#def enumerateHotPlugDevicesCallback(*args, **kwargs):
+				#	callback()
+				fileWriteLines("/etc/fstab", newFstab)
+				commands.append("/bin/mount -a")
+				#self.console.eBatch(cmds=commands, callback=enumerateHotPlugDevicesCallback) # eBatch is not working correctly here this needs to be fixed
+				#return
+				for command in commands:
+					self.console.ePopen(command)
+		callback()
 
 	def enumerateBlockDevices(self):
 		print("[Harddisk][enumerateBlockDevices] Enumerating block devices...")
