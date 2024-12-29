@@ -3,7 +3,7 @@ from sys import maxsize
 from enigma import eActionMap
 from Components.ActionMap import ActionMap
 from Components.Label import Label
-from Components.Sources.HelpMenuList import HelpMenuList
+from Components.HelpMenuList import HelpMenuList
 from Components.Sources.StaticText import StaticText
 from Screens.Rc import Rc
 from Screens.Screen import Screen
