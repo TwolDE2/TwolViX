@@ -105,28 +105,21 @@ class MessageBox(Screen, HelpableScreen):
 			self.onLayoutFinish.append(self.layoutFinished)
 
 	def createActionMap(self, prio):
-		if self.list:
-			self["actions"] = HelpableActionMap(self, ["MsgBoxActions", "DirectionActions"], {
-				"cancel": (self.cancel, _("Cancel the selection")),
-				"ok": (self.ok, _("Accept the current selection")),
-				"alwaysOK": (self.alwaysOK, _("Always select OK")),
-				"up": (self.up, _("Move up a line")),
-				"down": (self.down, _("Move down a line")),
-				"left": (self.left, _("Move up a page")),
-				"right": (self.right, _("Move down a page"))
-				# These actions are *ONLY* defined on OpenPLi!
-				# I don't believe thay add any functionality even for OpenPLi.
-				# "upRepeated": (self.up, _("Move up a line repeatedly")),
-				# "downRepeated": (self.down, _("Move down a line repeatedly")),
-				# "leftRepeated": (self.left, _("Move up a page repeatedly")),
-				# "rightRepeated": (self.right, _("Move down a page repeatedly"))
-			}, prio=prio, description=_("MessageBox Functions"))
-		else:
-			self["actions"] = HelpableActionMap(self, ["OkCancelActions"], {
-				"cancel": (self.cancel, _("Close the window")),
-				"ok": (self.select, _("Close the window"))
-			}, prio=prio, description=_("MessageBox Functions"))
-
+		self["actions"] = HelpableActionMap(self, ["MsgBoxActions", "DirectionActions"], {
+			"cancel": (self.cancel, _("Cancel the selection")),
+			"ok": (self.ok, _("Accept the current selection")),
+			"alwaysOK": (self.alwaysOK, _("Always select OK")),
+			"up": (self.up, _("Move up a line")),
+			"down": (self.down, _("Move down a line")),
+			"left": (self.left, _("Move up a page")),
+			"right": (self.right, _("Move down a page"))
+			# These actions are *ONLY* defined on OpenPLi!
+			# I don't believe thay add any functionality even for OpenPLi.
+			# "upRepeated": (self.up, _("Move up a line repeatedly")),
+			# "downRepeated": (self.down, _("Move down a line repeatedly")),
+			# "leftRepeated": (self.left, _("Move up a page repeatedly")),
+			# "rightRepeated": (self.right, _("Move down a page repeatedly"))
+		}, prio=prio, description=_("MessageBox Functions"))
 
 	def layoutFinished(self):
 		self["icon"].setPixmapNum(self.type)
@@ -319,6 +312,7 @@ class MessageBox(Screen, HelpableScreen):
 				method()
 		self.layoutFinished()
 
+
 class ModalMessageBox:
 	instance = None
 
@@ -327,10 +321,10 @@ class ModalMessageBox:
 			print("[ModalMessageBox] Error: Only one ModalMessageBox instance is allowed!")
 		else:
 			ModalMessageBox.instance = self
-			self.dialog = session.instantiateDialog(MessageBox, "", enableInput=False, skinName="MessageBoxModal")
+			self.dialog = session.instantiateDialog(MessageBox, "", enable_input=False, skin_name="MessageBoxModal")
 			self.dialog.setAnimationMode(0)
 
-	def showMessageBox(self, text=None, timeout=-1, list=None, default=True, closeOnAnyKey=False, timeoutDefault=None, windowTitle=None, msgBoxID=None, typeIcon=MessageBox.TYPE_YESNO, enableInput=True, callback=None):
+	def showMessageBox(self, text=None, timeout=-1, list=None, default=True, close_on_any_key=False, timeout_default=None, windowTitle=None, msgBoxID=None, typeIcon=MessageBox.TYPE_YESNO, enable_input=True, callback=None):
 		self.dialog.text = text
 		self.dialog["text"].setText(text)
 		self.dialog.typeIcon = typeIcon
@@ -352,12 +346,12 @@ class ModalMessageBox:
 		self.callback = callback
 		self.dialog.timeout = timeout
 		self.dialog.msgBoxID = msgBoxID
-		self.dialog.enableInput = enableInput
-		if enableInput:
+		self.dialog.enableInput = enable_input
+		if enable_input:
 			self.dialog.createActionMap(-20)
 			self.dialog["actions"].execBegin()
-		self.dialog.closeOnAnyKey = closeOnAnyKey
-		self.dialog.timeoutDefault = timeoutDefault
+		self.dialog.close_on_any_key = close_on_any_key
+		self.dialog.timeout_default = timeout_default
 		self.dialog.windowTitle = windowTitle or self.dialog.TYPE_PREFIX.get(type, _("Message"))
 		self.dialog.baseTitle = self.dialog.windowTitle
 		self.dialog.activeTitle = self.dialog.windowTitle
@@ -368,6 +362,6 @@ class ModalMessageBox:
 	def close(self, *retVal):
 		if self.callback and callable(self.callback):
 			self.callback(*retVal)
-		if self.dialog.enableInput:
+		if self.dialog.enable_input:
 			self.dialog["actions"].execEnd()
 		self.dialog.hide()
