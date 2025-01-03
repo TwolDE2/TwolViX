@@ -146,7 +146,7 @@ def bytesToHumanReadable(size_bytes, binary=False):
 
 
 class Harddisk:
-	def __init__(self, device, removable=False):
+	def __init__(self, device, removable=False, model=None):
 		self.device = device
 		self.removable = removable
 		self.sdmmc = False
@@ -654,11 +654,12 @@ class HarddiskManager:
 				data = f.read()
 				eventData = parseDeviceData(data)
 				print(f"[Harddisk][enumeratehotplug devices] eventData:{eventData}")
-				device = eventData["DEVNAME"].replace("/dev/", "")
-				shortDevice = device[:7] if device.startswith("mmcblk") else sub(r"[\d]", "", device)
-				removable = fileReadLine(f"/sys/block/{shortDevice}/removable")
-				eventData["SORT"] = 0 if ("pci" in eventData["DEVPATH"] or "ahci" in eventData["DEVPATH"]) and removable == "0" else 1
-				devices.append(eventData)
+				if eventData["DEVTYPE"] == "partition":  # Handle only partitions
+					device = eventData["DEVNAME"].replace("/dev/", "")
+					shortDevice = device[:7] if device.startswith("mmcblk") else sub(r"[\d]", "", device)
+					removable = fileReadLine(f"/sys/block/{shortDevice}/removable")
+					eventData["SORT"] = 0 if ("pci" in eventData["DEVPATH"] or "ahci" in eventData["DEVPATH"]) and removable == "0" else 1
+					devices.append(eventData)
 				remove(fileName)
 
 		if devices:
@@ -884,7 +885,7 @@ class HarddiskManager:
 	# devicePath in def is e.g. /sys/block/mmcblk1.
 	# hddDev is the hdd device name e.g. mmcblk1.
 	#
-	def addHotplugPartition(self, device, physDevice=None):
+	def addHotplugPartition(self, device, physDevice=None, model=None):
 		print("[Harddsk][addHotplugPartition] Evaluating hotplug connected device...")
 		print(f"[Harddsk][addHotplugPartition] : device = '{device}', physDevice = '{physDevice}'")
 		HDDin = error = removable = isCdrom = blacklisted = False
