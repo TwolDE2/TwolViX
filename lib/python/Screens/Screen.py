@@ -109,7 +109,7 @@ class Screen(dict):
 		try:
 			del self.helpList  # Fixup circular references if present.
 		except:
-			pass		
+			pass
 		self.deleteGUIScreen()
 		# First disconnect all render from their sources. We might split this out into
 		# a "unskin"-call, but currently we destroy the screen afterwards anyway.
