@@ -1,8 +1,8 @@
 import errno
-from os import listdir, major, path as ospath, rmdir, sep as ossep, stat, statvfs, system as ossystem, unlink  # minor
+from os import listdir, major, mkdir, path as ospath, rmdir, sep as ossep, stat, statvfs, system as ossystem, unlink  # minor
 from fcntl import ioctl
 from glob import glob
-from re import search, sub
+from re import sub
 from time import sleep, time
 
 from enigma import eTimer
@@ -82,14 +82,6 @@ def runCommand(command):
 	if exitStatus:
 		print(f"[Harddisk][runCommand] '{command}' returned error code {exitStatus}!")
 	return exitStatus
-
-def getProcMountsNew():
-	lines = fileReadLines("/proc/mounts", default=[])
-	result = []
-	for line in [x for x in lines if x and x.startswith("/dev/")]:
-		# Replace encoded space (\040) and newline (\012) characters with actual space and newline
-		result.append([s.replace("\\040", " ").replace("\\012", "\n") for s in line.strip(" \n").split(" ")])
-	return result
 
 
 def getProcMounts():
@@ -661,22 +653,22 @@ class HarddiskManager:
 			with open(fileName) as f:
 				data = f.read()
 				eventData = parseDeviceData(data)
+				print(f"[Harddisk][enumeratehotplug devices] eventData:{eventData}")
 				device = eventData["DEVNAME"].replace("/dev/", "")
 				shortDevice = device[:7] if device.startswith("mmcblk") else sub(r"[\d]", "", device)
 				removable = fileReadLine(f"/sys/block/{shortDevice}/removable")
 				eventData["SORT"] = 0 if ("pci" in eventData["DEVPATH"] or "ahci" in eventData["DEVPATH"]) and removable == "0" else 1
 				devices.append(eventData)
-				#remove(fileName)
 
 		if devices:
 			devices.sort(key=lambda x: (x["SORT"], x["ID_PART_ENTRY_SIZE"]))
-			mounts = getProcMountsNew()
+			mounts = getProcMounts()
 			devmounts = [x[0] for x in mounts]
-			mounts = [x[1] for x in mounts if "/media/" in x[1]]
+			mounts = [x[1] for x in mounts if x[1].startswith("/media/")]
 			possibleMountPoints = [f"/media/{x}" for x in ("usb8", "usb7", "usb6", "usb5", "usb4", "usb3", "usb2", "usb", "hdd") if f"/media/{x}" not in mounts]
 
 			for device in devices:
-				if device["DEVNAME"] not in devmounts:
+				if device["DEVNAME"] not in devmounts or "/media/hdd" in possibleMountPoints:
 					device["MOUNT"] = possibleMountPoints.pop()
 
 			knownDevices = fileReadLines("/etc/udev/known_devices", default=[])
@@ -697,19 +689,19 @@ class HarddiskManager:
 					ID_FS_TYPE = "auto"  # eventData.get("ID_FS_TYPE")
 					knownDevices.append(f"{ID_FS_UUID}:{mountPoint}")
 					newFstab.append(f"UUID={ID_FS_UUID} {mountPoint} {ID_FS_TYPE} defaults 0 0")
-					if not exists(mountPoint):
+					if not ospath.exists(mountPoint):
 						mkdir(mountPoint, 0o755)
 					print(f"[Harddisk] Add hotplug device: {DEVNAME} mount: {mountPoint} to fstab")
 				else:
 					print(f"[Harddisk] Warning! hotplug device: {DEVNAME} has no mountPoint")
 
 			if commands:
-				#def enumerateHotPlugDevicesCallback(*args, **kwargs):
-				#	callback()
+				# def enumerateHotPlugDevicesCallback(*args, **kwargs):
+				# callback()
 				fileWriteLines("/etc/fstab", newFstab)
 				commands.append("/bin/mount -a")
-				#self.console.eBatch(cmds=commands, callback=enumerateHotPlugDevicesCallback) # eBatch is not working correctly here this needs to be fixed
-				#return
+				# self.console.eBatch(cmds=commands, callback=enumerateHotPlugDevicesCallback) # eBatch is not working correctly here this needs to be fixed
+				# return
 				for command in commands:
 					self.console.ePopen(command)
 		callback()
