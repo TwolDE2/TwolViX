@@ -1,5 +1,5 @@
 import errno
-from os import listdir, major, mkdir, path as ospath, rmdir, sep as ossep, stat, statvfs, system as ossystem, unlink  # minor
+from os import listdir, major, mkdir, path as ospath, remove, rmdir, sep as ossep, stat, statvfs, system as ossystem, unlink  # minor
 from fcntl import ioctl
 from glob import glob
 from re import sub
