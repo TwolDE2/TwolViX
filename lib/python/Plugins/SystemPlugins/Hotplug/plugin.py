@@ -1,6 +1,7 @@
 
 from os import mkdir, remove
-from os.path import exists, isfile
+from os import listdir, mkdir, rmdir
+from os.path import exists, ismount, join
 from twisted.internet import reactor
 from twisted.internet.protocol import Factory, Protocol
 
@@ -8,7 +9,7 @@ from enigma import eTimer
 
 from Session import SessionObject
 from Components.Console import Console
-from Components.Harddisk import harddiskmanager, bytesToHumanReadable
+from Components.Harddisk import harddiskmanager, bytesToHumanReadable, getProcMounts
 from Plugins.Plugin import PluginDescriptor
 from Screens.MessageBox import MessageBox
 from Tools.Directories import fileReadLines, fileWriteLines
@@ -52,6 +53,20 @@ def AudiocdAdded():
 	return audiocd
 
 
+def cleanMediaDirs():
+	mounts = getProcMounts()
+	mounts = [x[1] for x in mounts if x[1].startswith("/media/")]
+	for directory in listdir("/media"):
+		if directory not in ("audiocd", "autofs", "net", "hdd"):
+			mediaDirectory = join("/media/", directory)
+			if mediaDirectory not in mounts and not ismount(mediaDirectory):
+				print(f"[Hotplug][cleanMediaDirs] remove directory {mediaDirectory} because of unmount")
+				try:
+					rmdir(mediaDirectory)
+				except OSError as err:
+					print(f"[Hotplug][cleanMediaDirs] Error {err.errno}: Failed delete '{mediaDirectory}'!  ({err.strerror})")
+
+
 def autostart(reason, **kwargs):
 	if reason == 0:
 		print("[Hotplug] Starting hotplug handler.")
@@ -60,6 +75,7 @@ def autostart(reason, **kwargs):
 				remove(HOTPLUG_SOCKET)
 		except OSError:
 			pass
+		cleanMediaDirs()  # Initial cleanup
 		factory = Factory()
 		factory.protocol = Hotplug
 		reactor.listenUNIX(HOTPLUG_SOCKET, factory)
@@ -68,13 +84,15 @@ def autostart(reason, **kwargs):
 class HotPlugManager:
 	def __init__(self):
 		self.newCount = 0
-		self.timer = eTimer()
-		self.timer.callback.append(self.processDeviceData)
+		self.addTimer = eTimer()
+		self.addTimer.callback.append(self.processAddDevice)
+		self.removeTimer = eTimer()
+		self.removeTimer.callback.append(self.processRemoveDevice)
 		self.deviceData = []
 		self.addedDevice = []
 
-	def processDeviceData(self):
-		self.timer.stop()
+	def processAddDevice(self):
+		self.addTimer.stop()
 		if self.deviceData:
 			eventData = self.deviceData.pop()
 			print(f"[Hotplug][processDeviceData] eventData:{eventData}")
@@ -83,7 +101,7 @@ class HotPlugManager:
 			ID_MODEL = eventData.get("ID_MODEL")
 			if eventData["DEVTYPE"] == "disk":
 				harddiskmanager.addHotplugPartition(DEVNAME, DEVPATH, ID_MODEL)
-				self.timer.start(100)
+				self.addTimer.start(100)
 				return
 
 			ID_FS_TYPE = "auto"  # eventData.get("ID_FS_TYPE")
@@ -176,7 +194,7 @@ class HotPlugManager:
 						if answer in (1, 3, 4, 5):
 							fileWriteLines("/etc/udev/known_devices", knownDevices)
 					self.addedDevice.append((DEVNAME, DEVPATH, ID_MODEL))
-					self.timer.start(1000)
+					self.addTimer.start(1000)
 
 				default = 3
 				choiceList = [
@@ -197,12 +215,16 @@ class HotPlugManager:
 				SessionObject().session.openWithCallback(newDeviceCallback, MessageBox, text, list=choiceList, default=default, simple=True, title=_("New Storage Device"))
 			else:
 				self.addedDevice.append((DEVNAME, DEVPATH, ID_MODEL))
-				self.timer.start(1000)
+				self.addTimer.start(1000)
 		else:
 			if self.newCount:
 				self.newCount = 0
 				for device, physicalDevicePath, model in self.addedDevice:
 					harddiskmanager.addHotplugPartition(device, physicalDevicePath, model=model)
+
+	def processRemoveDevice(self):
+		self.removeTimer.stop()
+		cleanMediaDirs()
 
 	def processHotplugData(self, eventData):
 		mode = eventData.get("mode")
@@ -210,12 +232,12 @@ class HotPlugManager:
 		action = eventData.get("ACTION")
 		if mode == 1:
 			if action == "add":
-				self.timer.stop()
+				self.addTimer.stop()
 				ID_TYPE = eventData.get("ID_TYPE")
 				DEVTYPE = eventData.get("DEVTYPE")
 				if ID_TYPE == "disk" and DEVTYPE in ("partition", "disk"):
 					self.deviceData.append(eventData)
-					self.timer.start(1000)
+					self.addTimer.start(1000)
 
 			elif action == "remove":
 				ID_TYPE = eventData.get("ID_TYPE")
@@ -224,6 +246,8 @@ class HotPlugManager:
 				if ID_TYPE == "disk" and DEVTYPE in ("partition", "disk"):
 					device = eventData.get("DEVNAME")
 					harddiskmanager.removeHotplugPartition(device)
+					self.removeTimer.stop()
+					self.removeTimer.start(2000)
 			elif action == "ifup":
 				interface = eventData.get("INTERFACE")  # noqa: F841
 			elif action == "ifdown":
