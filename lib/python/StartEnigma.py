@@ -386,9 +386,6 @@ def runScreenTest():
 			# we need session.scart to access it from within menu.xml
 			session.scart = AutoScartControl(session)
 
-	profile("Global MessageBox Screen")
-	modalmessagebox = ModalMessageBox(session)  # noqa: F841
-
 	profile("Init:PowerUpState")
 	PowerUpState(session)
 

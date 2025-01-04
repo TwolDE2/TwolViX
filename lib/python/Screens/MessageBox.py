@@ -40,7 +40,21 @@ class MessageBox(Screen, HelpableScreen):
 		self.timeout = int(timeout)
 		self.close_on_any_key = close_on_any_key
 		if enable_input:
-			self.createActionMap(-1)
+			self["actions"] = HelpableActionMap(self, ["MsgBoxActions", "DirectionActions"], {
+				"cancel": (self.cancel, _("Cancel the selection")),
+				"ok": (self.ok, _("Accept the current selection")),
+				"alwaysOK": (self.alwaysOK, _("Always select OK")),
+				"up": (self.up, _("Move up a line")),
+				"down": (self.down, _("Move down a line")),
+				"left": (self.left, _("Move up a page")),
+				"right": (self.right, _("Move down a page"))
+				# These actions are *ONLY* defined on OpenPLi!
+				# I don't believe thay add any functionality even for OpenPLi.
+				# "upRepeated": (self.up, _("Move up a line repeatedly")),
+				# "downRepeated": (self.down, _("Move down a line repeatedly")),
+				# "leftRepeated": (self.left, _("Move up a page repeatedly")),
+				# "rightRepeated": (self.right, _("Move down a page repeatedly"))
+			}, prio=-1, description=_("MessageBox Functions"))
 		self.msgBoxID = msgBoxID
 		# These six lines can go with new skins that only use self["icon"]...
 		self["QuestionPixmap"] = Pixmap()
@@ -104,23 +118,6 @@ class MessageBox(Screen, HelpableScreen):
 		self.timer.callback.append(self.processTimer)
 		if self.layoutFinished not in self.onLayoutFinish:
 			self.onLayoutFinish.append(self.layoutFinished)
-
-	def createActionMap(self, prio):
-		self["actions"] = HelpableActionMap(self, ["MsgBoxActions", "DirectionActions"], {
-			"cancel": (self.cancel, _("Cancel the selection")),
-			"ok": (self.ok, _("Accept the current selection")),
-			"alwaysOK": (self.alwaysOK, _("Always select OK")),
-			"up": (self.up, _("Move up a line")),
-			"down": (self.down, _("Move down a line")),
-			"left": (self.left, _("Move up a page")),
-			"right": (self.right, _("Move down a page"))
-			# These actions are *ONLY* defined on OpenPLi!
-			# I don't believe thay add any functionality even for OpenPLi.
-			# "upRepeated": (self.up, _("Move up a line repeatedly")),
-			# "downRepeated": (self.down, _("Move down a line repeatedly")),
-			# "leftRepeated": (self.left, _("Move up a page repeatedly")),
-			# "rightRepeated": (self.right, _("Move down a page repeatedly"))
-		}, prio=prio, description=_("MessageBox Functions"))
 
 	def layoutFinished(self):
 		self["icon"].setPixmapNum(self.type)
@@ -304,63 +301,3 @@ class MessageBox(Screen, HelpableScreen):
 
 	def getListWidth(self):
 		return self["list"].instance.getMaxItemTextWidth()
-
-	def reloadLayout(self):
-		for method in self.onLayoutFinish:
-			if not isinstance(method, type(self.close)):
-				exec(method, globals(), locals())
-			else:
-				method()
-		self.layoutFinished()
-
-
-class ModalMessageBox:
-	instance = None
-
-	def __init__(self, session):
-		if ModalMessageBox.instance:
-			print("[ModalMessageBox] Error: Only one ModalMessageBox instance is allowed!")
-		else:
-			ModalMessageBox.instance = self
-			self.dialog = session.instantiateDialog(MessageBox, "", enable_input=False, skin_name="MessageBoxModal")
-			self.dialog.setAnimationMode(0)
-
-	def showMessageBox(self, text=None, timeout=-1, list=None, default=True, close_on_any_key=False, timeout_default=None, windowTitle=None, msgBoxID=None, typeIcon=MessageBox.TYPE_YESNO, enable_input=True, callback=None):
-		self.dialog.text = text
-		self.dialog["text"].setText(text)
-		self.dialog.picon = False
-		if typeIcon == MessageBox.TYPE_YESNO:
-			self.dialog.list = [(_("Yes"), True), (_("No"), False)] if list is None else list
-			self.dialog["list"].setList(self.dialog.list)
-			if isinstance(default, bool):
-				self.dialog.startIndex = 0 if default else 1
-			elif isinstance(default, int):
-				self.dialog.startIndex = default
-			else:
-				print(f"[MessageBox] Error: The context of the default ({default}) can't be determined!")
-			self.dialog["list"].show()
-		else:
-			self.dialog["list"].hide()
-			self.dialog.list = None
-		self.callback = callback
-		self.dialog.timeout = timeout
-		self.dialog.msgBoxID = msgBoxID
-		self.dialog.enable_input = enable_input
-		if enable_input:
-			self.dialog.createActionMap(-20)
-			self.dialog["actions"].execBegin()
-		self.dialog.close_on_any_key = close_on_any_key
-		self.dialog.timeout_default = timeout_default
-		self.dialog.windowTitle = windowTitle or self.dialog.TYPE_PREFIX.get(type, _("Message"))
-		self.dialog.baseTitle = self.dialog.windowTitle
-		self.dialog.activeTitle = self.dialog.windowTitle
-		self.dialog.reloadLayout()
-		self.dialog.close = self.close
-		self.dialog.show()
-
-	def close(self, *retVal):
-		if self.callback and callable(self.callback):
-			self.callback(*retVal)
-		if self.dialog.enable_input:
-			self.dialog["actions"].execEnd()
-		self.dialog.hide()
