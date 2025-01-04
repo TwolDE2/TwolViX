@@ -184,7 +184,7 @@ class HotPlugManager:
 					(_("Do nothing"), 0),
 					(_("Permanently ignore this device"), 1),
 					(_("Temporarily mount as %s") % mountPoint, 2),
-					(_("Permanently mount as %s" % mountPoint), 3)
+					(_("Permanently mount as %s") % mountPoint, 3)
 				]
 				if mountPointHdd:
 					default = 4
@@ -194,6 +194,7 @@ class HotPlugManager:
 				choiceList.append(
 					(_("Permanently mount as %s") % mountPointDevice, 5),
 				)
+				print(f"[Hotplug][modalsend]default:{default} choiceList:{choiceList}")
 				ModalMessageBox.instance.showMessageBox(text=text, list=choiceList, default=default, windowTitle=_("New Storage Device"), callback=newDeviceCallback)
 			else:
 				self.addedDevice.append((DEVNAME, DEVPATH, ID_MODEL))

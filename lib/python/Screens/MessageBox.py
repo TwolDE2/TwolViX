@@ -1,4 +1,5 @@
 from enigma import eTimer, ePoint, eSize, getDesktop
+
 from Components.ActionMap import HelpableActionMap
 from Components.config import config
 from Components.Label import Label
@@ -327,9 +328,7 @@ class ModalMessageBox:
 	def showMessageBox(self, text=None, timeout=-1, list=None, default=True, close_on_any_key=False, timeout_default=None, windowTitle=None, msgBoxID=None, typeIcon=MessageBox.TYPE_YESNO, enable_input=True, callback=None):
 		self.dialog.text = text
 		self.dialog["text"].setText(text)
-		self.dialog.typeIcon = typeIcon
-		self.dialog.type = typeIcon
-		self.dialog.picon = (typeIcon != MessageBox.TYPE_NOICON)  # Legacy picon argument to support old skins.
+		self.dialog.picon = False
 		if typeIcon == MessageBox.TYPE_YESNO:
 			self.dialog.list = [(_("Yes"), True), (_("No"), False)] if list is None else list
 			self.dialog["list"].setList(self.dialog.list)
@@ -346,7 +345,7 @@ class ModalMessageBox:
 		self.callback = callback
 		self.dialog.timeout = timeout
 		self.dialog.msgBoxID = msgBoxID
-		self.dialog.enableInput = enable_input
+		self.dialog.enable_input = enable_input
 		if enable_input:
 			self.dialog.createActionMap(-20)
 			self.dialog["actions"].execBegin()
