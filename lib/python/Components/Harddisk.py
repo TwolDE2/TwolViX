@@ -888,6 +888,7 @@ class HarddiskManager:
 	def addHotplugPartition(self, device, physDevice=None, model=None):
 		print("[Harddsk][addHotplugPartition] Evaluating hotplug connected device...")
 		print(f"[Harddsk][addHotplugPartition] : device = '{device}', physDevice = '{physDevice}'")
+		device = device.replace("/dev/", "")
 		HDDin = error = removable = isCdrom = blacklisted = False
 		mediumFound = True
 		hddDev, part = self.splitDeviceName(device)
@@ -944,6 +945,7 @@ class HarddiskManager:
 
 	def removeHotplugPartition(self, device):
 		print("[Harddsk][removeHotplugPartition] Evaluating hotplug disconnected device...")
+		device = device.replace("/dev/", "")
 		hddDev, part = self.splitDeviceName(device)  # Separate the device from the partition.
 		for partition in self.partitions:
 			if partition.device is None:
