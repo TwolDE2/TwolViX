@@ -1,4 +1,5 @@
 from enigma import eTimer, ePoint, eSize, getDesktop
+
 from Components.ActionMap import HelpableActionMap
 from Components.config import config
 from Components.Label import Label

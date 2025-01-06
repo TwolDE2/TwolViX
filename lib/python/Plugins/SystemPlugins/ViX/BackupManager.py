@@ -1009,6 +1009,8 @@ class BackupFiles(Screen):
 
 	def JobStart(self):
 		self.selectedFiles = config.backupmanager.backupdirs.value
+		if path.exists("/etc/udev/known_devices") and "/etc/udev/known_devices" not in self.selectedFiles:
+			self.selectedFiles.append("/etc/udev/known_devices")
 		if path.exists("/etc/CCcam.cfg") and "/etc/CCcam.cfg" not in self.selectedFiles:
 			self.selectedFiles.append("/etc/CCcam.cfg")
 		if path.exists("/etc/CCcam.channelinfo") and "/etc/CCcam.channelinfo" not in self.selectedFiles:
