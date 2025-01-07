@@ -21,7 +21,7 @@ commit_files() {
 
 upload_files() {
   git remote add upstream https://${GITHUB_TOKEN}@github.com/TwolDE2/TwolViX.git > /dev/null 2>&1
-  git push --quiet upstream Py3F || echo "failed to push with error $?"
+  git push --quiet upstream Py3D || echo "failed to push with error $?"
 }
 
 setup_git
