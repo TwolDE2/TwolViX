@@ -16,6 +16,7 @@ from Tools.Directories import fileReadLines, fileWriteLines
 
 HOTPLUG_SOCKET = "/tmp/hotplug.socket"
 
+# globals
 hotplugNotifier = []
 audiocd = False
 
@@ -29,7 +30,8 @@ class Hotplug(Protocol):
 		self.received = ""
 
 	def dataReceived(self, data):
-		data = data.decode()
+		if isinstance(data, bytes):
+			data = data.decode()
 		self.received += data
 		print(f"[Hotplug] Data received: '{", ".join(self.received.split("\0")[:-1])}'.")
 
@@ -45,7 +47,8 @@ class Hotplug(Protocol):
 		for values in data:
 			variable, value = values.split("=", 1)
 			eventData[variable] = value
-		hotPlugManager.processHotplugData(eventData)
+		if data and eventData:
+			hotPlugManager.processHotplugData(eventData)
 
 
 def AudiocdAdded():
@@ -126,7 +129,7 @@ class HotPlugManager:
 
 				for mount in mounts:
 					if DEVNAME in mount and DEVNAME.replace("/dev/", "/media/") not in mount:
-						print(f"[Hotplug] device '{DEVNAME}' found in mounts -> {mount}")
+						print(f"[Hotplug][processDeviceData] device '{DEVNAME}' found in mounts -> {mount}")
 						notFound = False
 						break
 
@@ -134,7 +137,7 @@ class HotPlugManager:
 				for device in knownDevices:
 					deviceData = device.split(":")
 					if len(deviceData) == 2 and deviceData[0] == ID_FS_UUID:
-						print("[Hotplug] UUID found in known_devices")
+						print("[Hotplug][processDeviceData] UUID found in known_devices")
 						knownDevice = deviceData[1]
 						notFound = knownDevice != "None"  # Ignore this device
 						break
@@ -174,23 +177,23 @@ class HotPlugManager:
 							mkdir(mountPoint, 0o755)
 						if answer == 4 and not exists(mountPointHdd):
 							mkdir(mountPointHdd, 0o755)
-						if answer == 1:
+						if answer == 1:  # Permanently ignore this device
 							knownDevices.append(f"{ID_FS_UUID}:None")
-						elif answer == 2:
+						elif answer == 2:  # Temporarily mount
 							Console().ePopen(f"/bin/mount -t {ID_FS_TYPE} {DEVNAME} {mountPoint}")
-						elif answer == 3:
+						elif answer == 3:  # permanently mount as media/usb----
 							knownDevices.append(f"{ID_FS_UUID}:{mountPoint}")
 							newFstab = [x for x in fstab if f"UUID={ID_FS_UUID}" not in x]
 							newFstab.append(f"UUID={ID_FS_UUID} {mountPoint} {ID_FS_TYPE} defaults 0 0")
 							fileWriteLines("/etc/fstab", newFstab)
 							self.callMount = True
-						elif answer == 4:
+						elif answer == 4:  # Permanently mount as /media/hdd
 							knownDevices.append(f"{ID_FS_UUID}:{mountPointHdd}")
 							newFstab = [x for x in fstab if f"UUID={ID_FS_UUID}" not in x]
 							newFstab.append(f"UUID={ID_FS_UUID} {mountPointHdd} {ID_FS_TYPE} defaults 0 0")
 							fileWriteLines("/etc/fstab", newFstab)
 							self.callMount = True
-						elif answer == 5:
+						elif answer == 5:  # Permanently mount as device name e.g. sda1
 							knownDevices.append(f"{ID_FS_UUID}:{mountPointDevice}")
 							newFstab = [x for x in fstab if f"UUID={ID_FS_UUID}" not in x]
 							newFstab.append(f"UUID={ID_FS_UUID} {mountPointDevice} {ID_FS_TYPE} defaults 0 0")
