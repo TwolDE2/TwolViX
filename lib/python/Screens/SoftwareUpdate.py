@@ -18,7 +18,7 @@ from Components.OnlineUpdateCheck import feedsstatuscheck, kernelMismatch, statu
 from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.Screen import Screen
 from Screens.TextBox import TextBox
-from Screens.Standby import TryQuitMainloop
+from Screens.Standby import TryQuitMainloop, QUIT_REBOOT, QUIT_UPGRADE_PROGRAM
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import isPluginInstalled
 
@@ -385,7 +385,7 @@ class UpdatePlugin(Screen, ProtectedScreen):
 			if (config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value) or (config.softwareupdate.autoimagebackup.value and config.imagemanager.backuplocation.value):
 				self.doAutoBackup()
 			else:
-				self.session.open(TryQuitMainloop, retvalue=42)
+				self.session.open(TryQuitMainloop, retvalue=QUIT_UPGRADE_PROGRAM)
 				self.close()
 
 	def modificationCallback(self, res):
@@ -418,7 +418,7 @@ class UpdatePlugin(Screen, ProtectedScreen):
 		elif config.softwareupdate.autoimagebackup.value and config.imagemanager.backuplocation.value and not self.ImageBackupDone:
 			self.doImageBackup()
 		else:
-			self.session.open(TryQuitMainloop, retvalue=42)
+			self.session.open(TryQuitMainloop, retvalue=QUIT_UPGRADE_PROGRAM)
 			self.close()
 
 	def showJobView(self, job):
@@ -445,5 +445,5 @@ class UpdatePlugin(Screen, ProtectedScreen):
 
 	def exitAnswer(self, result):
 		if result is not None and result:
-			self.session.open(TryQuitMainloop, retvalue=2)
+			self.session.open(TryQuitMainloop, retvalue=QUIT_REBOOT)
 		self.close()
