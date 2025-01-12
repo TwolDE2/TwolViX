@@ -5,7 +5,7 @@ from os.path import exists, ismount, join
 from twisted.internet import reactor
 from twisted.internet.protocol import Factory, Protocol
 
-from enigma import eTimer
+from enigma import getDeviceDB, eTimer
 
 from Session import SessionObject
 from Components.Console import Console
@@ -166,7 +166,12 @@ class HotPlugManager:
 				self.newCount += 1
 
 			if notFound:
-				text = f"{_("A new storage device has been connected:")}\n{ID_MODEL} - ({bytesToHumanReadable(ID_PART_ENTRY_SIZE * 512)})\n"
+				description = ""
+				for physdevprefix, pdescription in list(getDeviceDB().items()):
+					if DEVPATH.startswith(physdevprefix):
+						description = f"\n{pdescription}"
+
+				text = f"{_("A new storage device has been connected:")}\n{ID_MODEL} - ({bytesToHumanReadable(ID_PART_ENTRY_SIZE * 512, format="%.1f")})\n{description}"
 
 				def newDeviceCallback(answer):
 					if answer:
