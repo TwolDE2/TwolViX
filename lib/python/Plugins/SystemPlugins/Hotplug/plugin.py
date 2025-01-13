@@ -171,7 +171,7 @@ class HotPlugManager:
 					if DEVPATH.startswith(physdevprefix):
 						description = f"\n{pdescription}"
 
-				text = f"{_("A new storage device has been connected:")}\n{ID_MODEL} - ({bytesToHumanReadable(ID_PART_ENTRY_SIZE * 512, format="%.1f")})\n{description}"
+				text = f"{_("A new storage device has been connected:")}\n{ID_MODEL} - ({bytesToHumanReadable(ID_PART_ENTRY_SIZE * 512)})\n{description}"
 
 				def newDeviceCallback(answer):
 					if answer:
@@ -246,7 +246,7 @@ class HotPlugManager:
 		mode = eventData.get("mode")
 		print("[Hotplug] DEBUG: ", eventData)
 		action = eventData.get("ACTION")
-		if mode == 1:
+		if mode == 1 and eventData.get("MODE", "") != "CD":
 			if action == "add":
 				self.addTimer.stop()
 				ID_TYPE = eventData.get("ID_TYPE")
