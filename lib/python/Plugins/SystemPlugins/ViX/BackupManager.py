@@ -93,6 +93,7 @@ config.backupmanager.number_to_keep = ConfigNumber(default=0)
 
 
 def isRestorableSettings(imageversion):
+	# This check should no longer be necessary
 	return True
 # 	minimum_version = 4.2
 # 	try:
@@ -103,6 +104,7 @@ def isRestorableSettings(imageversion):
 
 
 def isRestorablePlugins(imageversion):
+	# This check should no longer be necessary
 	return True
 # 	minimum_version = 4.2
 # 	try:
@@ -136,6 +138,14 @@ def BackupManagerautostart(reason, session=None, **kwargs):
 
 
 BackupTime = 0
+
+
+class DownloadScreen(Screen):
+	def __init__(self, session, text):
+		Screen.__init__(self, session)
+		self["text"] = Label(text)
+		self.skinName = "QuitMainloopScreen"
+		print("[DownloadScreen] text", text)
 
 
 class VIXBackupManager(Screen):
@@ -184,6 +194,10 @@ class VIXBackupManager(Screen):
 		self.Console = Console()
 		self.ConsoleB = Console(binary=True)
 
+		self.pluginDownloadTimer = eTimer()  # used to open "fake" plugin download screen
+		self.pluginDownloadTimer.timeout.get().append(self.openDownloadScreen)
+		self.downloadScreen = None
+
 		if BackupTime > 0:
 			t = localtime(BackupTime)
 			backuptext = _("Next backup: ") + strftime(_("%a %e %b  %-H:%M"), t)
@@ -192,6 +206,11 @@ class VIXBackupManager(Screen):
 		self["backupstatus"].setText(str(backuptext))
 		if self.selectionChanged not in self["list"].onSelectionChanged:
 			self["list"].onSelectionChanged.append(self.selectionChanged)
+
+	def openDownloadScreen(self):
+		if self.downloadScreen is None:
+			text = _("Plugin download in progress\nPlease wait while your %s %s downloads %d plugins\nThis may take a few minutes") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], self.plugin_count)
+			self.downloadScreen = self.session.open(DownloadScreen, text)
 
 	def createSummary(self):
 		from Screens.PluginBrowser import PluginBrowserSummary
@@ -364,43 +383,33 @@ class VIXBackupManager(Screen):
 					remove("/tmp/ExtraInstalledPlugins")
 				if path.exists("/tmp/backupkernelversion"):
 					remove("/tmp/backupkernelversion")
-				self.keyResstore1()
+				message = _("Are you sure you want to restore this backup:\n ") + self.sel
+				ybox = self.session.openWithCallback(self.doRestore, MessageBox, message, MessageBox.TYPE_YESNO)
+				ybox.setTitle(_("Restore Confirmation"))
 			else:
 				self.session.open(MessageBox, _("There is no backup to restore."), MessageBox.TYPE_INFO, timeout=5)
 		else:
 			self.session.open(MessageBox, _("Backup in progress,\nPlease wait for it to finish, before trying again."), MessageBox.TYPE_INFO, timeout=5)
 
-	def keyResstore1(self):
-		message = _("Are you sure you want to restore this backup:\n ") + self.sel
-		ybox = self.session.openWithCallback(self.doRestore, MessageBox, message, MessageBox.TYPE_YESNO)
-		ybox.setTitle(_("Restore Confirmation"))
-
 	def doRestore(self, answer):
 		if answer is True:
-			self.createRestoreJob()
-			self["key_green"].setText(_("View progress"))
-			self["key_green"].show()
-			for job in Components.Task.job_manager.getPendingJobs():
-				if job.name.startswith(_("Backup manager")):
-					self.showJobView(job)
-					break
-
-	def createRestoreJob(self):
-		self.pluginslist = ""
-		self.pluginslist2 = ""
-		self.didSettingsRestore = False
-		self.doPluginsRestore = False
-		self.didPluginsRestore = False
-		self.feedscheck = False
-		self.feeds = " "
-		self.RestoreRunning = True
-		message = _("Do you want to restore your enigma2 settings ?")
-		ybox = self.session.openWithCallback(self.restoreSettings, MessageBox, message, MessageBox.TYPE_YESNO)
-		ybox.setTitle(_("Restore Settings Confirmation"))
+			self.activityTimer.stop()  # stop re-populating the list and updating labels
+			self.pluginslist = []
+			self.pluginslist2 = []
+			self.didSettingsRestore = False
+			self.doPluginsRestore = False
+			self.didPluginsRestore = False
+			self.feedscheck = False
+			self.feeds = " "
+			self.RestoreRunning = True
+			message = _("Do you want to restore your enigma2 settings ?")
+			ybox = self.session.openWithCallback(self.restoreSettings, MessageBox, message, MessageBox.TYPE_YESNO)
+			ybox.setTitle(_("Restore Settings Confirmation"))
 
 	def restoreSettings(self, answer=False):
 		print(f"[BackupManager][restoreSettings] Restore settings? Answer:{answer}")
 		if answer:
+			self["lab1"].setText(_("Restoring enigma2 settings") + "...")
 			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /", self.restoreSettingsComplete)
 		else:
 			self.checkPlugins()
@@ -416,9 +425,7 @@ class VIXBackupManager(Screen):
 			self.session.nav.PowerTimer.loadTimer()
 			self.session.nav.RecordTimer.loadTimer(justLoad=True)  # Don't check RecordTimers for conflicts. On a restore we may not have the correct tuner configuration (and no USB tuners)...
 			configfile.load()
-			message = _("Restoring Settings Complete - will check plugins install and then Reboot")
-			ybox = self.session.openWithCallback(self.checkPlugins, MessageBox, message, MessageBox.TYPE_INFO, timeout=3)
-			ybox.setTitle(_("Restore Plugins Confirmation"))
+			self.checkPlugins()
 		else:
 			print("[BackupManager] Restoring settings Failed:")
 			self.session.open(MessageBox, _("Sorry, but the restore failed, exiting."), MessageBox.TYPE_INFO, timeout=3)
@@ -434,12 +441,10 @@ class VIXBackupManager(Screen):
 		print(f"[BackupManager][checkPluginsRestore] Plugins request check:{answer}")
 		if answer:
 			print("[BackupManager][checkPluginsRestore] plugin restore chosen")
+			self["lab1"].setText(_("Checking for restorable plugins") + "...")
 			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion  tmp/3rdPartyPlugins", self.pluginsRestore)
 		else:
 			print("[BackupManager][checkPluginsRestore] plugin restore skipped by user")
-			# message = _("Now skipping plugin restore process")
-			# ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=3)
-			# ybox.setTitle(_("Restore Plugins Confirmation"))
 			self.finaliseRestore()
 
 	def pluginsRestore(self, result, retval, extra_args):
@@ -473,11 +478,7 @@ class VIXBackupManager(Screen):
 			ybox.setTitle(_("Restore Plugins Confirmation"))
 		else:
 			self.feedscheck = True
-			ybox = self.session.openWithCallback(self.listpluginsInstalled, MessageBox, message, MessageBox.TYPE_INFO, timeout=5)
-			ybox.setTitle(_("Restore Plugins Confirmation"))
-
-	def listpluginsInstalled(self, extra_args):
-		self.Console.ePopen("opkg list-installed", self.feedsCheckComplete)
+			self.Console.ePopen("opkg list-installed", self.feedsCheckComplete)
 
 	def feedsCheckComplete(self, result, retval, extra_args):
 		plugins = []
@@ -552,21 +553,14 @@ class VIXBackupManager(Screen):
 										if path.exists(ipk):
 											self.pluginslist2.append(ipk)
 						print("[BackupManager][BackupManager][feedsCheckComplete] pluginslist = %s" % self.pluginslist2)
-		if len(self.pluginslist) or len(self.pluginslist2):
-			if len(self.pluginslist):
-				self.pluginslist = " ".join(self.pluginslist)
-			else:
-				self.pluginslist = ""
-			if len(self.pluginslist2):
-				self.pluginslist2 = " ".join(self.pluginslist2)
-			else:
-				self.pluginslist2 = ""
-			print(f"[BackupManager][feedsCheckComplete] Plugins to restore (extra plugins):{self.pluginslist}")
-			print(f"[BackupManager][feedsCheckComplete] Plugins to restore (3rd party plugins): {self.pluginslist2}")
+		self.plugin_count = len(self.pluginslist) + len(self.pluginslist2)
+		if self.plugin_count:
+			self.pluginDownloadTimer.start(1, 1)  # open "fake" plugin download screen to give the user something to look at
+			print(f"[BackupManager][feedsCheckComplete] Plugins to restore (extra plugins):{str(self.pluginslist)}")
+			print(f"[BackupManager][feedsCheckComplete] Plugins to restore (3rd party plugins): {str(self.pluginslist2)}")
 			self.doPluginsRestore = True
 			print("[BackupManager][feedsCheckComplete] Restoring Plugins: starting plugin restore")
-			# print("[BackupManager] Console command: ", "opkg install " + self.pluginslist + " " + self.pluginslist2)
-			self.ConsoleB.ePopen("opkg install " + self.pluginslist + " " + self.pluginslist2, self.finaliseRestore)
+			self.ConsoleB.ePopen("opkg install " + " ".join(self.pluginslist + self.pluginslist2), self.finaliseRestore)
 		else:
 			print("[BackupManager][feedsCheckComplete] No Plugins to restore")
 			self.feedscheck = True
@@ -574,23 +568,21 @@ class VIXBackupManager(Screen):
 			ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=2)
 			ybox.setTitle(_("Restore Plugins result"))
 
-	def pluginRestoreResult(self, result=None, retval=None, extra_args=None):
-		message = _("Restore of plugins completed ")
-		ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=2)
-		ybox.setTitle(_("Restore Plugins result"))
-
 	def finaliseRestore(self, result=None, retval=None, extra_args=None):
+		self.downloadScreen and self.downloadScreen.close()
+		self.downloadScreen = None  # de-reference screen
+		self["lab1"].setText("")
+		print(f"[BackupManager][finaliseRestore] self.didSettingsRestore:{self.didSettingsRestore} self.doPluginsRestore:{self.doPluginsRestore} result:{result} retval:{retval}")
 		if self.didSettingsRestore:
 			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /" + " etc/enigma2/settings")
 			print("[BackupManager] Restoring Stage 6: restored settings file again")
 			self.ConsoleB.ePopen("killall -9 enigma2 && init 6")
-		elif self.doPluginsRestore and retval:
-			print("[BackupManager][finaliseRestore] Restoring Plugins Completed restarting")
-			quitMainloop(3)
-		else:
-			print("[BackupManager][finaliseRestore] Restoring not completed - check messages or debug log - restart")
-			self.session.open(MessageBox, _("Restoring not completed - check messages or debug log"), MessageBox.TYPE_INFO, timeout=5)
-			# quitMainloop(3)
+		elif self.doPluginsRestore:
+			if retval == 0:
+				print("[BackupManager][finaliseRestore] Restoring Plugins Completed restarting")
+				quitMainloop(3)
+			else:
+				self["lab1"].setText(_("[BackupManager] plugins restore not completed- check debug log"))
 
 
 class BackupSelection(Screen):
@@ -1147,6 +1139,11 @@ class BackupFiles(Screen):
 	tar_flist = "/tmp/_backup-files.list"					# Filename for backup list
 
 	def Stage5(self):
+		# Return config.usage.power.was_controlled_shutdown to the default value so it doesn't polute the settings file saved by the backup
+		config.usage.power.was_controlled_shutdown.value = config.usage.power.was_controlled_shutdown.default
+		config.usage.power.was_controlled_shutdown.save()
+		configfile.save()
+
 		tmplist = config.backupmanager.backupdirs.value
 		tmplist.append("/tmp/ExtraInstalledPlugins")
 		tmplist.append("/tmp/backupkernelversion")
@@ -1203,6 +1200,11 @@ class BackupFiles(Screen):
 		self.Stage3Completed = True
 		self.Stage4Completed = True
 		self.Stage5Completed = True
+
+		# Return config.usage.power.was_controlled_shutdown to the normal running state
+		config.usage.power.was_controlled_shutdown.value = not config.usage.power.was_controlled_shutdown.default
+		config.usage.power.was_controlled_shutdown.save()
+		configfile.save()
 
 		# Trim the number of backups to the configured setting...
 		#
