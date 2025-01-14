@@ -5,7 +5,7 @@ from glob import glob
 from re import sub
 from time import sleep, time
 
-from enigma import eTimer
+from enigma import getDeviceDB, eTimer
 from Components.Console import Console
 from Components.SystemInfo import SystemInfo, BoxInfo
 import Components.Task
@@ -203,10 +203,22 @@ class Harddisk:
 			else:
 				busName = f"{busName}{' (HDD)'}"
 		else:
-			busName = _("External")
-			busName = f"{busName} ({self.busType})"
+			busName = self.port()
+			if not busName:	
+				busName = _("External")
+				busName = f"{busName} ({self.busType})"
 		return busName
 
+	def port(self):
+		print(f"[Harddisk][bus] physicalDevice:{self.phys_path}")	
+		portDescription = ""
+		for physdevprefix, pdescription in list(getDeviceDB().items()):
+			if self.phys_path.replace("/sys", "").startswith(physdevprefix):
+				portDescription = pdescription
+		print(f"[Harddisk][bus] portDescription:{portDescription}")
+		return portDescription
+		
+			
 	def diskSize(self):
 		# output in MB
 		dev = self.findMount()
@@ -839,6 +851,7 @@ class HarddiskManager:
 		print("[Harddisk][enumerateNetworkMounts] Enumerating network mounts complete.")
 
 	def getUserfriendlyDeviceName(self, device, physicalDevice):
+		print(f"[Harddisk][getUserfriendlyDeviceName] device:{device} physicalDevice:{physicalDevice}")
 		dev, part = self.splitDeviceName(device)
 		description = readFile(ospath.join(physicalDevice, "model"))
 		if description is None:
@@ -973,7 +986,8 @@ class HarddiskManager:
 	def HDDList(self):
 		list = []
 		for hd in self.hdd:
-			hdd = f"{hd.model()} {hd.bus()} /dev/{hd.device}"
+			print(f"[Harddsk][HDDList] {hd.model()} {hd.bus()} /dev/{hd.device}.")	
+			hdd = f"{hd.bus()}  {hd.model()}  /dev/{hd.device}"
 			cap = hd.capacity()
 			if cap != "":
 				hdd += f" {cap}"
