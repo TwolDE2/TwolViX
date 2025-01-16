@@ -286,7 +286,7 @@ class Devices(Screen):
 				hddp = self.hddlist[count][0]
 				if "ATA" in hddp:
 					hddp = hddp.replace("ATA", "", 1)
-					hddp = hddp.replace("SATA", "SATA Internal Bus "). replace("(", ""),replace(")", "")
+					hddp = hddp.replace("SATA", "SATA Internal Bus "). replace("(", ""), replace(")", "")
 				free = hdd.Totalfree()
 				if free >= 1:
 					free *= 1000000  # convert MB to bytes
