@@ -218,7 +218,6 @@ class Harddisk:
 		print(f"[Harddisk][bus] portDescription:{portDescription}")
 		return portDescription
 		
-			
 	def diskSize(self):
 		# output in MB
 		dev = self.findMount()
