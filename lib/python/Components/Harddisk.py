@@ -204,20 +204,20 @@ class Harddisk:
 				busName = f"{busName}{' (HDD)'}"
 		else:
 			busName = self.port()
-			if not busName:	
+			if not busName:
 				busName = _("External")
 				busName = f"{busName} ({self.busType})"
 		return busName
 
 	def port(self):
-		print(f"[Harddisk][bus] physicalDevice:{self.phys_path}")	
+		print(f"[Harddisk][bus] physicalDevice:{self.phys_path}")
 		portDescription = ""
 		for physdevprefix, pdescription in list(getDeviceDB().items()):
 			if self.phys_path.replace("/sys", "").startswith(physdevprefix):
 				portDescription = pdescription
 		print(f"[Harddisk][bus] portDescription:{portDescription}")
 		return portDescription
-		
+
 	def diskSize(self):
 		# output in MB
 		dev = self.findMount()
@@ -985,7 +985,7 @@ class HarddiskManager:
 	def HDDList(self):
 		list = []
 		for hd in self.hdd:
-			print(f"[Harddsk][HDDList] {hd.model()} {hd.bus()} /dev/{hd.device}.")	
+			print(f"[Harddsk][HDDList] {hd.model()} {hd.bus()} /dev/{hd.device}.")
 			hdd = f"{hd.bus()}  {hd.model()}  /dev/{hd.device}"
 			cap = hd.capacity()
 			if cap != "":
