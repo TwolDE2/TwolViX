@@ -210,9 +210,11 @@ class Harddisk:
 		return busName
 
 	def port(self):
-		print(f"[Harddisk][bus] physicalDevice:{self.phys_path}")
+		print(f"[Harddisk][port] physicalDevice:{self.phys_path}")
+		print(f"[Harddisk][port] list(getDeviceDB().items() {list(getDeviceDB().items())}")
 		portDescription = ""
 		for physdevprefix, pdescription in list(getDeviceDB().items()):
+			print(f"[Harddisk][port] physdevprefix:{physdevprefix} pdescription:{pdescription}")
 			if self.phys_path.replace("/sys", "").startswith(physdevprefix):
 				portDescription = pdescription
 		print(f"[Harddisk][bus] portDescription:{portDescription}")
@@ -258,7 +260,7 @@ class Harddisk:
 			msg = "  Device not hdX or sdX or mmcX."
 		if data is None:
 			print("[Harddisk][model] Error: Failed to get model! msg:", msg)
-			return "Unknown"
+			return "Unknown model"
 		return data
 
 	def free(self, dev=None):
