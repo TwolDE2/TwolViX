@@ -149,7 +149,7 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/f0471000.xhci/usb6/6-2/6-2", "Rear, right USB"},
 	{"/devices/platform/f0470500.ehci/usb2/2-1/2-1", "Rear, right USB"}
 #elif HWHD61 // CHECKED
-	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1", "Front panel, microSD" 
+	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1", "Front panel, microSD"}, 
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1", "Front panel USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1", "Rear USB"},
 	{"/devices/platform/soc/f9900000.hiahci/ata1/", "SATA"}
