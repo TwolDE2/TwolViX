@@ -131,7 +131,7 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.4/4-1.4:1.0", "Rear, left - left pair USB 3.0"},
 	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.3/2-2.3:1.0", "Rear, right - left pair USB 3.0"},
 	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.2/4-1.2:1.0", "Rear, right lower USB"},
-	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.1/4-1.1:1.0"}, "Rear, right upper USB"}, 
+	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.1/4-1.1:1.0", "Rear, right upper USB"}, 
 	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1:1.0", "Front panel, USB"}
 #elif HWGBQUAD4KPRO // CHECKED
 	{"/devices/platform/rdb/f045a000.sata/", "SATA"},
