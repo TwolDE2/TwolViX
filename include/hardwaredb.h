@@ -62,14 +62,14 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 #elif HWVUSOLO4K
 	{"/devices/platform/strict-ahci.0/ata1/", "SATA"},
 	{"/devices/f0490600.ohci/usb10/", "Front USB"},
-	{"/devices/f0480400.ohci/usb7/", "Rear USB lower"},
-	{"/devices/f0480600.ohci/usb8/", "Rear USB upper"}
+	{"/devices/f0480400.ohci/usb7/", "Rear USB 3.0 lower"},
+	{"/devices/f0480600.ohci/usb8/", "Rear USB 3.0 upper"}
 #elif HWUNO4KSE
 	{"/devices/platform/rdb/f045a000.sata/ata1/", "SATA"},
-	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1", "Rear USB lower"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/2-1", "Rear USB lower"},
-	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1", "Rear USB upper"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2", "Rear USB upper"}
+	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1", "Rear USB 3.0 lower"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/2-1", "Rear USB 3.0 lower"},
+	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1", "Rear USB 3.0 upper"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2", "Rear USB 3.0 upper"}
 #elif HWDUO2 // CHECKED
 	{"/devices/platform/strict-ahci.0/ata1/", "eSATA"},
 	{"/devices/platform/ehci-brcm.2/usb3/", "Front USB"},
@@ -78,17 +78,17 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 #elif HWDUO4K
 	{"/devices/platform/rdb/8b0a000.sata/", "SATA"},
 	{"/devices/platform/rdb/8b39000.xhci_v2/usb1/", "Front USB"},
-	{"/devices/platform/rdb/8b39000.xhci_v2/usb2/2-2/", "Rear USB upper"},
-	{"/devices/platform/rdb/8b39000.xhci_v2/usb2/2-1/", "Rear USB lower"}
+	{"/devices/platform/rdb/8b39000.xhci_v2/usb2/2-2/", "Rear USB 3.0 upper"},
+	{"/devices/platform/rdb/8b39000.xhci_v2/usb2/2-1/", "Rear USB 3.0 lower"}
 #elif HWDUO4KSE
 	{"/devices/platform/rdb/f045a000.sata/", "SATA"},
 	{"/devices/platform/rdb/f0480500.ehci_v2/usb6/", "Front USB"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/", "Rear USB upper"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/", "Rear USB lower"}
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/", "Rear USB 3.0 upper"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/", "Rear USB 3.0 lower"}
 #elif HWVUULTIMO4K
 	{"/devices/platform/brcmstb-ahci.0/ata1", "SATA"},
-	{"/devices/rdb.3/f0470300.ehci_v2/usb3/", "Rear USB lower"},
-	{"/devices/rdb.3/f0470500.ehci_v2/usb4/", "Rear USB upper"},
+	{"/devices/rdb.3/f0470300.ehci_v2/usb3/", "Rear USB 3.0 lower"},
+	{"/devices/rdb.3/f0470500.ehci_v2/usb4/", "Rear USB 3.0 upper"},
 	{"/devices/rdb.3/f0480600.ohci_v2/usb10/", "Front USB"}
 #elif HWH7
 	{"/devices/platform/rdb/f045a000.sata/ata1/", "SATA"},
