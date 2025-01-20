@@ -56,8 +56,10 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/rdb.4/f0470600.ohci_v2/usb6/6-0:1.0/port1/", "Front USB"},
 	{"/devices/rdb.4/f0470300.ehci_v2/usb3/3-0:1.0/port1/", "Front USB"},
 	{"/devices/rdb.4/f0471000.xhci_v2/usb2/2-0:1.0/port1/", "Front USB"},
+	{"/devices/rdb.4/f0470300.ehci_v2/usb3/3-1/3-1:1.0", "Front panel USB"},	
 	{"/devices/rdb.4/f0470400.ohci_v2/usb5/5-0:1.0/port1/", "Rear USB"},
 	{"/devices/rdb.4/f0470500.ehci_v2/usb4/4-0:1.0/port1/", "Rear USB"},
+	{"/devices/rdb.4/f0470500.ehci_v2/usb4/4-1/4-1:1.0", "Rear USB"},	
 	{"/devices/rdb.4/f0471000.xhci_v2/usb2/2-0:1.0/port2/", "Rear USB"}
 #elif HWVUSOLO4K
 	{"/devices/platform/strict-ahci.0/ata1/", "SATA"},
