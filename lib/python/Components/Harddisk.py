@@ -818,9 +818,12 @@ class HarddiskManager:
 							if boxModel in ("dm900", "dm920") and partition == "mmcblk0p3" and self.getMountpoint(partition) == None:
 								self.mount_device = mountpoint = "/media/data/"
 								self.disk_path = "/dev/mmcblk0p3"
+								newFstab = fileReadLines("/etc/fstab")
+								newFstab.append("/dev/mmcblk0p3 /media/data ext4 rw, relatime,data=ordered 0 0")
+								fileWriteLines("/etc/fstab", newFstab)																
 								if not ospath.exists(mountpoint):
 									mkdir(mountpoint, 0o755)
-								Harddisk.mount(self)
+								self.console.ePopen("/bin/mount -a")
 								part = Partition(mountpoint, description=description, force_mounted=True, device=partition)
 							else:
 								part = Partition(mountpoint=self.getMountpoint(partition, skiproot=True), description=description, force_mounted=True, device=partition)
