@@ -680,7 +680,7 @@ class HarddiskManager:
 			mounts = getProcMounts()
 			devmounts = [x[0] for x in mounts]
 			mounts = [x[1] for x in mounts if x[1].startswith("/media/")]
-			possibleMountPoints = [f"/media/{x}" for x in ("usb8", "usb7", "usb6", "usb5", "usb4", "usb3", "usb2", "usb", "hdd", "data") if f"/media/{x}" not in mounts]
+			possibleMountPoints = [f"/media/{x}" for x in ("usb8", "usb7", "usb6", "usb5", "usb4", "usb3", "usb2", "usb", "data", "hdd") if f"/media/{x}" not in mounts]
 
 			for device in devices:
 				if device["DEVNAME"] not in devmounts or "/media/hdd" in possibleMountPoints:
@@ -816,9 +816,12 @@ class HarddiskManager:
 							description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 							print(f"[Harddisk][enumerateBlockDevices]### Found partition '{partition}', description='{description}', device='{physicalDevice}' mountpoint='{self.getMountpoint(partition)}.")
 							if boxModel in ("dm900", "dm920") and partition == "mmcblk0p3" and self.getMountpoint(partition) == None:
-								mountpoint = "/media/data/"
+								mountpoint = "/media/usb8/"
+								self.mount_device = "/media/usb8/"
+								self.disk_path = "/dev/mmcblk0p3"
 								if not ospath.exists(mountpoint):
 									mkdir(mountpoint, 0o755)
+								Harddisk.mount(self)
 								part = Partition(mountpoint, description=description, force_mounted=True, device=partition)
 							else:
 								part = Partition(mountpoint=self.getMountpoint(partition, skiproot=True), description=description, force_mounted=True, device=partition)
