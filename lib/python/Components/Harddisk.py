@@ -820,7 +820,7 @@ class HarddiskManager:
 								self.disk_path = "/dev/mmcblk0p3"
 								newFstab = fileReadLines("/etc/fstab")
 								newFstab.append("/dev/mmcblk0p3 /media/data ext4 rw, relatime,data=ordered 0 0")
-								fileWriteLines("/etc/fstab", newFstab)																
+								fileWriteLines("/etc/fstab", newFstab)
 								if not ospath.exists(mountpoint):
 									mkdir(mountpoint, 0o755)
 								self.console.ePopen("/bin/mount -a")
