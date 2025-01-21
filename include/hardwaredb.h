@@ -176,6 +176,9 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/soc/f98a0000.xhci/usb4/3-1/3-1", "Right USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2", "Rear USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.3", "Rear microSD"}
+#elif HWSF8008M
+	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Right side - left USB 3.0"},
+	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Right side - right USB"}
 #elif HWET7X00 // CHECKED
 	{"/devices/platform/ehci-brcm.0/usb1/1-1/1-1:1.0", "Rear USB"},
 	{"/devices/platform/ehci-brcm.0/usb1/1-2/1-2:1.0", "Front panel USB"}  
