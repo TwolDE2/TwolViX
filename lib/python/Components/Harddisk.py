@@ -816,7 +816,7 @@ class HarddiskManager:
 							description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 							print(f"[Harddisk][enumerateBlockDevices]### Found partition '{partition}', description='{description}', device='{physicalDevice}' mountpoint='{self.getMountpoint(partition)}.")
 							if boxModel in ("dm900", "dm920") and partition == "mmcblk0p3" and self.getMountpoint(partition) == None:
-								part = Partition(mountpoint="/media/data/", description=description, force_mounted=True, device=partition)							
+								part = Partition(mountpoint="/media/data/", description=description, force_mounted=True, device=partition)
 							else:
 								part = Partition(mountpoint=self.getMountpoint(partition, skiproot=True), description=description, force_mounted=True, device=partition)
 							self.partitions.append(part)
