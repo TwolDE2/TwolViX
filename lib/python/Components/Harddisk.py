@@ -816,8 +816,7 @@ class HarddiskManager:
 							description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 							print(f"[Harddisk][enumerateBlockDevices]### Found partition '{partition}', description='{description}', device='{physicalDevice}' mountpoint='{self.getMountpoint(partition)}.")
 							if boxModel in ("dm900", "dm920") and partition == "mmcblk0p3" and self.getMountpoint(partition) == None:
-								self.mount_device = mountpoint = "/media/data/"
-								self.disk_path = "/dev/mmcblk0p3"
+								mountpoint = "/media/data/"
 								newFstab = fileReadLines("/etc/fstab")
 								newFstab.append("/dev/mmcblk0p3 /media/data ext4 rw, relatime,data=ordered 0 0")
 								fileWriteLines("/etc/fstab", newFstab)
