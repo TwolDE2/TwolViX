@@ -69,8 +69,8 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/ehci-brcm.0/usb1/1-2/1-2:1.0", "Front panel USB"} 
 #elif HWGBTRIO4K // CHECKED
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.3/1-1.3:1.0", "Rear right microSD"},
-	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2/1-1.2:1.0", "Rear right USB"},
-	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Rear left USB 3.0"},
+	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2/1-1.2:1.0", "Rear USB 2.0"},
+	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Rear USB 3.0"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2:1.0", "Front panel USB"}
 #elif HWGBTRIO4KPRO // CHECKED
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2", "microSD"},
@@ -97,10 +97,10 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/rdb/f03e0000.sdhci/mmc_host/", "SD"},
 	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.1", "Front USB"},
 	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.1", "Front USB"},
-	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.4", "Rear USB right"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.4", "Rear USB right"},
-	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1", "Rear USB 3.0, left"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/2-1", "Rear USB 3.0, left"},
+	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.4", "Rear USB 2.0"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.4", "Rear USB 2.0"},
+	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1", "Rear USB 3.0"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/2-1", "Rear USB 3.0"},
 	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.3", "Rear USB-C"},
 	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.3", "Rear USB-C"}
 
@@ -157,12 +157,12 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/soc/f98a0000.xhci/usb4/", "Rear lower USB"},
 	{"/devices/platform/soc/f98a0000.xhci/usb3/", "Rear lower USB"}
 #elif HWSF8008M
-	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Right side - left USB 3.0"},
-	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Right side - right USB"}
+	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Right - USB 3.0"},
+	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Right - USB 2.0"}
 #elif HWSF8008
-	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Right side - left USB 3.0"},
-	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Right USB"},
-	{"/devices/platform/soc/f98a0000.xhci/usb4/3-1/3-1", "Right USB"},
+	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Right - USB 3.0"},
+	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Right USB 2.0"},
+	{"/devices/platform/soc/f98a0000.xhci/usb4/3-1/3-1", "Right USB 2.0"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2", "Rear USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.3", "Rear microSD"}
 #elif HWSFX6008 // CHECKED
