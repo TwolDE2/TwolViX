@@ -1,17 +1,16 @@
 
-from os import mkdir, remove
-from os import listdir, mkdir, rmdir
-from os.path import exists, ismount, join
+from os import listdir, mkdir, remove, rmdir
+from os.path import exists, isfile, ismount, join
 from twisted.internet import reactor
 from twisted.internet.protocol import Factory, Protocol
 
 from enigma import getDeviceDB, eTimer
 
-from Session import SessionObject
 from Components.Console import Console
 from Components.Harddisk import harddiskmanager, bytesToHumanReadable, getProcMounts
 from Plugins.Plugin import PluginDescriptor
 from Screens.MessageBox import MessageBox
+from Session import SessionObject
 from Tools.Directories import fileReadLines, fileWriteLines
 
 HOTPLUG_SOCKET = "/tmp/hotplug.socket"
