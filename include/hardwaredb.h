@@ -64,6 +64,9 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 #elif HWDUAL
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Rear USB 3.0"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Front USB"}
+#elif HWET7X00 // CHECKED
+	{"/devices/platform/ehci-brcm.0/usb1/1-1/1-1:1.0", "Rear USB"},
+	{"/devices/platform/ehci-brcm.0/usb1/1-2/1-2:1.0", "Front panel USB"} 
 #elif HWGBTRIO4K // CHECKED
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.3/1-1.3:1.0", "Rear right microSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2/1-1.2:1.0", "Rear right USB"},
@@ -100,9 +103,7 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/2-1", "Rear USB 3.0, left"},
 	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.3", "Rear USB-C"},
 	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.3", "Rear USB-C"}
-#elif HWET7X00 // CHECKED
-	{"/devices/platform/ehci-brcm.0/usb1/1-1/1-1:1.0", "Rear USB"},
-	{"/devices/platform/ehci-brcm.0/usb1/1-2/1-2:1.0", "Front panel USB"}  
+
 #elif HWH7
 	{"/devices/platform/rdb/f045a000.sata/ata1/", "SATA"},
 	{"/devices/platform/f0470500.ehci/usb2/", "Rear USB 3.0"},
