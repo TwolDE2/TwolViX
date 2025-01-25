@@ -37,7 +37,7 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 static std::unordered_map<std::string, std::string> HardwareDB{
 
-#ifdef HWDM900
+#ifdef HWDM900 // CHECKED
 	{"/devices/platform/brcmstb-ahci.0/ata1/", "SATA"},
 	{"/devices/rdb.4/f03e0000.sdhci/mmc_host/mmc0/", "eMMC"},
 	{"/devices/rdb.4/f03e0200.sdhci/mmc_host/mmc1/", "SD"},
@@ -49,7 +49,7 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/rdb.4/f0470500.ehci_v2/usb4/4-0:1.0", "Rear USB"},
 	{"/devices/rdb.4/f0470500.ehci_v2/usb4/4-1/4-1:1.0", "Rear USB"},
 	{"/devices/rdb.4/f0471000.xhci_v2/usb2/2-0:1.0", "Rear USB"}
-#elif HWDM920
+#elif HWDM920 // CHECKED
 	{"/devices/platform/brcmstb-ahci.0/ata1/", "SATA"},
 	{"/devices/rdb.4/f03e0000.sdhci/mmc_host/mmc0/", "eMMC"},
 	{"/devices/rdb.4/f03e0200.sdhci/mmc_host/mmc1/", "SD"},
@@ -71,7 +71,7 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.3/1-1.3", "Rear MicroSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2/1-1.2", "Rear Left USB"},
 	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Rear Right USB 3.0"}
-#elif HWGBQUAD4K
+#elif HWGBQUAD4K // CHECKED
 	{"/devices/platform/rdb/f045a000.sata/", "SATA"},
 	{"/devices/platform/rdb/f03e0000.sdhci/mmc_host/", "SD"},
 	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1:1.0", "Front USB"},
@@ -101,7 +101,7 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1", "Rear Left USB"},
 	{"/devices/platform/soc/f9880000.ohci/usb2/2-1/2-1", "Rear Right USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1", "Rear Right USB"}
-#elif HWGBUE4K
+#elif HWGBUE4K // CHECKED
 	{"/devices/platform/rdb/f045a000.sata/ata2/", "SATA"},
 	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1.1/3-1.1:", "Front USB"},
 	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/", "Rear USB 3.0"},
@@ -176,6 +176,9 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 #elif HWSX88V2 // CHECKED
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1", "Right USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2", "Left USB"}
+#elif HWSX988 // CHECKED
+	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2:1.0", "Right Side Front USB"},
+	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Right Side Rear USB"}
 #elif HWUSTYM4KPRO
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Right USB 3.0"},
 	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Right USB"},
@@ -187,32 +190,50 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/ehci-brcm.2/usb3/", "Front USB"},
 	{"/devices/platform/ehci-brcm.0/usb1/", "Rear Lower USB"},
 	{"/devices/platform/ehci-brcm.1/usb2/", "Rear Upper USB"}
-#elif HWVUDUO4K
+#elif HWVUDUO4K // CHECKED
 	{"/devices/platform/rdb/8b0a000.sata/", "SATA"},
-	{"/devices/platform/rdb/8b39000.xhci_v2/usb1/", "Front USB"},
-	{"/devices/platform/rdb/8b39000.xhci_v2/usb2/2-2/", "Rear Upper USB 3.0"},
-	{"/devices/platform/rdb/8b39000.xhci_v2/usb2/2-1/", "Rear Lower USB 3.0"}
-#elif HWVUDUO4KSE
+	{"/devices/platform/rdb/8b39000.xhci_v2/usb1/1-2/1-2.1/1-2.1:1.0", "Front USB"},
+	{"/devices/platform/rdb/8b39000.xhci_v2/usb2/2-2/2-2:1.0", "Rear Upper USB 3.0"},
+	{"/devices/platform/rdb/8b39000.xhci_v2/usb2/2-1/2-1:1.0", "Rear Lower USB 3.0"},
+	{"/devices/platform/rdb/8b39000.xhci_v2/usb1/1-1/1-1.2/1-1.2:1.0", "Rear Upper USB"},
+	{"/devices/platform/rdb/8b39000.xhci_v2/usb1/1-1/1-1.1/1-1.1:1.0", "Rear Lower USB"}
+#elif HWVUDUO4KSE // CHECKED
 	{"/devices/platform/rdb/f045a000.sata/", "SATA"},
-	{"/devices/platform/rdb/f0480500.ehci_v2/usb6/", "Front USB"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/", "Rear Upper USB 3.0"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/", "Rear Lower USB 3.0"}
-#elif HWVUSOLO4K
-	{"/devices/platform/strict-ahci.0/ata1/", "SATA"},
-	{"/devices/f0490600.ohci/usb10/", "Front USB"},
-	{"/devices/f0480400.ohci/usb7/", "Rear Lower USB 3.0"},
-	{"/devices/f0480600.ohci/usb8/", "Rear Upper USB 3.0"}
-#elif HWVUUNO4KSE
-	{"/devices/platform/rdb/f045a000.sata/ata1/", "SATA"},
-	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1", "Rear Lower USB 3.0"},
+	{"/devices/platform/rdb/f0480500.ehci_v2/usb6/6-1/6-1:1.0", "Front USB"},
+	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1:1.0", "Rear Lower USB"},
+	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1:1.0", "Rear Upper USB"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2:1.0", "Rear Upper USB 3.0"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/2-1:1.0", "Rear Lower USB 3.0"}
+#elif HWVUSOLO4K // CHECKED
+	{"/devices/platform/strict-ahci.0/ata1", "SATA"},
+	{"/devices/f0490500.ehci/usb6/6-1/6-1:1.0", "Front USB"},
+	{"/devices/f0481000.xhci/usb2/2-1/2-1:1.0", "Rear Lower USB 3.0"},
+	{"/devices/f0481000.xhci/usb2/2-2/2-2:1.0", "Rear Upper USB 3.0"},
+	{"/devices/f0480500.ehci/usb4/4-1/4-1:1.0", "Upper USB"},
+	{"/devices/f0480300.ehci/usb3/3-1/3-1:1.0", "Lower USB"}
+#elif HWVUUNO4K // NOT CHECKED
+	{"/devices/platform/rdb/f045a000.sata/ata1", "SATA"},
+	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1", "Rear Lower USB"},
 	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/2-1", "Rear Lower USB 3.0"},
-	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1", "Rear Upper USB 3.0"},
+	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1", "Rear Upper USB"},
 	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2", "Rear Upper USB 3.0"}
-#elif HWVUULTIMO4K
+#elif HWVUUNO4KSE // CHECKED
+	{"/devices/platform/rdb/f045a000.sata/ata1", "SATA"},
+	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1", "Rear Lower USB"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-1/2-1", "Rear Lower USB 3.0"},
+	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1", "Rear Upper USB"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2", "Rear Upper USB 3.0"}
+#elif HWVUULTIMO4K // CHECKED
 	{"/devices/platform/brcmstb-ahci.0/ata1", "SATA"},
 	{"/devices/rdb.1/f0471000.xhci_v2/usb2/2-1/2-1:1.0", "Rear Lower USB 3.0"},
 	{"/devices/rdb.1/f0471000.xhci_v2/usb2/2-2/2-2:1.0", "Rear Upper USB 3.0"},
+	{"/devices/rdb.1/f0470500.ehci_v2/usb4/4-1/4-1:1.0", "Rear Upper USB"},
+	{"/devices/rdb.1/f0470300.ehci_v2/usb3/3-1/3-1:1.0", "Rear Lower USB"},
 	{"/devices/rdb.1/f0480500.ehci_v2/usb6/6-1/6-1:1.0", "Front USB"}
+#elif HWVUZERO // NOT CHECKED
+	{"/devices/platform/ehci-brcm.2/usb1", "USB"}
+#elif HWVUZERO4K // CHECKED
+	{"/devices/platform/rdb/f0b00300.ehci_v2/usb1/1-1/1-1:1.0", "Rear USB"}
 #else
 
 #endif
