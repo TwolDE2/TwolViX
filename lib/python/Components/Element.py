@@ -79,12 +79,15 @@ class Element:
 		self.sources = []
 
 	def disconnectDownstream(self, downstream):
-		self.downstream_elements.remove(downstream)
-		if self.master == downstream:
-			self.master = None
+		try:
+			self.downstream_elements.remove(downstream)
+			if self.master == downstream:
+				self.master = None
 
-		if len(self.downstream_elements) == 0:
-			self.disconnectAll()
+			if len(self.downstream_elements) == 0:
+				self.disconnectAll()
+		except AttributeError:
+			print("[Element][disconnectDownstream] fail Nonetype")
 
 	# default action: push downstream
 	def changed(self, *args, **kwargs):
