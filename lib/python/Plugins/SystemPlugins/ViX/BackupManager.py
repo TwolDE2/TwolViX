@@ -5,7 +5,6 @@ import tarfile
 import glob
 from enigma import eTimer, eEnv, eDVBDB, quitMainloop
 
-from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import configfile, config, ConfigSubsection, ConfigYesNo, ConfigSelection, ConfigText, ConfigNumber, ConfigLocations, NoSave, ConfigClock, ConfigDirectory
@@ -90,35 +89,6 @@ config.backupmanager.lastbackup = ConfigNumber(default=0)
 #
 config.backupmanager.types_to_prune = ConfigSelection(default="none", choices=[("all", _("All")), ("none", _("None")), ("sch", _("Only scheduled")), ("auto", _("Automatically created"))])
 config.backupmanager.number_to_keep = ConfigNumber(default=0)
-
-
-def isRestorableSettings(imageversion):
-	# This check should no longer be necessary
-	return True
-# 	minimum_version = 4.2
-# 	try:
-# 		imageversion = float(imageversion)
-# 	except:
-# 		return False
-# 	return imageversion >= minimum_version
-
-
-def isRestorablePlugins(imageversion):
-	# This check should no longer be necessary
-	return True
-# 	minimum_version = 4.2
-# 	try:
-# 		imageversion = float(imageversion)
-# 	except:
-# 		return False
-# 	return imageversion >= minimum_version
-
-
-def isRestorableKernel(kernelversion):
-	# This check should no longer be necessary since auto-installed packages are no longer listed in the plugins backup.
-	# For more information please consult commit https://github.com/OpenViX/vix-core/commit/53a95067677651a3f2579a1b0d1f70172ccc493b
-	return True
-	# return kernelversion == about.getKernelVersionString()
 
 
 def BackupManagerautostart(reason, session=None, **kwargs):
@@ -271,10 +241,10 @@ class VIXBackupManager(Screen):
 				["ColorActions", "OkCancelActions", "DirectionActions", "MenuActions", "TimerEditActions"],
 				{
 					"cancel": self.close,
-					"ok": self.keyResstore,
+					"ok": self.keyRestore,
 					"red": self.keyDelete,
 					"green": self.GreenPressed,
-					"yellow": self.keyResstore,
+					"yellow": self.keyRestore,
 					"menu": self.createSetup,
 					"log": self.showLog,
 				}, -1)
@@ -375,7 +345,7 @@ class VIXBackupManager(Screen):
 				self.showJobView(job)
 				break
 
-	def keyResstore(self):
+	def keyRestore(self):
 		self.sel = self["list"].getCurrent()
 		if not self.BackupRunning:
 			if self.sel:
@@ -1114,14 +1084,15 @@ class BackupFiles(Screen):
 			print("[BackupManager] Plugin listing failed - e. g. wrong backup destination or no space left on backup device")
 
 	def Stage3(self):
-		print("[BackupManager] Finding kernel version:" + about.getKernelVersionString())
-		output = open("/tmp/backupkernelversion", "w")
-		output.write(about.getKernelVersionString())
-		output.close()
-		print("[BackupManager] Finding image version:" + about.about.getVersionString())
-		output = open("/tmp/backupimageversion", "w")
-		output.write(about.about.getVersionString())
-		output.close()
+		# Files for reference only. No longer used by the restore process.
+		# The version check is no longer be necessary since auto-installed packages are no longer listed in the plugins backup.
+		# For more information please consult commit https://github.com/OpenViX/vix-core/commit/53a95067677651a3f2579a1b0d1f70172ccc493b
+		print("[BackupManager] Finding kernel version:", SystemInfo["kernel"])
+		with open("/tmp/backupkernelversion", "w") as output:
+			output.write(SystemInfo["kernel"])
+		print("[BackupManager] Finding image version:", SystemInfo["imageversion"])
+		with open("/tmp/backupimageversion", "w") as output:
+			output.write(SystemInfo["imageversion"])
 		self.Stage3Completed = True
 
 	def Stage4(self):
@@ -1136,7 +1107,7 @@ class BackupFiles(Screen):
 				output.close()
 		self.Stage4Completed = True
 
-	tar_flist = "/tmp/_backup-files.list"					# Filename for backup list
+	tar_flist = "/tmp/_backup-files.list"  # Filename for backup list
 
 	def Stage5(self):
 		# Return config.usage.power.was_controlled_shutdown to the default value so it doesn't polute the settings file saved by the backup
@@ -1146,8 +1117,8 @@ class BackupFiles(Screen):
 
 		tmplist = config.backupmanager.backupdirs.value
 		tmplist.append("/tmp/ExtraInstalledPlugins")
-		tmplist.append("/tmp/backupkernelversion")
-		tmplist.append("/tmp/backupimageversion")
+		tmplist.append("/tmp/backupkernelversion")  # Files for reference only. No longer used by the restore process.
+		tmplist.append("/tmp/backupimageversion")  # Files for reference only. No longer used by the restore process.
 		if path.exists("/tmp/3rdPartyPlugins"):
 			tmplist.append("/tmp/3rdPartyPlugins")
 		if path.exists("/tmp/3rdPartyPluginsLocation"):
