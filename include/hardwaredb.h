@@ -113,19 +113,19 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/f0470300.ehci/usb1/1-1/1-1.2/", "Rear USB Lower"},
 	{"/devices/platform/f0470300.ehci/usb1/1-1/1-1.1/", "Rear USB Upper"}
 #elif HWH9 // CHECKED
-	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc0/mmc0:0007", "Rear microSD"},
+	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc0/mmc0", "Rear microSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Rear USB"}
 #elif HWH9COMBO // CHECKED
-	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1/mmc1:0007", "Rear microSD"},
+	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1/mmc1", "Rear microSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Rear USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2.4/1-2.4:1.0", "Front panel USB"}
 #elif HWH9COMBOSE // CHECKED
 	{"/devices/platform/soc/f9900000.hiahci/ata1/host0/target0:0:0/0:0:0:0", "SATA"},
-	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1/mmc1:1234", "Rear MicroSD"},
+	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1/mmc1", "Rear MicroSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Rear USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2.4/1-2.4:1.0", "Front USB"}
 #elif HWH9SSE
-	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1/mmc1:1234", "Rear MicroSD"},
+	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1/mmc1", "Rear MicroSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Rear USB"}
 #elif HWH10 // CHECKED
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1", "Rear USB left"},
