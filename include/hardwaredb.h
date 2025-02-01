@@ -28,15 +28,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 For more details about the CC BY-NC-SA 4.0 License, please visit:
 https://creativecommons.org/licenses/by-nc-sa/4.0/
-*/
-/* 
-Note: when creating a list of a receivers USB locations and phyical attachments, 
+
+
+Note: when creating a list of a receivers USB locations and phyical attachments,
 typically a USB 2.0 device will use a different connection than a USB 3.0 device.
 In most situations an ehci attachment is USB 2.0, xhci attachment is USB 3.0.
 In most receivers there will be both ehci & xchi attachments for a USB port.
 
-Front locations are from viewing the receiver from the front of the receiver. 
-Rear locations are from viewing the receiver from behind.
+Front locations are from viewing the receiver from the front.
+Rear locations are from viewing the receiver from the back.
 */
 
 #ifndef __hardwaredb_h
