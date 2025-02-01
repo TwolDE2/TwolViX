@@ -29,6 +29,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 For more details about the CC BY-NC-SA 4.0 License, please visit:
 https://creativecommons.org/licenses/by-nc-sa/4.0/
 */
+/* 
+Note: when creating a list of a receivers USB locations and phyical attachments, 
+typically a USB 2.0 device will use a different connection than a USB 3.0 device.
+In most situations an ehci attachment is USB 2.0, xhci attachment is USB 3.0.
+In most receivers there will be both ehci & xchi attachments for a USB port.
+
+Front locations are from viewing the receiver from the front of the receiver. 
+Rear locations are from viewing the receiver from behind.
+*/
 
 #ifndef __hardwaredb_h
 #define __hardwaredb_h
@@ -69,16 +78,16 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/ehci-brcm.0/usb1/1-2/1-2:1.0", "Front panel USB"} 
 #elif HWGBIP4K // CHECKED
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.3/1-1.3", "Rear MicroSD"},
-	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2/1-1.2", "Rear Left USB"},
-	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Rear Right USB 3.0"}
+	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2/1-1.2", "Rear Right USB"},
+	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Rear Left USB 3.0"}
 #elif HWGBQUAD4K // CHECKED
 	{"/devices/platform/rdb/f045a000.sata/", "SATA"},
 	{"/devices/platform/rdb/f03e0000.sdhci/mmc_host/", "SD"},
 	{"/devices/platform/rdb/f0470300.ehci_v2/usb3/3-1/3-1:1.0", "Front USB"},
-	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.4/4-1.4:1.0", "Rear Right USB"},
-	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.3/4-1.3:1.0", "Rear Left USB"},
-	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.4/2-2.4:1.0", "Rear Right USB 3.0"},
-    	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.3/2-2.3:1.0", "Rear Left USB 3.0"},
+	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.4/4-1.4:1.0", "Rear Left USB"},
+	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.3/4-1.3:1.0", "Rear Right USB"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.4/2-2.4:1.0", "Rear Left USB 3.0"},
+	{"/devices/platform/rdb/f0471000.xhci_v2/usb2/2-2/2-2.3/2-2.3:1.0", "Rear Right USB 3.0"},
 	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.2/4-1.2:1.0", "Rear Lower USB"},
 	{"/devices/platform/rdb/f0470500.ehci_v2/usb4/4-1/4-1.1/4-1.1:1.0", "Rear Upper USB"}
 #elif HWGBQUAD4KPRO // CHECKED
@@ -96,12 +105,12 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.3/1-1.3:1.0", "Rear Right MicroSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.2/1-1.2:1.0", "Rear Right USB"},
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Rear Left USB 3.0"},
-	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1:1.0", "Rear Left USB 3.0"},	
+	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1:1.0", "Rear Left USB 3.0"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2:1.0", "Front USB"}
 #elif HWGBTRIO4KPRO // CHECKED
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2", "MicroSD"},
-	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Rear Left USB"},
-	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1", "Rear Left USB"},
+	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Rear Left USB 3.0"},
+	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1", "Rear Left USB 3.0"},
 	{"/devices/platform/soc/f9880000.ohci/usb2/2-1/2-1", "Rear Right USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1", "Rear Right USB"}
 #elif HWGBUE4K // CHECKED
@@ -146,9 +155,9 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 #elif HWHD51 // CHECKED
 	{"/devices/platform/rdb/f045a000.sata/ata1/", "SATA"},
 	{"/devices/platform/f0470300.ehci/usb1/1-1/1-1.2", "Front USB"},
-	{"/devices/platform/f0470300.ehci/usb1/1-1/1-1.3", "Rear USB left"},
-	{"/devices/platform/f0471000.xhci/usb6/6-2/6-2", "Rear USB right"},
-	{"/devices/platform/f0470500.ehci/usb2/2-1/2-1", "Rear USB right"}
+	{"/devices/platform/f0470300.ehci/usb1/1-1/1-1.3", "Rear left USB"},
+	{"/devices/platform/f0471000.xhci/usb6/6-2/6-2", "Rear right USB"},
+	{"/devices/platform/f0470500.ehci/usb2/2-1/2-1", "Rear right USB"}
 #elif HWHD61 // CHECKED
 	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1", "Front panel, microSD"}, 
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1", "Front panel USB"},
