@@ -168,7 +168,7 @@ class HotPlugManager:
 				description = ""
 				for physdevprefix, pdescription in list(getDeviceDB().items()):
 					if DEVPATH.startswith(physdevprefix):
-						description = f"\n{pdescription}"
+						description = f"\n{_(pdescription)}"
 
 				text = f"{_("A new storage device has been connected:")}\n{ID_MODEL} - ({bytesToHumanReadable(ID_PART_ENTRY_SIZE * 512)})\n{description}"
 
