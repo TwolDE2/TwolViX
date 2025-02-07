@@ -184,6 +184,7 @@ static std::unordered_map<std::string, std::string> HardwareDB{
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Right USB 3.0"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Right USB 2.0"}
 #elif HWSF8008
+	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1.4", "Internal NVMe"},
 	{"/devices/platform/soc/f98a0000.xhci/usb3/3-1/3-1:1.0", "Right USB 3.0"},
 	{"/devices/platform/soc/f98a0000.xhci/usb4/4-1/4-1", "Right USB"},
 	{"/devices/platform/soc/f98a0000.xhci/usb4/3-1/3-1", "Right USB"},
