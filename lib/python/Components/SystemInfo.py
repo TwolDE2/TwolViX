@@ -138,11 +138,11 @@ def getRCFile(ext):
 
 def setRCFile(source):
 	if source == "hardware":
-		SystemInfo["RCName"] = RCNAME			
+		SystemInfo["RCName"] = RCNAME
 		SystemInfo["RCImage"] = getRCFile("png")
 		SystemInfo["RCMapping"] = getRCFile("xml")
 	else:
-		SystemInfo["RCName"] = rc_model.getRcFolder()	
+		SystemInfo["RCName"] = rc_model.getRcFolder()
 		SystemInfo["RCImage"] = resolveFilename(SCOPE_SKIN, pathjoin("rc_models", SystemInfo["rc_model"], "rc.png"))
 		SystemInfo["RCMapping"] = resolveFilename(SCOPE_SKIN, pathjoin("rc_models", SystemInfo["rc_model"], "rcpositions.xml"))
 	if not (isfile(SystemInfo["RCImage"]) and isfile(SystemInfo["RCMapping"])):
