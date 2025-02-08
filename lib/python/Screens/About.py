@@ -11,7 +11,7 @@ from Components.Network import iNetwork
 from Components.NimManager import nimmanager
 from Components.Pixmap import MultiPixmap
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, CHIPSET, SOC_BRAND
+from Components.SystemInfo import SystemInfo, CHIPSET, SOC_BRAND, RCNAME
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
@@ -65,7 +65,7 @@ class About(AboutBase):
 		if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbx34k", "gbquad4kpro"):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
 				AboutText += _("Bolt:%s\n") % f.read().strip()[0:4]
-
+		AboutText += _("Remote:\t%s\n") % RCNAME
 		tempinfo = ""
 		if path.exists("/proc/stb/sensors/temp0/value"):
 			with open("/proc/stb/sensors/temp0/value", "r") as f:
