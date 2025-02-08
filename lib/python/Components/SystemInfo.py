@@ -130,7 +130,7 @@ def getBoxDisplayName():  # This function returns a tuple like ("BRANDNAME", "BO
 
 
 def getRCFile(ext):
-	filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", f"{BoxInfo.getItem('rcname')}.{ext}"))
+	filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", f"{RCNAME}.{ext}"))
 	if not isfile(filename):
 		filename = resolveFilename(SCOPE_SKIN, pathjoin("hardware", f"dmm1.{ext}"))
 	return filename
@@ -138,9 +138,11 @@ def getRCFile(ext):
 
 def setRCFile(source):
 	if source == "hardware":
+		SystemInfo["RCName"] = RCNAME			
 		SystemInfo["RCImage"] = getRCFile("png")
 		SystemInfo["RCMapping"] = getRCFile("xml")
 	else:
+		SystemInfo["RCName"] = rc_model.getRcFolder()	
 		SystemInfo["RCImage"] = resolveFilename(SCOPE_SKIN, pathjoin("rc_models", SystemInfo["rc_model"], "rc.png"))
 		SystemInfo["RCMapping"] = resolveFilename(SCOPE_SKIN, pathjoin("rc_models", SystemInfo["rc_model"], "rcpositions.xml"))
 	if not (isfile(SystemInfo["RCImage"]) and isfile(SystemInfo["RCMapping"])):
@@ -188,9 +190,9 @@ SystemInfo["DeveloperImage"] = SystemInfo["imagetype"].lower() != "release"
 SystemInfo["FCCactive"] = False
 SystemInfo["rc_model"] = rc_model.getRcFolder()
 SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
-SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4")  # due to button limitations of the remote control
-SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("abcom", "ax4", "beyonwiz1", "beyonwiz2", "gb3", "gb4", "gb5", "gb6", "gb7", "octagon1", "octagon3", "octagon4", "qviart5", "qviart7", "sf8008", "sf8008m", "uclan1", "uniboxhde")  # due to button limitations of the remote control
-SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",)  # Allow multiple functions only if both buttons are present
+SystemInfo["mapKeyInfoToEpgFunctions"] = RCNAME in ("vu", "vu2", "vu3", "vu4")  # due to button limitations of the remote control
+SystemInfo["toggleTvRadioButtonEvents"] = RCNAME in ("abcom", "ax4", "beyonwiz1", "beyonwiz2", "gb3", "gb4", "gb5", "gb6", "gb7", "octagon1", "octagon3", "octagon4", "qviart5", "qviart7", "sf8008", "sf8008m", "uclan1", "uniboxhde")  # due to button limitations of the remote control
+SystemInfo["hasDuplicateVideoAndPvrButtons"] = RCNAME in ("edision3",)  # Allow multiple functions only if both buttons are present
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
