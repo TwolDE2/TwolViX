@@ -508,7 +508,7 @@ def InitAVSwitch():
 		default = "auto"
 		if SystemInfo["boxtype"] == "gbquad4kpro":
 			choices = [("10bit", "10bit"), ("12bit", "12bit")]
-			default = "10bit"		
+			default = "10bit"
 		elif SystemInfo["havehdmicolordepthchoices"] and SystemInfo["CanProc"]:
 			f = "/proc/stb/video/hdmi_colordepth_choices"
 			(choices, default) = readChoices(f, choices, default)
@@ -849,6 +849,7 @@ def InitAVSwitch():
 		config.av.scaler_sharpness = NoSave(ConfigNothing())
 	config.av.edid_override = ConfigYesNo(default=False)
 	iAVSwitch.setConfiguredMode()
+
 
 class VideomodeHotplug:
 	def __init__(self):
