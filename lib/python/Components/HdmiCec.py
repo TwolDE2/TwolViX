@@ -389,7 +389,6 @@ class HdmiCec:
 			printX("[HdmiCEC][init] no set physical address ")
 			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver					
 					
-
 	def messageReceived(self, message):
 		if config.hdmicec.enabled.value:
 			data = 16 * "\x00"
