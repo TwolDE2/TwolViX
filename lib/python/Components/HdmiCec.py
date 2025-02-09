@@ -343,7 +343,7 @@ class HdmiCec:
 	instance = None
 
 	def __init__(self):
-		if config.hdmicec.enabled.value:	
+		if config.hdmicec.enabled.value:
 			assert HdmiCec.instance is None, "only one HdmiCec instance is allowed!"
 			HdmiCec.instance = self
 			self.wait = eTimer()
@@ -387,8 +387,8 @@ class HdmiCec:
 					self.onLeaveStandby()
 		else:
 			printX("[HdmiCEC][init] no set physical address ")
-			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver					
-					
+			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver
+
 	def messageReceived(self, message):
 		if config.hdmicec.enabled.value:
 			data = 16 * "\x00"
