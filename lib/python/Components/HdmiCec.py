@@ -357,10 +357,12 @@ class HdmiCec:
 		self.delay.timeout.get().append(self.sendStandbyMessages)
 		self.useStandby = True
 		self.handlingStandbyFromTV = False
+		print(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
+		config.hdmicec.fixed_physical_address.value = getPhysicalAddress()
 		if config.hdmicec.enabled.value:
 			countDots = config.hdmicec.fixed_physical_address.value.count(".")
 			printX(f"[HdmiCEC][init]2countDots:{countDots}")
-			if countDots == 3 and config.hdmicec.fixed_physical_address.value[1:3] != ".0":
+			if countDots == 3 and config.hdmicec.fixed_physical_address.value[1:3] != ".0" and config.hdmicec.change_physaddress.value:
 				try:
 					printX(f"[HdmiCEC][init]phsyical address changed by setup value:{config.hdmicec.fixed_physical_address.value}")
 					setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
