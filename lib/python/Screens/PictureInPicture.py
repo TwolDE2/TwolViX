@@ -223,7 +223,7 @@ class PictureInPicture(Screen):
 		if service is None:
 			return False
 		from Screens.InfoBarGenerics import streamrelay
-		ref = streamrelay.streamrelayChecker(self.resolveAlternatePipService(service))
+		ref = streamrelay.streamrelayChecker(self.resolveAlternatePipService(service))[0]
 		for f in PictureInPicture.playServiceExtensions:
 			ref = f(self, ref)
 		if ref:
