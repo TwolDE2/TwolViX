@@ -23,6 +23,7 @@ import RecordTimer
 class Navigation:
 	playServiceExtensions = []
 	recordServiceExtensions = []
+
 	def __init__(self, nextRecordTimerAfterEventActionAuto=False, nextPowerManagerAfterEventActionAuto=False):
 		if NavigationInstance.instance is not None:
 			raise NavigationInstance.instance

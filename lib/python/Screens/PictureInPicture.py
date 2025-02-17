@@ -85,6 +85,7 @@ class PictureInPictureZapping(Screen):
 
 class PictureInPicture(Screen):
 	playServiceExtensions = []
+
 	def __init__(self, session):
 		global pip_config_initialized
 		Screen.__init__(self, session)
