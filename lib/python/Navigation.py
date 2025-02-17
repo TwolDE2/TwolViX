@@ -116,7 +116,7 @@ class Navigation:
 		if ref is None:
 			self.stopService()
 			return 0
-		
+
 		InfoBarInstance = InfoBar.instance
 
 		oldref = self.currentlyPlayingServiceOrGroup
@@ -263,7 +263,7 @@ class Navigation:
 		if not self.currentlyPlayingServiceOrGroup:
 			return None
 		return self.originalPlayingServiceReference or self.currentlyPlayingServiceOrGroup
-	
+
 	def getCurrentServiceReferenceOriginal(self):
 		return self.originalPlayingServiceReference
 
