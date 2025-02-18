@@ -104,8 +104,11 @@ class Screen(dict):
 
 	def doClose(self):  # Never call this directly - it will be called from the session!
 		self.hide()
-		for x in self.onClose:
-			x()
+		try:
+			for x in self.onClose:
+				x()
+		except:
+			pass
 		try:
 			del self.helpList  # Fixup circular references if present.
 		except:
