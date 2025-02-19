@@ -161,7 +161,7 @@ class ServiceName(Converter):
 			tp_data = info.getInfoObject(iServiceInformation.sTransponderData)
 		else:
 			tp_data = sref and self.source.info.getInfoObject(sref, iServiceInformation.sTransponderData)
-			
+
 		if tp_data is not None:
 			try:
 				position = tp_data["orbital_position"]
