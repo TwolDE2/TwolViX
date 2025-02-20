@@ -1,7 +1,7 @@
 from os.path import exists
 from time import time
 
-from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference, iServiceInformation, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr
+from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr
 
 from Components.config import config
 from Components.ParentalControl import parentalControl
@@ -237,14 +237,14 @@ class Navigation:
 					self.retryServicePlayTimer.callback.append(boundFunction(self.playService, ref, checkParentalControl, forceRestart, adjust))
 					self.retryServicePlayTimer.start(config.misc.softcam_streamrelay_delay.value, True)
 				elif not is_handled and self.pnav.playService(playref):
-						self.currentlyPlayingServiceReference = None
-						self.originalPlayingServiceReference = None
-						self.currentlyPlayingServiceOrGroup = None
-						if oldref and "://" in oldref.getPath():
-							print("[Navigation] Streaming was active -> try again")  # use timer to give the streamserver the time to deallocate the tuner
-							self.retryServicePlayTimer = eTimer()
-							self.retryServicePlayTimer.callback.append(boundFunction(self.playService, ref, checkParentalControl, forceRestart, adjust))
-							self.retryServicePlayTimer.start(500, True)
+					self.currentlyPlayingServiceReference = None
+					self.originalPlayingServiceReference = None
+					self.currentlyPlayingServiceOrGroup = None
+					if oldref and "://" in oldref.getPath():
+						print("[Navigation] Streaming was active -> try again")  # use timer to give the streamserver the time to deallocate the tuner
+						self.retryServicePlayTimer = eTimer()
+						self.retryServicePlayTimer.callback.append(boundFunction(self.playService, ref, checkParentalControl, forceRestart, adjust))
+						self.retryServicePlayTimer.start(500, True)
 				self.skipServiceReferenceReset = False
 				if setPriorityFrontend:
 					setPreferredTuner(int(config.usage.frontend_priority.value))
