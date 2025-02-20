@@ -395,7 +395,7 @@ def parseScale(s):
 		try:
 			val = int(eval(s))
 		except Exception as err:
-			print(f"[Skin] {type(err).__name__} '{err}': size formula '{val}', processed to '{s}', cannot be evaluated!")
+			print(f"[Skin] {type(err).__name__} '{err}': size formula '{s}' cannot be evaluated!")
 			val = 0
 	return val
 
