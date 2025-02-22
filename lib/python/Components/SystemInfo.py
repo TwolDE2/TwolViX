@@ -188,7 +188,7 @@ SystemInfo["MachineBrand"] = DISPLAYBRAND
 SystemInfo["MachineName"] = SystemInfo["machinename"]
 SystemInfo["DeveloperImage"] = SystemInfo["imagetype"].lower() != "release"
 SystemInfo["FCCactive"] = False
-# The remote names used in the code below are the names used by oe-mirrors/branding-module, 
+# The remote names used in the code below are the names used by oe-mirrors/branding-module,
 # so we must compare against rc_model.getRcFolder() which is also part of branding-module.
 # Remote names at oe-alliance/remotes are different in some cases so we must stick to
 # one standard on both sides of the comparison.
