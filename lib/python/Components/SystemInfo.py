@@ -188,11 +188,14 @@ SystemInfo["MachineBrand"] = DISPLAYBRAND
 SystemInfo["MachineName"] = SystemInfo["machinename"]
 SystemInfo["DeveloperImage"] = SystemInfo["imagetype"].lower() != "release"
 SystemInfo["FCCactive"] = False
+# The remote names used in the code below are the names used by oe-mirrors/branding-module, 
+# so we must compare against rc_model.getRcFolder() which is also part of branding-module.
+# Remote names at oe-alliance/remotes are different in some cases so we must stick to
+# one standard on both sides of the comparison.
 SystemInfo["rc_model"] = rc_model.getRcFolder()
-SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
-SystemInfo["mapKeyInfoToEpgFunctions"] = RCNAME in ("vu", "vu2", "vu3", "vu4")  # due to button limitations of the remote control
-SystemInfo["toggleTvRadioButtonEvents"] = RCNAME in ("abcom", "ax4", "beyonwiz1", "beyonwiz2", "gb3", "gb4", "gb5", "gb6", "gb7", "octagon1", "octagon3", "octagon4", "qviart5", "qviart7", "sf8008", "sf8008m", "uclan1", "uniboxhde")  # due to button limitations of the remote control
-SystemInfo["hasDuplicateVideoAndPvrButtons"] = RCNAME in ("edision3",)  # Allow multiple functions only if both buttons are present
+SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4")  # due to button limitations of the remote control
+SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("abcom", "ax4", "beyonwiz1", "beyonwiz2", "gb3", "gb4", "gb5", "gb6", "gb7", "octagon1", "octagon3", "octagon4", "qviart5", "qviart7", "sf8008", "sf8008m", "uclan1", "uniboxhde")  # due to button limitations of the remote control
+SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",)  # Allow multiple functions only if both buttons are present
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
