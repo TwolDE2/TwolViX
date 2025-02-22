@@ -99,7 +99,7 @@ def buildPartitionInfo(partition, partitionList):
 	for physdevprefix, pdescription in list(getDeviceDB().items()):
 		print(f"[MountManager][port] physdevprefix:{physdevprefix} pdescription:{pdescription}")
 		if physicalDevice.replace("/sys", "").startswith(physdevprefix):
-			portDescription = f"\n{_(pdescription)}"
+			portDescription = _(pdescription)
 	print(f"[MountManager] portDescription:{portDescription}")
 
 	description = readFile(path.join(physicalDevice, "model"))
