@@ -193,6 +193,7 @@ SystemInfo["FCCactive"] = False
 # Remote names at oe-alliance/remotes are different in some cases so we must stick to
 # one standard on both sides of the comparison.
 SystemInfo["rc_model"] = rc_model.getRcFolder()
+SystemInfo["rc_default"] = SystemInfo["rc_model"] in ("dmm0", )
 SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2", "vu3", "vu4")  # due to button limitations of the remote control
 SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("abcom", "ax4", "beyonwiz1", "beyonwiz2", "gb3", "gb4", "gb5", "gb6", "gb7", "octagon1", "octagon3", "octagon4", "qviart5", "qviart7", "sf8008", "sf8008m", "uclan1", "uniboxhde")  # due to button limitations of the remote control
 SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",)  # Allow multiple functions only if both buttons are present
