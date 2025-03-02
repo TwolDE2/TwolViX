@@ -470,7 +470,8 @@ print(f"[StartEnigma]  Image Version -> {SystemInfo['imageversion']}")
 print(f"[StartEnigma]  Image Build -> {SystemInfo['imagebuild']}")
 if SystemInfo["imagetype"] != "release":
 	print(f"[StartEnigma]  Image DevBuild -> {SystemInfo['imagedevbuild']}")
-
+if SystemInfo["MultiBootSlot"]:
+	print(f"[StartEnigma]  Image Slot -> {SystemInfo['MultiBootSlot']}")
 
 # SetupDevices sets up defaults:- language, keyboard, parental & expert config.
 # Moving further down will break translation.
