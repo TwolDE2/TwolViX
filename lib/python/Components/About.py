@@ -16,8 +16,8 @@ def getCPUArch(MODEL):
 	else:
 		CPUArch = _("Mipsel")
 	return [CPUArch, getCPUSpeedString(MODEL), getCpuCoresString()]
-	
-	
+
+
 def getChipSetString(MODEL):
 	try:
 		return str(open("/proc/stb/info/chipset").read().lower().replace("\n", "").replace("brcm", "").replace("bcm", ""))

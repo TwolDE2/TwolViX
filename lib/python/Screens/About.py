@@ -11,7 +11,7 @@ from Components.Network import iNetwork
 from Components.NimManager import nimmanager
 from Components.Pixmap import MultiPixmap
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, CHIPSET, KERNEL, MODEL, RCNAME, SOC_BRAND 
+from Components.SystemInfo import SystemInfo, CHIPSET, KERNEL, MODEL, RCNAME, SOC_BRAND
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
@@ -78,7 +78,7 @@ def getsystemTemperature():
 	elif ospath.exists("/proc/stb/sensors/temp/value"):
 		with open("/proc/stb/sensors/temp/value", "r") as f:
 			tempinfo = f.read()
-	return tempinfo		
+	return tempinfo
 
 
 def getprocessorTemperature():
@@ -199,7 +199,7 @@ class About(AboutBase):
 		AboutText += _("Drivers:\t%s\n") % driversDate()
 		AboutText += _("Kernel:\t%s\n") % KERNEL
 		AboutText += _("GStreamer:\t%s\n") % getGStreamerVersionString().replace("GStreamer ", "")
-		AboutText += _("FFmpeg version:\t%s\n") % getFFmpegVersionString()		
+		AboutText += _("FFmpeg version:\t%s\n") % getFFmpegVersionString()
 		if isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value:
 			AboutText += _("4097 iptv player:\t%s\n") % config.plugins.serviceapp.servicemp3.player.value
 		else:
