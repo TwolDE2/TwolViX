@@ -48,6 +48,7 @@ def _formatDate(Date):
 	from Components.config import config
 	return config.usage.date.dateFormatAbout.value % {"year": Date[0:4], "month": Date[4:6], "day": Date[6:8]}
 
+
 def getFFmpegVersionString():
 	lines = fileReadLines("/var/lib/opkg/info/ffmpeg.control")
 	if lines:
@@ -65,6 +66,7 @@ def getGStreamerVersionString():
 	except:
 		return _("unknown")
 
+
 def getsystemTemperature():
 	tempinfo = ""
 	if ospath.exists("/proc/stb/sensors/temp0/value"):
@@ -77,6 +79,7 @@ def getsystemTemperature():
 		with open("/proc/stb/sensors/temp/value", "r") as f:
 			tempinfo = f.read()
 	return tempinfo		
+
 
 def getprocessorTemperature():
 	tempinfo = ""
@@ -96,6 +99,7 @@ def getprocessorTemperature():
 		except:
 			tempinfo = ""
 	return tempinfo
+
 
 class AboutBase(TextBox):
 	def __init__(self, session, labels=None):

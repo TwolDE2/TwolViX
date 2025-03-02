@@ -98,6 +98,7 @@ OEA = split(r'(\d.*)', BoxInfo.getItem("oe"))[1]
 SystemInfo["ArchIsARM"] = ARCHITECTURE.startswith(("arm", "cortex"))
 SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
 
+
 def getBoxType():  # this function mimics the function of the same name in branding module
 	if MACHINEBUILD == "sf8008":
 		boxtype = open("/proc/stb/info/type").read().strip()
