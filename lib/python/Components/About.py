@@ -1,11 +1,10 @@
 from fcntl import ioctl
 from socket import AF_INET, SOCK_DGRAM, inet_ntoa, socket
-from struct import pack, unpack
+from struct import pack
 
 from os import path as ospath
-from sys import modules, version_info
+from sys import modules
 from time import time
-from Tools.Directories import fileExists
 
 
 def getCPUArch(MODEL):

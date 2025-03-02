@@ -16,7 +16,7 @@ from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
 from Screens.TextBox import TextBox
-from Tools.Directories import fileHas, pathExists, isPluginInstalled, fileReadLines
+from Tools.Directories import fileHas, isPluginInstalled, fileReadLines
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
 
@@ -367,7 +367,7 @@ class Devices(Screen):
 				if self.mountinfo:
 					self.mountinfo += "\n"
 				self.mountinfo += "%s (%sB, %sB %s)" % (ipaddress, mounttotal, mountfree, _("free"))
-		if ospathExists("/media/autofs"):
+		if ospath.exists("/media/autofs"):
 			for entry in sorted(listdir("/media/autofs")):
 				mountEntry = ospath.join("/media/autofs", entry)
 				self.mountinfo += _("%s is also enabled for autofs network mount \n") % (mountEntry)
@@ -675,9 +675,7 @@ class AboutSummary(ScreenSummary):
 		SystemTemperature = getsystemTemperature()
 		if SystemTemperature and int(SystemTemperature.replace("\n", "")) > 0:
 			self.aboutText.append(_("System temperature: %s") % SystemTemperature.replace("\n", "") + "\xb0" + "C\n")
-		if ospath.exists("/proc/stb/info/chipset"):
-			chipset = open("/proc/stb/info/chipset", "r").read()
-			self.aboutText.append(_(f"Chipset: {CHIPSET}") + "\n")
+		self.aboutText.append(_(f"Chipset: {CHIPSET}") + "\n")
 		self.aboutText.append(_(f"Kernel: {KERNEL}") + "\n")
 		self.aboutText.append(_("Drivers: %s") % driversDate() + "\n")
 		self["AboutText"].text = "".join(self.aboutText)
