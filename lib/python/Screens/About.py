@@ -140,7 +140,7 @@ class About(AboutBase):
 		CPUArch = about.getCPUArch(MODEL)
 		AboutText += _("CPU:\t%s %s %s\n") % (CPUArch[0], CPUArch[1], CPUArch[2])
 
-		AboutText += _("SoC:\t%s\n") % SystemInfo["socfamily"].upper()
+		# AboutText += _("SoC:\t%s\n") % SystemInfo["socfamily"].upper()
 
 		if ospath.exists('/sys/firmware/devicetree/base/bolt/tag'):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
@@ -675,8 +675,8 @@ class AboutSummary(ScreenSummary):
 		SystemTemperature = getsystemTemperature()
 		if SystemTemperature and int(SystemTemperature.replace("\n", "")) > 0:
 			self.aboutText.append(_("System temperature: %s") % SystemTemperature.replace("\n", "") + "\xb0" + "C\n")
-		self.aboutText.append(_(f"Chipset: {CHIPSET}") + "\n")
-		self.aboutText.append(_(f"Kernel: {KERNEL}") + "\n")
+		self.aboutText.append(_("Chipset: %s") % CHIPSET.replace("\n", "") + "\n")
+		self.aboutText.append(_("Kernel: %s") % KERNEL + "\n")
 		self.aboutText.append(_("Drivers: %s") % driversDate() + "\n")
 		self["AboutText"].text = "".join(self.aboutText)
 		self.timer = eTimer()
