@@ -8,7 +8,7 @@ from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.SelectionList import SelectionList
 from Components.Sources.StaticText import StaticText
-from Screens.Console import Console
+from Components.Console import Console
 from Screens.Ipkg import Ipkg
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
@@ -36,7 +36,7 @@ class VIXIPKInstaller(Screen):
 		self.setTitle(_("IPK installer"))
 
 		self["lab1"] = Label()
-		self.defaultDir = "/tmp"
+		self.defaultDir = "/var/tmp"
 		self.onChangedEntry = []
 		self["myactions"] = ActionMap(
 			["ColorActions", "OkCancelActions", "DirectionActions", "MenuActions"],
@@ -52,7 +52,7 @@ class VIXIPKInstaller(Screen):
 		self["key_red"] = Button(_("Close"))
 		self["key_green"] = Button(_("Install"))
 		self["key_yellow"] = Button()
-
+		self.Console = Console()
 		self.list = []
 		self["list"] = MenuList(self.list)
 		self.populate_List()
@@ -77,7 +77,7 @@ class VIXIPKInstaller(Screen):
 			cb(name, desc)
 
 	def changelocation(self):
-		if self.defaultDir == "/tmp":
+		if self.defaultDir == "/var/tmp":
 			self["key_yellow"].setText(_("Extra IPK's"))
 			self.defaultDir = config.backupmanager.xtraplugindir.value
 			if not self.defaultDir:
@@ -92,11 +92,11 @@ class VIXIPKInstaller(Screen):
 				self.populate_List()
 		else:
 			self["key_yellow"].setText(_("Temp folder"))
-			self.defaultDir = "/tmp"
+			self.defaultDir = "/var//tmp"
 			self.populate_List()
 
 	def populate_List(self):
-		if self.defaultDir == "/tmp":
+		if self.defaultDir == "/var/tmp":
 			self["key_yellow"].setText(_("Extra IPK's"))
 		else:
 			self["key_yellow"].setText(_("Temp folder"))
@@ -133,9 +133,10 @@ class VIXIPKInstaller(Screen):
 			if sel:
 				cmd1 = f"/usr/bin/opkg install {sel}"
 				print(f"[IPKinstaller]4 sel:{sel}, cmd1:{cmd1}")
-				self.session.openWithCallback(self.installFinished(sel), Console, title=_("Installing..."), cmdlist=[cmd1], closeOnSuccess=True)
+				self.Console.ePopen(cmd1, self.installFinished)
 
-	def installFinished(self, sel):
+	def installFinished(self, result, retval, extra_args=None):
+		print(f"[IPKinstaller][installFinished] result:{result} retval:{retval}")
 		message = _("Do you want to restart GUI now ?")
 		ybox = self.session.openWithCallback(self.restBox, MessageBox, message, MessageBox.TYPE_YESNO)
 		ybox.setTitle(_("Restart GUI."))
@@ -173,7 +174,6 @@ class IpkgInstaller(Screen):
 		for listindex in range(len(list)):
 			if not list[listindex].split("/")[-1].startswith("._"):
 				self.list.addSelection(list[listindex].split("/")[-1], list[listindex], listindex, False)
-
 		self["key_red"] = StaticText(_("Close"))
 		self["key_green"] = StaticText(_("Install"))
 		self["key_yellow"] = StaticText()
