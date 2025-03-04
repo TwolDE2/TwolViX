@@ -147,7 +147,6 @@ class About(AboutBase):
 				AboutText += _("Bolt:%s\n") % f.read().strip()[0:4]
 		AboutText += _("Remote:\t%s\n") % SystemInfo["RCName"]
 
-
 		SystemTemperature = getsystemTemperature()
 		if SystemTemperature and int(SystemTemperature.replace("\n", "")) > 0:
 			AboutText += _("System temperature:\t%s") % SystemTemperature.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
