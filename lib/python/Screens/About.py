@@ -184,9 +184,9 @@ class About(AboutBase):
 				else:
 					image -= 1
 			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
-			part = _("slot %s (%s)") % (slot, slotType)
+			part = _("slot %s  (%s)") % (slot, slotType)
 			bootmode = _("bootmode = %s") % GetCurrentImageMode() if SystemInfo["canMode12"] else ""
-			AboutText += (_("Image Slot:\tStartup %s - %s %s") % (str(slot), part, bootmode)) + "\n"
+			AboutText += (_("Image Slot:\t %s %s") % (part, bootmode)) + "\n"
 
 		if SystemInfo["MachineName"] in ("ET8500") and ospath.exists("/proc/mtd"):
 			self.dualboot = self.dualBoot()
