@@ -145,8 +145,8 @@ class About(AboutBase):
 		if ospath.exists('/sys/firmware/devicetree/base/bolt/tag'):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
 				AboutText += _("Bolt:%s\n") % f.read().strip()[0:4]
+		AboutText += _("Remote:\t%s\n") % SystemInfo["RCName"]
 
-		AboutText += _("Remote:\t RCNAME:%s RCName:%s\n") % (RCNAME, SystemInfo["RCName"])
 
 		SystemTemperature = getsystemTemperature()
 		if SystemTemperature and int(SystemTemperature.replace("\n", "")) > 0:

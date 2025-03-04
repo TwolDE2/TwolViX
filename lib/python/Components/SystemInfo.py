@@ -80,7 +80,7 @@ elif BoxInfo.getItem("model") in ("hd51", "vs1500", "h7", "h17"):
 	CHIPSET = "7251S"
 else:
 	chipset = fileReadLine("/proc/stb/info/chipset")
-	CHIPSET = chipset.lower().replace("\n", "").replace("bcm", "").replace("brcm", "").replace("sti", "")
+	CHIPSET = chipset.lower().replace("\n", "").replace("bcm", "").replace("brcm", "").upper()
 
 ARCHITECTURE = BoxInfo.getItem("architecture")
 BRAND = BoxInfo.getItem("brand")
