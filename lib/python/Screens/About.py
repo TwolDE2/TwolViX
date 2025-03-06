@@ -147,7 +147,7 @@ class About(AboutBase):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
 				bootLoader = f.read().strip()[0:4]			
 				if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbquad4kpro"):			
-					AboutText += _("Bolt:%s\n") % bootLoader
+					AboutText += _("Bolt:\t%s\n") % bootLoader
 				else:
 					AboutText += _("Bootloader:\t%s\n") % (bootLoader)					
 		AboutText += _("Remote:\t%s\n") % SystemInfo["RCName"]
