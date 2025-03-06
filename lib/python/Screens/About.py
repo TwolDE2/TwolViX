@@ -137,7 +137,7 @@ class About(AboutBase):
 		Brands = {"meson": "MESON", "bcm": "Broadcom", "hisi": "Hisilicon"}
 		AboutText = ""
 		AboutText += _("Model:\t%s %s\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"])
-		AboutText += _("Chipset:\t%s %s\n") % (Brands.get(SOC_BRAND, SOC_BRAND), CHIPSET.replace("hi", "HI").replace("cv", "CV").replace("mv", "MV"))		
+		AboutText += _("Chipset:\t%s %s\n") % (Brands.get(SOC_BRAND, SOC_BRAND), CHIPSET.replace("hi", "HI").replace("cv", "CV").replace("mv", "MV"))
 		CPUArch = about.getCPUArch(MODEL)
 		AboutText += _("CPU:\t%s %s %s\n") % (CPUArch[0], CPUArch[1], CPUArch[2])
 
@@ -145,11 +145,11 @@ class About(AboutBase):
 
 		if ospath.exists('/sys/firmware/devicetree/base/bolt/tag'):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
-				bootLoader = f.read().strip()[0:4]			
-				if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbquad4kpro"):			
+				bootLoader = f.read().strip()[0:4]
+				if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbquad4kpro"):
 					AboutText += _("Bolt:%s\n") % bootLoader
 				else:
-					AboutText += _("Bootloader:\t%s\n") % (bootLoader)					
+					AboutText += _("Bootloader:\t%s\n") % (bootLoader)
 		AboutText += _("Remote:\t%s\n") % SystemInfo["RCName"]
 
 		SystemTemperature = getsystemTemperature()
