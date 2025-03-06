@@ -1,5 +1,6 @@
 from os import listdir, path as ospath, popen
 from re import search
+from sys import version_info
 from enigma import eTimer, getDesktop, getEnigmaLastCommitDate, getEnigmaLastCommitHash
 from Components.About import about
 from Components.ActionMap import ActionMap
@@ -136,7 +137,7 @@ class About(AboutBase):
 		Brands = {"meson": "MESON", "bcm": "Broadcom", "hisi": "Hisilicon"}
 		AboutText = ""
 		AboutText += _("Model:\t%s %s\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"])
-		AboutText += _("Chipset:\t%s %s\n") % (Brands.get(SOC_BRAND, SOC_BRAND), CHIPSET)
+		AboutText += _("Chipset:\t%s %s\n") % (Brands.get(SOC_BRAND, SOC_BRAND), CHIPSET.replace("hi", "HI").replace("cv", "CV").replace("mv", "MV"))		
 		CPUArch = about.getCPUArch(MODEL)
 		AboutText += _("CPU:\t%s %s %s\n") % (CPUArch[0], CPUArch[1], CPUArch[2])
 
@@ -144,7 +145,11 @@ class About(AboutBase):
 
 		if ospath.exists('/sys/firmware/devicetree/base/bolt/tag'):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
-				AboutText += _("Bolt:%s\n") % f.read().strip()[0:4]
+				bootLoader = f.read().strip()[0:4]			
+				if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbquad4kpro"):			
+					AboutText += _("Bolt:%s\n") % bootLoader
+				else:
+					AboutText += _("Bootloader:\t%s\n") % (bootLoader)					
 		AboutText += _("Remote:\t%s\n") % SystemInfo["RCName"]
 
 		SystemTemperature = getsystemTemperature()
@@ -203,7 +208,7 @@ class About(AboutBase):
 			AboutText += _("4097 iptv player:\t%s\n") % config.plugins.serviceapp.servicemp3.player.value
 		else:
 			AboutText += _("4097 iptv player:\tDefault player\n")
-		AboutText += _("Python:\t%s\n") % SystemInfo["python"]
+		AboutText += _("Python:\t%s.%s.%s\n") % (version_info.major, version_info.minor, version_info.micro)
 		AboutText += _("Last E2 update:\t%s (%s)\n") % (getLastCommitHash(), getLastCommitDate())
 		AboutText += _("E2 (re)starts:\t%s\n") % config.misc.startCounter.value
 		uptime = about.getBoxUptime()
@@ -674,7 +679,7 @@ class AboutSummary(ScreenSummary):
 		SystemTemperature = getsystemTemperature()
 		if SystemTemperature and int(SystemTemperature.replace("\n", "")) > 0:
 			self.aboutText.append(_("System temperature: %s") % SystemTemperature.replace("\n", "") + "\xb0" + "C\n")
-		self.aboutText.append(_("Chipset: %s") % CHIPSET.replace("\n", "") + "\n")
+		self.aboutText.append(_("Chipset: %s") % CHIPSET.replace("\n", "").upper() + "\n")
 		self.aboutText.append(_("Kernel: %s") % KERNEL + "\n")
 		self.aboutText.append(_("Drivers: %s") % driversDate() + "\n")
 		self["AboutText"].text = "".join(self.aboutText)

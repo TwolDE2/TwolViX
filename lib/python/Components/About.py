@@ -6,7 +6,6 @@ from os import path as ospath
 from sys import modules
 from time import time
 
-
 def getCPUArch(MODEL):
 	if MODEL.startswith("osmio4k"):
 		CPUArch = "ARM V7"
@@ -74,6 +73,13 @@ def getCPUString():
 		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if x.startswith(("system type", "model name", "Processor")) and len(x.split(": ")) > 1][0]
 	except:
 		return _("unavailable")
+
+
+def getKernelVersionString():
+	try:
+		return open("/proc/version").read().split(" ", 3)[2].split("-", 1)[0]
+	except:
+		return _("unknown")
 
 
 def getCpuCoresInt():

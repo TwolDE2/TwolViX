@@ -1,6 +1,6 @@
 from ast import literal_eval
-from os import listdir
 from hashlib import md5
+from os import listdir
 from os.path import isfile, join as pathjoin
 from re import split
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
@@ -80,7 +80,7 @@ elif BoxInfo.getItem("model") in ("hd51", "vs1500", "h7", "h17"):
 	CHIPSET = "7251S"
 else:
 	chipset = fileReadLine("/proc/stb/info/chipset")
-	CHIPSET = chipset.lower().replace("\n", "").replace("bcm", "").replace("brcm", "").upper()
+	CHIPSET = chipset.lower().replace("\n", "").replace("bcm", "").replace("brcm", "")
 
 ARCHITECTURE = BoxInfo.getItem("architecture")
 BRAND = BoxInfo.getItem("brand")
@@ -282,12 +282,12 @@ SystemInfo["hasScart"] = SystemInfo["scart"]
 SystemInfo["hasScartYUV"] = SystemInfo["scartyuv"]
 SystemInfo["hasYUV"] = SystemInfo["yuv"]
 # Videomodes
-SystemInfo["VideoModes"] = CHIPSET in (  # 2160p and 1080p capable hardware...
+SystemInfo["VideoModes"] = CHIPSET.replace("hi", "") in (  # 2160p and 1080p capable hardware...
 	"5272s", "7251", "7251s", "7252", "7252s", "7278", "7366", "7376", "7444s", "72604", "3798cv200", "3798mv200", "3798mv200advca", "3798mv200h", "3798mv300"
 ) and (
 	["720p", "1080p", "2160p", "2160p30", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
 	{"720p", "1080p", "2160p", "2160p30", "1080i"}  # Widescreen modes.
-) or CHIPSET in (  # 1080p capable hardware...
+) or CHIPSET.replace("hi", "") in (  # 1080p capable hardware...
 	"7241", "7356", "73565", "7358", "7362", "73625", "7424", "7425", "7552", "3716mv410", "3716mv430"
 ) and (
 	["720p", "1080p", "1080i", "576p", "576i", "480p", "480i"],  # Normal modes.
