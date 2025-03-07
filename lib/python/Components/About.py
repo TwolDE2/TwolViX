@@ -76,7 +76,7 @@ def getCPUString():
 		return _("unavailable")
 
 
-def getKernelVersionString(): # required by OpenWebif
+def getKernelVersionString():  # required by OpenWebif
 	try:
 		return open("/proc/version").read().split(" ", 3)[2].split("-", 1)[0]
 	except:
