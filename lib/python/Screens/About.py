@@ -144,7 +144,7 @@ class About(AboutBase):
 		if ospath.exists('/sys/firmware/devicetree/base/bolt/tag'):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
 				bootLoader = f.read().replace('\x00', '').replace('\n', '')
-				if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbquad4kpro"):			
+				if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbquad4kpro"):
 					AboutText += _("Bolt:\t%s\n") % bootLoader
 				else:
 					AboutText += _("Bootloader:\t%s\n") % bootLoader
