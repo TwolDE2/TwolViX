@@ -12,7 +12,7 @@ from Components.Network import iNetwork
 from Components.NimManager import nimmanager
 from Components.Pixmap import MultiPixmap
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, CHIPSET, KERNEL, MODEL, RCNAME, SOC_BRAND
+from Components.SystemInfo import SystemInfo, CHIPSET, KERNEL, MODEL, SOC_BRAND
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
@@ -140,16 +140,14 @@ class About(AboutBase):
 		AboutText += _("Chipset:\t%s %s\n") % (Brands.get(SOC_BRAND, SOC_BRAND), CHIPSET.replace("hi", "HI").replace("cv", "CV").replace("mv", "MV"))
 		CPUArch = about.getCPUArch(MODEL)
 		AboutText += _("CPU:\t%s %s %s\n") % (CPUArch[0], CPUArch[1], CPUArch[2])
-
 		# AboutText += _("SoC:\t%s\n") % SystemInfo["socfamily"].upper()
-
 		if ospath.exists('/sys/firmware/devicetree/base/bolt/tag'):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
-				bootLoader = f.read().strip()[0:4]
-				if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbquad4kpro"):
+				bootLoader = f.read().replace('\x00', '').replace('\n', '')
+				if SystemInfo["boxtype"] in ("gbquad4k", "gbue4k", "gbquad4kpro"):			
 					AboutText += _("Bolt:\t%s\n") % bootLoader
 				else:
-					AboutText += _("Bootloader:\t%s\n") % (bootLoader)
+					AboutText += _("Bootloader:\t%s\n") % bootLoader
 		AboutText += _("Remote:\t%s\n") % SystemInfo["RCName"]
 
 		SystemTemperature = getsystemTemperature()

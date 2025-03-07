@@ -75,9 +75,9 @@ SystemInfo = BoxInfo.boxInfo
 
 
 if BoxInfo.getItem("model") in ("dm900", "dm920", "et13000"):
-	CHIPSET = "7252S"
+	CHIPSET = "7252s"
 elif BoxInfo.getItem("model") in ("hd51", "vs1500", "h7", "h17"):
-	CHIPSET = "7251S"
+	CHIPSET = "7251s"
 else:
 	chipset = fileReadLine("/proc/stb/info/chipset")
 	CHIPSET = chipset.lower().replace("\n", "").replace("bcm", "").replace("brcm", "")
@@ -299,7 +299,7 @@ SystemInfo["VideoModes"] = CHIPSET.replace("hi", "") in (  # 2160p and 1080p cap
 # VideoAudioOptions
 SystemInfo["CanProc"] = SystemInfo["HasMMC"] and BRAND != "vuplus"
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
-SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz")
+SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz") or MODEL in ("h7")
 SystemInfo["havecolorspace"] = fileCheck("/proc/stb/video/hdmi_colorspace")
 SystemInfo["havecolorspacechoices"] = fileCheck("/proc/stb/video/hdmi_colorspace_choices")
 SystemInfo["havecolorimetry"] = fileCheck("/proc/stb/video/hdmi_colorimetry")
