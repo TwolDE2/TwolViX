@@ -76,13 +76,6 @@ def getCPUString():
 		return _("unavailable")
 
 
-def getKernelVersionString():  # required by OpenWebif
-	try:
-		return open("/proc/version").read().split(" ", 3)[2].split("-", 1)[0]
-	except:
-		return _("unknown")
-
-
 def getCpuCoresInt():
 	try:
 		return int(open("/sys/devices/system/cpu/present").read().split("-")[1]) + 1
@@ -115,10 +108,10 @@ def getIfConfig(ifname):
 	infos = {}
 	sock = socket(AF_INET, SOCK_DGRAM)
 	# Offsets defined in /usr/include/linux/sockios.h on linux 2.6.
-	infos["addr"] = 0x8915  # SIOCGIFADDR
-	infos["brdaddr"] = 0x8919  # SIOCGIFBRDADDR
-	infos["hwaddr"] = 0x8927  # SIOCSIFHWADDR
-	infos["netmask"] = 0x891b  # SIOCGIFNETMASK
+	infos["addr"] = 0x8915  	# SIOCGIFADDR get remote PA address
+	infos["brdaddr"] = 0x8919  	# SIOCGIFBRDADDR get broadcast PA address
+	infos["hwaddr"] = 0x8927  	# SIOCSIFHWADDR get hardware address
+	infos["netmask"] = 0x891b  	# SIOCGIFNETMASK get network PA mask
 	try:
 		for k, v in infos.items():
 			ifreq[k] = _ifinfo(sock, v, ifname)
