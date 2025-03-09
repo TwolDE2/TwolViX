@@ -73,7 +73,7 @@ def getCpuCoresString():
 		4: _("Quad core"),
 		8: _("Octo core")
 	}.get(cores, _(f"{cores} cores"))
-	
+
 
 def getCpuCoresInt():
 	try:
