@@ -8,8 +8,6 @@ from Tools.Directories import fileExists
 
 
 def getCPUArch(MODEL):
-	if MODEL.startswith("osmio4k"):
-		CPUArch = "ARM V7"
 	Architecture = checkCPUArch()
 	CPUArch = Architecture if "ARM" in Architecture else _("Mipsel")
 	return [CPUArch, getCPUSpeedString(MODEL), getCpuCoresString()]
