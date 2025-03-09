@@ -57,12 +57,12 @@ def __onPartitionChange(*args, **kwargs):
 
 
 def PLiDevice():
-		try:
-			with open("/proc/stb/info/model", "r") as fd:
-				device_name = fd.readline().strip()
-			return device_name
-		except:
-			return "Unknown"
+	try:
+		with open("/proc/stb/info/model", "r") as fd:
+			device_name = fd.readline().strip()
+		return device_name
+	except:
+		return "Unknown"
 
 
 defaultprefix = SystemInfo["distro"]
