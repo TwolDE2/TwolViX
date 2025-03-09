@@ -62,6 +62,7 @@ def getCPUSpeedMHzInt(MODEL):
 				print("[About] getCPUSpeedMHzInt, /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq not available")
 	return int(cpu_speed)
 
+
 def getCpuCoresString():
 	cores = getCpuCoresInt()
 	return {
@@ -71,7 +72,7 @@ def getCpuCoresString():
 		4: _("Quad core"),
 		8: _("Octo core")
 	}.get(cores, _(f"{cores} cores"))
-	
+
 
 def getCpuCoresInt():
 	try:
