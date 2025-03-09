@@ -56,6 +56,7 @@ def __onPartitionChange(*args, **kwargs):
 	choices = getMountChoices()
 	config.imagemanager.backuplocation.setChoices(choices=choices, default=getMountDefault(choices))
 
+
 def PLiDevice()
 		try:
 			with open("/proc/stb/info/model", "r") as fd:
@@ -63,6 +64,7 @@ def PLiDevice()
 			return device_name
 		except:
 			return "Unknown"		
+
 
 defaultprefix = SystemInfo["distro"]
 config.imagemanager = ConfigSubsection()

@@ -14,6 +14,7 @@ def getCPUArch(MODEL):
 	CPUArch = Architecture if "ARM" in Architecture else _("Mipsel")
 	return [CPUArch, getCPUSpeedString(MODEL), getCpuCoresString()]
 
+
 def getCPUArch():
 	if fileExists("/proc/cpuinfo):
 		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if x.startswith(("system type", "model name", "Processor")) and len(x.split(": ")) > 1][0]
