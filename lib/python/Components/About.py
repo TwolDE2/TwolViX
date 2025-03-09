@@ -6,6 +6,7 @@ from sys import modules
 from time import time
 from Tools.Directories import fileExists
 
+
 def getCPUArch(MODEL):
 	if MODEL.startswith("osmio4k"):
 		CPUArch = "ARM V7"
