@@ -10,11 +10,26 @@ from time import time
 def getCPUArch(MODEL):
 	if MODEL.startswith("osmio4k"):
 		CPUArch = "ARM V7"
-	elif "ARM" in getCPUString():
-		CPUArch = getCPUString()
-	else:
-		CPUArch = _("Mipsel")
+	Architecture = getCPUArch()
+	CPUArch = Architecture if "ARM" in Architecture else _("Mipsel")
 	return [CPUArch, getCPUSpeedString(MODEL), getCpuCoresString()]
+
+def getCPUArch():
+	if fileExists("/proc/cpuinfo):
+		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if x.startswith(("system type", "model name", "Processor")) and len(x.split(": ")) > 1][0]
+	else:
+		return _("unavailable")
+
+
+def getCPUSpeedString(MODEL):
+	cpu_speed = float(getCPUSpeedMHzInt(MODEL))
+	if cpu_speed > 0:
+		if cpu_speed >= 1000:
+			cpu_speed = f"{str(round(cpu_speed / 1000, 1))} GHz"
+		else:
+			cpu_speed = f"{str(int(cpu_speed))} MHz"
+		return cpu_speed
+	return _("n/a GHz")
 
 
 def getCPUSpeedMHzInt(MODEL):
@@ -47,32 +62,6 @@ def getCPUSpeedMHzInt(MODEL):
 				print("[About] getCPUSpeedMHzInt, /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq not available")
 	return int(cpu_speed)
 
-
-def getCPUSpeedString(MODEL):
-	cpu_speed = float(getCPUSpeedMHzInt(MODEL))
-	if cpu_speed > 0:
-		if cpu_speed >= 1000:
-			cpu_speed = f"{str(round(cpu_speed / 1000, 1))} GHz"
-		else:
-			cpu_speed = f"{str(int(cpu_speed))} MHz"
-		return cpu_speed
-	return _("n/a GHz")
-
-
-def getCPUString():
-	try:
-		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if x.startswith(("system type", "model name", "Processor")) and len(x.split(": ")) > 1][0]
-	except:
-		return _("unavailable")
-
-
-def getCpuCoresInt():
-	try:
-		return int(open("/sys/devices/system/cpu/present").read().split("-")[1]) + 1
-	except:
-		return 0
-
-
 def getCpuCoresString():
 	cores = getCpuCoresInt()
 	return {
@@ -82,6 +71,13 @@ def getCpuCoresString():
 		4: _("Quad core"),
 		8: _("Octo core")
 	}.get(cores, _(f"{cores} cores"))
+	
+
+def getCpuCoresInt():
+	try:
+		return int(open("/sys/devices/system/cpu/present").read().split("-")[1]) + 1
+	except:
+		return 0
 
 
 def _ifinfo(sock, addr, ifname):
