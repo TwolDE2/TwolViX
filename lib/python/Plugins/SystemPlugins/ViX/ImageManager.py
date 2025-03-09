@@ -62,7 +62,7 @@ def PLiDevice()
 				device_name = fd.readline().strip()
 			return device_name
 		except:
-			return 	"Unknown"		
+			return "Unknown"		
 
 defaultprefix = SystemInfo["distro"]
 config.imagemanager = ConfigSubsection()
