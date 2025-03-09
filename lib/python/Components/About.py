@@ -17,16 +17,6 @@ def getCPUArch(MODEL):
 	return [CPUArch, getCPUSpeedString(MODEL), getCpuCoresString()]
 
 
-def getChipSetString(MODEL):
-	try:
-		return str(open("/proc/stb/info/chipset").read().lower().replace("\n", "").replace("brcm", "").replace("bcm", ""))
-	except:
-		if MODEL in ("dm900", "dm920"):
-			return "7252s"
-		else:
-			return "unknown"
-
-
 def getCPUSpeedMHzInt(MODEL):
 	cpu_speed = 0
 	try:
