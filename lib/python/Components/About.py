@@ -16,7 +16,7 @@ def getCPUArch(MODEL):
 
 
 def getCPUArch():
-	if fileExists("/proc/cpuinfo):
+	if fileExists("/proc/cpuinfo"):
 		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if x.startswith(("system type", "model name", "Processor")) and len(x.split(": ")) > 1][0]
 	else:
 		return _("unavailable")
