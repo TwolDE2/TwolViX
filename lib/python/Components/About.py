@@ -1,21 +1,20 @@
 from fcntl import ioctl
+from os import path as ospath
 from socket import AF_INET, SOCK_DGRAM, inet_ntoa, socket
 from struct import pack
-
-from os import path as ospath
 from sys import modules
 from time import time
-
+from Tools.Directories import fileExists
 
 def getCPUArch(MODEL):
 	if MODEL.startswith("osmio4k"):
 		CPUArch = "ARM V7"
-	Architecture = getCPUArch()
+	Architecture = checkCPUArch()
 	CPUArch = Architecture if "ARM" in Architecture else _("Mipsel")
 	return [CPUArch, getCPUSpeedString(MODEL), getCpuCoresString()]
 
 
-def getCPUArch():
+def checkCPUArch():
 	if fileExists("/proc/cpuinfo"):
 		return [x.split(": ")[1].split(" ")[0] for x in open("/proc/cpuinfo").readlines() if x.startswith(("system type", "model name", "Processor")) and len(x.split(": ")) > 1][0]
 	else:

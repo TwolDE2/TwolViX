@@ -1,6 +1,5 @@
 from time import time
 from Components.config import ConfigSelection, ConfigYesNo, ConfigInteger
-from Components.SystemInfo import SystemInfo
 from PowerTimer import AFTEREVENT, TIMERTYPE
 from Screens.TimerEntryBase import TimerEntryBase, TimerLogBase
 

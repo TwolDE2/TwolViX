@@ -5,7 +5,6 @@ from enigma import eEPGCache
 
 from ServiceReference import ServiceReference
 from Components.config import config, ConfigSelection, ConfigText, ConfigYesNo
-from Components.SystemInfo import SystemInfo
 from Components.UsageConfig import defaultMoviePath, preferredTimerPath
 from RecordTimer import AFTEREVENT, RecordTimerEntry, parseEvent
 import Screens.ChannelSelection
