@@ -19,7 +19,11 @@ config.plugins.wlan.psk = NoSave(ConfigPassword(default="", fixed_size=False))
 
 
 def existBcmWifi(iface):
-	return os_path.exists("/tmp/bcm/" + iface)
+	if  exists("/tmp/bcm/" + iface):
+		print(f"[Wlan.py][existBcmWif] /tmp/bcm/{iface} exists")
+	driver = iNetwork.detectWlanModule(iface)
+	print(f"[Wlan.py][existBcmWif] driver:{driver} exists")
+	return True if driver == "brcm-wl" else False
 
 
 def getWlanConfigName(iface):
@@ -247,10 +251,6 @@ class wpaSupplicant:
 		wepkeytype = config.plugins.wlan.wepkeytype.value
 		psk = config.plugins.wlan.psk.value
 
-		#  if existBcmWifi(iface):
-			#  self.writeBcmWifiConfig(iface, essid, encryption, psk)
-			#  return
-
 		fp = open(getWlanConfigName(iface), "w")
 		fp.write("#WPA Supplicant Configuration by enigma2\n")
 		fp.write("ctrl_interface=/var/run/wpa_supplicant\n")
@@ -258,7 +258,7 @@ class wpaSupplicant:
 		fp.write("fast_reauth=1\n")
 		fp.write("ap_scan=1\n")
 		fp.write("network={\n")
-		fp.write("\tssid="" + essid + ""\n")
+		fp.write('\tssid="' + essid + '"\n')		
 		if hiddenessid:
 			fp.write("\tscan_ssid=1\n")
 		else:
@@ -292,9 +292,6 @@ class wpaSupplicant:
 		# system("cat " + getWlanConfigName(iface))
 
 	def loadConfig(self, iface):
-		#  if existBcmWifi(iface):
-			#  return self.loadBcmWifiConfig(iface)
-
 		configfile = getWlanConfigName(iface)
 		if not exists(configfile):
 			configfile = "/etc/wpa_supplicant.conf"
