@@ -89,7 +89,7 @@ class NSCommon:
 	def removeComplete(self, result=None, retval=None, extra_args=None):
 		if self.reboot_at_end:
 			restartbox = self.session.openWithCallback(self.operationComplete, MessageBox,
-				_('Your %s %s needs to be restarted to complete the removal of %s\nDo you want to reboot now ?') % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], self.getTitle()), MessageBox.TYPE_YESNO)
+				_("Your %s %s needs to be restarted to complete the removal of %s\nDo you want to reboot now ?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], self.getTitle()), MessageBox.TYPE_YESNO)
 			restartbox.setTitle(_("Reboot required"))
 		else:
 			self.operationComplete()
@@ -101,7 +101,7 @@ class NSCommon:
 			self.session.openWithCallback(self.updateService(), MessageBox, ("%s" % result), type=MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 		elif self.reboot_at_end:
 			restartbox = self.session.openWithCallback(self.operationComplete, MessageBox,
-				_('Your %s %s needs to be restarted to complete the installation of %s\nDo you want to reboot now ?') % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], self.getTitle()), MessageBox.TYPE_YESNO)
+				_("Your %s %s needs to be restarted to complete the installation of %s\nDo you want to reboot now ?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], self.getTitle()), MessageBox.TYPE_YESNO)
 			restartbox.setTitle(_("Reboot required"))
 		else:
 			self.message.close()
@@ -442,7 +442,7 @@ class NetworkMacSetup(ConfigListScreen, HelpableScreen, Screen):
 
 	def getmac(self, iface):
 		nit = ni.ifaddresses(iface)
-		return nit[ni.AF_LINK][0]['addr']
+		return nit[ni.AF_LINK][0]["addr"]
 
 	def createSetup(self):
 		self["config"].list = [getConfigListEntry(_("MAC address"), self.getConfigMac) if self.curMac else (_("No MAC interface found"),)]
@@ -765,7 +765,7 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 
 	def ConfigfinishedCB(self, data):
 		if data is not None and data:
-			self.close('ok')
+			self.close("ok")
 
 	def keyCancelConfirm(self, result):
 		if not result:
@@ -910,7 +910,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 			self.session.open(NetworkAdapterTest, self.iface)
 		if self["menulist"].getCurrent()[1] == "dns":
 			self.session.open(NameserverSetup)
-		if self["menulist"].getCurrent()[1] == 'mac':
+		if self["menulist"].getCurrent()[1] == "mac":
 			self.session.open(NetworkMacSetup)
 		if self["menulist"].getCurrent()[1] == "scanwlan":
 			if wirelessLan and self.queryWirelessDevice(self.iface):
@@ -3116,8 +3116,8 @@ class NetworkPassword(Setup):
 
 	def createSetup(self):
 		instructions = _("Setting a network password is mandatory in OpenViX %s if you wish to use network services. \nTo set a password using the virtual keyboard press the 'text' button on your remote control.") % SystemInfo["imageversion"]
-		self.list.append(getConfigListEntry(_('New password'), self.password, instructions))
-		self['config'].list = self.list
+		self.list.append(getConfigListEntry(_("New password"), self.password, instructions))
+		self["config"].list = self.list
 
 	def keySave(self):
 		password = self.password.value
