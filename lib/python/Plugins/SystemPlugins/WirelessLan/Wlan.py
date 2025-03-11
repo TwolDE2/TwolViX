@@ -258,7 +258,7 @@ class wpaSupplicant:
 		fp.write("fast_reauth=1\n")
 		fp.write("ap_scan=1\n")
 		fp.write("network={\n")
-		fp.write('\tssid="' + essid + '"\n')		
+		fp.write('\tssid="' + essid + '"\n')
 		if hiddenessid:
 			fp.write("\tscan_ssid=1\n")
 		else:
