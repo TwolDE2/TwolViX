@@ -1,5 +1,5 @@
 import glob
-from os import rename,system, unlink
+from os import rename, system, unlink
 from os.path import exists
 import netifaces as ni
 from random import Random
