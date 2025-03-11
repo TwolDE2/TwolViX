@@ -19,7 +19,7 @@ config.plugins.wlan.psk = NoSave(ConfigPassword(default="", fixed_size=False))
 
 
 def existBcmWifi(iface):
-	if  exists("/tmp/bcm/" + iface):
+	if exists("/tmp/bcm/" + iface):
 		print(f"[Wlan.py][existBcmWif] /tmp/bcm/{iface} exists")
 	driver = iNetwork.detectWlanModule(iface)
 	print(f"[Wlan.py][existBcmWif] driver:{driver} exists")
