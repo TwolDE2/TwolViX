@@ -1,23 +1,20 @@
-import re
-from os import system, path as os_path
-
+from re import compile
+from os.path import exists
 from wifi.scan import Cell
-
-from enigma import eConsoleAppContainer
 
 from Components.config import config, ConfigYesNo, NoSave, ConfigSubsection, ConfigText, ConfigSelection, ConfigPassword
 from Components.Console import Console
 from Components.Network import iNetwork
 
-liste = ["WPA/WPA2", "WPA2", "WPA", "WEP", "Unencrypted"]
+encryptList = ["WPA/WPA2", "WPA2", "WPA", "WEP", "Unencrypted"]
 
-weplist = ["ASCII", "HEX"]
+wepList = ["ASCII", "HEX"]
 
 config.plugins.wlan = ConfigSubsection()
 config.plugins.wlan.essid = NoSave(ConfigText(default="", fixed_size=False))
 config.plugins.wlan.hiddenessid = NoSave(ConfigYesNo(default=False))
-config.plugins.wlan.encryption = NoSave(ConfigSelection(liste, default="WPA2"))
-config.plugins.wlan.wepkeytype = NoSave(ConfigSelection(weplist, default="ASCII"))
+config.plugins.wlan.encryption = NoSave(ConfigSelection(encryptList, default="WPA2"))
+config.plugins.wlan.wepkeytype = NoSave(ConfigSelection(wepList, default="ASCII"))
 config.plugins.wlan.psk = NoSave(ConfigPassword(default="", fixed_size=False))
 
 
@@ -25,37 +22,30 @@ def existBcmWifi(iface):
 	return os_path.exists("/tmp/bcm/" + iface)
 
 
-def getWlConfName(iface):
-	return "/etc/wl.conf.%s" % iface
-
-
 def getWlanConfigName(iface):
 	driver = iNetwork.detectWlanModule(iface)
 	if driver in ('brcm-wl', ):
 		return '/etc/wl.conf.' + iface
-	return '/etc/wpa_supplicant.' + iface + '.conf'
+	else:
+		return '/etc/wpa_supplicant.' + iface + '.conf'
 
 
 class Wlan:
 	def __init__(self, iface=None):
 		self.iface = iface
 		self.oldInterfaceState = None
-
-		a = ''
-		b = ''
+		a = ""
+		b = ""
 		for i in range(0, 255):
 			a += chr(i)
-			if i < 32 or i > 127:
-				b += ' '
-			else:
-				b += chr(i)
-		self.asciitrans = str.maketrans(a, b)
+			b += " " if i < 32 or i > 127 else chr(i)
+		self.asciiTrans = str.maketrans(a, b)
 
 	def asciify(self, str):
-		return str.translate(self.asciitrans)
+		return str.translate(self.asciiTrans)
 
 	def getWirelessInterfaces(self):
-		device = re.compile('[a-z]{2,}[0-9]*:')
+		device = compile('[a-z]{2,}[0-9]*:')
 		ifnames = []
 
 		fp = open('/proc/net/wireless', 'r')
@@ -79,17 +69,18 @@ class Wlan:
 		if self.oldInterfaceState is False:
 			if iNetwork.getAdapterAttribute(self.iface, "up") is False:
 				iNetwork.setAdapterAttribute(self.iface, "up", True)
-				system("ifconfig " + self.iface + " up")
-				if existBcmWifi(self.iface):
-					eConsoleAppContainer().execute("wl up")
-		aps = {}
+				Console().ePopen(["/sbin/ifconfig", "/sbin/ifconfig", self.iface, "up"])
+				driver = iNetwork.detectWlanModule(self.iface)
+				if driver == "brcm-wl":
+					Console().ePopen(["/usr/bin/wl", "/usr/bin/wl", "up"])
 		try:
 			scanresults = list(Cell.all(self.iface, 5))
 			print("[Wlan.py] scanresults1 = %s" % scanresults)
 		except:
 			scanresults = None
 			print("[Wlan.py] No wireless networks could be found")
-		if scanresults is not None:
+		aps = {}
+		if scanresults:
 			for i in range(len(scanresults)):
 				bssid = scanresults[i].ssid
 				aps[bssid] = {
@@ -118,9 +109,10 @@ class Wlan:
 		if self.oldInterfaceState is not None:
 			if self.oldInterfaceState is False:
 				iNetwork.setAdapterAttribute(self.iface, "up", False)
-				system("ifconfig " + self.iface + " down")
-				if existBcmWifi(self.iface):
-					eConsoleAppContainer().execute("wl down")
+				Console().ePopen(["/sbin/ifconfig", "/sbin/ifconfig", self.iface, "down"])
+				driver = iNetwork.detectWlanModule(self.iface)
+				if driver == "brcm-wl":
+					Console().ePopen(["/usr/bin/wl", "/usr/bin/wl", "down"])
 				self.oldInterfaceState = None
 				self.iface = None
 
@@ -157,7 +149,7 @@ class brcmWLConfig:
 		config.plugins.wlan.psk.value = ""
 		configfile = getWlanConfigName(iface)
 
-		if os_path.exists(configfile):
+		if exists(configfile):
 			print("[Wlan.py] parsing configfile: ", configfile)
 			fd = open(configfile, "r")
 			lines = fd.readlines()
@@ -201,7 +193,7 @@ class wpaSupplicant:
 		contents += "key=" + psk + "\n"
 		print("content = \n" + contents)
 
-		fd = open(getWlConfName(iface), "w")
+		fd = open(getWlanConfigName(iface), "w")
 		fd.write(contents)
 		fd.close()
 
@@ -213,7 +205,7 @@ class wpaSupplicant:
 		wsconf["wepkeytype"] = "ASCII"  # not used
 		wsconf["key"] = ""
 
-		configfile = getWlConfName(iface)
+		configfile = getWlanConfigName(iface)
 
 		try:
 			fd = open(configfile, "r")
@@ -256,9 +248,9 @@ class wpaSupplicant:
 		wepkeytype = config.plugins.wlan.wepkeytype.value
 		psk = config.plugins.wlan.psk.value
 
-		if existBcmWifi(iface):
-			self.writeBcmWifiConfig(iface, essid, encryption, psk)
-			return
+		#  if existBcmWifi(iface):
+			#  self.writeBcmWifiConfig(iface, essid, encryption, psk)
+			#  return
 
 		fp = open(getWlanConfigName(iface), 'w')
 		fp.write('#WPA Supplicant Configuration by enigma2\n')
@@ -301,11 +293,11 @@ class wpaSupplicant:
 		# system('cat ' + getWlanConfigName(iface))
 
 	def loadConfig(self, iface):
-		if existBcmWifi(iface):
-			return self.loadBcmWifiConfig(iface)
+		#  if existBcmWifi(iface):
+			#  return self.loadBcmWifiConfig(iface)
 
 		configfile = getWlanConfigName(iface)
-		if not os_path.exists(configfile):
+		if not exists(configfile):
 			configfile = '/etc/wpa_supplicant.conf'
 		try:
 			# parse the wpasupplicant configfile
@@ -488,11 +480,11 @@ class Status:
 			aps = {}
 			if scanresults is not None:
 				config.misc.networkenabled.value = True
-				print("[NetworkWizard] networkenabled value = %s" % config.misc.networkenabled.value)
+				print("[Wlan] networkenabled value = %s" % config.misc.networkenabled.value)
 				try:
 					for i in range(len(scanresults)):
 						bssid = scanresults[i].ssid
-						print(f"[NetworkWizard] scanresults[i] {scanresults[i]}")
+						print(f"[Wlan] scanresults{i} {scanresults[i]}")
 						aps[bssid] = {
 							'active': True,
 							'bssid': scanresults[i].ssid,

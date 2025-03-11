@@ -1,5 +1,6 @@
-from os import listdir, path, system
-import re
+from os import listdir, system
+from os.path import basename, exists, isdir, realpath
+from re import compile
 import netifaces as ni
 from socket import *  # noqa: F401,F403  'from socket import *' used; unable to detect undefined names
 
@@ -184,8 +185,8 @@ class Network:
 
 	def loadNameserverConfig(self):
 		ipRegexp = r"[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"  # noqa: W605
-		nameserverPattern = re.compile("nameserver +" + ipRegexp)
-		ipPattern = re.compile(ipRegexp)
+		nameserverPattern = compile("nameserver +" + ipRegexp)
+		ipPattern = compile(ipRegexp)
 
 		resolv = []
 		try:
@@ -244,17 +245,19 @@ class Network:
 
 		moduledir = self.getWlanModuleDir(iface)
 		if moduledir:
-			name = path.basename(path.realpath(moduledir))
-			if name in ('ath_pci', 'ath5k'):
-				name = 'Atheros'
-			elif name in ('rt73', 'rt73usb', 'rt3070sta'):
-				name = 'Ralink'
-			elif name == 'zd1211b':
-				name = 'Zydas'
-			elif name == 'r871x_usb_drv':
-				name = 'Realtek'
-		elif path.exists("/tmp/bcm/%s" % iface):
-			name = 'Broadcom'
+			name = basename(realpath(moduledir))
+			if name in ("ath_pci", "ath5k", "ar6k_wlan"):
+				name = "Atheros"
+			elif name in ("rt73", "rt73usb", "rt3070sta"):
+				name = "Ralink"
+			elif name == "zd1211b":
+				name = "Zydas"
+			elif name == "r871x_usb_drv":
+				name = "Realtek"
+			elif name == "brcm-systemport" or path.exists("/tmp/bcm/%s" % iface):
+				name = "Broadcom"
+			elif name == "wlan":
+				name = name.upper()
 		else:
 			name = _('Unknown')
 
@@ -479,7 +482,7 @@ class Network:
 			commands.append(("/sbin/ifdown", "/sbin/ifdown", "-f", iface))
 			commands.append(("/sbin/ip", "/sbin/ip", "addr", "flush", "dev", iface, "scope", "global"))
 			# wpa_supplicant sometimes doesn't quit properly on SIGTERM
-			if path.exists('/var/run/wpa_supplicant/' + iface):
+			if exists('/var/run/wpa_supplicant/' + iface):
 				commands.append("wpa_cli -i" + iface + " terminate")
 
 		if isinstance(ifaces, (list, tuple)):
@@ -526,11 +529,11 @@ class Network:
 		if iface in self.wlan_interfaces:
 			return True
 
-		if path.isdir(self.sysfsPath(iface) + '/wireless'):
+		if isdir(self.sysfsPath(iface) + '/wireless'):
 			return True
 
 		# r871x_usb_drv on kernel 2.6.12 is not identifiable over /sys/class/net/'ifacename'/wireless so look also inside /proc/net/wireless
-		device = re.compile('[a-z]{2,}[0-9]*:')
+		device = compile('[a-z]{2,}[0-9]*:')
 		ifnames = []
 		fp = open('/proc/net/wireless', 'r')
 		for line in fp:
@@ -539,31 +542,30 @@ class Network:
 			except AttributeError:
 				pass
 		fp.close()
-		if iface in ifnames:
-			return True
-
-		return False
+		return True if iface in ifnames else False
 
 	def getWlanModuleDir(self, iface=None):
-		devicedir = self.sysfsPath(iface) + '/device'
-		if not path.isdir(devicedir):
-			return None
+		if self.sysfsPath(iface) == "/sys/class/net/wlan3" and exists("/tmp/bcm/%s" % iface):
+			devicedir = "%s/device" % self.sysfsPath("sys0")
+		else:
+			devicedir = "%s/device" % self.sysfsPath(iface)
 		moduledir = devicedir + '/driver/module'
-		if path.isdir(moduledir):
+		if isdir(moduledir):
 			return moduledir
-
-		# identification is not possible over default moduledir
-		for x in listdir(devicedir):
-			# rt3070 on kernel 2.6.18 registers wireless devices as usb_device (e.g. 1-1.3:1.0) and identification is only possible over /sys/class/net/'ifacename'/device/1-xxx
-			if x.startswith("1-"):
-				moduledir = devicedir + '/' + x + '/driver/module'
-				if path.isdir(moduledir):
-					return moduledir
-		# rt73, zd1211b, r871x_usb_drv on kernel 2.6.12 can be identified over /sys/class/net/'ifacename'/device/driver, so look also here
-		moduledir = devicedir + '/driver'
-		if path.isdir(moduledir):
-			return moduledir
-
+		# Identification is not possible over default module directory.
+		try:
+			for x in listdir(devicedir):
+				# The rt3070 on kernel 2.6.18 registers wireless devices as usb_device (e.g. 1-1.3:1.0) and identification is only possible over /sys/class/net/"ifacename"/device/1-xxx.
+				if x.startswith("1-"):
+					moduledir = "%s/%s/driver/module" % (devicedir, x)
+					if isdir(moduledir):
+						return moduledir
+			# The rt73, zd1211b, r871x_usb_drv on kernel 2.6.12 can be identified over /sys/class/net/"ifacename"/device/driver, so also look here.
+			moduledir = "%s/driver" % devicedir
+			if isdir(moduledir):
+				return moduledir
+		except:
+			pass
 		return None
 
 	def detectWlanModule(self, iface=None):
@@ -571,12 +573,14 @@ class Network:
 			return None
 
 		devicedir = self.sysfsPath(iface) + '/device'
-		if path.isdir(devicedir + '/ieee80211'):
+		if isdir(devicedir + '/ieee80211'):
 			return 'nl80211'
 
 		moduledir = self.getWlanModuleDir(iface)
 		if moduledir:
-			module = path.basename(path.realpath(moduledir))
+			module = basename(realpath(moduledir))
+			if module in ("brcm-systemport",):
+				return "brcm-wl"
 			if module in ('ath_pci', 'ath5k'):
 				return 'madwifi'
 			if module in ('rt73', 'rt73'):

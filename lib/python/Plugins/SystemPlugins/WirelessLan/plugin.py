@@ -123,6 +123,7 @@ class WlanStatus(Screen):
 		self.setTitle(_("Wireless network state"))
 
 	def resetList(self):
+		print("[WiFi plugin] call getDataForInterface")	
 		iStatus.getDataForInterface(self.iface, self.getInfoCB)
 
 	def getInfoCB(self, data, status):
