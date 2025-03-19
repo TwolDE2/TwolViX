@@ -116,6 +116,7 @@ def getProcMountsNew():
 		result.append([s.replace("\\040", " ").replace("\\012", "\n") for s in line.strip(" \n").split(" ")])
 	return result
 
+
 def findMountPoint(path):
 	'Example: findMountPoint("/media/hdd/some/file") returns "/media/hdd"'
 	path = abspath(path)
@@ -525,6 +526,7 @@ class Harddisk:
 			# print(f"[Harddisk][deviceState] Device is not removable.  (device='{device}, No bus)")
 			return (True, "ATA")
 
+
 class UnmountTask(LoggingTask):
 	def __init__(self, job, hdd):
 		LoggingTask.__init__(self, job, _("Unmount."))
@@ -595,6 +597,7 @@ class MountTask(LoggingTask):
 		print("[Harddisk][MountTask][prepare] - let udev complete the job")
 		self.setCmdline(f"sleep 2; hdparm -z {self.hdd.disk_path}")
 		self.postconditions.append(ReturncodePostcondition())
+
 
 class Partition:
 	# For backward compatibility, force_mounted actually means "hotplug".
@@ -1196,6 +1199,7 @@ class StorageDevice():
 		task.weighting = 3
 		return job
 
+
 class MkfsTask(LoggingTask):
 	def __init__(self, job, debug):
 		self.debug = debug
@@ -1224,6 +1228,7 @@ class MkfsTask(LoggingTask):
 		if self.debug:
 			print(f"[{self.__class__.__name__}] DEBUG Output:\n")
 			print(self.log)
+
 
 class UnmountTasks(LoggingTask):
 	def __init__(self, job, storageDevice, debug):
@@ -1312,7 +1317,6 @@ class MountTasks(LoggingTask):
 		if self.debug:
 			print(f"[{self.__class__.__name__}] DEBUG Output:\n")
 			print(self.log)
-
 
 
 harddiskmanager = HarddiskManager()
