@@ -1076,7 +1076,6 @@ class HarddiskManager:
 
 class StorageDevice():
 	def __init__(self, deviceData):
-		print("[Storage][StorageDevice] entered")
 		self.deviceData = {key: value for key, value in deviceData.items()}
 		for key, value in self.deviceData.items():
 			setattr(self, key, value)
@@ -1101,9 +1100,7 @@ class StorageDevice():
 		return "".join([ch for ch in label if ch in (ascii_letters + digits + "_")])[:limit]
 
 	def createInitializeJob(self):
-		print("[Storage][createInitializeJob] entered")
 		options = {"partitionType": "gpt", "partitions": [{"fsType": "ext4"}], "mountDevice": True}
-		print(f"[Storage][createInitializeJob] options:{options}")
 		debug = options.get("debug")
 		partitions = options.get("partitions") or []
 		uuids = options.get("uuids") or {}

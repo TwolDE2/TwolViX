@@ -33,7 +33,6 @@ class HarddiskSetup(Screen):
 		})
 
 	def hddQuestion(self, answer=False):
-		print('[HarddiskSetup] answer:', answer)
 		if Screens.InfoBar.InfoBar.instance.timeshiftEnabled():
 			message = self.question + "\n\n" + _("You seem to be in timeshft, the service will briefly stop as timeshift stops.")
 			message += '\n' + _("Do you want to continue?")
@@ -52,7 +51,6 @@ class HarddiskSetup(Screen):
 	def hddConfirmed(self, confirmed):
 		if not confirmed:
 			return
-		print("[HarddiskSetup][hddConfirmed] entered")
 		try:
 			job_manager.AddJob(self.action())
 			for job in job_manager.getPendingJobs():
@@ -114,8 +112,6 @@ class HarddiskSelection(Screen):
 			self.doIt(selection[1])
 			self.close(True)
 
-# This is actually just HarddiskSelection but with correct type
-
 
 class HarddiskFsckSelection(HarddiskSelection):
 	def __init__(self, session):
@@ -136,7 +132,6 @@ class HarddiskFsckSelection(HarddiskSelection):
 			"size": 0
 		}
 		self.storageDevice = StorageDevice(storageDevice)
-		#  action=self.storageDevice.createCheckJob(options),
 		self.session.openWithCallback(self.close, HarddiskSetup, selection,
 			action=selection.createCheckJob,
 			text=_("Check"),
