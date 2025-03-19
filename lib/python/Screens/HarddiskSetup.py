@@ -1,42 +1,18 @@
-from Components.ActionMap import ActionMap
-from Components.Harddisk import harddiskmanager
-from Components.Label import Label
-from Components.MenuList import MenuList
-from Components.Task import job_manager
-from Screens.Console import Console
-from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
+from Components.ActionMap import ActionMap
+from Components.Harddisk import harddiskmanager, StorageDevice
+from Components.MenuList import MenuList
+from Components.Label import Label
+from Components.Task import job_manager
+from Screens.MessageBox import MessageBox
 import Screens.InfoBar
-
-
-def getProcMounts():
-	try:
-		with open("/proc/mounts", "r") as fd:
-			lines = fd.readlines()
-	except (IOError, OSError) as err:
-		print("[Harddisk][getProcMounts] Error: Failed to open '/proc/mounts':", err)
-		return []
-	result = [line.strip().split(" ") for line in lines]
-	for item in result:
-		item[1] = item[1].replace("\\040", " ")  # Spaces are encoded as \040 in mounts.
-		# Also, map any fuseblk fstype to the real file-system behind it...
-		# Use blkid to get the info we need....
-		#
-		if item[2] == 'fuseblk':
-			import subprocess
-			res = subprocess.run(['blkid', '-sTYPE', '-ovalue', item[0]], capture_output=True)
-			if res.returncode == 0:
-				# print("[Harddisk][getProcMounts] fuseblk", res.stdout)
-				item[2] = res.stdout.strip().decode()
-	print("[Harddisk][getProcMounts] ProcMounts", result)
-	return result
 
 
 class HarddiskSetup(Screen):
 	def __init__(self, session, hdd, action, text, question):
 		Screen.__init__(self, session)
 		self.setTitle(text)
-
+		self.text = text
 		self.action = action
 		self.question = question
 		self.curentservice = None
@@ -68,7 +44,7 @@ class HarddiskSetup(Screen):
 
 	def stopTimeshift(self, confirmed):
 		if confirmed:
-			self.curentservice = self.session.nav.getCurrentlyPlayingServiceReference()
+			self.currentservice = self.session.nav.getCurrentlyPlayingServiceReference()
 			self.session.nav.stopService()
 			Screens.InfoBar.InfoBar.instance.stopTimeshiftcheckTimeshiftRunningCallback(True)
 			self.hddConfirmed(True)
@@ -76,10 +52,11 @@ class HarddiskSetup(Screen):
 	def hddConfirmed(self, confirmed):
 		if not confirmed:
 			return
+		print("[HarddiskSetup][hddConfirmed] entered")			
 		try:
 			job_manager.AddJob(self.action())
 			for job in job_manager.getPendingJobs():
-				if job.name in (_("Initializing storage device..."), _("Checking filesystem..."), _("Converting ext3 to ext4...")):
+				if job.name in (_("Initializing storage device as ext4..."), _("Checking filesystem...")):
 					self.showJobView(job)
 					break
 		except Exception as ex:
@@ -117,8 +94,17 @@ class HarddiskSelection(Screen):
 		})
 
 	def doIt(self, selection):
+		selection = self["hddlist"].getCurrent()[1]
+		disk = selection.device
+		storageDevice = {
+			"devicePoint": f"/dev/{disk}",
+			"disk": disk,
+			"device": disk,
+			"size": 0
+		}
+		self.storageDevice = StorageDevice(storageDevice)
 		self.session.openWithCallback(self.close, HarddiskSetup, selection,
-			action=selection.createInitializeJob,
+			action=self.storageDevice.createInitializeJob,
 			text=_("Initialize"),
 			question=_("Do you really want to initialize this device?\nAll the data on the device will be lost!"))
 
@@ -127,53 +113,6 @@ class HarddiskSelection(Screen):
 		if selection[1] != 0:
 			self.doIt(selection[1])
 			self.close(True)
-
-
-class HarddiskPartitionSelect(HarddiskSelection):
-	def __init__(self, session):
-		HarddiskSelection.__init__(self, session)
-		self.session = session
-		self.setTitle(_("Initialize Devices"))
-		tlist = []
-		self.skinName = "HarddiskSelection"  # For derived classes
-		procMounts = getProcMounts()
-		partitions = harddiskmanager.getMountedPartitions()
-		for partition in partitions:
-			# print(f"[HarddiskSetup][HarddiskPartitionSelect]1 partition.mountpoint:{partition.mountpoint}")
-			if partition.mountpoint == "/":
-				continue
-			capacity = partition.total() // 1000 // 1000 // 1000
-			filesystem = partition.filesystem()
-			description = partition.description
-			# print(f"[HarddiskSetup][HarddiskPartitionSelect]2 partition.mountpoint:{partition.mountpoint} description:{description} device:{partition.device}")
-			partitionDesc = f"{description} {capacity}GB  {filesystem}"
-			# print(f"[HarddiskSetup][HarddiskPartitionSelect]3 partition:{partition} partitionDesc:{partitionDesc}")
-			for dev in procMounts:
-				if "dev" not in dev[0]:
-					continue
-				# print(f"[HarddiskSetup][HarddiskPartitionSelect]4 dev0:{dev[0]} dev1:{dev[1]} partition.mountpoint:{partition.mountpoint}")
-				if dev[1] == partition.mountpoint[0:-1]:
-					tlist.append((partitionDesc, dev[0]))
-					# print(f"[HarddiskSetup][HarddiskPartitionSelect]5 tlist:{tlist}")
-		self["hddlist"] = MenuList(tlist)
-		self["actions"] = ActionMap(["OkCancelActions"],
-		{
-			"ok": self.doPart,
-			"cancel": self.close
-		})
-
-	def doPart(self):
-		selection = self["hddlist"].getCurrent()
-		# print(f"[HarddiskSetup][doPart] selection:{selection[1]}")
-		if selection[1] == 0:
-			self.close()
-		self.Header = "Initialize Devices"
-		cmdlist = []
-		cmdlist.append(f"umount {selection[1]}")
-		cmdlist.append(f"mkfs.ext4 -T largefile -N 262144 {selection[1]}")
-		cmdlist.append(f"partprobe {selection[1]}")
-		# print(f"[HarddiskSetup][okbuttonClick] cmdlist:{cmdlist}")
-		self.session.open(Console, title=self.Header, cmdlist=cmdlist, closeOnSuccess=True)
 
 # This is actually just HarddiskSelection but with correct type
 
@@ -185,6 +124,19 @@ class HarddiskFsckSelection(HarddiskSelection):
 		self.skinName = "HarddiskSelection"
 
 	def doIt(self, selection):
+		options = {"partitionType": "gpt", "partitions": [{"fsType": "ext4"}], "mountDevice": True}
+		selection = self["hddlist"].getCurrent()[1]
+		disk = selection.device
+		fsType = options.get("fsType")		
+		storageDevice = {
+			"devicePoint": f"/dev/{disk}",
+			"disk": disk,
+			"device": disk,
+			"fsType": fsType,			
+			"size": 0
+		}
+		self.storageDevice = StorageDevice(storageDevice)
+		#  action=self.storageDevice.createCheckJob(options),	
 		self.session.openWithCallback(self.close, HarddiskSetup, selection,
 			action=selection.createCheckJob,
 			text=_("Check"),
