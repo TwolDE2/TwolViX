@@ -52,7 +52,7 @@ class HarddiskSetup(Screen):
 	def hddConfirmed(self, confirmed):
 		if not confirmed:
 			return
-		print("[HarddiskSetup][hddConfirmed] entered")			
+		print("[HarddiskSetup][hddConfirmed] entered")
 		try:
 			job_manager.AddJob(self.action())
 			for job in job_manager.getPendingJobs():
@@ -127,16 +127,16 @@ class HarddiskFsckSelection(HarddiskSelection):
 		options = {"partitionType": "gpt", "partitions": [{"fsType": "ext4"}], "mountDevice": True}
 		selection = self["hddlist"].getCurrent()[1]
 		disk = selection.device
-		fsType = options.get("fsType")		
+		fsType = options.get("fsType")
 		storageDevice = {
 			"devicePoint": f"/dev/{disk}",
 			"disk": disk,
 			"device": disk,
-			"fsType": fsType,			
+			"fsType": fsType,
 			"size": 0
 		}
 		self.storageDevice = StorageDevice(storageDevice)
-		#  action=self.storageDevice.createCheckJob(options),	
+		#  action=self.storageDevice.createCheckJob(options),
 		self.session.openWithCallback(self.close, HarddiskSetup, selection,
 			action=selection.createCheckJob,
 			text=_("Check"),
