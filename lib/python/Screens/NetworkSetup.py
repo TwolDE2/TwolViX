@@ -288,9 +288,8 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 			unlink("/etc/default_gw")
 
 		if exists("/etc/default_gw"):
-			fp = open("/etc/default_gw", "r")
-			result = fp.read()
-			fp.close()
+			with open("/etc/default_gw", "r") as f:
+				result = f.read()
 			default_gw = result
 
 		for x in self.adapters:
@@ -312,13 +311,11 @@ class NetworkAdapterSelection(Screen, HelpableScreen):
 		old_default_gw = None
 		num_configured_if = len(iNetwork.getConfiguredAdapters())
 		if exists("/etc/default_gw"):
-			fp = open("/etc/default_gw", "r")
-			old_default_gw = fp.read()
-			fp.close()
+			with open("/etc/default_gw", "r") as f:
+				old_default_gw = f.read()
 		if num_configured_if > 1 and (not old_default_gw or old_default_gw != selection[0]):
-			fp = open("/etc/default_gw", "w+")
-			fp.write(selection[0])
-			fp.close()
+			with open("/etc/default_gw", "w+") as f:
+				f.write(selection[0])
 			self.restartLan()
 		elif old_default_gw and num_configured_if < 2:
 			unlink("/etc/default_gw")
@@ -452,9 +449,8 @@ class NetworkMacSetup(ConfigListScreen, HelpableScreen, Screen):
 			if self.mode in ("wlan0", "wlan3"):
 				iNetwork.resetWiFiMac(Mac=self.getConfigMac.value, wlan=self.mode)
 			else:
-				f = open("/etc/enigma2/hwmac", "w")
-				f.write(self.getConfigMac.value)
-				f.close()
+				with open("/etc/enigma2/hwmac", "w") as f:
+					f.write(self.getConfigMac.value)
 			self.restartLan()
 
 	def run(self):
@@ -2223,31 +2219,30 @@ class NetworkInadyn(NSCommon, Screen):
 
 		# self.my_nabina_state = False
 		if fileExists("/etc/inadyn.conf"):
-			f = open("/etc/inadyn.conf", "r")
-			for line in f.readlines():
-				line = line.strip()
-				if line.startswith("username "):
-					line = line[9:]
-					self["labuser"].setText(line)
-				elif line.startswith("password "):
-					line = line[9:]
-					self["labpass"].setText(line)
-				elif line.startswith("alias "):
-					line = line[6:]
-					self["labalias"].setText(line)
-				elif line.startswith("update_period_sec "):
-					line = line[18:]
-					line = (int(line) // 60)
-					self["labtime"].setText(str(line))
-				elif line.startswith(("dyndns_system ", "#dyndns_system ")):
-					if line.startswith("#"):
-						line = line[15:]
-						self["sactive"].hide()
-					else:
-						line = line[14:]
-						self["sactive"].show()
-					self["labsys"].setText(line)
-			f.close()
+			with open("/etc/inadyn.conf", "r") as f:
+				for line in f.readlines():
+					line = line.strip()
+					if line.startswith("username "):
+						line = line[9:]
+						self["labuser"].setText(line)
+					elif line.startswith("password "):
+						line = line[9:]
+						self["labpass"].setText(line)
+					elif line.startswith("alias "):
+						line = line[6:]
+						self["labalias"].setText(line)
+					elif line.startswith("update_period_sec "):
+						line = line[18:]
+						line = (int(line) // 60)
+						self["labtime"].setText(str(line))
+					elif line.startswith(("dyndns_system ", "#dyndns_system ")):
+						if line.startswith("#"):
+							line = line[15:]
+							self["sactive"].hide()
+						else:
+							line = line[14:]
+							self["sactive"].show()
+						self["labsys"].setText(line)
 		title = _("Inadyn Setup")
 
 		for cb in self.onChangedEntry:
@@ -2280,39 +2275,37 @@ class NetworkInadynSetup(ConfigListScreen, HelpableScreen, Screen):
 		self.ina_system = NoSave(ConfigSelection(default="dyndns@dyndns.org", choices=[("dyndns@dyndns.org", "dyndns@dyndns.org"), ("statdns@dyndns.org", "statdns@dyndns.org"), ("custom@dyndns.org", "custom@dyndns.org"), ("default@no-ip.com", "default@no-ip.com")]))
 
 		if fileExists("/etc/inadyn.conf"):
-			f = open("/etc/inadyn.conf", "r")
-			for line in f.readlines():
-				line = line.strip()
-				if line.startswith("username "):
-					line = line[9:]
-					self.ina_user = NoSave(ConfigText(fixed_size=False, default=line))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("Username") + ":", self.ina_user))
-				elif line.startswith("password "):
-					line = line[9:]
-					self.ina_pass = NoSave(ConfigText(fixed_size=False, default=line))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("Password") + ":", self.ina_pass))
-				elif line.startswith("alias "):
-					line = line[6:]
-					self.ina_alias = NoSave(ConfigText(fixed_size=False, default=line))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("Alias") + ":", self.ina_alias))
-				elif line.startswith("update_period_sec "):
-					line = (int(line[18:]) // 60)
-					self.ina_period = NoSave(ConfigNumber(default=line))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("Time update in minutes") + ":", self.ina_period))
-				elif line.startswith(("dyndns_system ", "#dyndns_system ")):
-					if not line.startswith("#"):
-						default = True
-						line = line[14:]
-					else:
-						default = False
-						line = line[15:]
-					self.ina_sysactive = NoSave(ConfigYesNo(default=default))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("Set system") + ":", self.ina_sysactive))
-					# self.ina_value = line # looks like dead code
-					ina_system1 = getConfigListEntry(_("System") + ":", self.ina_system)
-					self.list.append(ina_system1)
-
-			f.close()
+			with open("/etc/inadyn.conf", "r") as f:	
+				for line in f.readlines():
+					line = line.strip()
+					if line.startswith("username "):
+						line = line[9:]
+						self.ina_user = NoSave(ConfigText(fixed_size=False, default=line))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("Username") + ":", self.ina_user))
+					elif line.startswith("password "):
+						line = line[9:]
+						self.ina_pass = NoSave(ConfigText(fixed_size=False, default=line))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("Password") + ":", self.ina_pass))
+					elif line.startswith("alias "):
+						line = line[6:]
+						self.ina_alias = NoSave(ConfigText(fixed_size=False, default=line))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("Alias") + ":", self.ina_alias))
+					elif line.startswith("update_period_sec "):
+						line = (int(line[18:]) // 60)
+						self.ina_period = NoSave(ConfigNumber(default=line))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("Time update in minutes") + ":", self.ina_period))
+					elif line.startswith(("dyndns_system ", "#dyndns_system ")):
+						if not line.startswith("#"):
+							default = True
+							line = line[14:]
+						else:
+							default = False
+							line = line[15:]
+						self.ina_sysactive = NoSave(ConfigYesNo(default=default))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("Set system") + ":", self.ina_sysactive))
+						# self.ina_value = line # looks like dead code
+						ina_system1 = getConfigListEntry(_("System") + ":", self.ina_system)
+						self.list.append(ina_system1)
 		self["config"].list = self.list
 
 	def keySave(self):  # saveIna
@@ -2434,9 +2427,8 @@ class NetworkuShare(NSCommon, Screen):
 		self.my_ushare_active = False
 		self.my_ushare_run = False
 		if not fileExists("/tmp/uShare.log"):
-			f = open("/tmp/uShare.log", "w")
-			f.write("")
-			f.close()
+			with open("/tmp/uShare.log", "w") as f:
+				f.write("")
 		if ServiceIsEnabled("ushare"):
 			self["labdisabled"].hide()
 			self["labactive"].show()
@@ -2460,54 +2452,53 @@ class NetworkuShare(NSCommon, Screen):
 			status_summary = self["status"].text + " " + self["labstop"].text
 
 		if fileExists("/etc/ushare.conf"):
-			f = open("/etc/ushare.conf", "r")
-			for line in f.readlines():
-				line = line.strip()
-				if line.startswith("USHARE_NAME="):
-					line = line[12:]
-					self["labuser"].setText(line)
-				elif line.startswith("USHARE_IFACE="):
-					line = line[13:]
-					self["labiface"].setText(line)
-				elif line.startswith("USHARE_PORT="):
-					line = line[12:]
-					self["labport"].setText(line)
-				elif line.startswith("USHARE_TELNET_PORT="):
-					line = line[19:]
-					self["labtelnetport"].setText(line)
-				elif line.startswith("USHARE_DIR="):
-					line = line[11:]
-					self.mediafolders = line
-					self["labsharedir"].setText(line)
-				elif line.startswith("ENABLE_WEB="):
-					if line[11:] == "no":
-						self["webactive"].hide()
-						self["webinactive"].show()
-					else:
-						self["webactive"].show()
-						self["webinactive"].hide()
-				elif line.startswith("ENABLE_TELNET="):
-					if line[14:] == "no":
-						self["telnetactive"].hide()
-						self["telnetinactive"].show()
-					else:
-						self["telnetactive"].show()
-						self["telnetinactive"].hide()
-				elif line.startswith("ENABLE_XBOX="):
-					if line[12:] == "no":
-						self["xboxactive"].hide()
-						self["xboxinactive"].show()
-					else:
-						self["xboxactive"].show()
-						self["xboxinactive"].hide()
-				elif line.startswith("ENABLE_DLNA="):
-					if line[12:] == "no":
-						self["dlnaactive"].hide()
-						self["dlnainactive"].show()
-					else:
-						self["dlnaactive"].show()
-						self["dlnainactive"].hide()
-			f.close()
+			with open("/etc/ushare.conf", "r") as f:
+				for line in f.readlines():
+					line = line.strip()
+					if line.startswith("USHARE_NAME="):
+						line = line[12:]
+						self["labuser"].setText(line)
+					elif line.startswith("USHARE_IFACE="):
+						line = line[13:]
+						self["labiface"].setText(line)
+					elif line.startswith("USHARE_PORT="):
+						line = line[12:]
+						self["labport"].setText(line)
+					elif line.startswith("USHARE_TELNET_PORT="):
+						line = line[19:]
+						self["labtelnetport"].setText(line)
+					elif line.startswith("USHARE_DIR="):
+						line = line[11:]
+						self.mediafolders = line
+						self["labsharedir"].setText(line)
+					elif line.startswith("ENABLE_WEB="):
+						if line[11:] == "no":
+							self["webactive"].hide()
+							self["webinactive"].show()
+						else:
+							self["webactive"].show()
+							self["webinactive"].hide()
+					elif line.startswith("ENABLE_TELNET="):
+						if line[14:] == "no":
+							self["telnetactive"].hide()
+							self["telnetinactive"].show()
+						else:
+							self["telnetactive"].show()
+							self["telnetinactive"].hide()
+					elif line.startswith("ENABLE_XBOX="):
+						if line[12:] == "no":
+							self["xboxactive"].hide()
+							self["xboxinactive"].show()
+						else:
+							self["xboxactive"].show()
+							self["xboxinactive"].hide()
+					elif line.startswith("ENABLE_DLNA="):
+						if line[12:] == "no":
+							self["dlnaactive"].hide()
+							self["dlnainactive"].show()
+						else:
+							self["dlnaactive"].show()
+							self["dlnainactive"].hide()
 		title = _("uShare Setup")
 
 		for cb in self.onChangedEntry:
@@ -2544,54 +2535,53 @@ class NetworkuShareSetup(ConfigListScreen, HelpableScreen, Screen):
 		# self.ushare_system = NoSave(ConfigSelection(default = "dyndns@dyndns.org", choices = [("dyndns@dyndns.org", "dyndns@dyndns.org"), ("statdns@dyndns.org", "statdns@dyndns.org"), ("custom@dyndns.org", "custom@dyndns.org")]))
 
 		if fileExists("/etc/ushare.conf"):
-			f = open("/etc/ushare.conf", "r")
-			for line in f.readlines():
-				line = line.strip()
-				if line.startswith("USHARE_NAME="):
-					line = line[12:]
-					self.ushare_user = NoSave(ConfigText(default=line, fixed_size=False))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("uShare name") + ":", self.ushare_user))
-				elif line.startswith("USHARE_IFACE="):
-					line = line[13:]
-					self.ushare_iface = NoSave(ConfigText(default=line, fixed_size=False))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("Interface") + ":", self.ushare_iface))
-				elif line.startswith("USHARE_PORT="):
-					line = int(line[12:])
-					self.ushare_port = NoSave(ConfigNumber(default=line))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("uShare port") + ":", self.ushare_port))
-				elif line.startswith("USHARE_TELNET_PORT="):
-					line = int(line[19:])
-					self.ushare_telnetport = NoSave(ConfigNumber(default=line))  # overwrite so we start with the correct defaults
-					self.list.append(getConfigListEntry(_("Telnet port") + ":", self.ushare_telnetport))
-				elif line.startswith("ENABLE_WEB="):
-					if line[11:] == "no":
-						default = False
-					else:
-						default = True
-					self.ushare_web = NoSave(ConfigYesNo(default=default))
-					self.list.append(getConfigListEntry(_("Web interface") + ":", self.ushare_web))
-				elif line.startswith("ENABLE_TELNET="):
-					if line[14:] == "no":
-						default = False
-					else:
-						default = True
-					self.ushare_telnet = NoSave(ConfigYesNo(default=default))
-					self.list.append(getConfigListEntry(_("Telnet interface") + ":", self.ushare_telnet))
-				elif line.startswith("ENABLE_XBOX="):
-					if line[12:] == "no":
-						default = False
-					else:
-						default = True
-					self.ushare_xbox = NoSave(ConfigYesNo(default=default))
-					self.list.append(getConfigListEntry(_("XBox 360 support") + ":", self.ushare_xbox))
-				elif line.startswith("ENABLE_DLNA="):
-					if line[12:] == "no":
-						default = False
-					else:
-						default = True
-					self.ushare_ps3 = NoSave(ConfigYesNo(default=default))
-					self.list.append(getConfigListEntry(_("DLNA support") + ":", self.ushare_ps3))
-			f.close()
+			with open("/etc/ushare.conf", "r") as f:
+				for line in f.readlines():
+					line = line.strip()
+					if line.startswith("USHARE_NAME="):
+						line = line[12:]
+						self.ushare_user = NoSave(ConfigText(default=line, fixed_size=False))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("uShare name") + ":", self.ushare_user))
+					elif line.startswith("USHARE_IFACE="):
+						line = line[13:]
+						self.ushare_iface = NoSave(ConfigText(default=line, fixed_size=False))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("Interface") + ":", self.ushare_iface))
+					elif line.startswith("USHARE_PORT="):
+						line = int(line[12:])
+						self.ushare_port = NoSave(ConfigNumber(default=line))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("uShare port") + ":", self.ushare_port))
+					elif line.startswith("USHARE_TELNET_PORT="):
+						line = int(line[19:])
+						self.ushare_telnetport = NoSave(ConfigNumber(default=line))  # overwrite so we start with the correct defaults
+						self.list.append(getConfigListEntry(_("Telnet port") + ":", self.ushare_telnetport))
+					elif line.startswith("ENABLE_WEB="):
+						if line[11:] == "no":
+							default = False
+						else:
+							default = True
+						self.ushare_web = NoSave(ConfigYesNo(default=default))
+						self.list.append(getConfigListEntry(_("Web interface") + ":", self.ushare_web))
+					elif line.startswith("ENABLE_TELNET="):
+						if line[14:] == "no":
+							default = False
+						else:
+							default = True
+						self.ushare_telnet = NoSave(ConfigYesNo(default=default))
+						self.list.append(getConfigListEntry(_("Telnet interface") + ":", self.ushare_telnet))
+					elif line.startswith("ENABLE_XBOX="):
+						if line[12:] == "no":
+							default = False
+						else:
+							default = True
+						self.ushare_xbox = NoSave(ConfigYesNo(default=default))
+						self.list.append(getConfigListEntry(_("XBox 360 support") + ":", self.ushare_xbox))
+					elif line.startswith("ENABLE_DLNA="):
+						if line[12:] == "no":
+							default = False
+						else:
+							default = True
+						self.ushare_ps3 = NoSave(ConfigYesNo(default=default))
+						self.list.append(getConfigListEntry(_("DLNA support") + ":", self.ushare_ps3))
 		self["config"].list = self.list
 
 	def keySave(self):
@@ -2654,12 +2644,12 @@ class uShareSelection(Screen):
 		self["key_yellow"] = StaticText()
 
 		if fileExists("/etc/ushare.conf"):
-			f = open("/etc/ushare.conf", "r")
-			for line in f.readlines():
-				line = line.strip()
-				if line.startswith("USHARE_DIR="):
-					line = line[11:]
-					self.mediafolders = line
+			with open("/etc/ushare.conf", "r") as f:
+				for line in f.readlines():
+					line = line.strip()
+					if line.startswith("USHARE_DIR="):
+						line = line[11:]
+						self.mediafolders = line
 		self.selectedFiles = [str(n) for n in self.mediafolders.split(", ")]
 		defaultDir = "/media/"
 		self.filelist = MultiFileSelectList(self.selectedFiles, defaultDir, showFiles=False)
@@ -2828,47 +2818,46 @@ class NetworkMiniDLNA(NSCommon, Screen):
 			status_summary = self["status"].text + " " + self["labstop"].text
 
 		if fileExists("/etc/minidlna.conf"):
-			f = open("/etc/minidlna.conf", "r")
-			for line in f.readlines():
-				line = line.strip()
-				if line.startswith("friendly_name="):
-					line = line[14:]
-					self["labuser"].setText(line)
-				elif line.startswith("network_interface="):
-					line = line[18:]
-					self["labiface"].setText(line)
-				elif line.startswith("port="):
-					line = line[5:]
-					self["labport"].setText(line)
-				elif line.startswith("serial="):
-					line = line[7:]
-					self["labserialno"].setText(line)
-				elif line.startswith("media_dir="):
-					line = line[10:]
-					self.mediafolders = line
-					self["labsharedir"].setText(line)
-				elif line.startswith("inotify="):
-					if line[8:] == "no":
-						self["inotifyactive"].hide()
-						self["inotifyinactive"].show()
-					else:
-						self["inotifyactive"].show()
-						self["inotifyinactive"].hide()
-				elif line.startswith("enable_tivo="):
-					if line[12:] == "no":
-						self["tivoactive"].hide()
-						self["tivoinactive"].show()
-					else:
-						self["tivoactive"].show()
-						self["tivoinactive"].hide()
-				elif line.startswith("strict_dlna="):
-					if line[12:] == "no":
-						self["dlnaactive"].hide()
-						self["dlnainactive"].show()
-					else:
-						self["dlnaactive"].show()
-						self["dlnainactive"].hide()
-			f.close()
+			with open("/etc/minidlna.conf", "r") as f:
+				for line in f.readlines():
+					line = line.strip()
+					if line.startswith("friendly_name="):
+						line = line[14:]
+						self["labuser"].setText(line)
+					elif line.startswith("network_interface="):
+						line = line[18:]
+						self["labiface"].setText(line)
+					elif line.startswith("port="):
+						line = line[5:]
+						self["labport"].setText(line)
+					elif line.startswith("serial="):
+						line = line[7:]
+						self["labserialno"].setText(line)
+					elif line.startswith("media_dir="):
+						line = line[10:]
+						self.mediafolders = line
+						self["labsharedir"].setText(line)
+					elif line.startswith("inotify="):
+						if line[8:] == "no":
+							self["inotifyactive"].hide()
+							self["inotifyinactive"].show()
+						else:
+							self["inotifyactive"].show()
+							self["inotifyinactive"].hide()
+					elif line.startswith("enable_tivo="):
+						if line[12:] == "no":
+							self["tivoactive"].hide()
+							self["tivoinactive"].show()
+						else:
+							self["tivoactive"].show()
+							self["tivoinactive"].hide()
+					elif line.startswith("strict_dlna="):
+						if line[12:] == "no":
+							self["dlnaactive"].hide()
+							self["dlnainactive"].show()
+						else:
+							self["dlnaactive"].show()
+							self["dlnainactive"].hide()
 		title = _("MiniDLNA Setup")
 
 		for cb in self.onChangedEntry:
@@ -2903,47 +2892,46 @@ class NetworkMiniDLNASetup(ConfigListScreen, HelpableScreen, Screen):
 		self.minidlna_strictdlna = NoSave(ConfigYesNo(default=True))
 
 		if fileExists("/etc/minidlna.conf"):
-			f = open("/etc/minidlna.conf", "r")
-			for line in f.readlines():
-				line = line.strip()
-				if line.startswith("friendly_name="):
-					line = line[14:]
-					self.minidlna_name = NoSave(ConfigText(default=line, fixed_size=False))
-					self.list.append(getConfigListEntry(_("Name") + ":", self.minidlna_name))
-				elif line.startswith("network_interface="):
-					line = line[18:]
-					self.minidlna_iface = NoSave(ConfigText(default=line, fixed_size=False))
-					self.list.append(getConfigListEntry(_("Interface") + ":", self.minidlna_iface))
-				elif line.startswith("port="):
-					line = int(line[5:])
-					self.minidlna_port = NoSave(ConfigNumber(default=line))
-					self.list.append(getConfigListEntry(_("Port") + ":", self.minidlna_port))
-				elif line.startswith("serial="):
-					line = int(line[7:])
-					self.minidlna_serialno = NoSave(ConfigNumber(default=line))
-					self.list.append(getConfigListEntry(_("Serial no") + ":", self.minidlna_serialno))
-				elif line.startswith("inotify="):
-					if line[8:] == "no":
-						default = False
-					else:
-						default = True
-					self.minidlna_inotify = NoSave(ConfigYesNo(default=default))
-					self.list.append(getConfigListEntry(_("Inotify monitoring") + ":", self.minidlna_inotify))
-				elif line.startswith("enable_tivo="):
-					if line[12:] == "no":
-						default = False
-					else:
-						default = True
-					self.minidlna_tivo = NoSave(ConfigYesNo(default=default))
-					self.list.append(getConfigListEntry(_("TiVo support") + ":", self.minidlna_tivo))
-				elif line.startswith("strict_dlna="):
-					if line[12:] == "no":
-						default = False
-					else:
-						default = True
-					self.minidlna_strictdlna = NoSave(ConfigYesNo(default=default))
-					self.list.append(getConfigListEntry(_("Strict DLNA") + ":", self.minidlna_strictdlna))
-			f.close()
+			with open("/etc/minidlna.conf", "r") as f:
+				for line in f.readlines():
+					line = line.strip()
+					if line.startswith("friendly_name="):
+						line = line[14:]
+						self.minidlna_name = NoSave(ConfigText(default=line, fixed_size=False))
+						self.list.append(getConfigListEntry(_("Name") + ":", self.minidlna_name))
+					elif line.startswith("network_interface="):
+						line = line[18:]
+						self.minidlna_iface = NoSave(ConfigText(default=line, fixed_size=False))
+						self.list.append(getConfigListEntry(_("Interface") + ":", self.minidlna_iface))
+					elif line.startswith("port="):
+						line = int(line[5:])
+						self.minidlna_port = NoSave(ConfigNumber(default=line))
+						self.list.append(getConfigListEntry(_("Port") + ":", self.minidlna_port))
+					elif line.startswith("serial="):
+						line = int(line[7:])
+						self.minidlna_serialno = NoSave(ConfigNumber(default=line))
+						self.list.append(getConfigListEntry(_("Serial no") + ":", self.minidlna_serialno))
+					elif line.startswith("inotify="):
+						if line[8:] == "no":
+							default = False
+						else:
+							default = True
+						self.minidlna_inotify = NoSave(ConfigYesNo(default=default))
+						self.list.append(getConfigListEntry(_("Inotify monitoring") + ":", self.minidlna_inotify))
+					elif line.startswith("enable_tivo="):
+						if line[12:] == "no":
+							default = False
+						else:
+							default = True
+						self.minidlna_tivo = NoSave(ConfigYesNo(default=default))
+						self.list.append(getConfigListEntry(_("TiVo support") + ":", self.minidlna_tivo))
+					elif line.startswith("strict_dlna="):
+						if line[12:] == "no":
+							default = False
+						else:
+							default = True
+						self.minidlna_strictdlna = NoSave(ConfigYesNo(default=default))
+						self.list.append(getConfigListEntry(_("Strict DLNA") + ":", self.minidlna_strictdlna))
 		self["config"].list = self.list
 
 	def keySave(self):
@@ -3001,12 +2989,12 @@ class MiniDLNASelection(Screen):
 		self["key_yellow"] = StaticText()
 
 		if fileExists("/etc/minidlna.conf"):
-			f = open("/etc/minidlna.conf", "r")
-			for line in f.readlines():
-				line = line.strip()
-				if line.startswith("media_dir="):
-					line = line[11:]
-					self.mediafolders = line
+			with open("/etc/minidlna.conf", "r") as f:
+				for line in f.readlines():
+					line = line.strip()
+					if line.startswith("media_dir="):
+						line = line[11:]
+						self.mediafolders = line
 		self.selectedFiles = [str(n) for n in self.mediafolders.split(", ")]
 		defaultDir = "/media/"
 		self.filelist = MultiFileSelectList(self.selectedFiles, defaultDir, showFiles=False)

@@ -51,13 +51,12 @@ class Wlan:
 	def getWirelessInterfaces(self):
 		device = compile("[a-z]{2,}[0-9]*:")
 		ifnames = []
-
-		fp = open("/proc/net/wireless", "r")
-		for line in fp:
-			try:
-				ifnames.append(device.search(line).group()[:-1])
-			except AttributeError:
-				pass
+		with open("/proc/net/wireless", "r") as fp:
+			for line in fp:
+				try:
+					ifnames.append(device.search(line).group()[:-1])
+				except AttributeError:
+					pass
 		return ifnames
 
 	def setInterface(self, iface=None):
