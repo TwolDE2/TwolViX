@@ -3,7 +3,7 @@ import socket
 from urllib.request import urlopen, Request
 
 from enigma import eTimer
-from Components.About import about
+from Components.About import getIfConfig
 from Components.config import config
 from Components.Ipkg import IpkgComponent
 from Components.SystemInfo import SystemInfo, KERNEL
@@ -35,7 +35,7 @@ class FeedsStatusCheck:
 
 	def adapterAvailable(self):  # Box has an adapter configured and active
 		for adapter in ("eth0", "eth1", "wlan0", "wlan1", "wlan2", "wlan3", "ra0"):
-			if "addr" in about.getIfConfig(adapter):
+			if "addr" in getIfConfig(adapter):
 				print("[OnlineUpdateCheck][adapterAvailable] PASSED")
 				return True
 		print("[OnlineUpdateCheck][adapterAvailable] FAILED")
