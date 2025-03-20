@@ -2275,7 +2275,7 @@ class NetworkInadynSetup(ConfigListScreen, HelpableScreen, Screen):
 		self.ina_system = NoSave(ConfigSelection(default="dyndns@dyndns.org", choices=[("dyndns@dyndns.org", "dyndns@dyndns.org"), ("statdns@dyndns.org", "statdns@dyndns.org"), ("custom@dyndns.org", "custom@dyndns.org"), ("default@no-ip.com", "default@no-ip.com")]))
 
 		if fileExists("/etc/inadyn.conf"):
-			with open("/etc/inadyn.conf", "r") as f:	
+			with open("/etc/inadyn.conf", "r") as f:
 				for line in f.readlines():
 					line = line.strip()
 					if line.startswith("username "):
