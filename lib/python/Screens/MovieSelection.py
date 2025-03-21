@@ -158,7 +158,7 @@ def canDelete(item):
 	return True
 
 
-def diskinfo():
+def diskFreeSpace():
 	try:
 		stat = statvfs(config.movielist.last_videodir.value)
 		percent = '(' + str((100 * stat.f_bavail) // stat.f_blocks) + '%)'
@@ -1726,7 +1726,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		if not (self.reload_sel and self["list"].moveTo(self.reload_sel)):
 			if self.reload_home:
 				self["list"].moveToFirstMovie()
-		text = diskinfo()
+		text = diskFreeSpace()
 		self["freeDiskSpace"].setText(text)
 		self["waitingtext"].visible = False
 		self.createPlaylist()
@@ -2489,7 +2489,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		if markedCount > 0:
 			self["freeDiskSpace"].setText(ngettext(_("%d marked item"), _("%d marked items"), markedCount) % markedCount)
 		else:
-			text = diskinfo()
+			text = diskFreeSpace()
 			self["freeDiskSpace"].setText(text)
 			current = self.getCurrent()
 			if current is not None:
