@@ -1,4 +1,4 @@
-from os import access, listdir, mkdir, path as ospath, remove, rename, stat, W_OK
+from os import access, listdir, mkdir, path as ospath, remove, rename, stat, statvfs, W_OK
 import time
 import pickle
 import shutil
@@ -8,7 +8,7 @@ from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigLocations, ConfigSet, ConfigYesNo, ConfigSelection, ConfigSelectionNumber
-from Components.DiskInfo import DiskInfo
+from Components.Harddisk import bytesToHumanReadable
 from Components.Label import Label
 from Components.MovieList import MovieList, expandCollections, getItemDisplayName, resetMoviePlayState, AUDIO_EXTENSIONS, DVD_EXTENSIONS, IMAGE_EXTENSIONS
 from Components.Pixmap import Pixmap, MultiPixmap
@@ -157,6 +157,15 @@ def canDelete(item):
 		return False
 	return True
 
+def diskinfo():
+	try:
+		stat = statvfs(config.movielist.last_videodir.value)
+		percent = '(' + str((100 * stat.f_bavail) // stat.f_blocks) + '%)'
+		free = bytesToHumanReadable(stat.f_bfree * stat.f_bsize)
+		text = (" ".join((free, percent, _("free diskspace"))))
+	except:
+		text = ("-?-")
+	return text
 
 canCopy = canMove
 canRename = canMove
@@ -636,7 +645,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		self["movie_sort"] = MultiPixmap()
 		self["movie_sort"].hide()
 
-		self["freeDiskSpace"] = self.diskinfo = DiskInfo(config.movielist.last_videodir.value, DiskInfo.FREE, update=False)
+		self["freeDiskSpace"] = Label("")
 		self["TrashcanSize"] = self.trashinfo = TrashInfo(config.movielist.last_videodir.value, TrashInfo.USED, update=False)
 
 		self["InfobarActions"] = HelpableActionMap(self, "InfobarActions",
@@ -1699,7 +1708,6 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			config.movielist.last_videodir.value = path
 			config.movielist.last_videodir.save()
 			self.setCurrentRef(path)
-			self["freeDiskSpace"].path = path
 			self["TrashcanSize"].update(path)
 		else:
 			self["TrashcanSize"].update(config.movielist.last_videodir.value)
@@ -1716,7 +1724,8 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		if not (self.reload_sel and self["list"].moveTo(self.reload_sel)):
 			if self.reload_home:
 				self["list"].moveToFirstMovie()
-		self["freeDiskSpace"].update()
+		text = diskinfo()
+		self["freeDiskSpace"].setText(text)
 		self["waitingtext"].visible = False
 		self.createPlaylist()
 		if self.playGoTo:
@@ -2471,14 +2480,15 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		else:
 			self.feedbackTimer.stop()
 		self.feedbackTimer.start(3000, 1)
-		self.diskinfo.setText(text)
+		self["freeDiskSpace"].setText(text)
 
 	def hideActionFeedback(self):
 		markedCount = self.list.countMarked()
 		if markedCount > 0:
-			self.diskinfo.setText(ngettext(_("%d marked item"), _("%d marked items"), markedCount) % markedCount)
+			self["freeDiskSpace"].setText(ngettext(_("%d marked item"), _("%d marked items"), markedCount) % markedCount)
 		else:
-			self.diskinfo.update()
+			text = diskinfo()
+			self["freeDiskSpace"].setText(text)
 			current = self.getCurrent()
 			if current is not None:
 				self.trashinfo.update(current.getPath())
