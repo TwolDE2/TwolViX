@@ -38,7 +38,7 @@ from Tools import NumericalTextInput
 from Tools.BoundFunction import boundFunction
 from Tools.CopyFiles import copyFiles, moveFiles
 from Tools.Directories import resolveFilename, SCOPE_HDD
-from Tools.Trashcan import TrashInfo, cleanAll, createTrashFolder, getTrashFolder
+from Tools.Trashcan import cleanAll, createTrashFolder, getTrashFolder
 
 
 config.movielist = ConfigSubsection()
@@ -167,6 +167,15 @@ def diskFreeSpace():
 	except:
 		text = ("-?-")
 	return text
+
+
+def trashcanSize(path):
+	if not path.startswith("/media/autofs"):
+		try:
+			return _("Trashcan:") + " " + Components.Harddisk.bytesToHumanReadable(Tools.Trashcan.get_size(Tools.Trashcan.getTrashFolder(path)))
+		except Exception:
+			pass
+	return ""
 
 
 canCopy = canMove
@@ -648,7 +657,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 		self["movie_sort"].hide()
 
 		self["freeDiskSpace"] = Label("")
-		self["TrashcanSize"] = self.trashinfo = TrashInfo(config.movielist.last_videodir.value, TrashInfo.USED, update=False)
+		self["TrashcanSize"] = Label("")
 
 		self["InfobarActions"] = HelpableActionMap(self, "InfobarActions",
 			{
@@ -1710,9 +1719,9 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 			config.movielist.last_videodir.value = path
 			config.movielist.last_videodir.save()
 			self.setCurrentRef(path)
-			self["TrashcanSize"].update(path)
+			self["TrashcanSize"].setText(trashcanSize(path))
 		else:
-			self["TrashcanSize"].update(config.movielist.last_videodir.value)
+			self["TrashcanSize"].setText(trashcanSize(config.movielist.last_videodir.value))
 		if self.reload_sel is None:
 			self.reload_sel = self.getCurrent()
 		if config.usage.movielist_trashcan.value and access(config.movielist.last_videodir.value, W_OK):
@@ -1800,8 +1809,7 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 				config.movielist.last_videodir.save()
 				self.loadLocalSettings()
 				self.setCurrentRef(res)
-				self["freeDiskSpace"].path = res
-				self["TrashcanSize"].update(res)
+				self["TrashcanSize"].setText(trashcanSize(res))
 				if selItem:
 					self.reloadList(home=True, sel=selItem)
 				else:
