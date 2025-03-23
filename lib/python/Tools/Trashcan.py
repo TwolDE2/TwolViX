@@ -7,7 +7,6 @@ from Components.Harddisk import findMountPoint
 import Components.Task
 
 
-
 def isTrashFolder(path):
 	path = ospath.realpath(path)
 	return getTrashFolder(path) == path
