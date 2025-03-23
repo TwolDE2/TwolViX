@@ -3,10 +3,9 @@ import enigma
 import time
 
 from Components.config import config
-from Components.GUIComponent import GUIComponent
-from Components import Harddisk
+from Components.Harddisk import findMountPoint
 import Components.Task
-from Components.VariableText import VariableText
+
 
 
 def isTrashFolder(path):
@@ -20,7 +19,7 @@ def getTrashFolder(path=None):
 		if path is None or ospath.realpath(path) == "/media/autofs":
 			return ""
 		else:
-			trashcan = Harddisk.findMountPoint(ospath.realpath(path))
+			trashcan = findMountPoint(ospath.realpath(path))
 			if "/movie" in path:
 				trashcan = ospath.join(trashcan, "movie")
 			elif config.usage.default_path.value in path:
