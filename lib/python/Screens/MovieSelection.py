@@ -8,7 +8,7 @@ from Components.Button import Button
 from Components.ActionMap import HelpableActionMap, ActionMap, HelpableNumberActionMap
 from Components.ChoiceList import ChoiceList, ChoiceEntryComponent
 from Components.config import config, ConfigSubsection, ConfigText, ConfigInteger, ConfigLocations, ConfigSet, ConfigYesNo, ConfigSelection, ConfigSelectionNumber
-from Components.Harddisk import bytesToHumanReadable
+from Components.Harddisk import bytesToHumanReadable, harddiskmanager
 from Components.Label import Label
 from Components.MovieList import MovieList, expandCollections, getItemDisplayName, resetMoviePlayState, AUDIO_EXTENSIONS, DVD_EXTENSIONS, IMAGE_EXTENSIONS
 from Components.Pixmap import Pixmap, MultiPixmap
@@ -16,7 +16,6 @@ from Components.PluginComponent import plugins
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from Components.Sources.ServiceEvent import ServiceEvent
 from Components.Sources.StaticText import StaticText
-import Components.Harddisk
 from Components.UsageConfig import preferredTimerPath
 import NavigationInstance
 from Screens.VirtualKeyBoard import VirtualKeyBoard
@@ -161,9 +160,9 @@ def canDelete(item):
 def diskFreeSpace():
 	try:
 		stat = statvfs(config.movielist.last_videodir.value)
-		percent = '(' + str((100 * stat.f_bavail) // stat.f_blocks) + '%)'
+		percent = f"({100 * stat.f_bavail // stat.f_blocks}%)"
 		free = bytesToHumanReadable(stat.f_bfree * stat.f_bsize)
-		text = (" ".join((free, percent, _("free diskspace"))))
+		text = " ".join((free, percent, _("free diskspace")))
 	except:
 		text = ""
 	return text
@@ -173,7 +172,7 @@ def trashcanSize(path):
 	if not path.startswith("/media/autofs"):
 		try:
 			if size := get_size(getTrashFolder(path)):
-				return _("Trashcan:") + " " + Components.Harddisk.bytesToHumanReadable(size)
+				return _("Trashcan:") + " " + bytesToHumanReadable(size)
 		except Exception:
 			pass
 	return ""
@@ -314,7 +313,7 @@ def buildMovieLocationList(includeOther=False, path=None, includeSubdirs=False, 
 			bookmarks.append((d, d))
 			inlist.append(d)
 	# Mount points
-	for p in Components.Harddisk.harddiskmanager.getMountedPartitions():
+	for p in harddiskmanager.getMountedPartitions():
 		d = ospath.normpath(p.mountpoint)
 		if d in inlist:
 			# improve shortcuts to mountpoints
@@ -1608,9 +1607,9 @@ class MovieSelection(Screen, HelpableScreen, SelectionEventInfo, InfoBarBase, Pr
 	def configureDone(self, result):
 		if result:
 			self.applyConfigSettings({
-			"moviesort": config.movielist.moviesort.value,  # noqa: E122
-			"description": config.movielist.description.value,  # noqa: E122
-			"movieoff": config.usage.on_movie_eof.value})  # noqa: E122
+				"moviesort": config.movielist.moviesort.value,  # noqa: E122
+				"description": config.movielist.description.value,  # noqa: E122
+				"movieoff": config.usage.on_movie_eof.value})  # noqa: E122
 			self.saveLocalSettings()
 			self._updateButtonTexts()
 			self.reloadList()
