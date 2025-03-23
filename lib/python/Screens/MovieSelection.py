@@ -38,7 +38,7 @@ from Tools import NumericalTextInput
 from Tools.BoundFunction import boundFunction
 from Tools.CopyFiles import copyFiles, moveFiles
 from Tools.Directories import resolveFilename, SCOPE_HDD
-from Tools.Trashcan import cleanAll, createTrashFolder, getTrashFolder
+from Tools.Trashcan import cleanAll, createTrashFolder, get_size, getTrashFolder
 
 
 config.movielist = ConfigSubsection()
@@ -172,7 +172,7 @@ def diskFreeSpace():
 def trashcanSize(path):
 	if not path.startswith("/media/autofs"):
 		try:
-			if size := Tools.Trashcan.get_size(Tools.Trashcan.getTrashFolder(path)):
+			if size := get_size(getTrashFolder(path)):
 				return _("Trashcan:") + " " + Components.Harddisk.bytesToHumanReadable(size)
 		except Exception:
 			pass
