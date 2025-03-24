@@ -12,7 +12,7 @@ from Components.SystemInfo import SystemInfo  # noqa: E402
 from Screens.MessageBox import MessageBox  # noqa: E402
 
 # workaround for required config entry dependencies.
-import Screens.MovieSelection  # noqa: E402
+from Screens.MovieSelection import MovieSelection, moveServiceFiles, playlist
 from Screens.Screen import Screen  # noqa: E402
 
 profile("LOAD:InfoBarGenerics")
@@ -91,11 +91,6 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 		if type(self) is InfoBar:
 			assert InfoBar.instance is None, "class InfoBar is a singleton class and just one instance of this class is allowed!"
 			InfoBar.instance = self
-
-		cfgbouquets = [(("Disabled"), _("Disabled"))]
-		for bouq in InfoBar.instance.servicelist.getBouquetList():
-			cfgbouquets.append((bouq[0], bouq[0]))
-		config.epgselection.graph_primarybouquet = ConfigSelection(choices=cfgbouquets, default="Disabled")
 
 		if config.misc.initialchannelselection.value:
 			self.onShown.append(self.showMenu)
@@ -220,7 +215,7 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 		if self.lastservice and ':0:/' in self.lastservice.toString():
 			self.lastservice = enigma.eServiceReference(config.movielist.curentlyplayingservice.value)
 
-		self.session.openWithCallback(self.movieSelected, Screens.MovieSelection.MovieSelection, defaultRef or enigma.eServiceReference(config.usage.last_movie_played.value), timeshiftEnabled=self.timeshiftEnabled())
+		self.session.openWithCallback(self.movieSelected, MovieSelection, defaultRef or enigma.eServiceReference(config.usage.last_movie_played.value), timeshiftEnabled=self.timeshiftEnabled())
 
 	def movieSelected(self, service):
 		ref = self.lastservice
@@ -320,7 +315,6 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 		# clear the instance value so the skin reloader works correctly
 		MoviePlayer.instance = None
 		config.misc.standbyCounter.removeNotifier(self.standbyCountChanged)
-		from Screens.MovieSelection import playlist
 		del playlist[:]
 		if not config.movielist.stop_service.value and Screens.InfoBar.InfoBar.instance:
 			Screens.InfoBar.InfoBar.instance.callServiceStarted()
@@ -397,7 +391,6 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 			self.leavePlayerConfirmed((True, "deleteandmovielistconfirmed"))
 
 	def movielistAgain(self):
-		from Screens.MovieSelection import playlist
 		del playlist[:]
 		self.leavePlayerConfirmed((True, "movielist"))
 
@@ -414,7 +407,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 					import Tools.Trashcan
 					try:
 						trash = Tools.Trashcan.createTrashFolder(ref.getPath())
-						Screens.MovieSelection.moveServiceFiles(ref, trash)
+						moveServiceFiles(ref, trash)
 						# Moved to trash, okay
 						if answer == "quitanddelete":
 							self.close()
@@ -449,7 +442,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 			self.session.nav.stopService()
 			if not config.movielist.stop_service.value:
 				self.session.nav.playService(self.lastservice)
-			self.session.openWithCallback(self.movieSelected, Screens.MovieSelection.MovieSelection, ref)
+			self.session.openWithCallback(self.movieSelected, MovieSelection, ref)
 		elif answer == "restart":
 			self.doSeek(0)
 			self.setSeekState(self.SEEK_STATE_PLAY)
@@ -579,7 +572,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 			self.playingservice = ref  # movie list may change the currently playing
 		else:
 			self.playingservice = enigma.eServiceReference(config.movielist.curentlyplayingservice.value)
-		self.session.openWithCallback(self.movieSelected, Screens.MovieSelection.MovieSelection, ref)
+		self.session.openWithCallback(self.movieSelected, MovieSelection, ref)
 
 	def movieSelected(self, service):
 		if service is not None:
@@ -598,7 +591,6 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 				self.session.nav.playService(ref)
 
 	def getPlaylistServiceInfo(self, service):
-		from .MovieSelection import playlist
 		for i, item in enumerate(playlist):
 			if item == service:
 				if config.usage.on_movie_eof.value == "repeatcurrent":
