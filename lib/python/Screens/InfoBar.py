@@ -12,7 +12,7 @@ from Components.SystemInfo import SystemInfo  # noqa: E402
 from Screens.MessageBox import MessageBox  # noqa: E402
 
 # workaround for required config entry dependencies.
-from Screens.MovieSelection import MovieSelection, moveServiceFiles, playlist
+from Screens.MovieSelection import MovieSelection, moveServiceFiles, playlist  # noqa: E402
 from Screens.Screen import Screen  # noqa: E402
 
 profile("LOAD:InfoBarGenerics")
@@ -316,8 +316,8 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 		MoviePlayer.instance = None
 		config.misc.standbyCounter.removeNotifier(self.standbyCountChanged)
 		del playlist[:]
-		if not config.movielist.stop_service.value and Screens.InfoBar.InfoBar.instance:
-			Screens.InfoBar.InfoBar.instance.callServiceStarted()
+		if not config.movielist.stop_service.value and InfoBar.instance:
+			InfoBar.instance.callServiceStarted()
 		self.session.nav.playService(self.lastservice)
 		# Simulate service start event due to the fact when exit from playing
 		# a recording there is no evStart event because the same service is already playing
