@@ -17,7 +17,7 @@ from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
 from Screens.TextBox import TextBox
-from Tools.Directories import fileHas, isPluginInstalled, fileReadLines
+from Tools.Directories import fileHas, fileReadLines, isPluginInstalled
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
 
