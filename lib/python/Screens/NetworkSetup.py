@@ -887,7 +887,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 				print(f"[NetworkSetup] queryWirelessDevice InterfaceError: {str(ie)}")
 				return False
 			except OSError as err:
-				print(f"[AdapterSetupConfiguration] error:{err}")			
+				print(f"[AdapterSetupConfiguration] error:{err}")
 				error_no, error_str = err.args
 				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
 					return False
