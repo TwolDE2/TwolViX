@@ -879,10 +879,15 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		except ImportError:
 			return False
 		else:
+			from wifi.exceptions import InterfaceError
 			try:
 				system("ifconfig %s up" % iface)
 				wlanresponse = list(Cell.all(iface))  # noqa: F841  call to check setup
-			except IOError as err:
+			except InterfaceError as ie:
+				print(f"[NetworkSetup] queryWirelessDevice InterfaceError: {str(ie)}")
+				return False
+			except OSError as err:
+				print(f"[AdapterSetupConfiguration] error:{err}")			
 				error_no, error_str = err.args
 				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
 					return False
