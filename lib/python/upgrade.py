@@ -13,12 +13,10 @@ def findMountPoint(path):
 
 
 def opkgExtraDestinations():
-	global opkgDestinations
 	return ''.join([" --add-dest %s:%s" % (i, i) for i in opkgDestinations])
 
 
 def opkgAddDestination(mountpoint):
-	global opkgDestinations
 	if mountpoint not in opkgDestinations:
 		opkgDestinations.append(mountpoint)
 		print("[Ipkg] Added to OPKG destinations:", mountpoint)
