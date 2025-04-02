@@ -162,7 +162,7 @@ class EventInfo(PerServiceBase, Source):
 			self.changed((self.CHANGED_ALL,))
 		# if evUpdatedEventInfo arrives before the event starts the fields will not change, so add an additional future timed event to make sure it does update.
 		if not from_timer and what in (iPlayableService.evUpdatedInfo, iPlayableService.evUpdatedEventInfo):
-			self.timer.startLongTimer(wait := 300 - int(time() % 300) + 5)    # noqa: E841
+			self.timer.startLongTimer(wait := 300 - int(time() % 300) + 5)    # noqa F841
 			#  print("[EventInfo] gotEvent, timer is set to repeat event in %s seconds" % wait)
 		if self.now_or_next == self.NOW and what in (iPlayableService.evUpdatedInfo, iPlayableService.evUpdatedEventInfo):
 			pass
