@@ -232,6 +232,7 @@ SystemInfo["WakeOnLAN"] = SystemInfo["boxtype"] not in ("et8000", "et10000") and
 SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in SystemInfo["mtdrootfs"]
 # Sat Config
 SystemInfo["Blindscan_t2_available"] = fileCheck("/proc/stb/info/vumodel") and SystemInfo["boxtype"].startswith("vu")
+SystemInfo["Passthrough_fix_needed"] = fileCheck("/proc/stb/info/vumodel") and SystemInfo["boxtype"].startswith("vu")
 SystemInfo["HasPhysicalLoopthrough"] = ["Vuplus DVB-S NIM(AVL2108)", "GIGA DVB-S2 NIM (Internal)"]
 if getBoxType() in ("et7500", "et8500"):
 	SystemInfo["HasPhysicalLoopthrough"].append("AVL6211")
