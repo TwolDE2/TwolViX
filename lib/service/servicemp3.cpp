@@ -1730,8 +1730,8 @@ int eServiceMP3::selectAudioStream(int i, bool skipAudioFix)
 					{
 						clearBuffers();
 					}
-				} 
-				else 
+				}
+				else
 				{
 					clearBuffers();
 				}
