@@ -307,8 +307,8 @@ class AVSwitch:
 						ret = (16, 10)
 			elif is_auto:
 				try:
-					if "1" in open("/proc/stb/vmpeg/0/aspect", "r").read():  # 4:3
-						return (4, 3)
+					if "1" in open("/proc/stb/vmpeg/0/aspect", "r").read():  # 16:9
+						return (16, 9
 				except (IOError, OSError):
 					pass
 			else:  # 4:3
