@@ -67,12 +67,10 @@ class Element:
 		# we should not disconnect from upstream if
 		# there are still elements depending on us.
 		assert len(self.downstream_elements) == 0, "there are still downstream elements left"
-
-		# Sources don't have a source themselves. don't do anything here.
-		for s in self.sources:
-			s.disconnectDownstream(self)
-
 		if self.source:
+			# Sources don't have a source themselves. don't do anything here.
+			for s in self.sources:
+				s.disconnectDownstream(self)
 			# sources are owned by the Screen, so don't destroy them here.
 			self.destroy()
 		self.source = None
