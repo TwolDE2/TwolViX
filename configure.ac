@@ -531,11 +531,10 @@ CXXFLAGS="$CXXFLAGS -Wall -Wextra\
 	-Wstringop-overflow=3 -Woverlength-strings \
 	-Wunsafe-loop-optimizations -Wpointer-arith \
 	-Wfloat-equal -Wlogical-op \
-	-Wno-missing-field-initializers \	
-	-Wno-error=cast-align=strict \
+	-Wno-error=cast-align=strict -Wno-error=ignored-qualifiers \
 	-Wno-error=cast-function-type -Wno-error=deprecated-declarations \
 	-Wno-error=stringop-truncation -Wno-error=shadow -Wno-error=cast-qual \
-	-Wno-error=aggregate-return -Wno-error=missing-field-initializers \
+	-Wno-error=aggregate-return -Wno-missing-field-initializers \
 	-Wno-error=packed -Wno-error=vla -Wno-error=clobbered -Wno-error=unused-parameter \
 	$BASE_CFLAGS $ENIGMA2_CFLAGS $PTHREAD_CFLAGS $OPENMP_CFLAGS $ALSA_CFLAGS $GLES_CFLAGS"
 AX_SWIG_PYTHON_OPT="$AX_SWIG_PYTHON_OPT -DSWIG_PYTHON_LEGACY_BOOL"
