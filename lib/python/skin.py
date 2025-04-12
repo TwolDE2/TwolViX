@@ -357,6 +357,7 @@ def parseFont(s, scale=((1, 1), (1, 1))):
 			size = f[1] if size is None else size
 	return gFont(name, int(size) * scale[0][0] // scale[0][1])
 
+
 def parseColor(value, default=0x00FFFFFF):
 	if value[0] == "#":
 		try:
@@ -368,7 +369,8 @@ def parseColor(value, default=0x00FFFFFF):
 	else:
 		value = gRGB(default)
 	return value
-	
+
+
 def parseGradient(value):
 	def validColor(value):
 		if value[0] == "#" and len(value) in (9, 7):
@@ -400,6 +402,7 @@ def parseGradient(value):
 		alphaBlend = 0
 	return (gradientColors[0], gradientColors[1], gradientColors[2], direction, alphaBlend)
 
+
 def parseOptions(options, attribute, value, default):
 	if options and isinstance(options, dict):
 		if value in options.keys():
@@ -409,6 +412,7 @@ def parseOptions(options, attribute, value, default):
 	else:
 		value = default
 	return value
+
 
 def parseBoolean(attribute, value):
 	return value.lower() in ("1", attribute, "enabled", "on", "true", "yes")
