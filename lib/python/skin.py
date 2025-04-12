@@ -417,6 +417,7 @@ def parseOptions(options, attribute, value, default):
 def parseBoolean(attribute, value):
 	return value.lower() in ("1", attribute, "enabled", "on", "true", "yes")
 
+
 def parseParameter(s):
 	"""This function is responsible for parsing parameters in the skin, it can parse integers, floats, hex colors, hex integers, named colors, fonts and strings."""
 	if s[0] == "*":  # String.
