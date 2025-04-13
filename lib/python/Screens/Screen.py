@@ -118,10 +118,16 @@ class Screen(dict):
 		# a "unskin"-call, but currently we destroy the screen afterwards anyway.
 		for val in self.renderer:
 			val.disconnectAll()  # Disconnect converter/sources and probably destroy them. Sources will not be destroyed.
-		del self.session
-		for (name, val) in list(self.items()):
-			val.destroy()
-			del self[name]
+		try:
+			del self.session
+		except:
+			pass
+		try:
+			for (name, val) in list(self.items()):
+				val.destroy()
+				del self[name]
+		except:
+			pass
 		self.renderer = []
 		# by setting all attributes to None, we release any references promptly
 		# without completely removing attributes that are expected to exist
