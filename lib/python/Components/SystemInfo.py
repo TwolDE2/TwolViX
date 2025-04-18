@@ -66,6 +66,7 @@ class BoxInformation:
 			return True
 		return False
 
+
 BoxInfo = BoxInformation()
 
 # "kernel" from enigma.info may not be faithful with what is expected. e.g. osmio4k should be "5.15.0"
