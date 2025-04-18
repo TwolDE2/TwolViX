@@ -5,7 +5,6 @@ from os.path import isfile, join as pathjoin
 from re import split
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
-from Components.About import getKernelVersionString
 from Components.RcModel import rc_model
 from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLine, fileReadLines
 
@@ -67,7 +66,6 @@ class BoxInformation:
 			return True
 		return False
 
-
 BoxInfo = BoxInformation()
 
 # "kernel" from enigma.info may not be faithful with what is expected. e.g. osmio4k should be "5.15.0"
@@ -75,7 +73,8 @@ BoxInfo = BoxInformation()
 # to refect that found in "${STAGING_KERNEL_BUILDDIR}/kernel-abiversion" which is the version used in the
 # package names from the feeds. Therefore we will force the output of BoxInfo.getItem("kernel") to the
 # value from "/proc/version" which is the same.
-BoxInfo.boxInfo["kernel"] = getKernelVersionString().strip()  # force kernel revision
+Versions = fileReadLine("/proc/version")
+BoxInfo.boxInfo["kernel"] = Versions.split(" ", 3)[2].split("-", 1)[0].strip() if Versions else _("unknown")  # force kernel revision
 
 # This line makes the BoxInfo backwards compatible with SystemInfo without duplicating the dictionary.
 SystemInfo = BoxInfo.boxInfo
