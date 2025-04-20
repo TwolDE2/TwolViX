@@ -116,8 +116,9 @@ class Screen(dict):
 		self.deleteGUIScreen()
 		# First disconnect all render from their sources. We might split this out into
 		# a "unskin"-call, but currently we destroy the screen afterwards anyway.
-		for val in self.renderer:
-			val.disconnectAll()  # Disconnect converter/sources and probably destroy them. Sources will not be destroyed.
+		if self.renderer:
+			for val in self.renderer:
+				val.disconnectAll()  # Disconnect converter/sources and probably destroy them. Sources will not be destroyed.
 		try:
 			del self.session
 		except:
