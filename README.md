@@ -48,11 +48,12 @@
     sudo sysctl -n -w fs.inotify.max_user_watches=524288
 
 ----------
-5 - Disable apparmor profile
+5 - Update apparmor profile
 
-    Currently due to this Ubuntu/bitbake issue: https://bugs.launchpad.net/ubuntu/+source/apparmor/+bug/2056555
-    This command must be entered after every restart of the build PC.
+## Workaround for ubuntu issue [Allow bitbake to create user namespace](https://bugs.launchpad.net/ubuntu/+source/apparmor/+bug/2056555) ##
+## Credit to Changqing Li (sandy-lcq), Karsten S. Opdal (karsten-s-opdal) and Ferry Toth (ftoth) ##
    
+    echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/60-apparmor-namespace.conf > /dev/null && sudo sysctl --system
     sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
 ----------
