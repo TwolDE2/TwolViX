@@ -75,13 +75,16 @@ def autostart(reason, **kwargs):
 		try:
 			if exists(HOTPLUG_SOCKET):
 				remove(HOTPLUG_SOCKET)
-		except OSError:
+		except Exception as error:
+			print(f"[Hotplug][autostart] Exception:{error}")
 			pass
 		cleanMediaDirs()  # Initial cleanup
 		factory = Factory()
 		factory.protocol = Hotplug
-		reactor.listenUNIX(HOTPLUG_SOCKET, factory)
-
+		try:
+			reactor.listenUNIX(HOTPLUG_SOCKET, factory)
+		except:
+			pass
 
 class HotPlugManager:
 	def __init__(self):
