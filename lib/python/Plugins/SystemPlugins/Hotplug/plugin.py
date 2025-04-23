@@ -86,6 +86,7 @@ def autostart(reason, **kwargs):
 		except:
 			pass
 
+
 class HotPlugManager:
 	def __init__(self):
 		self.newCount = 0
