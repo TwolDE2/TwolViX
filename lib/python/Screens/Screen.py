@@ -104,11 +104,8 @@ class Screen(dict):
 
 	def doClose(self):  # Never call this directly - it will be called from the session!
 		self.hide()
-		try:
-			for x in self.onClose:
-				x()
-		except:
-			pass
+		for x in self.onClose:
+			x()
 		try:
 			del self.helpList  # Fixup circular references if present.
 		except:
@@ -116,19 +113,12 @@ class Screen(dict):
 		self.deleteGUIScreen()
 		# First disconnect all render from their sources. We might split this out into
 		# a "unskin"-call, but currently we destroy the screen afterwards anyway.
-		if self.renderer:
-			for val in self.renderer:
-				val.disconnectAll()  # Disconnect converter/sources and probably destroy them. Sources will not be destroyed.
-		try:
-			del self.session
-		except:
-			pass
-		try:
-			for (name, val) in list(self.items()):
-				val.destroy()
-				del self[name]
-		except:
-			pass
+		for val in self.renderer:
+			val.disconnectAll()  # Disconnect converter/sources and probably destroy them. Sources will not be destroyed.
+		del self.session
+		for (name, val) in list(self.items()):
+			val.destroy()
+			del self[name]
 		self.renderer = []
 		# by setting all attributes to None, we release any references promptly
 		# without completely removing attributes that are expected to exist
@@ -143,7 +133,7 @@ class Screen(dict):
 			self.session.close(self, *retval)
 
 	def show(self):
-		pass  # print("[Screen] Showing screen '%s'." % self.skinName)  # To ease identification of screens.
+		# print("[Screen] Showing screen '%s'." % self.skinName)  # To ease identification of screens.
 		# DEBUG: if (self.shown and self.alreadyShown) or not self.instance:
 		if (self.shown and self.already_shown) or not self.instance:
 			return
@@ -287,7 +277,7 @@ class Screen(dict):
 				if not updateonly:
 					val.GUIcreate(parent)
 				if not val.applySkin(desktop, self):
-					pass  # print("[Screen] Warning: Skin is missing renderer '%s' in %s." % (val, str(self)))
+					print("[Screen] Warning: Skin is missing renderer '%s' in %s." % (val, str(self)))
 		for key in self:
 			val = self[key]
 			if isinstance(val, GUIComponent):
@@ -296,10 +286,10 @@ class Screen(dict):
 				depr = val.deprecationInfo
 				if val.applySkin(desktop, self):
 					if depr:
-						pass  # print("[Screen] WARNING: OBSOLETE COMPONENT '%s' USED IN SKIN. USE '%s' INSTEAD!" % (key, depr[0]))
-						pass  # print("[Screen] OBSOLETE COMPONENT WILL BE REMOVED %s, PLEASE UPDATE!" % depr[1])
+						print("[Screen] WARNING: OBSOLETE COMPONENT '%s' USED IN SKIN. USE '%s' INSTEAD!" % (key, depr[0]))
+						print("[Screen] OBSOLETE COMPONENT WILL BE REMOVED %s, PLEASE UPDATE!" % depr[1])
 				elif not depr and key not in self.handledWidgets:
-					pass  # print("[Screen] Warning: Skin is missing element '%s' in %s." % (key, str(self)))
+					print("[Screen] Warning: Skin is missing element '%s' in %s." % (key, str(self)))
 		for w in self.additionalWidgets:
 			if not updateonly:
 				w.instance = w.widget(parent)
@@ -332,13 +322,8 @@ class Screen(dict):
 
 	def removeSummary(self, summary):
 		print(f"[Screen][removeSummary] class '{self.__class__.__name__}' removing summary '{str(None if summary is None else summary.__class__.__name__)}' from self.summaries: '{str(self.summaries)}'")
-		if summary is not None and self.summaries is not None and summary in self.summaries and hasattr(self.summaries, "remove"):
-			print(f"[Screen][removeSummary] try remove all fields valid")
-			try:
-				self.summaries.remove(summary)
-			except ValueError:
-				print("[Screen][removeSummary] summary delete crash summary")
-				pass
+		if summary is not None:
+			self.summaries.remove(summary)
 
 
 class ScreenSummary(Screen):

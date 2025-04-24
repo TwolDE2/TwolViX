@@ -1,3 +1,4 @@
+from enigma import eTimer
 from Components.ActionMap import ActionMap
 from Components.config import config, ConfigSubsection, ConfigSelection, getConfigListEntry  # noqa: F401
 from Components.ConfigList import ConfigListScreen
@@ -30,7 +31,8 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 		self["summary_job_progress"] = Progress()
 		self["summary_job_task"] = StaticText()
 		self["job_status"] = StaticText()
-
+		self.activityTimer = eTimer()
+		self.activityTimer.timeout.get().append(self.timerClose)
 		self.cancelable = cancelable
 		self.backgroundable = backgroundable
 
@@ -106,7 +108,7 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 		self["summary_job_progress"].range = j.end
 		self["job_progress"].value = j.progress
 		self["summary_job_progress"].value = j.progress
-		# print "JobView::state_changed:", j.end, j.progress
+		#  print(f"[TaskView]:[state_changed] status:{j.status} progress:{j.progress} end:{j.end} statustext:{j.getStatustext()}")
 		self["job_status"].text = j.getStatustext()
 		if j.status == j.IN_PROGRESS:
 			self["job_task"].text = j.tasks[j.current_task].name
@@ -115,24 +117,33 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 			self["job_task"].text = ""
 			self["summary_job_task"].text = j.getStatustext()
 		if j.status in (j.FINISHED, j.FAILED):
-			self.performAfterEvent()
-			if self.backgroundable:
-				self.backgroundable = False
-				self["key_blue"].setText("")
-				self["backgroundActions"].setEnabled(False)
-			try:
-				if j.status == j.FINISHED:
-					self["key_green"].setText(_("OK"))
-					self["okActions"].setEnabled(True)
-					self.cancelable = False
-					self["key_red"].setText("")
-					self["abortActions"].setEnabled(False)
-				elif j.status == j.FAILED:
-					self.cancelable = True
-					self["key_red"].setText(_("Cancel"))
-					self["abortActions"].setEnabled(True)
-			except:
-				print("[TaskView]{state_changed] . close issue again")
+			if self.settings.afterEvent.value != "nothing":
+				self.performAfterEvent()
+				if self.backgroundable:
+					self.backgroundable = False
+					self["key_blue"].setText("")
+					self["backgroundActions"].setEnabled(False)
+				try:
+					if j.status == j.FINISHED:
+						self["key_green"].setText(_("OK"))
+						self["okActions"].setEnabled(True)
+						self.cancelable = False
+						self["key_red"].setText("")
+						self["abortActions"].setEnabled(False)
+					elif j.status == j.FAILED:
+						self.cancelable = True
+						self["key_red"].setText(_("Cancel"))
+						self["abortActions"].setEnabled(True)
+				except:
+					print("[TaskView]{state_changed] close issue again")
+			else:
+				print("[TaskView][state_changed] close after timer")
+				self.activityTimer.startLongTimer(1)			
+					
+	def timerClose(self):
+		print("[TaskView][state_changed][timerClose] close after timer")	
+		self.close(False)
+
 
 	def background(self):
 		if self.backgroundable:
@@ -155,9 +166,7 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 
 	def performAfterEvent(self):
 		self["config"].hide()
-		if self.settings.afterEvent.value == "nothing":
-			return
-		elif self.settings.afterEvent.value == "close" and self.job.status == self.job.FINISHED:
+		if self.settings.afterEvent.value == "close" and self.job.status == self.job.FINISHED:
 			self.close(False)
 		elif self.settings.afterEvent.value == "deepstandby":
 			if not Screens.Standby.inTryQuitMainloop:

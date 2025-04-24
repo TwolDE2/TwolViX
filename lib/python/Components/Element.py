@@ -67,25 +67,24 @@ class Element:
 		# we should not disconnect from upstream if
 		# there are still elements depending on us.
 		assert len(self.downstream_elements) == 0, "there are still downstream elements left"
+
+		# Sources don't have a source themselves. don't do anything here.
+		for s in self.sources:
+			s.disconnectDownstream(self)
+
 		if self.source:
-			# Sources don't have a source themselves. don't do anything here.
-			for s in self.sources:
-				s.disconnectDownstream(self)
 			# sources are owned by the Screen, so don't destroy them here.
 			self.destroy()
 		self.source = None
 		self.sources = []
 
 	def disconnectDownstream(self, downstream):
-		try:
-			self.downstream_elements.remove(downstream)
-			if self.master == downstream:
-				self.master = None
+		self.downstream_elements.remove(downstream)
+		if self.master == downstream:
+			self.master = None
 
-			if len(self.downstream_elements) == 0:
-				self.disconnectAll()
-		except AttributeError:
-			print("[Element][disconnectDownstream] fail Nonetype")
+		if len(self.downstream_elements) == 0:
+			self.disconnectAll()
 
 	# default action: push downstream
 	def changed(self, *args, **kwargs):
@@ -98,6 +97,9 @@ class Element:
 	def setSuspend(self, suspended):
 		try:
 			changed = self.__suspended != suspended
+		except AttributeError:
+			print("[Element][setSuspend]self.__suspended - No attribute __suspended")
+		else:
 			if not self.__suspended and suspended:
 				self.doSuspend(1)
 			elif self.__suspended and not suspended:
@@ -107,9 +109,6 @@ class Element:
 			if changed:
 				for s in self.sources:
 					s.checkSuspend()
-		except AttributeError:
-			print("[Element][setSuspend]self.__suspended - No attribute __suspended")
-
 	suspended = property(lambda self: self.__suspended, setSuspend)
 
 	def checkSuspend(self):
