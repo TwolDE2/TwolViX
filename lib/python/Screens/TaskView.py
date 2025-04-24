@@ -32,7 +32,7 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 		self["summary_job_task"] = StaticText()
 		self["job_status"] = StaticText()
 		self.activityTimer = eTimer()
-		self.activityTimer.timeout.get().append(self.timerClose)
+		self.activityTimer.timeout.get().append(self.close(False))
 		self.cancelable = cancelable
 		self.backgroundable = backgroundable
 
@@ -117,33 +117,21 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 			self["job_task"].text = ""
 			self["summary_job_task"].text = j.getStatustext()
 		if j.status in (j.FINISHED, j.FAILED):
-			if self.settings.afterEvent.value != "nothing":
-				self.performAfterEvent()
-				if self.backgroundable:
-					self.backgroundable = False
-					self["key_blue"].setText("")
-					self["backgroundActions"].setEnabled(False)
-				try:
-					if j.status == j.FINISHED:
-						self["key_green"].setText(_("OK"))
-						self["okActions"].setEnabled(True)
-						self.cancelable = False
-						self["key_red"].setText("")
-						self["abortActions"].setEnabled(False)
-					elif j.status == j.FAILED:
-						self.cancelable = True
-						self["key_red"].setText(_("Cancel"))
-						self["abortActions"].setEnabled(True)
-				except:
-					print("[TaskView]{state_changed] close issue again")
-			else:
-				print("[TaskView][state_changed] close after timer")
-				self.activityTimer.startLongTimer(1)			
-					
-	def timerClose(self):
-		print("[TaskView][state_changed][timerClose] close after timer")	
-		self.close(False)
-
+			self.performAfterEvent()
+			if self.backgroundable:
+				self.backgroundable = False
+				self["key_blue"].setText("")
+				self["backgroundActions"].setEnabled(False)
+			if j.status == j.FINISHED:
+				self["key_green"].setText(_("OK"))
+				self["okActions"].setEnabled(True)
+				self.cancelable = False
+				self["key_red"].setText("")
+				self["abortActions"].setEnabled(False)
+			elif j.status == j.FAILED:
+				self.cancelable = True
+				self["key_red"].setText(_("Cancel"))
+				self["abortActions"].setEnabled(True)
 
 	def background(self):
 		if self.backgroundable:
@@ -166,8 +154,11 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 
 	def performAfterEvent(self):
 		self["config"].hide()
-		if self.settings.afterEvent.value == "close" and self.job.status == self.job.FINISHED:
-			self.close(False)
+		if self.settings.afterEvent.value == "nothing":
+			return
+		elif self.settings.afterEvent.value == "close" and self.job.status == self.job.FINISHED:
+			print("[TaskView][performAfterEvent] close job after timer finished")
+			self.activityTimer.startLongTimer(1)
 		elif self.settings.afterEvent.value == "deepstandby":
 			if not Screens.Standby.inTryQuitMainloop:
 				Tools.Notifications.AddNotificationWithCallback(self.sendTryQuitMainloopNotification, MessageBox, _("A sleep timer wants to shut down\nyour %s %s. Proceed?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), timeout=20)
