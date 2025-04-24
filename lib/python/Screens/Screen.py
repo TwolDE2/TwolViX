@@ -332,7 +332,8 @@ class Screen(dict):
 
 	def removeSummary(self, summary):
 		print(f"[Screen][removeSummary] class '{self.__class__.__name__}' removing summary '{str(None if summary is None else summary.__class__.__name__)}' from self.summaries: '{str(self.summaries)}'")
-		if summary is not None and summary in self.summaries:
+		if summary is not None and self.summaries is not None and summary in self.summaries and hasattr(self.summaries, "remove"):
+			print(f"[Screen][removeSummary] try remove all fields valid")
 			try:
 				self.summaries.remove(summary)
 			except ValueError:
