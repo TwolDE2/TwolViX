@@ -133,7 +133,7 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 				self["abortActions"].setEnabled(True)
 
 	def timerClose(self):
-		print("[TaskView][state_changed][timerClose] close after timer")	
+		print("[TaskView][state_changed][timerClose] close after timer")
 		self.close(False)
 
 	def background(self):
@@ -157,7 +157,7 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 
 	def performAfterEvent(self):
 		self["config"].hide()
-		#  print(f"[TaskView][performAfterEvent] self.settings.afterEvent.value:{self.settings.afterEvent.value}")		
+		#  print(f"[TaskView][performAfterEvent] self.settings.afterEvent.value:{self.settings.afterEvent.value}")
 		if self.settings.afterEvent.value == "nothing":
 			return
 		elif self.settings.afterEvent.value == "close" and self.job.status == self.job.FINISHED:
