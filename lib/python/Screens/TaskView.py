@@ -132,11 +132,9 @@ class JobView(InfoBarNotifications, ConfigListScreen, Screen):
 				self["key_red"].setText(_("Cancel"))
 				self["abortActions"].setEnabled(True)
 
-
 	def timerClose(self):
 		print("[TaskView][state_changed][timerClose] close after timer")	
 		self.close(False)
-
 
 	def background(self):
 		if self.backgroundable:
