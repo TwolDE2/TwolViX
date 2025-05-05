@@ -343,25 +343,25 @@ class Devices(Screen):
 		self.tparts = {}
 		for line in result:
 			if line:
-				self.parts = line.split()
-				self.tparts[self.parts[0]] = self.parts
+				self.parts = line.split()  # device, size, used, free, use %, mount
+				self.tparts[self.parts[0]] = self.parts  # save entry with device key
 		if self.hddlist:
 			print("[About] hddlist = %s" % (self.hddlist))
 			for count in range(len(self.hddlist)):
-				hddp = self.hddlist[count][0].replace("/dev/mmcblk0", "/dev/mmcblk0p3").replace("sda", "sda1").replace("sdb", "sdb1")  # mmcblk0p3:dm9x0 sda/sdb: assume partition 1
-				hddsplit = hddp.split("/", 1)
-				hddpm = hddsplit[0]  # device description
-				hddkey = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda1
-				if "ATA" in hddp:
-					hddpm = hddpm.replace("ATA", "", 2).replace("SATA", "SATA Internal Bus ").replace("(", "").replace(")", "")
-				hddpm = hddpm.split()  # split out fields without spaces
-				print(f"[About] MODEL:{MODEL} hddp:{hddp} hddpm:{hddpm} hddkey:{hddkey} in keys:{list(self.tparts.keys())}")
-				if hddkey in list(self.tparts.keys()):
-					freeline = _("%s " % hddkey) + _("%s   " % self.tparts[hddkey][1]) + _("Used:%s   " % self.tparts[hddkey][2]) + _("Free:%s   " % self.tparts[hddkey][3]) + _("Mount:%s " % self.tparts[hddkey][5])
-					line = "%s %s %s" % (hddpm[0], hddpm[1], freeline)
-				else:
+				hdd = self.hddlist[count][0].replace("/dev/mmcblk0", "/dev/mmcblk0p3")  # dm9x0:mmcblk0p3 multiboot root & storage
+				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space 
+				hddDescription = hddsplit[0]  # device description
+				if "ATA" in hddDescription:
+					hddDescription = hddDescription.replace("ATA", "", 2).replace("SATA", "SATA Internal Bus ").replace("(", "").replace(")", "")
+				hddDescription = hddDescription.split()  # split out fields without spaces
+				hddKey1 = ("/" + hddsplit[1].replace("sda", "sda1").replace("sdb", "sdb1").split(" ", 1)[0])  # device key sda/sdb: assume partition 1 e.g. /dev/sda1
+				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} in keys:{list(self.tparts.keys())}")
+				if self.tparts and hddKey1 in list(self.tparts.keys()):  # device is mounted so list attributes
+					freeline = _("%s " % hddKey1) + _("%s   " % self.tparts[hddKey1][1]) + _("Used:%s   " % self.tparts[hddKey1][2]) + _("Free:%s   " % self.tparts[hddKey1][3]) + _("Mount:%s " % self.tparts[hddKey1][5])
+					line = "%s %s %s" % (hddDescription[0], hddDescription[1], freeline)
+				else:  # device not mounted
 					freeline = " "
-					line = "%s %s" % (hddp, freeline)
+					line = "%s %s" % (hdd, freeline)
 				self.list.append(line)
 		self.list = "\n".join(self.list)
 		self["hdd"].setText(self.list)
