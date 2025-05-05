@@ -349,7 +349,7 @@ class Devices(Screen):
 			print("[About] hddlist = %s" % (self.hddlist))
 			for count in range(len(self.hddlist)):
 				hdd = self.hddlist[count][0].replace("/dev/mmcblk0", "/dev/mmcblk0p3")  # dm9x0:mmcblk0p3 multiboot root & storage
-				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space 
+				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space
 				hddDescription = hddsplit[0]  # device description
 				if "ATA" in hddDescription:
 					hddDescription = hddDescription.replace("ATA", "", 2).replace("SATA", "SATA Internal Bus ").replace("(", "").replace(")", "")
