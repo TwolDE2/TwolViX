@@ -293,7 +293,7 @@ class Devices(Screen):
 
 	def populate2(self):
 		self.activityTimer.stop()
-		self.Console = Console(binary=False)		
+		self.Console = Console(binary=False)
 		niminfo = ""
 		nims = nimmanager.nimListCompressed()
 		for count in range(len(nims)):
@@ -348,16 +348,16 @@ class Devices(Screen):
 		if self.hddlist:
 			print("[About] hddlist = %s" % (self.hddlist))
 			for count in range(len(self.hddlist)):
-				hddp = self.hddlist[count][0].replace("/dev/mmcblk0", "/dev/mmcblk0p3").replace("sda", "sda1").replace("sdb", "sdb1")  # mmcblk0p3:dm9x0 sda/sdb: assume partition 1  
+				hddp = self.hddlist[count][0].replace("/dev/mmcblk0", "/dev/mmcblk0p3").replace("sda", "sda1").replace("sdb", "sdb1")  # mmcblk0p3:dm9x0 sda/sdb: assume partition 1
 				hddsplit = hddp.split("/", 1)
 				hddpm = hddsplit[0]  # device description
 				hddkey = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda1
 				if "ATA" in hddp:
-					hddpm = hddpm.replace("ATA", "", 2).replace("SATA", "SATA Internal Bus ").replace("(", "").replace(")", "")				
+					hddpm = hddpm.replace("ATA", "", 2).replace("SATA", "SATA Internal Bus ").replace("(", "").replace(")", "")
 				hddpm = hddpm.split()  # split out fields without spaces
-				print(f"[About] MODEL:{MODEL} hddp:{hddp} hddpm:{hddpm} hddkey:{hddkey} in keys:{list(self.tparts.keys())}")				
+				print(f"[About] MODEL:{MODEL} hddp:{hddp} hddpm:{hddpm} hddkey:{hddkey} in keys:{list(self.tparts.keys())}")
 				if hddkey in list(self.tparts.keys()):
-					freeline = _("%s " % hddkey) + _("%s   " % self.tparts[hddkey][1]) + _("Used:%s   " % self.tparts[hddkey][2]) + _("Free:%s   " % self.tparts[hddkey][3]) + _("Mount:%s " % self.tparts[hddkey][5]) 
+					freeline = _("%s " % hddkey) + _("%s   " % self.tparts[hddkey][1]) + _("Used:%s   " % self.tparts[hddkey][2]) + _("Free:%s   " % self.tparts[hddkey][3]) + _("Mount:%s " % self.tparts[hddkey][5])
 					line = "%s %s %s" % (hddpm[0], hddpm[1], freeline)
 				else:
 					freeline = " "
