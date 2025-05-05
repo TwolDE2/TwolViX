@@ -47,10 +47,9 @@ def getMultibootslots():
 						if Creator in ("openvix", "openbh"):
 							copyfile("/etc/init.d/kexec-multiboot-recovery", dest)
 				# print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists('/sys/firmware/devicetree/base/chosen/bootargs')}")
-				SystemInfo["MBbootdevice"] = device
-				device2 = device.rsplit("/", 1)[1]
-				# print(f"[Multiboot][[getMultibootslots]2 *** Bootdevice found: {device2} CHKROOTMB:{CHKROOTMB}")
-				SystemInfo["BootDevice"] = "chkrootmb" if CHKROOTMB else device2
+				SystemInfo["MBbootdevice"] = MBbootdevice = resolveDevice(device)
+				SystemInfo["BootDevice"] = SystemInfo["MBbootdevice"].rsplit("/", 1)[1]
+				print(f"[Multiboot][[getMultibootslots]2 *** Bootdevice found: {SystemInfo['BootDevice']} CHKROOTMB:{CHKROOTMB} MBbootdevice:{SystemInfo['MBbootdevice']}")
 				if path.exists("/sys/firmware/devicetree/base/chosen/bootargs") or CHKROOTMB:  # check validity for multiboot
 					for file in glob.glob(path.join(tmpname, "STARTUP_*")):
 						slotnumber = file.rsplit("_", 3 if "BOXMODE" in file else 1)[1]
@@ -144,6 +143,12 @@ def getUUIDtoSD(UUID):  # returns None on failure
 	else:
 		return None
 
+
+def resolveDevice(devicepath):
+	if path.islink(devicepath):
+		return path.realpath(devicepath)
+	else:
+		return devicepath
 
 def GetCurrentImageMode():
 	return bool(SystemInfo["canMultiBoot"]) and SystemInfo["canMode12"] and int(open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read().replace("\0", "").split("=")[-1])
