@@ -20,6 +20,9 @@ from Screens.TextBox import TextBox
 from Tools.Directories import fileHas, fileReadLines, isPluginInstalled
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
+if isPluginInstalled("ViX"):
+	ViX = True
+	from Plugins.SystemPlugins.ViX.MountManager import getProcPartitions, buildPartitionInfo
 
 
 def getFlashDateString():
@@ -290,7 +293,7 @@ class Devices(Screen):
 
 	def populate2(self):
 		self.activityTimer.stop()
-		self.Console = Console()
+		self.Console = Console(binary=False)		
 		niminfo = ""
 		nims = nimmanager.nimListCompressed()
 		for count in range(len(nims)):
@@ -331,39 +334,40 @@ class Devices(Screen):
 				self["Tuner" + str(count)].setText(text)
 
 		self.hddlist = harddiskmanager.HDDList()
+		self.Console.ePopen("df -mH | grep -v '^Filesystem' | grep  -v '^tmpfs' | grep -v '^none'", self.Stage0Complete)
+
+	def Stage0Complete(self, result, retval, extra_args=None):
+		print(f"[About][Stage0Complete] retval:{retval} result:{result}")
 		self.list = []
+		result0 = result = result.replace("\n                        ", " ").split("\n")
+		self.tparts = {}
+		for line in result:
+			if line:
+				self.parts = line.split()
+				self.tparts[self.parts[0]] = self.parts
 		if self.hddlist:
 			print("[About] hddlist = %s" % (self.hddlist))
 			for count in range(len(self.hddlist)):
-				hdd = self.hddlist[count][1]
-				hddp = self.hddlist[count][0]
-				print(f"[About] MODEL:{MODEL} hddp:{hddp}")
-				if MODEL in ("dm900", "dm920") and "/dev/mmcblk0" in hddp:
-					hddp = hddp.replace("/dev/mmcblk0", "/dev/mmcblk0p3")
-					freeline = " "
+				hddp = self.hddlist[count][0].replace("/dev/mmcblk0", "/dev/mmcblk0p3").replace("sda", "sda1").replace("sdb", "sdb1")  # mmcblk0p3:dm9x0 sda/sdb: assume partition 1  
+				hddsplit = hddp.split("/", 1)
+				hddpm = hddsplit[0]  # device description
+				hddkey = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda1
+				if "ATA" in hddp:
+					hddpm = hddpm.replace("ATA", "", 2).replace("SATA", "SATA Internal Bus ").replace("(", "").replace(")", "")				
+				hddpm = hddpm.split()  # split out fields without spaces
+				print(f"[About] MODEL:{MODEL} hddp:{hddp} hddpm:{hddpm} hddkey:{hddkey} in keys:{list(self.tparts.keys())}")				
+				if hddkey in list(self.tparts.keys()):
+					freeline = _("%s " % hddkey) + _("%s   " % self.tparts[hddkey][1]) + _("Used:%s   " % self.tparts[hddkey][2]) + _("Free:%s   " % self.tparts[hddkey][3]) + _("Mount:%s " % self.tparts[hddkey][5]) 
+					line = "%s %s %s" % (hddpm[0], hddpm[1], freeline)
 				else:
-					if "ATA" in hddp:
-						hddp = hddp.replace("ATA", "", 2)
-						hddp = hddp.replace("SATA", "SATA Internal Bus ").replace("(", "").replace(")", "")
-					free = hdd.Totalfree()
-					if free >= 1:
-						free *= 1000000  # convert MB to bytes
-						freeline = _("Free: ") + bytesToHumanReadable(free)
-					elif "Generic(STORAGE" in hddp:				# This is the SDA boot volume for SF8008 if "full" #
-						continue
-					else:
-						freeline = _("Free: ") + _("full")
-				line = "%s      %s" % (hddp, freeline)
+					freeline = " "
+					line = "%s %s" % (hddp, freeline)
 				self.list.append(line)
 		self.list = "\n".join(self.list)
 		self["hdd"].setText(self.list)
 
-		self.Console.ePopen("df -mh | grep -v '^Filesystem'", self.Stage1Complete)
-
-	def Stage1Complete(self, result, retval, extra_args=None):
-		result = result.replace("\n                        ", " ").split("\n")
 		self.mountinfo = ""
-		for line in result:
+		for line in result0:
 			self.parts = line.split()
 			if line and self.parts[0] and self.parts[0].startswith(("192", "//192")):
 				line = line.split()
