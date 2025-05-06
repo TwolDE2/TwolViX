@@ -359,7 +359,7 @@ class Devices(Screen):
 				hddKey2 = hddKey1.replace("sda", "sda1").replace("sdb", "sdb1")  # device key sda/sdb: assume partition 1 e.g. /dev/sda1
 				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} hddKey2:{hddKey2} keys:{self.tparts.keys()}")
 				if self.tparts and hddKey2 in self.tparts.keys():  # if device is mounted so list attributes
-					keyRange= 5 if "dev/sd" in hddKey1 else 2  # assumes no more than 4 partitions on device
+					keyRange = 5 if "dev/sd" in hddKey1 else 2  # assumes no more than 4 partitions on device
 					for count in range(1, keyRange):
 						hddKey = "%s" % hddKey1 + "%s" % str(count) if "dev/sd" in hddKey1 else hddKey1
 						if hddKey in self.tparts.keys():					
