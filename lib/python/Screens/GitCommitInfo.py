@@ -5,7 +5,6 @@ from sys import modules
 from enigma import eTimer
 
 from Components.ActionMap import ActionMap
-from Components.Button import Button
 from Components.Label import Label
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
@@ -194,7 +193,9 @@ class CommitInfo(Screen):
 			}  # noqa: E123
 		)
 
-		self["key_red"] = Button(_("Cancel"))
+		self["key_red"] = StaticText(_("Close"))
+		self["key_left"] = StaticText(_("LEFT"))
+		self["key_right"] = StaticText(_("RIGHT"))
 		self.onUpdate = []
 
 		self.Timer = eTimer()
