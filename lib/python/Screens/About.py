@@ -354,11 +354,17 @@ class Devices(Screen):
 				if "ATA" in hddDescription:
 					hddDescription = hddDescription.replace("ATA", "", 2).replace("SATA", "SATA Internal Bus ").replace("(", "").replace(")", "")
 				hddDescription = hddDescription.split()  # split out fields without spaces
-				hddKey1 = ("/" + hddsplit[1].replace("sda", "sda1").replace("sdb", "sdb1").split(" ", 1)[0])  # device key sda/sdb: assume partition 1 e.g. /dev/sda1
-				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} in keys:{list(self.tparts.keys())}")
-				if self.tparts and hddKey1 in list(self.tparts.keys()):  # device is mounted so list attributes
-					freeline = _("%s " % hddKey1) + _("%s   " % self.tparts[hddKey1][1]) + _("Used:%s   " % self.tparts[hddKey1][2]) + _("Free:%s   " % self.tparts[hddKey1][3]) + _("Mount:%s " % self.tparts[hddKey1][5])
-					line = "%s %s %s" % (hddDescription[0], hddDescription[1], freeline)
+
+				hddKey1 = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda /dev/sdb:
+				hddKey2 = hddKey1.replace("sda", "sda1").replace("sdb", "sdb1")  # device key sda/sdb: assume partition 1 e.g. /dev/sda1
+				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} hddKey2:{hddKey2} keys:{self.tparts.keys()}")
+				if self.tparts and hddKey2 in self.tparts.keys():  # if device is mounted so list attributes
+					keyRange= 5 if "dev/sd" in hddKey1 else 2  # assumes no more than 4 partitions on device
+					for count in range(1, keyRange):
+						hddKey = "%s" % hddKey1 + "%s" % str(count) if "dev/sd" in hddKey1 else hddKey1
+						if hddKey in self.tparts.keys():					
+							freeline = _("%s " % hddKey) + _("%s   " % self.tparts[hddKey][1]) + _("Used:%s   " % self.tparts[hddKey][2]) + _("Free:%s   " % self.tparts[hddKey][3]) + _("Mount:%s " % self.tparts[hddKey][5])
+							line = "%s %s %s" % (hddDescription[0], hddDescription[1], freeline)
 				else:  # device not mounted
 					freeline = " "
 					line = "%s %s" % (hdd, freeline)
