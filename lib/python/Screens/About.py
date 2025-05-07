@@ -369,7 +369,7 @@ class Devices(Screen):
 							break
 				if hddKeyfound:  # if device is mounted so add device partition(s) attributes
 					# print(f"[About] hddKey1:{hddKey1}")
-					keyRange= 5 if "dev/sd" in hddKey1 else 2  # assumes no more than 4 partitions on device
+					keyRange = 5 if "dev/sd" in hddKey1 else 2  # assumes no more than 4 partitions on device
 					for count in range(1, keyRange):
 						hddKey = "%s" % hddKey1 + "%s" % str(count) if "dev/sd" in hddKey1 else hddKey1
 						# print(f"[About] hddKey:{hddKey} hddKey1:{hddKey1}")
