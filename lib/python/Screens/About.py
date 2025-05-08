@@ -339,7 +339,7 @@ class Devices(Screen):
 	def Stage0Complete(self, result, retval, extra_args=None):
 		print(f"[About][Stage0Complete] retval:{retval} result:{result}")
 		self.list = []
-		result0 = result = result.replace("\n                        ", " ").split("\n")
+		result = result.replace("\n                        ", " ").split("\n")
 		self.tparts = {}
 		for line in result:
 			if line:
@@ -358,17 +358,20 @@ class Devices(Screen):
 				hddKey1 = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda /dev/sdb /dev/mmcblk0p1
 
 				# print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} keys:{self.tparts.keys()}")
-				hddKeyfound = False
 				if self.tparts:
 					for index, keyValue in enumerate(self.tparts.keys()):
-						print(f"[About] index:{index} keyValue:{keyValue}")
+						# print(f"[About] index:{index} keyValue:{keyValue}")
 						if hddKey1 not in str(keyValue):
 							continue
 						else:
-							hddKeyfound = True
-							break
-				if hddKeyfound:  # if device is mounted so add device partition(s) attributes
-					# print(f"[About] hddKey1:{hddKey1}")
+							break							
+					else:  # device not mounted
+						# print(f"[About] not mounted hddKey1:{hddKey1}")
+						line = "%s" % hdd
+						self.list.append(line)
+						continue
+					# device is mounted so add device partition(s) attributes
+					# print(f"[About] mounted hddKey1:{hddKey1}")
 					keyRange = 5 if "dev/sd" in hddKey1 else 2  # assumes no more than 4 partitions on device
 					for count in range(1, keyRange):
 						hddKey = "%s" % hddKey1 + "%s" % str(count) if "dev/sd" in hddKey1 else hddKey1
@@ -379,14 +382,13 @@ class Devices(Screen):
 							line = "%s %s %s" % (hddDescription[0], hddDescription[1], freeline)
 							self.list.append(line)
 				else:  # device not mounted
-					freeline = " "
-					line = "%s %s" % (hdd, freeline)
+					line = "%s" % hdd
 					self.list.append(line)
 		self.list = "\n".join(self.list)
 		self["hdd"].setText(self.list)
 
 		self.mountinfo = ""
-		for line in result0:
+		for line in result:
 			self.parts = line.split()
 			if line and self.parts[0] and self.parts[0].startswith(("192", "//192")):
 				line = line.split()
