@@ -364,7 +364,7 @@ class Devices(Screen):
 						if hddKey1 not in str(keyValue):
 							continue
 						else:
-							break							
+							break
 					else:  # device not mounted
 						# print(f"[About] not mounted hddKey1:{hddKey1}")
 						line = "%s" % hdd
