@@ -20,9 +20,6 @@ from Screens.TextBox import TextBox
 from Tools.Directories import fileHas, fileReadLines, isPluginInstalled
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
-if isPluginInstalled("ViX"):
-	ViX = True
-	from Plugins.SystemPlugins.ViX.MountManager import getProcPartitions, buildPartitionInfo
 
 
 def getFlashDateString():
