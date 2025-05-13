@@ -96,10 +96,6 @@ class PiconLocator:
 			# fallback to "1" for TV services that are not already "1". Skip check for radio services ("2").
 			fields[2] = "1"
 			pngname = self.findPicon("_".join(fields))
-		if not pngname and fields[9] != "0":
-			# fallback to 0 for iptv buffering
-			fields[9] = "0"
-			pngname = self.findPicon('_'.join(fields))
 		if not pngname:  # picon by channel name
 			if (sname := eServiceReference(serviceRef).getServiceName()) and "SID 0x" not in sname and (utf8_name := sanitizeFilename(sname).lower()) and utf8_name != "__":  # avoid lookups on zero length service names
 				legacy_name = sub("[^a-z0-9]", "", utf8_name.replace("&", "and").replace("+", "plus").replace("*", "star"))  # legacy ascii service name picons

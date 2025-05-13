@@ -18,7 +18,6 @@ ACTIONKEY_LAST = 6
 ACTIONKEY_TOGGLE = 7
 ACTIONKEY_ASCII = 8
 ACTIONKEY_TIMEOUT = 9
-ACTIONKEY_NUMBERS = list(range(12, 12 + 10))
 ACTIONKEY_0 = 12
 ACTIONKEY_1 = 13
 ACTIONKEY_2 = 14
@@ -29,6 +28,7 @@ ACTIONKEY_6 = 18
 ACTIONKEY_7 = 19
 ACTIONKEY_8 = 20
 ACTIONKEY_9 = 21
+ACTIONKEY_NUMBERS = [ACTIONKEY_0, ACTIONKEY_1, ACTIONKEY_2, ACTIONKEY_3, ACTIONKEY_4, ACTIONKEY_5, ACTIONKEY_6, ACTIONKEY_7, ACTIONKEY_8, ACTIONKEY_9]
 ACTIONKEY_PAGEUP = 22
 ACTIONKEY_PAGEDOWN = 23
 ACTIONKEY_PREV = 24
@@ -1000,7 +1000,7 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 		self.changed()
 
 	def getValue(self):
-		print(f"[Config][getValue] {self.text}")
+		# print(f"[Config][getValue] {self.text}")
 		return str(self.text)
 
 	def setValue(self, val):
@@ -1014,11 +1014,11 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 	_value = property(getValue, setValue)
 
 	def getText(self):
-		print(f"[Config][getText] {self.text}")
+		# print(f"[Config][getText] {self.text}")
 		return self.text
 
 	def getMulti(self, selected):
-		print(f"[Config][getMulti] {self.text}")
+		# print(f"[Config][getMulti] {self.text}")
 		if self.visible_width:
 			if self.allmarked:
 				mark = list(range(0, min(self.visible_width, len(self.text))))
@@ -1411,7 +1411,7 @@ class ConfigText(ConfigElement, NumericalTextInput):
 	_value = property(getValue, setValue)
 
 	def getText(self):
-		print(f"[Config][getText2] {self.text}")
+		# print(f"[Config][getText2] {self.text}")
 		return self.text
 
 	def getMulti(self, selected):

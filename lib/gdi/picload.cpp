@@ -457,7 +457,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 			if (num_palette)
 				filepara->palette = new gRGB[num_palette];
 
-			for (int i = 0; i < num_palette; i++)
+			for (unsigned int i = 0; i < num_palette; i++)
 			{
 				filepara->palette[i].a = 0;
 				filepara->palette[i].r = palette[i].red;
@@ -469,14 +469,14 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 			{
 				png_byte *trans;
 				png_get_tRNS(png_ptr, info_ptr, &trans, &num_palette, 0);
-				for (int i = 0; i < num_palette; i++)
+				for (unsigned int i = 0; i < num_palette; i++)
 					filepara->palette[i].a = 255 - trans[i];
 			}
 		}
 		else
 		{
-			unsigned int c_cnt = 1 << bit_depth;
-			unsigned int c_step = (256 - 1) / (c_cnt - 1);
+			int c_cnt = 1 << bit_depth;
+			int c_step = (256 - 1) / (c_cnt - 1);
 			filepara->palette_size = c_cnt;
 			filepara->palette = new gRGB[c_cnt];
 			for (unsigned int i = 0; i < c_cnt; i++)

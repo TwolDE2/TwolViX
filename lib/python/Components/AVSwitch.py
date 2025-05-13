@@ -287,6 +287,38 @@ class AVSwitch:
 		print(f"[AVSwitch] setting policy169:{configElement.value}")
 		eAVSwitch.getInstance().setPolicy169(configElement.value, 1)
 
+	def getOutputAspect(self):
+		ret = (16, 9)
+		port = config.av.videoport.value
+		if port not in config.av.videomode:
+			print(f"[AVSwitch] current port:{port} not available in config.av.videomode:{config.av.videomode} force 16:9")
+		else:
+			mode = config.av.videomode[port].value
+			force_widescreen = self.isWidescreenMode(port, mode)
+			is_widescreen = force_widescreen or config.av.aspect.value in ("16:9", "16:10")
+			is_auto = config.av.aspect.value == "auto"
+			if is_widescreen:
+				if force_widescreen:
+					pass
+				else:
+					aspect = {"16:9": "16:9", "16:10": "16:10"}[config.av.aspect.value]
+					if aspect == "16:10":
+						ret = (16, 10)
+			elif is_auto:
+				try:
+					if "1" in open("/proc/stb/vmpeg/0/aspect", "r").read():  # 4:3
+						return (4, 3)
+				except (IOError, OSError):
+					pass
+			else:  # 4:3
+				ret = (4, 3)
+		return ret
+
+	def getFramebufferScale(self):
+		aspect = self.getOutputAspect()
+		fb_size = getDesktop(0).size()
+		return (aspect[0] * fb_size.height(), aspect[1] * fb_size.width())
+
 	def getAspectRatioSetting(self):
 		valstr = config.av.aspectratio.value
 		if valstr == "4_3_letterbox":
