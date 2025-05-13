@@ -1389,8 +1389,8 @@ def readSkin(screen, skin, names, desktop):
 					wsource = source.new_source
 				else:
 					break  # Otherwise, use the source.
-			# if source is None:
-				# raise SkinError(f"The source '{wsource}' was not found in screen '{name}'")
+			if source is None:
+				raise SkinError(f"The source '{wsource}' was not found in screen '{name}'")
 
 			wrender = widget.attrib.get("render")
 			if not wrender:
