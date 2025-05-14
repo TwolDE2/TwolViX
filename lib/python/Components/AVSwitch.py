@@ -1,6 +1,6 @@
 from os import path
 
-from enigma import eAVSwitch, eDVBVolumecontrol
+from enigma import eAVSwitch, eDVBVolumecontrol, getDesktop
 
 from Components.config import ConfigBoolean, ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
 from Components.SystemInfo import SystemInfo
