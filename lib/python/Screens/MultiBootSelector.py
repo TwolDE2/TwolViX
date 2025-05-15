@@ -8,7 +8,7 @@ from Components.Console import Console
 from Components.Harddisk import Harddisk
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, BoxInfo, getBoxDisplayName, KERNEL, MTDROOTFS, MODEL
+from Components.SystemInfo import SystemInfo, getBoxDisplayName, KERNEL, MTDROOTFS, MODEL
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen, ScreenSummary
