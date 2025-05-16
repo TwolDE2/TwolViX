@@ -200,7 +200,7 @@ class SkinError(Exception):
 		self.msg = message
 
 	def __str__(self):
-		return "f[Skin] {%s}: %s!  Please contact the skin's author!" % (currentLoadingSkin or (currentDisplaySkin if currentScreenName and currentScreenName.lower().endswith("summary") else currentPrimarySkin), self.msg)
+		return "[Skin] %s: %s!  Please contact the skin's author!" % (currentLoadingSkin or (currentDisplaySkin if currentScreenName and currentScreenName.lower().endswith("summary") else currentPrimarySkin), self.msg)
 
 # Convert a coordinate string into a number.  Used to convert object position and
 # size attributes into a number.
