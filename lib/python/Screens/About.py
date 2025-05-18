@@ -412,8 +412,7 @@ class Devices(Screen):
 						hddKey = "%s" % hddKey1 + "%s" % str(count) if "dev/sd" in hddKey1 else hddKey1
 						print(f"[About] hddKey:{hddKey} hddKey1:{hddKey1}")
 						if hddKey in self.tparts.keys():
-							print(f"[About]1 hddKey:{hddKey} Keys:{self.tparts.keys()}")
-							freeline = _("%s " % hddKey) + _("%s   " % self.tparts[hddKey][1]) +  "\n" + _("Mount: %s  " % self.tparts[hddKey][5]) + _("Used: %s  " % self.tparts[hddKey][2]) + _("Free: %s " % self.tparts[hddKey][3])
+							freeline = _("%s ") % hddKey + _("%s   ") % self.tparts[hddKey][1] +  "\n" + _("Mount: %s  ") % self.tparts[hddKey][5] + _("Used: %s  ") % self.tparts[hddKey][2] + _("Free: %s ") % self.tparts[hddKey][3]
 							line = ""
 							for count in range(0, hddDescLen):
 								line += "%s " % hddDescription[count]
