@@ -313,6 +313,7 @@ class Devices(AboutBase):
 			desc_list = []
 			for nim in nims:
 				data = nim.split(":")
+				print(f"[About] nims:{data}\n")				
 				idx = data[0].strip(_("Tuner")).strip()
 				desc = data[1].strip()
 				if desc_list and desc_list[-1]["desc"] == desc:
@@ -331,7 +332,13 @@ class Devices(AboutBase):
 		if hddlist:
 			print("[About] hddlist = %s" % (hddlist))
 			for i in range(len(hddlist)):
-				hdd = hddlist[i][0].replace("/dev/mmcblk0", "/dev/mmcblk0p3")  # dm9x0:mmcblk0p3 multiboot root & storage
+				hdd = hddlist[i][0]
+				if MODEL in ("dm900", "dm920"):  # dm9x0:mmcblk0p3 multiboot root & storage
+					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p3") 
+				elif SystemInfo["HasH9SD"]:
+					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p1")
+				elif SystemInfo["HasSDnomount"]:
+					hdd = hdd.replace("/dev/mmcblk1", "/dev/mmcblk1p1")					 
 				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space
 				hddDescription = hddsplit[0]  # device description
 				if "ATA" in hddDescription:
@@ -341,12 +348,15 @@ class Devices(AboutBase):
 				hddDescription = hddDescription.split()  # split out fields without spaces
 				hddDescLen = len(hddDescription)
 				hddKey1 = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda /dev/sdb /dev/mmcblk0p1
+				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} keys:{mountdict.keys()} hddLen:{hddDescLen}")
 
 				if mountdict:
 					for keyValue in mountdict.keys():
 						if hddKey1 in str(keyValue):
+							print(f"[About] mounted hddKey1:{hddKey1} in mountdict")
 							break  # use break here to escape the loop and NOT run its else clause
 					else:  # device not mounted
+						print(f"[About] not mounted1 hddKey1:{hddKey1}")
 						devicelist.append("%s" % hdd)
 						continue  # continues the outer loop so code below is skipped
 					# device is mounted so add device partition(s) attributes
@@ -354,6 +364,7 @@ class Devices(AboutBase):
 					keyRange = 5 if "dev/sd" in hddKey1 else 2  # assumes no more than 4 partitions on device
 					for count in range(1, keyRange):
 						hddKey = "%s" % hddKey1 + "%s" % str(count) if "dev/sd" in hddKey1 else hddKey1
+						print(f"[About] mounted hddKey:{hddKey} look for key info")
 						if hddKey in mountdict.keys():
 							freeline = _("%s ") % hddKey + _("%s   ") % mountdict[hddKey][1] + "\n  " + _("Mount: %s  ") % mountdict[hddKey][5] + _("Used: %s  ") % mountdict[hddKey][2] + _("Free: %s ") % mountdict[hddKey][3]
 							line = ""
@@ -362,6 +373,7 @@ class Devices(AboutBase):
 							line += "%s " % freeline
 							devicelist.append(line)
 				else:  # device not mounted
+					print(f"[About] not mounted3 hddKey1:{hddKey1}")
 					devicelist.append("%s" % hdd)
 
 		networkmountinfo = []
