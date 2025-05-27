@@ -313,7 +313,7 @@ class Devices(AboutBase):
 			desc_list = []
 			for nim in nims:
 				data = nim.split(":")
-				print(f"[About] nims:{data}\n")				
+				print(f"[About] nims:{data}\n")
 				idx = data[0].strip(_("Tuner")).strip()
 				desc = data[1].strip()
 				if desc_list and desc_list[-1]["desc"] == desc:
@@ -334,11 +334,11 @@ class Devices(AboutBase):
 			for i in range(len(hddlist)):
 				hdd = hddlist[i][0]
 				if MODEL in ("dm900", "dm920"):  # dm9x0:mmcblk0p3 multiboot root & storage
-					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p3") 
+					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p3")
 				elif SystemInfo["HasH9SD"]:
 					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p1")
 				elif SystemInfo["HasSDnomount"]:
-					hdd = hdd.replace("/dev/mmcblk1", "/dev/mmcblk1p1")					 
+					hdd = hdd.replace("/dev/mmcblk1", "/dev/mmcblk1p1")
 				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space
 				hddDescription = hddsplit[0]  # device description
 				if "ATA" in hddDescription:
