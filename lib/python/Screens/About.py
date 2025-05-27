@@ -351,8 +351,8 @@ class Devices(AboutBase):
 				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} keys:{mountdict.keys()} hddLen:{hddDescLen}")
 
 				if mountdict:
-					for keyValue in mountdict.keys():
-						if hddKey1 in str(keyValue):
+					for device in mountdict:
+						if hddKey1 in device:
 							print(f"[About] mounted hddKey1:{hddKey1} in mountdict")
 							break  # use break here to escape the loop and NOT run its else clause
 					else:  # device not mounted
@@ -377,11 +377,11 @@ class Devices(AboutBase):
 					devicelist.append("%s" % hdd)
 
 		networkmountinfo = []
-		for key in mountdict:
-			if key.startswith(("192", "//192")):  # LAN IP starting 192.xxx.xxx.xxx (Is this a good check? Will all LAN IPs start 192? No!)
-				ipaddress = mountdict[key][0]
-				mounttotal = mountdict[key][1]
-				mountfree = mountdict[key][3]
+		for device in mountdict:
+			if device.startswith(("192", "//192")):  # LAN IP starting 192.xxx.xxx.xxx (Is this a good check? Will all LAN IPs start 192? No!)
+				ipaddress = mountdict[device][0]
+				mounttotal = mountdict[device][1]
+				mountfree = mountdict[device][3]
 				networkmountinfo.append("%s (%s, %s %s)  " % ("Mount: " + ipaddress, mounttotal, _("Free:"), mountfree))
 		if ospath.exists("/media/autofs"):
 			for entry in sorted(listdir("/media/autofs")):
