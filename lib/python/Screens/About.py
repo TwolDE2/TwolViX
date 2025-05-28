@@ -338,7 +338,7 @@ class Devices(AboutBase):
 				elif SystemInfo["HasH9SD"]:
 					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p1")
 				elif SystemInfo["HasSDnomount"]:
-					hdd = hdd.replace("/dev/mmcblk1", "/dev/mmcblk1p1")
+					hdd = hdd.replace("/dev/mmcblk1", "/dev/mmcblk1p")
 				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space
 				hddDescription = hddsplit[0]  # device description
 				if "ATA" in hddDescription:
@@ -347,8 +347,8 @@ class Devices(AboutBase):
 					hddDescription = hddDescription.replace("(", "").replace(")", "").replace("   ", " ").replace("  ", " ").replace("/dev", " /dev")
 				hddDescription = hddDescription.split()  # split out fields without spaces
 				hddDescLen = len(hddDescription)
-				hddKey1 = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda /dev/sdb /dev/mmcblk0p1
-				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} keys:{mountdict.keys()} hddLen:{hddDescLen}")
+				hddKey1 = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda /dev/sdb /dev/mmcblk1p /dev/mmcblk0p1
+				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} keys:{mountdict.keys()} hddLen:{hddDescLen} hddKey1[0:-1]:{hddKey1[0:-1]}")
 
 				if mountdict:
 					for device in mountdict:
@@ -361,9 +361,9 @@ class Devices(AboutBase):
 						continue  # continues the outer loop so code below is skipped
 					# device is mounted so add device partition(s) attributes
 					print(f"[About] mounted hddKey1:{hddKey1}")
-					keyRange = 5 if "dev/sd" in hddKey1 else 2  # assumes no more than 4 partitions on device
+					keyRange = 5 if hddKey1[0:-1] in ("/dev/sd", "/dev/mmcblk1") else 2  # assumes no more than 4 partitions on device
 					for count in range(1, keyRange):
-						hddKey = "%s" % hddKey1 + "%s" % str(count) if "dev/sd" in hddKey1 else hddKey1
+						hddKey = "%s" % hddKey1 + "%s" % str(count) if hddKey1[0:-1] in ("/dev/sd", "/dev/mmcblk1") else hddKey1
 						print(f"[About] mounted hddKey:{hddKey} look for key info")
 						if hddKey in mountdict.keys():
 							freeline = _("%s ") % hddKey + _("%s   ") % mountdict[hddKey][1] + "\n  " + _("Mount: %s  ") % mountdict[hddKey][5] + _("Used: %s  ") % mountdict[hddKey][2] + _("Free: %s ") % mountdict[hddKey][3]
