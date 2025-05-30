@@ -6,7 +6,7 @@ from enigma import eTimer
 from Components.About import getIfConfig
 from Components.config import config
 from Components.Ipkg import IpkgComponent
-from Components.SystemInfo import SystemInfo, KERNEL
+from Components.SystemInfo import SystemInfo, BOXTYPE, KERNEL
 import Components.Task
 
 error = 0
@@ -329,7 +329,7 @@ def kernelMismatch():
 def statusMessage():
 	# returns message if status message is found, else False.
 	# status-message.php goes in the root folder of the feeds webserver
-	uri = "http://%s/status-message.php?machine=%s&version=%s&build=%s" % (SystemInfo["feedsurl"].split("/")[2], SystemInfo["boxtype"], SystemInfo["imageversion"], SystemInfo["imagebuild"])
+	uri = "http://%s/status-message.php?machine=%s&version=%s&build=%s" % (SystemInfo["feedsurl"].split("/")[2], BOXTYPE, SystemInfo["imageversion"], SystemInfo["imagebuild"])
 	try:
 		req = Request(uri)
 		d = urlopen(req)

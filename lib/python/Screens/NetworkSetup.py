@@ -21,7 +21,7 @@ from Components.Pixmap import Pixmap, MultiPixmap
 from Components.PluginComponent import plugins
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BOXTYPE
 from Plugins.Plugin import PluginDescriptor
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
@@ -2528,7 +2528,7 @@ class NetworkuShareSetup(ConfigListScreen, HelpableScreen, Screen):
 
 	def updateList(self, ret=None):
 		self.list = []
-		self.ushare_user = NoSave(ConfigText(default=SystemInfo["boxtype"], fixed_size=False))
+		self.ushare_user = NoSave(ConfigText(default=BOXTYPE, fixed_size=False))
 		self.ushare_iface = NoSave(ConfigText(fixed_size=False))
 		self.ushare_port = NoSave(ConfigNumber())
 		self.ushare_telnetport = NoSave(ConfigNumber())
@@ -2887,7 +2887,7 @@ class NetworkMiniDLNASetup(ConfigListScreen, HelpableScreen, Screen):
 
 	def updateList(self, ret=None):
 		self.list = []
-		self.minidlna_name = NoSave(ConfigText(default=SystemInfo["boxtype"], fixed_size=False))
+		self.minidlna_name = NoSave(ConfigText(default=BOXTYPE, fixed_size=False))
 		self.minidlna_iface = NoSave(ConfigText(fixed_size=False))
 		self.minidlna_port = NoSave(ConfigNumber())
 		self.minidlna_serialno = NoSave(ConfigNumber())

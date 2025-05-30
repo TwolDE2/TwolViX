@@ -8,7 +8,7 @@ from enigma import eEPGCache, getBestPlayableServiceReference, eStreamServer, eS
 from Components.config import config
 import Components.ParentalControl
 from Components.UsageConfig import defaultMoviePath
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BOXTYPE
 from Components.TimerSanityCheck import TimerSanityCheck
 import Screens.InfoBar
 from Screens.MessageBox import MessageBox
@@ -113,7 +113,7 @@ SID_symbol_states = {
 	"mbtwin": ("/proc/stb/lcd/symbol_circle", 4)
 }
 
-SID_code_states = SID_symbol_states.setdefault(SystemInfo["boxtype"], (None, 0))
+SID_code_states = SID_symbol_states.setdefault(BOXTYPE, (None, 0))
 
 n_recordings = 0  # Must be when we start running...
 

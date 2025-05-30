@@ -4,7 +4,7 @@ from Components.ConfigList import ConfigListScreen
 from Components.InputDevice import iInputDevices, iRcTypeControl
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BOXTYPE
 from Screens.Screen import Screen
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
@@ -217,7 +217,7 @@ class InputDeviceSetup(ConfigListScreen, Screen):
 
 class RemoteControlType(ConfigListScreen, Screen):
 	odinRemote = "OdinM9"
-	if SystemInfo["boxtype"] == "maram9":
+	if BOXTYPE == "maram9":
 		odinRemote = "MaraM9"
 
 	rcList = [
@@ -305,7 +305,7 @@ class RemoteControlType(ConfigListScreen, Screen):
 		self.getDefaultRcType()
 
 	def getDefaultRcType(self):
-		boxtype = SystemInfo["model"]
+		boxtype = BOXTYPE
 		procBoxtype = iRcTypeControl.getBoxType()
 		print("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype))
 		for x in self.defaultRcList:

@@ -6,7 +6,7 @@ from enigma import eConsoleAppContainer, eDVBDB
 from Components.config import config, configfile
 from Components.Ipkg import IpkgComponent
 from Components.NimManager import nimmanager
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import BOXTYPE
 from Tools.Directories import crawlDirectory, resolveFilename, SCOPE_CONFIG, SCOPE_SKIN, copyfile, copytree
 
 
@@ -273,7 +273,7 @@ class PackageInfoHandler:
 		if "hardware" in prerequisites:
 			hardware_found = False
 			for hardware in prerequisites["hardware"]:
-				if hardware == SystemInfo["boxtype"]:
+				if hardware == BOXTYPE:
 					hardware_found = True
 			if not hardware_found:
 				return False

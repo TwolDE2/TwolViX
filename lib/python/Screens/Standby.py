@@ -7,7 +7,7 @@ from Components.ActionMap import ActionMap
 from Components.config import config, configfile
 from Components.Console import Console
 import Components.ParentalControl
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BOXTYPE, BRAND
 from Components.Sources.StreamService import StreamServiceList
 from Components.Task import job_manager
 from GlobalActions import globalActionMap
@@ -56,7 +56,7 @@ def lastPowerState(state):
 
 class Standby2(Screen):
 	def Power(self):
-		if SystemInfo["brand"] in ('dinobot') or SystemInfo["HasHiSi"] or SystemInfo["boxtype"] in ("sfx6008", "sfx6018"):
+		if BRAND in ('dinobot') or SystemInfo["HasHiSi"] or BOXTYPE in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("on")
 				print("[Standby] open hdmi on leave standby")
@@ -132,7 +132,7 @@ class Standby2(Screen):
 			self.setInput("SCART")
 		else:
 			self.setInput("AUX")
-		if SystemInfo["brand"] in ('dinobot') or SystemInfo["HasHiSi"] or SystemInfo["boxtype"] in ("sfx6008", "sfx6018"):
+		if BRAND in ('dinobot') or SystemInfo["HasHiSi"] or BOXTYPE in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("off")
 				print("[Standby] close hdmi on enter standby")
@@ -344,7 +344,7 @@ class TryQuitMainloop(MessageBox):
 				# set LCDminiTV off / fix a deep-standby-crash on some boxes / gb4k
 				print("[Standby] LCDminiTV off")
 				setLCDMiniTVMode("0")
-			if SystemInfo["boxtype"] == "vusolo4k":  # workaround for white display flash
+			if BOXTYPE == "vusolo4k":  # workaround for white display flash
 				f = open("/proc/stb/fp/oled_brightness", "w")
 				f.write("0")
 				f.close()
