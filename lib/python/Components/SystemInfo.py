@@ -102,6 +102,7 @@ DISPLAYMODEL = BoxInfo.getItem("displaymodel")
 DISPLAYBRAND = BoxInfo.getItem("displaybrand")
 MACHINEBUILD = BoxInfo.getItem("machinebuild")
 CHKROOTMB = BoxInfo.getItem("chkrootmb")
+IMAGETYPE = BoxInfo.getItem("imagetype")
 OEA = split(r'(\d.*)', BoxInfo.getItem("oe"))[1]
 
 
@@ -204,7 +205,7 @@ SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
 SystemInfo["HasInitCam"] = hasInitCam()
 SystemInfo["MachineBrand"] = DISPLAYBRAND
 SystemInfo["MachineName"] = SystemInfo["machinename"]
-SystemInfo["DeveloperImage"] = SystemInfo["imagetype"].lower() != "release"
+SystemInfo["DeveloperImage"] = IMAGETYPE.lower() != "release"
 SystemInfo["FCCactive"] = False
 # The remote names used in the code below are the names used by oe-mirrors/branding-module,
 # so we must compare against rc_model.getRcFolder() which is also part of branding-module.
