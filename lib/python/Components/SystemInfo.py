@@ -91,18 +91,19 @@ else:
 
 ARCHITECTURE = BoxInfo.getItem("architecture")
 BRAND = BoxInfo.getItem("brand")
+IMAGETYPE = BoxInfo.getItem("imagetype")
 MODEL = BoxInfo.getItem("model")  # similar to MACHINEBUILD but e.g. giga4K boxes are gb7252
 RCNAME = BoxInfo.getItem('rcname')
 SOC_FAMILY = BoxInfo.getItem("socfamily")
 SOC_BRAND = split(r'(\d.*)', SOC_FAMILY)[0]
-KERNEL = BoxInfo.getItem("kernel")
-DISPLAYTYPE = BoxInfo.getItem("displaytype")
+KERNEL = BoxInfo.getItem("kernel")  # Kernel version
+MTDKERNEL = BoxInfo.getItem("mtdkernel")
 MTDROOTFS = BoxInfo.getItem("mtdrootfs")
+DISPLAYTYPE = BoxInfo.getItem("displaytype")
 DISPLAYMODEL = BoxInfo.getItem("displaymodel")
 DISPLAYBRAND = BoxInfo.getItem("displaybrand")
 MACHINEBUILD = BoxInfo.getItem("machinebuild")
 CHKROOTMB = BoxInfo.getItem("chkrootmb")
-IMAGETYPE = BoxInfo.getItem("imagetype")
 OEA = split(r'(\d.*)', BoxInfo.getItem("oe"))[1]
 
 
