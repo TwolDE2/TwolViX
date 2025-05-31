@@ -4,7 +4,7 @@ from Components.ConfigList import ConfigListScreen
 from Components.InputDevice import iInputDevices, iRcTypeControl
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
-from Components.SystemInfo import SystemInfo, BOXTYPE
+from Components.SystemInfo import BOXTYPE, DISPLAYBRAND, MACHINENAME
 from Screens.Screen import Screen
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
@@ -128,7 +128,7 @@ class InputDeviceSetup(ConfigListScreen, Screen):
 		self["introduction"] = StaticText()
 
 		# for generating strings into .po only
-		devicenames = [_("%s %s front panel") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), _("%s %s remote control (native)") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), _("%s %s advanced remote control (native)") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), _("%s %s ir keyboard") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), _("%s %s ir mouse") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"])]  # noqa: F841
+		devicenames = [_("%s %s front panel") % (DISPLAYBRAND, MACHINENAME), _("%s %s remote control (native)") % (DISPLAYBRAND, MACHINENAME), _("%s %s advanced remote control (native)") % (DISPLAYBRAND, MACHINENAME), _("%s %s ir keyboard") % (DISPLAYBRAND, MACHINENAME), _("%s %s ir mouse") % (DISPLAYBRAND, MACHINENAME)]  # noqa: F841
 
 		self.createSetup()
 		self.onLayoutFinish.append(self.layoutFinished)

@@ -14,7 +14,7 @@ from Components.Harddisk import harddiskmanager, bytesToHumanReadable
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, DISPLAYBRAND, MACHINENAME
 import Components.Task
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
@@ -179,7 +179,7 @@ class VIXBackupManager(Screen):
 
 	def openDownloadScreen(self):
 		if self.downloadScreen is None:
-			text = _("Plugin download in progress\nPlease wait while your %s %s downloads %d plugins\nThis may take a few minutes") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], self.plugin_count)
+			text = _("Plugin download in progress\nPlease wait while your %s %s downloads %d plugins\nThis may take a few minutes") % (DISPLAYBRAND, MACHINENAME, self.plugin_count)
 			self.downloadScreen = self.session.open(DownloadScreen, text)
 
 	def createSummary(self):
@@ -428,7 +428,7 @@ class VIXBackupManager(Screen):
 		if result.find("wget returned 4") != -1:  # probably no network adaptor connected
 			self.feeds = "NONETWORK"
 			print("[BackupManager][feedsCheck] No network connection, plugin restore not possible")
-			message = _("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"])
+			message = _("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], MACHINENAME)
 		elif result.find("wget returned 8") != -1 or result.find("wget returned 1") != -1 or result.find("wget returned 255") != -1 or result.find("404 Not Found") != -1:  # Server issued an error response, or there was a wget generic error code.
 			self.feeds = "DOWN"
 			print("[BackupManager][feedsCheck] Feeds are down, plugin restore not possible")
@@ -436,7 +436,7 @@ class VIXBackupManager(Screen):
 		elif result.find("bad address") != -1:  # probably DNS lookup failed
 			self.feeds = "BAD"
 			print("[BackupManager][feedsCheck] no network connection, plugin restore not possible")
-			message = _("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
+			message = _("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], MACHINENAME),
 		elif result.find("Collected errors") != -1:  # none of the above errors. What condition requires this to loop? Maybe double key press.
 			self.feeds = "Collected errors"
 			self.session.open(MessageBox, _("A background update check is in progress, please try again."), MessageBox.TYPE_INFO, timeout=5)
@@ -813,7 +813,7 @@ class AutoBackupManagerTimer:
 			print("[BackupManager] Backup onTimer occured at", strftime("%c", localtime(now)))
 			from Screens.Standby import inStandby
 			if not inStandby and config.backupmanager.query.value:  # Check for querying enabled
-				message = _("Your %s %s is about to run a backup of your settings and to detect your plugins.\nDo you want to allow this?") % (SystemInfo["displaybrand"], SystemInfo["machinename"])
+				message = _("Your %s %s is about to run a backup of your settings and to detect your plugins.\nDo you want to allow this?") % (SystemInfo["displaybrand"], MACHINENAME)
 				ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Scheduled backup.")
 			else:

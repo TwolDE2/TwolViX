@@ -140,10 +140,11 @@ def getMachineName():  # this function mimics the function of the same name in b
 
 
 BoxInfo.setItem("machinename", getMachineName(), immutable=True)
+MACHINENAME = BoxInfo.getItem("machinename")
 
 
 def getBoxDisplayName():  # This function returns a tuple like ("BRANDNAME", "BOXNAME")
-	return (DISPLAYBRAND, SystemInfo["machinename"])
+	return (DISPLAYBRAND, MACHINENAME)
 
 
 def getRCFile(ext):

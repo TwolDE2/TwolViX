@@ -5,7 +5,7 @@ import tempfile
 from os import path, rmdir, rename, sep, stat
 
 from Components.Console import Console
-from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, CHKROOTMB, MODEL
+from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, CHKROOTMB, MODEL, MTDROOTFS
 from Tools.Directories import copyfile, fileExists, fileReadLine
 
 if SystemInfo["HasKexecMultiboot"]:
@@ -28,7 +28,7 @@ def getMultibootslots():
 	UUIDnum = 0
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
-	MbootList = MbootList1 if not SystemInfo["HasKexecMultiboot"] else (f"/dev/{SystemInfo['mtdrootfs']}", )  # kexec kernel Vu+ multiboot
+	MbootList = MbootList1 if not SystemInfo["HasKexecMultiboot"] else (f"/dev/{MTDROOTFS}", )  # kexec kernel Vu+ multiboot
 	for device in MbootList:
 		if len(bootslots) != 0:
 			break

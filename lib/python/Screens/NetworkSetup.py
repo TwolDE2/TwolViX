@@ -21,7 +21,7 @@ from Components.Pixmap import Pixmap, MultiPixmap
 from Components.PluginComponent import plugins
 from Components.Sources.StaticText import StaticText
 from Components.Sources.List import List
-from Components.SystemInfo import SystemInfo, BOXTYPE
+from Components.SystemInfo import SystemInfo, BOXTYPE, DISPLAYBRAND, MACHINENAME
 from Plugins.Plugin import PluginDescriptor
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
@@ -89,7 +89,7 @@ class NSCommon:
 	def removeComplete(self, result=None, retval=None, extra_args=None):
 		if self.reboot_at_end:
 			restartbox = self.session.openWithCallback(self.operationComplete, MessageBox,
-				_("Your %s %s needs to be restarted to complete the removal of %s\nDo you want to reboot now ?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], self.getTitle()), MessageBox.TYPE_YESNO)
+				_("Your %s %s needs to be restarted to complete the removal of %s\nDo you want to reboot now ?") % (DISPLAYBRAND, MACHINENAME, self.getTitle()), MessageBox.TYPE_YESNO)
 			restartbox.setTitle(_("Reboot required"))
 		else:
 			self.operationComplete()
@@ -101,7 +101,7 @@ class NSCommon:
 			self.session.openWithCallback(self.updateService(), MessageBox, ("%s" % result), type=MessageBox.TYPE_INFO, timeout=10, close_on_any_key=True)
 		elif self.reboot_at_end:
 			restartbox = self.session.openWithCallback(self.operationComplete, MessageBox,
-				_("Your %s %s needs to be restarted to complete the installation of %s\nDo you want to reboot now ?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], self.getTitle()), MessageBox.TYPE_YESNO)
+				_("Your %s %s needs to be restarted to complete the installation of %s\nDo you want to reboot now ?") % (DISPLAYBRAND, MACHINENAME, self.getTitle()), MessageBox.TYPE_YESNO)
 			restartbox.setTitle(_("Reboot required"))
 		else:
 			self.message.close()
@@ -949,11 +949,11 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 
 	def selectionChanged(self):
 		if self["menulist"].getCurrent()[1] == "edit":
-			self["description"].setText(_("Edit the network configuration of your %s %s.\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]) + self.oktext)
+			self["description"].setText(_("Edit the network configuration of your %s %s.\n") % (DISPLAYBRAND, MACHINENAME) + self.oktext)
 		if self["menulist"].getCurrent()[1] == "test":
-			self["description"].setText(_("Test the network configuration of your %s %s.\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]) + self.oktext)
+			self["description"].setText(_("Test the network configuration of your %s %s.\n") % (DISPLAYBRAND, MACHINENAME) + self.oktext)
 		if self["menulist"].getCurrent()[1] == "dns":
-			self["description"].setText(_("Edit the Nameserver configuration of your %s %s.\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]) + self.oktext)
+			self["description"].setText(_("Edit the Nameserver configuration of your %s %s.\n") % (DISPLAYBRAND, MACHINENAME) + self.oktext)
 		if self["menulist"].getCurrent()[1] == "scanwlan":
 			self["description"].setText(_("Scan your network for wireless access points and connect to them using your selected wireless device.\n") + self.oktext)
 		if self["menulist"].getCurrent()[1] == "wlanstatus":
@@ -965,7 +965,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		if self["menulist"].getCurrent()[1][0] == "extendedSetup":
 			self["description"].setText(_(self["menulist"].getCurrent()[1][1]) + self.oktext)
 		if self["menulist"].getCurrent()[1] == "mac":
-			self["description"].setText(_("Set the MAC address of your %s %s.\n") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]) + self.oktext)
+			self["description"].setText(_("Set the MAC address of your %s %s.\n") % (DISPLAYBRAND, MACHINENAME) + self.oktext)
 		item = self["menulist"].getCurrent()
 		if item:
 			name = str(self["menulist"].getCurrent()[0])
