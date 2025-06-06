@@ -14,7 +14,7 @@ from Components.Harddisk import harddiskmanager, bytesToHumanReadable
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, DISPLAYBRAND, MACHINENAME
+from Components.SystemInfo import SystemInfo, DISPLAYBRAND, IMAGETYPE, KERNEL, MACHINENAME
 import Components.Task
 from Components.UserInstalledPackages import UserInstalledPackages
 from Screens.MessageBox import MessageBox
@@ -429,7 +429,7 @@ class VIXBackupManager(Screen):
 		if result.find("wget returned 4") != -1:  # probably no network adaptor connected
 			self.feeds = "NONETWORK"
 			print("[BackupManager][feedsCheck] No network connection, plugin restore not possible")
-			message = _("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], MACHINENAME)
+			message = _("Your %s %s is not connected to a network. Please check your network settings and try again.") % (DISPLAYBRAND, MACHINENAME)
 		elif result.find("wget returned 8") != -1 or result.find("wget returned 1") != -1 or result.find("wget returned 255") != -1 or result.find("404 Not Found") != -1:  # Server issued an error response, or there was a wget generic error code.
 			self.feeds = "DOWN"
 			print("[BackupManager][feedsCheck] Feeds are down, plugin restore not possible")
@@ -437,7 +437,7 @@ class VIXBackupManager(Screen):
 		elif result.find("bad address") != -1:  # probably DNS lookup failed
 			self.feeds = "BAD"
 			print("[BackupManager][feedsCheck] no network connection, plugin restore not possible")
-			message = _("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], MACHINENAME),
+			message = _("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (DISPLAYBRAND, MACHINENAME),
 		elif result.find("Collected errors") != -1:  # none of the above errors. What condition requires this to loop? Maybe double key press.
 			self.feeds = "Collected errors"
 			self.session.open(MessageBox, _("A background update check is in progress, please try again."), MessageBox.TYPE_INFO, timeout=5)
@@ -814,7 +814,7 @@ class AutoBackupManagerTimer:
 			print("[BackupManager] Backup onTimer occured at", strftime("%c", localtime(now)))
 			from Screens.Standby import inStandby
 			if not inStandby and config.backupmanager.query.value:  # Check for querying enabled
-				message = _("Your %s %s is about to run a backup of your settings and to detect your plugins.\nDo you want to allow this?") % (SystemInfo["displaybrand"], MACHINENAME)
+				message = _("Your %s %s is about to run a backup of your settings and to detect your plugins.\nDo you want to allow this?") % (DISPLAYBRAND, MACHINENAME)
 				ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Scheduled backup.")
 			else:
@@ -1032,9 +1032,9 @@ class BackupFiles(Screen):
 		# Files for reference only. No longer used by the restore process.
 		# The version check is no longer be necessary since auto-installed packages are no longer listed in the plugins backup.
 		# For more information please consult commit https://github.com/OpenViX/vix-core/commit/53a95067677651a3f2579a1b0d1f70172ccc493b
-		print("[BackupManager] Finding kernel version:", SystemInfo["kernel"])
+		print("[BackupManager] Finding kernel version:", KERNEL)
 		with open("/tmp/backupkernelversion", "w") as output:
-			output.write(SystemInfo["kernel"])
+			output.write(KERNEL)
 		print("[BackupManager] Finding image version:", SystemInfo["imageversion"])
 		with open("/tmp/backupimageversion", "w") as output:
 			output.write(SystemInfo["imageversion"])
@@ -1084,12 +1084,12 @@ class BackupFiles(Screen):
 		elif self.backuptype == self.TYPE_FACTORYRESET:
 			backupType = "-FR-"
 		imageSubBuild = ""
-		if SystemInfo["imagetype"] != "release":
+		if IMAGETYPE != "release":
 			imageSubBuild = ".%s" % SystemInfo["imagedevbuild"]
 		boxname = ""
 		if config.backupmanager.showboxname.value:
 			boxname = "-" + SystemInfo["machinebuild"]
-		self.Backupfile = self.BackupDirectory + config.backupmanager.folderprefix.value + boxname + "-" + SystemInfo["imagetype"][0:3] + backupType + SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + imageSubBuild + "-" + backupdate.strftime("%Y%m%d-%H%M") + ".tar.gz"
+		self.Backupfile = self.BackupDirectory + config.backupmanager.folderprefix.value + boxname + "-" + IMAGETYPE[0:3] + backupType + SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + imageSubBuild + "-" + backupdate.strftime("%Y%m%d-%H%M") + ".tar.gz"
 		with open(BackupFiles.tar_flist, "w") as tfl:			# Need to create a list of what to backup, so that spaces and special characters don't get lost on, or mangle, the command line
 			for fn in tmplist:
 				tfl.write(fn + "\n")
