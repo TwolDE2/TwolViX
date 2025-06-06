@@ -40,7 +40,7 @@ class UserInstalledPackages:
 				if line.startswith("Package: "):
 					p_name = line.replace("Package: ", "").strip()
 				elif line.startswith("Provides: ") and (tmp_prov := line.replace("Provides: ", "").strip()):
-					p_provides += [x.strip().split(" ", 1)[0] for x in tmp_prov.split(",")] 
+					p_provides += [x.strip().split(" ", 1)[0] for x in tmp_prov.split(",")]
 				elif line.startswith("Depends: ") and (tmp_dep := line.replace("Depends: ", "").strip()):
 					p_depends += [x.strip().split(" ", 1)[0] for x in tmp_dep.split(",")]
 				elif line.startswith("Recommends: ") and (tmp_dep := line.replace("Recommends: ", "").strip()):
