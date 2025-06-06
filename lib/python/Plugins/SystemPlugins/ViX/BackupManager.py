@@ -1015,18 +1015,10 @@ class BackupFiles(Screen):
 		self.pluginreader.run(self.Stage2Complete)
 
 	def Stage2Complete(self, plugins_out):
-		if plugins_out:
-			output = open("/tmp/ExtraInstalledPlugins", "w")
+		with open("/tmp/ExtraInstalledPlugins", "w") as output:
 			output.write("\n".join(sorted(plugins_out)))
-			output.close()
-
-		if path.exists("/tmp/ExtraInstalledPlugins"):
-			print("[BackupManager] Listing completed.")
-			self.Stage2Completed = True
-		else:
-			self.session.openWithCallback(self.BackupComplete, MessageBox, _("Plugin listing failed - e. g. wrong backup destination or no space left on backup device."), MessageBox.TYPE_INFO, timeout=10)
-			print("[BackupManager] Result", result)
-			print("[BackupManager] Plugin listing failed - e. g. wrong backup destination or no space left on backup device")
+		self.Stage2Completed = True
+		print("[BackupManager] Listing ExtraInstalledPlugins completed. Plugins found:", (plugins_out or "None"))
 
 	def Stage3(self):
 		# Files for reference only. No longer used by the restore process.
