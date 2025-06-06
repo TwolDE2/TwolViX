@@ -16,6 +16,7 @@ from Components.MenuList import MenuList
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo, DISPLAYBRAND, MACHINENAME
 import Components.Task
+from Components.UserInstalledPackages import UserInstalledPackages
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Setup import Setup
@@ -866,7 +867,7 @@ class BackupFiles(Screen):
 
 	def __init__(self, session, backuptype=None):
 		Screen.__init__(self, session)
-		self.Console = Console()
+		self.pluginreader = UserInstalledPackages()
 		self.ConsoleB = Console(binary=True)
 		self.backuptype = backuptype
 		self.BackupDevice = config.backupmanager.backuplocation.value
@@ -1011,27 +1012,12 @@ class BackupFiles(Screen):
 		output.close()
 		self.backupdirs = " ".join(config.backupmanager.backupdirs.value)
 		print("[BackupManager] Listing installed plugins")
-		self.Console.ePopen("opkg status", self.Stage2Complete)
+		self.pluginreader.run(self.Stage2Complete)
 
-	def Stage2Complete(self, result, retval, extra_args):
-		if result:
-			plugins_out = []
-			opkg_status_list = result.split("\n\n")
-			# print("[BackupManager] result=%s, retval=%s" % (opkg_status_list, retval))
-			for opkg_status in opkg_status_list:
-				plugin = ""
-				opkg_status_split = opkg_status.split("\n")
-				for line in opkg_status_split:
-					if line.startswith("Package"):
-						parts = line.strip().split()
-						if len(parts) > 1 and parts[1] not in ("opkg", "openvix-base"):
-							plugin = parts[1]
-							continue
-					if plugin and line.startswith("Status") and "user installed" in line:
-						plugins_out.append(plugin)
-						break
+	def Stage2Complete(self, plugins_out):
+		if plugins_out:
 			output = open("/tmp/ExtraInstalledPlugins", "w")
-			output.write("\n".join(plugins_out))
+			output.write("\n".join(sorted(plugins_out)))
 			output.close()
 
 		if path.exists("/tmp/ExtraInstalledPlugins"):
