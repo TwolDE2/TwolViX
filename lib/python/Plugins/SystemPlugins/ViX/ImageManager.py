@@ -619,22 +619,31 @@ class VIXImageManager(Screen):
 			if SystemInfo["HasHiSi"] and SystemInfo["HasRootSubdir"] is False and self.HasSDmmc is False:  # sf8008 receiver 1 eMMC parition, No SD card
 				self.session.open(TryQuitMainloop, 2)
 			if SystemInfo["canMultiBoot"]:
-				print("[ImageManager] slot %s result %s\n" % (self.multibootslot, result))
-				tmp_dir = tempfile.mkdtemp(prefix="ImageManagerFlash")
-				Console().ePopen("mount %s %s" % (self.mtdboot, tmp_dir))
-				if pathExists(path.join(tmp_dir, "STARTUP")):
-					copyfile(path.join(tmp_dir, SystemInfo["canMultiBoot"][self.multibootslot]["startupfile"].replace("boxmode=12'", "boxmode=1'")), path.join(tmp_dir, "STARTUP"))
-				else:
-					self.session.open(MessageBox, _("Multiboot ERROR! - no STARTUP in boot partition."), MessageBox.TYPE_INFO, timeout=20)
-				Console().ePopen('umount %s' % tmp_dir)
-				if not path.ismount(tmp_dir):
-					rmdir(tmp_dir)
-				self.session.open(TryQuitMainloop, 2)
+				message = _("Your ") + f"{DISPLAYBRAND} {SystemInfo['machinename'] }" + _("has successfully flashed slot %s, " % self.multibootslot) + _("enter 'Yes' to reboot new image or 'No' to return to Enigma2")
+				ybox = self.session.openWithCallback(self.FlashQuestion, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
+				ybox.setTitle("Image Flash.")
 			else:
 				self.session.open(TryQuitMainloop, 2)
 		else:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("ofgwrite error (also sent to any debug log):\n%s") % result, MessageBox.TYPE_INFO, timeout=20)
 			print("[ImageManager] OFGWriteResult failed:\n", result)
+
+
+	def FlashQuestion(self, answer):
+		if answer is True:
+			tmp_dir = tempfile.mkdtemp(prefix="ImageManagerFlash")
+			Console().ePopen("mount %s %s" % (self.mtdboot, tmp_dir))
+			if pathExists(path.join(tmp_dir, "STARTUP")):
+				copyfile(path.join(tmp_dir, SystemInfo["canMultiBoot"][self.multibootslot]["startupfile"].replace("boxmode=12'", "boxmode=1'")), path.join(tmp_dir, "STARTUP"))
+			else:
+				self.session.open(MessageBox, _("Multiboot ERROR! - no STARTUP in boot partition."), MessageBox.TYPE_INFO, timeout=20)
+			Console().ePopen('umount %s' % tmp_dir)
+			if not path.ismount(tmp_dir):
+				rmdir(tmp_dir)
+			self.session.open(TryQuitMainloop, 2)
+		else:
+			self.close
+
 
 	def isVuKexecCompatibleImage(self, name):
 		retval = False
