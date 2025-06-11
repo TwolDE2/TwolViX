@@ -352,7 +352,7 @@ class MediaPlayer(Screen, InfoBarBase, InfoBarScreenSaver, InfoBarSeek, InfoBarA
 		currPlay = self.session.nav.getCurrentService()
 		sTagAudioCodec = currPlay.info().getInfoString(iServiceInformation.sTagAudioCodec)
 		print(f"[__evAudioDecodeError] audio-codec {sTagAudioCodec} can't be decoded by hardware")
-		self.session.open(MessageBox, _("This %s %s cannot decode %s streams!") % (DISPLAYBRAND, MACHINENAME sTagAudioCodec), type=MessageBox.TYPE_INFO, timeout=20)
+		self.session.open(MessageBox, _("This %s %s cannot decode %s streams!") % (DISPLAYBRAND, MACHINENAME, sTagAudioCodec), type=MessageBox.TYPE_INFO, timeout=20)
 
 	def __evVideoDecodeError(self):
 		currPlay = self.session.nav.getCurrentService()
