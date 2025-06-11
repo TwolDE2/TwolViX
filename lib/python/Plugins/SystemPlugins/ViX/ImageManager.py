@@ -619,7 +619,7 @@ class VIXImageManager(Screen):
 			if SystemInfo["HasHiSi"] and SystemInfo["HasRootSubdir"] is False and self.HasSDmmc is False:  # sf8008 receiver 1 eMMC parition, No SD card
 				self.session.open(TryQuitMainloop, 2)
 			if SystemInfo["canMultiBoot"]:
-				message = _("Your ") + f"{DISPLAYBRAND} {SystemInfo['machinename'] }" + _("has successfully flashed slot %s, " % self.multibootslot) + _("enter 'Yes' to reboot new image or 'No' to return to Enigma2")
+				message = _("Your ") + f"{DISPLAYBRAND} {SystemInfo['machinename']}" + _("has successfully flashed slot %s, " % self.multibootslot) + _("enter 'Yes' to reboot new image or 'No' to return to Enigma2")
 				ybox = self.session.openWithCallback(self.FlashQuestion, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Image Flash.")
 			else:
