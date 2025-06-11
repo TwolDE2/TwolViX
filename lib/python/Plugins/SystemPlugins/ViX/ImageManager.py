@@ -628,7 +628,6 @@ class VIXImageManager(Screen):
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("ofgwrite error (also sent to any debug log):\n%s") % result, MessageBox.TYPE_INFO, timeout=20)
 			print("[ImageManager] OFGWriteResult failed:\n", result)
 
-
 	def FlashQuestion(self, answer):
 		if answer is True:
 			tmp_dir = tempfile.mkdtemp(prefix="ImageManagerFlash")
@@ -643,7 +642,6 @@ class VIXImageManager(Screen):
 			self.session.open(TryQuitMainloop, 2)
 		else:
 			self.close
-
 
 	def isVuKexecCompatibleImage(self, name):
 		retval = False
