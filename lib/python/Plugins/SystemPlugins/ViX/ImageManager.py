@@ -619,7 +619,7 @@ class VIXImageManager(Screen):
 			if SystemInfo["HasHiSi"] and SystemInfo["HasRootSubdir"] is False and self.HasSDmmc is False:  # sf8008 receiver 1 eMMC parition, No SD card
 				self.session.open(TryQuitMainloop, 2)
 			if SystemInfo["canMultiBoot"]:
-				message = _("Your ") + f"{DISPLAYBRAND} {SystemInfo['machinename'] }" + _("has successfully flashed slot %s, " % self.multibootslot) + _("enter 'Yes' to reboot new image or 'No' to return to Enigma2")
+				message = _("Your ") + f"{DISPLAYBRAND} {MACHINENAME} " + _("has successfully flashed slot %s, " % self.multibootslot) + _("enter 'Yes' to reboot new image or 'No' to return to Enigma2")
 				ybox = self.session.openWithCallback(self.FlashQuestion, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Image Flash.")
 			else:
@@ -802,7 +802,7 @@ class AutoImageManagerTimer:
 			from Screens.Standby import inStandby
 
 			if not inStandby and config.imagemanager.query.value:
-				message = _("Your ") + f"{DISPLAYBRAND} {SystemInfo['machinename']}" + _(" is about to create a full image backup, this can take about 6 minutes to complete.\nDo you want to allow this?")
+				message = _("Your ") + f"{DISPLAYBRAND} {MACHINENAME} " + _(" is about to create a full image backup, this can take about 6 minutes to complete.\nDo you want to allow this?")
 				ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Scheduled backup.")
 			else:
