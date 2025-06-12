@@ -971,17 +971,9 @@ class InfoBarTimeshift:
 					eventtag = readmetafile.readline()[0:-1]
 					readmetafile.close()
 
-		for filename in filelist:
-			if filename.endswith(".meta"):
-				# Get Event Info from meta file
-				readmetafile = open("%s%s" % (config.usage.default_path.value, filename), "r")
-				servicerefname = readmetafile.readline()[0:-1]
-				eventname = readmetafile.readline()[0:-1]
-				eventtitle = readmetafile.readline()[0:-1]
-				eventtime = readmetafile.readline()[0:-1]
-				eventtag = readmetafile.readline()[0:-1]
-				readmetafile.close()
-
+					if ptsgetnextfile:
+						ptsgetnextfile = False
+						ptsmergeSRC = filename[0:-5]
 						if sanitizeFilename(eventname) == sanitizeFilename(ptsmergeeventname):
 							# print(f"[Timeshift][Timeshift] sanitize and copy EIT:{filename}")
 							# Copy EIT File
