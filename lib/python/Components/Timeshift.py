@@ -950,7 +950,7 @@ class InfoBarTimeshift:
 				except UnicodeDecodeError as e:
 					print("[Timeshift][Timeshift] Decoding Error utf-8:", e)
 					try:
-						filesname = filename2.decode("latin-1", errors="strict")						
+						filesname = filename2.decode("latin-1", errors="strict")
 					except UnicodeDecodeError as e:
 						print("[Timeshift][Timeshift] Decoding Error latin-1:", e)
 						continue
@@ -959,9 +959,9 @@ class InfoBarTimeshift:
 			if files is not None:
 				files.sort()
 			for filename in files:
-				# print(f"[Timeshift][Timeshift] filename in files:{filename}")												
+				# print(f"[Timeshift][Timeshift] filename in files:{filename}")
 				if fileExists("%s%s" % (config.usage.default_path.value, filename)) and filename.endswith(".meta"):
-					# print(f"[Timeshift][Timeshift] filename in files exists:{filename}")				
+					# print(f"[Timeshift][Timeshift] filename in files exists:{filename}")
 					# Get Event Info from meta file
 					readmetafile = open("%s%s" % (config.usage.default_path.value, filename), "r")
 					servicerefname = readmetafile.readline()[0:-1]
