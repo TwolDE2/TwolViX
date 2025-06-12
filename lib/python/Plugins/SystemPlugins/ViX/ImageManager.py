@@ -17,7 +17,7 @@ from Components.Harddisk import harddiskmanager, getProcMounts, bytesToHumanRead
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, BOXTYPE, CHKROOTMB, DISPLAYBRAND, IMAGETYPE, MACHINEBUILD, MODEL, MTDKERNEL, MTDROOTFS
+from Components.SystemInfo import SystemInfo, BOXTYPE, CHKROOTMB, DISPLAYBRAND, IMAGETYPE, MACHINEBUILD, MACHINENAME, MODEL, MTDKERNEL, MTDROOTFS
 import Components.Task
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
