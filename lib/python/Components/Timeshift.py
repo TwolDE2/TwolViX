@@ -999,7 +999,7 @@ class InfoBarTimeshift:
 						ptsgetnextfile = True
 						ptsmergeDEST = filename[0:-5]
 						ptsmergeeventname = eventname
-						ptsfilemerged = False
+						ptsfilemerged = False  # noqa: F841
 
 						# If still recording or transfering, try again later ...
 						if fileExists("%s%s" % (config.usage.default_path.value, ptsmergeDEST)):

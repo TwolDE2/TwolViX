@@ -2,6 +2,7 @@ from urllib.parse import urlparse
 from urllib.request import urlopen
 import json
 import tempfile
+import struct
 
 from enigma import eTimer, fbClass
 from os import path, stat, system, mkdir, makedirs, listdir, remove, rename, rmdir, sep as ossep, statvfs, chmod, walk

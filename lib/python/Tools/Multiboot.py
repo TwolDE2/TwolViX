@@ -1,5 +1,6 @@
 from datetime import datetime
 import glob
+import struct
 import subprocess
 import tempfile
 from os import path, rmdir, rename, sep, stat
