@@ -85,6 +85,7 @@ def getMultibootslots():
 									slot["startupfile"] = path.basename(file)
 									slot["slotname"] = slotname
 									SystemInfo["HasMultibootMTD"] = slot.get("mtd")
+									SystemInfo["HasMultibootFlags"] = path.exists("/dev/block/by-name/flag")
 									if not SystemInfo["HasKexecMultiboot"] and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
 										slot["rootsubdir"] = None
 										slot["slotType"] = "SDCARD"
@@ -107,7 +108,9 @@ def getMultibootslots():
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	if bootslots:
-		if MODEL not in ("dm900", "dm920"):
+		if MODEL in ("dm900", "dm920") and fileExists("/proc/stb/fp/boot_mode"):
+			SystemInfo["RecoveryMode"] = True
+		elif MODEL not in ("dm900", "dm920"):
 			bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 			print(f"[multiboot][getMultibootslots]4 bootArgs: {bootArgs}")
 			if SystemInfo["HasKexecMultiboot"] and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
@@ -115,6 +118,11 @@ def getMultibootslots():
 				char = "/" if "/" in rootsubdir[0] else "="
 				SystemInfo["MultiBootSlot"] = int(rootsubdir[0].rsplit(char, 1)[1][11:])
 				SystemInfo["VuUUIDSlot"] = (UUID, UUIDnum) if UUIDnum != 0 else ""
+			elif SystemInfo["HasMultibootFlags"]:  # Qviart Dual 4K
+				with open('/dev/block/by-name/flag', 'rb') as f:
+					struct_fmt = "B"
+					flag = f.read(struct.calcsize(struct_fmt))
+					slot = struct.unpack(struct_fmt, flag)
 			elif bootArgs and SystemInfo["HasRootSubdir"] and "root=/dev/sda" not in bootArgs:							# RootSubdir receiver or sf8008 receiver with root in eMMC slot
 				slot = [x[-1] for x in bootArgs.split() if x.startswith("rootsubdir")]
 				SystemInfo["MultiBootSlot"] = int(slot[0])
