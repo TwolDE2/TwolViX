@@ -182,6 +182,7 @@ SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and BOXTYPE not in ("vipertwin"
 SystemInfo["canMultiBoot"] = getMultibootslots()
 # SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py
 # SystemInfo["MultiBootSlot"] = current slot set in Tools/Multiboot.py
+SystemInfo["DMRecovery"] = MODEL in ("dm900", "dm920") and fileExists("/proc/stb/fp/boot_mode")
 
 
 def getNumVideoDecoders():

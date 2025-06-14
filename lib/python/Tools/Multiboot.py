@@ -109,9 +109,7 @@ def getMultibootslots():
 	if not path.ismount(tmp.dir):
 		rmdir(tmp.dir)
 	if bootslots:
-		if MODEL in ("dm900", "dm920") and fileExists("/proc/stb/fp/boot_mode"):
-			SystemInfo["RecoveryMode"] = True
-		elif MODEL not in ("dm900", "dm920"):
+		if MODEL not in ("dm900", "dm920"):
 			bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 			print(f"[multiboot][getMultibootslots]4 bootArgs: {bootArgs}")
 			if SystemInfo["HasKexecMultiboot"] and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
