@@ -89,11 +89,11 @@ class Pager(GUIAddon):
 						backcolor=None, backcolor_sel=None, flags=BT_ALIGN_CENTER))
 					xPos += pixd_width + self.spacing
 				if self.current_page_style == "bubbletext":
-					textBubble = f"{currentPage+1} / {pageCount+1}"
+					textBubble = f"{currentPage + 1} / {pageCount + 1}"
 					textWidth = self._calcTextWidth(textBubble, font=self.font, size=eSize(self.getDesktopWith() // 3, 0))
 					res.append(MultiContentEntryText(
 						pos=(xPos, 0),
-						size=(textWidth + self.bubbletext_padding*2, height),
+						size =(textWidth + self.bubbletext_padding * 2, height),
 						font=0, flags=RT_HALIGN_CENTER | RT_VALIGN_CENTER,
 						text=" ",
 						corner_radius=self.bubbletext_corner_radius,
@@ -103,7 +103,7 @@ class Pager(GUIAddon):
 							font=0, flags=RT_HALIGN_CENTER | RT_VALIGN_CENTER | RT_BLEND,
 							text=textBubble, color=self.foreColor, color_sel=self.foreColor,
 							textBWidth=1, textBColor=0x010101))
-					xPos += textWidth + self.bubbletext_padding*2 + self.spacing
+					xPos += textWidth + self.bubbletext_padding * 2 + self.spacing
 				else:
 					res.append(MultiContentEntryPixmapAlphaBlend(
 						pos=(xPos, 0),
