@@ -32,7 +32,7 @@ class Pager(GUIAddon):
 		self.orientations = {"orHorizontal": eListbox.orHorizontal, "orVertical": eListbox.orVertical}
 		self.orientation = eListbox.orHorizontal
 		self.max_pages = 10
-		self.current_page_style = "bubbletext" # possible is bubbletext and graphic
+		self.current_page_style = "bubbletext"  # possible is bubbletext and graphic
 		self.textRenderer = Label("")
 		self.bubbletext_corner_radius = 12
 		self.bubbletext_bk_color = 0x02444444
