@@ -248,7 +248,7 @@ class RemoteControlType(ConfigListScreen, Screen):
 		("30", _("PULSe 4K/4K Mini"))
 	]
 
-	defaultRcList = [
+	defaultRcList=[
 		("default", 0),
 		("et4000", 13),
 		("et5000", 7),
@@ -296,31 +296,31 @@ class RemoteControlType(ConfigListScreen, Screen):
 
 	def __init__(self, session):
 		Screen.__init__(self, session)
-		self.skinName = ["RemoteControlType", "Setup"]
+		self.skinName=["RemoteControlType", "Setup"]
 
-		self.list = []
+		self.list=[]
 		ConfigListScreen.__init__(self, self.list, session=self.session, fullUI=True)
 
-		rctype = config.plugins.remotecontroltype.rctype.value
-		self.rctype = ConfigSelection(choices=self.rcList, default=str(rctype))
+		rctype=config.plugins.remotecontroltype.rctype.value
+		self.rctype=ConfigSelection(choices=self.rcList, default=str(rctype))
 		self.list.append(getConfigListEntry(_("Remote control type"), self.rctype))
-		self["config"].list = self.list
+		self["config"].list=self.list
 
-		self.defaultRcType = 0
+		self.defaultRcType=0
 		self.getDefaultRcType()
 
 	def getDefaultRcType(self):
-		boxtype = BOXTYPE
-		procBoxtype = iRcTypeControl.getBoxType()
+		boxtype=BOXTYPE
+		procBoxtype=iRcTypeControl.getBoxType()
 		print("[InputDevice] procBoxtype = %s, self.boxType = %s" % (procBoxtype, boxtype))
 		for x in self.defaultRcList:
 			if x[0] in boxtype or x[0] in procBoxtype:
-				self.defaultRcType = x[1]
+				self.defaultRcType=x[1]
 				break
 		# If there is none in the list, use the current value...
 		# print("[InputDevice] self.defaultRcType 1 = {}".format(self.defaultRcType))
 		if self.defaultRcType == 0:
-			self.defaultRcType = iRcTypeControl.readRcType()
+			self.defaultRcType=iRcTypeControl.readRcType()
 		# print("[InputDevice] self.defaultRcType 2 = {}".format(self.defaultRcType))
 
 	def setDefaultRcType(self):
@@ -337,7 +337,7 @@ class RemoteControlType(ConfigListScreen, Screen):
 		if answer is False:
 			self.restoreOldSetting()
 		else:
-			config.plugins.remotecontroltype.rctype.value = int(self.rctype.value)
+			config.plugins.remotecontroltype.rctype.value=int(self.rctype.value)
 			config.plugins.remotecontroltype.save()
 			self.close()
 
