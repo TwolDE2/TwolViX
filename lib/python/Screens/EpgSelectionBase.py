@@ -98,7 +98,8 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		self["Event"] = Event()
 		self["lab1"] = Label(_("Please wait while gathering EPG data..."))
 		self["lab1"].hide()
-		self["key_red"] = Button(_("IMDb Search"))
+		self.tmdb = isPluginInstalled("tmdb")
+		self["key_red"] = Button(_("TMDb Search") if self.tmdb else _("IMDb Search"))
 		self["key_green"] = Button(_("Add Timer"))
 		self["key_yellow"] = Button(_("EPG Search"))
 		self["key_blue"] = Button(_("Add AutoTimer"))
@@ -804,8 +805,9 @@ class EPGStandardButtons:
 
 	# build a tuple suitable for using in a helpable action
 	def helpKeyAction(self, actionName):
+		tmdb = isPluginInstalled("tmdb")
 		actions = {
-			"red": (self.openIMDb, _("IMDB search for current event")),
+			"red": (self.openTMDb if self.tmdb else self.openIMDb, _("TMDb search for current event") if self.tmdb else _("IMDB search for current event")),
 			"redlong": (self.sortEPG, _("Sort the EPG list")),
 			"green": (self.addEditTimer, _("Add/Remove timer for current event")),
 			"greenlong": (self.openTimerList, _("Show timer list")),
