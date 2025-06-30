@@ -9,6 +9,7 @@ class EPGSelectionSimilar(EPGSelectionBase, EPGStandardButtons):
 
 		self["key_menu"].text = ""  # don't show button
 		self["key_info"].text = ""  # don't show button
+		self.setTitle(_("Similar"))
 
 		self.skinName = ["EPGSelectionSimilar", "SingleEPG", "EPGSelection"]
 		self.currentService = service
