@@ -805,7 +805,6 @@ class EPGStandardButtons:
 
 	# build a tuple suitable for using in a helpable action
 	def helpKeyAction(self, actionName):
-		tmdb = isPluginInstalled("tmdb")
 		actions = {
 			"red": (self.openTMDb if self.tmdb else self.openIMDb, _("TMDb search for current event") if self.tmdb else _("IMDB search for current event")),
 			"redlong": (self.sortEPG, _("Sort the EPG list")),
