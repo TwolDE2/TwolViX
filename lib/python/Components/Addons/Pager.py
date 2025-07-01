@@ -99,10 +99,10 @@ class Pager(GUIAddon):
 						corner_radius=self.bubbletext_corner_radius,
 						backcolor=self.bubbletext_bk_color, backcolor_sel=self.bubbletext_bk_color))
 					res.append(MultiContentEntryText(
-							pos=(xPos + self.bubbletext_padding - 1, 0), size=(textWidth + 2, height),
-							font=0, flags=RT_HALIGN_CENTER | RT_VALIGN_CENTER | RT_BLEND,
-							text=textBubble, color=self.foreColor, color_sel=self.foreColor,
-							textBWidth=1, textBColor=0x010101))
+						pos=(xPos + self.bubbletext_padding - 1, 0), size=(textWidth + 2, height),
+						font=0, flags=RT_HALIGN_CENTER | RT_VALIGN_CENTER | RT_BLEND,
+						text=textBubble, color=self.foreColor, color_sel=self.foreColor,
+						textBWidth=1, textBColor=0x010101))
 					xPos += textWidth + self.bubbletext_padding * 2 + self.spacing
 				else:
 					res.append(MultiContentEntryPixmapAlphaBlend(
