@@ -95,7 +95,7 @@ class ResumePoints():
 
 	def saveResumePoints(self):
 		with open(self.resumePointFile, "wb") as f:
-			pickle_dump(self.resumePointCache, f, protocol=5))
+			pickle_dump(self.resumePointCache, f, protocol=5)
 
 	def delResumePoint(self, ref):
 		if (sref := ref.toString()) in self.resumePointCache:
