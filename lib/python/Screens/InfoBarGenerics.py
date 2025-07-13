@@ -2109,7 +2109,7 @@ class InfoBarSeek:
 				else:
 					return HelpableActionMap.action(self, contexts, action)
 
-			@ staticmethod
+			@staticmethod
 			def seekTime(action):
 				if action[:5] == "seek:":
 					time = int(action[5:])
@@ -2122,7 +2122,7 @@ class InfoBarSeek:
 					return time
 				return None
 
-			@ staticmethod
+			@staticmethod
 			def skipStringFn(skipFn):
 				skip = skipFn()
 				if skip is None:
@@ -2130,14 +2130,14 @@ class InfoBarSeek:
 				else:
 					return "%s %3d %s" % (_("Skip forward ") if skip >= 0 else _("Skip back "), abs(skip), _("sec"))
 
-			@ staticmethod
+			@staticmethod
 			def skipString(skip):
 				if callable(skip):
 					return boundFunction(InfoBarSeekActionMap.skipStringFn, skip)
 				else:
 					return "%s %3d %s" % (_("Skip forward ") if skip >= 0 else _("Skip back "), abs(skip), _("sec"))
 
-			@ staticmethod
+			@staticmethod
 			def generateSkipHelp(context):
 				skipHelp = []
 				for action in [act for ctx, act in getKeyBindingKeys(filterfn=lambda key: key[0] == context and (key[1].startswith(("seek:", "seekdef:"))))]:
@@ -2911,7 +2911,7 @@ class InfoBarExtensions:
 		from Screens.LogManager import LogManager
 		self.session.open(LogManager)
 
-	@ staticmethod
+	@staticmethod
 	def _getAutoTimerPluginFunc():
 		# Use the WHERE_MENU descriptor because it's the only
 		# AutoTimer plugin descriptor that opens the AutoTimer
