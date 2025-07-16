@@ -1,7 +1,8 @@
 from os import listdir, path as ospath, popen, statvfs
+from platform import libc_ver
 from re import search
 from requests import get
-from sys import version_info
+from sys import version_info, version as pyversion
 from enigma import eTimer, getDesktop, getEnigmaLastCommitDate, getEnigmaLastCommitHash
 from skin import parameters
 from Components.About import getBoxUptime, getCPUArch, getEnigmaUptime, getIfConfig, getIfTransferredData
@@ -52,6 +53,9 @@ def _formatDate(Date):
 	return config.usage.date.dateFormatAbout.value % {"year": Date[0:4], "month": Date[4:6], "day": Date[6:8]}
 
 
+def getVersionFromOpkg(fileName):
+	return next((line[9:].split("+")[0] for line in (fileReadLines(f"/var/lib/opkg/info/{fileName}.control") or []) if line.startswith("Version:")), _("Not Installed"))
+
 def getFFmpegVersionString():
 	lines = fileReadLines("/var/lib/opkg/info/ffmpeg.control")
 	if lines:
@@ -59,7 +63,6 @@ def getFFmpegVersionString():
 			if line[0:8] == "Version:":
 				return line[9:].split("+")[0]
 	return _("Not Installed")
-
 
 def getGStreamerVersionString():
 	try:
@@ -69,6 +72,20 @@ def getGStreamerVersionString():
 	except:
 		return _("unknown")
 
+def getGlibcVersion():
+	try:
+		return libc_ver()[1]
+	except:
+		print("[About] Get glibc version failed.")
+	return _("Unknown")
+
+
+def getGccVersion():
+	try:
+		return pyversion.split("[GCC ")[1].replace("]", "")
+	except:
+		print("[About] Get gcc version failed.")
+	return _("Unknown")
 
 def getsystemTemperature():
 	tempinfo = ""
@@ -246,8 +263,14 @@ class About(AboutBase):
 
 		AboutText += _("Drivers:\t%s\n") % driversDate()
 		AboutText += _("Kernel:\t%s\n") % KERNEL
+		AboutText += _("Samba:\t%s\n") % getVersionFromOpkg("samba")
 		AboutText += _("GStreamer:\t%s\n") % getGStreamerVersionString().replace("GStreamer ", "")
+		AboutText += _("GCC version:\t%s\n") % getGccVersion()
+		AboutText += _("Glibc version:\t%s\n") % getGlibcVersion()
 		AboutText += _("FFmpeg version:\t%s\n") % getFFmpegVersionString()
+		AboutText += _("OpenSSL version:\t%s\n") % getVersionFromOpkg("openssl")
+		AboutText += _("Rust version:\t%s\n") % str(BoxInfo.getItem("rust"))
+		AboutText += _("UPX version:\t%s\n") % (BoxInfo.getItem("upx"))
 		if isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value:
 			AboutText += _("4097 iptv player:\t%s\n") % config.plugins.serviceapp.servicemp3.player.value
 		else:
