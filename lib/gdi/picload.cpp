@@ -486,6 +486,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 		png_set_expand(png_ptr);
 		png_set_palette_to_rgb(png_ptr);
 		png_set_tRNS_to_alpha(png_ptr);
+		png_set_filler(png_ptr, 0x00, PNG_FILLER_AFTER);
 		bit_depth = 32;
 		eDebug("[ePicLoad] Interlaced PNG 8bit -> 32bit");
 	}
@@ -582,7 +583,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 		if ((color_type == PNG_COLOR_TYPE_PALETTE) || (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) || (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)))
 			png_set_expand(png_ptr);
 
-		if (color_type & PNG_COLOR_MASK_ALPHA || png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+		if ((color_type & PNG_COLOR_MASK_ALPHA || png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) && bit_depth < 32)
 		{
 			png_set_strip_alpha(png_ptr);
 			png_color_16 bg;
@@ -597,10 +598,10 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 		png_read_update_info(png_ptr, info_ptr);
 
 		int bpp = png_get_rowbytes(png_ptr, info_ptr) / width;
-		eDebug("[ePicLoad][png_load] RGB data from PNG file int bpp %x)", bpp);
+		eDebug("[ePicLoad] RGB data from PNG file int bpp %x)", bpp);
 		if ((bpp != 4) && (bpp != 3))
 		{
-			eDebug("[ePicLoad][png_load] Error processing (did not get RGB data from PNG file)");
+			eDebug("[ePicLoad] Error processing (did not get RGB data from PNG file)");
 			png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 			return;
 		}
@@ -608,7 +609,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 		unsigned char *pic_buffer = new unsigned char[pixel_cnt * bpp];
 		if (!pic_buffer)
 		{
-			eDebug("[ePicLoad][png_load] Error malloc");
+			eDebug("[ePicLoad] Error malloc");
 			png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 			return;
 		}
@@ -632,7 +633,7 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 			unsigned char *pic_buffer24 = new unsigned char[pixel_cnt * 3];
 			if (!pic_buffer24)
 			{
-				eDebug("[ePicLoad][png_load] Error malloc");
+				eDebug("[ePicLoad] Error malloc");
 				delete[] pic_buffer;
 				return;
 			}
