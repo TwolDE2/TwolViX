@@ -56,6 +56,7 @@ def _formatDate(Date):
 def getVersionFromOpkg(fileName):
 	return next((line[9:].split("+")[0] for line in (fileReadLines(f"/var/lib/opkg/info/{fileName}.control") or []) if line.startswith("Version:")), _("Not Installed"))
 
+
 def getFFmpegVersionString():
 	lines = fileReadLines("/var/lib/opkg/info/ffmpeg.control")
 	if lines:
@@ -64,6 +65,7 @@ def getFFmpegVersionString():
 				return line[9:].split("+")[0]
 	return _("Not Installed")
 
+
 def getGStreamerVersionString():
 	try:
 		from glob import glob
@@ -71,6 +73,7 @@ def getGStreamerVersionString():
 		return gst[1].split("+")[0].split("-")[0].replace("\n", "")
 	except:
 		return _("unknown")
+
 
 def getGlibcVersion():
 	try:
@@ -86,6 +89,7 @@ def getGccVersion():
 	except:
 		print("[About] Get gcc version failed.")
 	return _("Unknown")
+
 
 def getsystemTemperature():
 	tempinfo = ""
