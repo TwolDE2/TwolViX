@@ -655,10 +655,14 @@ static void png_load(Cfilepara* filepara, int background, bool forceRGB=false)
 			}
 			delete[] pic_buffer;
 			filepara->pic_buffer = pic_buffer24;
+			filepara->bits = 24;
 		}
 		else
+		{
 			filepara->pic_buffer = pic_buffer;
-		filepara->bits = 24;
+			filepara->bits = 24;
+		}
+		
 	}
 }
 
