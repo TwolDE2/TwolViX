@@ -1,4 +1,5 @@
-from os import path, rmdir
+from os import rmdir
+from os.path import exists, ismount, join 
 import tempfile
 import struct
 
@@ -103,15 +104,15 @@ class MultiBootSelector(Screen, HelpableScreen):
 		boxmode = currentSelected[0][1][1]
 		if SystemInfo["canMode12"]:
 			if "BOXMODE" in SystemInfo["canMultiBoot"][slot]['startupfile']:
-				startupfile = path.join(self.tmp_dir, "%s_%s" % (SystemInfo["canMultiBoot"][slot]['startupfile'].rsplit('_', 1)[0], boxmode))
-				copyfile(startupfile, path.join(self.tmp_dir, "STARTUP"))
+				startupfile = join(self.tmp_dir, "%s_%s" % (SystemInfo["canMultiBoot"][slot]['startupfile'].rsplit('_', 1)[0], boxmode))
+				copyfile(startupfile, join(self.tmp_dir, "STARTUP"))
 			else:
-				f = open(path.join(self.tmp_dir, SystemInfo["canMultiBoot"][slot]['startupfile']), "r").read()
+				f = open(join(self.tmp_dir, SystemInfo["canMultiBoot"][slot]['startupfile']), "r").read()
 				if boxmode == 12:
 					f = f.replace("boxmode=1'", "boxmode=12'").replace("%s" % SystemInfo["canMode12"][0], "%s" % SystemInfo["canMode12"][1])
-				open(path.join(self.tmp_dir, "STARTUP"), "w").write(f)
+				open(join(self.tmp_dir, "STARTUP"), "w").write(f)
 		else:
-			copyfile(path.join(self.tmp_dir, SystemInfo["canMultiBoot"][slot]["startupfile"]), path.join(self.tmp_dir, "STARTUP"))
+			copyfile(join(self.tmp_dir, SystemInfo["canMultiBoot"][slot]["startupfile"]), join(self.tmp_dir, "STARTUP"))
 		if SystemInfo["HasMultibootMTD"]:
 			with open('/dev/block/by-name/flag', 'wb') as f:
 				f.write(struct.pack("B", int(slot)))
@@ -218,7 +219,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 
 	def cancel(self, value=None):
 		Console().ePopen("umount %s" % self.tmp_dir)
-		if not path.ismount(self.tmp_dir):
+		if not ismount(self.tmp_dir):
 			rmdir(self.tmp_dir)
 		if value == QUIT_REBOOT:
 			self.session.open(TryQuitMainloop, QUIT_REBOOT)
