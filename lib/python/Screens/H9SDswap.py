@@ -76,7 +76,7 @@ class H9SDswap(Screen):
 		self.switchtype = "usb"
 		if "root=/dev/SDA1" in open('/proc/cmdline', 'r').read():
 			self.session.open(MessageBox, _("H9 USB switch ERROR! - already on USB"), MessageBox.TYPE_INFO, timeout=20)
-		elif path.isfile("/media/mmc/usr/bin/enigma2"):
+		elif path.isfile("/media/sda1/usr/bin/enigma2"):
 			self.container = Console()
 			self.container.ePopen("dd if=/usr/share/bootargs-usb.bin of=/dev/mtdblock1", self.Unm)
 		else:
