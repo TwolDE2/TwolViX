@@ -239,10 +239,11 @@ class About(AboutBase):
 			AboutText += _("Boot Device:\t%s%s\n") % (VuPlustxt, SystemInfo["BootDevice"])
 
 		if SystemInfo["HasH9SD"]:
-			if "rootfstype=ext4" in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read():
-				part = "        - SD card in use for Image root \n"
-			else:
-				part = "        - eMMC slot in use for Image root \n"
+			parttype = "eMMC"
+			bootargs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
+			if "rootfstype=ext4" in bootargs:
+				parttype =  "usb" if "root=/dev/sda1" in bootargs else  "SDcard"
+			part = "        - %s slot in use for Image root \n" % parttype
 			AboutText += _("%s") % part
 
 		if SystemInfo["canMultiBoot"]:
