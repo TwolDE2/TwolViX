@@ -1,5 +1,5 @@
 from os import rmdir
-from os.path import exists, ismount, join 
+from os.path import exists, ismount, join
 import tempfile
 import struct
 
