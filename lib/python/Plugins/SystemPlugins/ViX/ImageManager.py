@@ -611,7 +611,7 @@ class VIXImageManager(Screen):
 			elif fileHas("/proc/cmdline", "root=/dev/sda1") is True:  # h9 using usb
 				CMD = "/usr/bin/ofgwrite -rsda1 '%s'" % MAINDEST
 				rename("%s/rootfs.ubi" % MAINDEST, "%s/xx.txt" % MAINDEST)  # h9 usb card - build has both roots causes ofgwrite issue
-			else :  # h9 no SD card - build has both roots causes ofgwrite issue
+			else:  # h9 no SD card - build has both roots causes ofgwrite issue
 				rename("%s/rootfs.tar.bz2" % MAINDEST, "%s/xx.txt" % MAINDEST)
 		print(f"[ImageManager] running command:{CMD} root:{getattr(self, 'MTDROOTFS', 'not set')}")
 		self.Console.ePopen(CMD, self.ofgwriteResult)
