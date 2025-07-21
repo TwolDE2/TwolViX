@@ -242,7 +242,7 @@ class About(AboutBase):
 			parttype = "eMMC"
 			bootargs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 			if "rootfstype=ext4" in bootargs:
-				parttype =  "usb" if "root=/dev/sda1" in bootargs else  "SDcard"
+				parttype = "usb" if "root=/dev/sda1" in bootargs else "SDcard"
 			part = "        - %s slot in use for Image root \n" % parttype
 			AboutText += _("%s") % part
 
