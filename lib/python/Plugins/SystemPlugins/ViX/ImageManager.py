@@ -461,7 +461,7 @@ class VIXImageManager(Screen):
 		if not self.sel:
 			return
 		print("[ImageManager][keyRestore] self.sel SystemInfo['MultiBootSlot']", self.sel[0], "   ", SystemInfo["MultiBootSlot"])
-		if SystemInfo["MultiBootSlot"] == 0 and self.isVuKexecCompatibleImage(self.sel[0]):  # only if Vu multiboot has been enabled and the image is compatible
+		if SystemInfo["MultiBootSlot"] == 0 and SystemInfo["HasKexecMultiboot"] and self.isVuKexecCompatibleImage(self.sel[0]):  # only if Vu multiboot has been enabled and the image is compatible
 			message = [_("Are you sure you want to overwrite the Recovery image?")]
 			if "VuSlot0" in self.sel[0]:
 				callback = self.keyRestoreVuSlot0Image
@@ -605,9 +605,13 @@ class VIXImageManager(Screen):
 				CMD = "/usr/bin/ofgwrite -r -k -m%s '%s'" % (self.multibootslot, MAINDEST)  # Normal multiboot
 			print(f"[ImageManager] running flash Console command={CMD}")
 		elif SystemInfo["HasH9SD"]:
-			if fileHas("/proc/cmdline", "root=/dev/mmcblk0p1") is True and fileExists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 using SD card
+			if fileHas("/proc/cmdline", "root=/dev/mmcblk0p1") is True:  # h9 using SD card
 				CMD = "/usr/bin/ofgwrite -rmmcblk0p1 '%s'" % MAINDEST
-			elif fileExists("%s/rootfs.ubi" % MAINDEST) and fileExists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 no SD card - build has both roots causes ofgwrite issue
+				rename("%s/rootfs.ubi" % MAINDEST, "%s/xx.txt" % MAINDEST)  # h9 usb card - build has both roots causes ofgwrite issue
+			elif fileHas("/proc/cmdline", "root=/dev/sda1") is True:  # h9 using usb
+				CMD = "/usr/bin/ofgwrite -rsda1 '%s'" % MAINDEST
+				rename("%s/rootfs.ubi" % MAINDEST, "%s/xx.txt" % MAINDEST)  # h9 usb card - build has both roots causes ofgwrite issue
+			else :  # h9 no SD card - build has both roots causes ofgwrite issue
 				rename("%s/rootfs.tar.bz2" % MAINDEST, "%s/xx.txt" % MAINDEST)
 		print(f"[ImageManager] running command:{CMD} root:{getattr(self, 'MTDROOTFS', 'not set')}")
 		self.Console.ePopen(CMD, self.ofgwriteResult)
