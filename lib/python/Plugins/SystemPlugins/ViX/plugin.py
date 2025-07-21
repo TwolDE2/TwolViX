@@ -212,7 +212,7 @@ def Plugins(**kwargs):
 	if SystemInfo.get("resetMBoot"):
 		plist.append(PluginDescriptor(name=_("Kexec warning"), where=PluginDescriptor.WHERE_WIZARD, needsRestart=False, fnc=(20, KexecWarning)))
 
-	if SystemInfo["MultiBootSlot"] == 0:  # only in recovery image
+	if SystemInfo["MultiBootSlot"] == 0 and SystemInfo["HasKexecMultiboot"]:  # only in recovery image
 		plist.append(PluginDescriptor(name=_("Image Manager"), where=PluginDescriptor.WHERE_MENU, needsRestart=False, fnc=ImageManagerStart))
 		if not config.misc.firstrun.value:
 			plist.append(PluginDescriptor(name=_("Vu+ ImageManager wizard"), where=PluginDescriptor.WHERE_WIZARD, needsRestart=False, fnc=(30, ImageManager)))
