@@ -57,15 +57,6 @@ def getVersionFromOpkg(fileName):
 	return next((line[9:].split("+")[0] for line in (fileReadLines(f"/var/lib/opkg/info/{fileName}.control") or []) if line.startswith("Version:")), _("Not Installed"))
 
 
-def getFFmpegVersionString():
-	lines = fileReadLines("/var/lib/opkg/info/ffmpeg.control")
-	if lines:
-		for line in lines:
-			if line[0:8] == "Version:":
-				return line[9:].split("+")[0]
-	return _("Not Installed")
-
-
 def getGStreamerVersionString():
 	try:
 		from glob import glob
@@ -272,7 +263,7 @@ class About(AboutBase):
 		AboutText += _("GStreamer:\t%s\n") % getGStreamerVersionString().replace("GStreamer ", "")
 		AboutText += _("GCC version:\t%s\n") % getGccVersion()
 		AboutText += _("Glibc version:\t%s\n") % getGlibcVersion()
-		AboutText += _("FFmpeg version:\t%s\n") % getFFmpegVersionString()
+		AboutText += _("FFmpeg version:\t%s\n") % getVersionFromOpkg("ffmpeg")
 		AboutText += _("OpenSSL version:\t%s\n") % getVersionFromOpkg("openssl")
 		AboutText += _("Rust version:\t%s\n") % str(BoxInfo.getItem("rust"))
 		AboutText += _("UPX version:\t%s\n") % (BoxInfo.getItem("upx"))
