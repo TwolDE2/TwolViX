@@ -295,7 +295,11 @@ int eAVSwitch::getFrameRate(int defaultVal, int flags) const
 // @return
 std::string eAVSwitch::getVideoMode(const std::string &defaultVal, int flags) const
 {
+#ifdef VIDEO_MODE_50
+	std::string result = CFile::read(proc_videomode_50, __MODULE__, flags);
+#else
 	std::string result = CFile::read(proc_videomode, __MODULE__, flags);
+#endif
 	if (!result.empty() && result[result.length() - 1] == '\n')
 	{
 		result.erase(result.length() - 1);
@@ -393,7 +397,13 @@ void eAVSwitch::setInput(int val)
 // set VideoMode --> newMode
 void eAVSwitch::setVideoMode(const std::string &newMode, int flags) const
 {
+#ifdef VIDEO_MODE_50
+	// gigablue driver bug
+	CFile::writeStr(proc_videomode_50, newMode, __MODULE__, flags);
+	CFile::writeStr(proc_videomode_60, newMode, __MODULE__, flags);
+#else
 	CFile::writeStr(proc_videomode, newMode, __MODULE__, flags);
+#endif
 	if (flags & FLAGS_DEBUG)
 		eDebug("[%s] %s: %s", __MODULE__, "setVideoMode", newMode.c_str());
 }
