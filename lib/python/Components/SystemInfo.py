@@ -299,7 +299,6 @@ SystemInfo["hasRCA"] = SystemInfo["rca"]
 SystemInfo["hasScart"] = SystemInfo["scart"]
 SystemInfo["hasScartYUV"] = SystemInfo["scartyuv"]
 SystemInfo["hasYUV"] = SystemInfo["yuv"]
-# Videomodes
 SystemInfo["VideoModes"] = CHIPSET.replace("hi", "") in (  # 2160p and 1080p capable hardware...
 	"5272s", "7251", "7251s", "7252", "7252s", "7278", "7366", "7376", "7444s", "72604", "3798cv200", "3798mv200", "3798mv200advca", "3798mv200h", "3798mv300"
 ) and (
@@ -316,6 +315,7 @@ SystemInfo["VideoModes"] = CHIPSET.replace("hi", "") in (  # 2160p and 1080p cap
 )
 # VideoAudioOptions
 SystemInfo["CanProc"] = SystemInfo["HasMMC"] and BRAND != "vuplus"
+SystemInfo["needsVideoJudderDriverFix"] = BOXTYPE in ("gbquad4kpro",)
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
 SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz") or MODEL in ("h7")
 SystemInfo["havecolorspace"] = fileCheck("/proc/stb/video/hdmi_colorspace")
