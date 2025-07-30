@@ -176,7 +176,7 @@ def GetImagelist(Recovery=None):
 	tmpname = tmp.dir
 	from Components.config import config		# here to prevent boot loop
 	for slot in sorted(list(SystemInfo["canMultiBoot"].keys())):
-		if slot == 0 :
+		if slot == 0:
 			if UBIMB:
 				continue			
 			elif not Recovery:		# called by ImageManager
