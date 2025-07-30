@@ -14,7 +14,7 @@ from Components.Network import iNetwork
 from Components.NimManager import nimmanager
 from Components.Pixmap import MultiPixmap
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import BoxInfo, SystemInfo, CHIPSET, DISPLAYBRAND, KERNEL, MACHINENAME, MODEL, SOC_BRAND
+from Components.SystemInfo import BoxInfo, SystemInfo, CHIPSET, DISPLAYBRAND, KERNEL, MACHINENAME, MODEL, SOC_BRAND, UBIMB
 from Components.UserInstalledPackages import UserInstalledPackages
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
@@ -229,14 +229,6 @@ class About(AboutBase):
 		elif "BootDevice" in SystemInfo and SystemInfo["BootDevice"]:
 			AboutText += _("Boot Device:\t%s%s\n") % (VuPlustxt, SystemInfo["BootDevice"])
 
-		if SystemInfo["HasH9SD"]:
-			parttype = "eMMC"
-			bootargs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
-			if "rootfstype=ext4" in bootargs:
-				parttype = "usb" if "root=/dev/sda1" in bootargs else "SDcard"
-			part = "        - %s slot in use for Image root \n" % parttype
-			AboutText += _("%s") % part
-
 		if SystemInfo["canMultiBoot"]:
 			slot = image = SystemInfo["MultiBootSlot"]
 			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]["root"]:
@@ -406,11 +398,16 @@ class Devices(AboutBase):
 
 				if mountdict:
 					for device in mountdict:
+						# print(f"[About] SystemInfo['BootDevice'][0:3]:{SystemInfo['BootDevice'][0:3]} in device;{device}")
+						if UBIMB and SystemInfo["BootDevice"][0:3] in device:	# don,t show boot device
+							continue
 						if hddKey1 in device:
 							print(f"[About] mounted hddKey1:{hddKey1} in mountdict")
 							break  # use break here to escape the loop and NOT run its else clause
 					else:  # device not mounted
 						print(f"[About] not mounted1 hddKey1:{hddKey1}")
+						if UBIMB and SystemInfo["BootDevice"][0:3] in device:	# don,t show boot device
+							continue
 						devicelist.append("%s" % hdd)
 						continue  # continues the outer loop so code below is skipped
 					# device is mounted so add device partition(s) attributes
