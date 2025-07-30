@@ -399,14 +399,14 @@ class Devices(AboutBase):
 				if mountdict:
 					for device in mountdict:
 						# print(f"[About] SystemInfo['BootDevice'][0:3]:{SystemInfo['BootDevice'][0:3]} in device;{device}")
-						if UBIMB and SystemInfo["BootDevice"][0:3] in device:	# don,t show boot device
+						if UBIMB and SystemInfo["BootDevice"][0:3] in device:  # don,t show boot device
 							continue
 						if hddKey1 in device:
 							print(f"[About] mounted hddKey1:{hddKey1} in mountdict")
 							break  # use break here to escape the loop and NOT run its else clause
 					else:  # device not mounted
 						print(f"[About] not mounted1 hddKey1:{hddKey1}")
-						if UBIMB and SystemInfo["BootDevice"][0:3] in device:	# don,t show boot device
+						if UBIMB and SystemInfo["BootDevice"][0:3] in device:  # don,t show boot device
 							continue
 						devicelist.append("%s" % hdd)
 						continue  # continues the outer loop so code below is skipped
