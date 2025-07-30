@@ -14,6 +14,7 @@ if SystemInfo["HasKexecMultiboot"]:
 
 MbootList1 = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions", "/dev/block/by-name/others", "/dev/block/by-name/startup")
 
+
 class tmp:
 	dir = None
 
