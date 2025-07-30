@@ -29,19 +29,19 @@ def getMultibootslots():
 	UUIDnum = 0
 	tmp.dir = tempfile.mkdtemp(prefix="getMultibootslots")
 	tmpname = tmp.dir
-	print(f"[multiboot][getMultibootslots]root:{MTDROOTFS} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")	
+	print(f"[multiboot][getMultibootslots]root:{MTDROOTFS} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")
 	MbootList = MbootList1 if not SystemInfo["HasKexecMultiboot"] else (f"/dev/{MTDROOTFS}", )  # kexec kernel Vu+ multiboot
 	for device in MbootList:
 		if len(bootslots) != 0:
 			break
 		print(f"[multiboot][getMultibootslots]device:{device}")
 		if path.exists(device):
-			print(f"[multiboot][getMultibootslots]root:{MTDROOTFS} device:{device} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")		
+			print(f"[multiboot][getMultibootslots]root:{MTDROOTFS} device:{device} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")
 			Console(binary=True).ePopen(f"mount {device} {tmpname}")
 			if path.isfile(path.join(tmpname, "STARTUP")):  # Multiboot receiver
-				print(f"[multiboot][getMultibootslots]device:{device} found STARTUP")			
+				print(f"[multiboot][getMultibootslots]device:{device} found STARTUP")
 				STARTUP = fileReadLine(path.join(tmpname, "STARTUP"))
-				print(f"[multiboot][getMultibootslots] STARTUP:{STARTUP}")				
+				print(f"[multiboot][getMultibootslots] STARTUP:{STARTUP}")
 				if SystemInfo["HasKexecMultiboot"] and not path.isfile(dest := path.join(tmpname, "etc/init.d/kexec-multiboot-recovery")) and path.isfile("/etc/init.d/kexec-multiboot-recovery"):  # check Recovery & slot image for recovery script
 					if path.isfile(etc_issue := path.join(tmpname, "etc/issue")):
 						try:
@@ -179,7 +179,7 @@ def GetImagelist(Recovery=None):
 	for slot in sorted(list(SystemInfo["canMultiBoot"].keys())):
 		if slot == 0:
 			if UBIMB:
-				continue			
+				continue
 			elif not Recovery:		# called by ImageManager
 				continue
 			else:					# called by MultiBootSelector

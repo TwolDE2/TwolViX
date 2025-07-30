@@ -155,7 +155,7 @@ def buildPartitionInfo(partition, partitionList):
 	if mediamount == "/" and UBIMB:
 		return
 	if UBIMB and SystemInfo["BootDevice"][0:3] in mediamount:  # don,t show boot device
-		return	
+		return
 	if mediamount == _("None") or mediamount is None:
 		description = _("Size: ") + _("unavailable")
 	else:
