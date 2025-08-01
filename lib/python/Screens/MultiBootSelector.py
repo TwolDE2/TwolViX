@@ -1,5 +1,6 @@
 from os import rmdir
 from os.path import exists, ismount, join
+from math import ceil
 import tempfile
 import struct
 
@@ -498,7 +499,7 @@ class UBISlotManager(Setup):
 			path = path if exists(path) else f"/sys/block/{base}/size"
 			with open(path) as fd:
 				blocks = int(fd.read().strip())
-				return (blocks * 512) // (1024 * 1024 * 1024)
+				return ceil((blocks * 512) / (1024 * 1024 * 1024))
 		except Exception as e:
 			return 0
 
