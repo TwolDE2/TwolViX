@@ -191,7 +191,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		if answer is False:
 			self.close()
 		elif UBIMB:
-			UUIDValue = SystemInfo["VuUUIDSlot"][2]		
+			UUIDValue = SystemInfo["VuUUIDSlot"][2]
 			for usbslot in range(hiKey + 1, hiKey + 5):
 				STARTUP_usbslot = f"kernel=/dev/{MTDKERNEL} root={UUIDValue} rootsubdir=linuxrootfs{usbslot} rootfstype=ext4\n"
 				# print(f"[MultiBootSelector]1 STARTUP_usbslot:{STARTUP_usbslot} UUIDkey:{UUIDkey} UUIDValue:{UUIDValue}")
