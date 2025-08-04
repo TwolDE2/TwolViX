@@ -82,22 +82,24 @@ def getMultibootslots():
 							if SystemInfo["HasKexecMultiboot"] and int(slotnumber) > 3:
 								SystemInfo["HasKexecUSB"] = True
 							if "root" in slot.keys():
-								if "UUID=" in slot["root"]:
+								if "UUID=" in slot["root"]:	 # KexecMultiboot or UBIMB
+									UUIDValue = slot["root"]
 									slotx = getUUIDtoSD(slot["root"])
 									if slotx is not None:
 										slot["root"] = slotx
-									if not UBIMB:
 										UUID = slot["root"]
 										UUIDnum += 1
+									if not UBIMB:
 										slot["kernel"] = f"/linuxrootfs{slotnumber}/zImage"
 								if path.exists(slot["root"]) or slot["root"] in ("ubi0:ubifs", "ubi0:rootfs"):
 									slot["startupfile"] = path.basename(file)
 									slot["slotname"] = slotname
-									SystemInfo["HasMultibootMTD"] = slot.get("mtd") and not UBIMB
-									SystemInfo["HasMultibootFlags"] = path.exists("/dev/block/by-name/flag") and not UBIMB
-									if not SystemInfo["HasKexecMultiboot"] and not UBIMB and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
-										slot["rootsubdir"] = None
-										slot["slotType"] = "SDCARD"
+									if not UBIMB:
+										SystemInfo["HasMultibootMTD"] = slot.get("mtd")
+										SystemInfo["HasMultibootFlags"] = path.exists("/dev/block/by-name/flag")
+										if not SystemInfo["HasKexecMultiboot"] and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
+											slot["rootsubdir"] = None
+											slot["slotType"] = "SDCARD"
 									elif "STARTUP_RECOVERY" not in file:
 										SystemInfo["HasRootSubdir"] = slot.get("rootsubdir")
 									if "kernel" not in slot.keys():
@@ -144,6 +146,8 @@ def getMultibootslots():
 						print(f"[Multiboot][MultiBootSlot]2 current slot used:{SystemInfo['MultiBootSlot']}")
 						break
 		else:
+			if UBIMB:
+				SystemInfo["VuUUIDSlot"] = (UUID, UUIDnum, UUIDValue) if UUIDnum != 0 else ""
 			SystemInfo["MultiBootSlot"] = 0 if "linuxrootfs" not in STARTUP else int(STARTUP.replace("\n", "").replace(" rootfstype=ext4", "").split("linuxrootfs")[1])
 	print(f"[multiboot][getMultibootslots] bootslots: {bootslots} Activeslot:{SystemInfo['MultiBootSlot']}")
 	return bootslots

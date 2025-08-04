@@ -35,7 +35,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.onChangedEntry = []
 		self.tmp_dir = None
 		self.fromInit = True
-		usbIn = SystemInfo["HasUsbhdd"].keys() and SystemInfo["HasKexecMultiboot"]
+		usbIn = (SystemInfo["HasUsbhdd"].keys() and SystemInfo["HasKexecMultiboot"]) or UBIMB
 		# print("[MultiBootSelector] usbIn, SystemInfo['HasUsbhdd'], SystemInfo['HasKexecMultiboot'], SystemInfo['HasKexecUSB']", usbIn, "   ", SystemInfo["HasUsbhdd"], "   ", SystemInfo["HasKexecMultiboot"], "   ", SystemInfo["HasKexecUSB"])
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent(text=((_("Retrieving image slots - Please wait...")), "Queued"))])
 		self["description"] = StaticText(_("Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."))
@@ -182,14 +182,22 @@ class MultiBootSelector(Screen, HelpableScreen):
 
 		else:
 			hiKey = sorted(SystemInfo["canMultiBoot"].keys(), reverse=True)[0]
-			self.session.openWithCallback(self.addSTARTUPs, MessageBox, _("Add 4 more Vu+ Multiboot USB slots after slot %s ?") % hiKey, MessageBox.TYPE_YESNO, timeout=30)
+			self.session.openWithCallback(self.addSTARTUPs, MessageBox, _("Add 4 more Multiboot USB slots after slot %s ?") % hiKey, MessageBox.TYPE_YESNO, timeout=30)
 
 	def addSTARTUPs(self, answer):
 		hiKey = sorted(SystemInfo["canMultiBoot"].keys(), reverse=True)[0]
-		hiUUIDkey = SystemInfo["VuUUIDSlot"][1]
-		print("[MultiBootSelector]1 answer, hiKey,  hiUUIDkey", answer, "   ", hiKey, "   ", hiUUIDkey)
+		UUIDkey = SystemInfo["VuUUIDSlot"][0]
+		print(f"[MultiBootSelector]1 answer:{answer} hiKey:{hiKey} UUIDkey:{UUIDkey}")
 		if answer is False:
 			self.close()
+		elif UBIMB:
+			UUIDValue = SystemInfo["VuUUIDSlot"][2]		
+			for usbslot in range(hiKey + 1, hiKey + 5):
+				STARTUP_usbslot = f"kernel=/dev/{MTDKERNEL} root={UUIDValue} rootsubdir=linuxrootfs{usbslot} rootfstype=ext4\n"
+				# print(f"[MultiBootSelector]1 STARTUP_usbslot:{STARTUP_usbslot} UUIDkey:{UUIDkey} UUIDValue:{UUIDValue}")
+				with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
+					f.write(STARTUP_usbslot)
+			self.session.open(TryQuitMainloop, QUIT_RESTART)
 		else:
 			boxmodel = BOXTYPE[2:]
 			for usbslot in range(hiKey + 1, hiKey + 5):
@@ -458,7 +466,7 @@ class UBISlotManager(Setup):
 			fd.write(startupContent)
 		with open(f"{MOUNTPOINT}/STARTUP_FLASH", "w") as fd:
 			fd.write(startupContent)
-		count = min(diskSize, 15)
+		count = min(diskSize, 4)
 		for i in range(1, count + 1):
 			startupContent = f"kernel=/dev/{mtdKernel} root=UUID={uuidRootFS} rootsubdir=linuxrootfs{i} rootfstype=ext4\n"
 			with open(f"{MOUNTPOINT}/STARTUP_{i}", "w") as fd:
