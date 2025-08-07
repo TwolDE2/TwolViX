@@ -6,7 +6,7 @@ from re import split
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
 
 from Components.RcModel import rc_model
-from Tools.Directories import fileCheck, fileExists, fileHas, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLine, fileReadLines
+from Tools.Directories import fileCheck, fileExists, fileHas, isPluginInstalled, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLine, fileReadLines
 
 
 class BoxInformation:
@@ -232,6 +232,7 @@ for cislot in range(0, SystemInfo["CommonInterface"]):
 	SystemInfo[f"CI{cislot}RelevantPidsRoutingSupport"] = fileCheck(f"/proc/stb/tsmux/ci{cislot}_relevant_pids_routing")
 SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
 SystemInfo["PIPAvailable"] = MODEL not in ("i55plus") and SystemInfo["NumVideoDecoders"] > 1
+SystemInfo["servicehisilicon"] = BoxInfo.getItem("mediaservice") == "servicehisilicon" and isPluginInstalled("ServiceHisilicon")
 # General Hardware
 SystemInfo["12V_Output"] = Misc_Options.getInstance().detected_12V_output()
 SystemInfo["HasFullHDSkinSupport"] = MODEL not in ("vipertwin",)
