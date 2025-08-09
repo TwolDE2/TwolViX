@@ -97,7 +97,7 @@ def getMultibootslots():
 									if not UBIMB:
 										SystemInfo["HasMultibootMTD"] = slot.get("mtd")
 										SystemInfo["HasMultibootFlags"] = path.exists("/dev/block/by-name/flag")
-									if not SystemInfo["HasKexecMultiboot"] ] and not UBIMB and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
+									if not SystemInfo["HasKexecMultiboot"] and not UBIMB and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
 										slot["rootsubdir"] = None
 										slot["slotType"] = "SDCARD"
 									elif "STARTUP_RECOVERY" not in file:
