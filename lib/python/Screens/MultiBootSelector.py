@@ -444,6 +444,7 @@ class UBISlotManager(Setup):
 			cmdlist.append(f"/bin/mkdir -p {MOUNTPOINT}")
 			cmdlist.append(f"/bin/umount {MOUNTPOINT} > /dev/null 2>&1")
 			cmdlist.append(f"/bin/mount {PART(1)} {MOUNTPOINT}")
+			print(f"[UBISlotManager] createSlots cmdlist:{cmdlist}")			
 			self.session.openWithCallback(self.formatDeviceCallback, ConsoleScreen, title=self.getTitle(), cmdlist=cmdlist)
 
 	def formatDeviceCallback(self):
