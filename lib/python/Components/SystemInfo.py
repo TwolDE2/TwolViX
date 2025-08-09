@@ -1,6 +1,6 @@
 from ast import literal_eval
 from hashlib import md5
-from os import listdir
+from os import listdir, access, R_OK
 from os.path import isfile, join as pathjoin
 from re import split
 from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager
