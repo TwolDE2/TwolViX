@@ -249,6 +249,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.updateKeys()
 
 	def updateKeys(self):
+		if UBIMB and SystemInfo["MultiBootSlot"] == 0:
+			return	
 		currentSelected = self["config"].getCurrent()
 		if currentSelected[0][1] == "Queued":  # list not loaded yet so abort
 			return
