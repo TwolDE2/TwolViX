@@ -45,8 +45,6 @@ class SubtitleDisplay(Screen):
 			label.instance.setBorderWidth(border_width)
 			label.instance.setBorderColor(border_color)
 
-
-
 	def __keypress(self, key, flag):
 		# Releasing the subtitle button after a long press unintentionally pops up the subtitle dialog,
 		# This blocks it without causing issues for anyone that sets the buttons up the other way round
