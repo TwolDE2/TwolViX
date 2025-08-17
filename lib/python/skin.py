@@ -33,7 +33,7 @@ setups = {}  # Dictionary of images associated with setup menus.
 switchPixmap = {}  # Dictionary of switch images.
 scrollbarStyle = None  # When set, a dictionary of scrollbar styles
 windowStyles = {}  # Dictionary of window styles for each screen ID.
-subtitleFonts = {} # Dictionary of predefined external text subtitle folnts.
+subtitleFonts = {}  # Dictionary of predefined external text subtitle folnts.
 xres = 720
 yres = 576
 
