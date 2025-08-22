@@ -80,7 +80,7 @@ class HarddiskSelection(Screen):
 		self.setTitle(_("Initialize Devices"))
 
 		self.skinName = "HarddiskSelection"  # For derived classes
-		bootDevice = None if not SystemInfo["BootDevice"] else SystemInfo["BootDevice"][0:3] 
+		bootDevice = None if not SystemInfo["BootDevice"] else SystemInfo["BootDevice"][0:3]
 		if harddiskmanager.HDDCount() == 0:
 			tlist = [(_("no storage devices found"), 0)]
 			self["hddlist"] = MenuList(tlist)
