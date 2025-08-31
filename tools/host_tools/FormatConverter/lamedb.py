@@ -1,4 +1,4 @@
-from . import datasource
+from datasource import datasource
 
 
 class lamedb(datasource):
