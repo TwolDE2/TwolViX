@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: enigma2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-12 19:41+0300\n"
-"PO-Revision-Date: 2025-06-12 19:59+0300\n"
+"POT-Creation-Date: 2025-08-18 11:22+0300\n"
+"PO-Revision-Date: 2025-08-18 13:17+0300\n"
 "Last-Translator: Orlandox\n"
 "Language-Team: timoj/Kojo/Samzam/Orlandox\n"
 "Language: fi\n"
@@ -855,6 +855,10 @@ msgstr[1] "%d sekuntia"
 #, python-format
 msgid "%d seconds"
 msgstr "%d sekuntia"
+
+#, python-format
+msgid "%d slots have been created on the device.\n"
+msgstr "Laitteelle on luotu %d paikkaa.\n"
 
 #, python-format
 msgid "%d wireless network found!"
@@ -1742,8 +1746,8 @@ msgid "Add"
 msgstr "Lisää"
 
 #, python-format
-msgid "Add 4 more Vu+ Multiboot USB slots after slot %s ?"
-msgstr "Lisää 4 Vu+ Multiboot USB-paikkaa paikan %s jälkeen ?"
+msgid "Add 4 more Multiboot USB slots after slot %s ?"
+msgstr "Lisää 4 Multiboot USB-paikkaa paikan %s jälkeen ?"
 
 msgid "Add AutoTimer"
 msgstr "Lisää automaattiajastus"
@@ -2200,6 +2204,12 @@ msgstr "Arabia"
 
 msgid "Architektur"
 msgstr "Arkkitehtuurinen"
+
+msgid "Archive"
+msgstr "Arkisto"
+
+msgid "Archive long"
+msgstr "Arkisto pitkä"
 
 msgid "Are You Sure ?"
 msgstr "Oletko varma ?"
@@ -3542,6 +3552,9 @@ msgstr "Valitse järjestys missä tiedot näytetään ohjenäytöissä"
 msgid "Choose the style of the second infobar. The 'Standard' view normally includes technical data. The 'Simple' view shows minimal technical data."
 msgstr "Valitse toisen infopalkin tyyli. 'Vakio' näyttää normaalisti tekniset tiedot. 'Yksinkertainen' näyttää minimaaliset tekniset tiedot."
 
+msgid "Choose the target device for the slots."
+msgstr "Valitse kohdelaite imagen paikoille."
+
 msgid "Choose time interval to which the graphics will be rounded off."
 msgstr "Valitse aikaväli johon grafiikat pyöristetään."
 
@@ -4322,6 +4335,9 @@ msgstr "Luo"
 msgid "Create DVD-ISO"
 msgstr "Luo DVD-ISO"
 
+msgid "Create Slots"
+msgstr "Luo imagen paikat"
+
 msgid "Create Timer"
 msgstr "Luo ajastus"
 
@@ -4339,6 +4355,9 @@ msgstr "Luo hakemisto"
 
 msgid "Create separate radio userbouquet"
 msgstr "Luo erillinen radio-suosikkilista"
+
+msgid "Create slots for the selected device"
+msgstr "Luo imagen paikkoja valitulle laitteelle"
 
 msgid "Create:"
 msgstr "Luo:"
@@ -6856,6 +6875,10 @@ msgstr "Lapsille"
 msgid "G"
 msgstr "G"
 
+#, python-format
+msgid "GCC version:\t%s\n"
+msgstr "GCC versio:\t%s\n"
+
 msgid "GREEN"
 msgstr "VIHREÄ"
 
@@ -7002,6 +7025,10 @@ msgstr "Gibraltar"
 
 msgid "Gioco"
 msgstr "Peli"
+
+#, python-format
+msgid "Glibc version:\t%s\n"
+msgstr "Glibc versio:\t%s\n"
 
 msgid "Go back 24 hours"
 msgstr "Hyppää takaisin 24 tuntia"
@@ -7165,30 +7192,6 @@ msgstr "Voimistelu"
 msgid "H"
 msgstr "H"
 
-msgid "H7/H9/H9COMBO/H10 new Model"
-msgstr "H7/H9/H9COMBO/H10 uusi malli"
-
-msgid "H9 SDcard manager"
-msgstr "H9 SD-kortin hallinnointi"
-
-msgid "H9 SDcard switch ERROR! - H9 root files not transferred to SD card"
-msgstr "H9 SD-kortin vaihdon VIRHE! - H9:n juuritiedostot ei siirretty SD-kortille"
-
-msgid "H9 SDcard switch ERROR! - already on Nand"
-msgstr "H9 SD-kortin vaihdon VIRHE! - jo NAND:lla"
-
-msgid "H9 SDcard switch ERROR! - already on mmc"
-msgstr "H9 SD-kortin vaihdon VIRHE! - jo MMC:llä"
-
-msgid "H9 USB switch ERROR! - H9 root files not transferred to USB"
-msgstr "H9 USB vaihdon VIRHE! - H9:n juuritiedostot ei siirretty USB:lle"
-
-msgid "H9 USB switch ERROR! - already on USB"
-msgstr "H9 USB vaihdon VIRHE! - jo USB:lla"
-
-msgid "H9 switch Nand and SDcard"
-msgstr "H9 vaihto NAND ja SD-kortti"
-
 msgid "H9SDcard Manager"
 msgstr "H9SD-kortin hallinnointi"
 
@@ -7335,6 +7338,9 @@ msgstr "Ohjenäyttö"
 
 msgid "Help long"
 msgstr "Pitkä punainen"
+
+msgid "Help text uninitialized"
+msgstr "Ohjeteksti ei ole alustettu"
 
 msgid "Helps setting up your antenna"
 msgstr "Auttaa antennin asennuksessa"
@@ -7542,6 +7548,9 @@ msgstr "Unkari"
 
 msgid "I"
 msgstr "I"
+
+msgid "I55SE/H7/H17/H9/H9SE/H9COMBO/H9COMBOSE/H10/H11 new Model"
+msgstr "I55SE/H7/H17/H9/H9SE/H9COMBO/H9COMBOSE/H10/H11 uusi malli"
 
 msgid "IDLE"
 msgstr "TYHJÄKÄYNTI"
@@ -7920,18 +7929,6 @@ msgstr "Ajankohtaisviihde"
 
 msgid "Init"
 msgstr "Palauta CA-moduulin alkuasetukset"
-
-msgid "Init SDcard"
-msgstr "Alusta SDcard"
-
-msgid "Init USB/SDA1"
-msgstr "Alusta USB/SDA1"
-
-msgid "Init Zgemma H9 SDCARD - please reboot after use."
-msgstr "Alusta Zgemma H9 SD-kortti - Vaatii uudelleenkäynnistyksen."
-
-msgid "Init Zgemma H9 USB/SDA1 - please reboot after use."
-msgstr "Alusta Zgemma H9 USB/SDA1 - vaatii uudelleenkäynnistyksen."
 
 msgid "Init modules"
 msgstr "Alusta moduulit"
@@ -10260,6 +10257,10 @@ msgid "Open the service list"
 msgstr "Avaa kanavalista"
 
 #, python-format
+msgid "OpenSSL version:\t%s\n"
+msgstr "OpenSSL versio:\t%s\n"
+
+#, python-format
 msgid ""
 "OpenTV EPG download completed.\n"
 "Next download: %s"
@@ -10420,6 +10421,9 @@ msgstr "EDELLINEN KAPPALE"
 
 msgid "PRIMETIME"
 msgstr "PRIMETIME"
+
+msgid "PULSe 4K/4K Mini"
+msgstr "PULSe 4K/4K Mini"
 
 msgid "PVR"
 msgstr "PVR"
@@ -11292,8 +11296,8 @@ msgstr "Valitse kanavalistasta painamalla 'OK'"
 msgid "Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."
 msgstr "Paina VIHREÄÄ (käynnistä uudelleen) vaihtaaksesi imagea, KELTAISTA (poista) poistaaksesi imagen tai SINISTÄ (palauta) palauttaaksesi kaikki poistetut imaget."
 
-msgid "Press GREEN to enable MultiBoot!"
-msgstr "Ota MultiBoot käyttöön painamalla VIHREÄÄ!"
+msgid "Press GREEN to enable MultiBoot process"
+msgstr "Ota MultiBoot-prosessi käyttöön painamalla VIHREÄÄ painiketta"
 
 msgid "Press OK"
 msgstr "Paina OK"
@@ -11348,9 +11352,6 @@ msgstr "Muuta valintaa OK-näppäimellä."
 
 msgid "Press OK, save and exit..."
 msgstr "Paina OK, tallenna ja poistu..."
-
-msgid "Press appropiate Init to move Nand root to SDcard or USB."
-msgstr "Paina sopivaa Init:ä siirtääksesi Nand:n juuren SD-kortille tai USB:lle."
 
 msgid ""
 "Press up/down to scroll through the selected log\n"
@@ -12415,6 +12416,10 @@ msgstr "Venäjä"
 msgid "Russian Federation"
 msgstr "Venäjä"
 
+#, python-format
+msgid "Rust version:\t%s\n"
+msgstr "Rust versio:\t%s\n"
+
 msgid "Rwanda"
 msgstr "Ruanda"
 
@@ -12540,6 +12545,10 @@ msgstr "Samba-asetukset"
 
 msgid "Samba Setup"
 msgstr "Samba-asetukset"
+
+#, python-format
+msgid "Samba:\t%s\n"
+msgstr "Samba:\t%s\n"
 
 msgid "Same resolution as skin"
 msgstr "Sama resoluutio kuin teemassa"
@@ -12969,6 +12978,9 @@ msgstr "Valitse 'kyllä' herättääksesi vastaanottimen virransäästötilasta 
 msgid "Select CAId"
 msgstr "Valitse CAId"
 
+msgid "Select Device"
+msgstr "Valitse laite"
+
 msgid "Select EPG channel"
 msgstr "Valitse EPG-kanava"
 
@@ -12978,11 +12990,20 @@ msgstr "Valitse Nopea DiSEqC, jos antennijärjestelmäsi tukee sitä. Jos olet e
 msgid "Select Folders"
 msgstr "Hakemiston valinta"
 
+msgid "Select Green to action"
+msgstr "Valitse Vihreä toimiaksesi"
+
+msgid "Select Green to start slot creation"
+msgstr "Aloita imagen paikan luominen valitsemalla Vihreä"
+
 msgid "Select Satellites"
 msgstr "Valitse satelliitit"
 
 msgid "Select a backup to restore:"
 msgstr "Valitse palautettava varmuuskopio:"
+
+msgid "Select a device to create multiboot slots"
+msgstr "Valitse laite multiboot-paikkojen luomista varten"
 
 msgid "Select a package to install:"
 msgstr "Valitse asennettava ohjelmapaketti:"
@@ -13061,6 +13082,9 @@ msgstr "Valitse INFO-näppäimen oletus-toiminto"
 
 msgid "Select destination for:"
 msgstr "Valitse kohde:"
+
+msgid "Select device and then Slot Creation"
+msgstr "Valitse laite ja sitten imagen paikan luonti"
 
 msgid "Select display of record icon based on 'Sref only' or 'Sref + Stream url' where applicable."
 msgstr "Valitse tallennuskuvakkeen näyttö 'vain Sref' tai 'Sref + striimin url' perusteella, jos mahdollista."
@@ -14306,6 +14330,12 @@ msgstr "Korttipaikka %s / FBC paikassa %s"
 msgid "Slot %s / FBC virtual %s"
 msgstr "Korttipaikka %s / FBC virtuaalinen %s"
 
+msgid "Slot Manager"
+msgstr "Imagen paikan hallinnointi"
+
+msgid "Slot Manager Actions"
+msgstr "Imagen paikan hallinnoinnin toiminnot"
+
 #, python-format
 msgid "Slot%s %s %s: %s - %s mode%s"
 msgstr "Paikka%s %s %s: %s - %s tila%s"
@@ -14653,6 +14683,9 @@ msgstr "Aloita testi"
 msgid "Start the Chkroot initialization"
 msgstr "Käynnistä Chkroot-alustus"
 
+msgid "Start the UBI Multiboot initialization"
+msgstr "Käynnistä UBI Multiboot -alustus"
+
 msgid "Start time"
 msgstr "Aloitusaika"
 
@@ -14973,12 +15006,6 @@ msgstr "SWAP-tiedoston hallinnointi"
 msgid "Swap services"
 msgstr "Vaihda kanavat"
 
-msgid "SwaptoNand"
-msgstr "Vaihda NAND:lle"
-
-msgid "SwaptoSD"
-msgstr "Vaihda SD:lle"
-
 msgid "Swaziland"
 msgstr "Swaziland"
 
@@ -15131,6 +15158,9 @@ msgstr "TMDb-haku"
 msgid "TMDb search"
 msgstr "TMDb-haku"
 
+msgid "TMDb search for current event"
+msgstr "Nykyisen ohjelman TMDb-haku"
+
 msgid "TMDb search for highlighted event"
 msgstr "TMDb-haku korostetusta ohjelmasta"
 
@@ -15140,7 +15170,7 @@ msgstr ""
 "Suomenkielinen käännös: timoj, Kojo, Samzam, Orlandox\n"
 "\n"
 "Ylläpito : Orlandox\n"
-"--- 12.06.2025 ---\n"
+"--- 01.08.2025 ---\n"
 "\n"
 "http://www.huoltovalikko.com"
 
@@ -15197,6 +15227,9 @@ msgstr "Tanssi"
 
 msgid "Tanzania, United Republic of"
 msgstr "Tanzania, United Republic of"
+
+msgid "Target location"
+msgstr "Kohdepaikka"
 
 msgid "Task warning on shutdown"
 msgstr "Varoita käynnissä olevista tehtävistä"
@@ -15314,8 +15347,8 @@ msgid "The %s %s saves the EPG data every (hours)."
 msgstr "%s %s tallentaa EPG-tiedon joka (tuntia)."
 
 #, python-format
-msgid "The %s %s will reboot within 1 seconds."
-msgstr "%s %s käynnistyy uudelleen 1 sekunnin kuluessa."
+msgid "The %s %s will reboot after enabling."
+msgstr "%s %s käynnistyy uudelleen käyttöönoton jälkeen."
 
 msgid ""
 "The AutoTimer plugin is not installed!\n"
@@ -16258,6 +16291,10 @@ msgstr "TUNTEMATON"
 
 msgid "UP"
 msgstr "YLÖS"
+
+#, python-format
+msgid "UPX version:\t%s\n"
+msgstr "UPX versio:\t%s\n"
 
 msgid "URL"
 msgstr "URL"
