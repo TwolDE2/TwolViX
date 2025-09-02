@@ -177,12 +177,14 @@ SystemInfo["resetMBoot"] = False  # Kexec kernel issue-this needs to be here so 
 SystemInfo["HasKexecUSB"] = False  # This needs to be here so it can be reset by getMultibootslots!
 SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")  # This needs to be here so it can be tested by getMultibootslots!
 from Tools.Multiboot import getMultibootslots, isFat32  # noqa: E402  This import needs to be here to avoid a SystemInfo load loop!
-SystemInfo["HasChkrootMultiboot"] = isFat32("/dev/block/by-name/others") or fileExists("/dev/block/by-name/startup")
-SystemInfo["canchkroot"] = (UBIMB or fileExists("/dev/block/by-name/others")) and not SystemInfo["HasChkrootMultiboot"] and not fileExists("/etc/.disableChkroot")
-SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and BOXTYPE not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")  # This needs to be for later checks
 SystemInfo["canMultiBoot"] = getMultibootslots()
 # SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py
 # SystemInfo["MultiBootSlot"] = current slot set in Tools/Multiboot.py
+SystemInfo["HasChkrootMultiboot"] = isFat32("/dev/block/by-name/others") or fileExists("/dev/block/by-name/startup")
+SystemInfo["canchkroot"] = (UBIMB or fileExists("/dev/block/by-name/others")) and not SystemInfo["HasChkrootMultiboot"] and not fileExists("/etc/.disableChkroot")
+SystemInfo["CanKexecVu"] = MODEL in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]
+SystemInfo["HasUsbhdd"] = {}
+SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and BOXTYPE not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")  # This needs to be for later checks
 SystemInfo["MTDBLACK"] = ""  # HDD device set in Harddisk.py
 SystemInfo["DMRecovery"] = MODEL in ("dm900", "dm920") and fileExists("/proc/stb/fp/boot_mode")
 
@@ -205,8 +207,6 @@ def hasInitCam():
 	return bool([f for f in listdir("/etc/init.d") if f.startswith("softcam.") and f != "softcam.None"])
 
 
-SystemInfo["CanKexecVu"] = MODEL in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]
-SystemInfo["HasUsbhdd"] = {}
 SystemInfo["ArchIsARM"] = ARCHITECTURE.startswith(("arm", "cortex"))
 SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
 SystemInfo["HasInitCam"] = hasInitCam()
