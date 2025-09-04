@@ -700,16 +700,17 @@ class AttributeParser:
 
 	def orientation(self, value):  # Used by eSlider and eListBox.
 		try:
-			self.guiObject.setOrientation(*{
+			self.guiObject.setOrientation(*({
 				"orVertical": (self.guiObject.orVertical, False),
 				"orTopToBottom": (self.guiObject.orVertical, False),
 				"orBottomToTop": (self.guiObject.orVertical, True),
 				"orHorizontal": (self.guiObject.orHorizontal, False),
 				"orLeftToRight": (self.guiObject.orHorizontal, False),
-				"orRightToLeft": (self.guiObject.orHorizontal, True)
-			}[value])
+				"orRightToLeft": (self.guiObject.orHorizontal, True)} | (
+				{"orGrid": (self.guiObject.orGrid, False)} if hasattr(self.guiObject, "orGrid") else {}  # eListbox only
+			))[value])
 		except KeyError:
-			print(f"[Skin] Error: Invalid orientation '{value}'!  Must be one of 'orVertical', 'orTopToBottom', 'orBottomToTop', 'orHorizontal', 'orLeftToRight' or 'orRightToLeft'.")
+			print("[Skin] Error: Invalid orientation '%s'!  Must be one of 'orVertical', 'orTopToBottom', 'orBottomToTop', 'orHorizontal', 'orLeftToRight', 'orRightToLeft' or 'orGrid (eListbox only)'." % value)
 
 	def valign(self, value):
 		try:
