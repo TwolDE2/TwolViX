@@ -882,7 +882,7 @@ class ImageBackup(Screen):
 		self.MAINDEST = self.MAINDESTROOT + "/" + SystemInfo["imagedir"] + "/"
 		self.MAINDEST2 = self.MAINDESTROOT + "/"
 		self.WORKDIR = f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-temp"
-		self.TMPDIR = f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-mount"		
+		self.TMPDIR = f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-mount"
 		self.KERNELFILE = SystemInfo["kernelfile"]
 		self.ROOTFSFILE = SystemInfo["rootfile"]
 		self.KERNELBIN = SystemInfo["kernelfile"]
@@ -929,9 +929,9 @@ class ImageBackup(Screen):
 		print("[ImageManager] EMMCIMG:", self.EMMCIMG)
 		print("[ImageManager] DISTROVERSION:", SystemInfo["imageversion"])
 		print("[ImageManager] DISTROBUILD:", SystemInfo["imagebuild"])
-		print("[ImageManager] IMAGETYPE:", IMAGETYPE)		
+		print("[ImageManager] IMAGETYPE:", IMAGETYPE)
 		print("[ImageManager] imageSubBuild:", imageSubBuild)
- 
+
 		self.swapdevice = ""
 		self.RamChecked = False
 		self.SwapCreated = False
@@ -1213,7 +1213,7 @@ class ImageBackup(Screen):
 		print("[ImageManager] Stage3: Making eMMC Image.")
 		self.commandMB = []
 		if SystemInfo["canBackupEMC"]:
-			self.usbType = "-recovery-usb"		
+			self.usbType = "-recovery-usb"
 			if self.EMMCIMG == "disk.img":
 				print("[ImageManager] hd51/h7: EMMC Detected.")  # hd51 receiver with multiple eMMC partitions in class
 				EMMC_IMAGE = "%s/%s" % (self.WORKDIR, self.EMMCIMG)
@@ -1289,7 +1289,7 @@ class ImageBackup(Screen):
 				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} mklabel gpt")
 				PARTED_END_BOOT = int(IMAGE_ROOTFS_ALIGNMENT) + int(BOOT_PARTITION_SIZE)
 				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart boot fat16 {IMAGE_ROOTFS_ALIGNMENT} {PARTED_END_BOOT}")
-				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} set 1 boot on")			
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} set 1 boot on")
 				PARTED_END_KERNEL1 = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
 				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart kernel1 {KERNEL_PARTITION_OFFSET} {PARTED_END_KERNEL1}")
 				PARTED_END_ROOTFS1 = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
@@ -1312,7 +1312,7 @@ class ImageBackup(Screen):
 				self.commandMB.append(f"/bin/dd if=/dev/{self.MTDKERNEL} bs=512 count=16384 of={EMMC_IMAGE} seek={KERNEL_IMAGE_BS}")
 				ROOTFS_IMAGE_BS = (ROOTFS_PARTITION_OFFSET * blockSectors)
 				self.commandMB.append(f"/bin/dd if=/dev/{self.MTDROOTFS} bs=512 count=3796992 of={EMMC_IMAGE} seek={ROOTFS_IMAGE_BS} ")
-				print(f"[ImageManager] osmio4k: EMMC commands:{self.commandMB}")  # osmio4k receiver with multiple eMMC partitions in class			
+				print(f"[ImageManager] osmio4k: EMMC commands:{self.commandMB}")  # osmio4k receiver with multiple eMMC partitions in class
 				self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
 
 			elif self.EMMCIMG == "usb_update.bin":
@@ -1419,7 +1419,7 @@ class ImageBackup(Screen):
 
 		if MODEL in ("gb7252", "gbx34k"):
 			self.GB4Kbin = "boot.bin"
-			self.GB4Krescue = "rescue.bin"		
+			self.GB4Krescue = "rescue.bin"
 			move("%s/%s" % (self.WORKDIR, self.GB4Kbin), "%s/%s" % (self.MAINDEST, self.GB4Kbin))
 			move("%s/%s" % (self.WORKDIR, self.GB4Krescue), "%s/%s" % (self.MAINDEST, self.GB4Krescue))
 			system("cp -f /usr/share/gpt.bin %s/gpt.bin" % self.MAINDEST)
@@ -1484,7 +1484,7 @@ class ImageBackup(Screen):
 
 	def doBackup6(self):
 		self.commands = []
-		# self.commands.append(f"7za a -r -bt -bd {self.MAINDESTROOT}{self.VuSlot0}{self.usbType}.zip {self.MAINDESTROOT}/*")			
+		# self.commands.append(f"7za a -r -bt -bd {self.MAINDESTROOT}{self.VuSlot0}{self.usbType}.zip {self.MAINDESTROOT}/*")
 		self.commands.append(f"cd {self.MAINDESTROOT} && zip -r {self.MAINDESTROOT}{self.VuSlot0}{self.usbType}.zip *")
 		self.commands.append("rm -rf " + self.MAINDESTROOT)
 		print(f"[ImageManager] doBackup6:{self.commands}")
