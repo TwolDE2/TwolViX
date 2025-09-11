@@ -913,8 +913,8 @@ class ImageBackup(Screen):
 		self.KERN = "sda" if "sda" in self.MTDKERNEL else "mmc"
 		self.usbType = "-usb"
 		print("[ImageManager] HasKexecMultiboot:", SystemInfo["HasKexecMultiboot"])
-		print("[ImageManager] Model:", MACHINEBUILD)	# e.g. gbquad4kpro
-		print("[ImageManager] Machine Build:", MODEL)	# e.g. gb7252
+		print("[ImageManager] Model:", MACHINEBUILD)  # e.g. gbquad4kpro
+		print("[ImageManager] Machine Build:", MODEL)  # e.g. gb7252
 		print("[ImageManager] Kernel File:", self.KERNELFILE)
 		print("[ImageManager] Root File:", self.ROOTFSFILE)
 		print("[ImageManager] MTD Kernel:", self.MTDKERNEL)
