@@ -553,7 +553,7 @@ class VIXImageManager(Screen):
 				self.session.open(MessageBox, _("There is no image to flash."), MessageBox.TYPE_INFO, timeout=10)
 
 	def keyRestore3(self, *args, **kwargs):
-		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=240, enable_input=False)
+		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=480, enable_input=False)
 		if "/media/autofs" in config.imagemanager.backuplocation.value or "/media/net" in config.imagemanager.backuplocation.value:
 			self.TEMPDESTROOT = tempfile.mkdtemp(prefix="imageRestore")
 		else:
@@ -569,7 +569,7 @@ class VIXImageManager(Screen):
 
 	def keyRestore4(self, result, retval, extra_args=None):
 		if retval == 0:
-			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Flash image unzip successful."), MessageBox.TYPE_INFO, timeout=4)
+			# self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Flash image unzip successful."), MessageBox.TYPE_INFO, timeout=4)
 			self.keyRestore6()
 		else:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Unzip error (also sent to any debug log):\n%s") % result, MessageBox.TYPE_INFO, timeout=20)
@@ -806,7 +806,7 @@ class AutoImageManagerTimer:
 			from Screens.Standby import inStandby
 
 			if not inStandby and config.imagemanager.query.value:
-				message = _("Your %s %s is about to create a full image backup, this can take about 6 minutes to complete.\nDo you want to allow this?") % (DISPLAYBRAND, MACHINENAME)
+				message = _("Your %s %s is about to create a full image backup, this can take from 10 to 20  minutes to complete.\nDo you want to allow this?") % (DISPLAYBRAND, MACHINENAME)
 				ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Scheduled backup.")
 			else:
@@ -873,41 +873,25 @@ class ImageBackup(Screen):
 		self.Console = Console()
 		self.ConsoleB = Console(binary=True)
 		self.BackupDevice = config.imagemanager.backuplocation.value
-		print("[ImageManager] Device: " + self.BackupDevice)
-		self.BackupDirectory = config.imagemanager.backuplocation.value + "imagebackups/"
-		print("[ImageManager] Directory: " + self.BackupDirectory)
+		self.BackupDirectory = f"{config.imagemanager.backuplocation.value}imagebackups/"
 		self.BackupDate = strftime("%Y%m%d_%H%M%S", localtime())
-		self.WORKDIR = self.BackupDirectory + config.imagemanager.folderprefix.value + "-" + MACHINEBUILD + "-" + IMAGETYPE + "-temp"
-		self.TMPDIR = self.BackupDirectory + config.imagemanager.folderprefix.value + "-" + MACHINEBUILD + "-" + IMAGETYPE + "-mount"
-		backupType = "-"
-		if updatebackup:
-			backupType = "-SoftwareUpdate-"
-		imageSubBuild = ""
-		if IMAGETYPE != "release":
-			imageSubBuild = ".%s" % SystemInfo["imagedevbuild"]
-		self.MAINDESTROOT = self.BackupDirectory + config.imagemanager.folderprefix.value + "-" + MACHINEBUILD + "-" + IMAGETYPE + backupType + SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + imageSubBuild + "-" + self.BackupDate
-		self.KERNELFILE = SystemInfo["kernelfile"]
-		self.ROOTFSFILE = SystemInfo["rootfile"]
+		print(f"[ImageManager] Device:{self.BackupDevice} Directory:{self.BackupDirectory}")
+		backupType = "-SoftwareUpdate-" if updatebackup else "-"
+		imageSubBuild = f".{SystemInfo["imagedevbuild"]}" if IMAGETYPE != "release" else ""
+		self.MAINDESTROOT = f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{SystemInfo['imageversion']}.{SystemInfo['imagebuild']}{imageSubBuild}.{IMAGETYPE}{backupType}{MACHINEBUILD}-{self.BackupDate}"
 		self.MAINDEST = self.MAINDESTROOT + "/" + SystemInfo["imagedir"] + "/"
 		self.MAINDEST2 = self.MAINDESTROOT + "/"
-		self.MODEL = MACHINEBUILD
-		self.MCBUILD = SystemInfo["model"]
-		self.IMAGEDISTRO = SystemInfo["distro"]
-		self.DISTROVERSION = SystemInfo["imageversion"]
-		self.DISTROBUILD = SystemInfo["imagebuild"]
+		self.WORKDIR = f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-temp"
+		self.TMPDIR = f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-mount"		
+		self.KERNELFILE = SystemInfo["kernelfile"]
+		self.ROOTFSFILE = SystemInfo["rootfile"]
 		self.KERNELBIN = SystemInfo["kernelfile"]
 		self.UBINIZE_ARGS = SystemInfo["ubinize"]
 		self.MKUBIFS_ARGS = SystemInfo["mkubifs"]
 		self.ROOTFSTYPE = SystemInfo["imagefs"].strip()
 		self.ROOTFSSUBDIR = "none"
 		self.VuSlot0 = ""
-		self.EMMCIMG = "none"
-		self.MTDBOOT = "none"
-		if SystemInfo["canBackupEMC"]:
-			(self.EMMCIMG, self.MTDBOOT) = SystemInfo["canBackupEMC"]
-		print("[ImageManager] canBackupEMC:", SystemInfo["canBackupEMC"])
-		self.KERN = "mmc"
-		self.rootdir = 0
+		(self.EMMCIMG, self.MTDBOOT) = SystemInfo["canBackupEMC"] if SystemInfo["canBackupEMC"] else ("none", "none")
 		if SystemInfo["canMultiBoot"]:
 			slot = SystemInfo["MultiBootSlot"]
 			print("[ImageManager] slot: ", slot)
@@ -926,14 +910,11 @@ class ImageBackup(Screen):
 		else:
 			self.MTDKERNEL = MTDKERNEL
 			self.MTDROOTFS = MTDROOTFS
-		if MODEL in ("gb7252", "gbx34k"):
-			self.GB4Kbin = "boot.bin"
-			self.GB4Krescue = "rescue.bin"
-		if "sda" in self.MTDKERNEL:
-			self.KERN = "sda"
+		self.KERN = "sda" if "sda" in self.MTDKERNEL else "mmc"
+		self.usbType = "-usb"
 		print("[ImageManager] HasKexecMultiboot:", SystemInfo["HasKexecMultiboot"])
-		print("[ImageManager] Model:", self.MODEL)
-		print("[ImageManager] Machine Build:", self.MCBUILD)
+		print("[ImageManager] Model:", MACHINEBUILD)	# e.g. gbquad4kpro
+		print("[ImageManager] Machine Build:", MODEL)	# e.g. gb7252
 		print("[ImageManager] Kernel File:", self.KERNELFILE)
 		print("[ImageManager] Root File:", self.ROOTFSFILE)
 		print("[ImageManager] MTD Kernel:", self.MTDKERNEL)
@@ -946,7 +927,11 @@ class ImageBackup(Screen):
 		print("[ImageManager] WORKDIR:", self.WORKDIR)
 		print("[ImageManager] TMPDIR:", self.TMPDIR)
 		print("[ImageManager] EMMCIMG:", self.EMMCIMG)
-		print("[ImageManager] MTDBOOT:", self.MTDBOOT)
+		print("[ImageManager] DISTROVERSION:", SystemInfo["imageversion"])
+		print("[ImageManager] DISTROBUILD:", SystemInfo["imagebuild"])
+		print("[ImageManager] IMAGETYPE:", IMAGETYPE)		
+		print("[ImageManager] imageSubBuild:", imageSubBuild)
+ 
 		self.swapdevice = ""
 		self.RamChecked = False
 		self.SwapCreated = False
@@ -992,7 +977,7 @@ class ImageBackup(Screen):
 		task.work = self.doBackup3
 		task.weighting = 5
 
-		task = Components.Task.ConditionTask(job, _("Backing up eMMC partitions for USB flash..."), timeoutCount=900)
+		task = Components.Task.ConditionTask(job, _("Backing up eMMC partitions for USB flash..."), timeoutCount=4000)
 		task.check = lambda: self.Stage3Completed
 		task.weighting = 15
 
@@ -1000,7 +985,7 @@ class ImageBackup(Screen):
 		task.work = self.doBackup4
 		task.weighting = 5
 
-		task = Components.Task.ConditionTask(job, _("Removing temp mounts..."), timeoutCount=30)
+		task = Components.Task.ConditionTask(job, _("Removing temp mounts..."), timeoutCount=130)
 		task.check = lambda: self.Stage4Completed
 		task.weighting = 5
 
@@ -1008,7 +993,7 @@ class ImageBackup(Screen):
 		task.work = self.doBackup5
 		task.weighting = 5
 
-		task = Components.Task.ConditionTask(job, _("Moving to backup Location..."), timeoutCount=30)
+		task = Components.Task.ConditionTask(job, _("Moving to backup Location..."), timeoutCount=4000)
 		task.check = lambda: self.Stage5Completed
 		task.weighting = 5
 
@@ -1016,7 +1001,7 @@ class ImageBackup(Screen):
 		task.work = self.doBackup6
 		task.weighting = 5
 
-		task = Components.Task.ConditionTask(job, _("Creating zip..."), timeoutCount=900)
+		task = Components.Task.ConditionTask(job, _("Creating zip..."), timeoutCount=4000)
 		task.check = lambda: self.Stage6Completed
 		task.weighting = 5
 
@@ -1214,8 +1199,8 @@ class ImageBackup(Screen):
 			if SystemInfo["model"] in ("gb7252", "gbx34k"):
 				self.commands.append("dd if=/dev/mmcblk0p1 of=%s/boot.bin" % self.WORKDIR)
 				self.commands.append("dd if=/dev/mmcblk0p3 of=%s/rescue.bin" % self.WORKDIR)
-				print("[ImageManager] Stage2: Create: boot dump boot.bin:", self.MODEL)
-				print("[ImageManager] Stage2: Create: rescue dump rescue.bin:", self.MODEL)
+				print("[ImageManager] Stage2: Create: boot dump boot.bin:", MACHINEBUILD)
+				print("[ImageManager] Stage2: Create: rescue dump rescue.bin:", MACHINEBUILD)
 		print("[ImageManager] ROOTFSTYPE:", self.ROOTFSTYPE)
 		self.ConsoleB.eBatch(self.commands, self.Stage2Complete, debug=False)
 
@@ -1227,149 +1212,153 @@ class ImageBackup(Screen):
 	def doBackup3(self):
 		print("[ImageManager] Stage3: Making eMMC Image.")
 		self.commandMB = []
-		if self.EMMCIMG == "disk.img":
-			print("[ImageManager] hd51/h7: EMMC Detected.")  # hd51 receiver with multiple eMMC partitions in class
-			EMMC_IMAGE = "%s/%s" % (self.WORKDIR, self.EMMCIMG)
-			BLOCK_SIZE = 512
-			BLOCK_SECTOR = 2
-			IMAGE_ROOTFS_ALIGNMENT = 1024
-			BOOT_PARTITION_SIZE = 3072
-			KERNEL_PARTITION_SIZE = 8192
-			ROOTFS_PARTITION_SIZE = 1048576
-			EMMC_IMAGE_SIZE = 3817472
-			KERNEL_PARTITION_OFFSET = int(IMAGE_ROOTFS_ALIGNMENT) + int(BOOT_PARTITION_SIZE)
-			ROOTFS_PARTITION_OFFSET = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			SECOND_KERNEL_PARTITION_OFFSET = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			THIRD_KERNEL_PARTITION_OFFSET = int(SECOND_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			FOURTH_KERNEL_PARTITION_OFFSET = int(THIRD_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			MULTI_ROOTFS_PARTITION_OFFSET = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			EMMC_IMAGE_SEEK = int(EMMC_IMAGE_SIZE) * int(BLOCK_SECTOR)
-			self.commandMB.append("dd if=/dev/zero of=%s bs=%s count=0 seek=%s" % (EMMC_IMAGE, BLOCK_SIZE, EMMC_IMAGE_SEEK))
-			self.commandMB.append("parted -s %s mklabel gpt" % EMMC_IMAGE)
-			PARTED_END_BOOT = int(IMAGE_ROOTFS_ALIGNMENT) + int(BOOT_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart boot fat16 %s %s" % (EMMC_IMAGE, IMAGE_ROOTFS_ALIGNMENT, PARTED_END_BOOT))
-			PARTED_END_KERNEL1 = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart linuxkernel %s %s" % (EMMC_IMAGE, KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL1))
-			PARTED_END_ROOTFS1 = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart linuxrootfs ext4 %s %s" % (EMMC_IMAGE, ROOTFS_PARTITION_OFFSET, PARTED_END_ROOTFS1))
-			PARTED_END_KERNEL2 = int(SECOND_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart linuxkernel2 %s %s" % (EMMC_IMAGE, SECOND_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL2))
-			PARTED_END_KERNEL3 = int(THIRD_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart linuxkernel3 %s %s" % (EMMC_IMAGE, THIRD_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL3))
-			PARTED_END_KERNEL4 = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart linuxkernel4 %s %s" % (EMMC_IMAGE, FOURTH_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL4))
-			try:
-				with open("/proc/swaps", "r") as rd:
-					if "mmcblk0p7" in rd.read():
-						SWAP_PARTITION_OFFSET = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-						SWAP_PARTITION_SIZE = int(262144)
-						MULTI_ROOTFS_PARTITION_OFFSET = int(SWAP_PARTITION_OFFSET) + int(SWAP_PARTITION_SIZE)
-						self.commandMB.append("parted -s %s unit KiB mkpart swap linux-swap %s %s" % (EMMC_IMAGE, SWAP_PARTITION_OFFSET, SWAP_PARTITION_OFFSET + SWAP_PARTITION_SIZE))
-						self.commandMB.append("parted -s %s unit KiB mkpart userdata ext4 %s 100%%" % (EMMC_IMAGE, MULTI_ROOTFS_PARTITION_OFFSET))
-					else:
-						self.commandMB.append("parted -s %s unit KiB mkpart userdata ext4 %s 100%%" % (EMMC_IMAGE, MULTI_ROOTFS_PARTITION_OFFSET))
-			except Exception:
-				self.commandMB.append("parted -s %s unit KiB mkpart userdata ext4 %s 100%%" % (EMMC_IMAGE, MULTI_ROOTFS_PARTITION_OFFSET))
+		if SystemInfo["canBackupEMC"]:
+			self.usbType = "-recovery-usb"		
+			if self.EMMCIMG == "disk.img":
+				print("[ImageManager] hd51/h7: EMMC Detected.")  # hd51 receiver with multiple eMMC partitions in class
+				EMMC_IMAGE = "%s/%s" % (self.WORKDIR, self.EMMCIMG)
+				BLOCK_SIZE = 512
+				BLOCK_SECTOR = 2
+				IMAGE_ROOTFS_ALIGNMENT = 1024
+				BOOT_PARTITION_SIZE = 3072
+				KERNEL_PARTITION_SIZE = 8192
+				ROOTFS_PARTITION_SIZE = 1048576
+				EMMC_IMAGE_SIZE = 3817472
+				KERNEL_PARTITION_OFFSET = int(IMAGE_ROOTFS_ALIGNMENT) + int(BOOT_PARTITION_SIZE)
+				ROOTFS_PARTITION_OFFSET = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				SECOND_KERNEL_PARTITION_OFFSET = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				THIRD_KERNEL_PARTITION_OFFSET = int(SECOND_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				FOURTH_KERNEL_PARTITION_OFFSET = int(THIRD_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				MULTI_ROOTFS_PARTITION_OFFSET = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				EMMC_IMAGE_SEEK = int(EMMC_IMAGE_SIZE) * int(BLOCK_SECTOR)
+				self.commandMB.append("dd if=/dev/zero of=%s bs=%s count=0 seek=%s" % (EMMC_IMAGE, BLOCK_SIZE, EMMC_IMAGE_SEEK))
+				self.commandMB.append("/usr/sbin/parted -s %s mklabel gpt" % EMMC_IMAGE)
+				PARTED_END_BOOT = int(IMAGE_ROOTFS_ALIGNMENT) + int(BOOT_PARTITION_SIZE)
+				self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart boot fat16 %s %s" % (EMMC_IMAGE, IMAGE_ROOTFS_ALIGNMENT, PARTED_END_BOOT))
+				PARTED_END_KERNEL1 = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart linuxkernel %s %s" % (EMMC_IMAGE, KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL1))
+				PARTED_END_ROOTFS1 = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart linuxrootfs ext4 %s %s" % (EMMC_IMAGE, ROOTFS_PARTITION_OFFSET, PARTED_END_ROOTFS1))
+				PARTED_END_KERNEL2 = int(SECOND_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart linuxkernel2 %s %s" % (EMMC_IMAGE, SECOND_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL2))
+				PARTED_END_KERNEL3 = int(THIRD_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart linuxkernel3 %s %s" % (EMMC_IMAGE, THIRD_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL3))
+				PARTED_END_KERNEL4 = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart linuxkernel4 %s %s" % (EMMC_IMAGE, FOURTH_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL4))
+				try:
+					with open("/proc/swaps", "r") as rd:
+						if "mmcblk0p7" in rd.read():
+							SWAP_PARTITION_OFFSET = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+							SWAP_PARTITION_SIZE = int(262144)
+							MULTI_ROOTFS_PARTITION_OFFSET = int(SWAP_PARTITION_OFFSET) + int(SWAP_PARTITION_SIZE)
+							self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart swap linux-swap %s %s" % (EMMC_IMAGE, SWAP_PARTITION_OFFSET, SWAP_PARTITION_OFFSET + SWAP_PARTITION_SIZE))
+							self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart userdata ext4 %s 100%%" % (EMMC_IMAGE, MULTI_ROOTFS_PARTITION_OFFSET))
+						else:
+							self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart userdata ext4 %s 100%%" % (EMMC_IMAGE, MULTI_ROOTFS_PARTITION_OFFSET))
+				except Exception:
+					self.commandMB.append("/usr/sbin/parted -s %s unit KiB mkpart userdata ext4 %s 100%%" % (EMMC_IMAGE, MULTI_ROOTFS_PARTITION_OFFSET))
 
-			BOOT_IMAGE_SEEK = int(IMAGE_ROOTFS_ALIGNMENT) * int(BLOCK_SECTOR)
-			self.commandMB.append("dd if=%s of=%s seek=%s" % (self.MTDBOOT, EMMC_IMAGE, BOOT_IMAGE_SEEK))
-			KERNEL_IMAGE_SEEK = int(KERNEL_PARTITION_OFFSET) * int(BLOCK_SECTOR)
-			self.commandMB.append("dd if=/dev/%s of=%s seek=%s" % (self.MTDKERNEL, EMMC_IMAGE, KERNEL_IMAGE_SEEK))
-			ROOTFS_IMAGE_SEEK = int(ROOTFS_PARTITION_OFFSET) * int(BLOCK_SECTOR)
-			self.commandMB.append("dd if=/dev/%s of=%s seek=%s " % (self.MTDROOTFS, EMMC_IMAGE, ROOTFS_IMAGE_SEEK))
-			self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
+				BOOT_IMAGE_SEEK = int(IMAGE_ROOTFS_ALIGNMENT) * int(BLOCK_SECTOR)
+				self.commandMB.append("dd if=%s of=%s seek=%s" % (self.MTDBOOT, EMMC_IMAGE, BOOT_IMAGE_SEEK))
+				KERNEL_IMAGE_SEEK = int(KERNEL_PARTITION_OFFSET) * int(BLOCK_SECTOR)
+				self.commandMB.append("dd if=/dev/%s of=%s seek=%s" % (self.MTDKERNEL, EMMC_IMAGE, KERNEL_IMAGE_SEEK))
+				ROOTFS_IMAGE_SEEK = int(ROOTFS_PARTITION_OFFSET) * int(BLOCK_SECTOR)
+				self.commandMB.append("dd if=/dev/%s of=%s seek=%s " % (self.MTDROOTFS, EMMC_IMAGE, ROOTFS_IMAGE_SEEK))
+				self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
 
-		elif self.EMMCIMG == "emmc.img":
-			print("[ImageManager] osmio4k: EMMC Detected.")  # osmio4k receiver with multiple eMMC partitions in class
-			IMAGE_ROOTFS_ALIGNMENT = 1024
-			BOOT_PARTITION_SIZE = 3072
-			KERNEL_PARTITION_SIZE = 8192
-			ROOTFS_PARTITION_SIZE = 1898496
-			EMMC_IMAGE_SIZE = 7634944
-			KERNEL_PARTITION_OFFSET = int(IMAGE_ROOTFS_ALIGNMENT) + int(BOOT_PARTITION_SIZE)
-			ROOTFS_PARTITION_OFFSET = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			SECOND_KERNEL_PARTITION_OFFSET = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			SECOND_ROOTFS_PARTITION_OFFSET = int(SECOND_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			THIRD_KERNEL_PARTITION_OFFSET = int(SECOND_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			THIRD_ROOTFS_PARTITION_OFFSET = int(THIRD_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			FOURTH_KERNEL_PARTITION_OFFSET = int(THIRD_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			FOURTH_ROOTFS_PARTITION_OFFSET = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			SWAP_PARTITION_OFFSET = int(FOURTH_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			EMMC_IMAGE = "%s/%s" % (self.WORKDIR, self.EMMCIMG)
-			EMMC_IMAGE_SEEK = int(EMMC_IMAGE_SIZE) * 1024
-			self.commandMB.append("dd if=/dev/zero of=%s bs=1 count=0 seek=%s" % (EMMC_IMAGE, EMMC_IMAGE_SEEK))
-			self.commandMB.append("parted -s %s mklabel gpt" % EMMC_IMAGE)
-			PARTED_END_BOOT = int(IMAGE_ROOTFS_ALIGNMENT) + int(BOOT_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart boot fat16 %s %s" % (EMMC_IMAGE, IMAGE_ROOTFS_ALIGNMENT, PARTED_END_BOOT))
-			PARTED_END_KERNEL1 = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart kernel1 %s %s" % (EMMC_IMAGE, KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL1))
-			PARTED_END_ROOTFS1 = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart rootfs1 ext4 %s %s" % (EMMC_IMAGE, ROOTFS_PARTITION_OFFSET, PARTED_END_ROOTFS1))
-			PARTED_END_KERNEL2 = int(SECOND_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart kernel2 %s %s" % (EMMC_IMAGE, SECOND_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL2))
-			PARTED_END_ROOTFS2 = int(SECOND_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart rootfs2 ext4 %s %s" % (EMMC_IMAGE, SECOND_ROOTFS_PARTITION_OFFSET, PARTED_END_ROOTFS2))
-			PARTED_END_KERNEL3 = int(THIRD_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart kernel3 %s %s" % (EMMC_IMAGE, THIRD_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL3))
-			PARTED_END_ROOTFS3 = int(THIRD_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart rootfs3 ext4 %s %s" % (EMMC_IMAGE, THIRD_ROOTFS_PARTITION_OFFSET, PARTED_END_ROOTFS3))
-			PARTED_END_KERNEL4 = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart kernel4 %s %s" % (EMMC_IMAGE, FOURTH_KERNEL_PARTITION_OFFSET, PARTED_END_KERNEL4))
-			PARTED_END_ROOTFS4 = int(FOURTH_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
-			self.commandMB.append("parted -s %s unit KiB mkpart rootfs4 ext4 %s %s" % (EMMC_IMAGE, FOURTH_ROOTFS_PARTITION_OFFSET, PARTED_END_ROOTFS4))
+			elif self.EMMCIMG == "emmc.img":
+				print("[ImageManager] osmio4k: EMMC Detected.")  # osmio4k receiver with multiple eMMC partitions in class
+				blockSectors = 2
+				IMAGE_ROOTFS_ALIGNMENT = 1024
+				BOOT_PARTITION_SIZE = 3072
+				KERNEL_PARTITION_SIZE = 8192
+				ROOTFS_PARTITION_SIZE = 1898496
+				EMMC_IMAGE_SIZE = 7634944
+				KERNEL_PARTITION_OFFSET = (IMAGE_ROOTFS_ALIGNMENT + BOOT_PARTITION_SIZE)
+				ROOTFS_PARTITION_OFFSET = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				SECOND_KERNEL_PARTITION_OFFSET = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				SECOND_ROOTFS_PARTITION_OFFSET = int(SECOND_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				THIRD_KERNEL_PARTITION_OFFSET = int(SECOND_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				THIRD_ROOTFS_PARTITION_OFFSET = int(THIRD_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				FOURTH_KERNEL_PARTITION_OFFSET = int(THIRD_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				FOURTH_ROOTFS_PARTITION_OFFSET = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				SWAP_PARTITION_OFFSET = int(FOURTH_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				EMMC_IMAGE = f"{self.WORKDIR}/{self.EMMCIMG}"
+				EMMC_IMAGE_SEEK = (EMMC_IMAGE_SIZE * 1024)
+				self.commandMB.append(f"/bin/dd if=/dev/zero of={EMMC_IMAGE} bs=1 count=0 seek={EMMC_IMAGE_SEEK}")
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} mklabel gpt")
+				PARTED_END_BOOT = int(IMAGE_ROOTFS_ALIGNMENT) + int(BOOT_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart boot fat16 {IMAGE_ROOTFS_ALIGNMENT} {PARTED_END_BOOT}")
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} set 1 boot on")			
+				PARTED_END_KERNEL1 = int(KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart kernel1 {KERNEL_PARTITION_OFFSET} {PARTED_END_KERNEL1}")
+				PARTED_END_ROOTFS1 = int(ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart rootfs1 ext4 {ROOTFS_PARTITION_OFFSET} {PARTED_END_ROOTFS1}")
+				PARTED_END_KERNEL2 = int(SECOND_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart kernel2 {SECOND_KERNEL_PARTITION_OFFSET} {PARTED_END_KERNEL2}")
+				PARTED_END_ROOTFS2 = int(SECOND_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart rootfs2 ext4 {SECOND_ROOTFS_PARTITION_OFFSET} {PARTED_END_ROOTFS2}")
+				PARTED_END_KERNEL3 = int(THIRD_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart kernel3 {THIRD_KERNEL_PARTITION_OFFSET} {PARTED_END_KERNEL3}")
+				PARTED_END_ROOTFS3 = int(THIRD_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart rootfs3 ext4 {THIRD_ROOTFS_PARTITION_OFFSET} {PARTED_END_ROOTFS3}")
+				PARTED_END_KERNEL4 = int(FOURTH_KERNEL_PARTITION_OFFSET) + int(KERNEL_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart kernel4 {FOURTH_KERNEL_PARTITION_OFFSET} {PARTED_END_KERNEL4}")
+				PARTED_END_ROOTFS4 = int(FOURTH_ROOTFS_PARTITION_OFFSET) + int(ROOTFS_PARTITION_SIZE)
+				self.commandMB.append(f"/usr/sbin/parted -s {EMMC_IMAGE} unit KiB mkpart rootfs4 ext4 {FOURTH_ROOTFS_PARTITION_OFFSET} {PARTED_END_ROOTFS4}")
+				BOOT_IMAGE_BS = (IMAGE_ROOTFS_ALIGNMENT * blockSectors)
+				self.commandMB.append(f"/bin/dd if={self.MTDBOOT} bs=512 count=6144 of={EMMC_IMAGE} seek={BOOT_IMAGE_BS}")
+				KERNEL_IMAGE_BS = (KERNEL_PARTITION_OFFSET * blockSectors)
+				self.commandMB.append(f"/bin/dd if=/dev/{self.MTDKERNEL} bs=512 count=16384 of={EMMC_IMAGE} seek={KERNEL_IMAGE_BS}")
+				ROOTFS_IMAGE_BS = (ROOTFS_PARTITION_OFFSET * blockSectors)
+				self.commandMB.append(f"/bin/dd if=/dev/{self.MTDROOTFS} bs=512 count=3796992 of={EMMC_IMAGE} seek={ROOTFS_IMAGE_BS} ")
+				print(f"[ImageManager] osmio4k: EMMC commands:{self.commandMB}")  # osmio4k receiver with multiple eMMC partitions in class			
+				self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
 
-			BOOT_IMAGE_BS = int(IMAGE_ROOTFS_ALIGNMENT) * 1024
-			self.commandMB.append("dd conv=notrunc if=%s of=%s seek=1 bs=%s" % (self.MTDBOOT, EMMC_IMAGE, BOOT_IMAGE_BS))
-			KERNEL_IMAGE_BS = int(KERNEL_PARTITION_OFFSET) * 1024
-			self.commandMB.append("dd conv=notrunc if=/dev/%s of=%s seek=1 bs=%s" % (self.MTDKERNEL, EMMC_IMAGE, KERNEL_IMAGE_BS))
-			ROOTFS_IMAGE_BS = int(ROOTFS_PARTITION_OFFSET) * 1024
-			self.commandMB.append("dd if=/dev/%s of=%s seek=1 bs=%s" % (self.MTDROOTFS, EMMC_IMAGE, ROOTFS_IMAGE_BS))
-			self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
+			elif self.EMMCIMG == "usb_update.bin":
+				print("[ImageManager] Trio4K sf8008 bewonwiz: Making emmc_partitions.xml")
+				with open("%s/emmc_partitions.xml" % self.WORKDIR, "w") as f:
+					f.write('<?xml version="1.0" encoding="GB2312" ?>\n')
+					f.write('<Partition_Info>\n')
+					f.write('<Part Sel="1" PartitionName="fastboot" FlashType="emmc" FileSystem="none" Start="0" Length="1M" SelectFile="fastboot.bin"/>\n')
+					f.write('<Part Sel="1" PartitionName="bootargs" FlashType="emmc" FileSystem="none" Start="1M" Length="1M" SelectFile="bootargs.bin"/>\n')
+					f.write('<Part Sel="1" PartitionName="bootoptions" FlashType="emmc" FileSystem="none" Start="2M" Length="1M" SelectFile="boot.img"/>\n')
+					f.write('<Part Sel="1" PartitionName="baseparam" FlashType="emmc" FileSystem="none" Start="3M" Length="3M" SelectFile="baseparam.img"/>\n')
+					f.write('<Part Sel="1" PartitionName="pqparam" FlashType="emmc" FileSystem="none" Start="6M" Length="4M" SelectFile="pq_param.bin"/>\n')
+					f.write('<Part Sel="1" PartitionName="logo" FlashType="emmc" FileSystem="none" Start="10M" Length="4M" SelectFile="logo.img"/>\n')
+					f.write('<Part Sel="1" PartitionName="deviceinfo" FlashType="emmc" FileSystem="none" Start="14M" Length="4M" SelectFile="deviceinfo.bin"/>\n')
+					f.write('<Part Sel="1" PartitionName="loader" FlashType="emmc" FileSystem="none" Start="26M" Length="32M" SelectFile="apploader.bin"/>\n')
+					f.write('<Part Sel="1" PartitionName="kernel" FlashType="emmc" FileSystem="none" Start="66M" Length="32M" SelectFile="vmlinux.bin"/>\n')
+					f.write('<Part Sel="1" PartitionName="rootfs" FlashType="emmc" FileSystem="ext3/4" Start="98M" Length="7000M" SelectFile="rootfs.ext4"/>\n')
+					f.write('</Partition_Info>\n')
 
-		elif self.EMMCIMG == "usb_update.bin":
-			print("[ImageManager] Trio4K sf8008 bewonwiz: Making emmc_partitions.xml")
-			with open("%s/emmc_partitions.xml" % self.WORKDIR, "w") as f:
-				f.write('<?xml version="1.0" encoding="GB2312" ?>\n')
-				f.write('<Partition_Info>\n')
-				f.write('<Part Sel="1" PartitionName="fastboot" FlashType="emmc" FileSystem="none" Start="0" Length="1M" SelectFile="fastboot.bin"/>\n')
-				f.write('<Part Sel="1" PartitionName="bootargs" FlashType="emmc" FileSystem="none" Start="1M" Length="1M" SelectFile="bootargs.bin"/>\n')
-				f.write('<Part Sel="1" PartitionName="bootoptions" FlashType="emmc" FileSystem="none" Start="2M" Length="1M" SelectFile="boot.img"/>\n')
-				f.write('<Part Sel="1" PartitionName="baseparam" FlashType="emmc" FileSystem="none" Start="3M" Length="3M" SelectFile="baseparam.img"/>\n')
-				f.write('<Part Sel="1" PartitionName="pqparam" FlashType="emmc" FileSystem="none" Start="6M" Length="4M" SelectFile="pq_param.bin"/>\n')
-				f.write('<Part Sel="1" PartitionName="logo" FlashType="emmc" FileSystem="none" Start="10M" Length="4M" SelectFile="logo.img"/>\n')
-				f.write('<Part Sel="1" PartitionName="deviceinfo" FlashType="emmc" FileSystem="none" Start="14M" Length="4M" SelectFile="deviceinfo.bin"/>\n')
-				f.write('<Part Sel="1" PartitionName="loader" FlashType="emmc" FileSystem="none" Start="26M" Length="32M" SelectFile="apploader.bin"/>\n')
-				f.write('<Part Sel="1" PartitionName="kernel" FlashType="emmc" FileSystem="none" Start="66M" Length="32M" SelectFile="vmlinux.bin"/>\n')
-				f.write('<Part Sel="1" PartitionName="rootfs" FlashType="emmc" FileSystem="ext3/4" Start="98M" Length="7000M" SelectFile="rootfs.ext4"/>\n')
-				f.write('</Partition_Info>\n')
-
-			print('[ImageManager] Trio4K sf8008: Executing', '/usr/bin/mkupdate -s 00000003-00000001-01010101 -f %s/emmc_partitions.xml -d %s/%s' % (self.WORKDIR, self.WORKDIR, self.EMMCIMG))
-			self.commandMB.append('echo " "')
-			self.commandMB.append('echo "Create: fastboot dump"')
-			self.commandMB.append("dd if=/dev/mmcblk0p1 of=%s/fastboot.bin" % self.WORKDIR)
-			self.commandMB.append('echo "Create: bootargs dump"')
-			self.commandMB.append("dd if=/dev/mmcblk0p2 of=%s/bootargs.bin" % self.WORKDIR)
-			self.commandMB.append('echo "Create: boot dump"')
-			self.commandMB.append("dd if=/dev/mmcblk0p3 of=%s/boot.img" % self.WORKDIR)
-			self.commandMB.append('echo "Create: baseparam.dump"')
-			self.commandMB.append("dd if=/dev/mmcblk0p4 of=%s/baseparam.img" % self.WORKDIR)
-			self.commandMB.append('echo "Create: pq_param dump"')
-			self.commandMB.append("dd if=/dev/mmcblk0p5 of=%s/pq_param.bin" % self.WORKDIR)
-			self.commandMB.append('echo "Create: logo dump"')
-			self.commandMB.append("dd if=/dev/mmcblk0p6 of=%s/logo.img" % self.WORKDIR)
-			self.commandMB.append('echo "Create: deviceinfo dump"')
-			self.commandMB.append("dd if=/dev/mmcblk0p7 of=%s/deviceinfo.bin" % self.WORKDIR)
-			self.commandMB.append('echo "Create: apploader dump"')
-			self.commandMB.append("dd if=/dev/mmcblk0p8 of=%s/apploader.bin" % self.WORKDIR)
-			self.commandMB.append('echo "Pickup previous created: kernel dump"')
-			self.commandMB.append('echo "Create: rootfs dump"')
-			self.commandMB.append("dd if=/dev/zero of=%s/rootfs.ext4 seek=524288 count=0 bs=1024" % self.WORKDIR)
-			self.commandMB.append("mkfs.ext4 -F -i 4096 %s/rootfs.ext4 -d %s/root" % (self.WORKDIR, self.TMPDIR))
-			self.commandMB.append('echo " "')
-			self.commandMB.append('echo "Create: Trio4K Sf8008 Bewonwiz Recovery Fullbackup %s"' % self.EMMCIMG)
-			self.commandMB.append('echo " "')
-			self.commandMB.append('/usr/sbin/mkupdate -s 00000003-00000001-01010101 -f %s/emmc_partitions.xml -d %s/%s' % (self.WORKDIR, self.WORKDIR, self.EMMCIMG))
-			self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
+				print('[ImageManager] Trio4K sf8008: Executing', '/usr/bin/mkupdate -s 00000003-00000001-01010101 -f %s/emmc_partitions.xml -d %s/%s' % (self.WORKDIR, self.WORKDIR, self.EMMCIMG))
+				self.commandMB.append('echo " "')
+				self.commandMB.append('echo "Create: fastboot dump"')
+				self.commandMB.append("dd if=/dev/mmcblk0p1 of=%s/fastboot.bin" % self.WORKDIR)
+				self.commandMB.append('echo "Create: bootargs dump"')
+				self.commandMB.append("dd if=/dev/mmcblk0p2 of=%s/bootargs.bin" % self.WORKDIR)
+				self.commandMB.append('echo "Create: boot dump"')
+				self.commandMB.append("dd if=/dev/mmcblk0p3 of=%s/boot.img" % self.WORKDIR)
+				self.commandMB.append('echo "Create: baseparam.dump"')
+				self.commandMB.append("dd if=/dev/mmcblk0p4 of=%s/baseparam.img" % self.WORKDIR)
+				self.commandMB.append('echo "Create: pq_param dump"')
+				self.commandMB.append("dd if=/dev/mmcblk0p5 of=%s/pq_param.bin" % self.WORKDIR)
+				self.commandMB.append('echo "Create: logo dump"')
+				self.commandMB.append("dd if=/dev/mmcblk0p6 of=%s/logo.img" % self.WORKDIR)
+				self.commandMB.append('echo "Create: deviceinfo dump"')
+				self.commandMB.append("dd if=/dev/mmcblk0p7 of=%s/deviceinfo.bin" % self.WORKDIR)
+				self.commandMB.append('echo "Create: apploader dump"')
+				self.commandMB.append("dd if=/dev/mmcblk0p8 of=%s/apploader.bin" % self.WORKDIR)
+				self.commandMB.append('echo "Pickup previous created: kernel dump"')
+				self.commandMB.append('echo "Create: rootfs dump"')
+				self.commandMB.append("dd if=/dev/zero of=%s/rootfs.ext4 seek=524288 count=0 bs=1024" % self.WORKDIR)
+				self.commandMB.append("mkfs.ext4 -F -i 4096 %s/rootfs.ext4 -d %s/root" % (self.WORKDIR, self.TMPDIR))
+				self.commandMB.append('echo " "')
+				self.commandMB.append('echo "Create: Trio4K Sf8008 Bewonwiz Recovery Fullbackup %s"' % self.EMMCIMG)
+				self.commandMB.append('echo " "')
+				self.commandMB.append('/usr/sbin/mkupdate -s 00000003-00000001-01010101 -f %s/emmc_partitions.xml -d %s/%s' % (self.WORKDIR, self.WORKDIR, self.EMMCIMG))
+				self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
 		else:
 			self.Stage3Completed = True
 			print("[ImageManager] Stage3 bypassed: Complete.")
@@ -1428,11 +1417,13 @@ class ImageBackup(Screen):
 		else:
 			move("%s/rootfs.%s" % (self.WORKDIR, self.ROOTFSTYPE), "%s/%s" % (self.MAINDEST, self.ROOTFSFILE))
 
-		if SystemInfo["model"] in ("gb7252", "gbx34k"):
+		if MODEL in ("gb7252", "gbx34k"):
+			self.GB4Kbin = "boot.bin"
+			self.GB4Krescue = "rescue.bin"		
 			move("%s/%s" % (self.WORKDIR, self.GB4Kbin), "%s/%s" % (self.MAINDEST, self.GB4Kbin))
 			move("%s/%s" % (self.WORKDIR, self.GB4Krescue), "%s/%s" % (self.MAINDEST, self.GB4Krescue))
 			system("cp -f /usr/share/gpt.bin %s/gpt.bin" % self.MAINDEST)
-			print("[ImageManager] Stage5: Create: gpt.bin:", self.MODEL)
+			print("[ImageManager] Stage5: Create: gpt.bin:", MACHINEBUILD)
 
 		with open(self.MAINDEST + "/imageversion", "w") as fileout:
 			line = defaultprefix + "-" + MACHINEBUILD + "-" + IMAGETYPE + "-backup-" + SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + "-" + self.BackupDate
@@ -1448,8 +1439,8 @@ class ImageBackup(Screen):
 				with open(self.MAINDEST + "/reboot.update", "w") as fileout:
 					line = "This file forces a reboot after the update."
 					fileout.write(line)
-		elif SystemInfo["brand"] in ("xtrend", "gigablue", "octagon", "odin", "xp", "ini"):
-			if SystemInfo["brand"] in ("xtrend", "octagon", "odin", "ini"):
+		elif SystemInfo["brand"] in ("xtrend", "gigablue", "octagon", "odin", "xp", "ini", "edision"):
+			if SystemInfo["brand"] in ("xtrend", "octagon", "odin", "ini", "edision"):
 				with open(self.MAINDEST + "/noforce", "w") as fileout:
 					line = "rename this file to 'force' to force an update without confirmation"
 					fileout.write(line)
@@ -1459,13 +1450,14 @@ class ImageBackup(Screen):
 					fileout.write(line)
 				self.session.open(MessageBox, _("Multiboot only able to restore this backup to mmc slot1"), MessageBox.TYPE_INFO, timeout=20)
 		elif SystemInfo["HasRootSubdir"]:
-			with open(self.MAINDEST + "/force_%s_READ.ME" % self.MCBUILD, "w") as fileout:
-				line1 = "Rename the unforce_%s.txt to force_%s.txt and move it to the root of your usb-stick" % (self.MCBUILD, self.MCBUILD)
+			self.usbType = "-mmc"
+			with open(self.MAINDEST + "/force_%s_READ.ME" % MODEL, "w") as fileout:
+				line1 = "Rename the unforce_%s.txt to force_%s.txt and move it to the root of your usb-stick" % (MODEL, MODEL)
 				line2 = "When you enter the recovery menu then it will force the image to be installed in the linux selection"
 				fileout.write(line1)
 				fileout.write(line2)
-			with open(self.MAINDEST2 + "/unforce_%s.txt" % self.MCBUILD, "w") as fileout:
-				line1 = "rename this unforce_%s.txt to force_%s.txt to force an update without confirmation" % (self.MCBUILD, self.MCBUILD)
+			with open(self.MAINDEST2 + "/unforce_%s.txt" % MODEL, "w") as fileout:
+				line1 = "rename this unforce_%s.txt to force_%s.txt to force an update without confirmation" % (MODEL, MODEL)
 				fileout.write(line1)
 
 		print("[ImageManager] Stage5: Removing Swap.")
@@ -1492,11 +1484,10 @@ class ImageBackup(Screen):
 
 	def doBackup6(self):
 		self.commands = []
-		if SystemInfo["HasRootSubdir"]:
-			self.commands.append("7za a -r -bt -bd %s/%s-%s-%s-%s-%s%s_mmc.zip %s/*" % (self.BackupDirectory, self.IMAGEDISTRO, self.DISTROVERSION, self.DISTROBUILD, self.MODEL, self.BackupDate, self.VuSlot0, self.MAINDESTROOT))
-		else:
-			self.commands.append("cd " + self.MAINDESTROOT + " && zip -r " + self.MAINDESTROOT + ".zip *")
+		# self.commands.append(f"7za a -r -bt -bd {self.MAINDESTROOT}{self.VuSlot0}{self.usbType}.zip {self.MAINDESTROOT}/*")			
+		self.commands.append(f"cd {self.MAINDESTROOT} && zip -r {self.MAINDESTROOT}{self.VuSlot0}{self.usbType}.zip *")
 		self.commands.append("rm -rf " + self.MAINDESTROOT)
+		print(f"[ImageManager] doBackup6:{self.commands}")
 		self.ConsoleB.eBatch(self.commands, self.Stage6Complete, debug=True)
 
 	def Stage6Complete(self, answer=None):
