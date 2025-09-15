@@ -1161,7 +1161,7 @@ class ImageBackup(Screen):
 				with open("/proc/cmdline", "r") as z:
 					if SystemInfo["HasMMC"] and "root=/dev/mmcblk0p1" in z.read():
 						self.ROOTFSTYPE = "tar.bz2"
-						self.commands.append(f"/bin/tar -jcf {self.WORKDIR,}/rootfs.tar.bz2 -C {self.TMPDIR}/root --exclude ./var/nmbd --exclude ./.resizerootfs --exclude ./.resize-rootfs --exclude ./.resize-linuxrootfs --exclude ./.resize-userdata --exclude ./var/lib/samba/private/msg.sock .")
+						self.commands.append(f"/bin/tar -jcf {self.WORKDIR, }/rootfs.tar.bz2 -C {self.TMPDIR}/root --exclude ./var/nmbd --exclude ./.resizerootfs --exclude ./.resize-rootfs --exclude ./.resize-linuxrootfs --exclude ./.resize-userdata --exclude ./var/lib/samba/private/msg.sock .")
 					else:
 						self.commands.append(f"touch {self.WORKDIR}/root.ubi")
 						self.commands.append(f"mkfs.ubifs -r {self.TMPDIR}/root -o {self.WORKDIR}/root.ubi {self.MKUBIFS_ARGS}")
