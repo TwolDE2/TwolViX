@@ -403,7 +403,7 @@ class VIXImageManager(Screen):
 		if MACHINEBUILD[0:7] == "osmio4k":
 			message = (_("Do you want to create a full image backup?\nThis can take upto 20 minutes to complete\n") + _("your ") + f"{MACHINEBUILD}" + _(" will create a recovery backup only for slot 1 else image backup"))
 		else:
-			message = _("Do you want to create a full image backup?\nThis can take upto 15 minutes to complete.")		
+			message = _("Do you want to create a full image backup?\nThis can take upto 15 minutes to complete.")
 		ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO)
 		ybox.setTitle(_("Backup confirmation"))
 
@@ -897,7 +897,7 @@ class ImageBackup(Screen):
 		self.slot = ""
 		(self.EMMCIMG, self.MTDBOOT) = SystemInfo["canBackupEMC"] if SystemInfo["canBackupEMC"] else (None, None)
 		if SystemInfo["canMultiBoot"]:
-			self.usbType = "-mmc"		
+			self.usbType = "-mmc"
 			self.slot = SystemInfo["MultiBootSlot"]
 			if SystemInfo["HasKexecMultiboot"]:
 				self.MTDKERNEL = MTDKERNEL if self.slot == 0 else SystemInfo["canMultiBoot"][slot]["kernel"]
@@ -1039,7 +1039,7 @@ class ImageBackup(Screen):
 				"RamCheckFailedNotification"
 			)
 		else:
-			self.MemCheck()		
+			self.MemCheck()
 
 	def MemCheck(self):
 		memfree = 0
@@ -1324,7 +1324,7 @@ class ImageBackup(Screen):
 
 			elif self.EMMCIMG == "usb_update.bin":
 				print("[ImageManager] Trio4K sf8008 bewonwiz: Making emmc_partitions.xml")
-				self.usbType = "-recovery-emmc"				
+				self.usbType = "-recovery-emmc"
 				with open("%s/emmc_partitions.xml" % self.WORKDIR, "w") as f:
 					f.write('<?xml version="1.0" encoding="GB2312" ?>\n')
 					f.write('<Partition_Info>\n')
