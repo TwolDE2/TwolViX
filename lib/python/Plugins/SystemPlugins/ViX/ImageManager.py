@@ -894,30 +894,30 @@ class ImageBackup(Screen):
 		self.ROOTFSTYPE = SystemInfo["imagefs"].strip()
 		self.ROOTFSSUBDIR = "none"
 		self.VuSlot0 = ""
-		self.slot = ""
+		slot = ""
 		(self.EMMCIMG, self.MTDBOOT) = SystemInfo["canBackupEMC"] if SystemInfo["canBackupEMC"] else (None, None)
 		if SystemInfo["canMultiBoot"]:
 			self.usbType = "-mmc"
-			self.slot = SystemInfo["MultiBootSlot"]
+			slot = SystemInfo["MultiBootSlot"]
 			if SystemInfo["HasKexecMultiboot"]:
-				self.MTDKERNEL = MTDKERNEL if self.slot == 0 else SystemInfo["canMultiBoot"][slot]["kernel"]
-				self.MTDROOTFS = MTDROOTFS if self.slot == 0 else SystemInfo["canMultiBoot"][slot]["root"].split("/")[2]
-				self.VuSlot0 = "-VuSlot0" if self.slot == 0 else ""
+				self.MTDKERNEL = MTDKERNEL if slot == 0 else SystemInfo["canMultiBoot"][slot]["kernel"]
+				self.MTDROOTFS = MTDROOTFS if slot == 0 else SystemInfo["canMultiBoot"][slot]["root"].split("/")[2]
+				self.VuSlot0 = "-VuSlot0" if slot == 0 else ""
 			else:
-				self.MTDKERNEL = SystemInfo["canMultiBoot"][self.slot]["kernel"].split("/")[2]
+				self.MTDKERNEL = SystemInfo["canMultiBoot"][slot]["kernel"].split("/")[2]
 			if SystemInfo["HasMultibootMTD"]:
-				self.MTDROOTFS = SystemInfo["canMultiBoot"][self.slot]["root"]  # sfx60xx ubi0:ubifs not mtd=
+				self.MTDROOTFS = SystemInfo["canMultiBoot"][slot]["root"]  # sfx60xx ubi0:ubifs not mtd=
 			elif not SystemInfo["HasKexecMultiboot"]:
-				self.MTDROOTFS = SystemInfo["canMultiBoot"][self.slot]["root"].split("/")[2]
+				self.MTDROOTFS = SystemInfo["canMultiBoot"][slot]["root"].split("/")[2]
 			if SystemInfo["HasRootSubdir"] and slot != 0:
-				self.ROOTFSSUBDIR = SystemInfo["canMultiBoot"][self.slot]["rootsubdir"]
+				self.ROOTFSSUBDIR = SystemInfo["canMultiBoot"][slot]["rootsubdir"]
 		else:
 			self.MTDKERNEL = MTDKERNEL
 			self.MTDROOTFS = MTDROOTFS
 			self.usbType = "-usb"
 		self.KERN = "sda" if "sda" in self.MTDKERNEL else "mmc"
 
-		print(f"[ImageManager] slot:{self.slot}")
+		print(f"[ImageManager] slot:{slot}")
 		print(f"[ImageManager] HasKexecMultiboot:{SystemInfo['HasKexecMultiboot']}")
 		print(f"[ImageManager] Model:{MACHINEBUILD}")  # e.g. gbquad4kpro
 		print(f"[ImageManager] Machine Build:{MODEL}")  # e.g. gb7252
