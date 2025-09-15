@@ -1041,7 +1041,6 @@ class ImageBackup(Screen):
 		else:
 			self.MemCheck()		
 
-
 	def MemCheck(self):
 		memfree = 0
 		swapfree = 0
