@@ -979,13 +979,14 @@ class ImageBackup(Screen):
 		task.check = lambda: self.Stage2Completed
 		task.weighting = 15
 
-		task = Components.Task.PythonTask(job, _("Backing up eMMC partitions for USB flash ..."))
-		task.work = self.doBackup3
-		task.weighting = 5
+		if MACHINEBUILD[0:7] != "osmio4k" or (MACHINEBUILD[0:7] == "osmio4k" and SystemInfo["MultiBootSlot"] == 1):
+			task = Components.Task.PythonTask(job, _("Backing up eMMC partitions for recovery image ..."))
+			task.work = self.doBackup3
+			task.weighting = 5
 
-		task = Components.Task.ConditionTask(job, _("Backing up eMMC partitions for USB flash..."), timeoutCount=4000)
-		task.check = lambda: self.Stage3Completed
-		task.weighting = 15
+			task = Components.Task.ConditionTask(job, _("Backing up eMMC partitions for recovery image.."), timeoutCount=4000)
+			task.check = lambda: self.Stage3Completed
+			task.weighting = 15
 
 		task = Components.Task.PythonTask(job, _("Removing temp mounts..."))
 		task.work = self.doBackup4
