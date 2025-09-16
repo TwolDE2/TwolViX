@@ -979,14 +979,15 @@ class ImageBackup(Screen):
 		task.check = lambda: self.Stage2Completed
 		task.weighting = 15
 
-		if MACHINEBUILD[0:7] != "osmio4k" or (MACHINEBUILD[0:7] == "osmio4k" and SystemInfo["MultiBootSlot"] == 1):
-			task = Components.Task.PythonTask(job, _("Backing up eMMC partitions for recovery image ..."))
-			task.work = self.doBackup3
-			task.weighting = 5
+		if SystemInfo["canBackupEMC"]:
+			if MACHINEBUILD[0:7] != "osmio4k" or (MACHINEBUILD[0:7] == "osmio4k" and SystemInfo["MultiBootSlot"] == 1):
+				task = Components.Task.PythonTask(job, _("Backing up eMMC partitions for recovery image ..."))
+				task.work = self.doBackup3
+				task.weighting = 5
 
-			task = Components.Task.ConditionTask(job, _("Backing up eMMC partitions for recovery image.."), timeoutCount=4000)
-			task.check = lambda: self.Stage3Completed
-			task.weighting = 15
+				task = Components.Task.ConditionTask(job, _("Backing up eMMC partitions for recovery image.."), timeoutCount=4000)
+				task.check = lambda: self.Stage3Completed
+				task.weighting = 15
 
 		task = Components.Task.PythonTask(job, _("Removing temp mounts..."))
 		task.work = self.doBackup4
@@ -1220,8 +1221,8 @@ class ImageBackup(Screen):
 		print("[ImageManager] Stage3: Making eMMC Image.")
 		self.commandMB = []
 		if SystemInfo["canBackupEMC"]:
-			if self.EMMCIMG == "emmc.img" and SystemInfo["MultiBootSlot"] == 1:
-				self.usbType = "-recovery-emmc"
+			self.usbType = "-recovery-emmc"		
+			if self.EMMCIMG == "emmc.img":
 				print("[ImageManager] osmio4k: EMMC Detected.")  # osmio4k receiver with multiple eMMC partitions in class
 				blockSectors = 2
 				IMAGE_ROOTFS_ALIGNMENT = 1024
@@ -1272,7 +1273,6 @@ class ImageBackup(Screen):
 
 			elif self.EMMCIMG == "disk.img":
 				print("[ImageManager] hd51/h7: EMMC Detected.")  # hd51 receiver with multiple eMMC partitions in class
-				self.usbType = "-recovery-emmc"
 				EMMC_IMAGE = "%s/%s" % (self.WORKDIR, self.EMMCIMG)
 				BLOCK_SIZE = 512
 				BLOCK_SECTOR = 2
@@ -1325,7 +1325,6 @@ class ImageBackup(Screen):
 
 			elif self.EMMCIMG == "usb_update.bin":
 				print("[ImageManager] Trio4K sf8008 bewonwiz: Making emmc_partitions.xml")
-				self.usbType = "-recovery-emmc"
 				with open("%s/emmc_partitions.xml" % self.WORKDIR, "w") as f:
 					f.write('<?xml version="1.0" encoding="GB2312" ?>\n')
 					f.write('<Partition_Info>\n')
@@ -1368,9 +1367,6 @@ class ImageBackup(Screen):
 				self.commandMB.append('echo " "')
 				self.commandMB.append('/usr/sbin/mkupdate -s 00000003-00000001-01010101 -f %s/emmc_partitions.xml -d %s/%s' % (self.WORKDIR, self.WORKDIR, self.EMMCIMG))
 				self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
-			else:
-				self.Stage3Completed = True
-				print("[ImageManager] Stage3 bypassed for Osmio4K+ only backup eMMC on slot1.")
 		else:
 			self.Stage3Completed = True
 			print("[ImageManager] Stage3 bypassed: Complete.")
