@@ -1365,7 +1365,7 @@ class ImageBackup(Screen):
 			self.commandMB.append('echo "Create: Trio4K Sf8008 Bewonwiz Recovery Fullbackup %s"' % self.EMMCIMG)
 			self.commandMB.append('echo " "')
 			self.commandMB.append('/usr/sbin/mkupdate -s 00000003-00000001-01010101 -f %s/emmc_partitions.xml -d %s/%s' % (self.WORKDIR, self.WORKDIR, self.EMMCIMG))
-				self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
+			self.ConsoleB.eBatch(self.commandMB, self.Stage3Complete, debug=False)
 
 	def Stage3Complete(self, extra_args=None):
 		self.Stage3Completed = True
