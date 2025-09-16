@@ -1220,7 +1220,7 @@ class ImageBackup(Screen):
 	def doBackup3(self):
 		print("[ImageManager] Stage3: Making eMMC Image.")
 		self.commandMB = []
-		self.usbType = "-recovery-emmc"		
+		self.usbType = "-recovery-emmc"
 		if self.EMMCIMG == "emmc.img":
 			print("[ImageManager] osmio4k: EMMC Detected.")  # osmio4k receiver with multiple eMMC partitions in class
 			blockSectors = 2
