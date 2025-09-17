@@ -401,7 +401,7 @@ class VIXImageManager(Screen):
 
 	def keyBackup(self):
 		if MACHINEBUILD[0:7] == "osmio4k":
-			message = (_("Do you want to create a full image backup?\nThis can take upto 20 minutes to complete\n") + _("your ") + f"{MACHINEBUILD}" + _(" will create a recovery backup only for slot 1 else image backup"))
+			message = (_("Do you want to create a full image backup?\nThis can take upto 20 minutes to complete\n your ") + f"{MACHINEBUILD}" + _(" will create a recovery backup only for slot 1 else image backup"))
 		else:
 			message = _("Do you want to create a full image backup?\nThis can take upto 15 minutes to complete.")
 		ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO)
