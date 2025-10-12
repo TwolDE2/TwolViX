@@ -12,6 +12,7 @@ class UserInstalledPackages:
 				if line.startswith("Package: "):
 					p_name = line.replace("Package: ", "").strip()
 					break
-			if p_name and p_name not in self.autopackages:
+			print(f"[UserInstalledPackages] - pname:{p_name}")
+			if p_name and p_name not in self.autopackages and "locale" not in p_name:
 				packages_out.append(p_name)
 		callback(packages_out)
