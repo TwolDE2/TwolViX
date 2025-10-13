@@ -3,6 +3,7 @@ class UserInstalledPackages:
 		self.opkg_package_list = "/var/lib/opkg/status"
 		self.autopackages = ("opkg", "openvix-base", "run-postinsts")  # Auto installed packages not marked "Auto-Installed: yes" in "/var/lib/opkg/status"
 		self.autoViXpackages = ("mc", "mc-helpers", "mc-shell", "nano", "packagegroup-base-nfs", "packagegroup-base-smbfs-client", "packagegroup-base-smbfs-server")  # Auto installed packages not marked "Auto-Installed from recipes-distros in build: yes" in "/var/lib/opkg/status"
+
 	def run(self, callback):
 		packages_out = []
 		for package in [x for x in open(self.opkg_package_list).read().split("\n\n") if not "Auto-Installed: yes" in x]:
