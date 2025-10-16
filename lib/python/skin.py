@@ -1452,6 +1452,7 @@ def readSkin(screen, skin, names, desktop):
 	context = SkinContext(context, myScreen.attrib.get("position"), myScreen.attrib.get("size"))
 	screen.additionalWidgets = []
 	screen.renderer = []
+	screen.stacks = []
 	usedComponents = set()
 
 	def processNone(widget, context):
