@@ -452,20 +452,10 @@ class VIXBackupManager(Screen):
 			self.Console.ePopen("opkg list-installed", self.feedsCheckComplete)
 
 	def feedsCheckComplete(self, result, retval, extra_args):
-		plugins = []
-		if path.exists("/tmp/ExtraInstalledPlugins") and self.feedscheck:
-			self.pluginslist = []
-			for line in result.split("\n"):
-				if line:
-					parts = line.strip().split()
-					plugins.append(parts[0])
+		plugins = [p.split()[0] for line in result.split("\n") if (p := line.strip())]
+		if path.exists("/tmp/ExtraInstalledPlugins"):
 			with open("/tmp/ExtraInstalledPlugins", "r") as fd:
-				tmppluginslist = fd.readlines()
-			for line in tmppluginslist:
-				if line:
-					parts = line.strip().split()
-					if len(parts) > 0 and parts[0] not in plugins:
-						self.pluginslist.append(parts[0])
+				self.pluginslist = [p for line in fd.readlines() if (p := line.strip()) and p not in plugins]
 
 		if path.exists("/tmp/3rdPartyPlugins") and self.feedscheck:
 			self.pluginslist2 = []
