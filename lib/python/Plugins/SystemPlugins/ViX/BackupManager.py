@@ -452,15 +452,14 @@ class VIXBackupManager(Screen):
 			self.Console.ePopen("opkg list", self.feedsCheckComplete)
 
 	def feedsCheckComplete(self, result, retval, extra_args):
-			self.opkg_available_packages = {p.split()[0] for line in result.split("\n") if (p := line.strip())}  # list of all packages available from the feeds
+		self.opkg_available_packages = {p.split()[0] for line in result.split("\n") if (p := line.strip())}  # list of all packages available from the feeds
 		self.Console.ePopen("opkg list-installed", self.feedsCheckComplete2)
 
 	def feedsCheckComplete2(self, result, retval, extra_args):
-		plugins = [p.split()[0] for line in result.split("\n") if (p := line.strip())]
+		opkg_installed_packages = [p.split()[0] for line in result.split("\n") if (p := line.strip())]
 		if path.exists("/tmp/ExtraInstalledPlugins"):
 			with open("/tmp/ExtraInstalledPlugins", "r") as fd:
 				self.pluginslist = [p for line in fd.readlines() if (p := line.strip()) and p not in plugins]
-
 		if path.exists("/tmp/3rdPartyPlugins") and self.feedscheck:
 			self.pluginslist2 = []
 			self.plugfiles = []
@@ -480,7 +479,7 @@ class VIXBackupManager(Screen):
 			for line in tmppluginslist2:
 				if line:
 					parts = line.strip().split("_")
-					if parts[0] not in plugins:
+					if parts[0] not in opkg_installed_packages:
 						ipk = parts[0]
 						if path.exists(self.thirdpartyPluginsLocation):
 							available = listdir(self.thirdpartyPluginsLocation)
