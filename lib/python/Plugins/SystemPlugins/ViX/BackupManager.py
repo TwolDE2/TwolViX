@@ -449,9 +449,13 @@ class VIXBackupManager(Screen):
 			ybox.setTitle(_("Restore Plugins Confirmation"))
 		else:
 			self.feedscheck = True
-			self.Console.ePopen("opkg list-installed", self.feedsCheckComplete)
+			self.Console.ePopen("opkg list", self.feedsCheckComplete)
 
 	def feedsCheckComplete(self, result, retval, extra_args):
+			self.opkg_available_packages = {p.split()[0] for line in result.split("\n") if (p := line.strip())}  # list of all packages available from the feeds
+		self.Console.ePopen("opkg list-installed", self.feedsCheckComplete2)
+
+	def feedsCheckComplete2(self, result, retval, extra_args):
 		plugins = [p.split()[0] for line in result.split("\n") if (p := line.strip())]
 		if path.exists("/tmp/ExtraInstalledPlugins"):
 			with open("/tmp/ExtraInstalledPlugins", "r") as fd:
@@ -462,15 +466,12 @@ class VIXBackupManager(Screen):
 			self.plugfiles = []
 			self.thirdpartyPluginsLocation = " "
 			if config.backupmanager.xtraplugindir.value:
-				self.thirdpartyPluginsLocation = config.backupmanager.xtraplugindir.value
-				self.thirdpartyPluginsLocation = self.thirdpartyPluginsLocation.replace(" ", "%20")
+				self.thirdpartyPluginsLocation = config.backupmanager.xtraplugindir.value.replace(" ", "%20")
 				self.plugfiles = self.thirdpartyPluginsLocation.split("/", 3)
 			elif path.exists("/tmp/3rdPartyPluginsLocation"):
 				with open("/tmp/3rdPartyPluginsLocation", "r") as fd:
 					self.thirdpartyPluginsLocation = fd.readlines()
-				self.thirdpartyPluginsLocation = "".join(self.thirdpartyPluginsLocation)
-				self.thirdpartyPluginsLocation = self.thirdpartyPluginsLocation.replace("\n", "")
-				self.thirdpartyPluginsLocation = self.thirdpartyPluginsLocation.replace(" ", "%20")
+				self.thirdpartyPluginsLocation = "".join(self.thirdpartyPluginsLocation).replace("\n", "").replace(" ", "%20")
 				self.plugfiles = self.thirdpartyPluginsLocation.split("/", 3)
 			print("[BackupManager][feedsCheckComplete] thirdpartyPluginsLocation split = %s" % self.plugfiles)
 			with open("/tmp/3rdPartyPlugins", "r") as fd:
