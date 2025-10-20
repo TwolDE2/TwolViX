@@ -2,7 +2,6 @@ from datetime import date, datetime
 from os import path, stat, mkdir, listdir, remove, statvfs, chmod
 from time import localtime, time, strftime, mktime
 import tarfile
-import glob
 from enigma import eTimer, eEnv, eDVBDB, quitMainloop
 
 from Components.ActionMap import ActionMap
@@ -459,7 +458,7 @@ class VIXBackupManager(Screen):
 		opkg_installed_packages = [p.split()[0] for line in result.split("\n") if (p := line.strip())]
 		if path.exists("/tmp/ExtraInstalledPlugins"):
 			with open("/tmp/ExtraInstalledPlugins", "r") as fd:
-				self.pluginslist = [p for line in fd.readlines() if (p := line.strip()) and p not in plugins]
+				self.pluginslist = [p for line in fd.readlines() if (p := line.strip()) and p in self.opkg_available_packages and p not in opkg_installed_packages]
 		if path.exists("/tmp/3rdPartyPlugins") and self.feedscheck:
 			self.pluginslist2 = []
 			self.plugfiles = []
