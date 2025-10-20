@@ -521,7 +521,7 @@ class UBISlotManager(Setup):
 			print("[UBISlotManager] readDevicesCallback DEBUG: retVal=%s, output='%s'." % (retVal, output))
 			self.deviceData = {}
 			for (name, hdd) in harddiskmanager.HDDList():
-				MTDBLACK = "mmcblk0" if MTDBLACK.startswith("mmcblk0") else SystemInfo["MTDBLACK"]
+				MTDBLACK = "mmcblk0" if SystemInfo["MTDBLACK"].startswith("mmcblk0") else SystemInfo["MTDBLACK"]
 				print(f"[UBISlotManager] readDevices: MTDBLACK:{MTDBLACK} hddevpath:{hdd.dev_path} hddevpathnodev:{hdd.dev_path.replace("/dev/", "")[0:3]}")
 				if MTDBLACK[0:3] == hdd.dev_path.replace("/dev/", "")[0:3] or hdd.dev_path.startswith("/dev/romblock"):
 					continue

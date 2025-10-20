@@ -27,8 +27,8 @@ providers = {
 			'service_provider': 'BSkyB',
 			'service_cachedpids': [(1, 0x0288), (3, 0x1ffe)],
 			'service_capids': None,
-			},  # noqa: E126
-		},  # noqa: E126
+			},  # noqa: E123
+		},  # noqa: E123
 
 	"Koreasat-6 160 NZ": {
 		"transponder": {
