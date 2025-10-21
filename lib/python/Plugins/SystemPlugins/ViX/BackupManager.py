@@ -455,10 +455,10 @@ class VIXBackupManager(Screen):
 		self.Console.ePopen("opkg list-installed", self.feedsCheckComplete2)
 
 	def feedsCheckComplete2(self, result, retval, extra_args):
-		opkg_installed_packages = [p.split()[0] for line in result.split("\n") if (p := line.strip())]
+		opkg_installed_packages = [p.split()[0] for line in result.split("\n") if (p := line.strip())]  # list of all installed packages in image
 		if path.exists("/tmp/ExtraInstalledPlugins"):
 			with open("/tmp/ExtraInstalledPlugins", "r") as fd:
-				self.pluginslist = [p for line in fd.readlines() if (p := line.strip()) and p in self.opkg_available_packages and p not in opkg_installed_packages]
+				self.pluginslist = [p for line in fd.readlines() if (p := line.strip()) and p in self.opkg_available_packages and p not in opkg_installed_packages]  # list of user installed packages in image and in feeds
 		if path.exists("/tmp/3rdPartyPlugins") and self.feedscheck:
 			self.pluginslist2 = []
 			self.plugfiles = []
@@ -516,7 +516,7 @@ class VIXBackupManager(Screen):
 			print(f"[BackupManager][feedsCheckComplete] Plugins to restore (3rd party plugins): {str(self.pluginslist2)}")
 			self.doPluginsRestore = True
 			print("[BackupManager][feedsCheckComplete] Restoring Plugins: starting plugin restore")
-			self.ConsoleB.ePopen("opkg install " + " ".join(self.pluginslist + self.pluginslist2), self.finaliseRestore)
+			self.ConsoleB.ePopen("opkg install " + " ".join(self.pluginslist), self.IPKRestore)
 		else:
 			print("[BackupManager][feedsCheckComplete] No Plugins to restore")
 			self.feedscheck = True
@@ -524,6 +524,13 @@ class VIXBackupManager(Screen):
 			ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=2)
 			ybox.setTitle(_("Restore Plugins result"))
 
+	def IPKRestore(self, result=None, retval=None, extra_args=None):
+		print(f"[BackupManager][IPKRestore] self.didSettingsRestore:{self.didSettingsRestore} self.doPluginsRestore:{self.doPluginsRestore} result:{result} retval:{retval}")	
+		if len(self.pluginslist2) > 0:
+			self.ConsoleB.ePopen("opkg install " + " ".join(self.pluginslist2), self.finaliseRestore)
+		else:
+			self.finalRestore(result, retval) 	
+			
 	def finaliseRestore(self, result=None, retval=None, extra_args=None):
 		self.downloadScreen and self.downloadScreen.close()
 		self.downloadScreen = None  # de-reference screen
