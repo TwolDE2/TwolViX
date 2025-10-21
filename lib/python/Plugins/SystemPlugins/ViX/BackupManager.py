@@ -525,12 +525,12 @@ class VIXBackupManager(Screen):
 			ybox.setTitle(_("Restore Plugins result"))
 
 	def IPKRestore(self, result=None, retval=None, extra_args=None):
-		print(f"[BackupManager][IPKRestore] self.didSettingsRestore:{self.didSettingsRestore} self.doPluginsRestore:{self.doPluginsRestore} result:{result} retval:{retval}")	
+		print(f"[BackupManager][IPKRestore] self.didSettingsRestore:{self.didSettingsRestore} self.doPluginsRestore:{self.doPluginsRestore} result:{result} retval:{retval}")
 		if len(self.pluginslist2) > 0:
 			self.ConsoleB.ePopen("opkg install " + " ".join(self.pluginslist2), self.finaliseRestore)
 		else:
-			self.finalRestore(result, retval) 	
-			
+			self.finalRestore(result, retval)
+
 	def finaliseRestore(self, result=None, retval=None, extra_args=None):
 		self.downloadScreen and self.downloadScreen.close()
 		self.downloadScreen = None  # de-reference screen
