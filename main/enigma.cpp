@@ -428,6 +428,25 @@ int getE2Flags()
 {
 	return 1;
 }
+
+int getFD0lock()
+{
+	int tmp_fd = -1;
+	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+	eDebug("[getFD0lock]  Opened tmp_fd: %d", tmp_fd);
+	if (tmp_fd == 0)
+	{
+		::close(tmp_fd);
+		tmp_fd = -1;
+		int fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+		eDebug("[getFD0lock] opening null fd returned: %d", fd0lock);
+	}
+	if (tmp_fd != -1)
+	{
+		::close(tmp_fd);
+	}
+	return 0;
+}
 	
 bool checkLogin(const char *user, const char *password)
 {
