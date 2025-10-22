@@ -433,17 +433,19 @@ int getFD0lock()
 {
 	int tmp_fd = -1;
 	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-	eDebug("[getFD0lock]  Opened tmp_fd: %d", tmp_fd);
+	eDebug("[getFD0lock]  tmp_fd value: %d", tmp_fd);
 	if (tmp_fd == 0)
 	{
 		::close(tmp_fd);
 		tmp_fd = -1;
 		int fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-		eDebug("[getFD0lock] opening null fd returned: %d", fd0lock);
+		eDebug("[getFD0lock] set fd0lock to 0: %d", fd0lock);
 	}
 	if (tmp_fd != -1)
 	{
+		eDebug("[getFD0lock] tmp_fd set to !0: %d", tmp_fd);
 		::close(tmp_fd);
+	
 	}
 	return 0;
 }
