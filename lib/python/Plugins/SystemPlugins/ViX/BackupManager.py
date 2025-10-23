@@ -507,7 +507,7 @@ class VIXBackupManager(Screen):
 			print(f"[BackupManager][feedsCheckComplete] Plugins to restore (3rd party plugins): {str(self.pluginslist2)}")
 			self.doPluginsRestore = True
 			print("[BackupManager][feedsCheckComplete] Restoring Plugins: starting plugin restore")
-			self.ConsoleB.ePopen("opkg install " + " ".join(self.pluginslist), self.IPKRestore)
+			self.IPKRestore()
 		else:
 			print("[BackupManager][feedsCheckComplete] No Plugins to restore")
 			self.feedscheck = True
@@ -515,12 +515,29 @@ class VIXBackupManager(Screen):
 			ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=2)
 			ybox.setTitle(_("Restore Plugins result"))
 
-	def IPKRestore(self, result=None, retval=None, extra_args=None):
-		print(f"[BackupManager][IPKRestore] self.didSettingsRestore:{self.didSettingsRestore} self.doPluginsRestore:{self.doPluginsRestore} result:{result} retval:{retval}")
-		if len(self.pluginslist2) > 0:
-			self.ConsoleB.ePopen("opkg install " + " ".join(self.pluginslist2), self.finaliseRestore)
+	def IPKRestore(self,):
+		if self.doPluginsRestore:
+			self.index = 0
+			self.pluginslistcombined = self.pluginslist + self.pluginslist2
+			self.installNextPackage()
 		else:
 			self.finalRestore(result, retval)
+
+	def installNextPackage(self):
+		cmd = "opkg install " + self.pluginslistcombined[self.index]
+		print("[BackupManager] Console command: '%s'" % cmd)
+		self.ConsoleB.ePopen(cmd, self.pluginComplete)
+
+	def pluginComplete(self, result, retval, extra_args):
+		if result:
+			print("[BackupManager][pluginComplete] opkg install result:\n", result.decode(errors="ignore"))
+		self.index += 1
+		if self.index < len(self.pluginslistcombined):
+			self.installNextPackage()
+		else:
+			self.didPluginsRestore = True
+			self.finaliseRestore()
+
 
 	def finaliseRestore(self, result=None, retval=None, extra_args=None):
 		self.downloadScreen and self.downloadScreen.close()
@@ -531,12 +548,11 @@ class VIXBackupManager(Screen):
 			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /" + " etc/enigma2/settings")
 			print("[BackupManager] Restoring Stage 6: restored settings file again")
 			self.ConsoleB.ePopen("killall -9 enigma2 && init 6")
-		elif self.doPluginsRestore:
-			if retval == 0:
-				print("[BackupManager][finaliseRestore] Restoring Plugins Completed restarting")
-				quitMainloop(3)
-			else:
-				self["lab1"].setText(_("[BackupManager] plugins restore not completed- check debug log"))
+		elif self.doPluginsRestore and self.didPluginsRestore:
+			print("[BackupManager][finaliseRestore] Restoring Plugins Completed restarting")
+			quitMainloop(3)
+		else:
+			self["lab1"].setText(_("[BackupManager] plugins restore not completed- check debug log"))
 
 
 class BackupSelection(Screen):
