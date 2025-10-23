@@ -121,7 +121,7 @@ class Navigation:
 			return 0
 
 		InfoBarInstance = InfoBar.instance
-
+		self.fd0lock = getFD0lock()
 		oldref = self.currentlyPlayingServiceOrGroup
 		current_service_source = None
 		is_handled = False
