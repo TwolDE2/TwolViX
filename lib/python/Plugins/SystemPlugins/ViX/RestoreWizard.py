@@ -31,6 +31,7 @@ class RestoreWizard(WizardLanguage, Rc):
 		self.delaymess = None
 		self.selectedDevice = None
 		self.Console = Console()
+		self.ConsoleB = Console(binary=True)
 
 	def getTranslation(self, text):
 		return _(text).replace("%s %s", "%s %s" % (DISPLAYBRAND, MACHINENAME))
