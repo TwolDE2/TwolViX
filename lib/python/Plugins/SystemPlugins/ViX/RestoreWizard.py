@@ -207,7 +207,7 @@ class RestoreWizard(WizardLanguage, Rc):
 			self.installNextPackage()
 		else:
 			print("[RestoreWwizard] Plugin restore finised")
-			self.pluginsRestore_Finished()	
+			self.pluginsRestore_Finished()
 
 	def doRestorePluginsTest(self):
 		if self.delaymess:
