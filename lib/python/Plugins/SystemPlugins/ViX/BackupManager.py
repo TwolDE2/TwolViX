@@ -493,6 +493,8 @@ class VIXBackupManager(Screen):
 								continue
 					if available:
 						self.pluginslist2.append(path.join(thirdpartyPluginsLocation, available[0]))
+						if ipk in self.pluginslist:
+							self.pluginslist.remove(ipk)  # local version takes priority
 					else:
 						print("[BackupManager][feedsCheckComplete2] user plugin %s not found" % ipk)
 						message = _("user plugin %s not found" % ipk)
