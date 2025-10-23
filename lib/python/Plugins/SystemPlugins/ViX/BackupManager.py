@@ -521,7 +521,7 @@ class VIXBackupManager(Screen):
 			self.pluginslistcombined = self.pluginslist + self.pluginslist2
 			self.installNextPackage()
 		else:
-			self.finalRestore(result, retval)
+			self.finalRestore()
 
 	def installNextPackage(self):
 		cmd = "opkg install " + self.pluginslistcombined[self.index]
@@ -538,7 +538,7 @@ class VIXBackupManager(Screen):
 			self.didPluginsRestore = True
 			self.finaliseRestore()
 
-	def finaliseRestore(self, result=None, retval=None, extra_args=None):
+	def finaliseRestore(self):
 		self.downloadScreen and self.downloadScreen.close()
 		self.downloadScreen = None  # de-reference screen
 		self["lab1"].setText("")
