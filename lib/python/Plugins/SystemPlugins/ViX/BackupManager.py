@@ -538,7 +538,6 @@ class VIXBackupManager(Screen):
 			self.didPluginsRestore = True
 			self.finaliseRestore()
 
-
 	def finaliseRestore(self, result=None, retval=None, extra_args=None):
 		self.downloadScreen and self.downloadScreen.close()
 		self.downloadScreen = None  # de-reference screen
