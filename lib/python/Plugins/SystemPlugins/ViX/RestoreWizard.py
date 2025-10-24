@@ -253,7 +253,7 @@ class RestoreWizard(WizardLanguage, Rc):
 		self.Console.ePopen("opkg list-installed", self.doRestorePlugins2)
 
 	def doRestorePlugins2(self, result, retval, extra_args):
-		print("[RestoreWizard] Stage 5: Build list of plugins to restore:")
+		print("[RestoreWizard] Stage 5: Build list of plugins to restore")
 		self.pluginslist = []
 		self.pluginslist2 = []
 		opkg_installed_packages = {p.split()[0] for line in result.split("\n") if (p := line.strip())}
@@ -276,7 +276,7 @@ class RestoreWizard(WizardLanguage, Rc):
 			for ipk in tmppluginslist2:
 				available = []
 				if ipk not in opkg_installed_packages:
-					if path.exists(thirdpartyPluginsLocation):
+					if thirdpartyPluginsLocation and path.exists(thirdpartyPluginsLocation):
 						available = sorted([y for y in listdir(thirdpartyPluginsLocation) if y.startswith(ipk)], reverse=True)  # sort for most recent by name if multiple versions
 					elif devmounts:
 						for x in devmounts:
