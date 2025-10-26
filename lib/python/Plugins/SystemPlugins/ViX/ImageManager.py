@@ -631,7 +631,7 @@ class VIXImageManager(Screen):
 				message = _("Your %s %s has successfully flashed slot %s, enter 'Yes' to reboot new image or 'No' to return to Enigma2.") % (DISPLAYBRAND, MACHINENAME, self.multibootslot)
 				ybox = self.session.openWithCallback(self.FlashQuestion, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Image Flash.")
-				self.restore_infobox.close()				
+				self.restore_infobox.close()
 			else:
 				self.session.open(TryQuitMainloop, 2)
 		else:
