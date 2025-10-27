@@ -536,7 +536,7 @@ class VIXBackupManager(Screen):
 		self.downloadScreen and self.downloadScreen.close()
 		self.downloadScreen = None  # de-reference screen
 		self["lab1"].setText("")
-		print(f"[BackupManager][finaliseRestore] self.didSettingsRestore:{self.didSettingsRestore} self.doPluginsRestore:{self.doPluginsRestore} result:{result} retval:{retval}")
+		print(f"[BackupManager][finaliseRestore] self.didSettingsRestore:{self.didSettingsRestore} self.doPluginsRestore:{self.doPluginsRestore}")
 		if self.didSettingsRestore:
 			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /" + " etc/enigma2/settings")
 			print("[BackupManager] Restoring Stage 6: restored settings file again")
