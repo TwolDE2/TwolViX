@@ -379,7 +379,7 @@ class VIXBackupManager(Screen):
 			self.checkPlugins()
 
 	def restoreSettingsComplete(self, result, retval, extra_args):
-		print(f"[BackupManager][restoreSettings] Restore - retval:{retval}")
+		print(f"[BackupManager][restoreSettings] Restore -  retval:{retval} result:{result.decode()}")
 		if retval == 0:
 			print("[BackupManager] Restoring Settings Complete:")
 			self.didSettingsRestore = True
