@@ -572,7 +572,7 @@ class VIXImageManager(Screen):
 
 	def keyRestore4(self, result, retval, extra_args=None):
 		if retval == 0:
-			# self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Flash image unzip successful."), MessageBox.TYPE_INFO, timeout=4)
+			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Flash image unzip successful."), MessageBox.TYPE_INFO, timeout=4)
 			self.keyRestore6()
 		else:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Unzip error (also sent to any debug log):\n%s") % result, MessageBox.TYPE_INFO, timeout=20)
@@ -631,7 +631,6 @@ class VIXImageManager(Screen):
 				message = _("Your %s %s has successfully flashed slot %s, enter 'Yes' to reboot new image or 'No' to return to Enigma2.") % (DISPLAYBRAND, MACHINENAME, self.multibootslot)
 				ybox = self.session.openWithCallback(self.FlashQuestion, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Image Flash.")
-				self.restore_infobox.close()
 			else:
 				self.session.open(TryQuitMainloop, 2)
 		else:
