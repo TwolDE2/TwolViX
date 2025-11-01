@@ -127,7 +127,7 @@ class Standby2(Screen):
 			else:
 				self.timeHandler.m_timeUpdated.get().append(self.stopService)
 
-		if self.session.pipshown:
+		if hasattr(self.session, "pipshown") and self.session.pipshown:
 			self.infoBarInstance and hasattr(self.infoBarInstance, "showPiP") and self.infoBarInstance.showPiP()
 
 		if SystemInfo["ScartSwitch"]:
