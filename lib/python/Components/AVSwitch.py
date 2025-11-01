@@ -332,7 +332,7 @@ class AVSwitch:
 
 
 iAVSwitch = AVSwitch()
-
+avSwitch = iAVSwitch
 
 def InitAVSwitch():
 	delay_choices = [(i, ngettext("%d milisecond", "%d miliseconds", i) % i) for i in list(range(0, 3000, 100))]  # noqa: F821
