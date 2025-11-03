@@ -1,7 +1,7 @@
 from os.path import exists
 from time import time
 
-from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr, getFD0lock
+from enigma import eServiceCenter, eServiceReference, eTimer, pNavigation, getBestPlayableServiceReference, iPlayableService, setPreferredTuner, eDVBLocalTimeHandler, iRecordableServicePtr
 
 from Components.config import config
 from Components.ParentalControl import parentalControl
@@ -30,7 +30,7 @@ class Navigation:
 
 		NavigationInstance.instance = self
 		self.ServiceHandler = eServiceCenter.getInstance()
-		self.fd0lock = getFD0lock()
+
 		self.pnav = pNavigation()
 		self.pnav.m_event.get().append(self.dispatchEvent)
 		self.pnav.m_record_event.get().append(self.dispatchRecordEvent)
