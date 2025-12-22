@@ -1,5 +1,5 @@
 from os.path import isdir, isfile
-from errno import ENOENT
+
 from enigma import eServiceCenter, eServiceReference, iDVBMetaFile, iServiceInformation
 
 from Components.ActionMap import HelpableActionMap
@@ -11,7 +11,7 @@ from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.VirtualKeyBoard import VirtualKeyBoard
-from Tools.Directories import SCOPE_CONFIG, resolveFilename
+from Tools.Directories import SCOPE_CONFIG, fileReadLines, fileWriteLines, resolveFilename
 
 
 class TagManager():
@@ -22,28 +22,19 @@ class TagManager():
 	def loadTags(self):
 		tags = []
 		filename = resolveFilename(SCOPE_CONFIG, "movietags")
-		try:
-			with open(filename, "r") as fd:
-				tags = fd.read().splitlines()
-		except (IOError, OSError) as err:
-			if err.errno != ENOENT:  # ENOENT - No such file or directory.
-				print("[TagEditor] Error %d: Unable to read lines from file '%s'!  (%s)" % (err.errno, filename, err.strerror))
+		tags = fileReadLines(filename, tags)
 		tags = [self.formatTag(x) for x in tags]
 		while "" in tags:
 			tags.remove("")
 		tags.sort()
-		print("[TagEditor] %d tags read from '%s'." % (len(tags), filename))
+		print(f"[TagEditor] {len(tags)} tags read from '{filename}'.")
 		return tags
 
 	def saveTags(self):
 		if self.tags != self.fileTags:
 			filename = resolveFilename(SCOPE_CONFIG, "movietags")
-			try:
-				with open(filename, "w") as fd:
-					fd.write(self.tags)
-				print("[TagEditor] %d tags written to '%s'." % (len(self.tags), filename))
-			except (IOError, OSError) as err:
-				print("[TagEditor] Error %d: Unable to write %d lines to file '%s'!  (%s)" % (err.errno, len(self.tags), filename, err.strerror))
+			if fileWriteLines(filename, self.tags):
+				print(f"[TagEditor] {len(self.tags)} tags written to '{filename}'.")
 
 	def getTags(self):
 		return self.tags
@@ -89,7 +80,7 @@ class TagManager():
 		for index, tag in enumerate(tags):
 			if tag not in self.tags:
 				self.tags = self.mergeTags(tags[index:])
-				self.saveTagsFile(self.tags)
+				self.saveTags()
 				print("[TagEditor] Tag verification resulted in a tag update.")
 				return False
 		print("[TagEditor] Tag verification completed.")
@@ -195,13 +186,14 @@ class TagEditor(Screen, HelpableScreen, TagManager):
 				tagList.append(tag)
 
 	def showMenu(self):
-		menu = [
-			(_("Add new tag"), self.addNewTag),
-			(_("Rename this tag"), self.renameOldTag),
-			(_("Delete this tag"), self.removeTag),
-			(_("Delete unused tags"), self.removeUnusedTags),
-			(_("Delete all tags"), self.removeAllTags),
-		]
+		menu = [(_("Add new tag"), self.addNewTag)]
+		if self["taglist"].count():
+			menu.extend([
+				(_("Rename this tag"), self.renameOldTag),
+				(_("Delete this tag"), self.removeTag),
+				(_("Delete unused tags"), self.removeUnusedTags)
+			])
+		menu.append((_("Delete all tags"), self.removeAllTags))
 		self.session.openWithCallback(self.menuCallback, ChoiceBox, title="", list=menu)
 
 	def menuCallback(self, choice):
@@ -314,28 +306,15 @@ class TagEditor(Screen, HelpableScreen, TagManager):
 
 	def setMovieTags(self, serviceRef, tags):
 		filename = serviceRef.getPath()
-		filename = "%s.meta" % filename if filename.endswith(".ts") else "%s.ts.meta" % filename
+		filename = f"{filename}.meta" if filename.endswith(".ts") else f"{filename}.ts.meta"
 		if isfile(filename):
-			try:
-				with open(filename, "r") as fd:
-					lines = fd.read().splitlines()
-			except (IOError, OSError) as err:
-				if err.errno != ENOENT:  # ENOENT - No such file or directory.
-					print("[TagEditor] Error %d: Unable to read lines from file '%s'!  (%s)" % (err.errno, filename, err.strerror))
-				lines = None
+			lines = fileReadLines(filename)
 			idTags = iDVBMetaFile.idTags
 			if len(lines) > idTags:
 				tagList = " ".join(tags)
 				if tagList != lines[idTags]:
 					lines[idTags] = tagList
-					try:
-						with open(filename, "w") as fd:
-							if isinstance(lines, list):
-								lines.append("")
-								lines = "\n".join(lines)
-							fd.write(lines)
-					except (IOError, OSError) as err:
-						print("[TagEditor] Error %d: Unable to write %d lines to file '%s'!  (%s)" % (err.errno, len(lines), filename, err.strerror))
+					fileWriteLines(filename, lines)
 
 
 tagManager = TagManager()

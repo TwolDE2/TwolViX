@@ -3,6 +3,7 @@ from re import sub
 
 from enigma import ePixmap, eServiceReference
 
+from Components.config import config
 from Components.Harddisk import harddiskmanager
 from Components.Renderer.Renderer import Renderer
 from Tools.Alternatives import GetWithAlternative
@@ -49,14 +50,21 @@ class PiconLocator:
 			self.__onMountpointRemoved(part.mountpoint)
 
 	def findPicon(self, service):
+		ext_priority = {
+			"png_only": (".png",),
+			"svg_only": (".svg",),
+			"png_svg": (".png", ".svg"),
+			"svg_png": (".svg", ".png")}
+
+		exts = ext_priority[config.usage.picon_lookup_priority.value]
 		if self.activePiconPath is not None:
-			for ext in (".png", ".svg"):
+			for ext in exts:
 				pngname = self.activePiconPath + service + ext
 				if pathExists(pngname):
 					return pngname
 		else:
 			for path in self.searchPaths:
-				for ext in (".png", ".svg"):
+				for ext in exts:
 					pngname = path + service + ext
 					if pathExists(pngname):
 						self.activePiconPath = path
@@ -71,35 +79,20 @@ class PiconLocator:
 				self.searchPaths.append(value)
 
 	def getPiconName(self, serviceRef):
+		if serviceRef is None:
+			return ""
 		# remove the path and name fields, and replace ":" by "_"
 		fields = GetWithAlternative(serviceRef).split(":", 10)[:10]
 		if not fields or len(fields) < 10:
 			return ""
-		pngname = self.findPicon("_".join(fields))
-		if not pngname and not fields[6].endswith("0000"):
-			# remove "sub-network" from namespace
-			fields[6] = fields[6][:-4] + "0000"
-			pngname = self.findPicon("_".join(fields))
-		if not pngname and fields[0] != "1":
-			# fallback to 1 for IPTV streams
-			fields[0] = "1"
-			pngname = self.findPicon("_".join(fields))
-		if not pngname and fields[2] != "2":
-			# fallback to 1 for TV services with non-standard service types
-			fields[2] = "1"
-			pngname = self.findPicon("_".join(fields))
-		if not pngname and fields[9] != "0":
-			# fallback to 0 for iptv buffering
-			fields[9] = "0"
-			pngname = self.findPicon('_'.join(fields))
+		basenames = ["_".join(fields), (p := "1_0_1_%s_0_0_0") % (x := ("_".join(fields[3:7]))), p % (x[:-4] + "0000")]
+		for basename in dict.fromkeys(basenames).keys():  # skip duplicates, maintain order
+			if pngname := self.findPicon(basename):
+				break
 		if not pngname:  # picon by channel name
-			utf8_name = sanitizeFilename(eServiceReference(serviceRef).getServiceName()).lower()
-			name = sub("[^a-z0-9]", "", utf8_name.replace("&", "and").replace("+", "plus").replace("*", "star"))
-			if name:
-				pngname = self.findPicon(name) or self.findPicon(sub("(fhd|uhd|hd|sd|4k)$", "", name).strip()) or self.findPicon(utf8_name)
-				if not pngname and len(name) > 6:
-					series = sub(r"s[0-9]*e[0-9]*$", "", name)
-					pngname = self.findPicon(series)
+			if (sname := eServiceReference(serviceRef).getServiceName().replace('\x80', '').replace('\x86', '').replace('\x87', '')) and "SID 0x" not in sname and (utf8_name := sanitizeFilename(sname).lower()) and utf8_name != "__":  # avoid lookups on zero length service names
+				legacy_name = sub("[^a-z0-9]", "", utf8_name.replace("&", "and").replace("+", "plus").replace("*", "star"))  # legacy ascii service name picons
+				pngname = self.findPicon(utf8_name) or legacy_name and self.findPicon(legacy_name) or self.findPicon(sub(r"(fhd|uhd|hd|sd|4k)$", "", utf8_name).strip()) or legacy_name and self.findPicon(sub(r"(fhd|uhd|hd|sd|4k)$", "", legacy_name).strip())
 		return pngname
 
 

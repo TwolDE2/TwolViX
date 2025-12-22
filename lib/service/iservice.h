@@ -22,7 +22,8 @@ public:
 		idDVB,
 		idFile,
 		idUser=0x1000,
-		idServiceMP3=0x1001
+		idServiceMP3=0x1001,
+		idServiceHDMIIn       = 0x2000				// 8192
 	};
 	int type;
 
@@ -56,9 +57,15 @@ public:
 #ifndef SWIG
 	int data[8];
 	std::string path;
+	std::string compareSref;
+	bool isStreamRelay = false;
 #endif
 	std::string getPath() const { return path; }
 	void setPath( const std::string &n ) { path=n; }
+	void setCompareSref( const std::string &n, bool isSR = false) { compareSref=n; isStreamRelay=isSR; }
+	bool getStreamRelay() const { return isStreamRelay; }
+	std::string getCompareSref() const { return compareSref; }
+	
 
 	unsigned int getUnsignedData(unsigned int num) const
 	{
@@ -93,14 +100,7 @@ public:
 	std::string prov;
 	int number;
 #endif
-	std::string getName() const { 
-		if (!name.empty()) {
-			std::vector<std::string> name_split = split(name, "•");
-			std::string name_res = name_split[0];
-			return name_res; 
-		}
-		return name; 
-	}
+	std::string getName() const { return name; }
 	std::string getProvider() const { return prov; }
 	void setName( const std::string &s ) { name=s; }
 	void setProvider( const std::string &s ) { prov=s; }
@@ -199,7 +199,7 @@ public:
 	{
 		if (!c || type != c.type)
 			return 0;
-		return (memcmp(data, c.data, sizeof(int)*8)==0) && (path == c.path);
+		return ((memcmp(data, c.data, sizeof(int)*8)==0) && (path == c.path)) || (!c.compareSref.empty() && toString() == c.compareSref) || (!compareSref.empty() && compareSref == c.toString());
 	}
 	bool operator!=(const eServiceReference &c) const
 	{
@@ -208,7 +208,7 @@ public:
 	bool operator<(const eServiceReference &c) const
 	{
 		if (!c) return 0;
-		
+
 		if (type < c.type)
 			return 1;
 
@@ -424,6 +424,7 @@ public:
 		sCenterDVBSubs,
 
 		sGamma,
+		sVideoInfo,
 
 		sUser = 0x100
 	};
@@ -981,6 +982,10 @@ public:
 		evVideoGammaChanged,
 
 		evFccFailed,
+
+		evUpdateTags,
+		evUpdateIDv3Cover,
+		evGstreamerStart,
 
 		evUser = 0x100
 	};

@@ -287,6 +287,25 @@ class PowerKey:
 			self.session.open(Screens.Standby.Standby)
 
 
+class PowerUpState:
+	def __init__(self, session):
+		goToDeep = not config.usage.power.was_controlled_shutdown.value and config.usage.power.uncontrolled_shutdown_action.value == "deep"
+		goToStandby = config.usage.power.was_controlled_shutdown.value and config.usage.power.wake_up_to_standby.value or not config.usage.power.was_controlled_shutdown.value and (config.usage.power.uncontrolled_shutdown_action.value == "standby" or config.usage.power.uncontrolled_shutdown_action.value == "last" and config.usage.power.last_known_state.value == "standby")
+		print("[PowerUpState] config.usage.power.was_controlled_shutdown.value", config.usage.power.was_controlled_shutdown.value)
+		print("[PowerUpState] config.usage.power.uncontrolled_shutdown_action.value", "'%s'" % config.usage.power.uncontrolled_shutdown_action.value)
+		print("[PowerUpState] config.usage.power.wake_up_to_standby.value", "'%s'" % config.usage.power.wake_up_to_standby.value)
+		print("[PowerUpState] config.usage.power.last_known_state.value", "'%s'" % config.usage.power.last_known_state.value)
+		print("[PowerUpState] goToDeep", goToDeep)
+		print("[PowerUpState] goToStandby", goToStandby)
+		if goToDeep:
+			session.open(Screens.Standby.TryQuitMainloop, Screens.Standby.QUIT_SHUTDOWN)
+		elif goToStandby:
+			if not Screens.Standby.inStandby and session.current_dialog and session.current_dialog.ALLOW_SUSPEND and session.in_exec:
+				session.open(Screens.Standby.Standby)
+		else:
+			Screens.Standby.lastPowerState("normal")
+
+
 class AutoScartControl:
 	def __init__(self, session):
 		self.force = False
@@ -332,6 +351,10 @@ def runScreenTest():
 	Tools.Trashcan.init(session)
 	if not VuRecovery:
 		CiHandler.setSession(session)
+	if SystemInfo["needsVideoJudderDriverFix"]:
+		profile("Init:Components.AVSwitch.VideoJudderDriverFixTask")
+		from Components.AVSwitch import startVideoJudderDriverFixTask
+		startVideoJudderDriverFixTask()
 
 	screensToRun = [p.fnc for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
 	profile("wizards")
@@ -367,9 +390,19 @@ def runScreenTest():
 			# we need session.scart to access it from within menu.xml
 			session.scart = AutoScartControl(session)
 
+	profile("Init:PowerUpState")
+	PowerUpState(session)
+
+	config.usage.power.was_controlled_shutdown.value = False
+	config.usage.power.was_controlled_shutdown.save()
+	configfile.save()
+
 	profile("RunReactor")
 	profile_final()
 	runReactor()
+
+	config.usage.power.was_controlled_shutdown.value = True
+	config.usage.power.was_controlled_shutdown.save()
 
 	if not VuRecovery:
 		profile("wakeup")
@@ -395,7 +428,7 @@ def runScreenTest():
 			else:
 				config.misc.pluginWakeupName.value = ""  # next wakeup not a plugin
 			config.misc.pluginWakeupName.save()
-			if not config.misc.SyncTimeUsing.value == "dvb":
+			if config.misc.SyncTimeUsing.value != "dvb":
 				print("[StartEnigma] dvb time sync disabled... so set RTC now to current linux time!", strftime("%Y/%m/%d %H:%M", localtime(nowTime)))
 				setRTCtime(nowTime)
 			print("[StartEnigma] set wakeup time to", strftime("%Y/%m/%d %H:%M", localtime(wptime)))
@@ -429,9 +462,6 @@ def runScreenTest():
 	session.nav.shutdown()
 	profile("configfile.save")
 	configfile.save()
-	if not VuRecovery:
-		from Screens import InfoBarGenerics
-		InfoBarGenerics.saveResumePoints()
 	return 0
 
 
@@ -439,12 +469,14 @@ profile("PYTHON_START")
 from Components.SystemInfo import SystemInfo  # noqa: E402  don't move this import
 
 print("[StartEnigma]  Starting Python Level Initialisation.")
+print(f"[StartEnigma]  Receiver -> {SystemInfo['displaybrand']} {SystemInfo['displaymodel']}")
 print(f"[StartEnigma]  Image Type -> {SystemInfo['imagetype']}")
 print(f"[StartEnigma]  Image Version -> {SystemInfo['imageversion']}")
 print(f"[StartEnigma]  Image Build -> {SystemInfo['imagebuild']}")
 if SystemInfo["imagetype"] != "release":
 	print(f"[StartEnigma]  Image DevBuild -> {SystemInfo['imagedevbuild']}")
-
+if SystemInfo["MultiBootSlot"]:
+	print(f"[StartEnigma]  Image Slot -> {SystemInfo['MultiBootSlot']}")
 
 # SetupDevices sets up defaults:- language, keyboard, parental & expert config.
 # Moving further down will break translation.
@@ -657,16 +689,16 @@ from Components.InputDevice import InitInputDevices  # noqa: E402
 InitInputDevices()
 import Components.InputHotplug  # noqa: E402
 
-profile("UserInterface")
-print("[StartEnigma]  Initialising UserInterface.")
-from Screens.UserInterfacePositioner import InitOsd  # noqa: E402
-InitOsd()
-
 profile("AVSwitch")
 print("[StartEnigma]  Initialising AVSwitch.")
 from Components.AVSwitch import InitAVSwitch, InitiVideomodeHotplug  # noqa: E402
 InitAVSwitch()
 InitiVideomodeHotplug()
+
+profile("UserInterface")
+print("[StartEnigma]  Initialising UserInterface.")
+from Screens.UserInterfacePositioner import InitOsd  # noqa: E402
+InitOsd()
 
 profile("EpgConfig")
 from Components.EpgConfig import InitEPGConfig  # noqa: E402

@@ -8,8 +8,9 @@ from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
-import Screens.Standby
+from Screens.Standby import inStandby, TryQuitMainloop
 from Tools.BoundFunction import boundFunction
+from Tools import Notifications
 
 
 forceNotShowCiMessages = False
@@ -33,6 +34,10 @@ def setRelevantPidsRouting(configElement):
 
 
 def InitCiConfig():
+	highBitrateChoices = [
+		("normal", _("Normal")),
+		("high", _("High")),
+	]
 	config.ci = ConfigSubList()
 	config.cimisc = ConfigSubsection()
 	if SystemInfo["CommonInterface"]:
@@ -46,18 +51,15 @@ def InitCiConfig():
 			config.ci[slot].static_pin = ConfigPIN(default=0)
 			config.ci[slot].show_ci_messages = ConfigYesNo(default=True)
 			config.ci[slot].disable_operator_profile = ConfigYesNo(default=False)
-			if SystemInfo["CI%dSupportsHighBitrates" % slot]:
-				with open("/proc/stb/tsmux/ci%d_tsclk_choices" % slot) as fd:
-					procChoices = fd.read().strip()
-				if procChoices:
-					choiceslist = procChoices.split(" ")
-					highBitrateChoices = [(item, _(item.title())) for item in choiceslist]
-				else:
-					highBitrateChoices = [
-						("normal", _("Normal")),
-						("high", _("High")),
-					]
-				print("[CI][InitCiConfig] highBitrateChoices", highBitrateChoices)
+			config.ci[slot].alternative_ca_handling = ConfigSelection(choices=[(0, _("off")), (1, _("Close CA device at programm end")), (2, _("Offset CA device index")), (3, _("Offset and close CA device"))], default=0)
+			if SystemInfo[f"CI{slot}SupportsHighBitrates"]:
+				if SystemInfo[f"CI{slot}SupportsHighBitratesChoices"]:
+					with open("/proc/stb/tsmux/ci%d_tsclk_choices" % slot) as fd:
+						procChoices = fd.read().strip()
+					if procChoices:
+						choiceslist = procChoices.split(" ")
+						highBitrateChoices = [(item, _(item.title())) for item in choiceslist]
+				print(f"[CI][InitCiConfig] highBitrateChoices {highBitrateChoices}")
 				config.ci[slot].highBitrate = ConfigSelection(default="high", choices=highBitrateChoices)
 				config.ci[slot].highBitrate.slotid = slot
 				config.ci[slot].highBitrate.addNotifier(setCIBitrate)
@@ -368,7 +370,7 @@ class CiMessageHandler:
 							elif ci_tag == 'CLOSE' and self.auto_close:
 								show_ui = False
 								self.auto_close = False
-					if show_ui and not forceNotShowCiMessages and not Screens.Standby.inStandby:
+					if show_ui and not forceNotShowCiMessages and not inStandby:
 						try:
 							self.dlgs[slot] = self.session.openWithCallback(self.dlgClosed, MMIDialog, slot, 3, screen_data=screen_data)
 						except:
@@ -401,8 +403,8 @@ class CiSelection(Screen):
 				"ok": self.okbuttonClick,
 				"cancel": self.cancel
 			}, -1)  # noqa: E123
-		self["key_red"] = StaticText(_("Cancel"))
-
+		self["key_red"] = StaticText(_("Save & Exit"))
+		self.reBoot = False
 		self.dlg = None
 		self.state = {}
 		self.list = []
@@ -441,6 +443,9 @@ class CiSelection(Screen):
 		try:
 			self["entries"].handleKey(key)
 			self["entries"].getCurrent()[1].save()
+			if "*" in self["entries"].getCurrent()[0]:  # reboot requested
+				self.reBoot = True
+				# print(f"[CI][CiSelection][keyConfigEntry] reBoot option {self["entries"].getCurrent()[0]} ")
 		except:
 			pass
 
@@ -474,6 +479,7 @@ class CiSelection(Screen):
 		self.list.append((_("Reset persistent PIN code"), ConfigNothing(), 6, slot))
 		self.list.append(getConfigListEntry(_("Show CI messages"), config.ci[slot].show_ci_messages, 3, slot))
 		self.list.append(getConfigListEntry(_("Disable operator profiles"), config.ci[slot].disable_operator_profile, 3, slot))
+		self.list.append(getConfigListEntry(_("Descrambling options") + " *", config.ci[slot].alternative_ca_handling, 3, slot))
 		self.list.append(getConfigListEntry(_("Multiple service support"), config.ci[slot].canDescrambleMultipleServices, 3, slot))
 		if SystemInfo["CI%dSupportsHighBitrates" % slot]:
 			self.list.append(getConfigListEntry(_("High bitrate support"), config.ci[slot].highBitrate))
@@ -552,6 +558,9 @@ class CiSelection(Screen):
 			state = eDVBCI_UI.getInstance().getState(slot)
 			if state != -1:
 				CiHandler.unregisterCIMessageHandler(slot)
+		if self.reBoot:
+			print("[CI][CiSelection][cancel]")
+			Notifications.AddNotification(TryQuitMainloop, 3)
 		self.close()
 
 

@@ -2,7 +2,7 @@ from os import path, unlink
 
 from enigma import eConsoleAppContainer, eDVBDB, eTimer
 
-from Components.ActionMap import ActionMap, NumberActionMap
+from Components.ActionMap import HelpableActionMap, HelpableNumberActionMap
 from Components.Button import Button
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigText
 from Components.Harddisk import harddiskmanager
@@ -13,10 +13,11 @@ from Components.OnlineUpdateCheck import feedsstatuscheck  # kernelMismatch remo
 from Components.PluginComponent import plugins
 from Components.PluginList import PluginList, PluginEntryComponent, PluginCategoryComponent, PluginDownloadComponent
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, DISPLAYBRAND, MACHINENAME
 from Plugins.Plugin import PluginDescriptor
 from Screens.ChoiceBox import ChoiceBox
 from Screens.Console import Console
+from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
 from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.Screen import Screen, ScreenSummary
@@ -57,11 +58,12 @@ class PluginBrowserSummary(ScreenSummary):
 		self["desc"].text = desc
 
 
-class PluginBrowser(Screen, ProtectedScreen):
+class PluginBrowser(Screen, ProtectedScreen, HelpableScreen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.setTitle(_("Plugin Browser"))
 		ProtectedScreen.__init__(self)
+		HelpableScreen.__init__(self)
 
 		self.firsttime = True
 
@@ -69,42 +71,33 @@ class PluginBrowser(Screen, ProtectedScreen):
 		self["key_green"] = Button(_("Download plugins"))
 		self["key_yellow"] = Button(_("User installed plugins"))
 		self["key_menu"] = StaticText(_("MENU"))
+		self["key_0"] = StaticText(_("0"))
+		self["key_previous"] = StaticText(_("PREVIOUS"))
+		self["key_next"] = StaticText(_("NEXT"))
 
 		self.list = []
 		self["list"] = PluginList(self.list)
 		if config.usage.sort_pluginlist.value:
 			self["list"].list.sort()
 
-		self["actions"] = ActionMap(["WizardActions", "MenuActions"],
+		self["okActions"] = HelpableActionMap(self, ["OkCancelActions"], {"ok": (self.keySelect, _("Select the current item")), }, description=_("Selection Actions"))
+		self["cancelActions"] = HelpableActionMap(self, ["OkCancelActions"], {"cancel": (self.close, _("Exit PluginBrowser")), }, prio=0, description=_("Cancel Actions"))
+		self["menuActions"] = HelpableActionMap(self, ["MenuActions"], {"menu": (self.close, _("Open PluginBrowser setup screen")), }, prio=0, description=_("Setup Actions"))
+		self["PluginDownloadActions"] = HelpableActionMap(self, ["ColorActions"],
 		{
-			"ok": self.save,
-			"back": self.close,
-			"menu": self.openSetup,
-		})
-		self["PluginDownloadActions"] = ActionMap(["ColorActions"],
+			"red": (self.delete, _("Open 'Remove Plugins' screen")),
+			"green": (self.download, _("Open 'Download Plugins' screen")),
+			"yellow": (self.userInstalledPlugins, _("View list of user installed plugins")),
+		}, description=_("Colour Actions"))
+		self["SortActions"] = HelpableNumberActionMap(self, ["DirectionActions", "NumberActions"],
 		{
-			"red": self.delete,
-			"green": self.download,
-			"yellow": self.userInstalledPlugins
-		})
-		self["DirectionActions"] = ActionMap(["DirectionActions"],
-		{
-			"shiftUp": self.moveUp,
-			"shiftDown": self.moveDown
-		})
-		self["NumberActions"] = NumberActionMap(["NumberActions"],
-		{
-			"1": self.keyNumberGlobal,
-			"2": self.keyNumberGlobal,
-			"3": self.keyNumberGlobal,
-			"4": self.keyNumberGlobal,
-			"5": self.keyNumberGlobal,
-			"6": self.keyNumberGlobal,
-			"7": self.keyNumberGlobal,
-			"8": self.keyNumberGlobal,
-			"9": self.keyNumberGlobal,
-			"0": self.keyNumberGlobal
-		})
+			"shiftUp": (self.moveUp, _("Move the current item up the list")),
+			"shiftDown": (self.moveDown, _("Move the current item down the list")),
+			"0": (self.keyNumberGlobal, _("Reset the list order to the default")),
+		}, description=_("List Sort Actions"))
+		self["NumberActions"] = HelpableNumberActionMap(self, ["NumberActions"], {
+			str(n): (self.keyNumberGlobal, _("Direct item selection")) for n in range(10)
+		}, description=_("Selection Actions"))
 
 		self.number = 0
 		self.nextNumberTimer = eTimer()
@@ -151,11 +144,11 @@ class PluginBrowser(Screen, ProtectedScreen):
 			plugins.resetWarnings()
 			self.session.open(MessageBox, text=text, type=MessageBox.TYPE_WARNING)
 
-	def save(self):
+	def keySelect(self):
 		self.run()
 
-	def run(self):
-		plugin = self["list"].l.getCurrentSelection()[0]
+	def run(self):  # Allow PluginBrowser based screens to be processed from the Wizard.
+		plugin = self["list"].getCurrent()[0]
 		plugin(session=self.session)
 
 	def setDefaultList(self, answer):
@@ -195,7 +188,7 @@ class PluginBrowser(Screen, ProtectedScreen):
 
 	def move(self, direction):
 		if len(self.list) > 1:
-			currentIndex = self["list"].getSelectionIndex()
+			currentIndex = self["list"].getSelectedIndex()
 			swapIndex = (currentIndex + direction) % len(self.list)
 			if currentIndex == 0 and swapIndex != 1:
 				self.list = self.list[1:] + [self.list[0]]
@@ -232,7 +225,7 @@ class PluginBrowser(Screen, ProtectedScreen):
 	def download(self):
 		config.misc.pluginbrowser.po.value = True
 		if not (feedsstatuscheck.adapterAvailable() and feedsstatuscheck.NetworkUp()):
-			self.session.openWithCallback(self.close, MessageBox, _("Your %s %s has no %s access, please check your network settings and make sure you have network cable connected and try again.") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"], feedsstatuscheck.adapterAvailable() and 'internet' or 'network'), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
+			self.session.openWithCallback(self.close, MessageBox, _("Your %s %s has no %s access, please check your network settings and make sure you have network cable connected and try again.") % (DISPLAYBRAND, MACHINENAME, feedsstatuscheck.adapterAvailable() and 'internet' or 'network'), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
 			return
 		# if kernelMismatch():
 		# 	self.session.openWithCallback(self.close, MessageBox, _("The Linux kernel has changed, plugins are not compatible. \nInstall latest image using USB stick or Image Manager."), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
@@ -250,11 +243,11 @@ class PluginBrowser(Screen, ProtectedScreen):
 			self.delete()
 
 	def userInstalledPlugins(self):
-		from Screens.AboutUserInstalledPlugins import AboutUserInstalledPlugins
+		from Screens.About import AboutUserInstalledPlugins
 		self.session.open(AboutUserInstalledPlugins)
 
 
-class PluginDownloadBrowser(Screen):
+class PluginDownloadBrowser(Screen, HelpableScreen):
 	DOWNLOAD = 0
 	REMOVE = 1
 	UPDATE = 2
@@ -263,6 +256,7 @@ class PluginDownloadBrowser(Screen):
 
 	def __init__(self, session, type=0, needupdate=True, skin_name=None):
 		Screen.__init__(self, session)
+		HelpableScreen.__init__(self)
 		self.type = type
 		self.needupdate = needupdate
 		self.skinName = ["PluginDownloadBrowser"]
@@ -308,16 +302,18 @@ class PluginDownloadBrowser(Screen):
 		elif self.type == self.REMOVE:
 			self["text"] = Label(_("Getting plugin information. Please wait..."))
 
-		self["key_red" if self.type == self.DOWNLOAD else "key_green"] = Label(_("Remove plugins") if self.type == self.DOWNLOAD else _("Download plugins"))
-
+		self["key_red"] = StaticText(_("Cancel"))
+		self["key_green"] = StaticText()
+		self["key_blue"] = StaticText(_("Remove plugins") if self.type == self.DOWNLOAD else _("Download plugins"))
 		self.run = 0
 		self.remainingdata = ""
-		self["actions"] = ActionMap(["WizardActions"],
+		self["actions"] = HelpableActionMap(self, ["SetupActions", "ColorActions"],
 		{
-			"ok": self.go,
-			"back": self.requestClose,
-		})
-		self["PluginDownloadActions"] = ActionMap(["ColorActions"], {"red": self.delete} if self.type == self.DOWNLOAD else {"green": self.download})
+			"ok": (self.go, _("Select current item")),
+			"save": (self.go, _("Select current item")),
+			"cancel": (self.requestClose, _("Close '%s' screen") % self.title),
+			"blue": (self.delete if self.type == self.DOWNLOAD else self.download, _("Open 'Remove Plugins' screen") if self.type == self.DOWNLOAD else _("Open 'Install Plugins' screen")),
+		}, description=_("Plugin Browser Actions"))
 		if path.isfile('/usr/bin/opkg'):
 			self.ipkg = '/usr/bin/opkg'
 			self.ipkg_install = self.ipkg + ' install'
@@ -336,10 +332,12 @@ class PluginDownloadBrowser(Screen):
 			if isinstance(item[0], str):  # category
 				name = item[0]
 				desc = ""
+				self["key_green"].text = _("Compress") if item[0] in self.expanded else _("Expand")
 			else:
 				p = item[0]
 				name = item[1][0:8][7]
 				desc = p.description
+				self["key_green"].text = _("Install plugin") if self.type == self.DOWNLOAD else _("Remove plugin")
 		except:
 			name = ""
 			desc = ""
@@ -347,7 +345,7 @@ class PluginDownloadBrowser(Screen):
 			cb(name, desc)
 
 	def go(self):
-		sel = self["list"].l.getCurrentSelection()
+		sel = self["list"].getCurrent()
 
 		if sel is None:
 			return
@@ -401,14 +399,14 @@ class PluginDownloadBrowser(Screen):
 				Ipkg.opkgAddDestination(dest)
 			else:
 				extra = '-d ' + dest
-			self.doInstall(self.installFinished, self["list"].l.getCurrentSelection()[0].name + ' ' + extra)
+			self.doInstall(self.installFinished, self["list"].getCurrent()[0].name + ' ' + extra)
 		else:
 			self.resetPostInstall()
 
 	def runInstall(self, val):
 		if val:
 			if self.type == self.DOWNLOAD:
-				if self["list"].l.getCurrentSelection()[0].name.startswith("picons-"):
+				if self["list"].getCurrent()[0].name.startswith("picons-"):
 					supported_filesystems = frozenset(('ext4', 'ext3', 'ext2', 'reiser', 'reiser4', 'jffs2', 'ubifs', 'rootfs'))
 					candidates = []
 					import Components.Harddisk
@@ -421,7 +419,7 @@ class PluginDownloadBrowser(Screen):
 						self.postInstallCall = Picon.initPiconPaths
 						self.session.openWithCallback(self.installDestinationCallback, ChoiceBox, title=_("Install picons on"), list=candidates)
 					return
-				elif self["list"].l.getCurrentSelection()[0].name.startswith("display-picon"):
+				elif self["list"].getCurrent()[0].name.startswith("display-picon"):
 					supported_filesystems = frozenset(('ext4', 'ext3', 'ext2', 'reiser', 'reiser4', 'jffs2', 'ubifs', 'rootfs'))
 					candidates = []
 					import Components.Harddisk
@@ -434,18 +432,18 @@ class PluginDownloadBrowser(Screen):
 						self.postInstallCall = LcdPicon.initLcdPiconPaths
 						self.session.openWithCallback(self.installDestinationCallback, ChoiceBox, title=_("Install lcd picons on"), list=candidates)
 					return
-				self.install_settings_name = self["list"].l.getCurrentSelection()[0].name
-				self.install_bootlogo_name = self["list"].l.getCurrentSelection()[0].name
-				if self["list"].l.getCurrentSelection()[0].name.startswith('settings-'):
+				self.install_settings_name = self["list"].getCurrent()[0].name
+				self.install_bootlogo_name = self["list"].getCurrent()[0].name
+				if self["list"].getCurrent()[0].name.startswith('settings-'):
 					self.check_settings = True
 					self.startIpkgListInstalled(self.PLUGIN_PREFIX + 'settings-*')
-				elif self["list"].l.getCurrentSelection()[0].name.startswith('bootlogos-'):
+				elif self["list"].getCurrent()[0].name.startswith('bootlogos-'):
 					self.check_bootlogo = True
 					self.startIpkgListInstalled(self.PLUGIN_PREFIX + 'bootlogos-*')
 				else:
 					self.runSettingsInstall()
 			elif self.type == self.REMOVE:
-				self.doRemove(self.installFinished, self["list"].l.getCurrentSelection()[0].name + " --force-remove --force-depends")
+				self.doRemove(self.installFinished, self["list"].getCurrent()[0].name + " --force-remove --force-depends")
 
 	def doRemove(self, callback, pkgname):
 		if pkgname.startswith(('kernel-module-', 'enigma2-locale-')):
@@ -508,11 +506,11 @@ class PluginDownloadBrowser(Screen):
 		except:
 			pass
 		for plugin in self.pluginlist:
-			if plugin[3] == self["list"].l.getCurrentSelection()[0].name or plugin[0] == self["list"].l.getCurrentSelection()[0].name:
+			if plugin[3] == self["list"].getCurrent()[0].name or plugin[0] == self["list"].getCurrent()[0].name:
 				self.pluginlist.remove(plugin)
 				break
 		self.plugins_changed = True
-		if self["list"].l.getCurrentSelection()[0].name.startswith("settings-"):
+		if self["list"].getCurrent()[0].name.startswith("settings-"):
 			self.reload_settings = True
 		self.expanded = []
 		self.updateList()

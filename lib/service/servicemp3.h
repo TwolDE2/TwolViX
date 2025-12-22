@@ -114,8 +114,8 @@ public:
 
 typedef struct _GstElement GstElement;
 
-typedef enum { atUnknown, atMPEG, atMP3, atAC3, atDTS, atAAC, atPCM, atOGG, atFLAC, atWMA, atDRA } audiotype_t;
-typedef enum { stUnknown, stPlainText, stSSA, stASS, stSRT, stVOB, stPGS } subtype_t;
+typedef enum { atUnknown, atMPEG, atMP3, atAC3, atDTS, atAAC, atPCM, atOGG, atFLAC, atWMA, atDRA, atEAC3 } audiotype_t;
+typedef enum { stUnknown, stPlainText, stSSA, stASS, stSRT, stVOB, stPGS, stDVB } subtype_t;
 typedef enum { ctNone, ctMPEGTS, ctMPEGPS, ctMKV, ctAVI, ctMP4, ctVCD, ctCDA, ctASF, ctOGG, ctWEBM, ctDRA} containertype_t;
 
 class eServiceMP3: public iPlayableService, public iPauseableService,
@@ -220,6 +220,18 @@ public:
 			:pad(0), type(atUnknown)
 		{
 		}
+
+		bool operator == (const audioStream& rhs)
+		{
+			audioStream lhs = *this;
+			return (lhs.type == rhs.type) && (lhs.language_code == rhs.language_code) && (lhs.codec == rhs.codec);
+		}
+
+		bool operator != (const audioStream& rhs)
+		{
+			audioStream lhs = *this;
+			return !(lhs == rhs);
+		}
 	};
 	struct subtitleStream
 	{
@@ -229,6 +241,17 @@ public:
 		subtitleStream()
 			:pad(0)
 		{
+		}
+		bool operator == (const subtitleStream& rhs)
+		{
+			subtitleStream lhs = *this;
+			return (lhs.type == rhs.type) && (lhs.language_code == rhs.language_code);
+		}
+
+		bool operator != (const subtitleStream& rhs)
+		{
+			subtitleStream lhs = *this;
+			return !(lhs == rhs);
 		}
 	};
 	struct sourceStream
@@ -291,7 +314,7 @@ private:
 	int m_currentAudioStream;
 	int m_currentSubtitleStream;
 	int m_cachedSubtitleStream;
-	int selectAudioStream(int i);
+	int selectAudioStream(int i, bool skipAudioFix=false);
 	std::vector<audioStream> m_audioStreams;
 	std::vector<subtitleStream> m_subtitleStreams;
 	iSubtitleUser *m_subtitle_widget;
@@ -304,6 +327,9 @@ private:
 	bool m_is_live;
 	bool m_use_prefillbuffer;
 	bool m_paused;
+	bool m_clear_buffers;
+	bool m_initial_start;
+	bool m_send_ev_start;
 	bool m_seek_paused;
 	bool m_autoturnon;
 	/* cuesheet load check */
@@ -325,6 +351,7 @@ private:
 	GstElement *m_gst_playbin, *audioSink, *videoSink;
 	GstTagList *m_stream_tags;
 	bool m_coverart;
+	std::list<eDVBSubtitlePage> m_dvb_subtitle_pages;
 
 	eFixedMessagePump<ePtr<GstMessageContainer> > m_pump;
 
@@ -359,13 +386,25 @@ private:
 	typedef std::pair<uint32_t, subtitle_page_t> subtitle_pages_map_pair_t;
 	subtitle_pages_map_t m_subtitle_pages;
 	ePtr<eTimer> m_subtitle_sync_timer;
+	ePtr<eTimer> m_dvb_subtitle_sync_timer;
+#ifdef PASSTHROUGH_FIX
+	ePtr<eTimer> m_passthrough_fix_timer;
+#endif
+	ePtr<eDVBSubtitleParser> m_dvb_subtitle_parser;
+	ePtr<eConnection> m_new_dvb_subtitle_page_connection;
+	void newDVBSubtitlePage(const eDVBSubtitlePage &p);
 
 	pts_t m_prev_decoder_time;
 	int m_decoder_time_valid_state;
 
+	void pushDVBSubtitles();
 	void pushSubtitles();
 	void pullSubtitle(GstBuffer *buffer);
 	void sourceTimeout();
+	void clearBuffers(bool force=false);
+#ifdef PASSTHROUGH_FIX
+	void forcePassthrough();
+#endif
 	sourceStream m_sourceinfo;
 	gulong m_subs_to_pull_handler_id;
 

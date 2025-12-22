@@ -5,7 +5,6 @@ recorded_events = []
 
 
 def event(self, name, args, kwargs):
-	global recorded_events
 	print("*EVENT*", time.time(), self, name, args, kwargs)
 	recorded_events.append((time.time(), self, name, args, kwargs))
 
@@ -32,7 +31,6 @@ def start_log():
 
 
 def end_log(test_name):
-	global base_time
 
 	results = ""
 

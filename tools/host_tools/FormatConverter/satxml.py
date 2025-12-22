@@ -1,8 +1,8 @@
-from os import path as ospath
-from . import datasource
+from os.path import isfile
+from datasource import datasource
 from xml.dom import minidom
 from xml.dom.minidom import Document
-from . import input
+from input import inputText
 
 
 class satxml(datasource):
@@ -10,7 +10,7 @@ class satxml(datasource):
 		self.filename = filename
 		datasource.__init__(self)
 
-		if not ospath.isfile(filename):
+		if not isfile(filename):
 			print("File %s doesn't exist. Creating it." % filename)
 
 	def getStatus(self):
@@ -25,7 +25,7 @@ class satxml(datasource):
 
 	def setFilename(self):
 		print("Please give a filename <satellites.xml>:")
-		filename = input.inputText()
+		filename = inputText()
 		if filename == "":
 			self.filename = "satellites.xml"
 		else:

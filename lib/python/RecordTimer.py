@@ -8,7 +8,7 @@ from enigma import eEPGCache, getBestPlayableServiceReference, eStreamServer, eS
 from Components.config import config
 import Components.ParentalControl
 from Components.UsageConfig import defaultMoviePath
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BOXTYPE, DISPLAYBRAND, MACHINENAME
 from Components.TimerSanityCheck import TimerSanityCheck
 import Screens.InfoBar
 from Screens.MessageBox import MessageBox
@@ -113,7 +113,7 @@ SID_symbol_states = {
 	"mbtwin": ("/proc/stb/lcd/symbol_circle", 4)
 }
 
-SID_code_states = SID_symbol_states.setdefault(SystemInfo["boxtype"], (None, 0))
+SID_code_states = SID_symbol_states.setdefault(BOXTYPE, (None, 0))
 
 n_recordings = 0  # Must be when we start running...
 
@@ -182,6 +182,10 @@ wasRecTimerWakeup = False
 # please do not translate log messages
 
 
+def isPlaylist(sref):  # skip converting these to type 1 as they are not DVB compliant
+	return len(sref_split := str(sref).split(":")) > 10 and sref_split[10].split("?", 1)[0].endswith((".m3u", ".m3u8"))
+
+
 class RecordTimerEntry(TimerEntry):
 	def __init__(self, serviceref, begin, end, name, description, eit, disabled=False, justplay=False, afterEvent=AFTEREVENT.AUTO, checkOldTimers=False, dirname=None, tags=None, descramble="notset", record_ecm="notset", isAutoTimer=False, always_zap=False, rename_repeat=True, conflict_detection=True, pipzap=False, autoTimerId=None, ice_timer_id=None):
 		TimerEntry.__init__(self, int(begin), int(end))
@@ -194,7 +198,7 @@ class RecordTimerEntry(TimerEntry):
 
 		assert isinstance(serviceref, eServiceReference)
 
-		if serviceref and serviceref.toString()[:4] in config.recording.setstreamto1.value:  # check if to convert IPTV services (4097, etc) to "1"
+		if serviceref and serviceref.toString()[:4] in config.recording.setstreamto1.value and not isPlaylist(serviceref.toString()):  # check if to convert IPTV services (4097, etc) to "1"
 			serviceref = eServiceReference("1" + serviceref.toString()[4:])
 
 		if serviceref and serviceref.isRecordable():
@@ -576,7 +580,7 @@ class RecordTimerEntry(TimerEntry):
 				self.first_try_prepare = False
 				cur_ref = NavigationInstance.instance.getCurrentlyPlayingServiceReference()
 				rec_ref = self.service_ref and self.service_ref.ref
-				if cur_ref and not cur_ref.getPath() or rec_ref.toString()[:4] in config.recording.setstreamto1.value:  # "or" check if IPTV services (4097, etc)
+				if cur_ref and not cur_ref.getPath() or rec_ref.toString()[:4] in config.recording.setstreamto1.value and not isPlaylist(rec_ref.toString()):  # "or" check if IPTV services (4097, etc)
 					if self.always_zap:
 						return False
 					if Screens.Standby.inStandby:
@@ -733,7 +737,7 @@ class RecordTimerEntry(TimerEntry):
 			if self.afterEvent == AFTEREVENT.STANDBY or (not wasRecTimerWakeup and self.autostate and self.afterEvent == AFTEREVENT.AUTO) or self.wasInStandby:
 				self.keypress()  # this unbinds the keypress detection
 				if not Screens.Standby.inStandby:  # not already in standby
-					Notifications.AddNotificationWithCallback(self.sendStandbyNotification, MessageBox, _("A finished record timer wants to set your\n%s %s to standby. Do that now?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), timeout=180)
+					Notifications.AddNotificationWithCallback(self.sendStandbyNotification, MessageBox, _("A finished record timer wants to set your\n%s %s to standby. Do that now?") % (DISPLAYBRAND, MACHINENAME), timeout=180)
 			elif self.afterEvent == AFTEREVENT.DEEPSTANDBY or (wasRecTimerWakeup and self.afterEvent == AFTEREVENT.AUTO and Screens.Standby.inStandby):
 				if (abs(NavigationInstance.instance.RecordTimer.getNextRecordingTime() - time()) <= 900 or abs(NavigationInstance.instance.RecordTimer.getNextZapTime() - time()) <= 900) or NavigationInstance.instance.RecordTimer.getStillRecording():
 					print("[RecordTimer] Recording or Recording due is next 15 mins, not return to deepstandby")
@@ -748,7 +752,7 @@ class RecordTimerEntry(TimerEntry):
 				if int(ClientsStreaming("NUMBER").getText()) > 0:
 					if not Screens.Standby.inStandby:  # not already in standby
 						Notifications.AddNotificationWithCallback(self.sendStandbyNotification, MessageBox,
-							_("A finished record timer wants to set your\n%s %s to standby. Do that now?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"])
+							_("A finished record timer wants to set your\n%s %s to standby. Do that now?") % (DISPLAYBRAND, MACHINENAME)
 							+ _("\n(DeepStandby request changed to Standby owing to there being streaming clients.)"), timeout=180)
 					return True
 
@@ -756,7 +760,7 @@ class RecordTimerEntry(TimerEntry):
 					if Screens.Standby.inStandby:  # in standby
 						quitMainloop(1)
 					else:
-						Notifications.AddNotificationWithCallback(self.sendTryQuitMainloopNotification, MessageBox, _("A finished record timer wants to shut down\nyour %s %s. Shutdown now?") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]), timeout=180)
+						Notifications.AddNotificationWithCallback(self.sendTryQuitMainloopNotification, MessageBox, _("A finished record timer wants to shut down\nyour %s %s. Shutdown now?") % (DISPLAYBRAND, MACHINENAME), timeout=180)
 			return True
 
 	def keypress(self, key=None, flag=1):
@@ -951,7 +955,7 @@ def createTimer(xml):
 	begin = int(xml.get("begin"))
 	end = int(xml.get("end"))
 	pre_serviceref = xml.get("serviceref")
-	serviceref = eServiceReference("1" + pre_serviceref[4:]) if pre_serviceref[:4] in config.recording.setstreamto1.value else eServiceReference(pre_serviceref)  # check if to convert IPTV services (4097, etc) to "1"
+	serviceref = eServiceReference("1" + pre_serviceref[4:]) if pre_serviceref[:4] in config.recording.setstreamto1.value and not isPlaylist(pre_serviceref) else eServiceReference(pre_serviceref)  # check if to convert IPTV services (4097, etc) to "1"
 	description = str(xml.get("description"))
 	repeated = str(xml.get("repeated"))
 	rename_repeat = int(xml.get("rename_repeat") or "1")
@@ -1020,12 +1024,23 @@ class RecordTimer(Timer):
 		# when activating a timer for servicetype 4097,
 		# and SystemApp has player enabled, then skip recording.
 		# Or always skip if in ("5001", "5002") as these cannot be recorded.
+		if "8192" in w.service_ref.toString():
+			print(f"[RecordTimer][doActivate] service ref {w.service_ref.toString()}")
 		if w.service_ref.toString().startswith("4097:") and isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value is True or w.service_ref.toString()[:4] in ("5001", "5002"):
 			print("[RecordTimer][doActivate] found Serviceapp & player enabled - disable this timer recording")
 			w.state = RecordTimerEntry.StateEnded
 			from Tools.Notifications import AddPopup
 			from Screens.MessageBox import MessageBox
 			AddPopup(_("Recording IPTV with systemapp enabled, timer ended!\nPlease recheck it!"), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerRecordingFailed")
+		# when activating a timer for HDMI In,
+		# and SystemApp has player enabled, then skip recording.
+		# Or always skip if in ("5001", "5002") as these cannot be recorded.
+		elif "8192" in w.service_ref.toString() and not SystemInfo["CanHDMIinRecord"]:
+			print("[RecordTimer][doActivate] found HDMI In and cannot record on Hdmi In - disable this timer recording")
+			w.state = RecordTimerEntry.StateEnded
+			from Tools.Notifications import AddPopup
+			from Screens.MessageBox import MessageBox
+			AddPopup(_("Recording HDMI In not possible on this receiver, timer ended!\nPlease recheck it!"), type=MessageBox.TYPE_ERROR, timeout=0, id="TimerRecordingFailed")
 		# when activating a timer which has already passed,
 		# simply abort the timer. don't run trough all the stages.
 		elif w.shouldSkip():

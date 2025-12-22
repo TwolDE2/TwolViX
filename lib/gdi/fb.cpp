@@ -48,7 +48,7 @@ fbClass::fbClass(const char *fb)
 	cmap.green=green;
 	cmap.blue=blue;
 	cmap.transp=trans;
-	
+
 #ifdef CONFIG_ION
 	int ion;
 #endif
@@ -59,7 +59,6 @@ fbClass::fbClass(const char *fb)
 		eDebug("[fb] %s %m", fb);
 		goto nolfb;
 	}
-
 
 	if (ioctl(fbFd, FBIOGET_VSCREENINFO, &screeninfo)<0)
 	{
@@ -82,10 +81,10 @@ fbClass::fbClass(const char *fb)
 	ion = open("/dev/ion", O_RDWR | O_CLOEXEC);
 	if (ion >= 0)
 	{
-		struct ion_allocation_data alloc_data;
-		struct ion_fd_data share_data;
-		struct ion_handle_data free_data;
-		struct ion_phys_data phys_data;
+		struct ion_allocation_data alloc_data = {};
+		struct ion_fd_data share_data = {};
+		struct ion_handle_data free_data = {};
+		struct ion_phys_data phys_data = {};
 		int ret;
 		unsigned char *lion;
 
@@ -203,7 +202,13 @@ int fbClass::SetMode(int nxRes, int nyRes, int nbpp)
 #endif
 
 	screeninfo.xres_virtual=screeninfo.xres=nxRes;
+#if defined(CONFIG_ION) || defined(DREAMNEXTGEN)
+	screeninfo.yres = nyRes;
+	screeninfo.yres_virtual = nyRes * 3;
+#else
 	screeninfo.yres_virtual=(screeninfo.yres=nyRes)*2;
+#endif
+	screeninfo.activate = FB_ACTIVATE_ALL;
 	screeninfo.height=0;
 	screeninfo.width=0;
 	screeninfo.xoffset=screeninfo.yoffset=0;
@@ -234,6 +239,34 @@ int fbClass::SetMode(int nxRes, int nyRes, int nbpp)
 		break;
 	}
 
+#if defined(CONFIG_ION) || defined(DREAMNEXTGEN)
+	if (ioctl(fbFd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
+	{
+		screeninfo.yres_virtual = nyRes * 2;
+
+		if (ioctl(fbFd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
+		{
+			// try single buffering
+			screeninfo.yres_virtual = nyRes;
+
+			if (ioctl(fbFd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
+			{
+				eDebug("[fb] FBIOPUT_VSCREENINFO %m");
+				return -1;
+			}
+			eDebug("[fb] double buffering not available.");
+		}
+	}
+
+	m_number_of_pages = screeninfo.yres_virtual / nyRes;
+	if (m_number_of_pages >= 3)
+		eDebug("[fb] triple buffering available!");
+	else if (m_number_of_pages == 2)
+		eDebug("[fb] double buffering available!");
+	else
+		eDebug("[fb] using single buffer");
+	eDebug("[fb] %d page(s) available!", m_number_of_pages);
+#else
 	if (ioctl(fbFd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
 	{
 		// try single buffering
@@ -245,11 +278,14 @@ int fbClass::SetMode(int nxRes, int nyRes, int nbpp)
 			return -1;
 		}
 		eDebug("[fb] double buffering not available.");
-	} else
+	}
+	else
 		eDebug("[fb] double buffering available!");
 
 	m_number_of_pages = screeninfo.yres_virtual / nyRes;
-	
+	eDebug("[fb] %d page(s) available!", m_number_of_pages);
+#endif
+
 	ioctl(fbFd, FBIOGET_VSCREENINFO, &screeninfo);
 
 	if ((screeninfo.xres != (unsigned int)nxRes) || (screeninfo.yres != (unsigned int)nyRes) ||
@@ -270,8 +306,8 @@ int fbClass::SetMode(int nxRes, int nyRes, int nbpp)
 	stride=fix.line_length;
 
 #ifdef CONFIG_ION
-    m_phys_mem = fix.smem_start;
-    available = fix.smem_len;
+	m_phys_mem = fix.smem_start;
+	available = fix.smem_len;
 	/* map new framebuffer */
 	lfb=(unsigned char*)mmap(0, stride * screeninfo.yres_virtual, PROT_WRITE|PROT_READ, MAP_SHARED, fbFd, 0);
 #endif
@@ -388,5 +424,3 @@ void fbClass::disableManualBlit()
 		m_manual_blit = 0;
 #endif
 }
-
-

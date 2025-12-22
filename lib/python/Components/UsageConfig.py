@@ -38,6 +38,7 @@ def InitUsageConfig():
 		config.misc.remotecontrol_text_support = ConfigYesNo(default=False)
 
 	config.misc.usegstplaybin3 = ConfigYesNo(default=False)
+	config.misc.disableServiceHiSilicon = ConfigYesNo(default=False)
 
 	config.usage = ConfigSubsection()
 	config.usage.subnetwork = ConfigYesNo(default=True)
@@ -112,6 +113,7 @@ def InitUsageConfig():
 
 	config.usage.infobar_frontend_source = ConfigSelection(default="tuner", choices=[("settings", _("Settings")), ("tuner", _("Tuner"))])
 
+	config.usage.picon_lookup_priority = ConfigSelection(default="png_svg", choices=[("png_only", _("png only")), ("svg_only", _("svg only")), ("png_svg", _("png, then svg")), ("svg_png", _("svg, then png"))])
 	config.usage.show_picon_bkgrn = ConfigSelection(default="transparent", choices=[("none", _("Disabled")), ("transparent", _("Transparent")), ("blue", _("Blue")), ("red", _("Red")), ("black", _("Black")), ("white", _("White")), ("lightgrey", _("Light Grey")), ("grey", _("Grey"))])
 	config.usage.show_genre_info = ConfigYesNo(default=False)
 	config.usage.menu_style = ConfigSelection(default="standard", choices=[("standard", _("Standard")), ("horizontal", _("Horizontal"))])
@@ -139,7 +141,7 @@ def InitUsageConfig():
 	config.usage.movieplayer_pvrstate = ConfigYesNo(default=True)
 
 	config.usage.setupShowDefault = ConfigSelection(default="spaces", choices=[
-		("", _("Don't show default")),
+		(None, _("Don't show default")),
 		("spaces", _("Show default after description")),
 		("newline", _("Show default on new line"))
 	])
@@ -729,6 +731,22 @@ def InitUsageConfig():
 	config.usage.boolean_graphic = ConfigSelection(default="no", choices={"no": _("no"), "yes": _("yes"), "only_bool": _("yes, but not in multi selections")})
 	config.usage.fast_skin_reload = ConfigYesNo(default=False)
 
+	# boot power state actions
+	config.usage.power = ConfigSubsection()
+	config.usage.power.wake_up_to_standby = ConfigYesNo()
+	config.usage.power.was_controlled_shutdown = ConfigBoolean(default=True)
+	config.usage.power.uncontrolled_shutdown_action = ConfigSelection(default="last", choices=[
+		("normal", _("Boot normally")),
+		("standby", _("Go to standby")),
+		("deep", _("Go to deep standby")),
+		("last", _("Go to last known state"))
+	])
+	config.usage.power.last_known_state = ConfigSelection(default="normal", choices=[
+		"normal",
+		"standby",
+		"deep",
+	])
+
 	if SystemInfo["hasXcoreVFD"]:
 		def set12to8characterVFD(configElement):
 			open(SystemInfo["hasXcoreVFD"], "w").write(not configElement.value and "1" or "0")
@@ -769,13 +787,21 @@ def InitUsageConfig():
 	config.epg.virgin.addNotifier(EpgSettingsChanged)
 	config.epg.opentv.addNotifier(EpgSettingsChanged)
 
-	config.epg.histminutes = ConfigSelectionNumber(min=0, max=720, stepwidth=15, default=0, wraparound=True)
 	config.epg.joinAbbreviatedEventNames = ConfigYesNo(default=True)
 	config.epg.eventNamePrefixes = ConfigText(default="")
 	config.epg.eventNamePrefixMode = ConfigSelection(choices=[(0, _("Off")), (1, _("Remove")), (2, _("Move to description"))])
 
+	def wdhm(number):
+		units = ((_("week"), _("day"), _("hour"), _("minute")), (_("weeks"), _("days"), _("hours"), _("minutes")), (7 * 24 * 60, 24 * 60, 60, 1))
+		for i, d in enumerate(units[2]):
+			if unit := int(number / d):
+				return "%s %s" % (unit, units[0 if unit == 1 else 1][i])
+		return _("disabled")
+	choices = [(i, wdhm(i)) for i in [i * 15 for i in range(0, 4)] + [i * 60 for i in range(1, 9)] + [i * 120 for i in range(5, 12)] + [i * 24 * 60 for i in range(1, 8)]]
+	config.epg.histminutes = ConfigSelection(default=0, choices=choices)
+
 	def EpgHistorySecondsChanged(configElement):
-		eEPGCache.getInstance().setEpgHistorySeconds(config.epg.histminutes.value * 60)
+		eEPGCache.getInstance().setEpgHistorySeconds(int(configElement.value) * 60)
 	config.epg.histminutes.addNotifier(EpgHistorySecondsChanged)
 
 	config.epg.cacheloadsched = ConfigYesNo(default=False)
@@ -1006,11 +1032,12 @@ def InitUsageConfig():
 			subtitle_delay_choicelist.append((str(i), _("%2.1f sec") % (i / 90000.)))
 	config.subtitles.subtitle_noPTSrecordingdelay = ConfigSelection(default="315000", choices=subtitle_delay_choicelist)
 
-	config.subtitles.dvb_subtitles_yellow = ConfigYesNo(default=False)
+	config.subtitles.dvb_subtitles_color = ConfigSelection(default="0", choices=[("0", _("Off")), ("1", _("Yellow")), ("2", _("Green")), ("3", _("Magenta")), ("4", _("Cyan"))])
 	config.subtitles.dvb_subtitles_original_position = ConfigSelection(default="0", choices=[("0", _("Original")), ("1", _("Fixed")), ("2", _("Relative"))])
 	config.subtitles.dvb_subtitles_centered = ConfigYesNo(default=False)
 	config.subtitles.subtitle_bad_timing_delay = ConfigSelection(default="0", choices=subtitle_delay_choicelist)
-	config.subtitles.dvb_subtitles_backtrans = ConfigSelection(default="0", choices=[
+	config.subtitles.dvb_subtitles_backtrans = ConfigSelection(default="-1", choices=[
+		("-1", _("Original")),
 		("0", _("No transparency")),
 		("25", "10%"),
 		("50", "20%"),
@@ -1246,6 +1273,7 @@ def InitUsageConfig():
 			"textview": _("Text View On"),
 		},
 		default="imageview")
+	config.hdmicec.change_physaddress = ConfigYesNo(default=False)
 	config.hdmicec.fixed_physical_address = ConfigText(default="0.0.0.0")
 	config.hdmicec.volume_forwarding = ConfigYesNo(default=False)
 	config.hdmicec.force_volume_forwarding = ConfigYesNo(default=False)

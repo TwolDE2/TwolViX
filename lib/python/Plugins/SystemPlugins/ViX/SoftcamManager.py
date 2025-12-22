@@ -621,20 +621,21 @@ class SoftcamAutoPoller:
 		if config.softcammanager.softcams_autostart:
 			Components.Task.job_manager.AddJob(self.createCheckJob())
 
-		if config.softcammanager.softcamtimerenabled.value:
-			# 			print "[SoftcamManager] Timer Check Enabled"
-			output = open("/tmp/cam.check.log", "a")
-			now = datetime.now()
-			output.write(now.strftime("%Y-%m-%d %H:%M") + ": Timer Check Enabled\n")
-			output.close()
-			self.timer.startLongTimer(config.softcammanager.softcamtimer.value * 60)
-		else:
-			output = open("/tmp/cam.check.log", "a")
-			now = datetime.now()
-			output.write(now.strftime("%Y-%m-%d %H:%M") + ": Timer Check Disabled\n")
-			output.close()
-			# 			print "[SoftcamManager] Timer Check Disabled"
-			softcamautopoller.stop()
+		if path.exists("/tmp/cam.check.log"):
+			if config.softcammanager.softcamtimerenabled.value:
+				# 			print "[SoftcamManager] Timer Check Enabled"
+				output = open("/tmp/cam.check.log", "a")
+				now = datetime.now()
+				output.write(now.strftime("%Y-%m-%d %H:%M") + ": Timer Check Enabled\n")
+				output.close()
+				self.timer.startLongTimer(config.softcammanager.softcamtimer.value * 60)
+			else:
+				output = open("/tmp/cam.check.log", "a")
+				now = datetime.now()
+				output.write(now.strftime("%Y-%m-%d %H:%M") + ": Timer Check Disabled\n")
+				output.close()
+				# 			print "[SoftcamManager] Timer Check Disabled"
+				softcamautopoller.stop()
 
 	def createCheckJob(self):
 		job = Components.Task.Job(_("SoftcamCheck"))

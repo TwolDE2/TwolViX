@@ -9,7 +9,7 @@ from Components.Label import Label
 from Components.ScrollLabel import ScrollLabel  # noqa: F401
 from Components.Sources.StaticText import StaticText
 from Components.Slider import Slider
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, DISPLAYBRAND, MACHINENAME
 import Components.Task
 from Screens.ChoiceBox import ChoiceBox
 from Screens.GitCommitInfo import CommitInfo, gitcommitinfo
@@ -18,9 +18,8 @@ from Components.OnlineUpdateCheck import feedsstatuscheck, kernelMismatch, statu
 from Screens.ParentalControlSetup import ProtectedScreen
 from Screens.Screen import Screen
 from Screens.TextBox import TextBox
-from Screens.Standby import TryQuitMainloop
+from Screens.Standby import TryQuitMainloop, QUIT_REBOOT, QUIT_UPGRADE_PROGRAM
 from Tools.BoundFunction import boundFunction
-from Tools.Directories import isPluginInstalled
 
 ocram = ''
 
@@ -121,6 +120,10 @@ class UpdatePlugin(Screen, ProtectedScreen):
 		self['tl_red'] = Pixmap()
 		self['tl_yellow'] = Pixmap()
 		self['tl_green'] = Pixmap()
+		self['tl_red'].hide()
+		self['tl_yellow'].hide()
+		self['tl_green'].hide()
+		self['tl_off'].hide()
 		self['feedStatusMSG'] = Label()
 
 		self.channellist_only = 0
@@ -134,13 +137,10 @@ class UpdatePlugin(Screen, ProtectedScreen):
 		self.error = 0
 		self.processed_packages = []
 		self.total_packages = None
-		self.onFirstExecBegin.append(self.checkNetworkState)
+		if not self.isProtected():
+			self.onFirstExecBegin.append(self.checkNetworkState)
 
 	def checkNetworkState(self):
-		self['tl_red'].hide()
-		self['tl_yellow'].hide()
-		self['tl_green'].hide()
-		self['tl_off'].hide()
 		self.trafficLight = feedsstatuscheck.getFeedsBool()
 		if self.trafficLight in feedsstatuscheck.feed_status_msgs:
 			status_text = feedsstatuscheck.feed_status_msgs[self.trafficLight]
@@ -201,9 +201,17 @@ class UpdatePlugin(Screen, ProtectedScreen):
 		onlineupdatecheckpoller.start()
 
 	def isProtected(self):
-		return config.ParentalControl.setuppinactive.value and\
+		return config.ParentalControl.setuppinactive.value and config.ParentalControl.servicepin[0].value and\
 			(not config.ParentalControl.config_sections.main_menu.value and not config.ParentalControl.config_sections.configuration.value or hasattr(self.session, 'infobar') and self.session.infobar is None) and\
 			config.ParentalControl.config_sections.software_update.value
+
+	def pinEntered(self, result):
+		if result is None:
+			self.closeProtectedScreen()
+		elif not result:
+			self.session.openWithCallback(self.closeProtectedScreen, MessageBox, _("The pin code you entered is wrong."), MessageBox.TYPE_ERROR, timeout=3)
+		else:
+			self.checkNetworkState()
 
 	def doActivityTimer(self):
 		self.activity += 1
@@ -215,6 +223,8 @@ class UpdatePlugin(Screen, ProtectedScreen):
 		self.setEndMessage(ngettext("Update completed, %d package was installed.", "Update completed, %d packages were installed.", self.packages) % self.packages)
 
 	def ipkgCallback(self, event, param):
+		if not self.ipkg:
+			return
 		if event == IpkgComponent.EVENT_DOWNLOAD:
 			self.status.setText(_("Downloading"))
 		elif event == IpkgComponent.EVENT_UPGRADE:
@@ -263,13 +273,13 @@ class UpdatePlugin(Screen, ProtectedScreen):
 					self.total_packages = len(self.ipkg.getFetchedList())
 					packagesMsg = "\n(" + (ngettext("%s updated package available", "%s updated packages available", self.total_packages) % self.total_packages) + ")"
 					if SystemInfo["imagetype"] != 'release' or (config.softwareupdate.updateisunstable.value == 1 and config.softwareupdate.updatebeta.value):
-						message = _("The current update may be unstable.") + "\n" + _("Are you sure you want to update your ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}?" + packagesMsg
+						message = _("The current update may be unstable.") + "\n" + _("Are you sure you want to update your %s %s?") % (DISPLAYBRAND, MACHINENAME) + packagesMsg
 					elif config.softwareupdate.updateisunstable.value == 0:
-						message = _("Do you want to update your ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}?" + packagesMsg
+						message = _("Do you want to update your %s %s?") % (DISPLAYBRAND, MACHINENAME) + packagesMsg
 				if self.total_packages:
 					if self.total_packages > 150:
 						message += " " + _("Reflash recommended!")
-					if isPluginInstalled("ViX") and not config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value:
+					if not config.softwareupdate.autosettingsbackup.value and hasattr(config, "backupmanager") and config.backupmanager.backuplocation.value:
 						message += "\n" + _("Making a settings backup before updating is highly recommended.")
 					global ocram
 					ocram = ''
@@ -281,11 +291,10 @@ class UpdatePlugin(Screen, ProtectedScreen):
 					config.softwareupdate.updatefound.setValue(True)
 					choices = [(_("View the changes"), "changes"),
 						(_("Upgrade and reboot system"), "cold")]
-					if isPluginInstalled("ViX"):
-						if not config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value:
-							choices.append((_("Perform a settings backup"), "backup"))
-						if not config.softwareupdate.autoimagebackup.value and config.imagemanager.backuplocation.value:
-							choices.append((_("Perform a full image backup"), "imagebackup"))
+					if not config.softwareupdate.autosettingsbackup.value and hasattr(config, "backupmanager") and config.backupmanager.backuplocation.value:
+						choices.append((_("Perform a settings backup"), "backup"))
+					if not config.softwareupdate.autoimagebackup.value and hasattr(config, "imagemanager") and config.imagemanager.backuplocation.value:
+						choices.append((_("Perform a full image backup"), "imagebackup"))
 					choices.append((_("Update channel list only"), "channels"))
 					choices.append((_("Show packages to be updated"), "showlist"))
 					choices.append((_("Cancel"), ""))
@@ -318,14 +327,14 @@ class UpdatePlugin(Screen, ProtectedScreen):
 			else:
 				self.activityTimer.stop()
 				self.activityslider.setValue(0)
-				error = _("Your receiver might be unusable now. Please consult the manual for further assistance before rebooting your ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}"
+				error = _("Your receiver might be unusable now. Please consult the manual for further assistance before rebooting your %s %s.") % (DISPLAYBRAND, MACHINENAME)
 				if self.packages == 0:
 					if self.error != 0:
 						error = _("Problem retrieving update list.\nIf this issue persists please check/report on forum")
 					else:
 						error = _("A background update check is in progress,\nplease wait a few minutes and try again.")
 				if self.updating:
-					error = _("Update failed. Your ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + _(" does not have a working internet connection.")
+					error = _("Update failed. Your %s %s does not have a working internet connection.") % (DISPLAYBRAND, MACHINENAME)
 				self.status.setText(_("Error") + " - " + error)
 				self["actions"].setEnabled(True)
 		elif event == IpkgComponent.EVENT_LISTITEM:
@@ -350,15 +359,15 @@ class UpdatePlugin(Screen, ProtectedScreen):
 		if answer[1] == "menu":
 			packagesMsg = "\n(%s " % self.total_packages + _("Packages") + ")"
 			if config.softwareupdate.updateisunstable.value == 1:
-				message = _("The current update may be unstable.") + "\n" + _("Are you sure you want to update your ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}" + packagesMsg
+				message = _("The current update may be unstable.") + "\n" + _("Are you sure you want to update your %s %s?") % (DISPLAYBRAND, MACHINENAME) + packagesMsg
 			elif config.softwareupdate.updateisunstable.value == 0:
-				message = _("Do you want to update your ") + f"{SystemInfo['MachineBrand']} {SystemInfo['MachineName']}?" + packagesMsg
+				message = _("Do you want to update your %s %s?") % (DISPLAYBRAND, MACHINENAME) + packagesMsg
 			choices = [(_("View the changes"), "changes"),
 				(_("Upgrade and reboot system"), "cold")]
-			if not self.SettingsBackupDone and not config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value:
+			if not self.SettingsBackupDone and not config.softwareupdate.autosettingsbackup.value and hasattr(config, "backupmanager") and config.backupmanager.backuplocation.value:
 				choices.append((_("Perform a settings backup"), "backup"))
 				message += "\n" + _("Making a settings backup before updating is highly recommended.")
-			if not self.ImageBackupDone and not config.softwareupdate.autoimagebackup.value and config.imagemanager.backuplocation.value:
+			if not self.ImageBackupDone and not config.softwareupdate.autoimagebackup.value and hasattr(config, "imagemanager") and config.imagemanager.backuplocation.value:
 				choices.append((_("Perform a full image backup"), "imagebackup"))
 			choices.append((_("Update channel list only"), "channels"))
 			choices.append((_("Show packages to be updated"), "showlist"))
@@ -380,10 +389,10 @@ class UpdatePlugin(Screen, ProtectedScreen):
 			self.slider.setValue(1)
 			self.ipkg.startCmd(IpkgComponent.CMD_LIST, args={'installed_only': True})
 		elif answer[1] == "cold":
-			if (config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value) or (config.softwareupdate.autoimagebackup.value and config.imagemanager.backuplocation.value):
+			if (config.softwareupdate.autosettingsbackup.value and hasattr(config, "backupmanager") and config.backupmanager.backuplocation.value) or (config.softwareupdate.autoimagebackup.value and hasattr(config, "imagemanager") and config.imagemanager.backuplocation.value):
 				self.doAutoBackup()
 			else:
-				self.session.open(TryQuitMainloop, retvalue=42)
+				self.session.open(TryQuitMainloop, retvalue=QUIT_UPGRADE_PROGRAM)
 				self.close()
 
 	def modificationCallback(self, res):
@@ -411,12 +420,12 @@ class UpdatePlugin(Screen, ProtectedScreen):
 
 	def doAutoBackup(self, val=False):
 		self.autobackuprunning = True
-		if config.softwareupdate.autosettingsbackup.value and config.backupmanager.backuplocation.value and not self.SettingsBackupDone:
+		if config.softwareupdate.autosettingsbackup.value and hasattr(config, "backupmanager") and config.backupmanager.backuplocation.value and not self.SettingsBackupDone:
 			self.doSettingsBackup()
-		elif config.softwareupdate.autoimagebackup.value and config.imagemanager.backuplocation.value and not self.ImageBackupDone:
+		elif config.softwareupdate.autoimagebackup.value and hasattr(config, "imagemanager") and config.imagemanager.backuplocation.value and not self.ImageBackupDone:
 			self.doImageBackup()
 		else:
-			self.session.open(TryQuitMainloop, retvalue=42)
+			self.session.open(TryQuitMainloop, retvalue=QUIT_UPGRADE_PROGRAM)
 			self.close()
 
 	def showJobView(self, job):
@@ -434,7 +443,7 @@ class UpdatePlugin(Screen, ProtectedScreen):
 	def exit(self):
 		if not self.ipkg.isRunning():
 			if self.packages != 0 and self.error == 0 and self.channellist_only == 0:
-				self.session.openWithCallback(self.exitAnswer, MessageBox, _("Upgrade finished.") + " " + _("Do you want to reboot your %s %s") % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
+				self.session.openWithCallback(self.exitAnswer, MessageBox, _("Upgrade finished.") + " " + _("Do you want to reboot your %s %s") % (DISPLAYBRAND, MACHINENAME))
 			else:
 				self.close()
 		else:
@@ -443,5 +452,5 @@ class UpdatePlugin(Screen, ProtectedScreen):
 
 	def exitAnswer(self, result):
 		if result is not None and result:
-			self.session.open(TryQuitMainloop, retvalue=2)
+			self.session.open(TryQuitMainloop, retvalue=QUIT_REBOOT)
 		self.close()

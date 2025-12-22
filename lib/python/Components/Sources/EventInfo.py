@@ -1,10 +1,10 @@
 from time import time
 
-from enigma import iPlayableService, iServiceInformation, eServiceReference, eEPGCache, eServiceCenter
-
+from enigma import iPlayableService, iServiceInformation, eServiceReference, eEPGCache, eServiceCenter, eTimer
 from Components.Element import cached
 from Components.PerServiceDisplay import PerServiceBase
 from Components.Sources.Source import Source
+from Tools.BoundFunction import boundFunction
 
 
 class pServiceEvent:  # Fake eServiceEvent to fill Event_Now and Event_Next in Infobar for Streams
@@ -117,6 +117,10 @@ class EventInfo(PerServiceBase, Source):
 	NEXT = 1
 
 	def __init__(self, navcore, now_or_next):
+		self.now_or_next = now_or_next
+		self.__service = None
+		self.timer = eTimer()
+		self.timer.callback.append(boundFunction(self.gotEvent, iPlayableService.evUpdatedEventInfo, True))
 		Source.__init__(self)
 		PerServiceBase.__init__(self, navcore,
 			{
@@ -125,9 +129,7 @@ class EventInfo(PerServiceBase, Source):
 				iPlayableService.evUpdatedEventInfo: self.gotEvent,
 				iPlayableService.evEnd: self.gotEvent
 			}, with_event=True)
-		self.now_or_next = now_or_next
 		self.epgQuery = eEPGCache.getInstance().lookupEventTime
-		self.__service = None
 
 	@cached
 	def getEvent(self):
@@ -151,11 +153,20 @@ class EventInfo(PerServiceBase, Source):
 
 	event = property(getEvent)
 
-	def gotEvent(self, what):
-		if what == iPlayableService.evEnd:
+	def gotEvent(self, what, from_timer=False):
+		self.timer.stop()
+		#  print("[EventInfo] gotEvent, type:", ("'now'" if self.now_or_next == self.NOW else "'next'") + ",", "what:", "'%s'" % str({iPlayableService.evStart: "evStart", iPlayableService.evUpdatedInfo: "evUpdatedInfo", iPlayableService.evUpdatedEventInfo: "evUpdatedEventInfo", iPlayableService.evEnd: "evEnd"}.get(what, "Unknown")) + ",", "is timed repeat:", str(from_timer))
+		if what == iPlayableService.evEnd and not self.__service:
 			self.changed((self.CHANGED_CLEAR,))
 		else:
 			self.changed((self.CHANGED_ALL,))
+		# if evUpdatedEventInfo arrives before the event starts the fields will not change, so add an additional future timed event to make sure it does update.
+		if not from_timer and what in (iPlayableService.evUpdatedInfo, iPlayableService.evUpdatedEventInfo):
+			self.timer.startLongTimer(wait := 300 - int(time() % 300) + 5)    # noqa F841
+			#  print("[EventInfo] gotEvent, timer is set to repeat event in %s seconds" % wait)
+		if self.now_or_next == self.NOW and what in (iPlayableService.evUpdatedInfo, iPlayableService.evUpdatedEventInfo):
+			pass
+			#  print("[EventInfo] current event:", str(self.event and hasattr(self.event, "getEventName") and callable(self.event.getEventName) and self.event.getEventName() or self.event))
 
 	def destroy(self):
 		PerServiceBase.destroy(self)

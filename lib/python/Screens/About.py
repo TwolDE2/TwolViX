@@ -1,33 +1,175 @@
-from os import listdir, path, popen
+from os import listdir, path as ospath, popen, statvfs
+from platform import libc_ver
 from re import search
-from enigma import eTimer, getDesktop
-from Components.About import about
+from requests import get
+from sys import version_info, version as pyversion
+from enigma import eTimer, getDesktop, getEnigmaLastCommitDate, getEnigmaLastCommitHash
+from skin import parameters
+from Components.About import getBoxUptime, getCPUArch, getEnigmaUptime, getIfConfig, getIfTransferredData
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import config
-from Components.Console import Console
 from Components.Harddisk import harddiskmanager, bytesToHumanReadable
 from Components.Network import iNetwork
 from Components.NimManager import nimmanager
 from Components.Pixmap import MultiPixmap
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import BoxInfo, SystemInfo, CHIPSET, DISPLAYBRAND, KERNEL, MACHINENAME, MODEL, SOC_BRAND
+from Components.UserInstalledPackages import UserInstalledPackages
 from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
 from Screens.TextBox import TextBox
-from Tools.Directories import fileHas, pathExists, isPluginInstalled
+from Tools.Directories import fileHas, fileReadLines, isPluginInstalled
+from Tools.Hex2strColor import Hex2strColor
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
+
+from twisted.internet import threads
+
+
+def getFlashDateString():
+	if ospath.isfile('/etc/install'):
+		with open("/etc/install", "r") as f:
+			return _formatDate(f.read())
+	else:
+		return _("unknown")
+
+
+def driversDate():
+	return _formatDate(SystemInfo["driversdate"])
+
+
+def getLastCommitDate():
+	return _formatDate(getEnigmaLastCommitDate().replace("-", ""))
+
+
+def getLastCommitHash():
+	return getEnigmaLastCommitHash()[:7]
+
+
+def _formatDate(Date):
+	# expected input = "YYYYMMDD"
+	if len(Date) != 8 or not Date.isnumeric():
+		return _("unknown")
+	return config.usage.date.dateFormatAbout.value % {"year": Date[0:4], "month": Date[4:6], "day": Date[6:8]}
+
+
+def getVersionFromOpkg(fileName):
+	return next((line[9:].split("+")[0] for line in (fileReadLines(f"/var/lib/opkg/info/{fileName}.control") or []) if line.startswith("Version:")), _("Not Installed"))
+
+
+def getGStreamerVersionString():
+	try:
+		from glob import glob
+		gst = [x.split("Version: ") for x in open(glob("/var/lib/opkg/info/gstreamer[0-9].[0-9].control")[0], "r") if x.startswith("Version:")][0]
+		return gst[1].split("+")[0].split("-")[0].replace("\n", "")
+	except:
+		return _("unknown")
+
+
+def getGlibcVersion():
+	try:
+		return libc_ver()[1]
+	except:
+		print("[About] Get glibc version failed.")
+	return _("Unknown")
+
+
+def getGccVersion():
+	try:
+		return pyversion.split("[GCC ")[1].replace("]", "")
+	except:
+		print("[About] Get gcc version failed.")
+	return _("Unknown")
+
+
+def getsystemTemperature():
+	tempinfo = ""
+	if ospath.exists("/proc/stb/sensors/temp0/value"):
+		with open("/proc/stb/sensors/temp0/value", "r") as f:
+			tempinfo = f.read()
+	elif ospath.exists("/proc/stb/fp/temp_sensor"):
+		with open("/proc/stb/fp/temp_sensor", "r") as f:
+			tempinfo = f.read()
+	elif ospath.exists("/proc/stb/sensors/temp/value"):
+		with open("/proc/stb/sensors/temp/value", "r") as f:
+			tempinfo = f.read()
+	return tempinfo
+
+
+def getprocessorTemperature():
+	tempinfo = ""
+	if ospath.exists("/proc/stb/fp/temp_sensor_avs"):
+		with open("/proc/stb/fp/temp_sensor_avs", "r") as f:
+			tempinfo = f.read()
+	elif ospath.exists("/sys/devices/virtual/thermal/thermal_zone0/temp"):
+		try:
+			with open("/sys/devices/virtual/thermal/thermal_zone0/temp", "r") as f:
+				tempinfo = f.read()
+				tempinfo = tempinfo[:-4]
+		except:
+			tempinfo = ""
+	elif ospath.exists("/proc/hisi/msp/pm_cpu"):
+		try:
+			tempinfo = search(r"temperature = (\d+) degree", open("/proc/hisi/msp/pm_cpu").read()).group(1)  # noqa: W605
+		except:
+			tempinfo = ""
+	return tempinfo
+
+
+def df_h(find=None, binary=False):
+
+	# Ubuntu base10/base2 units policy (since 2010): https://wiki.ubuntu.com/UnitsPolicy
+
+	# Format of /proc/mounts
+	# The 1st column specifies the device that is mounted.
+	# The 2nd column reveals the mount point.
+	# The 3rd column tells the file-system type.
+	# The 4th column tells you if it is mounted read-only (ro) or read-write (rw).
+	# The 5th and 6th columns are dummy values designed to match the format used in /etc/mtab.
+
+	# Format of os.statvfs
+	# f_bsize;    /* Filesystem block size */
+	# f_frsize;   /* Fragment size */
+	# f_blocks;   /* Size of fs in f_frsize units */
+	# f_bfree;    /* Number of free blocks */
+	# f_bavail;   /* Number of free blocks for unprivileged users */
+	# f_files;    /* Number of inodes */
+	# f_ffree;    /* Number of free inodes */
+	# f_favail;   /* Number of free inodes for unprivileged users */
+	# f_fsid;     /* Filesystem ID */
+	# f_flag;     /* Mount flags */
+	# f_namemax;  /* Maximum filename length */
+
+	out = []
+	for mount in open("/proc/mounts").readlines():
+		fs_spec, fs_file, fs_vfstype, fs_mntops, fs_freq, fs_passno = mount.split()
+		if True:  # fs_spec.startswith('/'):  # possible filtering here if necessary
+			r = statvfs(fs_file)
+			if find is None or find == fs_file:
+				total = r.f_bsize * r.f_blocks
+				free = r.f_bsize * r.f_bfree
+				used = total - free
+				usedpercent = "%d%%" % (100 * used // total if total else 100)  # sanity against ZeroDivisionError if total is 0
+				out.append((fs_spec, bytesToHumanReadable(int(total), binary=binary), bytesToHumanReadable(int(used), binary=binary), bytesToHumanReadable(int(free), binary=binary), usedpercent, fs_file))
+	return out
 
 
 class AboutBase(TextBox):
 	def __init__(self, session, labels=None):
 		TextBox.__init__(self, session, label="AboutScrollLabel")
+		self.skinName = "AboutOE"
+		self.colors = parameters.get("AboutColors", [])  # First item must be default text colour. If parameter is missing adding colours will be skipped.
 		if labels:
 			self["lab1"] = StaticText(_("Virtuosso Image Xtreme"))
 			self["lab2"] = StaticText(_("By Team ViX"))
 			self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
+
+	def addColor(self, text, i=1):
+		if i < len(self.colors):
+			text = Hex2strColor(self.colors[i]) + text + Hex2strColor(self.colors[0])
+		return text
 
 	def createSummary(self):
 		return AboutSummary
@@ -37,7 +179,6 @@ class About(AboutBase):
 	def __init__(self, session):
 		AboutBase.__init__(self, session, labels=True)
 		self.setTitle(_("About"))
-		self.skinName = "AboutOE"
 		self.populate()
 
 		self["key_green"] = Button(_("Translations"))
@@ -53,75 +194,42 @@ class About(AboutBase):
 		})
 
 	def populate(self):
+		Brands = {"meson": "MESON", "bcm": "Broadcom", "hisi": "Hisilicon"}
 		AboutText = ""
-		AboutText += _('Model:\t' + f'{SystemInfo["MachineBrand"]} {SystemInfo["MachineName"]}' + '\n')
+		AboutText += _("Model:\t%s %s\n") % (DISPLAYBRAND, MACHINENAME)
+		AboutText += _("Chipset:\t%s %s\n") % (Brands.get(SOC_BRAND, SOC_BRAND), CHIPSET.replace("hi", "HI").replace("cv", "CV").replace("mv", "MV"))
+		CPUArch = getCPUArch(MODEL)
+		AboutText += _("CPU:\t%s %s %s\n") % (CPUArch[0], CPUArch[1], CPUArch[2])
+		# AboutText += _("SoC:\t%s\n") % SystemInfo["socfamily"].upper()
+		if ospath.exists('/sys/firmware/devicetree/base/bolt/tag'):
+			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
+				bootLoader = f.read().replace('\x00', '').replace('\n', '')
+				if MODEL in ("gb7252, "):
+					AboutText += _("Bolt:\t%s\n") % bootLoader
+				else:
+					AboutText += _("Bootloader:\t%s\n") % bootLoader
+		AboutText += _("Remote:\t%s\n") % SystemInfo["RCName"]
 
-		if about.getChipSetString() != _("unavailable"):
-			if SystemInfo["HasHiSi"]:
-				AboutText += (_("Chipset:\tHiSilicon") + f"{about.getChipSetString().upper()}" + "\n")
-			elif about.getIsBroadcom():
-				AboutText += (_("Chipset:\tBroadcom") + f"{about.getChipSetString().upper()}" + "\n")
-			else:
-				AboutText += (_("Chipset:\t") + f"{about.getChipSetString().upper()}" + "\n")
+		SystemTemperature = getsystemTemperature()
+		if SystemTemperature and int(SystemTemperature.replace("\n", "")) > 0:
+			AboutText += _("System temperature:\t%s") % SystemTemperature.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
 
-		AboutText += (_("CPU:\t") + f"{about.getCPUArch()} {about.getCPUSpeedString()} {about.getCpuCoresString()}" + "\n")
-
-		AboutText += (_('SoC:\t') + f'{SystemInfo["socfamily"].upper()}' + '\n')
-
-		tempinfo = ""
-		if path.exists("/proc/stb/sensors/temp0/value"):
-			with open("/proc/stb/sensors/temp0/value", "r") as f:
-				tempinfo = f.read()
-		elif path.exists("/proc/stb/fp/temp_sensor"):
-			with open("/proc/stb/fp/temp_sensor", "r") as f:
-				tempinfo = f.read()
-		elif path.exists("/proc/stb/sensors/temp/value"):
-			with open("/proc/stb/sensors/temp/value", "r") as f:
-				tempinfo = f.read()
-		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			Temperature = tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
-			AboutText += (_("System temperature:") + f"{Temperature}")
-
-		tempinfo = ""
-		if path.exists("/proc/stb/fp/temp_sensor_avs"):
-			with open("/proc/stb/fp/temp_sensor_avs", "r") as f:
-				tempinfo = f.read()
-		elif path.exists("/sys/devices/virtual/thermal/thermal_zone0/temp"):
-			try:
-				with open("/sys/devices/virtual/thermal/thermal_zone0/temp", "r") as f:
-					tempinfo = f.read()
-					tempinfo = tempinfo[:-4]
-			except:
-				tempinfo = ""
-		elif path.exists("/proc/hisi/msp/pm_cpu"):
-			try:
-				tempinfo = search(r"temperature = (\d+) degree", open("/proc/hisi/msp/pm_cpu").read()).group(1)  # noqa: W605
-			except:
-				tempinfo = ""
-		if tempinfo and int(tempinfo) > 0:
-			Temperature = tempinfo.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
-			AboutText += (_("Processor temp:\t") + f"{Temperature}")
+		ProcessorTemperature = getprocessorTemperature()
+		if ProcessorTemperature and int(ProcessorTemperature) > 0:
+			AboutText += _("Processor temperature:\t%s") % ProcessorTemperature.replace("\n", "").replace(" ", "") + "\xb0" + "C\n"
 
 		imageSubBuild = ""
 		if SystemInfo["imagetype"] != "release":
-			imageSubBuild = f'.{SystemInfo["imagedevbuild"]}'
-		AboutText += (_("Image:\t") + f'{SystemInfo["imageversion"]}.{SystemInfo["imagebuild"]}{imageSubBuild} ({SystemInfo["imagetype"].title()})' + "\n")
+			imageSubBuild = ".%s" % SystemInfo["imagedevbuild"]
+		AboutText += _("Image:\t%s.%s%s (%s)\n") % (SystemInfo["imageversion"], SystemInfo["imagebuild"], imageSubBuild, SystemInfo["imagetype"].title())
 
-		AboutText += _("Installed:\t%s\n") % about.getFlashDateString()
+		AboutText += _("Installed:\t%s\n") % getFlashDateString()
 
-		VuPlustxt = "Vu+ Multiboot - " if SystemInfo["HasKexecMultiboot"] else ""
+		VuPlustxt = _("Vu+ Multiboot") + " - " if SystemInfo["HasKexecMultiboot"] else ""
 		if fileHas("/proc/cmdline", "rootsubdir=linuxrootfs0"):
 			AboutText += _("Boot Device: \tRecovery Slot\n")
-		else:
-			if "BootDevice" in SystemInfo and SystemInfo["BootDevice"]:
-				AboutText += (_('Boot Device:\t') + f'{VuPlustxt}{SystemInfo["BootDevice"]}' + '\n')
-
-		if SystemInfo["HasH9SD"]:
-			if "rootfstype=ext4" in open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read():
-				part = "        - SD card in use for Image root \n"
-			else:
-				part = "        - eMMC slot in use for Image root \n"
-			AboutText += _(f"{part}")
+		elif "BootDevice" in SystemInfo and SystemInfo["BootDevice"]:
+			AboutText += _("Boot Device:\t%s%s\n") % (VuPlustxt, SystemInfo["BootDevice"])
 
 		if SystemInfo["canMultiBoot"]:
 			slot = image = SystemInfo["MultiBootSlot"]
@@ -131,11 +239,11 @@ class About(AboutBase):
 				else:
 					image -= 1
 			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
-			part = _(f"slot {slot} ({slotType})")
-			bootmode = "" if not SystemInfo["canMode12"] else (_("bootmode = ") + f'{GetCurrentImageMode()}')
-			AboutText += (_("Image Slot:\tStartup") + f"{str(slot)} - {part} {bootmode}" + "\n")
+			part = _("slot %s  (%s)") % (slot, slotType)
+			bootmode = SystemInfo["canMode12"] and (mode := GetCurrentImageMode()) and _("bootmode = %s") % str(mode) or ""
+			AboutText += (_("Image Slot:\t %s %s") % (part, bootmode)) + "\n"
 
-		if SystemInfo["MachineName"] in ("ET8500") and path.exists("/proc/mtd"):
+		if MACHINENAME in ("ET8500") and ospath.exists("/proc/mtd"):
 			self.dualboot = self.dualBoot()
 			if self.dualboot:
 				AboutText += _("ET8500 Multiboot: Installed\n")
@@ -143,41 +251,39 @@ class About(AboutBase):
 		skinWidth = getDesktop(0).size().width()
 		skinHeight = getDesktop(0).size().height()
 
-		AboutText += (_("Drivers:\t") + f"{about.driversDate()}" + "\n")
-		AboutText += (_("Kernel:\t") + f"{about.getKernelVersionString()}" + "\n")
-		AboutText += (_('GStreamer:\t') + f'{about.getGStreamerVersionString()}' + '\n')
+		AboutText += _("Drivers:\t%s\n") % driversDate()
+		AboutText += _("Kernel:\t%s\n") % KERNEL
+		AboutText += _("Samba:\t%s\n") % getVersionFromOpkg("samba")
+		AboutText += _("GStreamer:\t%s\n") % getGStreamerVersionString().replace("GStreamer ", "")
+		AboutText += _("GCC version:\t%s\n") % getGccVersion()
+		AboutText += _("Glibc version:\t%s\n") % getGlibcVersion()
+		AboutText += _("FFmpeg version:\t%s\n") % getVersionFromOpkg("ffmpeg")
+		AboutText += _("OpenSSL version:\t%s\n") % getVersionFromOpkg("openssl")
+		if BoxInfo.getItem("rust"):
+			AboutText += _("Rust version:\t%s\n") % str(BoxInfo.getItem("rust"))
+		if BoxInfo.getItem("upx"):
+			AboutText += _("UPX version:\t%s\n") % str(BoxInfo.getItem("upx"))
 		if isPluginInstalled("ServiceApp") and config.plugins.serviceapp.servicemp3.replace.value:
-			AboutText += (_("4097 iptv player:\t") + f"{config.plugins.serviceapp.servicemp3.player.value}" + "\n")
+			AboutText += _("4097 iptv player:\t%s\n") % config.plugins.serviceapp.servicemp3.player.value
 		else:
 			AboutText += _("4097 iptv player:\tDefault player\n")
-		AboutText += (_("Python:\t") + f"{about.getPythonVersionString()}" + "\n")
-		flashDate = about.getFlashDateString()
-		AboutText += (_("Installed:\t") + f"{flashDate}" + "\n")
-		lastUpdate = about.getLastCommitDate()
-		lastCommitHash = about.getLastCommitHash()
-		AboutText += (_("Last E2 update:\t") + f"{lastCommitHash}" + f"{lastUpdate}" + "\n")
-		AboutText += (_("E2 (re)starts:\t") + f"{config.misc.startCounter.value}" + "\n")
-		uptime = about.getBoxUptime()
+		AboutText += _("Python:\t%s.%s.%s\n") % (version_info.major, version_info.minor, version_info.micro)
+		AboutText += _("Last E2 update:\t%s (%s)\n") % (getLastCommitHash(), getLastCommitDate())
+		AboutText += _("E2 (re)starts:\t%s\n") % config.misc.startCounter.value
+		uptime = getBoxUptime()
 		if uptime:
-			AboutText += (_("Uptime:\t") + f"{uptime}" + "\n")
-		e2uptime = about.getEnigmaUptime()
+			AboutText += _("Uptime:\t%s\n") % uptime
+		e2uptime = getEnigmaUptime()
 		if e2uptime:
-			AboutText += (_("Enigma2 uptime:\t") + f"{e2uptime}" + "\n")
-		AboutText += (_("Skin:\t") + f"{config.skin.primary_skin.value[0:-9]}" + f"({skinWidth} x {skinHeight})" + "\n")
+			AboutText += _("Enigma2 uptime:\t%s\n") % e2uptime
+		AboutText += _("Skin:\t%s") % config.skin.primary_skin.value[0:-9] + _("  (%s x %s)") % (skinWidth, skinHeight) + "\n"
 
 		fp_version = getFPVersion()
 		if fp_version is None:
 			fp_version = ""
 		elif fp_version != 0:
-			fp_version = _("FP version:\t") + f"{fp_version}"
+			fp_version = _("FP version:\t%s") % fp_version
 			AboutText += fp_version + "\n"
-
-		bootloader = ""
-		if path.exists('/sys/firmware/devicetree/base/bolt/tag'):
-			f = open('/sys/firmware/devicetree/base/bolt/tag', 'r')
-			bootloader = f.readline().replace('\x00', '').replace('\n', '')
-			f.close()
-			AboutText += (_("Bootloader:\t") + f"{bootloader}" + "\n")
 
 		self["AboutScrollLabel"].setText(AboutText)
 
@@ -210,129 +316,131 @@ class About(AboutBase):
 		self.session.openWithCallback(self.populate, Setup, "about")
 
 
-class Devices(Screen):
+class AboutBoxInfo(AboutBase):
 	def __init__(self, session):
-		Screen.__init__(self, session)
+		AboutBase.__init__(self, session, labels=True)
+		self.setTitle(_("BoxInfo"))
+
+		BIlist = []
+		for item in BoxInfo.getEnigmaInfoList():
+			value = str(BoxInfo.getItem(item))
+			for x in ("http://", "https://"):  # Trim URLs to domain only
+				if value.startswith(x):
+					value = value.split(x)[1].split('/')[0] + " [...]"
+					break
+			BIlist.append("%s:\t %s\n" % (item, value))
+		self["AboutScrollLabel"].setText(''.join(BIlist))
+
+
+class AboutUserInstalledPlugins(AboutBase):
+	def __init__(self, session):
+		AboutBase.__init__(self, session, labels=True)
+		self.setTitle(_("User installed plugins"))
+		self.reader = UserInstalledPackages()
+		self.onLayoutFinish.append(self.startfetch)
+
+	def startfetch(self):
+		self.reader.run(self.callback)
+
+	def callback(self, plugins):
+		if plugins:
+			self["AboutScrollLabel"].setText("\n".join(sorted(plugins)))
+		else:
+			self["AboutScrollLabel"].setText(_("No user installed plugins found"))
+
+
+class Devices(AboutBase):
+	def __init__(self, session):
+		AboutBase.__init__(self, session, labels=True)
 		self.setTitle(_("Devices"))
-		self["TunerHeader"] = StaticText(_("Detected tuners:"))
-		self["HDDHeader"] = StaticText(_("Detected devices:"))
-		self["MountsHeader"] = StaticText(_("Network servers:"))
-		self["nims"] = StaticText()
-		for count in range(4):
-			self["Tuner" + str(count)] = StaticText("")
-		self["hdd"] = StaticText()
-		self["mounts"] = StaticText()
-		self.list = []
-		self.activityTimer = eTimer()
-		self.activityTimer.timeout.get().append(self.populate2)
-		self["key_red"] = Button(_("Close"))
-		self["actions"] = ActionMap(["SetupActions"],
-		{
-			"cancel": self.close,
-			"ok": self.close,
-		})
 		self.onLayoutFinish.append(self.populate)
 
 	def populate(self):
-		self.mountinfo = ""
-		self["actions"].setEnabled(False)
-		scanning = _("Please wait while scanning for devices...")
-		self["nims"].setText(scanning)
-		for count in range(4):
-			self["Tuner" + str(count)].setText(scanning)
-		self["hdd"].setText(scanning)
-		self["mounts"].setText(scanning)
-		self.activityTimer.start(1)
-
-	def populate2(self):
-		self.activityTimer.stop()
-		self.Console = Console()
-		niminfo = ""
-		nims = nimmanager.nimListCompressed()
-		for count in range(len(nims)):
-			if niminfo:
-				niminfo += "\n"
-			niminfo += nims[count]
-		self["nims"].setText(niminfo)
-
 		nims = nimmanager.nimList()
-		if len(nims) <= 4:
-			for count in range(4):
-				if count < len(nims):
-					self["Tuner" + str(count)].setText(nims[count])
-				else:
-					self["Tuner" + str(count)].setText("")
-		else:
+		if len(nims) > 4:
 			desc_list = []
-			cur_idx = -1
-			for count in range(len(nims)):
-				data = nims[count].split(":")
+			for nim in nims:
+				data = nim.split(":")
+				print(f"[About] nims:{data}\n")
 				idx = data[0].strip(_("Tuner")).strip()
 				desc = data[1].strip()
-				if desc_list and desc_list[cur_idx]["desc"] == desc:
-					desc_list[cur_idx]["end"] = idx
+				if desc_list and desc_list[-1]["desc"] == desc:
+					desc_list[-1]["end"] = idx
 				else:
 					desc_list.append({"desc": desc, "start": idx, "end": idx})
-					cur_idx += 1
 
-			for count in range(4):
-				if count < len(desc_list):
-					if desc_list[count]["start"] == desc_list[count]["end"]:
-						text = f'{_("Tuner")} {desc_list[count]["start"]}: {desc_list[count]["desc"]}'
-					else:
-						text = f'{_("Tuner")} {desc_list[count]["start"]}-{desc_list[count]["end"]}: {desc_list[count]["desc"]}'
-				else:
-					text = ""
+			nims = []
+			for nim in desc_list:
+				nims.append(f'%s {nim["start"]}{"-%s" % nim["end"] if nim["start"] != nim["end"] else ""}: {nim["desc"]}' % _("Tuner"))
 
-				self["Tuner" + str(count)].setText(text)
+		hddlist = harddiskmanager.HDDList()
+		devicelist = []
+		mountdict = {m[0]: m for m in df_h()}  # tuples of (device, size, used, free, use %, mount)
+		print(f"[About] mountdict\n{mountdict}\n")
+		if hddlist:
+			print("[About] hddlist = %s" % (hddlist))
+			for i in range(len(hddlist)):
+				hdd = hddlist[i][0]
+				if MODEL in ("dm900", "dm920"):  # dm9x0:mmcblk0p3 multiboot root & storage
+					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p3")
+				elif SystemInfo["HasH9SD"]:
+					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p1")
+				elif SystemInfo["HasSDnomount"]:
+					hdd = hdd.replace("/dev/mmcblk1", "/dev/mmcblk1p")
+				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space
+				hddDescription = hddsplit[0]  # device description
+				if "ATA" in hddDescription:
+					hddDescription = hddDescription.replace("ATA", "", 2).replace("SATA ", "SATA Internal Bus ").replace("(", "").replace(")", "").replace("   ", " ").replace("  ", " ").replace("/dev", " /dev")
+				if "USB" in hddDescription or "SD" in hddDescription:
+					hddDescription = hddDescription.replace("(", "").replace(")", "").replace("   ", " ").replace("  ", " ").replace("/dev", " /dev")
+				hddDescription = hddDescription.split()  # split out fields without spaces
+				hddDescLen = len(hddDescription)
+				hddKey1 = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda /dev/sdb /dev/mmcblk1p /dev/mmcblk0p1
+				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} keys:{mountdict.keys()} hddLen:{hddDescLen} hddKey1[0:-1]:{hddKey1[0:-1]}")
 
-		self.hddlist = harddiskmanager.HDDList()
-		self.list = []
-		if self.hddlist:
-			print(f"[About] hddlist = {self.hddlist}")
-			for count in range(len(self.hddlist)):
-				hdd = self.hddlist[count][1]
-				hddp = self.hddlist[count][0]
-				if "ATA" in hddp:
-					hddp = hddp.replace("ATA", "")
-					hddp = hddp.replace("Internal", "ATA Bus ")
-				free = hdd.Totalfree()
-				if free >= 1:
-					free *= 1000000  # convert MB to bytes
-					freeline = _("Free: ") + bytesToHumanReadable(free)
-				elif "Generic(STORAGE" in hddp:				# This is the SDA boot volume for SF8008 if "full" #
-					continue
-				else:
-					freeline = _("Free: ") + _("full")
-				line = f"{hddp}      {freeline}"
-				self.list.append(line)
-		self.list = "\n".join(self.list)
-		self["hdd"].setText(self.list)
+				if mountdict:
+					for device in mountdict:
+						if hddKey1 in device:
+							print(f"[About] mounted hddKey1:{hddKey1} in mountdict")
+							break  # use break here to escape the loop and NOT run its else clause
+					else:  # device not mounted
+						print(f"[About] not mounted1 hddKey1:{hddKey1}")
+						devicelist.append("%s" % hdd)
+						continue  # continues the outer loop so code below is skipped
+					# device is mounted so add device partition(s) attributes
+					print(f"[About] mounted hddKey1:{hddKey1}")
+					keyRange = 5 if hddKey1[0:-1] in ("/dev/sd", "/dev/mmcblk1") else 2  # assumes no more than 4 partitions on device
+					for count in range(1, keyRange):
+						hddKey = "%s" % hddKey1 + "%s" % str(count) if hddKey1[0:-1] in ("/dev/sd", "/dev/mmcblk1") else hddKey1
+						print(f"[About] mounted hddKey:{hddKey} look for key info")
+						if hddKey in mountdict.keys():
+							freeline = _("%s ") % hddKey + _("%s   ") % mountdict[hddKey][1] + "\n  " + _("Mount: %s  ") % mountdict[hddKey][5] + _("Used: %s  ") % mountdict[hddKey][2] + _("Free: %s ") % mountdict[hddKey][3]
+							line = ""
+							for count in range(0, hddDescLen):
+								line += "%s " % hddDescription[count]
+							line += "%s " % freeline
+							devicelist.append(line)
+				else:  # device not mounted
+					print(f"[About] not mounted3 hddKey1:{hddKey1}")
+					devicelist.append("%s" % hdd)
 
-		self.Console.ePopen("df -mh | grep -v '^Filesystem'", self.Stage1Complete)
-
-	def Stage1Complete(self, result, retval, extra_args=None):
-		result = result.replace("\n                        ", " ").split("\n")
-		self.mountinfo = ""
-		for line in result:
-			self.parts = line.split()
-			if line and self.parts[0] and self.parts[0].startswith(("192", "//192")):
-				line = line.split()
-				ipaddress = line[0]
-				mounttotal = line[1]
-				mountfree = line[3]
-				if self.mountinfo:
-					self.mountinfo += "\n"
-				self.mountinfo += f'{ipaddress} ({mounttotal}B, {mountfree}B {_("free")}'
-		if pathExists("/media/autofs"):
+		networkmountinfo = []
+		for device in mountdict:
+			if device.startswith(("192", "//192")):  # LAN IP starting 192.xxx.xxx.xxx (Is this a good check? Will all LAN IPs start 192? No!)
+				ipaddress = mountdict[device][0]
+				mounttotal = mountdict[device][1]
+				mountfree = mountdict[device][3]
+				networkmountinfo.append("%s (%s, %s %s)  " % ("Mount: " + ipaddress, mounttotal, _("Free:"), mountfree))
+		if ospath.exists("/media/autofs"):
 			for entry in sorted(listdir("/media/autofs")):
-				mountEntry = path.join("/media/autofs", entry)
-				self.mountinfo += ("\n" + f"{mountEntry}" + _("is also enabled for autofs network mount"))
-		if self.mountinfo:
-			self["mounts"].setText(self.mountinfo)
-		else:
-			self["mounts"].setText(_("none"))
-		self["actions"].setEnabled(True)
+				mountEntry = ospath.join("/media/autofs", entry)
+				networkmountinfo.append(_("%s is also enabled for autofs network") % (mountEntry))
+
+		self["AboutScrollLabel"].split = False  # don't split
+		self["AboutScrollLabel"].setText("\n".join(
+			[self.addColor(_("Detected tuners").upper())] + (nims or [_("none")]) + [""] +
+			[self.addColor(_("Detected devices").upper())] + (devicelist or [_("none")]) + [""] +
+			[self.addColor(_("Network servers").upper())] + (networkmountinfo or [_("none")]) + [""]))
 
 	def createSummary(self):
 		return AboutSummary
@@ -342,46 +450,36 @@ class SystemMemoryInfo(AboutBase):
 	def __init__(self, session):
 		AboutBase.__init__(self, session, labels=True)
 		self.setTitle(_("Memory"))
-		self.skinName = ["SystemMemoryInfo", "About"]
-		out_lines = open("/proc/meminfo").readlines()
-		self.AboutText = _("RAM") + "\n\n"
+		out_lines = open("/proc/meminfo").readlines()  # output is in kiB so multiply by 1024
+		self.AboutText = self.addColor(_("RAM")) + "\n"
 		for lidx in range(len(out_lines) - 1):
 			tstLine = out_lines[lidx].split()
 			if "MemTotal:" in tstLine:
 				MemTotal = out_lines[lidx].split()
-				self.AboutText += _("Total memory:") + "\t" + MemTotal[1] + "\n"
+				self.AboutText += _("Total memory:") + "\t" + bytesToHumanReadable(int(MemTotal[1]) * 1024, binary=True) + "\n"
 			if "MemFree:" in tstLine:
 				MemFree = out_lines[lidx].split()
-				self.AboutText += _("Free memory:") + "\t" + MemFree[1] + "\n"
+				self.AboutText += _("Free memory:") + "\t" + bytesToHumanReadable(int(MemFree[1]) * 1024, binary=True) + "\n"
 			if "Buffers:" in tstLine:
 				Buffers = out_lines[lidx].split()
-				self.AboutText += _("Buffers:") + "\t" + Buffers[1] + "\n"
+				self.AboutText += _("Buffers:") + "\t" + bytesToHumanReadable(int(Buffers[1]) * 1024, binary=True) + "\n"
 			if "Cached:" in tstLine:
 				Cached = out_lines[lidx].split()
-				self.AboutText += _("Cached:") + "\t" + Cached[1] + "\n"
+				self.AboutText += _("Cached:") + "\t" + bytesToHumanReadable(int(Cached[1]) * 1024, binary=True) + "\n"
 			if "SwapTotal:" in tstLine:
 				SwapTotal = out_lines[lidx].split()
-				self.AboutText += _("Total swap:") + "\t" + SwapTotal[1] + "\n"
+				self.AboutText += _("Total swap:") + "\t" + bytesToHumanReadable(int(SwapTotal[1]) * 1024, binary=True) + "\n"
 			if "SwapFree:" in tstLine:
 				SwapFree = out_lines[lidx].split()
-				self.AboutText += _("Free swap:") + "\t" + SwapFree[1] + "\n\n"
+				self.AboutText += _("Free swap:") + "\t" + bytesToHumanReadable(int(SwapFree[1]) * 1024, binary=True) + "\n\n"
 
-		self["textBoxActions"].setEnabled(False)
-		self.Console = Console()
-		self.Console.ePopen("df -mh / | grep -v '^Filesystem'", self.Stage1Complete)
+		flash = df_h(find="/")[0]
 
-	def Stage1Complete(self, result, retval, extra_args=None):
-		flash = str(result).replace("\n", "")
-		flash = flash.split()
-		RamTotal = flash[1]
-		RamFree = flash[3]
-
-		self.AboutText += _("FLASH") + "\n\n"
-		self.AboutText += _("Total:") + "\t" + RamTotal + "\n"
-		self.AboutText += _("Free:") + "\t" + RamFree + "\n\n"
+		self.AboutText += self.addColor(_("FLASH")) + "\n"
+		self.AboutText += _("Total:") + "\t" + flash[1] + "\n"
+		self.AboutText += _("Free:") + "\t" + flash[3] + "\n\n"
 
 		self["AboutScrollLabel"].setText(self.AboutText)
-		self["textBoxActions"].setEnabled(True)
 
 
 class SystemNetworkInfo(AboutBase):
@@ -428,7 +526,7 @@ class SystemNetworkInfo(AboutBase):
 	def createscreen(self):
 		self.AboutText = ""
 		self.iface = "eth0"
-		eth0 = about.getIfConfig("eth0")
+		eth0 = getIfConfig("eth0")
 		if "addr" in eth0:
 			self.AboutText += _("IP:") + "\t" + eth0["addr"] + "\n"
 			if "netmask" in eth0:
@@ -437,7 +535,7 @@ class SystemNetworkInfo(AboutBase):
 				self.AboutText += _("MAC:") + "\t" + eth0["hwaddr"] + "\n"
 			self.iface = "eth0"
 
-		eth1 = about.getIfConfig("eth1")
+		eth1 = getIfConfig("eth1")
 		if "addr" in eth1:
 			self.AboutText += _("IP:") + "\t" + eth1["addr"] + "\n"
 			if "netmask" in eth1:
@@ -446,7 +544,7 @@ class SystemNetworkInfo(AboutBase):
 				self.AboutText += _("MAC:") + "\t" + eth1["hwaddr"] + "\n"
 			self.iface = "eth1"
 
-		ra0 = about.getIfConfig("ra0")
+		ra0 = getIfConfig("ra0")
 		if "addr" in ra0:
 			self.AboutText += _("IP:") + "\t" + ra0["addr"] + "\n"
 			if "netmask" in ra0:
@@ -455,7 +553,7 @@ class SystemNetworkInfo(AboutBase):
 				self.AboutText += _("MAC:") + "\t" + ra0["hwaddr"] + "\n"
 			self.iface = "ra0"
 
-		wlan0 = about.getIfConfig("wlan0")
+		wlan0 = getIfConfig("wlan0")
 		if "addr" in wlan0:
 			self.AboutText += _("IP:") + "\t" + wlan0["addr"] + "\n"
 			if "netmask" in wlan0:
@@ -464,7 +562,7 @@ class SystemNetworkInfo(AboutBase):
 				self.AboutText += _("MAC:") + "\t" + wlan0["hwaddr"] + "\n"
 			self.iface = "wlan0"
 
-		wlan3 = about.getIfConfig("wlan3")
+		wlan3 = getIfConfig("wlan3")
 		if "addr" in wlan3:
 			self.AboutText += _("IP:") + "\t" + wlan3["addr"] + "\n"
 			if "netmask" in wlan3:
@@ -473,16 +571,16 @@ class SystemNetworkInfo(AboutBase):
 				self.AboutText += _("MAC:") + "\t" + wlan3["hwaddr"] + "\n"
 			self.iface = "wlan3"
 
-		rx_bytes, tx_bytes = about.getIfTransferredData(self.iface)
+		rx_bytes, tx_bytes = getIfTransferredData(self.iface)
 		self.AboutText += "\n" + _("Bytes received:") + "\t" + bytesToHumanReadable(int(rx_bytes)) + "\n"
 		self.AboutText += _("Bytes sent:") + "\t" + bytesToHumanReadable(int(tx_bytes)) + "\n"
-		for line in popen(f"ethtool {self.iface} |grep Speed", "r"):
+		for line in popen("ethtool %s |grep Speed" % self.iface, "r"):
 			line = line.strip().split(":")
 			line = line[1].replace(" ", "")
 			if "Speed:" in line:
 				self.AboutText += _("Speed:") + "\t" + line + _("Mb/s")
 		hostname = open("/proc/sys/kernel/hostname").read()
-		self.AboutText += ("\n" + _("Hostname:") + "\t" + hostname + "\n")
+		self.AboutText += "\n" + _("Hostname:") + "\t" + hostname + "\n"
 		self["AboutScrollLabel"].setText(self.AboutText)
 
 	def cleanup(self):
@@ -587,6 +685,16 @@ class SystemNetworkInfo(AboutBase):
 			iNetwork.getLinkState(self.iface, self.dataAvail)
 			self["devicepic"].setPixmapNum(0)
 		self["devicepic"].show()
+		threads.deferToThread(self.getWanIP)
+
+	def getWanIP(self):
+		try:
+			r = get("http://ipecho.net/plain", timeout=1)
+			r.raise_for_status()
+			self.AboutText += _("Wan IP:") + "\t" + r.content.decode() + "\n"
+			self["AboutScrollLabel"].setText(self.AboutText)
+		except Exception as err:
+			print("[SystemNetworkInfo][getWanIP] error fetching Wan IP:\n", err, "\n")
 
 	def dataAvail(self, data):
 		self.LinkState = None
@@ -626,27 +734,15 @@ class AboutSummary(ScreenSummary):
 		self.skinName = "AboutSummary"
 		self.aboutText = []
 		self["AboutText"] = StaticText()
-		self.aboutText.append(_("OpenViX:") + f'{SystemInfo["imageversion"]}' + "." + f'{SystemInfo["imagebuild"]}' + "\n")
-		self.aboutText.append(_("Model:") + f'{SystemInfo["MachineBrand"]} {SystemInfo["MachineName"]}' + "\n")
-		self.aboutText.append(_("Updated:") + f"{about.getLastCommitDate()}" + "\n")
-		tempinfo = ""
-		if path.exists("/proc/stb/sensors/temp0/value"):
-			with open("/proc/stb/sensors/temp0/value", "r") as f:
-				tempinfo = f.read()
-		elif path.exists("/proc/stb/fp/temp_sensor"):
-			with open("/proc/stb/fp/temp_sensor", "r") as f:
-				tempinfo = f.read()
-		elif path.exists("/proc/stb/sensors/temp/value"):
-			with open("/proc/stb/sensors/temp/value", "r") as f:
-				tempinfo = f.read()
-		if tempinfo and int(tempinfo.replace("\n", "")) > 0:
-			Temperature = tempinfo.replace("\n", "") + "\xb0" + "C\n"
-			self.aboutText.append(_("System temperature:") + f"{Temperature}")
-		if path.exists("/proc/stb/info/chipset"):
-			chipset = open("/proc/stb/info/chipset", "r").read().replace("\n", "")
-			self.aboutText.append(_("Chipset:") + f"{chipset}" + "\n")
-		self.aboutText.append(_("Kernel:") + f"{about.getKernelVersionString()}" + "\n")
-		self.aboutText.append(_("Drivers:") + f"{about.driversDate()}" + "\n")
+		self.aboutText.append(_("OpenViX: %s") % SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + "\n")
+		self.aboutText.append(_("Model: %s %s\n") % (DISPLAYBRAND, MACHINENAME))
+		self.aboutText.append(_("Updated: %s") % getLastCommitDate() + "\n")
+		SystemTemperature = getsystemTemperature()
+		if SystemTemperature and int(SystemTemperature.replace("\n", "")) > 0:
+			self.aboutText.append(_("System temperature: %s") % SystemTemperature.replace("\n", "") + "\xb0" + "C\n")
+		self.aboutText.append(_("Chipset: %s") % CHIPSET.replace("\n", "").upper() + "\n")
+		self.aboutText.append(_("Kernel: %s") % KERNEL + "\n")
+		self.aboutText.append(_("Drivers: %s") % driversDate() + "\n")
 		self["AboutText"].text = "".join(self.aboutText)
 		self.timer = eTimer()
 		self.timer.callback.append(self.update)

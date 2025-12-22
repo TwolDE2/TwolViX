@@ -144,7 +144,7 @@ eDVBCIInterfaces::eDVBCIInterfaces()
 	for (eSmartPtrList<eDVBCISlot>::iterator it(m_slots.begin()); it != m_slots.end(); ++it)
 #ifdef DREAMBOX_DUAL_TUNER
 		it->setSource(getTunerLetterDM(0));
-#else 
+#else
 		it->setSource("A");
 #endif
 
@@ -260,11 +260,12 @@ int eDVBCIInterfaces::getSlotState(int slotid)
 int eDVBCIInterfaces::reset(int slotid)
 {
 	eDVBCISlot *slot;
+
 	singleLock s(m_slot_lock);
 	eDebug("[dvbci][eDVBCIInterfaces::reset][CI]1 Slot %d: getslot %d", slot, slot->getSlotID());
 	if( (slot = getSlot(slotid)) == 0 )
 	{
-		eDebug("[dvbci][eDVBCIInterfaces::reset][CI]2 Slot %d: slot 0 NO reset", slot->getSlotID());	
+		eDebug("[dvbci][eDVBCIInterfaces::reset][CI]2 Slot %d: slot 0 NO reset", slot->getSlotID());
 		return -1;
 	}
 	return slot->reset();
@@ -277,7 +278,9 @@ int eDVBCIInterfaces::initialize(int slotid)
 	singleLock s(m_slot_lock);
 	if( (slot = getSlot(slotid)) == 0 )
 		return -1;
+
 	slot->removeService();
+
 	return sendCAPMT(slotid);
 }
 
@@ -668,7 +671,7 @@ void eDVBCIInterfaces::recheckPMTHandlers()
 								setInputSource(tunernum, ci_source.str());
 #ifdef DREAMBOX_DUAL_TUNER
 								ci_it->setSource(getTunerLetterDM(tunernum));
-#else 
+#else
 								ci_it->setSource(eDVBCISlot::getTunerLetter(tunernum));
 #endif
 							}
@@ -897,6 +900,17 @@ void eDVBCIInterfaces::gotPMT(eDVBServicePMTHandler *pmthandler)
 			tmp = tmp->linked_next;
 		}
 	}
+}
+
+bool eDVBCIInterfaces::isCiConnected(eDVBServicePMTHandler *pmthandler)
+{
+	bool ret = false;
+	PMTHandlerList::iterator it=std::find(m_pmt_handlers.begin(), m_pmt_handlers.end(), pmthandler);
+	if (it != m_pmt_handlers.end() && it->cislot)
+	{
+		ret = true;
+	}
+	return ret;
 }
 
 int eDVBCIInterfaces::getMMIState(int slotid)
@@ -1304,27 +1318,13 @@ void eDVBCISlot::data(int what)
 	{
 		if(state != stateRemoved)
 		{
-			eDebug("[dvbci][data][CI%d] eSocketNotifier::Priority stateRemoved state= %d", slotid, state);				
+			eDebug("[dvbci][data][CI%d] eSocketNotifier::Priority stateRemoved state= %d", slotid, state);
+			state = stateRemoved;
 			while(sendqueue.size())
 			{
 				delete [] sendqueue.top().data;
 				sendqueue.pop();
 			}
-		}
-#ifdef DREAMBOX			
-		if (state == stateInvalid)
-		{
-			unsigned char buf[256];
-			eDebug("[dvbci][data][CI%d] flush", slotid);
-			while(::read(fd, buf, 256)>0);
-			state = stateResetted;
-			ioctl(fd, 0);
-			eDebug("[dvbci][data][CI%d] reset ioctl requested, state = %d", slotid, state);
-		}
-#endif
-		if(state != stateRemoved)
-		{			
-			state = stateRemoved;			
 			eDVBCISession::deleteSessions(this);
 			eDVBCIInterfaces::getInstance()->ciRemoved(this);
 			notifier->setRequested(eSocketNotifier::Read);
@@ -1332,6 +1332,7 @@ void eDVBCISlot::data(int what)
 		}
 		return;
 	}
+
 	if (state == stateInvalid)
 	{
 		eDebug("[dvbci][data][CI%d] non Dreambox stateInvalid .....reset requested", slotid);	
@@ -1342,7 +1343,7 @@ void eDVBCISlot::data(int what)
 	{
 		eDebug("[dvbci][data][CI%d] ci inserted state= %d", slotid, state);
 		state = stateInserted;
-		eDebug("[dvbci][data][CI%d] ci inserted reset stateInserted state= %d", slotid, state);		
+		eDebug("[dvbci][data][CI%d] ci inserted reset stateInserted state= %d", slotid, state);
 		/* emit */ eDVBCI_UI::getInstance()->m_messagepump.send(eDVBCIInterfaces::Message(eDVBCIInterfaces::Message::slotStateChanged, getSlotID(), 1));
 		notifier->setRequested(eSocketNotifier::Read|eSocketNotifier::Priority);
 		/* enable PRI to detect removal or errors */
@@ -1407,6 +1408,10 @@ eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 	snprintf(config_key_operator_profile, 255, "config.ci.%d.disable_operator_profile", slotid);
 	bool operator_profile_disabled = eSimpleConfig::getBool(config_key_operator_profile, false);
 	m_operator_profiles_disabled = operator_profile_disabled;
+	char config_key_alt_ca[255];
+	snprintf(config_key_alt_ca, 255, "config.ci.%d.alternative_ca_handling", slotid);
+	int alt_ca = eSimpleConfig::getInt(config_key_alt_ca, 0);
+	m_alt_ca_handling = alt_ca;
 	if (enabled)
 		openDevice();
 	else
@@ -1418,7 +1423,7 @@ void eDVBCISlot::openDevice()
 	char filename[128];
 
 	plugged = true;
-	
+
 	sprintf(filename, "/dev/ci%d", slotid);
 
 //	possible_caids.insert(0x1702);
@@ -1452,7 +1457,7 @@ void eDVBCISlot::closeDevice()
 	notifier->stop();
 	data(eSocketNotifier::Priority);
 	state = stateDisabled;
-	eTrace("[dvbci][closedevice][CI] has state %d", state);	
+	eTrace("[dvbci][closedevice][CI] has state %d", state);
 }
 
 void eDVBCISlot::setAppManager(eDVBCIApplicationManagerSession *session)
@@ -1579,6 +1584,7 @@ int eDVBCISlot::reset()
 		while(::read(fd, buf, 256)>0);
 		state = stateResetted;
 	}
+
 	while(sendqueue.size())
 	{
 		delete [] sendqueue.top().data;

@@ -158,6 +158,7 @@ struct gOpcode
 		struct prectangle
 		{
 			eRect area;
+			bool useNew;
 		} *rectangle;
 
 		struct pmergePalette
@@ -259,7 +260,7 @@ public:
 	virtual ~gRC();
 
 	void submit(const gOpcode &o);
-	
+
 #ifdef CONFIG_ION
 	void lock();
 	void unlock();
@@ -350,7 +351,7 @@ public:
 	void blit(gPixmap *pixmap, ePoint pos, const eRect &clip=eRect(), int flags=0);
 	void blit(gPixmap *pixmap, const eRect &pos, const eRect &clip=eRect(), int flags=0);
 
-	void drawRectangle(const eRect &area);
+	void drawRectangle(const eRect &area, bool useNew=false);
 
 	void setPalette(gRGB *colors, int start = 0, int len = 256);
 	void setPalette(gPixmap *source);

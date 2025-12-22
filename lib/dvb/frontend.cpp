@@ -597,24 +597,9 @@ int eDVBFrontend::openFrontend()
 	if (!m_simulate)
 	{
 		eTrace("[eDVBFrontend%d] opening frontend", m_dvbid);
-		/* eTrace("[eDVBFrontend] 0 fd0lock @frontend %d", fd0lock); */
 		/* eTrace("[eDVBFrontend] 0 m_fd @frontend %d", m_fd); */
 		if (m_fd < 0)
 		{
-			int tmp_fd = -1;
-			tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-			/* eTrace("[eDVBFrontend] 0 Opened tmp_fd: %d", tmp_fd); */
-			if (tmp_fd == 0)
-			{
-				::close(tmp_fd);
-				tmp_fd = -1;
-				fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
-				/* eDebugNoSimulate("[eDVBFrontend] 0 opening null fd returned: %d", fd0lock); */
-			}
-			if (tmp_fd != -1)
-			{
-				::close(tmp_fd);
-			}
 			m_fd = ::open(m_filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			eDebugNoSimulate("[eDVBFrontend] opened frontend m_filename: %s", m_filename.c_str());
 			eDebugNoSimulate("[eDVBFrontend] opened frontend m_fd: %d", m_fd);
@@ -1893,16 +1878,17 @@ int eDVBFrontend::tuneLoopInt()  // called by m_tuneTimer
 				break;
 			case eSecCommand::SEND_DISEQC:
 				sec_fe->sendDiseqc(m_sec_sequence.current()->diseqc);
-				eDebugNoSimulateNoNewLineStart("[eDVBFrontend%d] sendDiseqc: ", m_dvbid);
+/*				eDebugNoSimulateNoNewLineStart("[eDVBFrontend%d] sendDiseqc: ", m_dvbid);
 				for (int i=0; i < m_sec_sequence.current()->diseqc.len; ++i)
-				    eDebugNoNewLine("%02x", m_sec_sequence.current()->diseqc.data[i]);
+					eDebugNoNewLine("%02x", m_sec_sequence.current()->diseqc.data[i]);
 
-			 	if (!memcmp(m_sec_sequence.current()->diseqc.data, "\xE0\x00\x00", 3))
+				if (!memcmp(m_sec_sequence.current()->diseqc.data, "\xE0\x00\x00", 3))
 					eDebugNoNewLine("(DiSEqC reset)\n");
 				else if (!memcmp(m_sec_sequence.current()->diseqc.data, "\xE0\x00\x03", 3))
 					eDebugNoNewLine("(DiSEqC peripherial power on)\n");
 				else
 					eDebugNoNewLine("(?)\n");
+*/
 				++m_sec_sequence.current();
 				break;
 			case eSecCommand::SEND_TONEBURST:
@@ -3349,6 +3335,7 @@ std::string eDVBFrontend::getCapabilities()
 		case SYS_DVBC_ANNEX_C:	ss << " DVBC_ANNEX_C"; break;
 		case SYS_DVBT2:		ss << " DVBT2"; break;
 		case SYS_TURBO:		ss << " TURBO"; break;
+		case SYS_DTMB:		ss << " DTMB"; break;
 		}
 	}
 

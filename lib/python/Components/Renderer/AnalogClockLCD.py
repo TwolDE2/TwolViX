@@ -61,8 +61,10 @@ class AnalogClockLCD(Renderer):
 		r1 = (height // 2)
 		len = self.linesize
 		if opt == 'sec':
+			len = self.linesize
 			self.fColor = self.fColors
 		elif opt == 'min':
+			len = self.linesize
 			self.fColor = self.fColorm
 		else:
 			self.fColor = self.fColorh

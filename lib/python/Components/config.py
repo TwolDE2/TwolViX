@@ -18,7 +18,6 @@ ACTIONKEY_LAST = 6
 ACTIONKEY_TOGGLE = 7
 ACTIONKEY_ASCII = 8
 ACTIONKEY_TIMEOUT = 9
-ACTIONKEY_NUMBERS = list(range(12, 12 + 10))
 ACTIONKEY_0 = 12
 ACTIONKEY_1 = 13
 ACTIONKEY_2 = 14
@@ -29,6 +28,7 @@ ACTIONKEY_6 = 18
 ACTIONKEY_7 = 19
 ACTIONKEY_8 = 20
 ACTIONKEY_9 = 21
+ACTIONKEY_NUMBERS = [ACTIONKEY_0, ACTIONKEY_1, ACTIONKEY_2, ACTIONKEY_3, ACTIONKEY_4, ACTIONKEY_5, ACTIONKEY_6, ACTIONKEY_7, ACTIONKEY_8, ACTIONKEY_9]
 ACTIONKEY_PAGEUP = 22
 ACTIONKEY_PAGEDOWN = 23
 ACTIONKEY_PREV = 24
@@ -276,14 +276,14 @@ class choicesList:  # XXX: we might want a better name for this
 
 	def __list__(self):
 		if self.type == choicesList.LIST_TYPE_LIST:
-			ret = [not isinstance(x, tuple) and x or x[0] for x in self.choices]
+			ret = [x[0] if isinstance(x, tuple) else x for x in self.choices]
 		else:
 			ret = list(self.choices.keys())
 		return ret or [""]
 
 	def __iter__(self):
 		if self.type == choicesList.LIST_TYPE_LIST:
-			ret = [not isinstance(x, tuple) and x or x[0] for x in self.choices]
+			ret = [x[0] if isinstance(x, tuple) else x for x in self.choices]
 		else:
 			ret = self.choices
 		return iter(ret or [""])
@@ -339,7 +339,7 @@ class choicesList:  # XXX: we might want a better name for this
 class descriptionList(choicesList):  # XXX: we might want a better name for this
 	def __list__(self):
 		if self.type == choicesList.LIST_TYPE_LIST:
-			ret = [not isinstance(x, tuple) and x or x[1] for x in self.choices]
+			ret = [x[1] if isinstance(x, tuple) else x for x in self.choices]
 		else:
 			ret = list(self.choices.values())
 		return ret or [""]
@@ -430,6 +430,12 @@ class ConfigSelection(ConfigElement):
 			self.value = default
 		if self.value != value:
 			self.changed()
+
+	def getChoices(self):
+		return self.choices.__list__()
+
+	def getDescriptions(self):
+		return self.description.__list__()
 
 	def setValue(self, value):
 		prev = str(self._value) if hasattr(self, "_value") else None
@@ -994,7 +1000,7 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 		self.changed()
 
 	def getValue(self):
-		print(f"[Config][getValue] {self.text}")
+		# print(f"[Config][getValue] {self.text}")
 		return str(self.text)
 
 	def setValue(self, val):
@@ -1008,11 +1014,11 @@ class ConfigMacText(ConfigElement, NumericalTextInput):
 	_value = property(getValue, setValue)
 
 	def getText(self):
-		print(f"[Config][getText] {self.text}")
+		# print(f"[Config][getText] {self.text}")
 		return self.text
 
 	def getMulti(self, selected):
-		print(f"[Config][getMulti] {self.text}")
+		# print(f"[Config][getMulti] {self.text}")
 		if self.visible_width:
 			if self.allmarked:
 				mark = list(range(0, min(self.visible_width, len(self.text))))
@@ -1405,7 +1411,7 @@ class ConfigText(ConfigElement, NumericalTextInput):
 	_value = property(getValue, setValue)
 
 	def getText(self):
-		print(f"[Config][getText2] {self.text}")
+		# print(f"[Config][getText2] {self.text}")
 		return self.text
 
 	def getMulti(self, selected):
@@ -2261,13 +2267,15 @@ class ConfigFile:
 				return str(cmap[key].value)
 		return None
 
-	def getResolvedKey(self, key):
+	def getResolvedKey(self, key, silent=False):
 		names = key.split('.')
 		if len(names) > 1:
 			if names[0] == "config":
 				ret = self.__resolveValue(names[1:], config.content.items)
 				if ret and len(ret):
 					return ret
+		if silent:
+			return None
 		# print("[Config] getResolvedKey", key, "empty variable.")
 		return ""
 

@@ -18,6 +18,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.ServiceStopScreen import ServiceStopScreen
 from Screens.Setup import Setup
+from skin import parameters
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileExists
 
@@ -114,7 +115,7 @@ class NimSetup(Setup, ServiceStopScreen):
 			self.configModeATSC = self.externallyPowered = None
 
 		self.have_advanced = False
-		self.indent = "  %s" if self.nim.isCombined() else "%s"
+		self.indent = (parameters.get("SetupIndent", "  ") + "%s") if self.nim.isCombined() else "%s"
 		if not hasattr(self, "terrestrialCountriesEntry"):
 			self.terrestrialCountriesEntry = None
 		if not hasattr(self, "cableCountriesEntry"):

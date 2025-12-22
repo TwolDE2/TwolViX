@@ -1,17 +1,13 @@
 from time import time
 import socket
-import sys
-# required methods: Request, urlopen, HTTPError, URLError
 from urllib.request import urlopen, Request
-from urllib.error import HTTPError, URLError
 
 from enigma import eTimer
-from Components.About import about
+from Components.About import getIfConfig
 from Components.config import config
 from Components.Ipkg import IpkgComponent
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, BOXTYPE, KERNEL
 import Components.Task
-
 
 error = 0
 
@@ -39,7 +35,7 @@ class FeedsStatusCheck:
 
 	def adapterAvailable(self):  # Box has an adapter configured and active
 		for adapter in ("eth0", "eth1", "wlan0", "wlan1", "wlan2", "wlan3", "ra0"):
-			if "addr" in about.getIfConfig(adapter):
+			if "addr" in getIfConfig(adapter):
 				print("[OnlineUpdateCheck][adapterAvailable] PASSED")
 				return True
 		print("[OnlineUpdateCheck][adapterAvailable] FAILED")
@@ -63,8 +59,8 @@ class FeedsStatusCheck:
 			sd.connect((host, port))
 			print("[OnlineUpdateCheck][NetworkUp] PASSED")
 			result = True
-		except:
-			print("[OnlineUpdateCheck][NetworkUp] FAILED", sys.exc_info()[0])
+		except Exception as err:
+			print("[OnlineUpdateCheck][NetworkUp] FAILED", err)
 			result = False
 		finally:
 			if sd is not None:
@@ -91,15 +87,12 @@ class FeedsStatusCheck:
 						if trafficLight == "stable":
 							status = 0
 						print("trafficLight", trafficLight)
-					except HTTPError as err:
+					except Exception as err:
 						print("[OnlineUpdateCheck][getFeedStatus] ERROR:", err)
-						trafficLight = err.code
-					except URLError as err:
-						print("[OnlineUpdateCheck][getFeedStatus] ERROR:", err.reason[0])
-						trafficLight = err.reason[0]
-					except:
-						print("[OnlineUpdateCheck][getFeedStatus] ERROR:", sys.exc_info()[0])
-						trafficLight = -2
+						if hasattr(err, "code"):
+							trafficLight = err.code
+						else:
+							trafficLight = type(err).__name__
 				elif SystemInfo["imagetype"] == "developer" and "openvixdev" in SystemInfo["feedsurl"]:
 					print("[OnlineUpdateCheck][getFeedStatus] Official developer feeds")
 					trafficLight = "developer"
@@ -160,6 +153,8 @@ class FeedsStatusCheck:
 			return _("Your %s %s is not able to connect to the feeds, please try again later. If this persists please report on the OpenViX forum at world-of-satellite.com.") % (SystemInfo["displaybrand"], SystemInfo["machinename"])
 		elif self.feedstatus in ("updating", 403):
 			return _("Sorry feeds are down for maintenance, please try again later. If this issue persists please check openvix.co.uk or world-of-satellite.com.")
+		elif "error" in self.feedstatus.lower():  # python exceptions
+			return _("There has been a '%s', please try again later. If this issue persists, please check openvix.co.uk or world-of-satellite.com") % self.feedstatus
 		elif error:
 			return _("There has been an error, please try again later. If this issue persists, please check openvix.co.uk or world-of-satellite.com")
 
@@ -297,7 +292,7 @@ def kernelMismatch():
 	import zlib
 	import re
 
-	kernelversion = about.getKernelVersionString().strip()
+	kernelversion = KERNEL
 	if kernelversion == "unknown":
 		print("[OnlineUpdateCheck][kernelMismatch] unable to retrieve kernel version from STB")
 		return False
@@ -334,7 +329,7 @@ def kernelMismatch():
 def statusMessage():
 	# returns message if status message is found, else False.
 	# status-message.php goes in the root folder of the feeds webserver
-	uri = "http://%s/status-message.php?machine=%s&version=%s&build=%s" % (SystemInfo["feedsurl"].split("/")[2], SystemInfo["boxtype"], SystemInfo["imageversion"], SystemInfo["imagebuild"])
+	uri = "http://%s/status-message.php?machine=%s&version=%s&build=%s" % (SystemInfo["feedsurl"].split("/")[2], BOXTYPE, SystemInfo["imageversion"], SystemInfo["imagebuild"])
 	try:
 		req = Request(uri)
 		d = urlopen(req)

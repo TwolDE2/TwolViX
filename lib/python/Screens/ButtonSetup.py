@@ -89,7 +89,9 @@ ButtonSetupKeys = [(_("Red"), "red", "Infobar/openSingleServiceEPG/1"),
 	(_("F4"), "f4", ""),
 	(_("F4 long"), "f4_long", ""),
 	(_("WWW"), "www", ""),
-	(_("WWW long"), "www_long", "")]
+	(_("WWW long"), "www_long", ""),
+	(_("Archive"), "archive", ""),
+	(_("Archive long"), "archive_long", "")]
 
 config.misc.ButtonSetup = ConfigSubsection()
 config.misc.ButtonSetup.additional_keys = ConfigYesNo(default=True)
@@ -388,7 +390,7 @@ class ButtonSetupSelect(Screen):
 
 	def moveChoosen(self, direction):
 		if self.mode == "choosen":
-			currentIndex = self["choosen"].getSelectionIndex()
+			currentIndex = self["choosen"].getSelectedIndex()
 			swapIndex = (currentIndex + (direction == self.keyDown and 1 or -1)) % len(self["choosen"].list)
 			self["choosen"].list[currentIndex], self["choosen"].list[swapIndex] = self["choosen"].list[swapIndex], self["choosen"].list[currentIndex]
 			self["choosen"].setList(self["choosen"].list)
@@ -540,8 +542,7 @@ class InfoBarButtonSetup():
 					return 0
 			elif selected[0] == "Module":
 				try:
-					exec("from %s import %s" % (selected[1], selected[2]))
-					exec("self.session.open(%s)" % ",".join(selected[2:]))
+					exec(f"from {selected[1]} import {selected[2]}\nself.session.open({','.join(selected[2:])})")
 				except Exception as e:
 					print("[ButtonSetup] error during executing module %s, screen %s, %s" % (selected[1], selected[2], e))
 					import traceback

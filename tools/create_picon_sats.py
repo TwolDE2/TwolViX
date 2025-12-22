@@ -1,4 +1,3 @@
-#
 # create symlinks for picons
 #   usage: create_picon_sats lamedb
 # run in picon directory.
@@ -6,7 +5,6 @@
 # for the servicereference names.
 #
 # by pieterg, 2008
-from builtins import range
 from os import makedirs, rename, symlink
 import sys
 

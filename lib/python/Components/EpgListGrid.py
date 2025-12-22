@@ -8,7 +8,7 @@ from Components.GUIComponent import GUIComponent
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaBlend
 from Components.Renderer.Picon import getPiconName
 from Components.config import config
-from RecordTimer import RecordTimer
+from RecordTimer import RecordTimer, isPlaylist
 from Tools.Alternatives import CompareWithAlternatives
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
@@ -22,6 +22,8 @@ SECS_IN_MIN = 60
 
 
 class EPGListGrid(EPGListBase):
+	buildEntryExtensionFunctions = []
+
 	def __init__(self, session, isInfobar, selChangedCB=None):
 		EPGListBase.__init__(self, session, selChangedCB)
 
@@ -113,11 +115,11 @@ class EPGListGrid(EPGListBase):
 			attribs = []
 			for (attrib, value) in self.skinAttributes:
 				if attrib == ("ServiceFontInfobar" if self.isInfobar else "ServiceFontGraphical"):
-					font = parseFont(value, ((1, 1), (1, 1)))
+					font = parseFont(value, screen.scale)
 					self.serviceFontName = font.family
 					self.serviceFontSize = font.pointSize
 				elif attrib == ("EntryFontInfobar" if self.isInfobar else "EntryFontGraphical"):
-					font = parseFont(value, ((1, 1), (1, 1)))
+					font = parseFont(value, screen.scale)
 					self.eventFontName = font.family
 					self.eventFontSize = font.pointSize
 
@@ -531,7 +533,7 @@ class EPGListGrid(EPGListBase):
 				duration = ev[3]
 
 				xpos, ewidth = self.calcEventPosAndWidthHelper(stime, duration, start, end, width)
-				serviceref = "1" + service[4:] if service[:4] in config.recording.setstreamto1.value else service  # converts 4097, 5001, 5002 to 1
+				serviceref = "1" + service[4:] if service[:4] in config.recording.setstreamto1.value and not isPlaylist(service) else service  # converts 4097, 5001, 5002 to 1
 				serviceTimers = self.filteredTimerList.get(':'.join(serviceref.split(':')[:11]))
 				if serviceTimers is not None:
 					# Code below: "+ (20 if config.recording.margin_before.value == 0 else 0)"
@@ -654,7 +656,13 @@ class EPGListGrid(EPGListBase):
 							flags=BT_SCALE))
 
 				# Recording icons.
-				if timerIcon is not None and ewidth > timerIcon.size().width():
+				timer_icon_width = timerIcon.size().width() if timerIcon else 0
+				auto_timer_icon_width = 0
+				if timerIcon is not None:
+					if autoTimerIcon:
+						auto_timer_icon_width = autoTimerIcon.size().width()
+				pos_x = left + xpos + ewidth - 5
+				if timerIcon is not None and ewidth > (timer_icon_width + auto_timer_icon_width):
 					if config.epgselection.grid.rec_icon_height.value != "hide":
 						pix_size = timerIcon.size()
 						pix_width = pix_size.width()
@@ -666,12 +674,11 @@ class EPGListGrid(EPGListBase):
 							recIconHeight = top + 3
 						else:
 							recIconHeight = top + height - pix_height - 10
-						if matchType == 0:
-							pos = (left + xpos + ewidth - pix_width - 10, recIconHeight)
-							isTimerIconAdded = True
-						else:
-							pos = (left + xpos + ewidth - pix_width - 10, recIconHeight)
-							isTimerIconAdded = True
+
+						pos_x = left + xpos + ewidth - pix_width - 10
+						pos = (pos_x, recIconHeight)
+						isTimerIconAdded = True
+
 						res.append(MultiContentEntryPixmapAlphaBlend(
 							pos=pos, size=(pix_width, pix_height),
 							png=timerIcon))
@@ -679,9 +686,29 @@ class EPGListGrid(EPGListBase):
 							pix_size = autoTimerIcon.size()
 							pix_width = pix_size.width()
 							pix_height = pix_size.height()
+							pos_x = pos[0] - pix_width - (5 if isTimerIconAdded else 10)
 							res.append(MultiContentEntryPixmapAlphaBlend(
-								pos=(pos[0] - pix_width - (5 if isTimerIconAdded else 10), pos[1]), size=(pix_width, pix_height),
+								pos=(pos_x, pos[1]), size=(pix_width, pix_height),
 								png=autoTimerIcon))
+
+				if self.detectCatchupAvailable(stime, service) and self.catchUpIcon:
+					pix_size = self.catchUpIcon.size()
+					pix_width = pix_size.width()
+					pix_height = pix_size.height()
+					if config.epgselection.grid.rec_icon_height.value == "middle":
+						recIconHeight = top + (height - pix_height) // 2
+					elif config.epgselection.grid.rec_icon_height.value == "top":
+						recIconHeight = top + 3
+					else:
+						recIconHeight = top + height - pix_height - 10
+					res.append(MultiContentEntryPixmapAlphaBlend(
+						pos=(pos_x - pix_width - 6, recIconHeight),
+						size=(pix_width, pix_height),
+						png=self.catchUpIcon,
+						flags=0))
+
+		for f in EPGListGrid.buildEntryExtensionFunctions:
+			f(res, self, service, serviceName, events, picon, channel)
 		return res
 
 	def getSelectionPosition(self):
@@ -899,7 +926,7 @@ class TimelineText(GUIComponent):
 				elif attrib == "borderWidth":
 					self.borderWidth = parseScale(value)
 				elif attrib == "TimelineFont":
-					font = parseFont(value, ((1, 1), (1, 1)))
+					font = parseFont(value, screen.scale)
 					self.timelineFontName = font.family
 					self.timelineFontSize = font.pointSize
 				elif attrib == "itemHeight":

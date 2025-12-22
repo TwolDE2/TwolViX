@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <shadow.h>
+#include <crypt.h>
+#include <pwd.h>
 #include <libsig_comp.h>
 #include <linux/dvb/version.h>
 
@@ -140,7 +143,7 @@ public:
 	}
 };
 
-bool replace(std::string& str, const std::string& from, const std::string& to) 
+bool replace(std::string& str, const std::string& from, const std::string& to)
 {
 	size_t start_pos = str.find(from);
 	if(start_pos == std::string::npos)
@@ -153,8 +156,8 @@ static const std::string getConfigCurrentSpinner(const char* key)
 {
 	auto value = eSimpleConfig::getString(key);
 
-	 // if value is NOT empty, means config.skin.primary_skin exists in settings file, so return SCOPE_CURRENT_SKIN + "/spinner"
-	 // ( /usr/share/enigma2/MYSKIN/spinner ) BUT check if /usr/share/enigma2/MYSKIN/spinner/wait1.png exist
+	// if value is NOT empty, means config.skin.primary_skin exists in settings file, so return SCOPE_CURRENT_SKIN + "/spinner"
+	// ( /usr/share/enigma2/MYSKIN/spinner ) BUT check if /usr/share/enigma2/MYSKIN/spinner/wait1.png exist
 	if (!value.empty())
 	{
 		replace(value, "skin.xml", "spinner");
@@ -162,11 +165,11 @@ static const std::string getConfigCurrentSpinner(const char* key)
 		std::ifstream png(png_location.c_str());
 		if (png.good()) {
 			png.close();
-			return value; 
+			return value;
 		}
 	}
 	return "spinner"; // fallback on default system spinner
-} 
+}
 
 int exit_code;
 
@@ -318,7 +321,7 @@ int main(int argc, char **argv)
 			rfilename = eEnv::resolve(filename);
 			loadPNG(wait[i], rfilename.c_str());
 
-			if (!wait[i]) 
+			if (!wait[i])
 			{
 				// spinner failed
 				if (i==0)
@@ -411,9 +414,78 @@ const char *getEnigmaLastCommitHash()
 	return enigma2_hash;
 }
 
+const char *getE2Rev()
+{
+	return E2REV;
+}
+
 const char *getGStreamerVersionString()
 {
 	return gst_version_string();
+}
+
+int getE2Flags()
+{
+	return 1;
+}
+
+int getFD0lock()
+{
+	int tmp_fd = -1;
+	tmp_fd = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+	eDebug("[getFD0lock]  tmp_fd value: %d", tmp_fd);
+	if (tmp_fd == 0)
+	{
+		::close(tmp_fd);
+		tmp_fd = -1;
+		int fd0lock = ::open("/dev/console", O_RDONLY | O_CLOEXEC);
+		eDebug("[getFD0lock] set fd0lock to 0: %d", fd0lock);
+	}
+	if (tmp_fd != -1)
+	{
+		eDebug("[getFD0lock] tmp_fd set to !0: %d", tmp_fd);
+		::close(tmp_fd);
+	
+	}
+	return 0;
+}
+	
+bool checkLogin(const char *user, const char *password)
+{
+	bool authenticated = false;
+
+	if (user && password)
+	{
+		char *buffer = (char *)malloc(4096);
+		if (buffer)
+		{
+			struct passwd pwd = {};
+			struct passwd *pwdresult = NULL;
+			std::string crypt;
+			getpwnam_r(user, &pwd, buffer, 4096, &pwdresult);
+			if (pwdresult)
+			{
+				struct crypt_data cryptdata = {};
+				char *cryptresult = NULL;
+				cryptdata.initialized = 0;
+				crypt = pwd.pw_passwd;
+				if (crypt == "*" || crypt == "x")
+				{
+					struct spwd spwd = {};
+					struct spwd *spwdresult = NULL;
+					getspnam_r(user, &spwd, buffer, 4096, &spwdresult);
+					if (spwdresult)
+					{
+						crypt = spwd.sp_pwdp;
+					}
+				}
+				cryptresult = crypt_r(password, crypt.c_str(), &cryptdata);
+				authenticated = cryptresult && cryptresult == crypt;
+			}
+			free(buffer);
+		}
+	}
+	return authenticated;
 }
 
 #include <malloc.h>

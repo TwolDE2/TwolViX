@@ -1,6 +1,6 @@
 from Components.Addons.GUIAddon import GUIAddon
 
-from enigma import eListbox, eListboxPythonMultiContent, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER
+from enigma import eListbox, eListboxPythonMultiContent, gFont, RT_BLEND, RT_HALIGN_LEFT, RT_VALIGN_CENTER
 
 from skin import applySkinFactor, parseFont, parseColor
 
@@ -86,7 +86,7 @@ class ScreenHeader(GUIAddon):
 				res.append(MultiContentEntryText(
 					pos=(xPos, yPos),
 					size=(self.instance.size().width() - xPos, itemHeight),
-					font=fontIndex, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
+					font=fontIndex, flags=RT_BLEND | RT_HALIGN_LEFT | RT_VALIGN_CENTER,
 					text=x.text,
 					color=foreColor, color_sel=foreColor,
 					backcolor=self.backgroundColor, backcolor_sel=self.backgroundColor))
@@ -103,21 +103,19 @@ class ScreenHeader(GUIAddon):
 			if isinstance(val, StaticText):
 				if hasattr(val, "text") and val.text and val not in sequence:
 					sequence.append(val)
-			elif isinstance(val, Pixmap):
-				if val and val not in sequence:
-					sequence.append(val)
-
+			elif val and isinstance(val, Pixmap) and val not in sequence:
+				sequence.append(val)
 		self.updateAddon(sequence)
 
 	def applySkin(self, desktop, parent):
 		attribs = []
 		for (attrib, value) in self.skinAttributes[:]:
 			if attrib == "titleFont":
-				self.titleFont = parseFont(value, ((1, 1), (1, 1)))
-			if attrib == "titleSingleFont":
-				self.titleSingleFont = parseFont(value, ((1, 1), (1, 1)))
+				self.titleFont = parseFont(value, parent.scale)
+			elif attrib == "titleSingleFont":
+				self.titleSingleFont = parseFont(value, parent.scale)
 			elif attrib == "pathFont":
-				self.pathFont = parseFont(value, ((1, 1), (1, 1)))
+				self.pathFont = parseFont(value, parent.scale)
 			elif attrib == "titleForegroundColor":
 				self.titleForeground = parseColor(value).argb()
 			elif attrib == "pathForegroundColor":

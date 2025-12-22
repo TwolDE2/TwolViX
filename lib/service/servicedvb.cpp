@@ -10,6 +10,9 @@
 #include <lib/dvb/db.h>
 #include <lib/dvb/decoder.h>
 
+#include <lib/base/cfile.h>
+#include <lib/dvb/pmtparse.h>
+
 #include <lib/components/file_eraser.h>
 #include <lib/service/servicedvbrecord.h>
 #include <lib/service/event.h>
@@ -389,10 +392,6 @@ RESULT eStaticServiceDVBPVRInformation::getName(const eServiceReference &ref, st
 		m_parser.m_name = name;
 	}
 
-	std::string res_name = "";
-	std::string res_provider = "";
-	eServiceReference::parseNameAndProviderFromName(name, res_name, res_provider);
-	name = res_name;
 	m_parser.m_name = name;
 	if (m_parser.m_prov.empty() && !ref.prov.empty()) m_parser.m_prov = ref.prov;
 
@@ -430,7 +429,7 @@ int eStaticServiceDVBPVRInformation::getLength(const eServiceReference &ref)
 		getName(ref, name); // This also updates m_parser.name
 	}
 	m_parser.m_data_ok = 1;
- 	m_parser.m_length = len;
+	m_parser.m_length = len;
 	m_parser.m_filesize = s.st_size;
 	m_parser.updateMeta(ref.path);
 	return (int)(m_parser.m_length / 90000);
@@ -1010,9 +1009,7 @@ RESULT eServiceFactoryDVB::offlineOperations(const eServiceReference &ref, ePtr<
 
 RESULT eServiceFactoryDVB::lookupService(ePtr<eDVBService> &service, const eServiceReference &ref)
 {
-	eServiceReferenceDVB sRelayOrigSref;
-	bool res = ((const eServiceReferenceDVB&)ref).getSROriginal(sRelayOrigSref);
-	if (!ref.path.empty() && !res) // playback
+	if (!ref.path.empty() && !ref.isStreamRelay) // playback
 	{
 		eDVBMetaParser parser;
 		int ret=parser.parseFile(ref.path);
@@ -1025,10 +1022,10 @@ RESULT eServiceFactoryDVB::lookupService(ePtr<eDVBService> &service, const eServ
 		if (!ret)
 			eDVBDB::getInstance()->parseServiceData(service, parser.m_service_data);
 	}
-	else if (res)
+	else if (ref.isStreamRelay)
 	{
 		int err;
-		if ((err = eDVBDB::getInstance()->getService(sRelayOrigSref, service)) != 0)
+		if ((err = eDVBDB::getInstance()->getService(eServiceReferenceDVB(ref.compareSref), service)) != 0)
 		{
 			eTrace("[eServiceFactoryDVB] lookupService SR original service failed!");
 			return err;
@@ -1075,6 +1072,9 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_subtitle_sync_timer(eTimer::create(eApp)),
 	m_nownext_timer(eTimer::create(eApp))
 {
+#ifdef PASSTHROUGH_FIX
+	m_passthrough_fix_timer = eTimer::create(eApp);
+#endif
 //	m_is_streamx = m_is_stream;	// sets to false if looking at fallback url at this point as m_is_stream(ref.path.find("://") is false.
 	eDebug("[servicedvb][eDVBServicePlay] now running: m_is_streamx set by m_is_stream %d", m_is_streamx);
 	eDebug("[servicedvb][eDVBServicePlay] now running: m_is_pvr set to; %d", m_is_pvr);
@@ -1084,6 +1084,9 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	CONNECT(m_event_handler.m_eit_changed, eDVBServicePlay::gotNewEvent);
 	CONNECT(m_subtitle_sync_timer->timeout, eDVBServicePlay::checkSubtitleTiming);
 	CONNECT(m_nownext_timer->timeout, eDVBServicePlay::updateEpgCacheNowNext);
+#ifdef PASSTHROUGH_FIX
+	CONNECT(m_passthrough_fix_timer->timeout, eDVBServicePlay::forcePassthrough);
+#endif
 }
 
 eDVBServicePlay::~eDVBServicePlay()
@@ -1113,6 +1116,15 @@ eDVBServicePlay::~eDVBServicePlay()
 	}
 	if (m_subtitle_widget) m_subtitle_widget->destroy();
 }
+
+
+#ifdef PASSTHROUGH_FIX
+void eDVBServicePlay::forcePassthrough()
+{
+	eDebug("[eDVBServicePlay] Setting 'passthrough' to force correct operation");
+	CFile::writeStr("/proc/stb/audio/ac3", "passthrough");
+}
+#endif
 
 void eDVBServicePlay::gotNewEvent(int error)
 {
@@ -1496,6 +1508,31 @@ RESULT eDVBServicePlay::stop()
 
 RESULT eDVBServicePlay::setTarget(int target, bool noaudio = false)
 {
+	// start/stop audio
+	if (target == 1000)
+	{
+		if (noaudio) // stop audio
+		{
+			if (m_decoder && !m_noaudio)
+			{
+				m_noaudio = true;
+				m_decoder->setSyncPCR(-1);
+				m_decoder->setAudioPID(-1, -1);
+				m_decoder->set();
+				return 0;
+			}
+		}
+		else // start audio
+		{
+			if (m_noaudio)
+			{
+				m_noaudio = false;
+				updateDecoder(m_noaudio);
+				return 0;
+			}
+		}
+		return -1;
+	}
 	m_is_primary = !target;
 	m_decoder_index = target;
 	m_noaudio = noaudio;
@@ -1511,9 +1548,9 @@ RESULT eDVBServicePlay::connectEvent(const sigc::slot<void(iPlayableService*,int
 RESULT eDVBServicePlay::pause(ePtr<iPauseableService> &ptr)
 {
 		/* note: we check for timeshift to be enabled,
-		   not neccessary active. if you pause when timeshift
-		   is not active, you should activate it when unpausing */
-	if ((!m_is_pvr) && (!m_timeshift_enabled))
+			not neccessary active. if you pause when timeshift
+			is not active, you should activate it when unpausing */
+	if ((!m_is_pvr) && (!m_timeshift_enabled) && (m_reference.path.empty() || m_reference.isStreamRelay))
 	{
 		ptr = nullptr;
 		return -1;
@@ -1618,6 +1655,7 @@ RESULT eDVBServicePlay::setFastForward_internal(int ratio, bool final_seek)
 
 RESULT eDVBServicePlay::seek(ePtr<iSeekableService> &ptr)
 {
+
 	if (m_is_pvr || m_timeshift_enabled)
 	{
 		ptr = this;
@@ -2069,6 +2107,14 @@ int eDVBServicePlay::getInfo(int w)
 	case sTSID:
 		return ((const eServiceReferenceDVB&)m_reference).getTransportStreamID().get();
 	case sNamespace:
+		// use origiginal namespace
+		if (m_reference.isStreamRelay){
+			eServiceReferenceDVB m_parsed_ref = eServiceReferenceDVB(m_reference.compareSref);
+			if (m_parsed_ref.valid()) 
+			{
+				return ((const eServiceReferenceDVB&)m_parsed_ref).getDVBNamespace().get();
+			}
+		}
 		return ((const eServiceReferenceDVB&)m_reference).getDVBNamespace().get();
 	case sProvider:
 		if (!m_dvb_service) return -1;
@@ -2090,17 +2136,16 @@ std::string eDVBServicePlay::getInfoString(int w)
 	case sProvider:
 	{
 		if (!m_dvb_service) return "";
-		std::string prov = m_dvb_service->m_provider_name;
-		if (prov.empty()) {
-			eServiceReferenceDVB sRelayOrigSref;
-			bool res = ((const eServiceReferenceDVB&)m_reference).getSROriginal(sRelayOrigSref);
-			if (res) {
+		if (m_dvb_service->m_provider_name.empty() && m_reference.isStreamRelay) {
+			eServiceReferenceDVB sRelaySref = eServiceReferenceDVB(m_reference.compareSref);
+			if (sRelaySref.valid())
+			{
 				ePtr<eDVBService> sRelayServiceOrigSref;
-				eDVBDB::getInstance()->getService(sRelayOrigSref, sRelayServiceOrigSref);
-				return sRelayServiceOrigSref->m_provider_name;
+				eDVBDB::getInstance()->getService(sRelaySref, sRelayServiceOrigSref);
+				m_dvb_service->m_provider_name = std::string(sRelayServiceOrigSref->m_provider_name);
 			}
 		}
-		return prov;
+		return m_dvb_service->m_provider_name;
 	}
 	case sServiceref:
 		return m_reference.toString();
@@ -2118,6 +2163,24 @@ std::string eDVBServicePlay::getInfoString(int w)
 		demux << h.getDemuxID();
 		return demux.str();
 	}
+	case sVideoInfo:
+	{
+		std::string videoInfo;
+		if (m_decoder)
+		{
+			char buff[100];
+			snprintf(buff, sizeof(buff), "%d|%d|%d|%d|%d|%d",
+					m_decoder->getVideoWidth(),
+					m_decoder->getVideoHeight(),
+					m_decoder->getVideoFrameRate(),
+					m_decoder->getVideoProgressive(),
+					m_decoder->getVideoAspect(),
+					m_decoder->getVideoGamma()
+				 );
+			videoInfo = buff;
+		}
+		return videoInfo;
+	}
 	default:
 		break;
 	}
@@ -2126,10 +2189,13 @@ std::string eDVBServicePlay::getInfoString(int w)
 
 ePtr<iDVBTransponderData> eDVBServicePlay::getTransponderData()
 {
-	eServiceReferenceDVB orig;
-	bool res = ((const eServiceReferenceDVB&)m_reference).getSROriginal(orig);
-	if (res) {
-		return eStaticServiceDVBInformation().getTransponderData(orig);
+	if(m_reference.isStreamRelay)
+	{
+		eServiceReferenceDVB srRef = eServiceReferenceDVB(m_reference.compareSref);
+		if (srRef.valid())
+		{
+			return eStaticServiceDVBInformation().getTransponderData(srRef);
+		}
 	}
 	return eStaticServiceDVBInformation().getTransponderData(m_reference);
 }
@@ -2172,6 +2238,9 @@ int eDVBServicePlay::getCurrentTrack()
 
 RESULT eDVBServicePlay::selectTrack(unsigned int i)
 {
+	if (m_noaudio)
+		return -1;
+
 	int ret = selectAudioStream(i);
 
 	if (m_decoder->set())
@@ -2275,6 +2344,18 @@ int eDVBServicePlay::selectAudioStream(int i)
 		return -4;
 	}
 
+#ifdef PASSTHROUGH_FIX
+	if (apidtype == eDVBPMTParser::audioStream::atAC3 || apidtype == eDVBPMTParser::audioStream::atAAC || apidtype == eDVBPMTParser::audioStream::atDDP) {
+		std::string pass = CFile::read("/proc/stb/audio/ac3");
+		if (replace_all(replace_all(pass, "\r", ""), "\n", "") == "passthrough")
+		{
+			int shortAudioDelay = eConfigManager::getConfigIntValue("config.av.passthrough_fix_short", 100);
+			m_passthrough_fix_timer->stop();
+			m_passthrough_fix_timer->start(shortAudioDelay, true);
+		}
+	}
+#endif
+
 	if (position != -1)
 	{
 		ret = seekTo(position);
@@ -2307,10 +2388,10 @@ int eDVBServicePlay::selectAudioStream(int i)
 				a.) we have an entry in the service db for the current service,
 				b.) we are not playing back something,
 				c.) we are not selecting the default entry. (we wouldn't change
-				    anything in the best case, or destroy the default setting in
-				    case the real default is not yet available.)
+					anything in the best case, or destroy the default setting in
+					case the real default is not yet available.)
 				d.) we have only one audiostream (overwrite the cache to make sure
-				    the cache contains the correct audio pid and type)
+					the cache contains the correct audio pid and type)
 			*/
 	if (m_dvb_service && ((i != -1) || (program.audioStreams.size() == 1)
 		|| ((m_dvb_service->getCacheEntry(eDVBService::cMPEGAPID) == -1)
@@ -2687,13 +2768,13 @@ int eDVBServicePlay::isTimeshiftActive()
 
 int eDVBServicePlay::isTimeshiftEnabled()
 {
-        return m_timeshift_enabled;
+		return m_timeshift_enabled;
 }
 
 RESULT eDVBServicePlay::saveTimeshiftFile()
 {
 	if (!m_timeshift_enabled)
-                return -1;
+		return -1;
 
 	m_save_timeshift = 1;
 
@@ -3514,8 +3595,8 @@ RESULT eDVBServicePlay::getSubtitleList(std::vector<SubtitleTrack> &subtitlelist
 					}
 					break;
 				}
-				case 0x10 ... 0x15:
-				case 0x20 ... 0x25: // dvb subtitles
+				case 0x10 ... 0x16:
+				case 0x20 ... 0x26: // dvb subtitles
 				{
 					track.type = 0;
 					track.pid = it->pid;

@@ -513,7 +513,7 @@ void gPainter::blit(gPixmap *pixmap, const eRect &pos, const eRect &clip, int fl
 	m_rc->submit(o);
 }
 
-void gPainter::drawRectangle(const eRect &area) {
+void gPainter::drawRectangle(const eRect &area, bool useNew) {
 	if ( m_dc->islocked() )
 		return;
 	gOpcode o;
@@ -521,6 +521,7 @@ void gPainter::drawRectangle(const eRect &area) {
 	o.dc = m_dc.grabRef();
 	o.parm.rectangle = new gOpcode::para::prectangle;
 	o.parm.rectangle->area = area;
+	o.parm.rectangle->useNew = useNew;
 	m_rc->submit(o);
 }
 
@@ -842,7 +843,6 @@ void gDC::exec(const gOpcode *o)
 		break;
 	case gOpcode::renderText:
 	{
-		const char *ellipsis = reinterpret_cast<const char *>(u8"…");
 		ePtr<eTextPara> para = new eTextPara(o->parm.renderText->area);
 		int flags = o->parm.renderText->flags;
 		int border = o->parm.renderText->border;
@@ -853,12 +853,15 @@ void gDC::exec(const gOpcode *o)
 		ASSERT(m_current_font);
 		para->setFont(m_current_font);
 
+		std::string dots = reinterpret_cast<const char*>(u8"…");
+
 		if (flags & gPainter::RT_ELLIPSIS)
 		{
 			if (flags & gPainter::RT_WRAP) // Remove wrap
 				flags -= gPainter::RT_WRAP;
 			std::string text = o->parm.renderText->text;
-			text += ellipsis;
+			
+			text += dots;
 
 			eTextPara testpara(o->parm.renderText->area);
 			testpara.setFont(m_current_font);
@@ -873,7 +876,7 @@ void gDC::exec(const gOpcode *o)
 				if ((int)text.size() > ns)
 				{
 					text.resize(ns);
-					text += ellipsis;
+					text += dots;
 				}
 				if (o->parm.renderText->text)
 					free(o->parm.renderText->text);
@@ -914,6 +917,9 @@ void gDC::exec(const gOpcode *o)
 			int correction = o->parm.renderText->area.height() - bbox.height() - 2;
 			offset += ePoint(0, correction);
 		}
+
+		para->setBlend(flags & gPainter::RT_BLEND);
+		
 		if (o->parm.renderText->border)
 		{
 			para->blit(*this, offset, m_background_color_rgb, o->parm.renderText->bordercolor, true);
@@ -990,13 +996,14 @@ void gDC::exec(const gOpcode *o)
 	{
 		o->parm.rectangle->area.moveBy(m_current_offset);
 		gRegion clip = m_current_clip & o->parm.rectangle->area;
-		m_pixmap->drawRectangle(clip, o->parm.rectangle->area, m_background_color_rgb, m_border_color, m_border_width, m_gradient_colors, m_gradient_orientation, m_radius, m_radius_edges, m_gradient_alphablend, m_gradient_fullSize);
+		m_pixmap->drawRectangle(clip, o->parm.rectangle->area, m_background_color_rgb, m_border_color, m_border_width, m_gradient_colors, m_gradient_orientation, m_radius, m_radius_edges, m_gradient_alphablend, m_gradient_fullSize, o->parm.rectangle->useNew);
 		m_border_width = 0;
 		m_radius = 0;
 		m_radius_edges = 0;
 		m_gradient_orientation = 0;
 		m_gradient_fullSize = 0;
 		m_gradient_alphablend = false;
+		m_gradient_colors.clear();
 		delete o->parm.rectangle;
 		break;
 	}

@@ -1,8 +1,8 @@
 from os.path import isfile
 
-from enigma import eRCInput, eTimer, eWindow  # , getDesktop
+from enigma import eRCInput, eTimer, eWindow, getDesktop
 
-from skin import GUI_SKIN_ID, applyAllAttributes, menus, screens, setups  # noqa: F401
+from skin import GUI_SKIN_ID, DISPLAY_SKIN_ID, applyAllAttributes, menus, screens, setups  # noqa: F401
 from Components.config import config
 from Components.GUIComponent import GUIComponent
 from Components.Pixmap import Pixmap
@@ -106,7 +106,10 @@ class Screen(dict):
 		self.hide()
 		for x in self.onClose:
 			x()
-		del self.helpList  # Fixup circular references.
+		try:
+			del self.helpList  # Fixup circular references if present.
+		except:
+			pass
 		self.deleteGUIScreen()
 		# First disconnect all render from their sources. We might split this out into
 		# a "unskin"-call, but currently we destroy the screen afterwards anyway.
@@ -130,7 +133,7 @@ class Screen(dict):
 			self.session.close(self, *retval)
 
 	def show(self):
-		pass  # print("[Screen] Showing screen '%s'." % self.skinName)  # To ease identification of screens.
+		# print("[Screen] Showing screen '%s'." % self.skinName)  # To ease identification of screens.
 		# DEBUG: if (self.shown and self.alreadyShown) or not self.instance:
 		if (self.shown and self.already_shown) or not self.instance:
 			return
@@ -248,15 +251,14 @@ class Screen(dict):
 				f()
 
 	def applySkin(self):
-		# DEBUG: baseRes = (getDesktop(GUI_SKIN_ID).size().width(), getDesktop(GUI_SKIN_ID).size().height())
-		baseRes = (720, 576)  # FIXME: A skin might have set another resolution, which should be the base res.
+		skin_id = DISPLAY_SKIN_ID if isinstance(self, ScreenSummary) else GUI_SKIN_ID
+		self.scale = ((getDesktop(skin_id).size().width(), getDesktop(skin_id).size().width()), (getDesktop(skin_id).size().height(), getDesktop(skin_id).size().height()))
 		zPosition = 0
 		for (key, value) in self.skinAttributes:
-			if key == "baseResolution":
-				baseRes = tuple([int(x) for x in value.split(",")])
+			if key in ("baseResolution", "resolution"):
+				self.scale = tuple([(self.scale[i][0], int(x)) for i, x in enumerate(value.split(","))])
 			elif key == "zPosition":
 				zPosition = int(value)
-		self.scale = ((baseRes[0], baseRes[0]), (baseRes[1], baseRes[1]))
 		if not self.instance:
 			self.instance = eWindow(self.desktop, zPosition)
 		if "title" not in self.skinAttributes and self.screenTitle:
@@ -270,12 +272,21 @@ class Screen(dict):
 		self.createGUIScreen(self.instance, self.desktop)
 
 	def createGUIScreen(self, parent, desktop, updateonly=False):
+		def addToStack(widget):
+			if hasattr(widget, "stackIndex") and widget.stackIndex != -1:
+				stack = self.stacks[widget.stackIndex]
+				stack.instance.addChild(widget.instance)
+
+		for widget in self.stacks:
+			widget.instance = widget.widget(parent, widget.layout)
+			applyAllAttributes(widget.instance, desktop, widget.skinAttributes, self.scale)
+			addToStack(widget)
 		for val in self.renderer:
 			if isinstance(val, GUIComponent):
 				if not updateonly:
 					val.GUIcreate(parent)
 				if not val.applySkin(desktop, self):
-					pass  # print("[Screen] Warning: Skin is missing renderer '%s' in %s." % (val, str(self)))
+					print("[Screen] Warning: Skin is missing renderer '%s' in %s." % (val, str(self)))
 		for key in self:
 			val = self[key]
 			if isinstance(val, GUIComponent):
@@ -284,10 +295,10 @@ class Screen(dict):
 				depr = val.deprecationInfo
 				if val.applySkin(desktop, self):
 					if depr:
-						pass  # print("[Screen] WARNING: OBSOLETE COMPONENT '%s' USED IN SKIN. USE '%s' INSTEAD!" % (key, depr[0]))
-						pass  # print("[Screen] OBSOLETE COMPONENT WILL BE REMOVED %s, PLEASE UPDATE!" % depr[1])
+						print("[Screen] WARNING: OBSOLETE COMPONENT '%s' USED IN SKIN. USE '%s' INSTEAD!" % (key, depr[0]))
+						print("[Screen] OBSOLETE COMPONENT WILL BE REMOVED %s, PLEASE UPDATE!" % depr[1])
 				elif not depr and key not in self.handledWidgets:
-					pass  # print("[Screen] Warning: Skin is missing element '%s' in %s." % (key, str(self)))
+					print("[Screen] Warning: Skin is missing element '%s' in %s." % (key, str(self)))
 		for w in self.additionalWidgets:
 			if not updateonly:
 				w.instance = w.widget(parent)
@@ -300,6 +311,10 @@ class Screen(dict):
 				exec(f, globals(), locals())  # Python 3
 			else:
 				f()
+		for key in self:  # nudge TemplatedMultiContent so receives self.scale set above
+			val = self[key]
+			if "Components.Converter.TemplatedMultiContent" in str(getattr(val, "downstream_elements", None)):
+				val.downstream_elements.changed((val.CHANGED_DEFAULT,))
 
 	def deleteGUIScreen(self):
 		for (name, val) in list(self.items()):

@@ -25,7 +25,7 @@
 
 1 - Install packages on your buildserver
 
-    sudo apt-get install -y autoconf automake bison bzip2 chrpath coreutils cpio curl cvs debianutils default-jre default-jre-headless diffstat flex g++ gawk gcc gcc-12 gcc-multilib g++-multilib gettext git git-core gzip help2man info iputils-ping java-common libc6-dev libegl1-mesa libglib2.0-dev libncurses5-dev libperl4-corelibs-perl libproc-processtable-perl libsdl1.2-dev libserf-dev libtool libxml2-utils make ncurses-bin patch perl pkg-config psmisc python3 python3-git python3-jinja2 python3-pexpect python3-pip python-setuptools qemu quilt socat sshpass subversion tar texi2html texinfo unzip wget xsltproc xterm xz-utils zip zlib1g-dev zstd fakeroot lz4 liblz4-tool
+    sudo apt-get install -y autoconf automake bison bzip2 chrpath cmake coreutils cpio curl cvs debianutils default-jre default-jre-headless diffstat flex g++ gawk gcc gcc-12 gcc-multilib g++-multilib gettext git gzip help2man info iputils-ping java-common libc6-dev libc6-dev-i386 libglib2.0-dev libncurses-dev libperl4-corelibs-perl libproc-processtable-perl libsdl1.2-dev libserf-dev libtool libxml2-utils make ncurses-bin patch perl pkg-config psmisc python3 python3-git python3-jinja2 python3-pexpect python3-pip python3-setuptools quilt socat sshpass subversion tar texi2html texinfo unzip wget xsltproc xterm xz-utils zip zlib1g-dev zstd fakeroot lz4 git-lfs
 
 ----------
 2 - Set python3 as preferred provider for python
@@ -48,11 +48,13 @@
     sudo sysctl -n -w fs.inotify.max_user_watches=524288
 
 ----------
-5. Disable apparmor profile
-   Currently due to this Ubuntu/bitbake issue..https://bugs.launchpad.net/ubuntu/+source/apparmor/+bug/2056555
-   This command must be entered after every restart of the build PC....
+5 - Update apparmor profile
+
+## Workaround for ubuntu issue [Allow bitbake to create user namespace](https://bugs.launchpad.net/ubuntu/+source/apparmor/+bug/2056555) ##
+## Credit to Changqing Li (sandy-lcq), Karsten S. Opdal (karsten-s-opdal) and Ferry Toth (ftoth) ##
    
-   sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+    echo 'kernel.apparmor_restrict_unprivileged_userns=0' | sudo tee /etc/sysctl.d/60-apparmor-namespace.conf > /dev/null && sudo sysctl --system
+    sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
 ----------
 6 - Add user openvixbuilder
@@ -60,9 +62,9 @@
     sudo adduser openvixbuilder
 
 ----------
-7. Add your git user and email
+7 - Add your git user and email
 
-     git config --global user.email "you@example.com"
+    git config --global user.email "you@example.com"
 
     git config --global user.name "Your Name"
 
@@ -110,13 +112,14 @@
 16 - Update site.conf
 
     - BB_NUMBER_THREADS, PARALLEL_MAKE set to number of threads supported by the CPU
-    - add/modify DL_DIR = " location for build sources " to point to a location where you can save derived build sources,
-    this will reduce build time in fetching these sources again.
+    - add/modify DL_DIR = " location for build sources " to point to a location where you can save 
+      derived build sources, this will reduce build time in fetching these sources again.
+    - Avoid wasting disk space creating spdx packages: INHERIT:remove = "create-spdx"
 
 ----------
 17 - Building image with feeds  e.g.:-
 
-	MACHINE=vuultimo4k DISTRO=openvix DISTRO_TYPE=release make image
+    MACHINE=vuultimo4k DISTRO=openvix DISTRO_TYPE=release make image
 
 ----------
 18 - Building an image without feeds (Build time 1-2h)

@@ -5,11 +5,10 @@ from sys import modules
 from enigma import eTimer
 
 from Components.ActionMap import ActionMap
-from Components.Button import Button
 from Components.Label import Label
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, OEA
 from Screens.Screen import Screen, ScreenSummary
 
 # required methods: Request, urlopen, HTTPError, URLError
@@ -26,27 +25,25 @@ else:
 	# ImageVer = float(ImageVer)
 
 E2Branches = {
-	'developer': 'Py3D',
-	'release': 'Py3'
+	'developer': 'Py3E',
+	'release': 'Py3D'
 }
-
-
-project = 0
-projects = [
-	("https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha=5.5", "OE-A Core"),
-	("https://api.github.com/repos/TwolDE2/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),
+CommitLogs = [
+	(f"https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha={OEA}", "OE-A Core"),
+	("https://api.github.com/repos/OpenViX/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
 	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
 	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
-	("https://api.github.com/repos/oe-alliance/branding-module/commits", "Branding Module"),
+	("https://api.github.com/repos/oe-mirrors/branding-module/commits", "Branding Module"),
 ]
+project = 0
 cachedProjects = {}
 
 
 def readGithubCommitLogsSoftwareUpdate():
 	global ImageVer
 	gitstart = True
-	url = projects[project][0]
+	url = CommitLogs[project][0]
 	commitlog = ""
 	try:
 		try:
@@ -104,7 +101,7 @@ def readGithubCommitLogs():
 	cachedProjects = {}
 	blockstart = False
 	gitstart = True
-	url = projects[project][0]
+	url = CommitLogs[project][0]
 	commitlog = ""
 	try:
 		try:
@@ -162,17 +159,17 @@ def readGithubCommitLogs():
 
 
 def getScreenTitle():
-	return projects[project][1]
+	return CommitLogs[project][1]
 
 
 def left():
 	global project
-	project = project == 0 and len(projects) - 1 or project - 1
+	project = project == 0 and len(CommitLogs) - 1 or project - 1
 
 
 def right():
 	global project
-	project = project != len(projects) - 1 and project + 1 or 0
+	project = project != len(CommitLogs) - 1 and project + 1 or 0
 
 
 gitcommitinfo = modules[__name__]
@@ -196,7 +193,9 @@ class CommitInfo(Screen):
 			}  # noqa: E123
 		)
 
-		self["key_red"] = Button(_("Cancel"))
+		self["key_red"] = StaticText(_("Close"))
+		self["key_left"] = StaticText(_("LEFT"))
+		self["key_right"] = StaticText(_("RIGHT"))
 		self.onUpdate = []
 
 		self.Timer = eTimer()

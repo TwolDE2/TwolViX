@@ -399,7 +399,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 					diseqc_mode = eDVBSatelliteDiseqcParameters::V1_0;
 				else
 				{
-					if (!((eDVBFrontend*)&frontend)->is_FBCTuner()) 
+					if (!((eDVBFrontend*)&frontend)->is_FBCTuner())
 					{
 						// in eDVBFrontend::tuneLoop we call closeFrontend and ->inc_use() in this this condition (to put the kernel frontend thread into idle state)
 						// so we must resend all diseqc stuff (voltage is disabled when the frontend is closed)
@@ -1141,6 +1141,7 @@ RESULT eDVBSatelliteEquipmentControl::prepare(iDVBFrontend &frontend, const eDVB
 void eDVBSatelliteEquipmentControl::prepareTurnOffSatCR(iDVBFrontend &frontend)
 {
 	eSecCommandList sec_sequence;
+	eDVBSatelliteLNBParameters &lnb_param = m_lnbs[m_lnbidx];
 	long userband, diction;
 
 	frontend.getData(eDVBFrontend::SATCR, userband);
@@ -1174,7 +1175,7 @@ void eDVBSatelliteEquipmentControl::prepareTurnOffSatCR(iDVBFrontend &frontend)
 			unsigned int ub = userband & 0x07;
 			unsigned int encoded_frequency_T = 0;
 			unsigned int mode = 0;
-			unsigned int position = 0;
+			unsigned int position = (lnb_param.SatCR_position - 1) & 0x01;
 			unsigned int bank = (position << 2) | (mode << 0);
 
 			eDVBDiseqcCommand diseqc;
@@ -1206,7 +1207,7 @@ void eDVBSatelliteEquipmentControl::prepareTurnOffSatCR(iDVBFrontend &frontend)
 			unsigned int ub = userband & 0x1f;
 			unsigned int encoded_frequency_T = 0;
 			unsigned int mode = 0;
-			unsigned int position = 0;
+			unsigned int position = (lnb_param.SatCR_position - 1) & 0x3f;
 
 			eDVBDiseqcCommand diseqc;
 			memset(diseqc.data, 0, MAX_DISEQC_LENGTH);

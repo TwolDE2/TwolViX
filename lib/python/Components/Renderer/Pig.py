@@ -36,7 +36,7 @@ class Pig(Renderer):
 		return ret
 
 	def onShow(self):
-		if self.instance:
+		if hasattr(Pig, 'instance') and self.instance:
 			if self.Size:
 				self.instance.resize(self.Size)
 			if self.Position:
@@ -44,6 +44,6 @@ class Pig(Renderer):
 			self.hidePip and PipPigMode(True)
 
 	def onHide(self):
-		if self.instance:
+		if hasattr(Pig, 'instance') and self.instance:
 			self.preWidgetRemove(self.instance)
 			self.hidePip and PipPigMode(False)

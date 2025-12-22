@@ -74,6 +74,7 @@ channelDownActions = [
 
 
 class EPGSelectionBase(Screen, HelpableScreen):
+	catchupPlayerFunc = None
 	lastEnteredTime = None
 	lastEnteredDate = None
 	EMPTY = 0
@@ -97,13 +98,15 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		self["Event"] = Event()
 		self["lab1"] = Label(_("Please wait while gathering EPG data..."))
 		self["lab1"].hide()
-		self["key_red"] = Button(_("IMDb Search"))
+		self.tmdb = isPluginInstalled("tmdb")
+		self["key_red"] = Button(_("TMDb Search") if self.tmdb else _("IMDb Search"))
 		self["key_green"] = Button(_("Add Timer"))
 		self["key_yellow"] = Button(_("EPG Search"))
 		self["key_blue"] = Button(_("Add AutoTimer"))
 
 		self["key_menu"] = StaticText(_("MENU"))
 		self["key_info"] = StaticText(_("INFO"))
+		self["key_play"] = StaticText("")
 
 		helpDescription = _("EPG Commands")
 
@@ -130,6 +133,10 @@ class EPGSelectionBase(Screen, HelpableScreen):
 			"LongRecord": self.helpKeyAction("reclong")
 		}, prio=-1, description=helpDescription)
 		self["epgactions"] = HelpableActionMap(self, "EPGSelectActions", {}, -1)
+
+		self["CatchUpActions"] = HelpableActionMap(self, "EPGCatchUpActions", {
+			"play": (self.playCatchup, _("Play archive")),
+		}, prio=-2, description=_("Catchup player commands"))
 
 		self.noAutotimer = _("The AutoTimer plugin is not installed!\nPlease install it.")
 		self.noEPGSearch = _("The EPGSearch plugin is not installed!\nPlease install it.")
@@ -281,6 +288,20 @@ class EPGSelectionBase(Screen, HelpableScreen):
 			self.refreshTimer.start(3000)
 		except ImportError:
 			self.session.open(MessageBox, self.noAutotimer, type=MessageBox.TYPE_INFO, timeout=10)
+
+	def setupKeyPlayButtonDisplay(self, stime, service):
+		if self["list"].detectCatchupAvailable(stime, service) and callable(self.catchupPlayerFunc):
+			self["key_play"].setText(_("PLAY"))
+		else:
+			self["key_play"].setText("")
+
+	def playCatchup(self):
+		if not callable(self.catchupPlayerFunc):
+			return
+		event, service = self["list"].getCurrent()[:2]
+		stime = event and event.getBeginTime()
+		if self["list"].detectCatchupAvailable(stime, service):
+			self.catchupPlayerFunc(event, service)
 
 	def openTimerList(self):
 		self.closeEventViewDialog()
@@ -434,6 +455,8 @@ class EPGSelectionBase(Screen, HelpableScreen):
 		timer = self.session.nav.RecordTimer.getTimerForEvent(service, event)
 		self.setActionButtonText("addEditTimer", _("Change Timer") if timer is not None else _("Add Timer"))
 		self.setActionButtonText("addEditAutoTimer", _("Edit AutoTimer") if timer is not None and timer.autoTimerId else _("Add AutoTimer"))
+		if "key_play" in self:  # protect against plugins that inherit this class but do not instanciate it
+			self.setupKeyPlayButtonDisplay(event.getBeginTime(), service)
 
 	def closeEventViewDialog(self):
 		if self.eventviewDialog:
@@ -461,8 +484,8 @@ class EPGServiceZap:
 		currentService = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 		if currentService and currentService.isPlayback():
 			# in movie playback, so store the resume point before zapping
-			from Screens.InfoBarGenerics import setResumePoint
-			setResumePoint(self.session)
+			from Screens.InfoBarGenerics import resumePointsInstance
+			resumePointsInstance.setResumePoint(self.session)
 		self.zapSelectedService(True)
 		self.refreshTimer.start(1)
 		if not self.currch or self.currch == self.prevch:
@@ -783,7 +806,7 @@ class EPGStandardButtons:
 	# build a tuple suitable for using in a helpable action
 	def helpKeyAction(self, actionName):
 		actions = {
-			"red": (self.openIMDb, _("IMDB search for current event")),
+			"red": (self.openTMDb if self.tmdb else self.openIMDb, _("TMDb search for current event") if self.tmdb else _("IMDB search for current event")),
 			"redlong": (self.sortEPG, _("Sort the EPG list")),
 			"green": (self.addEditTimer, _("Add/Remove timer for current event")),
 			"greenlong": (self.openTimerList, _("Show timer list")),

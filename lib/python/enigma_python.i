@@ -1,27 +1,27 @@
 /*
   NOTE: you have two options when adding classes so that
   they are callable *from* python.
-  
+
    - either you %include the header file
    - or you re-declare it
-   
+
   In both cases, you must #include the required
   header file (i.e. the header file itself), otherwise
   enigma_python_wrap.cxx won't build.
-  
+
 	In case you import the whole header file,
 	please make sure that no unimportant stuff
 	is wrapped, as this makes the wrapper stuff
-	much more complex and it can probably break 
+	much more complex and it can probably break
 	very easily because of missing typemaps etc.
-	
+
 	you could make use of dizzy macros to ensure
 	that some stuff is left out when parsed as SWIG
-	definitions, but be sure to not modify the binary 
+	definitions, but be sure to not modify the binary
 	representation. DON'T USE #ifdef SWIG_COMPILE
 	for leaving out stuff (unless you *really* know
 	what you are doing,of course!). you WILL break it.
-		
+
 	The better way (with more work) is to re-declare
 	the class. It won't be compiled, so you can
 	leave out stuff as you like.
@@ -29,7 +29,7 @@
 
 
 Oh, things like "operator= is private in this context" etc.
-is usually caused by not marking PSignals as immutable. 
+is usually caused by not marking PSignals as immutable.
 */
 
 %module enigma
@@ -41,6 +41,7 @@ is usually caused by not marking PSignals as immutable.
 #include <lib/base/eenv.h>
 #include <lib/base/eerror.h>
 #include <lib/base/message.h>
+#include <lib/base/modelinformation.h>
 #include <lib/base/e2avahi.h>
 #include <lib/driver/rc.h>
 #include <lib/driver/rcinput_swig.h>
@@ -61,6 +62,8 @@ is usually caused by not marking PSignals as immutable.
 #include <lib/gui/einputstring.h>
 #include <lib/gui/einputnumber.h>
 #include <lib/gui/epixmap.h>
+#include <lib/gui/erectangle.h>
+#include <lib/gui/estack.h>
 #include <lib/gui/ebutton.h>
 #include <lib/gui/ewindow.h>
 #include <lib/gui/ewidgetdesktop.h>
@@ -114,13 +117,14 @@ is usually caused by not marking PSignals as immutable.
 #include <lib/python/python_helpers.h>
 #include <lib/gdi/picload.h>
 #include <lib/dvb/fcc.h>
+#include <include/hardwaredb.h>
 %}
 
 %feature("ref")   iObject "$this->AddRef(); /* eDebug(\"AddRef (%s:%d)!\", __FILE__, __LINE__); */ "
 %feature("unref") iObject "$this->Release(); /* eDebug(\"Release! %s:%d\", __FILE__, __LINE__); */ "
 
 /* this magic allows smartpointer to be used as OUTPUT arguments, i.e. call-by-reference-styled return value. */
-
+#if SWIG_VERSION < 0x040300
 %define %typemap_output_simple(Type)
  %typemap(in,numinputs=0) Type *OUTPUT ($*1_ltype temp),
               Type &OUTPUT ($*1_ltype temp)
@@ -142,6 +146,30 @@ is usually caused by not marking PSignals as immutable.
    "$result = t_output_helper($result, ((*$1) ? SWIG_NewPointerObj((void*)($1), $1_descriptor, 1) : (delete $1, Py_INCREF(Py_None), Py_None)));"
 %enddef
 
+#else
+
+%define %typemap_output_simple(Type)
+ %typemap(in,numinputs=0) Type *OUTPUT ($*1_ltype temp),
+              Type &OUTPUT ($*1_ltype temp)
+   "$1 = new Type; (void)temp;";
+ %fragment("SWIG_Python_AppendOutput"{Type},"header",
+     fragment="SWIG_Python_AppendOutput") {}
+ %typemap(argout,fragment="SWIG_Python_AppendOutput"{Type}) Type *OUTPUT, Type &OUTPUT
+   "$result = SWIG_Python_AppendOutput($result, (SWIG_NewPointerObj((void*)($1), $1_descriptor, 1)), $isvoid);"   
+%enddef
+
+%define %typemap_output_ptr(Type)
+ %typemap(in,numinputs=0) Type *OUTPUT ($*1_ltype temp),
+              Type &OUTPUT ($*1_ltype temp)
+   "$1 = new Type; (void)temp;";
+ %fragment("SWIG_Python_AppendOutput"{Type},"header",
+     fragment="SWIG_Python_AppendOutput") {}
+ %typemap(argout,fragment="SWIG_Python_AppendOutput"{Type}) Type *OUTPUT, Type &OUTPUT
+		// generate None if smartpointer is NULL
+   "$result = SWIG_Python_AppendOutput($result, ((*$1) ? SWIG_NewPointerObj((void*)($1), $1_descriptor, 1) : (delete $1, Py_INCREF(Py_None), Py_None)), $isvoid);"
+%enddef
+
+#endif
 
 #define DEBUG
 typedef long time_t;
@@ -160,6 +188,7 @@ typedef long time_t;
 
 %immutable eSocketNotifier::activated;
 %include <lib/base/ebase.h>
+%include <lib/base/modelinformation.h>
 %include <lib/base/smartptr.h>
 %include <lib/service/event.h>
 %include <lib/service/iservice.h>
@@ -188,6 +217,7 @@ typedef long time_t;
 %immutable eHdmiCEC::addressChanged;
 %immutable ePythonMessagePump::recv_msg;
 %immutable eDVBLocalTimeHandler::m_timeUpdated;
+%immutable eDVBLocalTimeHandler::m_timeUpdatedMinutes;
 %immutable eFCCServiceManager::m_fcc_event;
 %immutable iCryptoInfo::clientname;
 %immutable iCryptoInfo::clientinfo;
@@ -215,6 +245,8 @@ typedef long time_t;
 %include <lib/gui/einputstring.h>
 %include <lib/gui/einputnumber.h>
 %include <lib/gui/epixmap.h>
+%include <lib/gui/erectangle.h>
+%include <lib/gui/estack.h>
 %include <lib/gui/ecanvas.h>
 %include <lib/gui/ebutton.h>
 %include <lib/gui/ewindow.h>
@@ -324,7 +356,7 @@ public:
 
 %{
 RESULT SwigFromPython(ePtr<gPixmap> &result, PyObject *obj)
-{	
+{
 	ePtr<gPixmap> *res;
 
 	res = 0;
@@ -451,6 +483,18 @@ PyObject *getFontFaces()
 }
 %}
 
+PyObject *getDeviceDB();
+%{
+PyObject *getDeviceDB()
+{
+	ePyObject result = PyDict_New();
+	for (const auto & [ key, value ] : HardwareDB) {
+		PutToDict(result, key.c_str(), value.c_str());
+	}
+    return result;
+}
+%}
+
 /************** temp *****************/
 
 	/* need a better place for this, i agree. */
@@ -463,6 +507,7 @@ extern void addFont(const char *filename, const char *alias, int scale_factor, i
 extern const char *getEnigmaVersionString();
 extern const char *getEnigmaLastCommitDate();
 extern const char *getEnigmaLastCommitHash();
+extern const char *getE2Rev();
 extern const char *getGStreamerVersionString();
 extern void dump_malloc_stats(void);
 extern void pauseInit(void);
@@ -471,6 +516,9 @@ extern void resumeInit(void);
 extern void setAnimation_current(int a);
 extern void setAnimation_speed(int speed);
 #endif
+extern int getE2Flags();
+extern int getFD0lock();
+extern bool checkLogin(const char *user, const char *pwd);
 %}
 
 extern void addFont(const char *filename, const char *alias, int scale_factor, int is_replacement, int renderflags = 0);
@@ -481,6 +529,7 @@ extern eApplication *getApplication();
 extern const char *getEnigmaVersionString();
 extern const char *getEnigmaLastCommitDate();
 extern const char *getEnigmaLastCommitHash();
+extern const char *getE2Rev();
 extern const char *getGStreamerVersionString();
 extern void dump_malloc_stats(void);
 extern void pauseInit(void);
@@ -489,6 +538,9 @@ extern void resumeInit(void);
 extern void setAnimation_current(int a);
 extern void setAnimation_speed(int speed);
 #endif
+extern int getFD0lock();
+extern int getE2Flags();
+extern bool checkLogin(const char *user, const char *pwd);
 
 %include <lib/python/python_console.i>
 %include <lib/python/python_base.i>

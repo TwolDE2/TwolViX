@@ -1,11 +1,8 @@
-from __future__ import print_function
-#
 # create links for picon
 #   usage: create_picon_links lamedb
 # run in picon directory.
 # It will read the servicenames from the lamedb and create symlinks
 # for the servicereference names.
-from builtins import range
 from os import access, symlink, F_OK
 import sys
 

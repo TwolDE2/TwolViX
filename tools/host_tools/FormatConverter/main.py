@@ -1,12 +1,12 @@
 #!/usr/bin/python
 from os import system as ossystem
 
-from . import datasource
-from . import satxml
-from . import lamedb
-from . import input
+from datasource import genericdatasource
+from satxml import satxml
+from lamedb import lamedb
+from input import inputChoices
 
-maindata = datasource.genericdatasource()
+maindata = genericdatasource()
 
 sources = [satxml, lamedb]
 
@@ -20,19 +20,19 @@ for source in datasources:
 
 while True:
 	ossystem("/usr/bin/clear")
-	list = []
+	data = []
 	for index in list(range(len(datasources))):
-		list.append(datasources[index].getName() + (" (%d sats)" % len(datasources[index].transponderlist.keys())))
-	index = input.inputChoices(list, "q", "quit")
+		data.append(datasources[index].getName() + (" (%d sats)" % len(datasources[index].transponderlist.keys())))
+	index = inputChoices(data, "q", "quit")
 	if index is None:
 		break
 
 	while True:
 		print(datasources[index].getStatus())
-		list = []
+		data = []
 		for action in datasources[index].getCapabilities():
-			list.append(action[0])
-		action = input.inputChoices(list)
+			data.append(action[0])
+		action = inputChoices(data)
 		if action is None:
 			break
 

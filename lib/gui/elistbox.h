@@ -54,6 +54,7 @@ protected:
 	virtual int getItemWidth() { return -1; }
 	virtual int getOrientation() { return 1; }
 	virtual int getMaxItemTextWidth() { return 1; }
+	virtual int getListSize() { return 0; }
 
 	eListbox *m_listbox;
 #endif
@@ -100,13 +101,16 @@ struct eListboxStyle
 	{
 		return m_itemCornerRadiusEdges[mode];
 	}
+	bool m_gradient_set[4], m_gradient_alphablend[4];
+	uint8_t m_gradient_direction[4];
+	std::vector<gRGB> m_gradient_colors[4];
 };
 #endif
 
 class eListbox: public eWidget
 {
 	void updateScrollBar();
-public:
+public: 
 	eListbox(eWidget *parent);
 	~eListbox();
 
@@ -121,7 +125,7 @@ public:
 	};
 	void setScrollbarMode(int mode);
 	void setWrapAround(bool);
-	enum { orHorizontal, orVertical };
+	enum { orHorizontal, orVertical, orGrid };
 	void setOrientation(int orientation);
 
 	void setContent(iListboxContent *content);
@@ -168,7 +172,7 @@ public:
 	void setItemWidth(int w);
 	void setSelectionEnable(int en);
 
-	void setBackgroundColor(gRGB &col);
+	void setBackgroundColor(const gRGB &col);
 	void setBackgroundColorSelected(gRGB &col);
 	void setForegroundColor(gRGB &col);
 	void setForegroundColorSelected(gRGB &col);
@@ -198,8 +202,8 @@ public:
 	int getScrollbarHeight() { return m_scrollbar_height; }
 	int getMaxItemTextWidth() { return m_content->getMaxItemTextWidth(); }
 
-	void setItemCornerRadius(int radius, int edges);
-	void setItemCornerRadiusSelected(int radius, int edges);
+	void setItemCornerRadius(int radius, uint8_t edges);
+	void setItemCornerRadiusSelected(int radius, uint8_t edges);
 
 	static void setDefaultItemRadius(int radius, int radiusEdges)
 	{
@@ -211,6 +215,9 @@ public:
 		defaultItemRadius[1] = radius;
 		defaultItemRadiusEdges[1] = radiusEdges;
 	}
+	void setItemGradient(const gRGB &startcolor, const gRGB &midcolor, const gRGB &endcolor, uint8_t direction, bool alphablend);
+	void setItemGradientSelected(const gRGB &startcolor, const gRGB &midcolor, const gRGB &endcolor, uint8_t direction, bool alphablend);
+	void redrawItemByIndex(int index) { entryChanged(index); }
 
 #ifndef SWIG
 	struct eListboxStyle *getLocalStyle(void);
@@ -229,6 +236,7 @@ public:
 protected:
 	int event(int event, void *data=0, void *data2=0);
 	void recalcSize();
+	ePoint getItemPostion(int index);
 
 private:
 	int m_scrollbar_mode, m_prev_scrollbar_page;
@@ -237,13 +245,15 @@ private:
 
 	int m_scrollbar_width;
 	int m_scrollbar_height;
-	int m_top, m_left, m_selected;
+	int m_top, m_left, m_max_columns, m_max_rows, m_selected;
 	int m_itemheight;
 	int m_itemwidth;
 	int m_orientation;
 	int m_items_per_page;
+	int m_items_per_page_with_partials;
 	int m_selection_enabled;
-	void setItemCornerRadiusInternal(int radius, int edges, int index);
+	void setItemCornerRadiusInternal(int radius, uint8_t edges, int index);
+	void setItemGradientInternal(uint8_t index, const gRGB &startcolor, const gRGB &midcolor, const gRGB &endcolor, uint8_t direction, bool alphablend);
 
 	bool m_native_keys_bound;
 

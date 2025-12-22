@@ -2,10 +2,8 @@ from datetime import date, datetime
 from os import path, stat, mkdir, listdir, remove, statvfs, chmod
 from time import localtime, time, strftime, mktime
 import tarfile
-import glob
 from enigma import eTimer, eEnv, eDVBDB, quitMainloop
 
-from Components.About import about
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.config import configfile, config, ConfigSubsection, ConfigYesNo, ConfigSelection, ConfigText, ConfigNumber, ConfigLocations, NoSave, ConfigClock, ConfigDirectory
@@ -15,13 +13,13 @@ from Components.Harddisk import harddiskmanager, bytesToHumanReadable
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, DISPLAYBRAND, IMAGETYPE, MACHINENAME
 import Components.Task
+from Components.UserInstalledPackages import UserInstalledPackages
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Setup import Setup
 from Screens.TextBox import TextBox
-from Tools.Notifications import AddPopupWithCallback
 
 autoBackupManagerTimer = None
 SETTINGSRESTOREQUESTIONID = "RestoreSettingsNotification"
@@ -93,31 +91,6 @@ config.backupmanager.types_to_prune = ConfigSelection(default="none", choices=[(
 config.backupmanager.number_to_keep = ConfigNumber(default=0)
 
 
-def isRestorableSettings(imageversion):
-	minimum_version = 4.2
-	try:
-		imageversion = float(imageversion)
-	except:
-		return False
-	return imageversion >= minimum_version
-
-
-def isRestorablePlugins(imageversion):
-	minimum_version = 4.2
-	try:
-		imageversion = float(imageversion)
-	except:
-		return False
-	return imageversion >= minimum_version
-
-
-def isRestorableKernel(kernelversion):
-	# This check should no longer be necessary since auto-installed packages are no longer listed in the plugins backup.
-	# For more information please consult commit https://github.com/OpenViX/vix-core/commit/53a95067677651a3f2579a1b0d1f70172ccc493b
-	return True
-	# return kernelversion == about.getKernelVersionString()
-
-
 def BackupManagerautostart(reason, session=None, **kwargs):
 	"""called with reason=1 to during /sbin/shutdown.sysvinit, with reason=0 at startup?"""
 	global autoBackupManagerTimer
@@ -135,6 +108,14 @@ def BackupManagerautostart(reason, session=None, **kwargs):
 
 
 BackupTime = 0
+
+
+class DownloadScreen(Screen):
+	def __init__(self, session, text):
+		Screen.__init__(self, session)
+		self["text"] = Label(text)
+		self.skinName = "QuitMainloopScreen"
+		print("[DownloadScreen] text", text)
 
 
 class VIXBackupManager(Screen):
@@ -183,6 +164,10 @@ class VIXBackupManager(Screen):
 		self.Console = Console()
 		self.ConsoleB = Console(binary=True)
 
+		self.pluginDownloadTimer = eTimer()  # used to open "fake" plugin download screen
+		self.pluginDownloadTimer.timeout.get().append(self.openDownloadScreen)
+		self.downloadScreen = None
+
 		if BackupTime > 0:
 			t = localtime(BackupTime)
 			backuptext = _("Next backup: ") + strftime(_("%a %e %b  %-H:%M"), t)
@@ -192,6 +177,11 @@ class VIXBackupManager(Screen):
 		if self.selectionChanged not in self["list"].onSelectionChanged:
 			self["list"].onSelectionChanged.append(self.selectionChanged)
 
+	def openDownloadScreen(self):
+		if self.downloadScreen is None:
+			text = _("Plugin download in progress\nPlease wait while your %s %s downloads %d plugins\nThis may take a few minutes") % (DISPLAYBRAND, MACHINENAME, self.plugin_count)
+			self.downloadScreen = self.session.open(DownloadScreen, text)
+
 	def createSummary(self):
 		from Screens.PluginBrowser import PluginBrowserSummary
 		return PluginBrowserSummary
@@ -199,10 +189,7 @@ class VIXBackupManager(Screen):
 	def selectionChanged(self):
 		item = self["list"].getCurrent()
 		desc = self["backupstatus"].text
-		if item:
-			name = item
-		else:
-			name = ""
+		name = item or ""
 		for cb in self.onChangedEntry:
 			cb(name, desc)
 
@@ -211,10 +198,7 @@ class VIXBackupManager(Screen):
 		for job in Components.Task.job_manager.getPendingJobs():
 			if job.name.startswith(_("Backup manager")):
 				self.BackupRunning = True
-		if self.BackupRunning:
-			self["key_green"].setText(_("View progress"))
-		else:
-			self["key_green"].setText(_("New backup"))
+		self["key_green"].text = _("View progress") if self.BackupRunning else _("New backup")
 		self.activityTimer.startLongTimer(5)
 		self.populate_List()
 
@@ -251,10 +235,10 @@ class VIXBackupManager(Screen):
 				["ColorActions", "OkCancelActions", "DirectionActions", "MenuActions", "TimerEditActions"],
 				{
 					"cancel": self.close,
-					"ok": self.keyResstore,
+					"ok": self.keyRestore,
 					"red": self.keyDelete,
 					"green": self.GreenPressed,
-					"yellow": self.keyResstore,
+					"yellow": self.keyRestore,
 					"menu": self.createSetup,
 					"log": self.showLog,
 				}, -1)
@@ -329,7 +313,7 @@ class VIXBackupManager(Screen):
 	def keyDelete(self):
 		self.sel = self["list"].getCurrent()
 		if self.sel is not None:
-			self["list"].moveToIndex(self["list"].getSelectionIndex() if len(self["list"].list) > self["list"].getSelectionIndex() + 1 else max(len(self["list"].list) - 2, 0))  # hold the selection current possition if the list is long enough, else go to last item
+			self["list"].moveToIndex(self["list"].getSelectedIndex() if len(self["list"].list) > self["list"].getSelectedIndex() + 1 else max(len(self["list"].list) - 2, 0))  # hold the selection current possition if the list is long enough, else go to last item
 			remove(self.BackupDirectory + self.sel)
 			self.populate_List()
 
@@ -355,7 +339,7 @@ class VIXBackupManager(Screen):
 				self.showJobView(job)
 				break
 
-	def keyResstore(self):
+	def keyRestore(self):
 		self.sel = self["list"].getCurrent()
 		if not self.BackupRunning:
 			if self.sel:
@@ -363,382 +347,205 @@ class VIXBackupManager(Screen):
 					remove("/tmp/ExtraInstalledPlugins")
 				if path.exists("/tmp/backupkernelversion"):
 					remove("/tmp/backupkernelversion")
-				self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion", self.settingsRestoreCheck)
+				message = _("Are you sure you want to restore this backup:\n ") + self.sel
+				ybox = self.session.openWithCallback(self.doRestore, MessageBox, message, MessageBox.TYPE_YESNO)
+				ybox.setTitle(_("Restore Confirmation"))
 			else:
-				self.session.open(MessageBox, _("There is no backup to restore."), MessageBox.TYPE_INFO, timeout=10)
+				self.session.open(MessageBox, _("There is no backup to restore."), MessageBox.TYPE_INFO, timeout=5)
 		else:
-			self.session.open(MessageBox, _("Backup in progress,\nPlease wait for it to finish, before trying again."), MessageBox.TYPE_INFO, timeout=10)
-
-	def settingsRestoreCheck(self, result, retval, extra_args=None):
-		if path.exists("/tmp/backupimageversion"):
-			with open("/tmp/backupimageversion", "r") as fd:
-				imageversion = fd.read()
-			print("[BackupManager] Backup Image:", imageversion)
-			print("[BackupManager] Current Image:", about.getVersionString())
-			if imageversion == about.getVersionString() or isRestorableSettings(imageversion):
-				print("[BackupManager] Stage 1: Image ver OK")
-				self.keyResstore1()
-			else:
-				self.session.open(MessageBox, _("Sorry, but the file is not compatible with this image version."), MessageBox.TYPE_INFO, timeout=10)
-		else:
-			self.session.open(MessageBox, _("Sorry, but the file is not compatible with this image version."), MessageBox.TYPE_INFO, timeout=10)
-
-	def keyResstore1(self):
-		message = _("Are you sure you want to restore this backup:\n ") + self.sel
-		ybox = self.session.openWithCallback(self.doRestore, MessageBox, message, MessageBox.TYPE_YESNO)
-		ybox.setTitle(_("Restore Confirmation"))
+			self.session.open(MessageBox, _("Backup in progress,\nPlease wait for it to finish, before trying again."), MessageBox.TYPE_INFO, timeout=5)
 
 	def doRestore(self, answer):
 		if answer is True:
-			Components.Task.job_manager.AddJob(self.createRestoreJob())
-			self.BackupRunning = True
-			self["key_green"].setText(_("View progress"))
-			self["key_green"].show()
-			for job in Components.Task.job_manager.getPendingJobs():
-				if job.name.startswith(_("Backup manager")):
-					self.showJobView(job)
-					break
+			self.activityTimer.stop()  # stop re-populating the list and updating labels
+			self.pluginslist = []
+			self.pluginslist2 = []
+			self.didSettingsRestore = False
+			self.doPluginsRestore = False
+			self.didPluginsRestore = False
+			self.feedscheck = False
+			self.feeds = " "
+			self.RestoreRunning = True
+			message = _("Do you want to restore your enigma2 settings ?")
+			ybox = self.session.openWithCallback(self.restoreSettings, MessageBox, message, MessageBox.TYPE_YESNO)
+			ybox.setTitle(_("Restore Settings Confirmation"))
 
-	def myclose(self):
-		self.close()
+	def restoreSettings(self, answer=False):
+		print(f"[BackupManager][restoreSettings] Restore settings? Answer:{answer}")
+		if answer:
+			self["lab1"].setText(_("Restoring enigma2 settings") + "...")
+			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /", self.restoreSettingsComplete)
+		else:
+			self.checkPlugins()
 
-	def createRestoreJob(self):
-		self.pluginslist = ""
-		self.pluginslist2 = ""
-		self.didSettingsRestore = False
-		self.doPluginsRestore = False
-		self.didPluginsRestore = False
-		self.Stage1Completed = False
-		self.Stage2Completed = False
-		self.Stage3Completed = False
-		self.Stage4Completed = False
-		self.Stage5Completed = False
-		job = Components.Task.Job(_("Backup manager"))
-
-		task = Components.Task.PythonTask(job, _("Restoring backup..."))
-		task.work = self.JobStart
-		task.weighting = 1
-
-		task = Components.Task.PythonTask(job, _("Restoring backup..."))
-		task.work = self.Stage1
-		task.weighting = 1
-
-		task = Components.Task.ConditionTask(job, _("Restoring backup..."), timeoutCount=30)
-		task.check = lambda: self.Stage1Completed
-		task.weighting = 1
-
-		task = Components.Task.PythonTask(job, _("Creating list of installed plugins..."))
-		task.work = self.Stage2
-		task.weighting = 1
-
-		task = Components.Task.ConditionTask(job, _("Creating list of installed plugins..."), timeoutCount=300)
-		task.check = lambda: self.Stage2Completed
-		task.weighting = 1
-
-		task = Components.Task.PythonTask(job, _("Comparing against backup..."))
-		task.work = self.Stage3
-		task.weighting = 1
-
-		task = Components.Task.ConditionTask(job, _("Comparing against backup..."), timeoutCount=300)
-		task.check = lambda: self.Stage3Completed
-		task.weighting = 1
-
-		task = Components.Task.PythonTask(job, _("Restoring plugins..."))
-		task.work = self.Stage4
-		task.weighting = 1
-
-		task = Components.Task.ConditionTask(job, _("Restoring plugins..."), timeoutCount=300)
-		task.check = lambda: self.Stage4Completed
-		task.weighting = 1
-
-		task = Components.Task.PythonTask(job, _("Restoring plugins, this can take a long time..."))
-		task.work = self.Stage5
-		task.weighting = 1
-
-		task = Components.Task.ConditionTask(job, _("Restoring plugins, this can take a long time..."), timeoutCount=1200)
-		task.check = lambda: self.Stage5Completed
-		task.weighting = 1
-
-		task = Components.Task.PythonTask(job, _("Rebooting..."))
-		task.work = self.Stage6
-		task.weighting = 1
-
-		return job
-
-	def JobStart(self):
-		AddPopupWithCallback(
-			self.Stage1,
-			_("Do you want to restore your enigma2 settings ?"),
-			MessageBox.TYPE_YESNO,
-			10,
-			SETTINGSRESTOREQUESTIONID
-		)
-
-	def Stage1(self, answer=None):
-		print("[BackupManager] Restoring Stage 1:")
-		if answer is True:
-			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /", self.Stage1SettingsComplete)
-		elif answer is False:
-			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion  tmp/3rdPartyPlugins", self.Stage1PluginsComplete)
-
-	def Stage1SettingsComplete(self, result, retval, extra_args):
-		print("[BackupManager] Restoring Stage 1 RESULT:", result)
-		print("[BackupManager] Restoring Stage 1 retval:", retval)
+	def restoreSettingsComplete(self, result, retval, extra_args):
+		print(f"[BackupManager][restoreSettings] Restore -  retval:{retval} result:{result.decode()}")
 		if retval == 0:
-			print("[BackupManager] Restoring Stage 1 Complete:")
+			print("[BackupManager] Restoring Settings Complete:")
 			self.didSettingsRestore = True
-			self.Stage1Completed = True
+			self.restoreSettingsCompleted = True
 			eDVBDB.getInstance().reloadServicelist()
 			eDVBDB.getInstance().reloadBouquets()
 			self.session.nav.PowerTimer.loadTimer()
 			self.session.nav.RecordTimer.loadTimer(justLoad=True)  # Don't check RecordTimers for conflicts. On a restore we may not have the correct tuner configuration (and no USB tuners)...
 			configfile.load()
+			self.checkPlugins()
 		else:
-			print("[BackupManager] Restoring Stage 1 Failed:")
-			AddPopupWithCallback(
-				self.Stage2,
-				_("Sorry, but the restore failed."),
-				MessageBox.TYPE_INFO,
-				10,
-				"StageOneFailedNotification"
-			)
+			print("[BackupManager] Restoring settings Failed:")
+			self.session.open(MessageBox, _("Sorry, but the restore failed, exiting."), MessageBox.TYPE_INFO, timeout=3)
+			self.finaliseRestore()
 
-	def Stage1PluginsComplete(self, result, retval, extra_args):
-		print("[BackupManager] Restoring Stage 1 Complete:")
-		self.Stage1Completed = True
+	def checkPlugins(self, *args, **kwargs):
+		print("[BackupManager] Checking plugins restore required")
+		message = _("Do you want to restore your Enigma2 plugins ?")
+		ybox = self.session.openWithCallback(self.checkPluginsRestore, MessageBox, message, MessageBox.TYPE_YESNO)
+		ybox.setTitle(_("Restore Plugins Confirmation"))
 
-	def Stage2(self, result=False):
-		print("[BackupManager] Restoring Stage 2: Checking feeds")
-		self.Console.ePopen("opkg update", self.Stage2Complete)
+	def checkPluginsRestore(self, answer=False):
+		print(f"[BackupManager][checkPluginsRestore] Plugins request check:{answer}")
+		if answer:
+			print("[BackupManager][checkPluginsRestore] plugin restore chosen")
+			self["lab1"].setText(_("Checking for restorable plugins") + "...")
+			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C / tmp/ExtraInstalledPlugins tmp/backupkernelversion tmp/backupimageversion  tmp/3rdPartyPlugins", self.pluginsRestore)
+		else:
+			print("[BackupManager][checkPluginsRestore] plugin restore skipped by user")
+			self.finaliseRestore()
 
-	def Stage2Complete(self, result, retval, extra_args):
-		print("[BackupManager] Restoring Stage 2: Result ", result)
+	def pluginsRestore(self, result, retval, extra_args):
+		print("[BackupManager] Restoring Plugins:Feeds Check")
+		self.Console.ePopen("opkg update", self.feedsCheck)
+
+	def feedsCheck(self, result, retval, extra_args):
+		print(f"[BackupManager][feedsCheck] Check Feeds Result:{result}")
+		self.feeds = "OK"
+		message = _("Feeds are OK, proceeding to restore plugins.")
 		if result.find("wget returned 4") != -1:  # probably no network adaptor connected
 			self.feeds = "NONETWORK"
-			self.Stage2Completed = True
-		if result.find("wget returned 8") != -1 or result.find("wget returned 1") != -1 or result.find("wget returned 255") != -1 or result.find("404 Not Found") != -1:  # Server issued an error response, or there was a wget generic error code.
+			print("[BackupManager][feedsCheck] No network connection, plugin restore not possible")
+			message = _("Your %s %s is not connected to a network. Please check your network settings and try again.") % (DISPLAYBRAND, MACHINENAME)
+		elif result.find("wget returned 8") != -1 or result.find("wget returned 1") != -1 or result.find("wget returned 255") != -1 or result.find("404 Not Found") != -1:  # Server issued an error response, or there was a wget generic error code.
 			self.feeds = "DOWN"
-			self.Stage2Completed = True
+			print("[BackupManager][feedsCheck] Feeds are down, plugin restore not possible")
+			message = _("Sorry the feeds are down for maintenance. Please try again later.")
 		elif result.find("bad address") != -1:  # probably DNS lookup failed
 			self.feeds = "BAD"
-			self.Stage2Completed = True
+			print("[BackupManager][feedsCheck] no network connection, plugin restore not possible")
+			message = _("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (DISPLAYBRAND, MACHINENAME),
 		elif result.find("Collected errors") != -1:  # none of the above errors. What condition requires this to loop? Maybe double key press.
-			AddPopupWithCallback(
-				self.Stage2,
-				_("A background update check is in progress, please try again."),
-				MessageBox.TYPE_INFO,
-				10,
-				NOPLUGINS
-			)
+			self.feeds = "Collected errors"
+			self.session.open(MessageBox, _("A background update check is in progress, please try again."), MessageBox.TYPE_INFO, timeout=5)
+			self.finaliseRestore()
+		print(f"[BackupManager][feedsCheck] Check result:{self.feeds}")
+		if self.feeds != "OK":
+			self.feedscheck = False
+			ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=5)
+			ybox.setTitle(_("Restore Plugins Confirmation"))
 		else:
-			print("[BackupManager] Restoring Stage 2: Complete")
-			self.feeds = "OK"
-			self.Stage2Completed = True
+			self.feedscheck = True
+			self.Console.ePopen("opkg list", self.feedsCheckComplete)
 
-	def Stage3(self):
-		print("[BackupManager] Restoring Stage 3: Kernel Version/Feeds Checks")
-		if self.feeds == "OK":
-			print("[BackupManager] Restoring Stage 3: Feeds are OK")
-			if path.exists("/tmp/backupkernelversion") and path.exists("/tmp/backupimageversion"):
-				with open("/tmp/backupimageversion", "r") as fd:
-					imageversion = fd.read()
-				with open("/tmp/backupkernelversion", "r") as fd:
-					kernelversion = fd.read()
-				print("[BackupManager] Backup Image:", imageversion)
-				print("[BackupManager] Current Image:", about.getVersionString())
-				print("[BackupManager] Backup Kernel:", kernelversion)
-				print("[BackupManager] Current Kernel:", about.getKernelVersionString())
-				if isRestorableKernel(kernelversion) and (imageversion == about.getVersionString() or isRestorablePlugins(imageversion)):
-					# print("[BackupManager] Restoring Stage 3: Kernel Version is same as backup")
-					self.kernelcheck = True
-					self.Console.ePopen("opkg list-installed", self.Stage3Complete)
-				else:
-					print("[BackupManager] Restoring Stage 3: Kernel or Image Version does not match, exiting")
-					self.kernelcheck = False
-					self.Stage6()
-			else:
-				print("[BackupManager] Restoring Stage 3: Kernel or Image Version check failed")
-				self.kernelcheck = False
-				self.Stage6()
-		elif self.feeds == "NONETWORK":
-			print("[BackupManager] Restoring Stage 3: No network connection, plugin restore not possible")
-			self.kernelcheck = False
-			AddPopupWithCallback(
-				self.Stage6,
-				_("Your %s %s is not connected to a network. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
-				MessageBox.TYPE_INFO,
-				15,
-				NOPLUGINS
-			)
-		elif self.feeds == "DOWN":
-			print("[BackupManager] Restoring Stage 3: Feeds are down, plugin restore not possible")
-			self.kernelcheck = False
-			AddPopupWithCallback(
-				self.Stage6,
-				_("Sorry the feeds are down for maintenance. Please try again later."),
-				MessageBox.TYPE_INFO,
-				15,
-				NOPLUGINS
-			)
-		elif self.feeds == "BAD":
-			print("[BackupManager] Restoring Stage 3: no network connection, plugin restore not possible")
-			self.kernelcheck = False
-			AddPopupWithCallback(
-				self.Stage6,
-				_("Your %s %s is not connected to the Internet. Please check your network settings and try again.") % (SystemInfo["displaybrand"], SystemInfo["machinename"]),
-				MessageBox.TYPE_INFO,
-				15,
-				NOPLUGINS
-			)
-		else:
-			print("[BackupManager] Restoring Stage 3: Feeds state is unknown aborting")
-			self.Stage6()
+	def feedsCheckComplete(self, result, retval, extra_args):
+		self.opkg_available_packages = {p.split()[0] for line in result.split("\n") if (p := line.strip())}  # list of all packages available from the feeds
+		self.Console.ePopen("opkg list-installed", self.feedsCheckComplete2)
 
-	def Stage3Complete(self, result, retval, extra_args):
-		plugins = []
-		if path.exists("/tmp/ExtraInstalledPlugins") and self.kernelcheck:
-			self.pluginslist = []
-			for line in result.split("\n"):
-				if line:
-					parts = line.strip().split()
-					plugins.append(parts[0])
+	def feedsCheckComplete2(self, result, retval, extra_args):
+		self.pluginslist = []
+		self.pluginslist2 = []
+		opkg_installed_packages = {p.split()[0] for line in result.split("\n") if (p := line.strip())}
+		if path.exists("/tmp/ExtraInstalledPlugins"):  # user installed packages from feeds in image
 			with open("/tmp/ExtraInstalledPlugins", "r") as fd:
-				tmppluginslist = fd.readlines()
-			for line in tmppluginslist:
-				if line:
-					parts = line.strip().split()
-					if len(parts) > 0 and parts[0] not in plugins:
-						self.pluginslist.append(parts[0])
-
-		if path.exists("/tmp/3rdPartyPlugins") and self.kernelcheck:
-			self.pluginslist2 = []
-			self.plugfiles = []
-			self.thirdpartyPluginsLocation = " "
-			if config.backupmanager.xtraplugindir.value:
-				self.thirdpartyPluginsLocation = config.backupmanager.xtraplugindir.value
-				self.thirdpartyPluginsLocation = self.thirdpartyPluginsLocation.replace(" ", "%20")
-				self.plugfiles = self.thirdpartyPluginsLocation.split("/", 3)
-			elif path.exists("/tmp/3rdPartyPluginsLocation"):
+				self.pluginslist = [p for line in fd.readlines() if (p := line.strip()) and p in self.opkg_available_packages and p not in opkg_installed_packages]  # list of user installed packages in image and in feeds
+		if path.exists("/tmp/3rdPartyPlugins"):
+			thirdpartyPluginsLocation = ""
+			if (xtraplugindir := config.backupmanager.xtraplugindir.value) and path.exists(xtraplugindir):
+				thirdpartyPluginsLocation = xtraplugindir
+				print("[BackupManager] Restoring Stage 3: thirdpartyPluginsLocation from config", "'%s'" % thirdpartyPluginsLocation)
+			if not thirdpartyPluginsLocation and path.exists("/tmp/3rdPartyPluginsLocation"):
 				with open("/tmp/3rdPartyPluginsLocation", "r") as fd:
-					self.thirdpartyPluginsLocation = fd.readlines()
-				self.thirdpartyPluginsLocation = "".join(self.thirdpartyPluginsLocation)
-				self.thirdpartyPluginsLocation = self.thirdpartyPluginsLocation.replace("\n", "")
-				self.thirdpartyPluginsLocation = self.thirdpartyPluginsLocation.replace(" ", "%20")
-				self.plugfiles = self.thirdpartyPluginsLocation.split("/", 3)
-			print("[BackupManager] thirdpartyPluginsLocation split = %s" % self.plugfiles)
+					thirdpartyPluginsLocation = fd.readline().strip()
+					print("[BackupManager] Restoring Stage 3: thirdpartyPluginsLocation from file", "'%s'" % thirdpartyPluginsLocation)
+			thirdpartyPluginsLocation = thirdpartyPluginsLocation.replace(" ", "%20")  # What is this replace for?
 			with open("/tmp/3rdPartyPlugins", "r") as fd:
-				tmppluginslist2 = fd.readlines()
-			available = None
-			for line in tmppluginslist2:
-				if line:
-					parts = line.strip().split("_")
-					if parts[0] not in plugins:
-						ipk = parts[0]
-						if path.exists(self.thirdpartyPluginsLocation):
-							available = listdir(self.thirdpartyPluginsLocation)
-						else:
-							devmounts = []
-							self.plugfile = self.plugfiles[3]
-							# print("[BackupManager] self.plugfile, self.plugfiles", self.plugfile, self.plugfiles)
-							for dir in ["/media/%s/%s" % (media, self.plugfile) for media in listdir("/media/") if path.isdir(path.join("/media/", media)) and path.exists("/media/%s/%s" % (media, self.plugfile))]:
-								if media not in ("autofs", "net"):  # noqa: F821
-									devmounts.append(dir)
-							if len(devmounts):
-								for x in devmounts:
-									print("[BackupManager] search dir = %s" % devmounts)
-									if path.exists(x):
-										self.thirdpartyPluginsLocation = x
-										try:
-											available = listdir(self.thirdpartyPluginsLocation)
-											break
-										except:
-											continue
-						if available:
-							for file in available:
-								if file:
-									fileparts = file.strip().split("_")
-									# print("[BackupManager] fileparts, ipk", fileparts, ipk)
-									if fileparts[0] == ipk:
-										self.thirdpartyPluginsLocation = self.thirdpartyPluginsLocation.replace(" ", "%20")
-										ipk = path.join(self.thirdpartyPluginsLocation, file)
-										if path.exists(ipk):
-											self.pluginslist2.append(ipk)
-						print("[BackupManager] pluginslist = %s" % self.pluginslist2)
-
-		print("[BackupManager] Restoring Stage 3: Complete")
-		self.Stage3Completed = True
-
-	def Stage4(self):
-		if len(self.pluginslist) or len(self.pluginslist2):
-			if len(self.pluginslist):
-				self.pluginslist = " ".join(self.pluginslist)
-			else:
-				self.pluginslist = ""
-			if len(self.pluginslist2):
-				self.pluginslist2 = " ".join(self.pluginslist2)
-			else:
-				self.pluginslist2 = ""
-			print("[BackupManager] Restoring Stage 4: Plugins to restore (extra plugins)", self.pluginslist)
-			print("[BackupManager] Restoring Stage 4: Plugins to restore (3rd party plugins)", self.pluginslist2)
-			AddPopupWithCallback(
-				self.Stage4Complete,
-				_("Do you want to restore your Enigma2 plugins ?"),
-				MessageBox.TYPE_YESNO,
-				15,
-				PLUGINRESTOREQUESTIONID
-			)
-		else:
-			print("[BackupManager] Restoring Stage 4: plugin restore not required")
-			self.Stage6()
-
-	def Stage4Complete(self, answer=None):
-		if answer is True:
-			print("[BackupManager] Restoring Stage 4: plugin restore chosen")
+				tmppluginslist2 = [package.split("_")[0] for line in fd.readlines() if (package := line.strip())]  # ".split("_")[0]" should be redundant if the input is correct
+			relative_path = len(x := thirdpartyPluginsLocation.split("/", 3)) > 3 and x[3] or None  # expects thirdpartyPluginsLocation to be in the format /media/something/myFolder
+			devmounts = relative_path and ["/media/%s/%s" % (media, relative_path) for media in listdir("/media/") if media not in ("autofs", "net") and path.isdir(path.join("/media/", media)) and path.exists("/media/%s/%s" % (media, relative_path))]
+			print("[BackupManager] search dir = %s" % str(devmounts))
+			for ipk in tmppluginslist2:
+				available = []
+				if ipk not in opkg_installed_packages:
+					if path.exists(thirdpartyPluginsLocation):
+						available = sorted([y for y in listdir(thirdpartyPluginsLocation) if y.startswith(ipk)], reverse=True)  # sort for most recent by name if multiple versions
+					elif devmounts:
+						for x in devmounts:
+							try:  # Why is this try/except needed? What exception is it protecting against?
+								available = sorted([y for y in listdir(x) if y.startswith(ipk)], reverse=True)  # sort for most recent by name if multiple versions
+								print("[BackupManager] Restoring Stage 3: 3rdPartyPlugin found", x, available)
+								thirdpartyPluginsLocation = x
+								break
+							except Exception as e:
+								print("[BackupManager] Restoring Stage 3: exception trying to access 3rdPartyPlugin location:", x, "\n", e)
+								continue
+					if available:
+						self.pluginslist2.append(path.join(thirdpartyPluginsLocation, available[0]))
+						if ipk in self.pluginslist:
+							self.pluginslist.remove(ipk)  # local version takes priority
+					else:
+						print("[BackupManager][feedsCheckComplete2] user plugin %s not found" % ipk)
+						message = _("user plugin %s not found" % ipk)
+						ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=2)
+						ybox.setTitle(_("Restore Plugins result"))
+		self.plugin_count = len(self.pluginslist) + len(self.pluginslist2)
+		if self.plugin_count:
+			self.pluginDownloadTimer.start(1, 1)  # open "fake" plugin download screen to give the user something to look at
+			print(f"[BackupManager][feedsCheckComplete] Plugins to restore (extra plugins):{str(self.pluginslist)}")
+			print(f"[BackupManager][feedsCheckComplete] Plugins to restore (3rd party plugins): {str(self.pluginslist2)}")
 			self.doPluginsRestore = True
-			self.Stage4Completed = True
-		elif answer is False:
-			print("[BackupManager] Restoring Stage 4: plugin restore skipped by user")
-			AddPopupWithCallback(
-				self.Stage6,
-				_("Now skipping restore process"),
-				MessageBox.TYPE_INFO,
-				15,
-				NOPLUGINS
-			)
+			print("[BackupManager][feedsCheckComplete] Restoring Plugins: starting plugin restore")
+			self.IPKRestore()
+		else:
+			print("[BackupManager][feedsCheckComplete] No Plugins to restore")
+			self.feedscheck = True
+			message = _("No plugins to restore")
+			ybox = self.session.openWithCallback(self.finaliseRestore, MessageBox, message, MessageBox.TYPE_INFO, timeout=2)
+			ybox.setTitle(_("Restore Plugins result"))
 
-	def Stage5(self):
+	def IPKRestore(self,):
 		if self.doPluginsRestore:
-			print("[BackupManager] Restoring Stage 5: starting plugin restore")
-			print("[BackupManager] Console command: ", "opkg install " + self.pluginslist + " " + self.pluginslist2)
-			self.ConsoleB.ePopen("opkg install " + self.pluginslist + " " + self.pluginslist2, self.Stage5Complete)
+			self.index = 0
+			self.pluginslistcombined = self.pluginslist + self.pluginslist2
+			self.installNextPackage()
 		else:
-			print("[BackupManager] Restoring Stage 5: plugin restore not requested")
-			self.Stage6()
+			self.finalRestore()
 
-	def Stage5Complete(self, result, retval, extra_args):
+	def installNextPackage(self):
+		cmd = "opkg install " + self.pluginslistcombined[self.index]
+		print("[BackupManager] Console command: '%s'" % cmd)
+		self.ConsoleB.ePopen(cmd, self.pluginComplete)
+
+	def pluginComplete(self, result, retval, extra_args):
 		if result:
-			print("[BackupManager] opkg install result:\n", result)
-			self.didPluginsRestore = True
-			self.Stage5Completed = True
-			print("[BackupManager] Restoring Stage 5: Completed")
-
-	def Stage6(self, result=None, retval=None, extra_args=None):
-		self.Stage1Completed = True
-		self.Stage2Completed = True
-		self.Stage3Completed = True
-		self.Stage4Completed = True
-		self.Stage5Completed = True
-		if self.didPluginsRestore or self.didSettingsRestore:
-			if self.didSettingsRestore:
-				self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /" + " etc/enigma2/settings")
-				print("[BackupManager] Restoring Stage 6: restored settings file again")
-				self.ConsoleB.ePopen("killall -9 enigma2 && init 6")
-			else:
-				print("[BackupManager] Stage 6 Restoring Completed rebooting")
-				quitMainloop(2)
+			print("[BackupManager][pluginComplete] opkg install result:\n", result.decode(errors="ignore"))
+		self.index += 1
+		if self.index < len(self.pluginslistcombined):
+			self.installNextPackage()
 		else:
-			print("[BackupManager] Restoring failed or canceled")
-			self.close()
+			self.didPluginsRestore = True
+			self.finaliseRestore()
+
+	def finaliseRestore(self):
+		self.downloadScreen and self.downloadScreen.close()
+		self.downloadScreen = None  # de-reference screen
+		self["lab1"].setText("")
+		print(f"[BackupManager][finaliseRestore] self.didSettingsRestore:{self.didSettingsRestore} self.doPluginsRestore:{self.doPluginsRestore}")
+		if self.didSettingsRestore:
+			self.ConsoleB.ePopen("tar -xzvf " + self.BackupDirectory + self.sel + " -C /" + " etc/enigma2/settings")
+			print("[BackupManager] Restoring Stage 6: restored settings file again")
+			self.ConsoleB.ePopen("killall -9 enigma2 && init 6")
+		elif self.doPluginsRestore and self.didPluginsRestore:
+			print("[BackupManager][finaliseRestore] Restoring Plugins Completed restarting")
+			quitMainloop(3)
+		else:
+			self["lab1"].setText(_("[BackupManager] plugins restore not completed- check debug log"))
 
 
 class BackupSelection(Screen):
@@ -767,47 +574,30 @@ class BackupSelection(Screen):
 		self["actions"] = ActionMap(
 			["DirectionActions", "OkCancelActions", "ShortcutActions", "MenuActions"],
 			{
-				"cancel": self.exit,
-				"red": self.exit,
+				"cancel": self.close,
+				"red": self.close,
 				"yellow": self.changeSelectionState,
 				"green": self.saveSelection,
 				"ok": self.okClicked,
-				"left": self.left,
-				"right": self.right,
-				"down": self.down,
-				"up": self.up,
-				"menu": self.exit,
+				"left": self["checkList"].pageUp,
+				"right": self["checkList"].pageDown,
+				"down": self["checkList"].down,
+				"up": self["checkList"].up,
+				"menu": self.close,
 			}, -1)
 		if self.selectionChanged not in self["checkList"].onSelectionChanged:
 			self["checkList"].onSelectionChanged.append(self.selectionChanged)
 		self.onLayoutFinish.append(self.layoutFinished)
 
 	def layoutFinished(self):
-		idx = 0
-		self["checkList"].moveToIndex(idx)
+		self["checkList"].moveToIndex(0)
 		self.selectionChanged()
 
 	def selectionChanged(self):
 		cursor = self["checkList"].getCurrent()
 		if not cursor:
 			return
-		current = cursor[0]
-		if current[2] is True:
-			self["key_yellow"].setText(_("Deselect"))
-		else:
-			self["key_yellow"].setText(_("Select"))
-
-	def up(self):
-		self["checkList"].up()
-
-	def down(self):
-		self["checkList"].down()
-
-	def left(self):
-		self["checkList"].pageUp()
-
-	def right(self):
-		self["checkList"].pageDown()
+		self["key_yellow"].text = _("Deselect") if cursor[0][2] is True else _("Select")
 
 	def changeSelectionState(self):
 		self["checkList"].changeSelectionState()
@@ -819,78 +609,41 @@ class BackupSelection(Screen):
 		config.backupmanager.backupdirs.save()
 		config.backupmanager.save()
 		config.save()
-		self.close(None)
-
-	def exit(self):
-		self.close(None)
+		self.close()
 
 	def okClicked(self):
 		if self.filelist.canDescent():
 			self.filelist.descent()
 
-	def closeRecursive(self):
-		self.close(True)
-
 
 class XtraPluginsSelection(Screen):
-	skin = ["""
-		<screen name="BackupSelection" position="center,center" size="%d,%d">
-			<panel name="__DynamicColorButtonTemplate__"/>
-			<widget name="checkList" position="%d,%d" size="%d,%d" itemHeight="%d" font="Regular;%d" transparent="1" scrollbarMode="showOnDemand"/>
-		</screen>""",
-			560, 400,  # screen
-			5, 50, 550, 250, 25, 19,
-			]  # noqa: E124
-
 	def __init__(self, session):
 		Screen.__init__(self, session)
-		self.setTitle(_("Select extra packages folder"))
+		self.skinName = "Setup"
+		self.title = _("Select folder containing plugins(.ipk) and Save")
 
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
 
-		defaultDir = config.backupmanager.backuplocation.value
-		self.filelist = FileList(defaultDir, showFiles=True, matchingPattern="^.*.(ipk)")
-		self["checkList"] = self.filelist
+		self["config"] = FileList(config.backupmanager.backuplocation.value, showFiles=True, matchingPattern="^.*.(ipk)")
 
 		self["actions"] = ActionMap(
-			["DirectionActions", "OkCancelActions", "ShortcutActions", "MenuActions"],
+			["DirectionActions", "SetupActions"],
 			{
-				"cancel": self.exit,
-				"red": self.exit,
-				"green": self.saveSelection,
+				"cancel": self.close,
+				"save": self.saveSelection,
 				"ok": self.okClicked,
-				"left": self.left,
-				"right": self.right,
-				"down": self.down,
-				"up": self.up,
-				"menu": self.exit,
+				"left": self["config"].pageUp,
+				"right": self["config"].pageDown,
+				"down": self["config"].down,
+				"up": self["config"].up,
 			}, -1)
-		self.onLayoutFinish.append(self.layoutFinished)
-
-	def layoutFinished(self):
-		idx = 0
-		self["checkList"].moveToIndex(idx)
-		self.setWindowTitle()
-
-	def setWindowTitle(self):
-		self.setTitle(_("Select folder containing plugins(.ipk) and Save"))
-
-	def up(self):
-		self["checkList"].up()
-
-	def down(self):
-		self["checkList"].down()
-
-	def left(self):
-		self["checkList"].pageUp()
-
-	def right(self):
-		self["checkList"].pageDown()
 
 	def saveSelection(self):
-		current = self["checkList"].getCurrent()[0]
+		current = self["config"].getCurrent()[0]
 		# print("[BackupManager][saveSelection] current[0] ", current[0])
+		# current[0].split("/", 3) is used in the restore code so a sanity check should be added here.
+		# The restore code assumes the ipk folder starts with /media but that is not a requirement here and needs fixing.
 		ipkList = FileList(current[0], showDirectories=False, showFiles=True, showMountpoints=False, matchingPattern="^.*.(ipk)")
 		if ipkList.getFilename() is not None:
 			config.backupmanager.xtraplugindir.setValue(current[0])
@@ -901,15 +654,9 @@ class XtraPluginsSelection(Screen):
 		else:
 			self.session.open(MessageBox, _("Please select folder that contains .ipk packages."), MessageBox.TYPE_INFO, timeout=10)
 
-	def exit(self):
-		self.close(None)
-
 	def okClicked(self):
-		if self.filelist.canDescent():
-			self.filelist.descent()
-
-	def closeRecursive(self):
-		self.close(True)
+		if self["config"].canDescent():
+			self["config"].descent()
 
 
 class VIXBackupManagerMenu(Setup):
@@ -918,7 +665,7 @@ class VIXBackupManagerMenu(Setup):
 		Setup.__init__(self, session, setup, plugin, PluginLanguageDomain)
 
 		self["actions2"] = ActionMap(
-			["SetupActions", "ColorActions", "VirtualKeyboardActions", "MenuActions"],
+			["ColorActions"],
 			{
 				"yellow": self.chooseFiles,
 				"blue": self.chooseXtraPluginDir,
@@ -935,8 +682,7 @@ class VIXBackupManagerMenu(Setup):
 	def chooseXtraPluginDir(self):
 		self.session.open(XtraPluginsSelection)
 
-	def backupfiles_choosen(self, ret):
-		self.backupdirs = " ".join(config.backupmanager.backupdirs.value)
+	def backupfiles_choosen(self):
 		config.backupmanager.backupdirs.save()
 		config.backupmanager.save()
 		config.save()
@@ -1042,7 +788,7 @@ class AutoBackupManagerTimer:
 			print("[BackupManager] Backup onTimer occured at", strftime("%c", localtime(now)))
 			from Screens.Standby import inStandby
 			if not inStandby and config.backupmanager.query.value:  # Check for querying enabled
-				message = _("Your %s %s is about to run a backup of your settings and to detect your plugins.\nDo you want to allow this?") % (SystemInfo["displaybrand"], SystemInfo["machinename"])
+				message = _("Your %s %s is about to run a backup of your settings and to detect your plugins.\nDo you want to allow this?") % (DISPLAYBRAND, MACHINENAME)
 				ybox = self.session.openWithCallback(self.doBackup, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
 				ybox.setTitle("Scheduled backup.")
 			else:
@@ -1095,7 +841,7 @@ class BackupFiles(Screen):
 
 	def __init__(self, session, backuptype=None):
 		Screen.__init__(self, session)
-		self.Console = Console()
+		self.pluginreader = UserInstalledPackages()
 		self.ConsoleB = Console(binary=True)
 		self.backuptype = backuptype
 		self.BackupDevice = config.backupmanager.backuplocation.value
@@ -1106,7 +852,6 @@ class BackupFiles(Screen):
 		self.Stage2Completed = False
 		self.Stage3Completed = False
 		self.Stage4Completed = False
-		self.Stage5Completed = False
 
 	def createBackupJob(self):
 		job = Components.Task.Job(_("Backup manager"))
@@ -1127,28 +872,20 @@ class BackupFiles(Screen):
 		task.check = lambda: self.Stage2Completed
 		task.weighting = 1
 
-		task = Components.Task.PythonTask(job, _("Backing up files..."))
+		task = Components.Task.PythonTask(job, _("Preparing extra plugins..."))
 		task.work = self.Stage3
 		task.weighting = 1
 
-		task = Components.Task.ConditionTask(job, _("Backing up files..."), timeoutCount=600)
+		task = Components.Task.ConditionTask(job, _("Preparing extra plugins..."), timeoutCount=600)
 		task.check = lambda: self.Stage3Completed
 		task.weighting = 1
 
-		task = Components.Task.PythonTask(job, _("Preparing extra plugins..."))
+		task = Components.Task.PythonTask(job, _("Backing up files..."))
 		task.work = self.Stage4
 		task.weighting = 1
 
-		task = Components.Task.ConditionTask(job, _("Preparing extra plugins..."), timeoutCount=600)
-		task.check = lambda: self.Stage4Completed
-		task.weighting = 1
-
-		task = Components.Task.PythonTask(job, _("Backing up files..."))
-		task.work = self.Stage5
-		task.weighting = 1
-
 		task = Components.Task.ConditionTask(job, _("Backing up files..."), timeoutCount=600)
-		task.check = lambda: self.Stage5Completed
+		task.check = lambda: self.Stage4Completed
 		task.weighting = 1
 
 		task = Components.Task.PythonTask(job, _("Backup complete..."))
@@ -1159,50 +896,33 @@ class BackupFiles(Screen):
 
 	def JobStart(self):
 		self.selectedFiles = config.backupmanager.backupdirs.value
-		if path.exists("/etc/CCcam.cfg") and "/etc/CCcam.cfg" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/CCcam.cfg")
-		if path.exists("/etc/CCcam.channelinfo") and "/etc/CCcam.channelinfo" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/CCcam.channelinfo")
-		if path.exists("/etc/CCcam.providers") and "/etc/CCcam.providers" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/CCcam.providers")
-		if path.exists("/etc/wpa_supplicant.ath0.conf") and "/etc/wpa_supplicant.ath0.conf" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/wpa_supplicant.ath0.conf")
-		if path.exists("/etc/wpa_supplicant.wlan0.conf") and "/etc/wpa_supplicant.wlan0.conf" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/wpa_supplicant.wlan0.conf")
-		if path.exists("/etc/auto.network") and "/etc/auto.network" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/auto.network")
-		if path.exists("/usr/crossepg/crossepg.config") and "/usr/crossepg/crossepg.config" not in self.selectedFiles:
-			self.selectedFiles.append("/usr/crossepg/crossepg.config")
-		if path.exists("/usr/crossepg/providers") and "/usr/crossepg/providers" not in self.selectedFiles:
-			self.selectedFiles.append("/usr/crossepg/providers")
-		if path.exists("/usr/lib/sabnzbd") and "/usr/lib/sabnzbd" not in self.selectedFiles:
-			self.selectedFiles.append("/usr/lib/sabnzbd")
-		if path.exists("/etc/ciplus") and "/etc/ciplus" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/ciplus")
-		if path.exists("/etc/samba/smb-user.conf") and "/etc/samba/smb-user.conf" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/samba/smb-user.conf")
-		if path.exists("/etc/samba/private") and "/etc/samba/private" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/samba/private")
+		backupLocations = [
+			"/etc/auto.network",
+			"/etc/CCcam.cfg",
+			"/etc/CCcam.channelinfo",
+			"/etc/CCcam.providers",
+			"/etc/ciplus",
+			"/etc/openvpn",
+			"/etc/rc3.d/S99tuner.sh",
+			"/etc/samba/private",
+			"/etc/samba/smb-user.conf",
+			"/etc/udev/known_devices",
+			"/etc/wpa_supplicant.ath0.conf",
+			"/etc/wpa_supplicant.wlan0.conf",
+			"/opt",
+			"/usr/crossepg/crossepg.config",
+			"/usr/crossepg/providers",
+			"/usr/lib/sabnzbd",
+			"/usr/script",
+			"/usr/sundtek",
+			"/var/lib/bluetooth/",
+		]
+		for location in backupLocations:
+			if location not in self.selectedFiles and path.exists(location):
+				self.selectedFiles.append(location)
+
 		if path.exists("/usr/keys") and "/etc/CCcam.cfg" not in self.selectedFiles:
 			self.selectedFiles.append("/usr/keys")
-		if path.exists("/opt") and "/opt" not in self.selectedFiles:
-			self.selectedFiles.append("/opt")
-		if path.exists("/usr/script") and "/usr/script" not in self.selectedFiles:
-			self.selectedFiles.append("/usr/script")
-		if path.exists("/usr/sundtek") and "/usr/sundtek" not in self.selectedFiles:
-			self.selectedFiles.append("/usr/sundtek")
-		if path.exists("/etc/rc3.d/S99tuner.sh") and "/etc/rc3.d/S99tuner.sh" not in self.selectedFiles:
-			self.selectedFiles.append("/etc/rc3.d/S99tuner.sh")
-		if path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/custom/favourites.xml") and "/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/custom/favourites.xml" not in self.selectedFiles:
-			self.selectedFiles.append("/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/custom/favourites.xml")
-		if path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/providers/terrestrial_finder.xml") and "/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/providers/terrestrial_finder.xml" not in self.selectedFiles:
-			self.selectedFiles.append("/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/providers/terrestrial_finder.xml")
-		if path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/custom"):
-			for custommix in glob.glob("/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/custom/*CustomMix.xml"):
-				if custommix not in self.selectedFiles:
-					self.selectedFiles.append(custommix)
-		if path.exists("/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/custom/favourites.xml") and "/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/custom/favourites.xml" not in self.selectedFiles:
-			self.selectedFiles.append("/usr/lib/enigma2/python/Plugins/SystemPlugins/AutoBouquetsMaker/custom/favourites.xml")
 
 		# temp measure: clear "/etc/samba" from settings as this is a system config location, not user files
 		if "/etc/samba" in self.selectedFiles:
@@ -1234,74 +954,39 @@ class BackupFiles(Screen):
 		now = datetime.now()
 		output.write(now.strftime("%Y-%m-%d %H:%M") + ": Backup started\n")
 		output.close()
-		self.backupdirs = " ".join(config.backupmanager.backupdirs.value)
 		print("[BackupManager] Listing installed plugins")
-		self.Console.ePopen("opkg status", self.Stage2Complete)
+		self.pluginreader.run(self.Stage2Complete)
 
-	def Stage2Complete(self, result, retval, extra_args):
-		if result:
-			plugins_out = []
-			opkg_status_list = result.split("\n\n")
-			# print("[BackupManager] result=%s, retval=%s" % (opkg_status_list, retval))
-			for opkg_status in opkg_status_list:
-				plugin = ""
-				opkg_status_split = opkg_status.split("\n")
-				for line in opkg_status_split:
-					if line.startswith("Package"):
-						parts = line.strip().split()
-						if len(parts) > 1 and parts[1] not in ("opkg", "openvix-base"):
-							plugin = parts[1]
-							continue
-					if plugin and line.startswith("Status") and "user installed" in line:
-						plugins_out.append(plugin)
-						break
-			output = open("/tmp/ExtraInstalledPlugins", "w")
-			output.write("\n".join(plugins_out))
-			output.close()
-
-		if path.exists("/tmp/ExtraInstalledPlugins"):
-			print("[BackupManager] Listing completed.")
-			self.Stage2Completed = True
-		else:
-			self.session.openWithCallback(self.BackupComplete, MessageBox, _("Plugin listing failed - e. g. wrong backup destination or no space left on backup device."), MessageBox.TYPE_INFO, timeout=10)
-			print("[BackupManager] Result", result)
-			print("[BackupManager] Plugin listing failed - e. g. wrong backup destination or no space left on backup device")
+	def Stage2Complete(self, plugins_out):
+		with open("/tmp/ExtraInstalledPlugins", "w") as output:
+			output.write("\n".join(sorted(plugins_out)))
+		self.Stage2Completed = True
+		print("[BackupManager] Listing ExtraInstalledPlugins completed. Plugins found:", (plugins_out or "None"))
 
 	def Stage3(self):
-		print("[BackupManager] Finding kernel version:" + about.getKernelVersionString())
-		output = open("/tmp/backupkernelversion", "w")
-		output.write(about.getKernelVersionString())
-		output.close()
-		print("[BackupManager] Finding image version:" + about.about.getVersionString())
-		output = open("/tmp/backupimageversion", "w")
-		output.write(about.about.getVersionString())
-		output.close()
+		if (xtraplugindir := config.backupmanager.xtraplugindir.value) and path.exists(xtraplugindir):
+			ipks = [file.strip().split("_")[0] for file in listdir(xtraplugindir) if file.endswith(".ipk")]
+			with open("/tmp/3rdPartyPlugins", "w") as output:
+				output.write("\n".join(ipks))
+			with open("/tmp/3rdPartyPluginsLocation", "w") as output:
+				output.write(xtraplugindir)
+				output.close()
 		self.Stage3Completed = True
 
+	tar_flist = "/tmp/_backup-files.list"  # Filename for backup list
+
 	def Stage4(self):
-		if config.backupmanager.xtraplugindir.value and path.exists(config.backupmanager.xtraplugindir.value):
-			with open("/tmp/3rdPartyPlugins", "w") as output:
-				for file in listdir(config.backupmanager.xtraplugindir.value):
-					if file.endswith(".ipk"):
-						parts = file.strip().split("_")
-						output.write(parts[0] + "\n")
-			with open("/tmp/3rdPartyPluginsLocation", "w") as output:
-				output.write(config.backupmanager.xtraplugindir.value)
-				output.close()
-		self.Stage4Completed = True
+		# Return config.usage.power.was_controlled_shutdown to the default value so it doesn't polute the settings file saved by the backup
+		config.usage.power.was_controlled_shutdown.value = config.usage.power.was_controlled_shutdown.default
+		config.usage.power.was_controlled_shutdown.save()
+		configfile.save()
 
-	tar_flist = "/tmp/_backup-files.list"					# Filename for backup list
-
-	def Stage5(self):
 		tmplist = config.backupmanager.backupdirs.value
 		tmplist.append("/tmp/ExtraInstalledPlugins")
-		tmplist.append("/tmp/backupkernelversion")
-		tmplist.append("/tmp/backupimageversion")
 		if path.exists("/tmp/3rdPartyPlugins"):
 			tmplist.append("/tmp/3rdPartyPlugins")
 		if path.exists("/tmp/3rdPartyPluginsLocation"):
 			tmplist.append("/tmp/3rdPartyPluginsLocation")
-		self.backupdirs = " ".join(tmplist)
 		config.misc.restorewizardrun.setValue(True)
 		config.misc.restorewizardrun.save()
 		configfile.save()
@@ -1317,13 +1002,13 @@ class BackupFiles(Screen):
 		elif self.backuptype == self.TYPE_FACTORYRESET:
 			backupType = "-FR-"
 		imageSubBuild = ""
-		if SystemInfo["imagetype"] != "release":
+		if IMAGETYPE != "release":
 			imageSubBuild = ".%s" % SystemInfo["imagedevbuild"]
 		boxname = ""
 		if config.backupmanager.showboxname.value:
 			boxname = "-" + SystemInfo["machinebuild"]
-		self.Backupfile = self.BackupDirectory + config.backupmanager.folderprefix.value + boxname + "-" + SystemInfo["imagetype"][0:3] + backupType + SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + imageSubBuild + "-" + backupdate.strftime("%Y%m%d-%H%M") + ".tar.gz"
-		with open(BackupFiles.tar_flist, "w") as tfl:			# Need to create a list of what to backup, so that spaces and special characters don't get lost on, or mangle, the command line
+		self.Backupfile = self.BackupDirectory + config.backupmanager.folderprefix.value + boxname + "-" + IMAGETYPE[0:3] + backupType + SystemInfo["imageversion"] + "." + SystemInfo["imagebuild"] + imageSubBuild + "-" + backupdate.strftime("%Y%m%d-%H%M") + ".tar.gz"
+		with open(BackupFiles.tar_flist, "w") as tfl:  # Need to create a list of what to backup, so that spaces and special characters don't get lost on, or mangle, the command line
 			for fn in tmplist:
 				tfl.write(fn + "\n")
 		self.ConsoleB.ePopen("tar -T " + BackupFiles.tar_flist + " -czvf " + self.Backupfile, self.Stage4Complete)
@@ -1333,7 +1018,7 @@ class BackupFiles(Screen):
 			chmod(self.Backupfile, 0o644)
 			print("[BackupManager] Complete.")
 			remove("/tmp/ExtraInstalledPlugins")
-			self.Stage5Completed = True
+			self.Stage4Completed = True
 		else:
 			self.session.openWithCallback(self.BackupComplete, MessageBox, _("Backup failed - e. g. wrong backup destination or no space left on backup device."), MessageBox.TYPE_INFO, timeout=10)
 			print("[BackupManager] Result.", result)
@@ -1348,14 +1033,18 @@ class BackupFiles(Screen):
 		self.Stage2Completed = True
 		self.Stage3Completed = True
 		self.Stage4Completed = True
-		self.Stage5Completed = True
+
+		# Return config.usage.power.was_controlled_shutdown to the normal running state
+		config.usage.power.was_controlled_shutdown.value = not config.usage.power.was_controlled_shutdown.default
+		config.usage.power.was_controlled_shutdown.save()
+		configfile.save()
 
 		# Trim the number of backups to the configured setting...
 		#
 		try:
 			if config.backupmanager.types_to_prune.value != "none" and config.backupmanager.number_to_keep.value > 0 and path.exists(self.BackupDirectory):  # !?!
 				images = listdir(self.BackupDirectory)
-				emlist = []					# Only try to delete backups with the current user prefix
+				emlist = []  # Only try to delete backups with the current user prefix
 				for fil in images:
 					if (fil.startswith(config.backupmanager.folderprefix.value) and fil.endswith(".tar.gz")):
 						if config.backupmanager.types_to_prune.value == "all":

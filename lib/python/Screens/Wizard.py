@@ -10,7 +10,7 @@ from Components.Label import Label
 from Components.Slider import Slider
 from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import DISPLAYBRAND, MACHINENAME
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 
@@ -91,12 +91,11 @@ class Wizard(Screen):
 			elif name == "config":
 				type = str(attrs.get('type'))
 				self.wizard[self.lastStep]["config"]["type"] = type
-				if type == "ConfigList" or type == "standalone":
+				if type in ("ConfigList", "standalone"):
 					try:
-						exec("from Screens." + str(attrs.get('module')) + " import *")
-					except:
-						exec("from " + str(attrs.get('module')) + " import *")
-
+						exec("from Screens.%s import *" % attrs.get("module", "None"), globals())
+					except ImportError:
+						exec("from %s import *" % attrs.get("module", "None"), globals())
 					self.wizard[self.lastStep]["config"]["screen"] = eval(str(attrs.get('screen')))
 					if 'args' in attrs:
 						print("[wizard]has args")
@@ -446,7 +445,7 @@ class Wizard(Screen):
 
 		if self.showConfig and self.wizard[self.currStep]["config"]["screen"] is not None:
 			self["config"].instance.moveSelection(self["config"].instance.moveUp)
-		elif self.showList and len(self.wizard[self.currStep]["evaluatedlist"]) > 0:
+		elif self.showList and hasattr(self.wizard[self.currStep], "evaluatedlist") and len(self.wizard[self.currStep]["evaluatedlist"]) > 0:
 			if "onselect" in self.wizard[self.currStep]:
 				self.selection = self["list"].current[-1]
 				print("[Wizard] self.selection:", self.selection)
@@ -463,7 +462,7 @@ class Wizard(Screen):
 		return False
 
 	def getTranslation(self, text):
-		return _(text).replace("%s %s", "%s %s" % (SystemInfo["MachineBrand"], SystemInfo["MachineName"]))
+		return _(text).replace("%s %s", "%s %s" % (DISPLAYBRAND, MACHINENAME))
 
 	def updateText(self, firstset=False):
 		text = self.getTranslation(self.wizard[self.currStep]["text"])

@@ -116,6 +116,7 @@ public:
 		eventHBBTVInfo, /* HBBTV information was detected in the AIT */
 
 		eventStopped,
+		eventStartPvrDescramble,   // start PVR Descramble Convert
 		eventChannelAllocated,
 	};
 #ifndef SWIG
@@ -150,7 +151,8 @@ public:
 		streamserver = 7,
 		scrambled_streamserver = 8,
 		streamclient = 9,
-		offline = 10
+		offline = 10,
+		pvrDescramble = 11
 	};
 
 	/* deprecated interface */
@@ -162,6 +164,8 @@ public:
 	void free();
 	void addCaHandler();
 	void removeCaHandler();
+	bool isCiConnected();
+	bool isPmtReady() { return m_pmt_ready; }
 private:
 	bool m_have_cached_program;
 	program m_cached_program;

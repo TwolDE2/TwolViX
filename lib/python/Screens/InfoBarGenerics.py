@@ -7,13 +7,14 @@ from re import match
 from sys import maxsize
 from time import time, localtime, strftime
 
-from pickle import load as pickle_load, dump as pickle_dump, HIGHEST_PROTOCOL as pickle_HIGHEST_PROTOCOL
+from pickle import load as pickle_load, dump as pickle_dump
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from keyids import KEYIDS
 # from keyids import KEYFLAGS, KEYIDNAMES  # used by print debug
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap
 from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection, ACTIONKEY_RIGHT
+from Components.ChoiceList import ChoiceList
 from Components.Harddisk import harddiskmanager, findMountPoint
 from Components.Input import Input
 from Components.Label import Label
@@ -77,84 +78,72 @@ def isMoviePlayerInfoBar(self):
 	return self.__class__.__name__ == "MoviePlayer"
 
 
-def setResumePoint(session):
-	global resumePointCache, resumePointCacheLast
-	service = session.nav.getCurrentService()
-	ref = session.nav.getCurrentlyPlayingServiceOrGroup()
-	if (service is not None) and (ref is not None):  # and (ref.type != 1):
-		# ref type 1 has its own memory...
-		seek = service.seek()
-		if seek:
-			pos = seek.getPlayPosition()
-			if not pos[0]:
-				key = ref.toString()
-				lru = int(time())
-				sl = seek.getLength()
-				if sl:
-					sl = sl[1]
-				else:
-					sl = None
-				resumePointCache[key] = [lru, pos[1], sl]
-				for k, v in list(resumePointCache.items()):
-					if v[0] < lru:
-						candidate = k
-						filepath = ospath.realpath(candidate.split(':')[-1])
-						mountpoint = findMountPoint(filepath)
-						if ospath.ismount(mountpoint) and not ospath.exists(filepath):
-							del resumePointCache[candidate]
-				saveResumePoints()
+class ResumePoints():
+	def __init__(self):
+		self.resumePointFile = "/etc/enigma2/resumepoints.pkl"
+		self.resumePointCache = {}
+		self.loadResumePoints()
+		self.cacheCleanTimer = eTimer()
+		self.cacheCleanTimer.callback.append(self.cleanCache)
+		self.cleanCache()  # get rid of stale entries on reboot
 
+	def loadResumePoints(self):
+		self.resumePointCache.clear()
+		if fileExists(self.resumePointFile):
+			with open(self.resumePointFile, "rb") as f:
+				self.resumePointCache.update(pickle_load(f, encoding="utf8"))
 
-def delResumePoint(ref):
-	global resumePointCache, resumePointCacheLast
-	try:
-		del resumePointCache[ref.toString()]
-	except KeyError:
-		pass
-	saveResumePoints()
+	def saveResumePoints(self):
+		with open(self.resumePointFile, "wb") as f:
+			pickle_dump(self.resumePointCache, f, protocol=5)
 
+	def delResumePoint(self, ref):
+		if (sref := ref.toString()) in self.resumePointCache:
+			del self.resumePointCache[sref]
+			self.saveResumePoints()
 
-def getResumePoint(session):
-	global resumePointCache
-	ref = session.nav.getCurrentlyPlayingServiceOrGroup()
-	if (ref is not None) and (ref.type != 1):
-		try:
-			entry = resumePointCache[ref.toString()]
+	def cleanCache(self):
+		changed = False
+		now = int(time())
+		self.cacheCleanTimer.stop()
+		for sref, v in list(self.resumePointCache.items()):
+			if "%3a//" in sref:  # resume point is stream
+				if now > v[0] + 7 * 24 * 60 * 60:  # keep stream resume points maximum one week
+					del self.resumePointCache[sref]
+					changed = True
+			else:
+				filepath = ospath.realpath(sref.split(':')[-1])
+				mountpoint = findMountPoint(filepath)
+				if ospath.ismount(mountpoint) and not ospath.exists(filepath):
+					del self.resumePointCache[sref]
+					changed = True
+		if changed:
+			self.saveResumePoints()
+		self.cacheCleanTimer.startLongTimer(24 * 60 * 60)  # clean up daily
+
+	def setResumePoint(self, session):
+		service = session.nav.getCurrentService()
+		ref = session.nav.getCurrentlyPlayingServiceOrGroup()
+		if service is not None and ref is not None:  # and (ref.type != 1):
+			# ref type 1 has its own memory...
+			seek = service.seek()
+			if seek:
+				pos = seek.getPlayPosition()
+				if not pos[0]:
+					sref = ref.toString()
+					sl = x[1] if (x := seek.getLength()) else None
+					self.resumePointCache[sref] = [int(time()), pos[1], sl]
+					self.saveResumePoints()
+
+	def getResumePoint(self, session):
+		ref = session.nav.getCurrentlyPlayingServiceOrGroup()
+		if (ref is not None) and (ref.type != 1) and (sref := ref.toString()) in self.resumePointCache:
+			entry = self.resumePointCache[sref]
 			entry[0] = int(time())  # update LRU timestamp
 			return entry[1]
-		except KeyError:
-			return None
 
 
-def saveResumePoints():
-	global resumePointCache, resumePointCacheLast
-	try:
-		f = open('/etc/enigma2/resumepoints.pkl', 'wb')
-		pickle_dump(resumePointCache, f, pickle_HIGHEST_PROTOCOL)
-		f.close()
-	except Exception as ex:
-		print(f"[InfoBarGenerics] Failed to write resumepoints:{ex}")
-	resumePointCacheLast = int(time())
-
-
-def loadResumePoints():
-	try:
-		file = open('/etc/enigma2/resumepoints.pkl', 'rb')
-		PickleFile = pickle_load(file)
-		file.close()
-		return PickleFile
-	except Exception as ex:
-		print(f"[InfoBarGenerics] Failed to load resumepoints:{ex}")
-		return {}
-
-
-def updateresumePointCache():
-	global resumePointCache
-	resumePointCache = loadResumePoints()
-
-
-resumePointCache = loadResumePoints()
-resumePointCacheLast = int(time())
+resumePointsInstance = ResumePoints()
 
 
 class whitelist:
@@ -206,6 +195,7 @@ class InfoBarStreamRelay:
 	data = property(getData, setData)
 
 	def streamrelayChecker(self, playref):
+		is_stream_relay = False
 		playrefstring, renamestring = self.splitref(playref.toString())
 		if '%3a//' not in playrefstring and playrefstring in self.__srefs:
 			url = "http://%s:%s/" % (config.misc.softcam_streamrelay_url.getHTML(), config.misc.softcam_streamrelay_port.value)
@@ -214,8 +204,10 @@ class InfoBarStreamRelay:
 			else:
 				playrefmod = playrefstring
 			playref = eServiceReference("%s%s%s:%s" % (playrefmod, url.replace(":", "%3a"), playrefstring.replace(":", "%3a"), renamestring or ServiceReference(playref).getServiceName()))
-			print(f"[{self.__class__.__name__}] Play service {playref.toString()} via streamrelay")
-		return playref
+			is_stream_relay = True
+			# print(f"[{self.__class__.__name__}] Play service {playref.toString()} via streamrelay")
+			playref.setCompareSref(playrefstring, True)
+		return playref, is_stream_relay
 
 	def checkService(self, service):
 		return service and self.splitref(service.toString())[0] in self.__srefs
@@ -727,14 +719,14 @@ class InfoBarShowHide(InfoBarScreenSaver):
 
 	def unDimming(self):
 		self.unDimmingTimer.stop()
-		self.doWriteAlpha(config.misc.osd_alpha.value)
+		self.doWriteAlpha(config.av.osd_alpha.value)
 
 	def doWriteAlpha(self, value):
 		if fileExists("/proc/stb/video/alpha"):
 			f = open("/proc/stb/video/alpha", "w")
 			f.write("%i" % (value))
 			f.close()
-			if value == config.misc.osd_alpha.value:
+			if value == config.av.osd_alpha.value:
 				self.lastResetAlpha = True
 			else:
 				self.lastResetAlpha = False
@@ -834,14 +826,14 @@ class InfoBarShowHide(InfoBarScreenSaver):
 	def doHide(self):
 		if self.__state != self.STATE_HIDDEN:
 			if self.dimmed > 0:
-				self.doWriteAlpha((config.misc.osd_alpha.value * self.dimmed / config.usage.show_infobar_dimming_speed.value))
+				self.doWriteAlpha((config.av.osd_alpha.value * self.dimmed / config.usage.show_infobar_dimming_speed.value))
 				self.DimmingTimer.start(5, True)
 			else:
 				self.DimmingTimer.stop()
 				self.hide()
 		elif self.__state == self.STATE_HIDDEN and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
 			if self.dimmed > 0:
-				self.doWriteAlpha((config.misc.osd_alpha.value * self.dimmed / config.usage.show_infobar_dimming_speed.value))
+				self.doWriteAlpha((config.av.osd_alpha.value * self.dimmed / config.usage.show_infobar_dimming_speed.value))
 				self.DimmingTimer.start(5, True)
 			else:
 				self.DimmingTimer.stop()
@@ -856,7 +848,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 			self.EventViewIsShown = False
 		# elif hasattr(self, "pvrStateDialog"):
 		# 	if self.dimmed > 0:
-		# 		self.doWriteAlpha((config.misc.osd_alpha.value*self.dimmed/config.usage.show_infobar_dimming_speed.value))
+		# 		self.doWriteAlpha((config.av.osd_alpha.value*self.dimmed/config.usage.show_infobar_dimming_speed.value))
 		# 		self.DimmingTimer.start(5, True)
 		# 	else:
 		# 		self.DimmingTimer.stop()
@@ -917,7 +909,7 @@ class InfoBarShowHide(InfoBarScreenSaver):
 
 	def unlockShow(self):
 		if config.usage.show_infobar_do_dimming.value and self.lastResetAlpha is False:
-			self.doWriteAlpha(config.misc.osd_alpha.value)
+			self.doWriteAlpha(config.av.osd_alpha.value)
 		try:
 			self.__locked -= 1
 		except:
@@ -1371,29 +1363,29 @@ class InfoBarChannelSelection:
 			self.servicelist.historyZap(+1)
 
 	def switchChannelUp(self, servicelist=None):
-		# if not self.secondInfoBarScreen.shown:
-		servicelist = servicelist or self.servicelist
-		self.keyHide()
-		if not config.usage.show_bouquetalways.value:
-			if "keep" not in config.usage.servicelist_cursor_behavior.value:
-				servicelist.moveUp()
-		else:
-			servicelist.showFavourites()
-		self.session.execDialog(servicelist)
+		if not self.secondInfoBarScreen.shown:
+			servicelist = servicelist or self.servicelist
+			self.keyHide()
+			if not config.usage.show_bouquetalways.value:
+				if "keep" not in config.usage.servicelist_cursor_behavior.value:
+					servicelist.moveUp()
+			else:
+				servicelist.showFavourites()
+			self.session.execDialog(servicelist)
 
 	def switchChannelUpLong(self):
 		self.switchChannelUp(self.servicelist2 if SystemInfo.get("NumVideoDecoders", 1) > 1 else None)
 
 	def switchChannelDown(self, servicelist=None):
-		# if not self.secondInfoBarScreen.shown:
-		servicelist = servicelist or self.servicelist
-		self.keyHide()
-		if not config.usage.show_bouquetalways.value:
-			if "keep" not in config.usage.servicelist_cursor_behavior.value:
-				servicelist.moveDown()
-		else:
-			servicelist.showFavourites()
-		self.session.execDialog(servicelist)
+		if not self.secondInfoBarScreen.shown:
+			servicelist = servicelist or self.servicelist
+			self.keyHide()
+			if not config.usage.show_bouquetalways.value:
+				if "keep" not in config.usage.servicelist_cursor_behavior.value:
+					servicelist.moveDown()
+			else:
+				servicelist.showFavourites()
+			self.session.execDialog(servicelist)
 
 	def switchChannelDownLong(self):
 		self.switchChannelDown(self.servicelist2 if SystemInfo.get("NumVideoDecoders", 1) > 1 else None)
@@ -1503,6 +1495,7 @@ class InfoBarMenu:
 				"showNetworkSetup": (self.showNetworkMounts, _("Show network mounts ")),
 				"showSystemSetup": (self.showSystemMenu, _("Show network mounts ")),
 				"showRFmod": (self.showRFSetup, _("Show RFmod setup")),
+				"showHDMIRecord": (self.showHDMiRecordSetup, _("Show HDMIRecord setup...")),
 				"toggleAspectRatio": (self.toggleAspectRatio, _("Toggle aspect ratio")),
 			}, description=_("Menu"))
 		self.session.infobar = None
@@ -1522,15 +1515,15 @@ class InfoBarMenu:
 		self.session.infobar = None
 
 	def toggleAspectRatio(self):
-		ASPECT = ["auto", "16_9", "4_3"]
-		ASPECT_MSG = {"auto": "Auto", "16_9": "16:9", "4_3": "4:3"}
+		ASPECT = ["auto", "16:9", "4:3"]
+		ASPECT_MSG = {"auto": "Auto", "16:9": "16:9", "4:3": "4:3"}
 		if config.av.aspect.value in ASPECT:
 			index = ASPECT.index(config.av.aspect.value)
 			config.av.aspect.value = ASPECT[(index + 1) % 3]
 		else:
 			config.av.aspect.value = "auto"
 		config.av.aspect.save()
-		self.session.open(MessageBox, _("AV aspect is %s." % ASPECT_MSG[config.av.aspect.value]), MessageBox.TYPE_INFO, timeout=5, simple=True)
+		self.session.open(MessageBox, _("A/V aspect ratio is '%s'.") % ASPECT_MSG[config.av.aspect.value], MessageBox.TYPE_INFO, timeout=3, simple=True)
 
 	def showSystemMenu(self):
 		menulist = mdom.getroot().findall("menu")
@@ -1555,6 +1548,10 @@ class InfoBarMenu:
 
 	def showRFSetup(self):
 		self.session.openWithCallback(self.mainMenuClosed, Setup, 'RFmod')
+
+	def showHDMiRecordSetup(self):
+		if SystemInfo["HDMIin"]:
+			self.session.openWithCallback(self.mainMenuClosed, Setup, 'HDMIRecord')
 
 
 class InfoBarSimpleEventView:
@@ -1800,6 +1797,10 @@ class InfoBarEPG:
 		return services
 
 	def multiServiceEPG(self, type, showBouquet):
+		if self.servicelist is None:
+			from Screens.InfoBar import InfoBar
+			self.servicelist = InfoBar.instance.servicelist
+
 		def openEPG(open, bouquet, bouquets):
 			if open:
 				bouquet = bouquet or self.servicelist.getRoot()
@@ -2751,7 +2752,6 @@ class ExtensionsList(ChoiceBox):
 				del self.list[x - idx]
 				del self.summarylist[x - idx]
 			self["list"].setList(self.list)
-			self.updateSummary(self["list"].getSelectionIndex())
 			if removed:
 				for f in self.onLayoutFinish:  # For screen resize
 					exec(f)
@@ -2788,7 +2788,6 @@ class InfoBarExtensions:
 
 		self.addExtension(extension=self.getSoftwareUpdate, type=InfoBarExtensions.EXTENSION_LIST)
 		self.addExtension(extension=self.getLogManager, type=InfoBarExtensions.EXTENSION_LIST)
-		self.addExtension(extension=self.getOsd3DSetup, type=InfoBarExtensions.EXTENSION_LIST)
 		self.addExtension(extension=self.getCCcamInfo, type=InfoBarExtensions.EXTENSION_LIST)
 		self.addExtension(extension=self.getOScamInfo, type=InfoBarExtensions.EXTENSION_LIST)
 
@@ -2807,15 +2806,6 @@ class InfoBarExtensions:
 	def getLogManager(self):
 		if config.logmanager.showinextensions.value:
 			return [((boundFunction(self.getLMname), boundFunction(self.openLogManager), lambda: True), None)]
-		else:
-			return []
-
-	def get3DSetupname(self):
-		return _("OSD 3D Setup")
-
-	def getOsd3DSetup(self):
-		if config.osd.show3dextensions .value:
-			return [((boundFunction(self.get3DSetupname), boundFunction(self.open3DSetup), lambda: True), None)]
 		else:
 			return []
 
@@ -2920,10 +2910,6 @@ class InfoBarExtensions:
 	def openLogManager(self):
 		from Screens.LogManager import LogManager
 		self.session.open(LogManager)
-
-	def open3DSetup(self):
-		from Screens.UserInterfacePositioner import OSD3DSetupScreen
-		self.session.open(OSD3DSetupScreen)
 
 	@staticmethod
 	def _getAutoTimerPluginFunc():
@@ -3716,10 +3702,10 @@ class InfoBarSubserviceSelection:
 					call_func_title = _("Add to favourites")
 					if config.usage.multibouquet.value:
 						call_func_title = _("Add to bouquet")
-						tlist = [(_("Quick zap"), "quickzap", subservices), (call_func_title, "CALLFUNC", self.addSubserviceToBouquetCallback), ("--", "")] + subservices
+						tlist = [(_("Quick zap"), "quickzap", subservices), (call_func_title, "CALLFUNC", self.addSubserviceToBouquetCallback), (ChoiceList.SPACER, "")] + subservices
 					selection += 3
 				else:
-					tlist = [(_("Quick zap"), "quickzap", subservices), ("--", "")] + subservices
+					tlist = [(_("Quick zap"), "quickzap", subservices), (ChoiceList.SPACER, "")] + subservices
 					keys = ["red", "", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] + [""] * (len(subservices) - 10)
 					selection += 2
 				self.session.openWithCallback(self.subserviceSelected, ChoiceBox, title=_("Please select a sub service"), list=tlist, selection=selection, keys=keys, skin_name="SubserviceSelection")
@@ -3961,6 +3947,8 @@ class InfoBarCueSheetSupport:
 		self.__blockDownloadCuesheet = False
 		self.__recording = None
 		self.__recordingCuts = []
+		self.resumeTimer = eTimer()
+		self.resumeTimer.callback.append(self.triggerResumeLogic)
 
 	def __evStopped(self):
 		if isMoviePlayerInfoBar(self):
@@ -3990,6 +3978,42 @@ class InfoBarCueSheetSupport:
 		iRecordableService.evGstRecordEnded,
 	)
 
+	def triggerResumeLogic(self):
+		if self.is_closing:
+			return
+
+		self.__findRecording()
+
+		self.downloadCuesheet()
+
+		force_resume = self.force_next_resume
+		self.force_next_resume = False
+		self.resume_point = None
+		if self.ENABLE_RESUME_SUPPORT:
+			for (pts, what) in self.cut_list:
+				if what == self.CUT_TYPE_LAST:
+					last = pts
+					break
+			else:
+				last = resumePointsInstance.getResumePoint(self.session)
+			if last is None:
+				return
+			# only resume if at least 10 seconds ahead, or <10 seconds before the end.
+			seekable = self.__getSeekable()
+			if seekable is None:
+				return  # Should not happen?
+			length = seekable.getLength() or (None, 0)
+			# Hmm, this implies we don't resume if the length is unknown...
+			if (last > 900000) and (not length[1] or (last < length[1] - 900000)):
+				self.resume_point = last
+				x = last // 90000
+				if force_resume:
+					self.playLastCB(True)
+				elif "ask" in config.usage.on_movie_start.value or not length[1]:
+					Notifications.AddNotificationWithCallback(self.playLastCB, MessageBox, _("Do you want to resume playback?") + "\n" + (_("Resume position at %s") % ("%d:%02d:%02d" % (x / 3600, x % 3600 / 60, x % 60))), timeout=30, default="yes" in config.usage.on_movie_start.value)
+				elif config.usage.on_movie_start.value == "resume":
+					Notifications.AddNotificationWithCallback(self.playLastCB, MessageBox, _("Resuming playback"), timeout=2, type=MessageBox.TYPE_INFO)
+
 	def __gotRecordEvent(self, record, event):
 		if record.getPtrString() != self.__recording.getPtrString():
 			return
@@ -4009,39 +4033,8 @@ class InfoBarCueSheetSupport:
 			self.updateFromRecCuesheet()
 
 	def __serviceStarted(self):
-		if self.is_closing:
-			return
-
-		self.__findRecording()
-
-		self.downloadCuesheet()
-		force_resume = self.force_next_resume
-		self.force_next_resume = False
-		self.resume_point = None
-		if self.ENABLE_RESUME_SUPPORT:
-			for (pts, what) in self.cut_list:
-				if what == self.CUT_TYPE_LAST:
-					last = pts
-					break
-			else:
-				last = getResumePoint(self.session)
-			if last is None:
-				return
-			# only resume if at least 10 seconds ahead, or <10 seconds before the end.
-			seekable = self.__getSeekable()
-			if seekable is None:
-				return  # Should not happen?
-			length = seekable.getLength() or (None, 0)
-			# Hmm, this implies we don't resume if the length is unknown...
-			if (last > 900000) and (not length[1] or (last < length[1] - 900000)):
-				self.resume_point = last
-				x = last // 90000
-				if force_resume:
-					self.playLastCB(True)
-				elif "ask" in config.usage.on_movie_start.value or not length[1]:
-					Notifications.AddNotificationWithCallback(self.playLastCB, MessageBox, _("Do you want to resume playback?") + "\n" + (_("Resume position at %s") % ("%d:%02d:%02d" % (x / 3600, x % 3600 / 60, x % 60))), timeout=30, default="yes" in config.usage.on_movie_start.value)
-				elif config.usage.on_movie_start.value == "resume":
-					Notifications.AddNotificationWithCallback(self.playLastCB, MessageBox, _("Resuming playback"), timeout=2, type=MessageBox.TYPE_INFO)
+		self.resumeTimer.stop()
+		self.resumeTimer.start(1000, True)
 
 	def __findRecording(self):
 		if isMoviePlayerInfoBar(self):
@@ -4087,7 +4080,8 @@ class InfoBarCueSheetSupport:
 		r = seek.getPlayPosition()
 		if r[0]:
 			return None
-		return int(r[1])
+		pos = int(r[1]) if r[1] else 0
+		return 0 if pos < 0 else pos
 
 	def cueGetEndCutPosition(self):
 		ret = False
@@ -4427,17 +4421,18 @@ class InfoBarSubtitleSupport:
 			self.subtitle_window.hide()
 
 	def toggleDefaultSubtitles(self):
+		from Screens.SubtitleDisplay import HIDE_SCREEN_TYPE_YES, HIDE_SCREEN_TYPE_NO
 		subtitle = self.getCurrentServiceSubtitle()
 		subtitlelist = subtitle and subtitle.getSubtitleList()
 		if subtitlelist is None or len(subtitlelist) == 0:
-			self.subtitle_window.showMessage(_("No subtitles available"), True)
+			self.subtitle_window.showSubtitles(_("No subtitles available"), HIDE_SCREEN_TYPE_YES)
 		elif self.selected_subtitle:
 			self.toggleenableSubtitle(None)
-			self.subtitle_window.showMessage(_("Subtitles off"), True)
+			self.subtitle_window.showSubtitles(_("Subtitles off"), HIDE_SCREEN_TYPE_YES)
 			self.selected_subtitle = None
 		else:
 			self.toggleenableSubtitle(subtitlelist[0])
-			self.subtitle_window.showMessage(_("Subtitles on"), False)
+			self.subtitle_window.showSubtitles(_("Subtitles on"), HIDE_SCREEN_TYPE_NO)
 
 	def toggleenableSubtitle(self, newSubtitle):
 		if self.selected_subtitle != newSubtitle:
@@ -4544,8 +4539,9 @@ class InfoBarHdmi:
 		if SystemInfo['HasHDMIin']:
 			if not self.hdmi_enabled_full:
 				self.addExtension((self.getHDMIInFullScreen, self.HDMIInFull, lambda: True), "blue")
-			if not self.hdmi_enabled_pip:
-				self.addExtension((self.getHDMIInPiPScreen, self.HDMIInPiP, lambda: True), "green")
+# 			HDMIinPiP causes issues in all tested boxes
+# 			if SystemInfo["HDMIinPiP"] and not self.hdmi_enabled_pip:
+# 				self.addExtension((self.getHDMIInPiPScreen, self.HDMIInPiP, lambda: True), "green")
 
 		self["HDMIActions"] = HelpableActionMap(self, "InfobarHDMIActions",
 			{
@@ -4559,10 +4555,12 @@ class InfoBarHdmi:
 			self.session.pip.playService(eServiceReference('8192:0:1:0:0:0:0:0:0:0:'))
 			self.session.pip.show()
 			self.session.pipshown = True
-		else:
+			self.session.pip.servicePath = self.servicelist.getCurrentServicePath()
+		elif SystemInfo["HDMIinPiP"]:
 			curref = self.session.pip.getCurrentService()
 			if curref and curref.type != 8192:
 				self.session.pip.playService(eServiceReference('8192:0:1:0:0:0:0:0:0:0:'))
+				self.session.pip.servicePath = self.servicelist.getCurrentServicePath()
 			else:
 				self.session.pipshown = False
 				del self.session.pip
@@ -4576,16 +4574,10 @@ class InfoBarHdmi:
 			self.session.nav.playService(slist.servicelist.getCurrent())
 
 	def getHDMIInFullScreen(self):
-		if not self.hdmi_enabled_full:
-			return _("Turn on HDMI-IN full screen mode")
-		else:
-			return _("Turn off HDMI-IN full screen mode")
+		return _("Switch to HDMI-IN") if not self.hdmi_enabled_full else _("Switch off HDMI-IN input")
 
 	def getHDMIInPiPScreen(self):
-		if not self.hdmi_enabled_pip:
-			return _("Turn on HDMI-IN PiP mode")
-		else:
-			return _("Turn off HDMI-IN PiP mode")
+		return _("Turn on HDMI-IN PiP mode") if not self.hdmi_enabled_pip else _("Turn off HDMI-IN PiP mode")
 
 	def HDMIInPiP(self):
 		if not hasattr(self.session, 'pip') and not self.session.pipshown:
