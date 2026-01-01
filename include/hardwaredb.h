@@ -45,7 +45,7 @@ Rear locations are from viewing the receiver from the back.
 #include <unordered_map>
 
 static std::unordered_map<std::string, std::string> HardwareDB{
-f03e0000.sdhci/mmc_host/mmc0/mmc0
+
 #ifdef HWDM900 // CHECKED
 	{"/devices/platform/brcmstb-ahci.0/ata1/", "SATA"},
 	{"/devices/rdb.4/f03e0000.sdhci/mmc_host/mmc0/", "SD"},
@@ -137,7 +137,7 @@ f03e0000.sdhci/mmc_host/mmc0/mmc0
 	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1/mmc1", "Rear MicroSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Rear USB"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-2/1-2.4/1-2.4:1.0", "Front USB"}
-#elif HWH9SSE
+#elif HWH9SSE // CHECKED
 	{"/devices/platform/soc/f9820000.himciv200.SD/mmc_host/mmc1/mmc1", "Rear MicroSD"},
 	{"/devices/platform/soc/f9890000.ehci/usb1/1-1/1-1:1.0", "Rear USB"}
 #elif HWH10 // CHECKED
