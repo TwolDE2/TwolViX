@@ -789,7 +789,7 @@ class HarddiskManager:
 			# if devMajor == 179 and MODEL in ("dm900", "dm920") and not SystemInfo["HasChkrootMultiboot"]:
 			if devMajor == 179 and MODEL in ("dm900", "dm920"):
 				if devMinor not in dm9x0Minor:  # mmcblk0 is 0 if no SD card else 8
-					print(f"[Harddisk][enumerateBlockDevices]  dm9x0 devMajor 179 devMinor != 0 device number '{devMajor}'  devMinor:{devMinor} for device '{device,}' ({physicalDevice}) is blacklisted.")
+					print(f"[Harddisk][enumerateBlockDevices]  dm9x0 devMajor 179 devMinor != 0 device number '{devMajor}'  devMinor:{devMinor} for device '{device, }' ({physicalDevice}) is blacklisted.")
 					continue
 				if len(device) > 7:  # only want mmcblk0
 					continue
@@ -851,7 +851,7 @@ class HarddiskManager:
 								continue
 							description = self.getUserfriendlyDeviceName(partition, physicalDevice)
 							print(f"[Harddisk][enumerateBlockDevices]### Found partition '{partition}', description='{description}', device='{physicalDevice}' mountpoint={self.getMountpoint(partition)}.")
-							if self.getMountpoint(partition) == "/media/hdd/" and partition.startswith("sd") or partition.startswith("mmcblk0"): # mmcblk0 used in MultiBootSelector
+							if self.getMountpoint(partition) == "/media/hdd/" and partition.startswith("sd") or partition.startswith("mmcblk0"):  # mmcblk0 used in MultiBootSelector
 								SystemInfo["MTDBLACK"] = partition
 								print(f"[Harddisk][enumerateBlockDevices]### MTDBLACK:{SystemInfo['MTDBLACK']}")
 							if MODEL in ("dm900", "dm920") and partition == "mmcblk0p3":
