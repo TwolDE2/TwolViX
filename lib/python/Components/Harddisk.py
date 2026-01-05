@@ -862,7 +862,7 @@ class HarddiskManager:
 									newFstab = fileReadLines("/etc/fstab")
 									for mount in newFstab:
 										if mount.startswith("/dev/mmcblk0p3"):
-											print(f"[Harddisk][enumerateBlockDevices]### mmcblk0p3 Mountpointfound in fstab")									
+											print(f"[Harddisk][enumerateBlockDevices]### mmcblk0p3 Mountpointfound in fstab")
 											foundMount = True
 											break
 									if not foundMount:
