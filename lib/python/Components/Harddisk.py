@@ -855,14 +855,22 @@ class HarddiskManager:
 								SystemInfo["MTDBLACK"] = partition
 								print(f"[Harddisk][enumerateBlockDevices]### MTDBLACK:{SystemInfo['MTDBLACK']}")
 							if MODEL in ("dm900", "dm920") and partition == "mmcblk0p3":
+								print(f"[Harddisk][enumerateBlockDevices]### mmcblk0p3 Mountpoint:{self.getMountpoint(partition)}")
+								foundMount = False
 								if self.getMountpoint(partition) is None or self.getMountpoint(partition) == "/":
 									mountpoint = "/media/data/"
 									newFstab = fileReadLines("/etc/fstab")
-									newFstab.append("/dev/mmcblk0p3 /media/data ext4 rw, relatime,data=ordered 0 0")
-									fileWriteLines("/etc/fstab", newFstab)
-									if not exists(mountpoint):
-										mkdir(mountpoint, 0o755)
-									self.console.ePopen("/bin/mount -a")
+									for mount in newFstab:
+										if mount.startswith("/dev/mmcblk0p3"):
+											print(f"[Harddisk][enumerateBlockDevices]### mmcblk0p3 Mountpointfound in fstab")									
+											foundMount = True
+											break
+									if not foundMount:
+										newFstab.append("/dev/mmcblk0p3 /media/data ext4 rw, relatime,data=ordered 0 0")
+										fileWriteLines("/etc/fstab", newFstab)
+										if not exists(mountpoint):
+											mkdir(mountpoint, 0o755)
+										self.console.ePopen("/bin/mount -a")
 									part = Partition(mountpoint, description=description, force_mounted=True, device=partition)
 									print(f"[Harddisk][enumerateBlockDevices]  dm9x0  system DATA mountPartition(mountpoint = {self.getMountpoint(partition)}, description = {description}, force_mounted = True, device = {partition})")
 								else:
