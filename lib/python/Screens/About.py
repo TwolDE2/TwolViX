@@ -146,14 +146,13 @@ def df_h(find=None, binary=False):
 	for mount in open("/proc/mounts").readlines():
 		fs_spec, fs_file, fs_vfstype, fs_mntops, fs_freq, fs_passno = mount.split()
 		if True:  # fs_spec.startswith('/'):  # possible filtering here if necessary
-			if len(fs_file) != 1:  # length 1 is /
-				r = statvfs(fs_file)
-				if find is None or find == fs_file:
-					total = r.f_bsize * r.f_blocks
-					free = r.f_bsize * r.f_bfree
-					used = total - free
-					usedpercent = "%d%%" % (100 * used // total if total else 100)  # sanity against ZeroDivisionError if total is 0
-					out.append((fs_spec, bytesToHumanReadable(int(total), binary=binary), bytesToHumanReadable(int(used), binary=binary), bytesToHumanReadable(int(free), binary=binary), usedpercent, fs_file))
+			r = statvfs(fs_file)
+			if find is None or find == fs_file:
+				total = r.f_bsize * r.f_blocks
+				free = r.f_bsize * r.f_bfree
+				used = total - free
+				usedpercent = "%d%%" % (100 * used // total if total else 100)  # sanity against ZeroDivisionError if total is 0
+				out.append((fs_spec, bytesToHumanReadable(int(total), binary=binary), bytesToHumanReadable(int(used), binary=binary), bytesToHumanReadable(int(free), binary=binary), usedpercent, fs_file))
 	return out
 
 
