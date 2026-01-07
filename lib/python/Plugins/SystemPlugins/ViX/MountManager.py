@@ -194,6 +194,8 @@ def buildPartitionInfo(partition, partitionList):
 			("/media/usb3", "/media/usb3"),
 			("/media/sdcard", "/media/sdcard")
 		]
+		if MODEL in ("dm900", "dm920"):
+			Gmedia.append(("/media/data", "/media/data"))
 		item = NoSave(ConfigSelection(default="/media/%s" % partition, choices=Gmedia))
 		if _format == "Linux":
 			_format = "ext4"
