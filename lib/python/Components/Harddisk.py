@@ -871,10 +871,8 @@ class HarddiskManager:
 										if not exists(mountpoint):
 											mkdir(mountpoint, 0o755)
 										self.console.ePopen("/bin/mount -a")
-									part = Partition(mountpoint, description=description, force_mounted=True, device=partition)
-									print(f"[Harddisk][enumerateBlockDevices]  dm9x0  system DATA mountPartition(mountpoint = {self.getMountpoint(partition)}, description = {description}, force_mounted = True, device = {partition})")
-								else:
-									continue
+								part = Partition(mountpoint, description=description, force_mounted=True, device=partition)
+								print(f"[Harddisk][enumerateBlockDevices]  dm9x0  system DATA mountPartition(mountpoint = {self.getMountpoint(partition)}, description = {description}, force_mounted = True, device = {partition})")
 							else:
 								part = Partition(mountpoint=self.getMountpoint(partition, skiproot=True), description=description, force_mounted=True, device=partition)
 							self.partitions.append(part)
