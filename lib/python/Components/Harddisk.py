@@ -854,8 +854,6 @@ class HarddiskManager:
 							if self.getMountpoint(partition) == "/media/hdd/" and partition.startswith("sd") or partition.startswith("mmcblk0"):  # mmcblk0 used in MultiBootSelector
 								SystemInfo["MTDBLACK"] = partition
 								print(f"[Harddisk][enumerateBlockDevices]### MTDBLACK:{SystemInfo['MTDBLACK']}")
-							if MODEL in ("dm900", "dm920") and partition == "mmcblk0p3":
-								print(f"[Harddisk][enumerateBlockDevices]###1 mmcblk0p3 Mountpoint:{self.getMountpoint(partition)}")
 							if MODEL in ("dm900", "dm920") and partition == "mmcblk0p3" and (self.getMountpoint(partition) is None or self.getMountpoint(partition) == "/"):
 								print(f"[Harddisk][enumerateBlockDevices]###2 mmcblk0p3 Mountpoint:{self.getMountpoint(partition)}")
 								foundMount = False
