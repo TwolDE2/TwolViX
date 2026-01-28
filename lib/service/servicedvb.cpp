@@ -1468,10 +1468,7 @@ RESULT eDVBServicePlay::start()
 			scrambled = meta.m_scrambled;
 		}
 		else
-		{
-			/* when there is no meta file we need to handle ts/m2ts as descrambled */
-			scrambled = false;
-		}
+			scrambled = false; // Set scrambled to false if meta not exists
 		m_cue = new eCueSheet();
 		type = eDVBServicePMTHandler::playback;
 	}
@@ -1734,13 +1731,6 @@ RESULT eDVBServicePlay::setFastForward_internal(int ratio, bool final_seek)
 	}
 	else
 		return -1;
-
-	if (ffratio == 0)
-		; /* return m_decoder->play(); is done in caller*/
-	else if (ffratio != 1)
-		ret = m_decoder->setFastForward(ffratio);
-	else
-		ret = m_decoder->setTrickmode();
 
 	if (pos)
 	{
@@ -2242,7 +2232,7 @@ int eDVBServicePlay::getInfo(int w)
 		// use origiginal namespace
 		if (m_reference.isStreamRelay){
 			eServiceReferenceDVB m_parsed_ref = eServiceReferenceDVB(m_reference.compareSref);
-			if (m_parsed_ref.valid()) 
+			if (m_parsed_ref.valid())
 			{
 				return ((const eServiceReferenceDVB&)m_parsed_ref).getDVBNamespace().get();
 			}
@@ -2870,7 +2860,7 @@ RESULT eDVBServicePlay::startTimeshift()
 	if (m_timeshift_enabled)
 		return -1;
 
-		/* start recording with the data demux. */
+	/* start recording with the data demux. */
 	if (m_service_handler.getDataDemux(demux))
 		return -2;
 
@@ -2880,14 +2870,9 @@ RESULT eDVBServicePlay::startTimeshift()
 		return -3;
 
 	std::string tspath = eConfigManager::getConfigValue("config.usage.timeshift_path");
-	if (tspath == "")
+	if (tspath == "" || tspath.empty())
 	{
-		eDebug("[servicedvb][eDVBServicePlay] could not query timeshift path");
-		return -5;
-	}
-	if (tspath.empty())
-	{
-		eDebug("[servicedvb][eDVBServicePlay] timeshift path is empty");
+		eDebug("[eDVBServicePlay] could not query time shift path");
 		return -5;
 	}
 	if (tspath[tspath.length()-1] != '/')
@@ -3142,11 +3127,8 @@ void eDVBServicePlay::setCutList(ePyObject list)
 	if (!PyList_Check(list))
 		return;
 	int size = PyList_Size(list);
-	int i;
-
 	m_cue_entries.clear();
-
-	for (i=0; i<size; ++i)
+	for (int i=0; i<size; ++i)
 	{
 		ePyObject tuple = PyList_GET_ITEM(list, i);
 		if (!PyTuple_Check(tuple))

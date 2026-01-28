@@ -497,7 +497,7 @@ int eDVBRecordFileThread::AsyncIO::wait(volatile int* stop_flag)
 		// Wait for current operation to complete with timeout
 		while (aio_error(&aio) == EINPROGRESS)
 		{
-			eDebug("[eDVBRecordFileThread] Waiting for I/O to complete");
+			eTrace("[eDVBDemux][eDVBRecordFileThread] Waiting for I/O to complete");
 			struct aiocb* paio = &aio;
 			struct timespec timeout = {1, 0}; // 1 second timeout
 			int r = aio_suspend(&paio, 1, &timeout);
@@ -608,7 +608,7 @@ int eDVBRecordFileThread::AsyncIO::poll()
 	aio.aio_buf = NULL;
 	if (r < 0)
 	{
-		eWarning("[eDVBDemux][eDVBRecordFileThread] poll: aio_return returned failure: %d %m", r);
+		eDebug("[eDVBRecordFileThread] poll: aio_return returned failure: %m");
 		return -1;
 	}
 	return 0;
@@ -758,7 +758,7 @@ int eDVBRecordFileThread::writeData(int len)
 		len = asyncWrite(len);
 		if (len < 0)
 		{
-			eWarning("[eDVBRecordFileThread] asyncwrite failed: %d", len);
+			eWarning("[eDVBDemux][eDVBRecordFileThread] asyncwrite failed: %d", len);
 			return len;
 		}
 		// Wait for previous aio to complete on this buffer before returning
@@ -794,7 +794,7 @@ void eDVBRecordFileThread::flush()
 		}
 	}
 	int bufferCount = m_aio.size();
-	eTrace("[eDVBDemux][eDVBRecordFileThread] buffer usage histogram (%d buffers of %jd kB)", bufferCount, (intmax_t)m_buffersize>>10);
+	eTrace("[eDVBRecordFileThread] buffer usage histogram (%d buffers of %lu kB)", bufferCount, m_buffersize>>10);
 	for (int i=0; i <= bufferCount; ++i)
 	{
 		if (m_buffer_use_histogram[i] != 0)
@@ -882,7 +882,7 @@ int eDVBRecordStreamThread::writeData(int len)
 				return r;
 		}
 		// we want to have a consistent state, so wait for completion, just to be sure
-		r = m_current_buffer->wait();
+		r = m_current_buffer->wait(&m_stop);
 		if (r < 0)
 		{
 			eTrace("[eDVBRecordStreamThread] wait failed: %m");
