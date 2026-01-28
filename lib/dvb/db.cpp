@@ -32,8 +32,10 @@
 static int root2gold(int root)
 {
 	int x, g;
+
 	if (root < 0 || root > 0x3ffff)
 		return 0;
+
 	for (g = 0, x = 1; g < 0x3ffff; g++)
 	{
 		if (root == x)
@@ -169,6 +171,16 @@ RESULT eBouquet::setListName(const std::string &name)
 	m_bouquet_name = name;
 	return 0;
 }
+
+const eDVBService::cacheID eDVBService::audioCacheTags[] = {
+	eDVBService::cMPEGAPID, eDVBService::cAC3PID,
+	eDVBService::cAACHEAPID, eDVBService::cDDPPID,
+	eDVBService::cDTSPID, eDVBService::cAACAPID,
+	eDVBService::cLPCMPID, eDVBService::cDTSHDPID,
+};
+
+const int eDVBService::nAudioCacheTags = sizeof(eDVBService::audioCacheTags) / sizeof(eDVBService::audioCacheTags[0]);
+
 
 eDVBService::eDVBService()
 	:m_cache(0), m_flags(0)
@@ -409,6 +421,15 @@ bool eDVBService::cacheEmpty()
 	return true;
 }
 
+bool eDVBService::cacheAudioEmpty()
+{
+	if (m_cache)
+		for (int i=0; i < nAudioCacheTags; ++i)
+			if (m_cache[audioCacheTags[i]] != -1)
+				return false;
+	return true;
+}
+
 void eDVBService::initCache()
 {
 	m_cache = new int[cacheMax];
@@ -490,7 +511,7 @@ void eDVBService::setCacheEntry(cacheID id, int pid)
 			eServiceReference ref = eServiceReference(m_reference_str);
 			std::string ref_s = ref.toReferenceString();
 			int pid_val = pid > 0 ? pid : -1;
-			if (endsWith(ref_s, ":")) 
+			if (endsWith(ref_s, ":"))
 			{
 				ref_s = ref_s.substr(0, ref_s.size()-1);
 			}
