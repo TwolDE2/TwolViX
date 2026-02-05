@@ -9,8 +9,7 @@ from time import time, localtime, strftime
 
 from pickle import load as pickle_load, dump as pickle_dump
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
-from keyids import KEYIDS
-# from keyids import KEYFLAGS, KEYIDNAMES  # used by print debug
+from keyids import KEYFLAGS, KEYIDS, KEYIDNAMES  # used by print debug
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap
 from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection, ACTIONKEY_RIGHT
@@ -62,8 +61,7 @@ from Screens.UnhandledKey import UnhandledKey
 from ServiceReference import ServiceReference, isPlayableForCur
 from Tools import Notifications
 from Tools.Directories import pathExists, fileExists, isPluginInstalled
-from Tools.KeyBindings import getKeyBindingKeys
-# from Tools.KeyBindings import getKeyDescription  # Used by Debug
+from Tools.KeyBindings import getKeyDescription, getKeyBindingKeys # Used by Debug
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
 from Screens.Setup import Setup
