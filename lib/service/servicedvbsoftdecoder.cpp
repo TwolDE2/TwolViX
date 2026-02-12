@@ -79,7 +79,7 @@ void eDVBSoftDecoder::onFirstCwReceived()
 	if (m_decoder_started)
 		return;  // Already started
 
-	eDebug("[eDVBSoftDecoder] First CW received - starting decoder with DVR wait");
+	eDebug("[eDVBSoftDecoder] First CW received - starting recorder and decoder");
 
 	// Stop timer
 	if (m_start_timer)
@@ -89,6 +89,8 @@ void eDVBSoftDecoder::onFirstCwReceived()
 	if (m_first_cw_conn.connected())
 		m_first_cw_conn.disconnect();
 
+	// Start recorder now that CW is available (avoids DVR buffer fill with scrambled data)
+	m_record->start();
 	startDecoderWithDvrWait();
 }
 
@@ -97,12 +99,14 @@ void eDVBSoftDecoder::onWaitForFirstDataTimeout()
 	if (m_decoder_started)
 		return;  // Already started
 
-	eWarning("[eDVBSoftDecoder] CW timeout - starting decoder with DVR wait anyway");
+	eWarning("[eDVBSoftDecoder] CW timeout - starting recorder and decoder anyway");
 
 	// Disconnect signal
 	if (m_first_cw_conn.connected())
 		m_first_cw_conn.disconnect();
 
+	// Start recorder (CW not yet available, but can't wait forever)
+	m_record->start();
 	startDecoderWithDvrWait();
 }
 
@@ -364,8 +368,10 @@ int eDVBSoftDecoder::setupRecorder()
 	CONNECT(m_start_timer->timeout, eDVBSoftDecoder::onWaitForFirstDataTimeout);
 	m_start_timer->start(wait_timeout, true);  // single-shot
 
-	// Start record thread
-	m_record->start();
+	// Recorder is NOT started here - it will be started in onFirstCwReceived()
+	// or onWaitForFirstDataTimeout() to avoid filling the DVR buffer with
+	// scrambled data before CW keys are available (causes buffer deadlock
+	// on some hardware like gbquad4k).
 
 	return 0;
 }
