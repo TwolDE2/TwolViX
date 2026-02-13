@@ -52,7 +52,7 @@ from Screens.PiPSetup import PiPSetup
 from Screens.PVRState import PVRState, TimeshiftState
 from Screens.SubtitleDisplay import SubtitleDisplay
 from Screens.RdsDisplay import RdsInfoDisplay, RassInteractive
-from Screens.Screen import Screen
+from Screens.Screen import Screen, ScreenSummary
 from Screens.TimeDateInput import TimeDateInput
 from Screens.TimerEdit import TimerEditList
 from Screens.TimerEntry import addTimerFromEvent
@@ -203,7 +203,7 @@ class InfoBarStreamRelay:
 				playrefmod = playrefstring
 			playref = eServiceReference("%s%s%s:%s" % (playrefmod, url.replace(":", "%3a"), playrefstring.replace(":", "%3a"), renamestring or ServiceReference(playref).getServiceName()))
 			is_stream_relay = True
-			# print(f"[{self.__class__.__name__}] Play service {playref.toString()} via streamrelay")
+			print(f"[{self.__class__.__name__}] Play service {playref.toString()} via streamrelay")
 			playref.setCompareSref(playrefstring, True)
 		return playref, is_stream_relay
 
@@ -329,7 +329,7 @@ class InfoBarUnhandledKey:
 			self.unhandledKeyDialog = None
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
-		# print(f"[InfoBarGenerics] Key: {key} ({KEYFLAGS.get(flag, _('Unknown'))}) KeyID='{KEYIDNAMES.get(key, _('Unknown'))}' Binding='{getKeyDescription(key)}'.")
+		print(f"[InfoBarGenerics] Key: {key} ({KEYFLAGS.get(flag, _('Unknown'))}) KeyID='{KEYIDNAMES.get(key, _('Unknown'))}' Binding='{getKeyDescription(key)}'.")
 		if flag != 2:  # don't hide on repeat
 			self.unhandledKeyDialog.hide()
 			if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
@@ -4236,7 +4236,7 @@ class InfoBarCueSheetSupport:
 				self.uploadCuesheet()
 
 
-class InfoBarSummary(Screen):
+class InfoBarSummary(ScreenSummary):
 	skin = """
 	<screen position="0,0" size="132,64">
 		<widget source="global.CurrentTime" render="Label" position="62,46" size="82,18" font="Regular;16" >
@@ -4268,7 +4268,7 @@ class InfoBarSummarySupport:
 		return InfoBarSummary
 
 
-class InfoBarMoviePlayerSummary(Screen):
+class InfoBarMoviePlayerSummary(ScreenSummary):
 	skin = """
 	<screen position="0,0" size="132,64">
 		<widget source="global.CurrentTime" render="Label" position="62,46" size="64,18" font="Regular;16" halign="right" >
@@ -4287,7 +4287,7 @@ class InfoBarMoviePlayerSummary(Screen):
 	</screen>"""
 
 	def __init__(self, session, parent):
-		Screen.__init__(self, session, parent=parent)
+		ScreenSummary.__init__(self, session, parent=parent)
 		self["state_summary"] = StaticText("")
 		self["speed_summary"] = StaticText("")
 		self["statusicon_summary"] = MultiPixmap()

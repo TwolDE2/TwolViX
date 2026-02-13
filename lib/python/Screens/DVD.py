@@ -11,15 +11,15 @@ from Screens.ChoiceBox import ChoiceBox
 from Screens.HelpMenu import HelpableScreen
 from Screens.InfoBarGenerics import InfoBarSeek, InfoBarPVRState, InfoBarCueSheetSupport, InfoBarShowHide, InfoBarNotifications, InfoBarAudioSelection, InfoBarSubtitleSupport, InfoBarLongKeyDetection
 from Screens.MessageBox import MessageBox
-from Screens.Screen import Screen
+from Screens.Screen import Screen, ScreenSummary
 from Tools.Directories import pathExists, fileExists
 
 lastpath = ""
 
 
-class DVDSummary(Screen):
+class DVDSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		Screen.__init__(self, session, parent)
+		ScreenSummary.__init__(self, session, parent)
 		self["Title"] = Label("")
 		self["Time"] = Label("")
 		self["Chapter"] = Label("")

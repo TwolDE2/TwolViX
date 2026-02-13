@@ -1,22 +1,23 @@
 from enigma import iPlayableService, iRdsDecoder
+
 from Components.ActionMap import NumberActionMap
 from Components.Label import Label
 from Components.Pixmap import Pixmap
 from Components.ServiceEventTracker import ServiceEventTracker
 from Components.Sources.StaticText import StaticText
-from Screens.Screen import Screen
+from Screens.Screen import Screen, ScreenSummary
 from Tools.Directories import resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
 
 
-class RdsInfoDisplaySummary(Screen):
+class RdsInfoDisplaySummary(ScreenSummary):
 	skin = """
 	<screen position="fill" flags="wfNoBorder">
 		<widget source="message" render="Label" position="0,0" size="e,e" font="Regular;18" halign="center" valign="center" />
 	</screen>"""
 
 	def __init__(self, session, parent):
-		Screen.__init__(self, session, parent=parent)
+		ScreenSummary.__init__(self, session, parent=parent)
 		self["message"] = StaticText("")
 		self.parent.onText.append(self.onText)
 

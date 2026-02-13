@@ -11,7 +11,7 @@ from PowerTimer import PowerTimerEntry, AFTEREVENT
 from Screens.ChoiceBox import ChoiceBox
 from Screens.MessageBox import MessageBox
 from Screens.PowerTimerEntry import TimerEntry, TimerLog
-from Screens.Screen import Screen
+from Screens.Screen import Screen, ScreenSummary
 from Tools.BoundFunction import boundFunction
 from Tools.FuzzyDate import FuzzyTime
 
@@ -303,9 +303,9 @@ class PowerTimerEditList(Screen):
 		self.updateState()
 
 
-class PowerTimerEditListSummary(Screen):
+class PowerTimerEditListSummary(ScreenSummary):
 	def __init__(self, session, parent):
-		Screen.__init__(self, session, parent=parent)
+		ScreenSummary.__init__(self, session, parent=parent)
 		self["timertype"] = StaticText("")
 		self["time"] = StaticText("")
 		self["duration"] = StaticText("")

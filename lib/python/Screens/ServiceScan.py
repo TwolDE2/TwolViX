@@ -9,11 +9,11 @@ from Components.ServiceScan import ServiceScan as CScan
 from Components.PluginComponent import plugins
 from Components.Sources.FrontendInfo import FrontendInfo
 from Plugins.Plugin import PluginDescriptor
-from Screens.Screen import Screen
+from Screens.Screen import Screen, ScreenSummary
 import Screens.InfoBar
 
 
-class ServiceScanSummary(Screen):
+class ServiceScanSummary(ScreenSummary):
 	skin = """
 	<screen position="0,0" size="132,64">
 		<widget name="Title" position="6,4" size="120,42" font="Regular;16" transparent="1" />
@@ -22,7 +22,7 @@ class ServiceScanSummary(Screen):
 	</screen>"""
 
 	def __init__(self, session, parent, showStepSlider=True):
-		Screen.__init__(self, session, parent)
+		ScreenSummary.__init__(self, session, parent)
 
 		self["Title"] = Label(parent.title or _("Service scan"))
 		self["Service"] = Label(_("No service"))
