@@ -43,9 +43,7 @@ class Keyboard:
 		return self.keyboardMaps
 
 	def getDefaultKeyboardMap(self):
-		for map in self.keyboardMaps:
-			if "eng.kmap" == map[0] and config.osd.language.value.startswith("en_"):
-				return "eng.kmap"
+		print("[Keyboard] getDefaultKeyboardMap")
 		return "default.kmap"		# this is US for some strange reason
 
 
