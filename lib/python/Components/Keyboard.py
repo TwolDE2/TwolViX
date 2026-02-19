@@ -11,14 +11,13 @@ class Keyboard:
 	KEYBOARD_NAME = 2
 	KEYBOARD_DISPLAY_NAME = 3
 
-
 	def __init__(self):
 		self.keyboardMaps = []
 		self.readKeyboardMapFiles()
 
 	def readKeyboardMapFiles(self):
 		self.keyboards = []
-		self.Default=0
+		self.Default = 0
 		keyboards = fileReadXML(resolveFilename(SCOPE_KEYMAPS, "keyboards.xml"))
 		if keyboards is not None:
 			for keyboard in sorted(keyboards.findall("keyboard"), key=lambda keyboard: (keyboard.tag, keyboard.get("name"))):
@@ -34,7 +33,7 @@ class Keyboard:
 						print(f"[Keyboard] Error: Keyboard definition '{keyboardKmapPath}' doesn't exist for '{keyboardName}'!")
 				else:
 					print(f"[Keyboard] Error: Keyboard definition is invalid!  (kmap='{keyboardKmap}', name='{keyboardName}')")
-			self.Default, self.keyboardMaps= self.setupFinalise()
+			self.Default, self.keyboardMaps = self.setupFinalise()
 
 	def activateKeyboardMap(self, index):
 		print(f"[Keyboard][activateKeyboardMap] index '{index}'")
@@ -54,7 +53,7 @@ class Keyboard:
 
 	def getDefaultKeyboardMap(self):
 		return self.Default
-		
+
 	def setupFinalise(self):
 		keyboardLanguage = {"en": "qwerty.kmap", "de": "qwertz.kmap", "fr": "azerty.kmap", "us": "qwerty.kmap"}
 		language = config.osd.language.value[0:2]
@@ -68,7 +67,8 @@ class Keyboard:
 			keyboardChoices.append((index, keyboard[self.KEYBOARD_DISPLAY_NAME]))
 			if languageDefault == keyboard[self.KEYBOARD_KMAP]:
 				print(f"[Keyboard] Default keyboard identified as '{keyboard[self.KEYBOARD_DISPLAY_NAME]}' using '{keyboard[self.KEYBOARD_KMAP]}'.")
-				default = index	
+				default = index
 		return default, keyboardChoices
+
 
 keyboard = Keyboard()
