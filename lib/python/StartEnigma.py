@@ -497,7 +497,7 @@ def keyboardNotifier(configElement):
 	keyboard.activateKeyboardMap(configElement.index)
 config.keyboard = ConfigSubsection()
 config.keyboard.keymap = ConfigSelection(default=keyboard.getDefaultKeyboardMap(), choices=keyboard.getKeyboardMaplist())
-config.keyboard.keymap.addNotifier(keyboardNotifier
+config.keyboard.keymap.addNotifier(keyboardNotifier)
 
 profile("ClientMode")
 print("[StartEnigma]  Initialising ClientMode.")
