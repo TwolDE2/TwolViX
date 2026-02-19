@@ -18,7 +18,7 @@ class Keyboard:
 
 	def readKeyboardMapFiles(self):
 		self.keyboards = []
-		self.Default=0
+		self.Default = 0
 		keyboards = fileReadXML(resolveFilename(SCOPE_KEYMAPS, "keyboards.xml"))
 		if keyboards is not None:
 			for keyboard in sorted(keyboards.findall("keyboard"), key=lambda keyboard: (keyboard.tag, keyboard.get("name"))):
@@ -34,7 +34,7 @@ class Keyboard:
 						print(f"[Keyboard] Error: Keyboard definition '{keyboardKmapPath}' doesn't exist for '{keyboardName}'!")
 				else:
 					print(f"[Keyboard] Error: Keyboard definition is invalid!  (kmap='{keyboardKmap}', name='{keyboardName}')")
-			self.Default, self.keyboardMaps= self.setupFinalise()
+			self.Default, self.keyboardMaps = self.setupFinalise()
 
 	def activateKeyboardMap(self, index):
 		print(f"[Keyboard][activateKeyboardMap] index '{index}'")
