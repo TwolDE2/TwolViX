@@ -53,7 +53,7 @@ class Keyboard:
 
 	def getDefaultKeyboardMap(self):
 		return self.Default
-		
+
 	def setupFinalise(self):
 		keyboardLanguage = {"en": "qwerty.kmap", "de": "qwertz.kmap", "fr": "azerty.kmap", "us": "qwerty.kmap"}
 		language = config.osd.language.value[0:2]
@@ -67,7 +67,7 @@ class Keyboard:
 			keyboardChoices.append((index, keyboard[self.KEYBOARD_DISPLAY_NAME]))
 			if languageDefault == keyboard[self.KEYBOARD_KMAP]:
 				print(f"[Keyboard] Default keyboard identified as '{keyboard[self.KEYBOARD_DISPLAY_NAME]}' using '{keyboard[self.KEYBOARD_KMAP]}'.")
-				default = index	
+				default = index
 		return default, keyboardChoices
 
 
