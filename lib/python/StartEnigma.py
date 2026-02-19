@@ -513,16 +513,16 @@ print("[StartEnigma]  Initialising InfoBar.")
 from Screens import InfoBar  # noqa: E402
 
 # from Components.SystemInfo import SystemInfo  # noqa: E402  don't move this import
-VuRecovery=SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0
+VuRecovery = SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0
 # print("[StartEnigma]  Is this VuRecovery?. Recovery = ", VuRecovery)
 
 from Components.config import config, configfile, ConfigInteger, ConfigSelection, ConfigText, ConfigYesNo, NoSave  # noqa: E402
 if not VuRecovery:
 	profile("Bouquets")
 	print("[StartEnigma]  Initialising Bouquets.")
-	config.misc.load_unlinked_userbouquets=ConfigSelection(default="0", choices=[("0", _("Off")), ("1", _("Top")), ("2", _("Bottom"))])
+	config.misc.load_unlinked_userbouquets = ConfigSelection(default="0", choices=[("0", _("Off")), ("1", _("Top")), ("2", _("Bottom"))])
 	if config.misc.load_unlinked_userbouquets.value.lower() in ("true", "false"):
-		config.misc.load_unlinked_userbouquets.value="1" if config.misc.load_unlinked_userbouquets.value.lower() == "true" else "0"
+		config.misc.load_unlinked_userbouquets.value = "1" if config.misc.load_unlinked_userbouquets.value.lower() == "true" else "0"
 
 	def setLoadUnlinkedUserbouquets(configElement):
 		enigma.eDVBDB.getInstance().setLoadUnlinkedUserbouquets(int(configElement.value))
@@ -552,26 +552,26 @@ InitFallbackFiles()
 
 profile("config.misc")
 print("[StartEnigma]  Initialising Misc Config Variables.")
-config.misc.radiopic=ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "radio.mvi"))
-config.misc.blackradiopic=ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "black.mvi"))
-config.misc.isNextRecordTimerAfterEventActionAuto=ConfigYesNo(default=False)
-config.misc.isNextPowerTimerAfterEventActionAuto=ConfigYesNo(default=False)
-config.misc.pluginWakeupName=ConfigText(default="")
-config.misc.SyncTimeUsing=ConfigSelection(default="dvb", choices=[("dvb", _("Transponder Time")), ("ntp", _("NTP"))])
-config.misc.NTPserver=ConfigText(default='pool.ntp.org', fixed_size=False)
-config.misc.useNTPminutes=ConfigSelection(default="30", choices=[("30", "30" + " " + _("minutes")), ("60", _("Hour")), ("1440", _("Once per day"))])
+config.misc.radiopic = ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "radio.mvi"))
+config.misc.blackradiopic = ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "black.mvi"))
+config.misc.isNextRecordTimerAfterEventActionAuto = ConfigYesNo(default=False)
+config.misc.isNextPowerTimerAfterEventActionAuto = ConfigYesNo(default=False)
+config.misc.pluginWakeupName = ConfigText(default="")
+config.misc.SyncTimeUsing = ConfigSelection(default="dvb", choices=[("dvb", _("Transponder Time")), ("ntp", _("NTP"))])
+config.misc.NTPserver = ConfigText(default='pool.ntp.org', fixed_size=False)
+config.misc.useNTPminutes = ConfigSelection(default="30", choices=[("30", "30" + " " + _("minutes")), ("60", _("Hour")), ("1440", _("Once per day"))])
 
-config.misc.startCounter=ConfigInteger(default=0)  # number of e2 starts..
-config.misc.startCounter=ConfigInteger(default=0)  # number of e2 starts...
-config.misc.standbyCounter=NoSave(ConfigInteger(default=0))  # number of standby
-config.misc.DeepStandby=NoSave(ConfigYesNo(default=False))  # detect deepstandby
+config.misc.startCounter = ConfigInteger(default=0)  # number of e2 starts..
+config.misc.startCounter = ConfigInteger(default=0)  # number of e2 starts...
+config.misc.standbyCounter = NoSave(ConfigInteger(default=0))  # number of standby
+config.misc.DeepStandby = NoSave(ConfigYesNo(default=False))  # detect deepstandby
 
 
 profile("Twisted")
 print("[StartEnigma]  Initialising Twisted.")
 try:
 	import twisted.python.runtime  # noqa: E402
-	twisted.python.runtime.platform.supportsThreads=lambda: True
+	twisted.python.runtime.platform.supportsThreads = lambda: True
 	import e2reactor  # noqa: E402
 	e2reactor.install()
 	from twisted.internet import reactor  # noqa: E402
@@ -591,25 +591,25 @@ try:
 	from twisted.python import log, util  # noqa: E402
 
 	def quietEmit(self, eventDict):
-		text=log.textFromEventDict(eventDict)
+		text = log.textFromEventDict(eventDict)
 		if text is None:
 			return
 		if "/api/statusinfo" in text:  # Do not log OpenWebif status info.
 			return
-		formatDict={
+		formatDict = {
 			"text": text.replace("\n", "\n\t")
 		}
-		msg=log._safeFormat("%(text)s\n", formatDict)
+		msg = log._safeFormat("%(text)s\n", formatDict)
 		util.untilConcludes(self.write, msg)
 		util.untilConcludes(self.flush)
 
-	logger=log.FileLogObserver(sys.stdout)		# do not change or no crashlog
-	log.FileLogObserver.emit=quietEmit
-	backup_stdout=sys.stdout		# backup stdout and stderr redirections
-	backup_stderr=sys.stderr
+	logger = log.FileLogObserver(sys.stdout)		# do not change or no crashlog
+	log.FileLogObserver.emit = quietEmit
+	backup_stdout = sys.stdout		# backup stdout and stderr redirections
+	backup_stderr = sys.stderr
 	log.startLoggingWithObserver(logger.emit)
-	sys.stdout=backup_stdout		# restore stdout and stderr redirections because of twisted redirections
-	sys.stderr=backup_stderr
+	sys.stdout = backup_stdout		# restore stdout and stderr redirections because of twisted redirections
+	sys.stderr = backup_stderr
 except ImportError:
 	print("[StartEnigma] Error: Twisted not available!")
 
@@ -634,13 +634,13 @@ from Plugins.Plugin import PluginDescriptor  # noqa: E402
 
 if config.misc.firstrun.value and not osexists('/etc/install'):
 	with open("/etc/install", "w") as f:
-		now=datetime.now()
-		flashdate=now.strftime("%Y%m%d")
+		now = datetime.now()
+		flashdate = now.strftime("%Y%m%d")
 		print("[StartEnigma][Setting Flash date]", flashdate)
 		f.write(flashdate)
 
 profile("misc")
-had=dict()
+had = dict()
 
 profile("LOAD:ScreenGlobals")
 print("[StartEnigma]  Initialising ScreenGlobals.")
@@ -649,11 +649,11 @@ from Screens.SessionGlobals import SessionGlobals  # noqa: E402
 from Screens.Screen import Screen, ScreenSummary  # noqa: E402
 
 profile("Screen")
-Screen.globalScreen=Globals()
+Screen.globalScreen = Globals()
 
 
 # must be above skins and InputDevices
-config.misc.RCSource=ConfigSelection(default="branding", choices=[("branding", _("OE-A-Branding")), ("hardware", _("OE-A-Remotes"))])
+config.misc.RCSource = ConfigSelection(default="branding", choices=[("branding", _("OE-A-Branding")), ("hardware", _("OE-A-Remotes"))])
 
 
 def RCSelectionChanged(configelement):
@@ -686,10 +686,10 @@ if not VuRecovery:
 
 	profile("StackTracePrinter")
 	from Components.StackTrace import StackTracePrinter  # noqa: E402
-	StackTracePrinterInst=StackTracePrinter()
+	StackTracePrinterInst = StackTracePrinter()
 
 profile("Init:skin")
-config.skin.pixmap_force_alphablending=ConfigSelection(default="0", choices=[("2", _("Always")), ("1", _("Only alpha test to alpha blend")), ("0", _("Use skin setting"))])
+config.skin.pixmap_force_alphablending = ConfigSelection(default="0", choices=[("2", _("Always")), ("1", _("Only alpha test to alpha blend")), ("0", _("Use skin setting"))])
 print("[StartEnigma]  Initialising Skins.")
 from skin import InitSkins  # noqa: E402
 InitSkins()
@@ -745,7 +745,7 @@ if osexists(config.usage.keytrans.value):
 	readKeymap(config.usage.keytrans.value)
 
 if VuRecovery:
-	SystemInfo["Display"]=False
+	SystemInfo["Display"] = False
 else:
 	profile("Init:OnlineCheckState")
 	print("[StartEnigma]  Initialising OnlineCheckState.")
