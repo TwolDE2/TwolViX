@@ -11,7 +11,6 @@ class Keyboard:
 	KEYBOARD_NAME = 2
 	KEYBOARD_DISPLAY_NAME = 3
 
-
 	def __init__(self):
 		self.keyboardMaps = []
 		self.readKeyboardMapFiles()
@@ -70,5 +69,6 @@ class Keyboard:
 				print(f"[Keyboard] Default keyboard identified as '{keyboard[self.KEYBOARD_DISPLAY_NAME]}' using '{keyboard[self.KEYBOARD_KMAP]}'.")
 				default = index	
 		return default, keyboardChoices
+
 
 keyboard = Keyboard()

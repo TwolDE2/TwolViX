@@ -493,8 +493,12 @@ if SystemInfo["architecture"] in ("aarch64"):  # something not right here
 profile("Keyboard")
 print("[StartEnigma]  Initialising Keyboard.")
 import Components.Keyboard  # noqa: E402
+
+
 def keyboardNotifier(configElement):
 	keyboard.activateKeyboardMap(configElement.index)
+
+
 config.keyboard = ConfigSubsection()
 config.keyboard.keymap = ConfigSelection(default=keyboard.getDefaultKeyboardMap(), choices=keyboard.getKeyboardMaplist())
 config.keyboard.keymap.addNotifier(keyboardNotifier
