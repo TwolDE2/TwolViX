@@ -59,7 +59,7 @@ class Keyboard:
 		try:
 			language = config.osd.language.value[0:2]
 		except Exception as error:
-			language = "en" # set default as English
+			language = "en"  # set default as English
 			print(f"[Keyboard] getDefaultKeyboardMap error:{error} language:{language}")
 			pass
 		print(f"[Keyboard] getDefaultKeyboardMap language:{language}")
