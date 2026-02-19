@@ -478,7 +478,7 @@ if SystemInfo["imagetype"] != "release":
 if SystemInfo["MultiBootSlot"]:
 	print(f"[StartEnigma]  Image Slot -> {SystemInfo['MultiBootSlot']}")
 
-# SetupDevices sets up defaults:- language, keyboard, parental & expert config.
+# SetupDevices sets up defaults:- language, parental & expert config.
 # Moving further down will break translation.
 # Moving further up will break imports in config.py
 profile("SetupDevices")
@@ -490,6 +490,14 @@ if SystemInfo["architecture"] in ("aarch64"):  # something not right here
 	from usb.backend import libusb1  # noqa: E402
 	libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")
 
+profile("Keyboard")
+print("[StartEnigma]  Initialising Keyboard.")
+import Components.Keyboard  # noqa: E402
+def keyboardNotifier(configElement):
+	keyboard.activateKeyboardMap(configElement.index)
+config.keyboard = ConfigSubsection()
+config.keyboard.keymap = ConfigSelection(default=keyboard.getDefaultKeyboardMap(), choices=keyboard.getKeyboardMaplist())
+config.keyboard.keymap.addNotifier(keyboardNotifier
 
 profile("ClientMode")
 print("[StartEnigma]  Initialising ClientMode.")

@@ -15,13 +15,6 @@ def InitSetupDevices():
 	config.osd.language.save_forced = True
 	config.osd.language.addNotifier(languageNotifier)
 
-	def keyboardNotifier(configElement):
-		keyboard.activateKeyboardMap(configElement.index)
-
-	config.keyboard = ConfigSubsection()
-	config.keyboard.keymap = ConfigSelection(default=keyboard.getDefaultKeyboardMap(), choices=keyboard.getKeyboardMaplist())
-	config.keyboard.keymap.addNotifier(keyboardNotifier)
-
 	config.parental = ConfigSubsection()
 	config.parental.lock = ConfigOnOff(default=False)
 	config.parental.setuplock = ConfigOnOff(default=False)
