@@ -56,7 +56,12 @@ class Keyboard:
 
 	def setupFinalise(self):
 		keyboardLanguage = {"en": "qwerty.kmap", "de": "qwertz.kmap", "fr": "azerty.kmap", "us": "qwerty.kmap"}
-		language = config.osd.language.value[0:2]
+		try:
+			language = config.osd.language.value[0:2]
+		except Exception as error:
+			language = "en" # set default as English
+			print(f"[Keyboard] getDefaultKeyboardMap error:{error} language:{language}")
+			pass
 		print(f"[Keyboard] getDefaultKeyboardMap language:{language}")
 		languageDefault = keyboardLanguage.get(language, "querty.kmap")
 		print(f"[Keyboard] languageDefault:{languageDefault}")

@@ -20,10 +20,10 @@ void eRCDeviceInputDev::handleCode(long rccode)
 	if (ev->type != EV_KEY)
 		return;
 		
-	eDebug("[eInputDeviceInit] value, code, code, type %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
+	eTrace("[eInputDeviceInit] value, code, code, type %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
 
 	int km = iskeyboard ? input->getKeyboardMode() : eRCInput::kmNone;
-	eDebug("[eInputDeviceInit] iskeyboard km %x", km);
+
 	switch (ev->code)
 	{
 		case KEY_LEFTSHIFT:
