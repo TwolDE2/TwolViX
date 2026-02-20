@@ -4,6 +4,7 @@ from os.path import isdir, isfile, join
 from Components.Console import Console
 from Tools.Directories import SCOPE_KEYMAPS, fileReadXML, pathExists, resolveFilename
 
+
 def setLanguageFromBackup(backupfile):
 	import tarfile
 	try:
@@ -20,6 +21,7 @@ def setLanguageFromBackup(backupfile):
 			break
 	tar.close()
 	return languageToSelect
+
 
 def checkConfigBackup():
 	backups = []
