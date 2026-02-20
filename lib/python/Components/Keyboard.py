@@ -1,7 +1,36 @@
-from os.path import isfile
-from Components.config import config
+
+from os import listdir, stat
+from os.path import isdir, isfile, join
 from Components.Console import Console
 from Tools.Directories import SCOPE_KEYMAPS, fileReadXML, pathExists, resolveFilename
+
+def setLanguageFromBackup(backupfile):
+	import tarfile
+	try:
+		tar = tarfile.open(backupfile)
+		member = tar.getmember("etc/enigma2/settings")
+	except KeyError:
+		tar.close()
+		return None
+	languageToSelect = None
+	for line in tar.extractfile(member):
+		line = line.decode()
+		if line.startswith("config.osd.language"):
+			languageToSelect = line.strip().split("=")[1]
+			break
+	tar.close()
+	return languageToSelect
+
+def checkConfigBackup():
+	backups = []
+	for dir in ["/media/%s/backup" % media for media in listdir("/media/") if isdir(join("/media/", media))]:
+		try:
+			backups += [{"name": f, "mtime": stat(f).st_mtime} for x in listdir(dir) if (f := join(dir, x)) and isfile(f) and f.endswith(".tar.gz") and "vix" in f.lower()]
+		except FileNotFoundError:  # e.g. /media/autofs/xxx will crash listdir if "xxx" is inactive
+			pass
+	if backups:
+		return next(iter(sorted(backups, key=lambda x: x["mtime"], reverse=True)))["name"]  # select the most recent
+	return None
 
 
 class Keyboard:
@@ -56,15 +85,11 @@ class Keyboard:
 
 	def setupFinalise(self):
 		keyboardLanguage = {"en": "qwerty.kmap", "de": "qwertz.kmap", "fr": "azerty.kmap", "us": "qwerty.kmap"}
-		try:
-			language = config.osd.language.value[0:2]
-		except Exception as error:
-			language = "en"  # set default as English
-			print(f"[Keyboard] getDefaultKeyboardMap error:{error} language:{language}")
-			pass
-		print(f"[Keyboard] getDefaultKeyboardMap language:{language}")
+		language = checkConfigBackup()
+		if language:
+			language = setLanguageFromBackup(language)[0:2]
 		languageDefault = keyboardLanguage.get(language, "querty.kmap")
-		print(f"[Keyboard] languageDefault:{languageDefault}")
+		print(f"[Keyboard] languageDefault:{languageDefault} language:{language}")
 		keyboardChoices = []
 		default = 0
 		for index, keyboard in enumerate(self.keyboards):
