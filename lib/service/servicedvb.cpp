@@ -1059,7 +1059,6 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_tune_state(-1),
 	m_noaudio(false),
 	m_is_stream(ref.path.find("://") != std::string::npos),
-//	m_is_stream(ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos),
 	m_is_pvr(!ref.path.empty() && !m_is_stream),
 	m_pause_position(-1),
 	m_is_paused(0),
@@ -1267,7 +1266,6 @@ void eDVBServicePlay::serviceEvent(int event)
 		eDebug("[servicedvb][eDVBServicePlay] eventNewProgramInfo timeshift_enabled=%d timeshift_active=%d", m_timeshift_enabled, m_timeshift_active);
 		if (m_timeshift_enabled)
 			updateTimeshiftPids();
-
 		if (m_csa_session && !m_csa_session->isEcmAnalyzed())
 		{
 			eDVBServicePMTHandler::program program;
