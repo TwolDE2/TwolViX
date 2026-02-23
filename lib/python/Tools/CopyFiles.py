@@ -64,7 +64,7 @@ class AddFileProcessTask(Task):
 
 class DownloadProcessTask(Job):
 	def __init__(self, url, filename, file, **kwargs):
-		Job.__init__(self, _(f"{file}"))
+		Job.__init__(self, _(file))
 		DownloadTask(self, url, filename, **kwargs)
 
 
