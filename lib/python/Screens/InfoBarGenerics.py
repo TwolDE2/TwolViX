@@ -62,6 +62,7 @@ from ServiceReference import ServiceReference, isPlayableForCur
 from Tools import Notifications
 from Tools.Directories import pathExists, fileExists, isPluginInstalled
 from Tools.KeyBindings import getKeyDescription, getKeyBindingKeys  # Used by Debug
+
 # hack alert!
 from Screens.Menu import MainMenu, Menu, mdom
 from Screens.Setup import Setup

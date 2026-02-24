@@ -105,6 +105,7 @@ class ScreenHeader(GUIAddon):
 					sequence.append(val)
 			elif val and isinstance(val, Pixmap) and val not in sequence:
 				sequence.append(val)
+
 		self.updateAddon(sequence)
 
 	def applySkin(self, desktop, parent):

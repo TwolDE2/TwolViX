@@ -11,7 +11,7 @@ from Components.Console import Console
 from Components.Harddisk import Harddisk, harddiskmanager
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, getBoxDisplayName, BOXTYPE, KERNEL, MTDKERNEL, MTDROOTFS, UBIMB
+from Components.SystemInfo import SystemInfo, getBoxDisplayName, BOXTYPE, MTDKERNEL, MTDROOTFS, UBIMB
 from Screens.Console import Console as ConsoleScreen
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
@@ -443,14 +443,13 @@ class UBISlotManager(Setup):
 				self.session.open(TryQuitMainloop, QUIT_REBOOT)
 		print("[UBISlotManager] formatDeviceCallback ")
 		MOUNTPOINT = "/tmp/boot"
-		mtdKernel = MTDKERNEL
 		device = self.UBISlotManagerDevice
 		PART_SUFFIX = "p" if "mmcblk" in device else ""
 		uuidRootFS = fileReadLine(f"/dev/uuid/{device}{PART_SUFFIX}2", default=None)
 		diskSize = self.partitionSizeGB(f"/dev/{device}")
 
 		rootfsName = "rootfs"
-		startupContent = f"kernel=/dev/{mtdKernel} ubi.mtd=rootfs root=ubi0:{rootfsName} flash=1 rootfstype=ubifs\n"
+		startupContent = f"kernel=/dev/{MTDKERNEL} ubi.mtd=rootfs root=ubi0:{rootfsName} flash=1 rootfstype=ubifs\n"
 
 		with open(f"{MOUNTPOINT}/STARTUP", "w") as fd:
 			fd.write(startupContent)
@@ -458,7 +457,7 @@ class UBISlotManager(Setup):
 			fd.write(startupContent)
 		count = min(diskSize, 4)
 		for i in range(1, count + 1):
-			startupContent = f"kernel=/dev/{mtdKernel} root=UUID={uuidRootFS} rootsubdir=linuxrootfs{i} rootfstype=ext4\n"
+			startupContent = f"kernel=/dev/{MTDKERNEL} root=UUID={uuidRootFS} rootsubdir=linuxrootfs{i} rootfstype=ext4\n"
 			with open(f"{MOUNTPOINT}/STARTUP_{i}", "w") as fd:
 				fd.write(startupContent)
 		Console().ePopen(["/bin/sync"])
