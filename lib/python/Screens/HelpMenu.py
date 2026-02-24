@@ -28,6 +28,7 @@ class HelpMenu(Screen, Rc):
 		Screen.__init__(self, session)
 		Screen.setTitle(self, _("Help"))
 		Rc.__init__(self)
+		self.onChangedEntry = []
 		self["list"] = HelpMenuList(list, self.close, rcPos=self.getRcPositions())
 		self["longshift_key0"] = Label("")
 		self["longshift_key1"] = Label("")
@@ -76,14 +77,14 @@ class HelpMenu(Screen, Rc):
 		self.onLayoutFinish.append(self.doOnLayoutFinish)
 
 	def doOnLayoutFinish(self):
-		self["list"].onSelectionChanged.append(self.SelectionChanged)
-		self.SelectionChanged()
+		self["list"].onSelectionChanged.append(self.selectionChanged)
+		self.selectionChanged()
 
 	def doOnClose(self):
 		eActionMap.getInstance().unbindAction('', self["list"].handleButton)
-		self["list"].onSelectionChanged.remove(self.SelectionChanged)
+		self["list"].onSelectionChanged.remove(self.selectionChanged)
 
-	def SelectionChanged(self):
+	def selectionChanged(self):
 		self.clearSelectedKeys()
 		selection = self["list"].getCurrent()
 
@@ -113,6 +114,8 @@ class HelpMenu(Screen, Rc):
 					textline += 1
 				if shiftButtons:
 					longText[textline] = _("SHIFT: ") + ', '.join(shiftButtons)
+			for cb in self.onChangedEntry:
+				cb(selection[1], selection[2])
 
 		self["longshift_key0"].setText(longText[0])
 		self["longshift_key1"].setText(longText[1])
@@ -149,6 +152,10 @@ class HelpMenu(Screen, Rc):
 		config.usage.help_sortorder.save()
 		Screen.setTitle(self, "%s - %s" % (_("Help"), config.usage.help_sortorder.getText()))
 		self["list"].createHelpList()
+
+	def createSummary(self):
+		from Screens.PluginBrowser import PluginBrowserSummary
+		return PluginBrowserSummary
 
 
 class HelpableScreen:

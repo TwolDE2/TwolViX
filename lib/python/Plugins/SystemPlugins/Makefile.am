@@ -6,7 +6,8 @@ SUBDIRS = PositionerSetup Satfinder \
 	ForceFbcLNBpower \
 	VideoClippingSetup \
 	VideoEnhancement WirelessLan ViX \
-	FastScan SatelliteEquipmentControl DiseqcTester
+	FastScan SatelliteEquipmentControl DiseqcTester \
+	SkinConfig
 
 if VUZERO4K
 SUBDIRS += CableScan

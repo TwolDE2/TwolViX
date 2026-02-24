@@ -478,6 +478,7 @@ if SystemInfo["imagetype"] != "release":
 if SystemInfo["MultiBootSlot"]:
 	print(f"[StartEnigma]  Image Slot -> {SystemInfo['MultiBootSlot']}")
 
+
 # SetupDevices sets up defaults:- language, keyboard, parental & expert config.
 # Moving further down will break translation.
 # Moving further up will break imports in config.py

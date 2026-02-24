@@ -20,7 +20,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 	if (ev->type != EV_KEY)
 		return;
 		
-	eDebug("[eInputDeviceInit] %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
+	eTrace("[eInputDeviceInit] value, code, code, type %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
 
 	int km = iskeyboard ? input->getKeyboardMode() : eRCInput::kmNone;
 
@@ -42,7 +42,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 	if (km == eRCInput::kmAscii)
 	{
 		bool ignore = false;
-		bool ascii = ev->code > 0 && ev->code < 59;
+		bool ascii = (ev->code > 0 && ev->code < 61);
 
 		switch (ev->code)
 		{
@@ -77,7 +77,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 			{
 				if (consoleFd >= 0)
 				{
-					struct kbentry ke;
+					struct kbentry ke = {};
 					/* off course caps is not the same as shift, but this will have to do for now */
 					ke.kb_table = (shiftState || capsState) ? K_SHIFTTAB : K_NORMTAB;
 					ke.kb_index = ev->code;

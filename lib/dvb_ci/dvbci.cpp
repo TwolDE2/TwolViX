@@ -15,7 +15,6 @@
 
 #include <lib/base/eerror.h>
 #include <lib/base/nconfig.h> // access to python config
-#include <lib/base/esimpleconfig.h> // access config file
 #include <lib/dvb/db.h>
 #include <lib/dvb/pmt.h>
 #include <lib/dvb_ci/dvbci.h>
@@ -1403,14 +1402,14 @@ eDVBCISlot::eDVBCISlot(eMainloop *context, int nr)
 	plugged = false;
 	m_ci_version = versionUnknown;
 	snprintf(configStr, 255, "config.ci.%d.enabled", slotid);
-	bool enabled = eSimpleConfig::getBool(configStr, true);
+	bool enabled = eConfigManager::getConfigBoolValue(configStr, true);
 	char config_key_operator_profile[255];
 	snprintf(config_key_operator_profile, 255, "config.ci.%d.disable_operator_profile", slotid);
-	bool operator_profile_disabled = eSimpleConfig::getBool(config_key_operator_profile, false);
+	bool operator_profile_disabled = eConfigManager::getConfigBoolValue(config_key_operator_profile, false);
 	m_operator_profiles_disabled = operator_profile_disabled;
 	char config_key_alt_ca[255];
 	snprintf(config_key_alt_ca, 255, "config.ci.%d.alternative_ca_handling", slotid);
-	int alt_ca = eSimpleConfig::getInt(config_key_alt_ca, 0);
+	int alt_ca = eConfigManager::getConfigIntValue(config_key_alt_ca, 0);
 	m_alt_ca_handling = alt_ca;
 	if (enabled)
 		openDevice();
@@ -1689,8 +1688,8 @@ int eDVBCISlot::setCaParameter(eDVBServicePMTHandler *pmthandler)
 		m_audio_pids[i] = program.audioStreams[i].pid;
 	}
 
-	m_video_pid = program.videoStreams.empty()? 0 : program.videoStreams[0].pid;
-	m_audio_pid = program.audioStreams.empty()? 0 : program.audioStreams[program.defaultAudioStream].pid;
+	m_video_pid = program.videoStreams.empty() ? 0 : program.videoStreams[0].pid;
+	m_audio_pid = (program.audioStreams.empty() || program.defaultAudioStream < 0 || static_cast<size_t>(program.defaultAudioStream) >= program.audioStreams.size()) ? 0 : program.audioStreams[program.defaultAudioStream].pid;
 
 	m_tunernum = -1;
 	if (!pmthandler->getChannel(channel))

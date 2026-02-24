@@ -280,23 +280,9 @@ class MultiBootSelector(Screen, HelpableScreen):
 
 
 class ChkrootInit(Screen):
-	skin = """
-	<screen name="ChkrootInit" title="Chkroot MultiBoot Manager" position="center,center" size="900,600" resolution="1280,720">
-		<widget name="description" position="0,0" size="e,e-50" font="Regular;20" />
-		<widget source="key_red" render="Label" position="0,e-40" size="180,40" backgroundColor="key_red" conditional="key_red" font="Regular;20" foregroundColor="key_text" halign="center" valign="center">
-			<convert type="ConditionalShowHide" />
-		</widget>
-		<widget source="key_green" render="Label" position="190,e-40" size="180,40" backgroundColor="key_green" conditional="key_green" font="Regular;20" foregroundColor="key_text" halign="center" valign="center">
-			<convert type="ConditionalShowHide" />
-		</widget>
-		<widget source="key_help" render="Label" position="e-80,e-40" size="80,40" backgroundColor="key_back" conditional="key_help" font="Regular;20" foregroundColor="key_text" halign="center" valign="center">
-			<convert type="ConditionalShowHide" />
-		</widget>
-	</screen>"""
-
 	def __init__(self, session, *args):
 		Screen.__init__(self, session)
-		self.skinName = "ChkrootInit"
+		self.skinName = ["Setup", "ChkrootInit"]
 		self.setTitle(_("Chkroot MultiBoot Manager"))
 		self["key_red"] = StaticText()
 		self["key_green"] = StaticText()
@@ -351,7 +337,7 @@ class ChkrootInit(Screen):
 
 		for idx, (rootdev, subdir) in enumerate(rootMap):
 			suffix = "" if idx == 0 else f"_{idx}"
-			cmdList.append(f"echo 'kernel=/dev/{KERNEL} root=/dev/{rootdev} rootsubdir={subdir}' > {mountpoint}/STARTUP{suffix}")
+			cmdList.append(f"echo 'kernel=/dev/{MTDKERNEL} root=/dev/{rootdev} rootsubdir={subdir}' > {mountpoint}/STARTUP{suffix}")
 
 		cmdList.append(f"umount {mountpoint}")
 		print(f"[MultiBootSelector][ChkrootInit] cmdlist:{cmdList}")

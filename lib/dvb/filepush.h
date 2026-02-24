@@ -19,7 +19,7 @@ class eFilePushThread: public eThread, public sigc::trackable, public iObject
 {
 	DECLARE_REF(eFilePushThread);
 public:
-	eFilePushThread(int blocksize, size_t buffersize);
+	eFilePushThread(int blocksize=188, size_t buffersize=188*1024, int flags=0);
 	~eFilePushThread();
 	void thread();
 	void stop();
@@ -47,6 +47,7 @@ private:
 	int m_fd_dest;
 	int m_send_pvr_commit;
 	int m_stream_mode;
+	int m_flags;
 	int m_sof;
 	int m_blocksize;
 	size_t m_buffersize;
@@ -66,12 +67,12 @@ private:
 class eFilePushThreadRecorder: public eThread, public sigc::trackable
 {
 public:
-	eFilePushThreadRecorder(unsigned char* buffer, size_t buffersize);
+	eFilePushThreadRecorder(unsigned char* buffer, size_t buffersize=188*1024);
 	void thread();
 	void stop();
 	void start(int sourcefd);
 
-	enum { evtEOF, evtReadError, evtWriteError, evtUser, evtStopped };
+	enum { evtEOF, evtReadError, evtWriteError, evtUser, evtStopped, evtStreamCorrupt };
 	sigc::signal<void(int)> m_event;
 
 	void sendEvent(int evt);
@@ -88,10 +89,14 @@ protected:
 	size_t m_buffersize;
 	unsigned char* m_buffer;
 	unsigned int m_overflow_count;
-private:
+	size_t m_buffer_fill;
+	size_t m_buffer_min_write;
 	int m_stop;
+private:
 	eFixedMessagePump<int> m_messagepump;
 	void recvEvent(const int &evt);
+	int m_protocol, m_session_id, m_stream_id, m_packet_no;
+	std::vector<unsigned char> m_reply;
 };
 
 #endif

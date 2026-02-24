@@ -1200,6 +1200,19 @@ def InitUsageConfig():
 	config.misc.softcamrestarts = ConfigSelection(default="", choices=[
 		("", _("Don't restart")),
 		("s", _("Restart softcam"))])
+	config.misc.softcsa = ConfigSubsection()
+	config.misc.softcsa.decoderRelease = ConfigSelection(default=0, choices=[
+			(0, _("Quick")),
+			(1, _("Normal"))
+	])
+	config.misc.softcsa.syncMode = ConfigSelection(default=0, choices=[
+			(0, _("Automatic")),
+			(1, _("Synchronous"))
+	])
+	config.misc.softcsa.waitForDataTimeout = ConfigSelection(
+		default=800,
+		choices=[(x, _("%d ms") % x) for x in range(100, 2001, 100)]
+	)
 	config.misc.softcam_streamrelay_url = ConfigIP(default=[127, 0, 0, 1], auto_jump=True)
 	config.misc.softcam_streamrelay_port = ConfigInteger(default=17999, limits=(0, 65535))
 	config.misc.softcam_streamrelay_delay = ConfigSelectionNumber(min=0, max=2000, stepwidth=50, default=100, wraparound=True)
