@@ -2029,14 +2029,6 @@ bool eEPGCache::getIsWhitelisted(const uniqueEPGKey epgKey)
 	return false;
 }
 
-bool eEPGCache::getIsBrownlisted(const uniqueEPGKey epgKey)
-{
-	if (std::find(eit_brownlist.begin(), eit_brownlist.end(), epgKey) != eit_brownlist.end()) {
-		return true;
-	}
-	return false;
-}
-
 void eEPGCache::reloadEITConfig(int listType)
 {
 	if (listType == ALL || listType == WHITELIST) {
