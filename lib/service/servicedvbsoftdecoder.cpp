@@ -28,6 +28,8 @@ eDVBSoftDecoder::eDVBSoftDecoder(eDVBServicePMTHandler& source_handler,
 	, m_paused(false)
 	, m_last_health_check(0)
 {
+	m_buffer_timer = eTimer::create(eApp);
+	CONNECT(m_buffer_timer->timeout, eDVBSoftDecoder::onBufferTimerExpired);
 	eDebug("[eDVBSoftDecoder] Created for decoder %d", decoder_index);
 }
 
@@ -38,6 +40,8 @@ eDVBSoftDecoder::~eDVBSoftDecoder()
 		m_start_timer->stop();
 	if (m_health_timer)
 		m_health_timer->stop();
+	if (m_buffer_timer)
+		m_buffer_timer->stop();
 	if (m_first_cw_conn.connected())
 		m_first_cw_conn.disconnect();
 
@@ -92,7 +96,7 @@ void eDVBSoftDecoder::onFirstCwReceived()
 	if (m_first_cw_conn.connected())
 		m_first_cw_conn.disconnect();
 
-	startDecoder();
+	startDecoderOrBuffer();
 }
 
 void eDVBSoftDecoder::onWaitForFirstDataTimeout()
@@ -106,6 +110,23 @@ void eDVBSoftDecoder::onWaitForFirstDataTimeout()
 	if (m_first_cw_conn.connected())
 		m_first_cw_conn.disconnect();
 
+	startDecoderOrBuffer();
+}
+
+void eDVBSoftDecoder::startDecoderOrBuffer()
+{
+	if (int bufferTime = eSimpleConfig::getInt("config.misc.softcsa.bufferTime", 0); bufferTime > 0)
+	{
+		eDebug("[eDVBSoftDecoder] Pre-buffering %dms before decoder start", bufferTime);
+		m_buffer_timer->start(bufferTime, true);
+		return;
+	}
+	startDecoder();
+}
+
+void eDVBSoftDecoder::onBufferTimerExpired()
+{
+	eDebug("[eDVBSoftDecoder] Pre-buffer complete - starting decoder");
 	startDecoder();
 }
 
@@ -337,7 +358,7 @@ int eDVBSoftDecoder::setupRecorder()
 	if (wait_timeout == 0)
 	{
 		eDebug("[eDVBSoftDecoder] CW wait disabled - starting decoder immediately");
-		startDecoder();
+		startDecoderOrBuffer();
 		return 0;
 	}
 
@@ -345,7 +366,7 @@ int eDVBSoftDecoder::setupRecorder()
 	if (m_session && m_session->hasKeys())
 	{
 		eDebug("[eDVBSoftDecoder] First CW already available - starting decoder");
-		startDecoder();
+		startDecoderOrBuffer();
 		return 0;
 	}
 
