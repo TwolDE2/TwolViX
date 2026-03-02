@@ -202,7 +202,7 @@ int fbClass::SetMode(int nxRes, int nyRes, int nbpp)
 #endif
 
 	screeninfo.xres_virtual=screeninfo.xres=nxRes;
-#if defined(CONFIG_ION) || defined(DREAMNEXTGEN)
+#if defined(CONFIG_ION)
 	screeninfo.yres = nyRes;
 	screeninfo.yres_virtual = nyRes * 3;
 #else
@@ -239,7 +239,7 @@ int fbClass::SetMode(int nxRes, int nyRes, int nbpp)
 		break;
 	}
 
-#if defined(CONFIG_ION) || defined(DREAMNEXTGEN)
+#if defined(CONFIG_ION)
 	if (ioctl(fbFd, FBIOPUT_VSCREENINFO, &screeninfo)<0)
 	{
 		screeninfo.yres_virtual = nyRes * 2;
