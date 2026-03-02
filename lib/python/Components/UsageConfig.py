@@ -9,7 +9,7 @@ from Components.config import config, ConfigBoolean, ConfigDictionarySet, Config
 from Components.Harddisk import harddiskmanager
 from Components.NimManager import nimmanager
 from Components.ServiceList import refreshServiceList
-from Components.SystemInfo import SystemInfo
+from Components.SystemInfo import SystemInfo, MODEL
 from Tools.camcontrol import CamControl
 from Tools.Directories import resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation
 
@@ -1200,12 +1200,13 @@ def InitUsageConfig():
 	config.misc.softcamrestarts = ConfigSelection(default="", choices=[
 		("", _("Don't restart")),
 		("s", _("Restart softcam"))])
+	defaultValue = 1 if MODEL in ("gb7252", ) else 0
 	config.misc.softcsa = ConfigSubsection()
 	config.misc.softcsa.decoderRelease = ConfigSelection(default=0, choices=[
 			(0, _("Quick")),
 			(1, _("Normal"))
 	])
-	config.misc.softcsa.syncMode = ConfigSelection(default=0, choices=[
+	config.misc.softcsa.syncMode = ConfigSelection(default=defaultValue, choices=[
 			(0, _("Automatic")),
 			(1, _("Synchronous"))
 	])
