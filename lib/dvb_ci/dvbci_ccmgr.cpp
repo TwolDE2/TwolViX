@@ -851,7 +851,7 @@ void eDVBCICcSession::set_descrambler_key()
 		m_current_ca_demux_id = m_slot->getCADemuxID();
 	}
 
-	if  (m_descrambler_fd != -1 && (set_key || m_descrambler_new_key))
+	if (m_descrambler_fd != -1 && (set_key || m_descrambler_new_key))
 	{
 		eTrace("[dvbci_ccmgr][CI%d RCC] setting key: new ca device: %d, new key: %d", m_slot->getSlotID(), set_key, m_descrambler_new_key);
 		descrambler_set_key(m_descrambler_fd, m_slot, m_descrambler_odd_even, m_descrambler_key_iv);

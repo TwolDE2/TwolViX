@@ -350,7 +350,7 @@ void gFBDC::setResolution(int xres, int yres, int bpp)
 
 	int fb_page_size = surface.stride * surface.y;
 	int fb_size = fb_page_size;
-	
+
 #if defined(CONFIG_ION)
 	if (m_number_of_pages > 1)
 	{
