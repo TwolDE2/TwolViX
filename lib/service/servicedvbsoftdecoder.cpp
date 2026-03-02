@@ -4,7 +4,6 @@
 #include <lib/dvb/demux.h>
 #include <lib/base/eerror.h>
 #include <lib/base/esimpleconfig.h>
-#include <lib/base/cfile.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 
@@ -728,10 +727,6 @@ void eDVBSoftDecoder::updateDecoder(int vpid, int vpidtype, int pcrpid)
 			m_decoder->play();
 			eDebug("[eDVBSoftDecoder] Decoder PLAY with vpid=%04x vpidtype=%d", vpid, vpidtype);
 			m_decoder_ready();
-
-			// Force audio reset after decoder start to fix audio dropouts
-			if (!m_noaudio)
-				forceAudioReset();
 		}
 		else
 		{
@@ -744,21 +739,6 @@ void eDVBSoftDecoder::videoEvent(struct iTSMPEGDecoder::videoEvent event)
 {
 	// Forward video events to parent
 	m_video_event(event);
-}
-
-void eDVBSoftDecoder::forceAudioReset()
-{
-	if (!eSimpleConfig::getBool("config.softcsa.forceAudioReset", false))
-		return;
-
-	// Toggle Bluetooth audio off->on->off to force audio driver reinitialization
-	std::string btaudio = CFile::read("/proc/stb/audio/btaudio");
-	if (!btaudio.empty() && btaudio.find("off") != std::string::npos)
-	{
-		eDebug("[eDVBSoftDecoder] Force audio reset: toggling btaudio on and back off");
-		CFile::writeStr("/proc/stb/audio/btaudio", "on");
-		CFile::writeStr("/proc/stb/audio/btaudio", "off");
-	}
 }
 
 // ============================================================================
