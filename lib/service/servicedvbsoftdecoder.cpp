@@ -749,12 +749,6 @@ void eDVBSoftDecoder::updateDecoder(int vpid, int vpidtype, int pcrpid)
 			m_decoder->play();
 			eDebug("[eDVBSoftDecoder] Decoder PLAY with vpid=%04x vpidtype=%d", vpid, vpidtype);
 			m_decoder_ready();
-
-			if (!m_noaudio)
-			{
-				// Force audio reset after decoder start to fix audio dropouts
-				forceAudioReset();
-			}
 		}
 		else
 		{
@@ -767,20 +761,6 @@ void eDVBSoftDecoder::videoEvent(struct iTSMPEGDecoder::videoEvent event)
 {
 	// Forward video events to parent
 	m_video_event(event);
-}
-
-// Toggle Bluetooth audio off->on->off to force audio driver reinitialization
-void eDVBSoftDecoder::forceAudioReset()
-{
-	if (!eSimpleConfig::getBool("config.av.passthrough_fix", false))
-		return;
-	std::string btaudio = CFile::read("/proc/stb/audio/btaudio");
-	if (!btaudio.empty() && btaudio.find("off") != std::string::npos)
-	{
-		eDebug("[eDVBSoftDecoder] Force audio reset: toggling btaudio on and back off");
-		CFile::writeStr("/proc/stb/audio/btaudio", "on");
-		CFile::writeStr("/proc/stb/audio/btaudio", "off");
-	}
 }
 
 // ============================================================================
