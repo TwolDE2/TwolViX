@@ -66,9 +66,10 @@ class VideoSetup(Setup):
 			self.list.append(getConfigListEntry(_("Allow 12bit"), config.av.allow_12bit, _("Enable or disable the 12 Bit Color Mode")))
 			self.list.append(getConfigListEntry(_("Allow 10bit"), config.av.allow_10bit, _("Enable or disable the 10 Bit Color Mode")))
 		if SystemInfo["CanDownmixAC3"]:
-			self.list.append(getConfigListEntry(_("AC3 downmix"), config.av.downmix_ac3, _("Choose whether multi channel ac3 sound tracks should be downmixed to stereo.")))
-			if SystemInfo["Vu_EAC3_fix"] and config.av.downmix_ac3.value == "passthrough":
-				self.list.append(getConfigListEntry(_("AC3+ Passthrough audio fix"), config.av.passthrough_fix, _("Enabled/Disable audio passthrough fix.")))
+			if SystemInfo["Vu_EAC3_fix"]:
+				self.list.append(getConfigListEntry(_("AC3 / AC3+ downmix"), config.av.downmix_ac3, _("Choose whether multi channel AC3 / AC3+ sound tracks should be downmixed to stereo.")))
+			else:
+				self.list.append(getConfigListEntry(_("AC3 downmix"), config.av.downmix_ac3, _("Choose whether multi channel AC3 sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixDTS"]:
 			self.list.append(getConfigListEntry(_("DTS downmix"), config.av.downmix_dts, _("Choose whether multi channel DTS sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixAAC"]:

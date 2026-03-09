@@ -268,9 +268,6 @@ protected:
 	void switchToTimeshift();
 
 	void updateDecoder(bool sendSeekableStateChanged=false);
-#ifdef PASSTHROUGH_FIX
-	void forceAudioReset();
-#endif
 
 	int m_skipmode;
 	int m_fastforward;
@@ -328,6 +325,11 @@ protected:
 
 	ePtr<eTimer> m_nownext_timer;
 	void updateEpgCacheNowNext();
+
+#ifdef PASSTHROUGH_FIX
+	ePtr<eTimer> m_passthrough_fix_timer;
+	void forcePassthrough();
+#endif
 
 		/* radiotext */
 	ePtr<eDVBRdsDecoder> m_rds_decoder;

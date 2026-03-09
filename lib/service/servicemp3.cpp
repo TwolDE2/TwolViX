@@ -560,9 +560,8 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	CONNECT(m_pump.recv_msg, eServiceMP3::gstPoll);
 	CONNECT(m_nownext_timer->timeout, eServiceMP3::updateEpgCacheNowNext);
 #ifdef PASSTHROUGH_FIX
-	CONNECT(m_passthrough_fix_timer->timeout, eServiceMP3::forceAudioReset);
+	CONNECT(m_passthrough_fix_timer->timeout, eServiceMP3::forcePassthrough);
 #endif
-
 	m_aspect = m_width = m_height = m_framerate = m_progressive = m_gamma = -1;
 
 	m_state = stIdle;
@@ -889,25 +888,10 @@ eServiceMP3::~eServiceMP3()
 }
 
 #ifdef PASSTHROUGH_FIX
-void eServiceMP3::forceAudioReset()
+void eServiceMP3::forcePassthrough()
 {
-	if (!eConfigManager::getConfigBoolValue("config.av.passthrough_fix", false))
-		return;
-	// Toggle Bluetooth audio off->on->off to force audio driver reinitialization
-	std::string btaudio = CFile::read("/proc/stb/audio/btaudio");
-	if (!btaudio.empty() && btaudio.find("off") != std::string::npos)
-	{
-		eDebug("[eDVBSoftDecoder] Force audio reset: toggling btaudio on and back off");
-		CFile::writeStr("/proc/stb/audio/btaudio", "on");
-		CFile::writeStr("/proc/stb/audio/btaudio", "off");
-	}
-
-	if (btaudio.empty())
-	{
-		int currAudioIndex = getCurrentTrack();
-		selectAudioStream(currAudioIndex, true);
-	}
-
+	eDebug("[eServiceMP3] Setting 'passthrough' to force correct operation");
+	CFile::writeStr("/proc/stb/audio/ac3", "passthrough");
 	m_clear_buffers = true;
 	clearBuffers();
 }
@@ -1859,6 +1843,8 @@ int eServiceMP3::selectAudioStream(int i, bool skipAudioFix)
 						if (m_clear_buffers)
 						{
 							m_passthrough_fix_timer->stop();
+							m_clear_buffers = true;
+							clearBuffers();
 							m_passthrough_fix_timer->start(apidtype == atEAC3 && i > 0 && current_audio_orig > -1 ? 2000 : 100, true);
 						}
 					}
