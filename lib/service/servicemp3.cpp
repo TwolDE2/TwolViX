@@ -527,7 +527,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_cuesheet_loaded = false; /* cuesheet CVR */
 	m_use_chapter_entries = false; /* TOC chapter support CVR */
 	m_last_seek_pos = 0; /* CVR last seek position */
-	m_useragent = "HbbTV/1.1.1 (+PVR+RTSP+DL; Sonic; TV44; 1.32.455; 2.002) Bee/3.5";
+	m_useragent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36";
 	m_extra_headers = "";
 	m_download_buffer_path = "";
 	m_prev_decoder_time = -1;
@@ -824,6 +824,20 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 
 		if (suburi != NULL)
 			g_object_set (G_OBJECT (m_gst_playbin), "suburi", suburi, NULL);
+		else
+		{
+			char srt_filename[ext - filename + 5];
+			strncpy(srt_filename,filename, ext - filename);
+			srt_filename[ext - filename] = '\0';
+			strcat(srt_filename, ".srt");
+			if (::access(srt_filename, R_OK) >= 0)
+			{
+				gchar *luri = g_filename_to_uri(srt_filename, NULL, NULL);
+				eDebug("[eServiceMP3] subtitle uri: %s", luri);
+				g_object_set (m_gst_playbin, "suburi", luri, NULL);
+				g_free(luri);
+			}
+		}
 	} else
 	{
 		m_event((iPlayableService*)this, evUser+12);
