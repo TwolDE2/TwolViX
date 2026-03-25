@@ -8,7 +8,7 @@ from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, OEA
+from Components.SystemInfo import SystemInfo, OEA, BRANCH
 from Screens.Screen import Screen, ScreenSummary
 
 # required methods: Request, urlopen, HTTPError, URLError
@@ -16,21 +16,11 @@ from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
 
 # following noops normal ViX code as I use alphanumeric Imageversion which causes crash
-print(f"[GitCommitInfo] SystemInfo['imagebuild']={SystemInfo['imagebuild']}")
-if SystemInfo["imagetype"] == 'release':
-	ImageVer = SystemInfo["imagebuild"]
-else:
-	ImageVer = SystemInfo["imagebuild"]
-	# ImageVer = "%s.%s" % (SystemInfo["imagebuild"], SystemInfo["imagedevbuild"])
-	# ImageVer = float(ImageVer)
+print(f"[GitCommitInfo] SystemInfo['imagebuild']={SystemInfo['imagebuild']} OEA:{OEA} BRANCH:{BRANCH}")
 
-E2Branches = {
-	'developer': 'Py3E',
-	'release': 'Py3D'
-}
 CommitLogs = [
 	(f"https://api.github.com/repos/oe-alliance/oe-alliance-core/commits?sha={OEA}", "OE-A Core"),
-	("https://api.github.com/repos/OpenViX/enigma2/commits?sha=%s" % getattr(E2Branches, SystemInfo["imagetype"], "Py3D"), "Enigma2"),
+	(f"https://api.github.com/repos/OpenViX/enigma2/commits?sha={BRANCH}", "Enigma2"),
 	("https://api.github.com/repos/OpenViX/skins/commits", "ViX Skins"),
 	("https://api.github.com/repos/oe-alliance/oe-alliance-plugins/commits", "OE-A Plugins"),
 	("https://api.github.com/repos/oe-alliance/AutoBouquetsMaker/commits", "AutoBouquetsMaker"),
