@@ -105,13 +105,13 @@ DISPLAYBRAND = BoxInfo.getItem("displaybrand")
 MACHINEBUILD = BoxInfo.getItem("machinebuild")
 CHKROOTMB = BoxInfo.getItem("chkrootmb")
 UBIMB = BoxInfo.getItem("hasUBIMB")
-<<<<<<< HEAD
+<< << << < HEAD
 BRANCH = getE2Rev()
 OEA = getOARev()
 
-=======
+== == == =
 OEA = split(r'(\d.*)', BoxInfo.getItem("oe"))[1]
->>>>>>> e9e12a3084([GitCommitInfo] minor rewrite)
+>>>>>> > e9e12a3084([GitCommitInfo] minor rewrite)
 
 def getBoxType():  # this function mimics the function of the same name in branding module
 	if MACHINEBUILD == "sf8008":
@@ -219,7 +219,7 @@ SystemInfo["HasSoftCSA"] = eDVBCSAEngine.isAvailable()
 SystemInfo["MachineBrand"] = DISPLAYBRAND
 SystemInfo["MachineName"] = SystemInfo["machinename"]
 SystemInfo["DeveloperImage"] = IMAGETYPE.lower() != "release"
-<<<<<<< HEAD
+<< << << < HEAD
 SystemInfo["FCCactive"] = False
 # The remote names used in the code below are the names used by oe-mirrors/branding-module,
 # so we must compare against rc_model.getRcFolder() which is also part of branding-module.
@@ -231,12 +231,12 @@ SystemInfo["mapKeyInfoToEpgFunctions"] = SystemInfo["rc_model"] in ("vu", "vu2",
 SystemInfo["toggleTvRadioButtonEvents"] = SystemInfo["rc_model"] in ("abcom", "ax4", "beyonwiz1", "beyonwiz2", "gb3", "gb4", "gb5", "gb6", "gb7", "octagon1", "octagon3", "octagon4", "qviart5", "qviart7", "sf8008", "sf8008m", "uclan1", "uniboxhde")  # due to button limitations of the remote control
 SystemInfo["hasDuplicateVideoAndPvrButtons"] = SystemInfo["rc_model"] in ("edision3",)  # Allow multiple functions only if both buttons are present
 SystemInfo["CanMeasureFrontendInputPower"] = eDVBResourceManager.getInstance().canMeasureFrontendInputPower()
-=======
+== == == =
 SystemInfo["e2-branch"] = "Developer" if SystemInfo["DeveloperImage"] else "Release"
 SystemInfo["oea-branch"] = OEA
 SystemInfo["e2-sha"] = getEnigmaLastCommitHash()[:7]
 SystemInfo["oea-sha"] = getOARev()[:7]
->>>>>>> e9e12a3084([GitCommitInfo] minor rewrite)
+>>>>>> > e9e12a3084([GitCommitInfo] minor rewrite)
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
 for cislot in range(0, SystemInfo["CommonInterface"]):
