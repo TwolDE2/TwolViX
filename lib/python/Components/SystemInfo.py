@@ -113,6 +113,7 @@ OEA = getOARev()
 OEA = split(r'(\d.*)', BoxInfo.getItem("oe"))[1]
 >>>>>> > e9e12a3084([GitCommitInfo] minor rewrite)
 
+
 def getBoxType():  # this function mimics the function of the same name in branding module
 	if MACHINEBUILD == "sf8008":
 		boxtype = open("/proc/stb/info/type").read().strip()
