@@ -10,7 +10,6 @@ from time import time, localtime, strftime
 from pickle import load as pickle_load, dump as pickle_dump
 from enigma import eTimer, eServiceCenter, eDVBServicePMTHandler, iServiceInformation, iPlayableService, iRecordableService, eServiceReference, eEPGCache, eActionMap, getDesktop, eDVBDB
 from keyids import KEYFLAGS, KEYIDS, KEYIDNAMES  # used by print debug
-import traceback
 
 from Components.ActionMap import ActionMap, HelpableActionMap, HelpableNumberActionMap, NumberActionMap
 from Components.config import config, configfile, ConfigBoolean, ConfigClock, ConfigSelection, ACTIONKEY_RIGHT
@@ -332,10 +331,6 @@ class InfoBarUnhandledKey:
 
 	def actionA(self, key, flag):  # This function is called on every keypress!
 		print(f"[InfoBarGenerics] Key: {key} ({KEYFLAGS.get(flag, _('Unknown'))}) KeyID='{KEYIDNAMES.get(key, _('Unknown'))}' Binding='{getKeyDescription(key)}'.")
-		KeyID = KEYIDNAMES.get(key, _('Unknown'))
-		print(f"[InfoBarGenerics] KeyID:{KeyID}")
-		#if KeyID == "KEY_MENU":
-		#	traceback.print_stack()
 		if flag != 2:  # don't hide on repeat
 			self.unhandledKeyDialog.hide()
 			if self.closeSIB(key) and self.secondInfoBarScreen and self.secondInfoBarScreen.shown:
