@@ -111,7 +111,7 @@ OEA = getOARev()
 
 =======
 OEA = split(r'(\d.*)', BoxInfo.getItem("oe"))[1]
->>>>>>> e9e12a3084 ([GitCommitInfo] minor rewrite)
+>>>>>>> e9e12a3084([GitCommitInfo] minor rewrite)
 
 def getBoxType():  # this function mimics the function of the same name in branding module
 	if MACHINEBUILD == "sf8008":
@@ -236,7 +236,7 @@ SystemInfo["e2-branch"] = "Developer" if SystemInfo["DeveloperImage"] else "Rele
 SystemInfo["oea-branch"] = OEA
 SystemInfo["e2-sha"] = getEnigmaLastCommitHash()[:7]
 SystemInfo["oea-sha"] = getOARev()[:7]
->>>>>>> e9e12a3084 ([GitCommitInfo] minor rewrite)
+>>>>>>> e9e12a3084([GitCommitInfo] minor rewrite)
 SystemInfo["CommonInterface"] = eDVBCIInterfaces.getInstance().getNumOfSlots()
 SystemInfo["CommonInterfaceCIDelay"] = fileCheck("/proc/stb/tsmux/rmx_delay")
 for cislot in range(0, SystemInfo["CommonInterface"]):
