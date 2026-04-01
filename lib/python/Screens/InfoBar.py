@@ -1,4 +1,4 @@
-from os import path
+from os import access, path, W_OK
 import ast
 import re
 from pathlib import Path
@@ -6,7 +6,7 @@ from Tools.Profile import profile
 from Tools.SubtitleRenderer import SubtitleRenderer
 
 # workaround for required config entry dependencies.
-import Screens.MovieSelection # noqa: E402
+import Screens.MovieSelection  # noqa: E402
 
 from Components.Label import Label  # noqa: E402
 from Components.Pixmap import MultiPixmap  # noqa: E402
@@ -218,7 +218,7 @@ class InfoBar(InfoBarBase, InfoBarShowHide,
 		if self.lastservice and ':0:/' in self.lastservice.toString():
 			self.lastservice = enigma.eServiceReference(config.movielist.curentlyplayingservice.value)
 
-		self.session.openWithCallback(self.movieSelected, MovieSelection, defaultRef or enigma.eServiceReference(config.usage.last_movie_played.value), timeshiftEnabled=self.timeshiftEnabled())
+		self.session.openWithCallback(self.movieSelected, Screens.MovieSelection.MovieSelection, defaultRef or enigma.eServiceReference(config.usage.last_movie_played.value), timeshiftEnabled=self.timeshiftEnabled())
 
 	def movieSelected(self, service):
 		ref = self.lastservice
@@ -328,6 +328,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 		MoviePlayer.instance = None
 		self.clearHooks()
 		config.misc.standbyCounter.removeNotifier(self.standbyCountChanged)
+		from Screens.MovieSelection import playlist
 		del playlist[:]
 		if not config.movielist.stop_service.value and InfoBar.instance:
 			InfoBar.instance.callServiceStarted()
@@ -406,6 +407,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 			self.leavePlayerConfirmed((True, "deleteandmovielistconfirmed"))
 
 	def movielistAgain(self):
+		from Screens.MovieSelection import playlist
 		del playlist[:]
 		self.leavePlayerConfirmed((True, "movielist"))
 
@@ -422,7 +424,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 					import Tools.Trashcan
 					try:
 						trash = Tools.Trashcan.createTrashFolder(ref.getPath())
-						moveServiceFiles(ref, trash)
+						Screens.MovieSelection.moveServiceFiles(ref, trash)
 						# Moved to trash, okay
 						if answer == "quitanddelete":
 							self.close()
@@ -457,7 +459,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 			self.session.nav.stopService()
 			if not config.movielist.stop_service.value:
 				self.session.nav.playService(self.lastservice)
-			self.session.openWithCallback(self.movieSelected, MovieSelection, ref)
+			self.session.openWithCallback(self.movieSelected, Screens.MovieSelection.MovieSelection, ref)
 		elif answer == "restart":
 			self.doSeek(0)
 			self.setSeekState(self.SEEK_STATE_PLAY)
@@ -587,7 +589,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 			self.playingservice = ref  # movie list may change the currently playing
 		else:
 			self.playingservice = enigma.eServiceReference(config.movielist.curentlyplayingservice.value)
-		self.session.openWithCallback(self.movieSelected, MovieSelection, ref)
+		self.session.openWithCallback(self.movieSelected, Screens.MovieSelection.MovieSelection, ref)
 
 	def movieSelected(self, service):
 		if service is not None:
@@ -606,6 +608,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 				self.session.nav.playService(ref)
 
 	def getPlaylistServiceInfo(self, service):
+		from .MovieSelection import playlist
 		for i, item in enumerate(playlist):
 			if item == service:
 				if config.usage.on_movie_eof.value == "repeatcurrent":
@@ -627,7 +630,7 @@ class MoviePlayer(InfoBarBase, InfoBarShowHide, InfoBarLongKeyDetection, InfoBar
 		path = Path(file_path).with_suffix(".subconf")
 		# Check directory write permission
 		directory = path.parent
-		if not os.access(directory, os.W_OK):
+		if not access(directory, W_OK):
 			return  # directory is read-only
 		with path.open("w", encoding="utf-8") as f:
 			f.write(cleaned)
