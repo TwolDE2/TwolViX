@@ -229,15 +229,6 @@ RESULT eMP3ServiceOfflineOperations::getListOfFilenames(std::list<std::string> &
 {
 	res.clear();
 	res.push_back(m_ref.path);
-	res.push_back(m_ref.path + ".meta");
-	res.push_back(m_ref.path + ".cuts");
-	std::string filename = m_ref.path;
-	size_t pos;
-	if ( (pos = filename.rfind('.')) != std::string::npos)
-	{
-		filename.erase(pos + 1);
-		res.push_back(filename + ".eit");
-	}
 	return 0;
 }
 
@@ -824,20 +815,6 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 
 		if (suburi != NULL)
 			g_object_set (G_OBJECT (m_gst_playbin), "suburi", suburi, NULL);
-		else
-		{
-			char srt_filename[ext - filename + 5];
-			strncpy(srt_filename,filename, ext - filename);
-			srt_filename[ext - filename] = '\0';
-			strcat(srt_filename, ".srt");
-			if (::access(srt_filename, R_OK) >= 0)
-			{
-				gchar *luri = g_filename_to_uri(srt_filename, NULL, NULL);
-				eDebug("[eServiceMP3] subtitle uri: %s", luri);
-				g_object_set (m_gst_playbin, "suburi", luri, NULL);
-				g_free(luri);
-			}
-		}
 	} else
 	{
 		m_event((iPlayableService*)this, evUser+12);
