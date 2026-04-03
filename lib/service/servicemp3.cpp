@@ -1834,8 +1834,6 @@ int eServiceMP3::selectAudioStream(int i, bool skipAudioFix)
 						if (m_clear_buffers)
 						{
 							m_passthrough_fix_timer->stop();
-							m_clear_buffers = true;
-							clearBuffers();
 							m_passthrough_fix_timer->start(apidtype == atEAC3 && i > 0 && current_audio_orig > -1 ? 2000 : 100, true);
 						}
 					}
