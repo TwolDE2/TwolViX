@@ -74,7 +74,7 @@ class RemainingToText(Poll, Converter):
 		remaining = 0
 
 		if str(time[1]) != 'None':
-			print (f"[RemainingToTxt] self.type:{self.type}")
+			print(f"[RemainingToTxt] self.type:{self.type}")
 			(duration, remaining, elapsed) = self.source.time
 		else:
 			(duration, remaining) = self.source.time
