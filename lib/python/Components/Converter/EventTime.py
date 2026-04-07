@@ -31,6 +31,7 @@ class EventTime(Poll, Converter):
 		Converter.__init__(self, type)
 		Poll.__init__(self)
 		self.epgcache = eEPGCache.getInstance()
+		print (f"[EventTime] type:{type}")
 		if type == "EndTime":
 			self.type = self.ENDTIME
 		elif type == "Remaining":
@@ -110,38 +111,8 @@ class EventTime(Poll, Converter):
 			end_time = start_time + duration
 			elapsed = now - start_time
 			if start_time <= now <= end_time:
-				if self.type == self.REMAINING and config.usage.swap_time_remaining_on_osd.value == "0":
-					return duration, remaining
-				elif self.type == self.REMAINING and config.usage.swap_time_remaining_on_osd.value == "1":
-					return duration, elapsed
-				elif self.type == self.REMAINING and config.usage.swap_time_remaining_on_osd.value == "2":
-					return duration, elapsed, remaining
-				elif self.type == self.REMAINING and config.usage.swap_time_remaining_on_osd.value == "3":
-					return duration, remaining, elapsed
-				elif self.type == self.ELAPSED and config.usage.swap_time_remaining_on_osd.value == "0":
-					return duration, elapsed
-				elif self.type == self.ELAPSED and config.usage.swap_time_remaining_on_osd.value == "1":
-					return duration, remaining
-				elif self.type == self.ELAPSED and config.usage.swap_time_remaining_on_osd.value == "2":
-					return duration, elapsed, remaining
-				elif self.type == self.ELAPSED and config.usage.swap_time_remaining_on_osd.value == "3":
-					return duration, remaining, elapsed
-				elif self.type == self.REMAINING_VFD and config.usage.swap_time_remaining_on_vfd.value == "0":
-					return duration, remaining
-				elif self.type == self.REMAINING_VFD and config.usage.swap_time_remaining_on_vfd.value == "1":
-					return duration, elapsed
-				elif self.type == self.REMAINING_VFD and config.usage.swap_time_remaining_on_vfd.value == "2":
-					return duration, elapsed, remaining
-				elif self.type == self.REMAINING_VFD and config.usage.swap_time_remaining_on_vfd.value == "3":
-					return duration, remaining, elapsed
-				elif self.type == self.ELAPSED_VFD and config.usage.swap_time_remaining_on_vfd.value == "0":
-					return duration, elapsed
-				elif self.type == self.ELAPSED_VFD and config.usage.swap_time_remaining_on_vfd.value == "1":
-					return duration, remaining
-				elif self.type == self.ELAPSED_VFD and config.usage.swap_time_remaining_on_vfd.value == "2":
-					return duration, elapsed, remaining
-				elif self.type == self.ELAPSED_VFD and config.usage.swap_time_remaining_on_vfd.value == "3":
-					return duration, remaining, elapsed
+				print (f"[EventTime] self.type:{self.type}  config.usage.swap_time_remaining_on_vfd:{config.usage.swap_time_remaining_on_vfd.value} config.usage.swap_time_remaining_on_osd:{config.usage.swap_time_remaining_on_osd.value}")			
+				return duration, remaining, elapsed
 			else:
 				return duration, None
 

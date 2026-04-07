@@ -74,24 +74,8 @@ class RemainingToText(Poll, Converter):
 		remaining = 0
 
 		if str(time[1]) != 'None':
-			if self.type < 5:
-				if config.usage.swap_time_remaining_on_osd.value == "0":
-					(duration, remaining) = self.source.time
-				elif config.usage.swap_time_remaining_on_osd.value == "1":
-					(duration, elapsed) = self.source.time
-				elif config.usage.swap_time_remaining_on_osd.value == "2":
-					(duration, elapsed, remaining) = self.source.time
-				elif config.usage.swap_time_remaining_on_osd.value == "3":
-					(duration, remaining, elapsed) = self.source.time
-			else:
-				if config.usage.swap_time_remaining_on_vfd.value == "0":
-					(duration, remaining) = self.source.time
-				elif config.usage.swap_time_remaining_on_vfd.value == "1":
-					(duration, elapsed) = self.source.time
-				elif config.usage.swap_time_remaining_on_vfd.value == "2":
-					(duration, elapsed, remaining) = self.source.time
-				elif config.usage.swap_time_remaining_on_vfd.value == "3":
-					(duration, remaining, elapsed) = self.source.time
+			print (f"[RemainingToTxt] self.type:{self.type}")
+			(duration, remaining, elapsed) = self.source.time
 		else:
 			(duration, remaining) = self.source.time
 
