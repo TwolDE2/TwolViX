@@ -1543,6 +1543,9 @@ msgstr "?%s?"
 msgid "A"
 msgstr "A"
 
+msgid "AC3+ Passthrough audio fix"
+msgstr "Solución alternativa para el audio de paso AC3+"
+
 msgid ""
 "A background update check is in progress,\n"
 "please wait a few minutes and try again."
@@ -4118,7 +4121,7 @@ msgid "Configuration mode: %s"
 msgstr "Modo de configuración: %s"
 
 msgid "Configuration..."
-msgstr "Cconfiguración"
+msgstr "Configuración"
 
 #
 msgid "Configure ATSC"
@@ -11408,13 +11411,13 @@ msgid "Partition: %s  Mount: %s unmounted successfully; if all partitions now un
 msgstr "Partición: %s Montaje: %s desmontado exitosamente; si ahora todas las particiones están desmontadas, puede quitar el dispositivo."
 
 msgid "Passthrough"
-msgstr "Passthrough"
+msgstr "Paso directo"
 
 msgid "Passthrough audio handling delay AC3"
-msgstr ""
+msgstr "Retardo en el manejo del audio de paso AC3"
 
 msgid "Passthrough audio handling delay AC3+"
-msgstr ""
+msgstr "Retardo en el manejo del audio de paso AC3+"
 
 #
 msgid "Password"
