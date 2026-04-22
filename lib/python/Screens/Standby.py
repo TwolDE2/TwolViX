@@ -65,8 +65,8 @@ class Standby2(Screen):
 				print("[Standby] open hdmi on leave standby")
 			except:
 				pass
-		self.setInput("ENCODER") # set input to encoder
-		self.leaveMute() # check audio status
+		self.setInput("ENCODER")  # set input to encoder
+		self.leaveMute()  # check audio status
 		print("[Standby] leave standby 2")
 		self.close(True)
 

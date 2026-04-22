@@ -432,9 +432,9 @@ class HdmiCec:
 	def messageReceived(self, message):
 		if config.hdmicec.enabled.value:
 			data = 16 * "\x00"
-			cmd = message.getCommand() #  transmitted command in decimal
-			cmd2 = f"{cmd:02X}" # transmitted command in hexadecimal
-			CECcmd = cmdList.get(cmd, "<Polling Message>") # get Text of request from CEC command
+			cmd = message.getCommand()  # transmitted command in decimal
+			cmd2 = f"{cmd:02X}"  # transmitted command in hexadecimal
+			CECcmd = cmdList.get(cmd, "<Polling Message>")  # get Text of request from CEC command
 			length = message.getData(data, len(data))
 			ctrl0 = message.getControl0()
 			ctrl1 = message.getControl1()
@@ -443,7 +443,7 @@ class HdmiCec:
 
 			inStandby = True if Screens.Standby.inStandby else False
 			tvwakeupDetection = config.hdmicec.tv_wakeup_detection.value
-			if cmd == 0x87: # some TV's throw this continuously
+			if cmd == 0x87:  # some TV's throw this continuously
 				return
 			if CECcmd != "<Polling Message>":
 				printX(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmddec= {cmd} cmdhex={cmd2}, ctrl0={ctrl0}, datalength={length}")
