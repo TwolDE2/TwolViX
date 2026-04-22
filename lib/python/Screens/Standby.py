@@ -58,12 +58,15 @@ def lastPowerState(state):
 
 class Standby2(Screen):
 	def Power(self):
+		print("[Standby][Standby2][Power] leave standby2")
 		if BRAND in ('dinobot') or SystemInfo["HasHiSi"] or BOXTYPE in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("on")
 				print("[Standby] open hdmi on leave standby")
 			except:
 				pass
+		self.setInput("ENCODER") # set input to encoder
+		self.leaveMute() # check audio status
 		print("[Standby] leave standby 2")
 		self.close(True)
 
