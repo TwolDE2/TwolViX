@@ -425,11 +425,11 @@ class HdmiCec:
 			printX("[HdmiCEC][init] no set physical address ")
 			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver
 
-#	messgeReceived is called by HdmiCEC driver following input request on hdmi
-#	config.hdmicec.handle_tv_standby - if set inititates Standby request
-#	config.hdmicec.handle_tv_wakeup - if set handle wakeup from TV depending on config.hdmicec.tv_wakeup_detection setting
+
+#	config.hdmicec.handle_tv_standby - if set inititates receiver Standby request
+#	config.hdmicec.handle_tv_wakeup  - if set handle receiver wakeup from TV depending on config.hdmicec.tv_wakeup_detection setting
 #
-	def messageReceived(self, message):
+	def messageReceived(self, message):  #	messgeReceived is called by HdmiCEC driver following input request on hdmi
 		if config.hdmicec.enabled.value:
 			data = 16 * "\x00"
 			cmd = message.getCommand()  # transmitted command in decimal
@@ -442,7 +442,7 @@ class HdmiCec:
 			msgaddress = message.getAddress()  # 0 = TV, 5 = receiver 15 = broadcast
 
 			inStandby = True if Screens.Standby.inStandby else False
-			tvwakeupDetection = config.hdmicec.tv_wakeup_detection.value
+			tvwakeupDetection = config.hdmicec.tv_wakeup_detection.value  # TV wakeup action depends on this setting  
 			if cmd == 0x87:  # some TV's throw this continuously
 				return
 			if CECcmd != "<Polling Message>":
