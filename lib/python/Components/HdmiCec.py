@@ -429,6 +429,7 @@ class HdmiCec:
 #	config.hdmicec.handle_tv_standby - if set inititates receiver Standby request
 #	config.hdmicec.handle_tv_wakeup  - if set handle receiver wakeup from TV depending on config.hdmicec.tv_wakeup_detection setting
 #
+
 	def messageReceived(self, message):  #	messgeReceived is called by HdmiCEC driver following input request on hdmi
 		if config.hdmicec.enabled.value:
 			data = 16 * "\x00"
