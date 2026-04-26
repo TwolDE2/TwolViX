@@ -3,7 +3,7 @@
 
 ## OpenViX buildserver requirements: ##
 
->Ubuntu 24.04 LTS (GNU/Linux 6.8.0-39-generic x86_64)
+>Ubuntu 26.04 LTS (GNU/Linux 7.0.0-14-generic x86_64)
 
 ## minimum hardware requirement for image build (building feeds may require more):
 
@@ -14,7 +14,7 @@
 
 ## TwolDE (OpenViX) python3 is built using oe-alliance build-environment and several git repositories: ##
 
-> [https://github.com/oe-alliance/oe-alliance-core/tree/5.5](https://github.com/oe-alliance/oe-alliance-core/tree/5.3 "OE-Alliance")
+> [https://github.com/oe-alliance/oe-alliance-core/tree/6-0](https://github.com/oe-alliance/oe-alliance-core/tree/5.3 "OE-Alliance")
 >
 > [https://github.com/TwolDE/enigma2/tree/Py3D](https://github.com/OpenViX/enigma2/tree/Py3D "openViX E2")
 
@@ -25,7 +25,7 @@
 
 1 - Install packages on your buildserver
 
-    sudo apt-get install -y autoconf automake bison bzip2 chrpath cmake coreutils cpio curl cvs debianutils default-jre default-jre-headless diffstat flex g++ gawk gcc gcc-12 gcc-multilib g++-multilib gettext git gzip help2man info iputils-ping java-common libc6-dev libc6-dev-i386 libglib2.0-dev libncurses-dev libperl4-corelibs-perl libproc-processtable-perl libsdl1.2-dev libserf-dev libtool libxml2-utils make ncurses-bin patch perl pkg-config psmisc python3 python3-git python3-jinja2 python3-pexpect python3-pip python3-setuptools quilt socat sshpass subversion tar texi2html texinfo unzip wget xsltproc xterm xz-utils zip zlib1g-dev zstd fakeroot lz4 git-lfs
+    sudo apt-get install -y autoconf automake bison bzip2 chrpath cmake coreutils cpio curl cvs debianutils default-jre default-jre-headless diffstat flex g++ gawk gcc gcc-12 gcc-multilib g++-multilib gettext git gzip help2man info iputils-ping java-common libc6-dev libc6-dev-i386 libglib2.0-dev libncurses-dev libperl4-corelibs-perl libproc-processtable-perl libsdl1.2-dev libserf-dev libtool libxml2-utils make ncurses-bin patch perl pkg-config psmisc python3 python3-git python3-html5lib python3-jinja2 python3-pexpect python3-pip python3-setuptools quilt socat sshpass subversion tar texi2html texinfo unzip wget xsltproc xterm xz-utils zip zlib1g-dev zstd fakeroot lz4 git-lfs
 
 ----------
 2 - Set python3 as preferred provider for python
@@ -91,8 +91,7 @@
 ----------
 12 - Clone oe-alliance git
 
-    git clone https://github.com/oe-alliance/build-enviroment.git -b 5.3
-
+    git clone https://github.com/oe-alliance/build-enviroment.git -b 6.0
 ----------
 13 - Switch to folder build-enviroment
 
@@ -130,4 +129,3 @@
 19 - Building feeds only
 
     MACHINE=zgemmah9combo DISTRO=openvix DISTRO_TYPE=release make feeds
-
