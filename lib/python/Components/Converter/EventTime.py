@@ -111,7 +111,7 @@ class EventTime(Poll, Converter):
 			end_time = start_time + duration
 			elapsed = now - start_time
 			if start_time <= now <= end_time:
-				print(f"[EventTime] self.type:{self.type}  config.usage.swap_time_remaining_on_vfd:{config.usage.swap_time_remaining_on_vfd.value} config.usage.swap_time_remaining_on_osd:{config.usage.swap_time_remaining_on_osd.value}")
+				print(f"[EventTime] self.type:{self.type}  config.usage.swap_time_remaining_on_vfd:{config.usage.swap_time_remaining_on_vfd.value} config.usage.swap_time_remaining_on_osd:{config.usage.swap_time_remaining_on_osd.value}")			
 				return duration, remaining, elapsed
 			else:
 				return duration, None
