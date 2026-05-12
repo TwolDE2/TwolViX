@@ -1283,7 +1283,6 @@ void eDVBScan::channelDone()
 				m_new_services.insert(std::pair<eServiceReferenceDVB, ePtr<eDVBService> >(ref, service));
 			if (i.second)
 			{
-				m_new_servicerefs.push_back(ref);
 				m_last_service = i.first;
 				m_event(evtNewService);
 			}
@@ -1830,21 +1829,6 @@ RESULT eDVBScan::processSDT(eDVBNamespace dvbnamespace, const ServiceDescription
 
 					/* Remove old entry with wrong serviceType */
 					m_new_services.erase(sit);
-
-					/* Update m_new_servicerefs: replace old serviceRef with correct SDT serviceType */
-					for (std::vector<eServiceReferenceDVB>::iterator srit = m_new_servicerefs.begin();
-						srit != m_new_servicerefs.end(); ++srit)
-					{
-						if (srit->getServiceID() == ref.getServiceID() &&
-							srit->getDVBNamespace() == ref.getDVBNamespace() &&
-							srit->getTransportStreamID() == ref.getTransportStreamID() &&
-							srit->getOriginalNetworkID() == ref.getOriginalNetworkID())
-						{
-							*srit = ref;  /* Update with correct serviceType */
-							break;
-						}
-					}
-
 					found_existing = true;
 					SCAN_eDebug("[eDVBScan] SID %04x: replacing PMT entry (type %d) with SDT entry (type %d)",
 						ref.getServiceID().get(), old_type, ref.getServiceType());
@@ -1856,10 +1840,8 @@ RESULT eDVBScan::processSDT(eDVBNamespace dvbnamespace, const ServiceDescription
 			std::pair<std::map<eServiceReferenceDVB, ePtr<eDVBService> >::iterator, bool> i =
 				m_new_services.insert(std::pair<eServiceReferenceDVB, ePtr<eDVBService> >(ref, service));
 
-			if (i.second)
+			if (i.second && !found_existing)
 			{
-				if (!found_existing)
-					m_new_servicerefs.push_back(ref);
 				m_last_service = i.first;
 				m_event(evtNewService);
 			}
@@ -2010,21 +1992,6 @@ RESULT eDVBScan::processVCT(eDVBNamespace dvbnamespace, const VirtualChannelTabl
 
 					/* Remove old entry with wrong serviceType */
 					m_new_services.erase(sit);
-
-					/* Update m_new_servicerefs: replace old serviceRef with correct VCT serviceType */
-					for (std::vector<eServiceReferenceDVB>::iterator srit = m_new_servicerefs.begin();
-						srit != m_new_servicerefs.end(); ++srit)
-					{
-						if (srit->getServiceID() == ref.getServiceID() &&
-							srit->getDVBNamespace() == ref.getDVBNamespace() &&
-							srit->getTransportStreamID() == ref.getTransportStreamID() &&
-							srit->getOriginalNetworkID() == ref.getOriginalNetworkID())
-						{
-							*srit = ref;  /* Update with correct serviceType */
-							break;
-						}
-					}
-
 					found_existing = true;
 					SCAN_eDebug("[eDVBScan] SID %04x: replacing PMT entry (type %d) with VCT entry (type %d)",
 						ref.getServiceID().get(), old_type, ref.getServiceType());
@@ -2036,10 +2003,8 @@ RESULT eDVBScan::processVCT(eDVBNamespace dvbnamespace, const VirtualChannelTabl
 			std::pair<std::map<eServiceReferenceDVB, ePtr<eDVBService> >::iterator, bool> i =
 				m_new_services.insert(std::pair<eServiceReferenceDVB, ePtr<eDVBService> >(ref, service));
 
-			if (i.second)
+			if (i.second && !found_existing)
 			{
-				if (!found_existing)
-					m_new_servicerefs.push_back(ref);
 				m_last_service = i.first;
 				m_event(evtNewService);
 			}
