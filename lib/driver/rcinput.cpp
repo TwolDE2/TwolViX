@@ -95,7 +95,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		std::unordered_map<unsigned int, unsigned int>::iterator i = remaps.find(ev->code);
 		if (i != remaps.end())
 		{
-			eDebug("[eRCDeviceInputDev] map: %u->%u", i->first, i->second);
+			eTrace("[eRCDeviceInputDev] map: %u->%u", i->first, i->second);
 			ev->code = i->second;
 		}
 	}
@@ -129,7 +129,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 #endif
 	}
 
-	eDebug("[eRCDeviceInputDev] emit: %u", ev->value); // ZZ
+	eTrace("[eRCDeviceInputDev] emit: %u", ev->value); // ZZ
 	switch (ev->value)
 	{
 		case 0:
@@ -156,7 +156,7 @@ eRCDeviceInputDev::eRCDeviceInputDev(eRCInputEventDriver *driver, int consolefd)
 		consoleFd(consolefd), shiftState(false), capsState(false)
 {
 	setExclusive(true);
-	eDebug("[eRCDeviceInputDev] device \"%s\" is a %s", id.c_str(), iskeyboard ? "keyboard" : (ismouse ? "mouse" : "remotecontrol"));
+	eTrace("[eRCDeviceInputDev] device \"%s\" is a %s", id.c_str(), iskeyboard ? "keyboard" : (ismouse ? "mouse" : "remotecontrol"));
 }
 
 void eRCDeviceInputDev::setExclusive(bool b)
@@ -210,7 +210,7 @@ public:
 			add(filename);
 			++i;
 		}
-		eDebug("[eInputDeviceInit] Found %d input devices.", i);
+		eTrace("[eInputDeviceInit] Found %d input devices.", i);
 	}
 
 	~eInputDeviceInit()
@@ -232,7 +232,7 @@ public:
 				return;
 			}
 		}
-		eDebug("[eInputDeviceInit] adding device %s", filename);
+		eTrace("[eInputDeviceInit] adding device %s", filename);
 		eRCInputEventDriver *p = new eRCInputEventDriver(filename);
 		items.push_back(new element(filename, p, new eRCDeviceInputDev(p, consoleFd)));
 	}
@@ -248,7 +248,7 @@ public:
 				return;
 			}
 		}
-		eDebug("[eInputDeviceInit] Remove '%s', not found", filename);
+		eTrace("[eInputDeviceInit] Remove '%s', not found", filename);
 	}
 };
 
