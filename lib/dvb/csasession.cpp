@@ -126,7 +126,7 @@ void eDVBCSASession::startECMMonitor(iDVBDemux *demux, uint16_t ecm_pid, uint16_
 	m_caid = caid;
 
 	// Cache-driven early activation: skip ECM section reader if CSA-ALT for
-	// this service is already known. Disabled in Aggressive mode (audio race on dm900).
+	// this service is already known. Disabled in Aggressive mode (audio race on some boxes).
 	const bool cache_early_activate_disabled =
 		(eConfigManager::getConfigIntValue("config.misc.softcsa.decoderRelease", 0) == 2);
 
@@ -256,7 +256,6 @@ void eDVBCSASession::ecmDataReceived(const uint8_t *data)
 				if (shouldSuppressActivation && shouldSuppressActivation())
 				{
 					eDebug("[eDVBCSASession] Activation suppressed (CI module handles decryption)");
-					stopECMMonitor();
 				}
 				else
 				{
@@ -267,8 +266,9 @@ void eDVBCSASession::ecmDataReceived(const uint8_t *data)
 		else
 		{
 			eDebug("[eDVBCSASession] ECM analyzed: Not CSA-ALT, hardware descrambling will be used");
-			stopECMMonitor();
 		}
+
+		stopECMMonitor();
 	}
 }
 
