@@ -20,7 +20,7 @@ from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
 from Screens.TextBox import TextBox
-from Tools.Directories import fileHas, fileReadLines, isPluginInstalled
+from Tools.Directories import fileHas, fileReadLine, fileReadLines, isPluginInstalled
 from Tools.Hex2strColor import Hex2strColor
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
@@ -254,6 +254,13 @@ class About(AboutBase):
 
 		AboutText += _("Drivers:\t%s\n") % driversDate()
 		AboutText += _("Kernel:\t%s\n") % KERNEL
+		if MODEL in ("gb7252", "gbx34k"):
+			hwVersion = fileReadLine("/proc/stb/info/version")
+			if hwVersion:
+				match = search(r"\brev[0-9]+\b", hwVersion)
+				if match:
+					hwVersion = match.group(0)
+				AboutText += _("Hardware Version:\t%s\n") % hwVersion
 		AboutText += _("Samba:\t%s\n") % getVersionFromOpkg("samba")
 		AboutText += _("GStreamer:\t%s\n") % getGStreamerVersionString().replace("GStreamer ", "")
 		AboutText += _("GCC version:\t%s\n") % getGccVersion()
@@ -364,7 +371,6 @@ class Devices(AboutBase):
 			desc_list = []
 			for nim in nims:
 				data = nim.split(":")
-				print(f"[About] nims:{data}\n")
 				idx = data[0].strip(_("Tuner")).strip()
 				desc = data[1].strip()
 				if desc_list and desc_list[-1]["desc"] == desc:
@@ -399,32 +405,26 @@ class Devices(AboutBase):
 				hddDescription = hddDescription.split()  # split out fields without spaces
 				hddDescLen = len(hddDescription)
 				hddKey1 = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda /dev/sdb /dev/mmcblk1p /dev/mmcblk0p1
-				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} keys:{mountdict.keys()} hddLen:{hddDescLen} hddKey1[0:-1]:{hddKey1[0:-1]}")
 
 				if mountdict:
 					for device in mountdict:
 						if hddKey1 in device:
-							print(f"[About] mounted hddKey1:{hddKey1} in mountdict")
 							break  # use break here to escape the loop and NOT run its else clause
 					else:  # device not mounted
-						print(f"[About] not mounted1 hddKey1:{hddKey1}")
 						devicelist.append("%s" % hdd)
 						continue  # continues the outer loop so code below is skipped
 					# device is mounted so add device partition(s) attributes
-					print(f"[About] mounted hddKey1:{hddKey1}")
 					keyRange = 5 if hddKey1[0:-1] in ("/dev/sd", "/dev/mmcblk1") else 2  # assumes no more than 4 partitions on device
 					for count in range(1, keyRange):
 						hddKey = "%s" % hddKey1 + "%s" % str(count) if hddKey1[0:-1] in ("/dev/sd", "/dev/mmcblk1") else hddKey1
-						print(f"[About] mounted hddKey:{hddKey} look for key info")
 						if hddKey in mountdict.keys():
-							freeline = _("%s ") % hddKey + _("%s   ") % mountdict[hddKey][1] + "\n  " + _("Mount: %s  ") % mountdict[hddKey][5] + _("Used: %s  ") % mountdict[hddKey][2] + _("Free: %s ") % mountdict[hddKey][3]
+							freeline = "%s " % hddKey + "%s   " % mountdict[hddKey][1] + "\n  " + _("Mount: %s  ") % mountdict[hddKey][5] + _("Used: %s  ") % mountdict[hddKey][2] + _("Free: %s ") % mountdict[hddKey][3]
 							line = ""
 							for count in range(0, hddDescLen):
 								line += "%s " % hddDescription[count]
 							line += "%s " % freeline
 							devicelist.append(line)
 				else:  # device not mounted
-					print(f"[About] not mounted3 hddKey1:{hddKey1}")
 					devicelist.append("%s" % hdd)
 
 		networkmountinfo = []
