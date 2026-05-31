@@ -2,6 +2,7 @@ from urllib.parse import urlparse
 from urllib.request import urlopen
 import json
 import tempfile
+import struct
 
 from enigma import eTimer, fbClass
 from os import path, stat, system, mkdir, makedirs, listdir, remove, rename, rmdir, sep as ossep, statvfs, chmod, walk
@@ -46,6 +47,7 @@ def getMountChoices():
 def getMountDefault(choices):
 	choices = {x[1]: x[0] for x in choices}
 	default = choices.get("/media/hdd") or choices.get("/media/usb")
+	print("[ImageManager][getMountDefault] default, choices", default, "   ", choices)
 	return default
 
 
@@ -95,6 +97,7 @@ URL = 1
 ACTION = 2
 
 FEED_URLS = [
+	("TwolDE", "http://192.168.0.171/json/%s", "getMachineMake"),
 	("OpenViX", "https://www.openvix.co.uk/json/%s", "getMachineMake"),
 	("OpenATV", "https://images.mynonpublic.com/openatv/json/%s", "getMachineMake"),
 	("OpenBH", "https://images.openbh.net/json/%s", "getMachineMake"),
@@ -468,7 +471,7 @@ class VIXImageManager(Screen):
 		if not self.sel:
 			return
 		print("[ImageManager][keyRestore] self.sel SystemInfo['MultiBootSlot']", self.sel[0], "   ", SystemInfo["MultiBootSlot"])
-		if SystemInfo["MultiBootSlot"] == 0 and self.isVuKexecCompatibleImage(self.sel[0]):  # only if Vu multiboot has been enabled and the image is compatible
+		if SystemInfo["MultiBootSlot"] == 0 and SystemInfo["HasKexecMultiboot"] and self.isVuKexecCompatibleImage(self.sel[0]):  # only if Vu multiboot has been enabled and the image is compatible
 			message = [_("Are you sure you want to overwrite the Recovery image?")]
 			if "VuSlot0" in self.sel[0]:
 				callback = self.keyRestoreVuSlot0Image
@@ -498,6 +501,7 @@ class VIXImageManager(Screen):
 			self.keyRestore1()
 
 	def keyRestorez1(self, retval):
+		print("[ImageManager][keyRestorez1] retval", retval)
 		if retval:
 			self.VuKexecCopyimage()
 		else:
@@ -509,8 +513,6 @@ class VIXImageManager(Screen):
 		self.multibootslot = 1
 		self.MTDKERNEL = MTDKERNEL
 		self.MTDROOTFS = MTDROOTFS
-		if SystemInfo["machinebuild"] == "et8500" and path.exists("/proc/mtd"):
-			self.dualboot = self.dualBoot()
 		recordings = self.session.nav.getRecordings()
 		if not recordings:
 			next_rec_time = self.session.nav.RecordTimer.getNextRecordingTime()
@@ -527,6 +529,7 @@ class VIXImageManager(Screen):
 			if pathExists("/dev/sda4"):
 				self.HasSDmmc = True
 		imagedict = GetImagelist()
+		print(f"[ImageManager][keyRestore] imagedict={imagedict}")
 		choices = []
 		currentimageslot = SystemInfo["MultiBootSlot"]
 		idx = 0
@@ -560,7 +563,7 @@ class VIXImageManager(Screen):
 				self.session.open(MessageBox, _("There is no image to flash."), MessageBox.TYPE_INFO, timeout=10)
 
 	def keyRestore3(self, *args, **kwargs):
-		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=240, enable_input=False)
+		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=480, enable_input=False)
 		if "/media/autofs" in config.imagemanager.backuplocation.value or "/media/net" in config.imagemanager.backuplocation.value:
 			self.TEMPDESTROOT = tempfile.mkdtemp(prefix="imageRestore")
 		else:
@@ -577,30 +580,13 @@ class VIXImageManager(Screen):
 	def keyRestore4(self, result, retval, extra_args=None):
 		if retval == 0:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Flash image unzip successful."), MessageBox.TYPE_INFO, timeout=4)
-			if SystemInfo["machinebuild"] == "et8500" and self.dualboot:
-				message = _("ET8500 Multiboot: Yes to restore OS1 No to restore OS2:\n ") + self.sel[1]
-				ybox = self.session.openWithCallback(self.keyRestore5_ET8500, MessageBox, message)
-				ybox.setTitle(_("ET8500 Image Restore"))
-			else:
-				MAINDEST = "%s/%s" % (self.TEMPDESTROOT, SystemInfo["imagedir"])
-				if pathExists("%s/SDAbackup" % MAINDEST) and self.multibootslot != 1:
-					self.session.open(MessageBox, _("Multiboot only able to restore this backup to mmc slot1"), MessageBox.TYPE_INFO, timeout=20)
-					print("[ImageManager] SF8008 mmc restore to SDcard failed:\n", end=' ')
-					self.close()
-				else:
-					self.keyRestore6(0)
+			self.keyRestore6()
 		else:
 			self.session.openWithCallback(self.restore_infobox.close, MessageBox, _("Unzip error (also sent to any debug log):\n%s") % result, MessageBox.TYPE_INFO, timeout=20)
 			print("[ImageManager] unzip failed:\n", result)
 			self.close()
 
-	def keyRestore5_ET8500(self, answer):
-		if answer:
-			self.keyRestore6(0)
-		else:
-			self.keyRestore6(1)
-
-	def keyRestore6(self, ret):
+	def keyRestore6(self):
 		MAINDEST = "%s/%s" % (self.TEMPDESTROOT, SystemInfo["imagedir"])
 		print(f"[ImageManager] MAINDEST={MAINDEST} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")
 		CMD = "/usr/bin/ofgwrite -r -k '%s'" % MAINDEST							# normal non multiboot receiver
@@ -613,6 +599,8 @@ class VIXImageManager(Screen):
 				kz0 = MTDKERNEL
 				rz0 = MTDROOTFS
 				CMD = "/usr/bin/ofgwrite -k%s -r%s '%s'" % (kz0, rz0, MAINDEST)  # slot0 treat as kernel/root only multiboot receiver
+				print(f"[ImageManager] kz0={kz0} rz0={rz0}")
+				print(f"[ImageManager] CMD={CMD}")
 			elif SystemInfo["HasHiSi"] and rootsubdir is None:  # sf8008 type receiver using SD card in multiboot
 				CMD = "/usr/bin/ofgwrite -r%s -k%s -m0 '%s'" % (self.MTDROOTFS, self.MTDKERNEL, MAINDEST)
 				print("[ImageManager] running commnd:%s slot = %s" % (CMD, self.multibootslot))
@@ -628,6 +616,7 @@ class VIXImageManager(Screen):
 				CMD = "/usr/bin/ofgwrite -r%s -c%s -m%s '%s'" % (self.MTDROOTFS, SystemInfo["MultiBootSlot"], self.multibootslot, MAINDEST)
 			else:
 				CMD = "/usr/bin/ofgwrite -r -k -m%s '%s'" % (self.multibootslot, MAINDEST)  # Normal multiboot
+			print(f"[ImageManager] running flash Console command={CMD}")
 		elif SystemInfo["HasH9SD"]:
 			if path.exists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 no SD card - build has both roots causes ofgwrite issue
 				rename("%s/rootfs.tar.bz2" % MAINDEST, "%s/xx.txt" % MAINDEST)
@@ -641,6 +630,10 @@ class VIXImageManager(Screen):
 		if retval == 0:
 			if SystemInfo["HasHiSi"] and SystemInfo["HasRootSubdir"] is False and self.HasSDmmc is False:  # sf8008 receiver 1 eMMC parition, No SD card
 				self.session.open(TryQuitMainloop, 2)
+			if SystemInfo["HasMultibootFlags"]:
+				print("[ImageManager] setting slot %s to flag file\n" % self.multibootslot)
+				with open('/dev/block/by-name/flag', 'wb') as f:
+					f.write(struct.pack("B", int(self.multibootslot)))
 			if SystemInfo["canMultiBoot"]:
 				message = _("Your %s %s has successfully flashed slot %s, enter 'Yes' to reboot new image or 'No' to return to Enigma2.") % (DISPLAYBRAND, MACHINENAME, self.multibootslot)
 				ybox = self.session.openWithCallback(self.FlashQuestion, MessageBox, message, MessageBox.TYPE_YESNO, timeout=30)
@@ -666,35 +659,24 @@ class VIXImageManager(Screen):
 		else:
 			self.close
 
-	def dualBoot(self):
-		rootfs2 = False
-		kernel2 = False
-		with open("/proc/mtd")as f:
-			L = f.readlines()
-			for x in L:
-				if "rootfs2" in x:
-					rootfs2 = True
-				if "kernel2" in x:
-					kernel2 = True
-			if rootfs2 and kernel2:
-				return True
-			else:
-				return False
-
 	def isVuKexecCompatibleImage(self, name):
 		retval = False
 		if "VuSlot0" in name:
 			retval = True
 		else:
 			name_split = name.split("-")
-			if len(name_split) > 1 and name_split[0] in ("openbh", "openvix") and name[-8:] == "_usb.zip":  # "_usb.zip" only in build server images
+			print("[ImageManager][isVuKexecCompatibleImage] name_split", name_split)
+			if len(name_split) > 1 and name_split[0] in ("openbh", "openvix", "openpli") and name[-8:] == "_usb.zip":  # "_usb.zip" only in build server images
 				parts = name_split[1].split(".")
+				if name_split[0] == "openpli" and name_split[1] == "develop":
+					retval = True
 				if len(parts) > 1 and parts[0].isnumeric() and parts[1].isnumeric():
 					version = float(parts[0] + "." + parts[1])
 					if name_split[0] == "openbh" and version > 5.1:
 						retval = True
-					if name_split[0] == "openvix" and (version > 6.3 or version == 6.3 and len(parts) > 2 and parts[2].isnumeric() and int(parts[2]) > 2):  # greater than 6.2.002
+					if name_split[0] == "openvix":
 						retval = True
+		print(f"[ImageManager][isVuKexecCompatibleImage] retval={retval}")
 		return retval
 
 	def VuKexecCopyimage(self):
@@ -710,7 +692,7 @@ class VIXImageManager(Screen):
 		if installedHDD and pathExists("/media/hdd"):
 			if not pathExists("/media/hdd/%s" % BOXTYPE):
 				mkdir("/media/hdd/%s" % BOXTYPE)
-			for slotnum in range(1, 4):
+			for slotnum in range(2, 4):
 				if pathExists("/linuxrootfs%s" % slotnum):
 					if pathExists("/media/hdd/%s/linuxrootfs%s/" % (BOXTYPE, slotnum)):
 						rmtree("/media/hdd/%s/linuxrootfs%s" % (BOXTYPE, slotnum), ignore_errors=True)
@@ -1512,6 +1494,7 @@ class ImageBackup(Screen):
 		# self.commands.append(f"7za a -r -bt -bd {self.MAINDESTROOT}{self.VuSlot0}{self.usbType}.zip {self.MAINDESTROOT}/*")
 		self.commands.append(f"cd {self.MAINDESTROOT} && zip -r {self.MAINDESTROOT}{self.VuSlot0}{self.usbType}.zip *")
 		self.commands.append("rm -rf " + self.MAINDESTROOT)
+		print(f"[ImageManager] doBackup6:{self.commands}")
 		self.ConsoleB.eBatch(self.commands, self.Stage6Complete, debug=True)
 
 	def Stage6Complete(self, answer=None):
