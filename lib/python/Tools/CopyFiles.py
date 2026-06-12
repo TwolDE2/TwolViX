@@ -2,7 +2,7 @@ from os import path
 from shutil import rmtree, copy2, move
 from enigma import eTimer
 
-rom Components.Harddisk import bytesToHumanReadable
+from Components.Harddisk import bytesToHumanReadable
 from Components.Task import PythonTask, Task, Job, job_manager as JobManager, Condition
 from Tools.Directories import fileExists
 
