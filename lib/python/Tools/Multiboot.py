@@ -371,19 +371,19 @@ def isFat32(device):
 def canMultiBoot():
 	print(f"[multiboot][canMultiBoot] ")
 	return SystemInfo["canMultiBoot"] != {}
-	
+
 
 def getCurrentSlotAndBootCodes():
 	bootCode = " "
 	print(f"[MultiBoot][getCurrentSlotAndBootCodes] bootSlot:{SystemInfo['MultiBootSlot']} bootCode:{bootCode}")
-	return SystemInfo["MultiBootSlot"], bootCode	
+	return SystemInfo["MultiBootSlot"], bootCode
 
 
 def getSlotImageList(callback):
 	imageList = GetImagelist()
 	print(f"[MultiBoot][getSlotImageLists] keys:{imageList.keys()} {imageList}")
 	callback(imageList)
-	
+
 
 def getBootCodeDescription(bootCodeEntry):
 	bootCodeDescriptions = {
@@ -391,8 +391,8 @@ def getBootCodeDescription(bootCodeEntry):
 		"1": _("Mode 1: Supports Kodi but PiP may not work"),
 		"12": _("Mode 12: Supports PiP but Kodi may not work")
 	}
-	return bootCodeDescriptions	
-		
+	return bootCodeDescriptions
+
 
 def activateSlot(slotCode, bootCode, callback):
 	print(f"[MultiBoot][activateSlot] slotCode:{slotCode} bootCode:{bootCode}")
@@ -404,4 +404,4 @@ def activateSlot(slotCode, bootCode, callback):
 		with open('/dev/block/by-name/flag', 'wb') as f:
 			f.write(struct.pack("B", int(slotCode)))
 	Console(binary=True).ePopen(f"umount {tmp_dir}")
-	callback(0, 0) 
+	callback(0, 0)
