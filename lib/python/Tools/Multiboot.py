@@ -160,6 +160,7 @@ def getMultibootslots():
 	print(f"[multiboot][getMultibootslots] bootslots: {bootslots} Activeslot:{SystemInfo['MultiBootSlot']}")
 	return bootslots
 
+
 def getUUIDtoSD(UUID):  # returns None on failure
 	if fileExists("/sbin/blkid"):
 		lines = subprocess.check_output(["/sbin/blkid"]).decode(encoding="utf8", errors="ignore").split("\n")
@@ -366,20 +367,24 @@ def isFat32(device):
 
 #	following added for Webif canMultiBoot getCurrentSlotAndBootCodes getSlotImageList getBootCodeDescription activateSlot
 
+
 def canMultiBoot():
 	print(f"[multiboot][canMultiBoot] ")
 	return SystemInfo["canMultiBoot"] != {}
 	
+
 def getCurrentSlotAndBootCodes():
 	bootCode = " "
 	print(f"[MultiBoot][getCurrentSlotAndBootCodes] bootSlot:{SystemInfo['MultiBootSlot']} bootCode:{bootCode}")
 	return SystemInfo["MultiBootSlot"], bootCode	
+
 
 def getSlotImageList(callback):
 	imageList = GetImagelist()
 	print(f"[MultiBoot][getSlotImageLists] keys:{imageList.keys()} {imageList}")
 	callback(imageList)
 	
+
 def getBootCodeDescription(bootCodeEntry):
 	bootCodeDescriptions = {
 		"": _("Normal: No boot modes required."),
@@ -388,6 +393,7 @@ def getBootCodeDescription(bootCodeEntry):
 	}
 	return bootCodeDescriptions	
 		
+
 def activateSlot(slotCode, bootCode, callback):
 	print(f"[MultiBoot][activateSlot] slotCode:{slotCode} bootCode:{bootCode}")
 	slot = int(slotCode)
