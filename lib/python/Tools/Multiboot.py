@@ -398,4 +398,4 @@ def activateSlot(slotCode, bootCode, callback):
 		with open('/dev/block/by-name/flag', 'wb') as f:
 			f.write(struct.pack("B", int(slotCode)))
 	Console(binary=True).ePopen(f"umount {tmp_dir}")
-	callback(0,0) 
+	callback(0, 0) 
