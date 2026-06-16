@@ -18,7 +18,9 @@
 #include <lib/service/servicemp3.h>
 #include <lib/service/servicemp3record.h>
 #include <lib/service/service.h>
+#ifdef HAS_SOFTWARE_HDR_DETECTION
 #include <lib/service/hevc_hdr.h>
+#endif
 #include <lib/gdi/gpixmap.h>
 
 
@@ -556,12 +558,14 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 #endif
 	m_aspect = m_width = m_height = m_framerate = m_progressive = m_gamma = -1;
 	m_hdr_type = 0;
+#ifdef HAS_SOFTWARE_HDR_DETECTION
 	m_hdr_probe_id = 0;
 	m_hdr_probe_pad = NULL;
 	m_hdr_probe_active = false;
 	m_hdr_probe_last_classify = 0;
 	m_hdr_probe_first_sps_at = 0;
 	g_mutex_init(&m_hdr_probe_mutex);
+#endif
 
 	m_state = stIdle;
 	m_coverart = false;
@@ -1030,7 +1034,9 @@ RESULT eServiceMP3::stop()
 	if (!m_gst_playbin || m_state == stStopped)
 		return -1;
 
+#ifdef HAS_SOFTWARE_HDR_DETECTION
 	stopHDRProbe();
+#endif
 	eDebug("[eServiceMP3] stop %s", m_ref.path.c_str());
 	m_state = stStopped;
 
@@ -1365,6 +1371,7 @@ RESULT eServiceMP3::isCurrentlySeekable()
 	return ret;
 }
 
+#ifdef HAS_SOFTWARE_HDR_DETECTION
 static int caps_hdr_value(GstCaps *caps)
 {
 	/* -1 = no colorimetry field, 0 = SDR, 1 = HDR10, 2 = HLG, 3 = generic HDR */
@@ -1753,6 +1760,7 @@ void eServiceMP3::updateHDRFromVideoPad()
 		m_event((iPlayableService*)this, evUpdatedInfo);
 	}
 }
+#endif /* HAS_SOFTWARE_HDR_DETECTION */
 
 RESULT eServiceMP3::info(ePtr<iServiceInformation>&i)
 {
@@ -2778,6 +2786,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 				m_send_ev_start = true;
 			}
 
+#ifdef HAS_SOFTWARE_HDR_DETECTION
 			updateHDRFromVideoPad();
 
 			/* Start HEVC bitstream probe early so we capture the very first
@@ -2789,6 +2798,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 			 * by startHDRProbe regardless of timing. */
 			if (!m_hdr_probe_active)
 				startHDRProbe();
+#endif
 
 			if (m_seek_paused)
 			{
@@ -2838,6 +2848,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 							gst_structure_get_int (msgstruct, "height", &m_height);
 							if (strstr(eventname, "Changed"))
 								m_event((iPlayableService*)this, evVideoSizeChanged);
+#ifdef HAS_SOFTWARE_HDR_DETECTION
 						updateHDRFromVideoPad();
 							/* If the early probe (ASYNC_DONE) already found an SPS,
 							 * leave it running — it has good data in flight.
@@ -2845,6 +2856,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 							 * or probe not started), restart now that caps are settled. */
 							if (!m_hdr_probe_active || m_hdr_probe_first_sps_at == 0)
 								startHDRProbe();
+#endif
 						}
 						else if (!strcmp(eventname, "eventFrameRateChanged") || !strcmp(eventname, "eventFrameRateAvail"))
 						{
