@@ -16,26 +16,6 @@ int eVideoWidget::lastPigWidth[2]  = {0, 0};
 int eVideoWidget::lastPigHeight[2] = {0, 0};
 #endif
 
-static int s_bounceFixEnabled = -1; /* -1=uninitialised, 0=off, 1=on */
-
-static bool bounceFixEnabled()
-{
-	if (s_bounceFixEnabled < 0)
-	{
-		std::ifstream f("/proc/stb/info/model");
-		std::string boxtype;
-		if (f && std::getline(f, boxtype))
-		{
-			s_bounceFixEnabled = (boxtype == "dm900" || boxtype == "dm920") ? 1 : 0;
-		}
-		else
-		{
-			s_bounceFixEnabled = 0;
-		}
-	}
-	return s_bounceFixEnabled == 1;
-}
-
 eVideoWidget::eVideoWidget(eWidget *parent)
 	:eLabel(parent), m_fb_size(720, 576), m_state(0), m_decoder(1)
 {
@@ -170,11 +150,8 @@ void eVideoWidget::updatePosition(int disable)
 
 	if (!disable)
 	{
-		if (bounceFixEnabled()
-			&& left == posFullsizeLeft && top == posFullsizeTop
-			&& width == posFullsizeWidth && height == posFullsizeHeight
-			&& lastPigWidth[m_decoder] > 0 && lastPigHeight[m_decoder] > 0
-			&& (lastPigWidth[m_decoder] != posFullsizeWidth || lastPigHeight[m_decoder] != posFullsizeHeight))
+#ifdef DREAMBOX
+		if (left == posFullsizeLeft && top == posFullsizeTop && width == posFullsizeWidth && height == posFullsizeHeight && lastPigWidth[m_decoder] > 0 && lastPigHeight[m_decoder] > 0 && (lastPigWidth[m_decoder] != posFullsizeWidth || lastPigHeight[m_decoder] != posFullsizeHeight))
 		{
 			/* dm9xx: decoder may be in a reset/fullscreen state and ignore a direct
 			 * fullscreen command. Bounce via the stored PIG position to force the
@@ -182,13 +159,8 @@ void eVideoWidget::updatePosition(int disable)
 			setPosition(m_decoder, posFullsizeLeft, posFullsizeTop, posFullsizeWidth, posFullsizeHeight);
 			setPosition(m_decoder, lastPigLeft[m_decoder], lastPigTop[m_decoder], lastPigWidth[m_decoder], lastPigHeight[m_decoder]);
 		}
-		setPosition(m_decoder, left, top, width, height);
-#ifdef DREAMBOX
-		lastPigLeft[m_decoder]   = left;
-		lastPigTop[m_decoder]    = top;
-		lastPigWidth[m_decoder]  = width;
-		lastPigHeight[m_decoder] = height;
 #endif
+		setPosition(m_decoder, left, top, width, height);
 		pendingFullsize &= ~(1 << m_decoder);
 		m_state |= 8;
 	}
