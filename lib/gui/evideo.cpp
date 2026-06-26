@@ -161,6 +161,12 @@ void eVideoWidget::updatePosition(int disable)
 		}
 #endif
 		setPosition(m_decoder, left, top, width, height);
+#ifdef DREAMBOX
+		lastPigLeft[m_decoder]   = left;
+		lastPigTop[m_decoder]    = top;
+		lastPigWidth[m_decoder]  = width;
+		lastPigHeight[m_decoder] = height;
+#endif		
 		pendingFullsize &= ~(1 << m_decoder);
 		m_state |= 8;
 	}
