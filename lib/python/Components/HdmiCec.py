@@ -42,7 +42,8 @@ CEC_VENDOR_YAMAHA = 0x00A0DE
 CEC_VENDOR_GRUNDIG = 0x00D0D5
 CEC_VENDOR_PIONEER = 0x00E036
 CEC_VENDOR_SHARP = 0x08001F
-CEC_VENDOR_SONY = 0x080046
+CEC_VENDOR_SONY = 0x080045
+CEC_VENDOR_SONY2 = 0x080046
 CEC_VENDOR_BROADCOM = 0x18C086
 CEC_VENDOR_TEUFEL = 0x232425
 CEC_VENDOR_SHARP2 = 0x534850
@@ -89,6 +90,7 @@ CEC_VENDOR = {
 	CEC_VENDOR_LG: "LG Simplink",
 	CEC_VENDOR_SHARP: "Sharp Aquos Link",
 	CEC_VENDOR_SONY: "Sony Bravia Sync",
+	CEC_VENDOR_SONY2: "Sony Bravia Sync",
 	CEC_VENDOR_BROADCOM: "Broadcom",
 	CEC_VENDOR_TEUFEL: "Teufel",
 	CEC_VENDOR_SHARP2: "Sharp Aquos Link",
@@ -536,6 +538,7 @@ class HdmiCec:
 			self.audio_system_present = False
 			self.system_audio_mode = False
 			self.local_vendor_id = CEC_VENDOR_ENIGMA2_STB
+			self.cmd87 = False
 			print(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
 			if not config.hdmicec.change_physaddress.value:
 				config.hdmicec.fixed_physical_address.value = getPhysicalAddress()
@@ -783,8 +786,8 @@ class HdmiCec:
 			msgaddress = message.getAddress()  # 0 = TV, 5 = receiver 15 = broadcast
 			inStandby = True if Screens.Standby.inStandby else False
 			tvwakeupDetection = config.hdmicec.tv_wakeup_detection.value  # TV wakeup action depends on this setting
-			#if cmd == 0x87:  # some TV's throw this continuously
-			#	return
+			if cmd == 0x87 and self.cmd87:  # some TV's throw this continuously
+				return
 			if CECcmd != "<Polling Message>":
 				printX(f"[HdmiCEC][messageReceived0]: msgaddress={msgaddress}  CECcmd={CECcmd}, cmddec= {cmd} cmdhex={cmd2}, ctrl0={ctrl0}, datalength={length}")
 				if config.hdmicec.debug.value in ["2", "3", "4"]:
@@ -844,6 +847,7 @@ class HdmiCec:
 								if config.hdmicec.report_active_source.value:
 									self.sendMessage(msgaddress, "sourceactive")
 					case 0x87 if length >= 3:  # device vendor id
+						self.cmd87 = True
 						printX(f"[HdmiCEC][messageReceived]Reporting Device Vendor ctrl0:{ctrl0:02X} ctrl1:{ctrl1:02X} ctrl2:{ctrl2:02X}")
 						vendor = (ctrl0 << 16) | (ctrl1 << 8) | ctrl2
 						self.updateDevice(msgaddress, vendor=vendor)
