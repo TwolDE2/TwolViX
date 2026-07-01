@@ -539,7 +539,7 @@ class HdmiCec:
 			self.system_audio_mode = False
 			self.local_vendor_id = CEC_VENDOR_ENIGMA2_STB
 			self.cmd87 = False
-			print(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
+			printX(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
 			if not config.hdmicec.change_physaddress.value:
 				config.hdmicec.fixed_physical_address.value = getPhysicalAddress()
 			countDots = config.hdmicec.fixed_physical_address.value.count(".")
@@ -640,10 +640,10 @@ class HdmiCec:
 		if persist:
 			self._saveVolumeForwardingState()
 		if announce:
-			print(f"[HdmiCec] volume forwarding to device {self.volumeForwardingDestination:02x} enabled (system audio mode: {self.system_audio_mode}")
+			printX(f"[HdmiCec] volume forwarding to device {self.volumeForwardingDestination:02x} enabled (system audio mode: {self.system_audio_mode}")
 
 	def vendorName(self, vendor):
-		print(f"[HdmiCec][vendorname] vendor:{vendor}")
+		printX(f"[HdmiCec][vendorname] vendor:{vendor}")
 		if vendor is not None:
 			return CEC_VENDOR.get(vendor, f"0x{vendor:06X}")
 		else:
@@ -671,7 +671,7 @@ class HdmiCec:
 		if name:
 			device["name"] = name
 		if vendor is not None:
-			print(f"[HdmiCec] device {address:02X} vendor: {self.vendorName(vendor)} (0x{vendor:06X})")
+			printX(f"[HdmiCec] device {address:02X} vendor: {self.vendorName(vendor)} (0x{vendor:06X})")
 
 	def getDeviceVendor(self, address):
 		return self.devices.get(address, {}).get("vendor", CEC_VENDOR_UNKNOWN)
@@ -879,7 +879,7 @@ class HdmiCec:
 						self.sendMessage(msgaddress, "reportfeatures")
 
 				if inStandby and config.hdmicec.handle_tv_wakeup.value:
-					print(f"[HDMI-CEC][messageReceived10] cmd:{cmd:02X} cmd2:{cmd2} ctrl0:{ctrl0}")
+					printX(f"[HDMI-CEC][messageReceived10] cmd:{cmd:02X} cmd2:{cmd2} ctrl0:{ctrl0}")
 					if msgaddress == 0 and cmd == 0x44 and ctrl0 in (64, 109):  # handle wakeup from tv hdmi-cec menu (e.g. panasonic tv apps, viera link)
 							self.wakeup()
 					elif ((cmd == 0x04 and tvwakeupDetection == "wakeup") or
@@ -1050,7 +1050,7 @@ class HdmiCec:
 				self.sendStandbyMessages()
 
 	def sendStandbyMessages(self):
-		print(f"[HdmiCEC][sendStandbyMessages]: config.hdmicec.control_tv_standby={config.hdmicec.control_tv_standby.value}, self.handlingStandbyFromTV={self.handlingStandbyFromTV}")
+		printX(f"[HdmiCEC][sendStandbyMessages]: config.hdmicec.control_tv_standby={config.hdmicec.control_tv_standby.value}, self.handlingStandbyFromTV={self.handlingStandbyFromTV}")
 		messages = []
 		if config.hdmicec.control_tv_standby.value:
 			if self.useStandby and not self.handlingStandbyFromTV:
@@ -1063,7 +1063,7 @@ class HdmiCec:
 				messages.append("sourceinactive")
 			if config.hdmicec.report_active_menu.value:
 				messages.append("menuinactive")
-		print(f"[HdmiCEC][sendStandbyMessages]: messages={messages}")
+		printX(f"[HdmiCEC][sendStandbyMessages]: messages={messages}")
 		if messages:
 			self.sendQMessages(0, messages)
 
