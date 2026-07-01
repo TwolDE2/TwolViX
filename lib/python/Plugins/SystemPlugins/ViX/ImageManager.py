@@ -570,7 +570,7 @@ class VIXImageManager(Screen):
 =======
 		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=240, enable_input=False)
 		if config.imagemanager.backuplocation.value.startswith(("/media/autofs", "/media/net")):
->>>>>>> 14aba1b33d ([ViX] attempt to correctly normalise config.backupmanager.backuplocation and config.imagemanager.backuplocation)
+>>>>>>> 14aba1b33d([ViX] attempt to correctly normalise config.backupmanager.backuplocation and config.imagemanager.backuplocation)
 			self.TEMPDESTROOT = tempfile.mkdtemp(prefix="imageRestore")
 		else:
 			self.TEMPDESTROOT = self.BackupDirectory + "imagerestore"
