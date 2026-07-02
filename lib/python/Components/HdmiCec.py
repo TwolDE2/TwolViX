@@ -538,6 +538,7 @@ class HdmiCec:
 			self.audio_system_present = False
 			self.system_audio_mode = False
 			self.local_vendor_id = CEC_VENDOR_ENIGMA2_STB
+			self.tv_powerstate = "unknown"
 			self.cmd87 = False
 			printX(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
 			if not config.hdmicec.change_physaddress.value:
@@ -702,7 +703,7 @@ class HdmiCec:
 		else:
 			self.queue.append((address, cmd, data))
 			if not self.wait.isActive():
-				self.wait.start(config.hdmicec.minimum_send_interval.value, True)
+				self.wait.start(int(config.hdmicec.minimum_send_interval.value), True)
 
 	def sendVolumeKey(self, key):
 		address = 5 if self.audio_system_present or self.system_audio_mode else 0
@@ -722,7 +723,7 @@ class HdmiCec:
 			self.updateDevice(address, vendor=vendor)
 
 		if vendor == CEC_VENDOR_LG and address == 0 and cmd in (0x89, 0xA0):
-			return self.handleLGVendorCommand(address, params)
+			return self.handleLGVendorCommand(address, cmd, params)
 		if vendor == CEC_VENDOR_PANASONIC and address == 0:
 			return self.handlePanasonicVendorCommand(address, cmd, params)
 		if vendor == CEC_VENDOR_SAMSUNG and cmd == 0xA0 and len(params) >= 1 and params[0] == 0x23:
@@ -731,7 +732,7 @@ class HdmiCec:
 			return True
 		return False
 
-	def handleLGVendorCommand(self, address, params):
+	def handleLGVendorCommand(self, address, cmd, params):
 		if not params:
 			return False
 		if params[0] == 0x01:
