@@ -565,7 +565,6 @@ class VIXImageManager(Screen):
 
 	def keyRestore3(self, *args, **kwargs):
 
-
 		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=240, enable_input=False)
 		if config.imagemanager.backuplocation.value.startswith(("/media/autofs", "/media/net")):
 			self.TEMPDESTROOT = tempfile.mkdtemp(prefix="imageRestore")
