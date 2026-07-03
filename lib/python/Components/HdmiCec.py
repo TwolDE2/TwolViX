@@ -94,6 +94,7 @@ CEC_VENDOR = {
 	CEC_VENDOR_BROADCOM: "Broadcom",
 	CEC_VENDOR_TEUFEL: "Teufel",
 	CEC_VENDOR_SHARP2: "Sharp Aquos Link",
+	CEC_VENDOR_MEDIATEK: "MediaTek",
 	CEC_VENDOR_VIZIO: "Vizio",
 	CEC_VENDOR_BENQ: "BenQ",
 	CEC_VENDOR_HARMAN_KARDON: "Harman/Kardon",
@@ -292,8 +293,9 @@ CtrlByte0 = {		# Information only: control byte 0 status/action request by comma
 		0x1B: "<Slow Reverse Max Speed>",
 		0x20: "<Play Reverse>",
 		0x24: "<Play Forward>",
-		0x25: "<Play Still>"},
-0x42: {
+		0x25: "<Play Still>"
+	},
+	0x42: {
 		0x01: "<Skip Forward / Wind>",
 		0x02: "<Skip Reverse / Rewind",
 		0x03: "<Stop>",
@@ -473,7 +475,7 @@ CtrlByte0 = {		# Information only: control byte 0 status/action request by comma
 		0x01: "<Standby>",
 		0x02: "<In transition Standby to On>",
 		0x03: "<In transition On to Standby>"
-},
+	},
 	0x9A: {
 		0x00: "<Rate Control Off>",
 		0x01: "<WRC Standard Rate: 100% rate>",
@@ -662,6 +664,7 @@ class HdmiCec:
 				self.audio_system_present = True
 			if address in (0, 5):
 				self.updateVolumeForwardingState(config.hdmicec.volume_forwarding.value)
+			printX(f"[HdmiCec] device {address:02X} vendor: {self.vendorName(vendor)} (0x{vendor:06X})", True)
 		if physical is not None:
 			device["physical"] = physical
 		if device_type is not None:
@@ -669,6 +672,9 @@ class HdmiCec:
 			if address == 5 or device_type == 5:
 				self.audio_system_present = True
 				self.volumeForwardingDestination = 5
+				self.updateVolumeForwardingState(config.hdmicec.volume_forwarding.value)
+				if physical is not None and self.isUpstreamPath(physical, eHdmiCEC.getInstance().getPhysicalAddress()):
+					printX(f"[HdmiCec] audio system detected upstream: {self.physicalAddressText(physical)} -> {self.getPhysicalAddress()}")
 		if name:
 			device["name"] = name
 		if vendor is not None:
@@ -824,6 +830,7 @@ class HdmiCec:
 						if config.hdmicec.volume_forwarding.value:
 							printX(f"[HdmiCEC][messageReceived5]: volume forwarding to device {self.volumeForwardingDestination:02x} enabled")
 							self.volumeForwardingEnabled = True
+							self.updateVolumeForwardingState(config.hdmicec.volume_forwarding.value)
 					case 0x83:  # request address
 						self.sendMessage(msgaddress, "reportaddress")
 					case 0x84 if length >= 3:  # report physical address
