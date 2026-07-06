@@ -917,7 +917,7 @@ class HdmiCec:
 				msgaddress = 0x0f  # use broadcast address
 				cmd = 0x86
 				physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
-				data = pack("BB", int(physicaladdress / 256), int(physicaladdress % 256)
+				data = pack("BB", int(physicaladdress / 256), int(physicaladdress % 256))
 			case "vendorid":
 				cmd = 0x87
 				data = self.vendorPayload(self.getAdvertisedVendor(msgaddress))

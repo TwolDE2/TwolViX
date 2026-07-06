@@ -1204,9 +1204,9 @@ def InitUsageConfig():
 	config.misc.softcsa = ConfigSubsection()
 	config.misc.softcsa.enabled = ConfigYesNo(default=True)
 	config.misc.softcsa.decoderRelease = ConfigSelection(default=0, choices=[
-			(0, _("Quick")),
-			(1, _("Normal")),
-			(2, _("Aggressive"))
+		(0, _("Quick")),
+		(1, _("Normal")),
+		(2, _("Aggressive"))
 	])
 	config.misc.softcsa.syncMode = ConfigSelection(default=defaultValue, choices=[
 		(0, _("Automatic")),
