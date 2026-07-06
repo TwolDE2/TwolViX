@@ -833,7 +833,7 @@ class HdmiCec:
 				if inStandby and config.hdmicec.handle_tv_wakeup.value:
 					printX(f"[HDMI-CEC][messageReceived10] cmd:{cmd:02X} cmd2:{cmd2} ctrl0:{ctrl0}")
 					if msgaddress == 0 and cmd == 0x44 and ctrl0 in (64, 109):  # handle wakeup from tv hdmi-cec menu (e.g. panasonic tv apps, viera link)
-							self.wakeup()
+						self.wakeup()
 					elif ((cmd == 0x04 and tvwakeupDetection == "wakeup") or
 						(cmd != 0x36 and tvwakeupDetection == "activity") or
 						(cmd == 0x46 and tvwakeupDetection == "osdnamerequest") or
