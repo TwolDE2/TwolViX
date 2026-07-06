@@ -721,11 +721,10 @@ class HdmiCec:
 			return True
 		return False
 
-#	config.hdmicec.handle_tv_standby - if set inititates receiver Standby request
-#	config.hdmicec.handle_tv_wakeup  - if set handle receiver wakeup from TV depending on config.hdmicec.tv_wakeup_detection setting
-#
+	#	config.hdmicec.handle_tv_standby - if set inititates receiver Standby request
+	#	config.hdmicec.handle_tv_wakeup  - if set handle receiver wakeup from TV depending on config.hdmicec.tv_wakeup_detection setting
 
-	def messageReceived(self, message):  #	messgeReceived is called by HdmiCEC driver following input request on hdmi
+	def messageReceived(self, message):  # messgeReceived is called by HdmiCEC driver following input request on hdmi
 		if config.hdmicec.enabled.value:
 			cmd = message.getCommand()  # transmitted command in decimal
 			cmd2 = f"{cmd:02X}"  # transmitted command in hexadecimal
