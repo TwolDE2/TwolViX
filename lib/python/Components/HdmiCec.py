@@ -1,4 +1,3 @@
-import chardet
 import datetime
 from os import remove
 from os.path import exists, join as join
@@ -8,9 +7,9 @@ from sys import maxsize
 from enigma import eActionMap, eHdmiCEC, eTimer
 import NavigationInstance
 
-from Components.config import config, ConfigSelection, ConfigYesNo, ConfigSubsection, ConfigText, NoSave
+from Components.config import config
 import Screens.Standby
-from Tools.Directories import fileExists, fileReadLine, pathExists
+from Tools.Directories import fileReadLine, pathExists
 from Tools import Notifications
 from Tools.StbHardware import getFPWasTimerWakeup
 
@@ -565,7 +564,7 @@ class HdmiCec:
 					if config.hdmicec.report_active_source.value and NavigationInstance.instance and not NavigationInstance.instance.isRestartUI():
 						self.sendMessage(0, "sourceinactive")
 					self.sendMessage(0, "menuactive")
-#				if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
+				# if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
 				if not getFPWasTimerWakeup():
 					self.onLeaveStandby()
 		else:
@@ -721,8 +720,8 @@ class HdmiCec:
 			return True
 		return False
 
-	#	config.hdmicec.handle_tv_standby - if set inititates receiver Standby request
-	#	config.hdmicec.handle_tv_wakeup  - if set handle receiver wakeup from TV depending on config.hdmicec.tv_wakeup_detection setting
+	# 	config.hdmicec.handle_tv_standby - if set inititates receiver Standby request
+	# 	config.hdmicec.handle_tv_wakeup  - if set handle receiver wakeup from TV depending on config.hdmicec.tv_wakeup_detection setting
 
 	def messageReceived(self, message):  # messgeReceived is called by HdmiCEC driver following input request on hdmi
 		if config.hdmicec.enabled.value:
@@ -842,7 +841,6 @@ class HdmiCec:
 						(cmd == 0x85 and tvwakeupDetection == "sourcerequest") or
 						(cmd == 0x8C and tvwakeupDetection == "requestvendor")):
 						self.wakeup()
-
 					elif ((cmd == 0x80 and tvwakeupDetection == "routingrequest") or (cmd == 0x86 and tvwakeupDetection == "streamrequest")):
 						physicaladdress = ctrl0 * 256 + ctrl1
 						ouraddress = eHdmiCEC.getInstance().getPhysicalAddress()
@@ -901,7 +899,7 @@ class HdmiCec:
 			case "givesystemaudiostatus":
 				cmd = 0x7d
 			case "routinginfo":
-				address = 0x0f  # use broadcast address
+				msgaddress = 0x0f  # use broadcast address
 				cmd = 0x81
 				data = self.packDevAddr()
 			case "sourceactive":
@@ -916,10 +914,10 @@ class HdmiCec:
 				cmd = 0x85
 				msgaddress = 0x0f  # use broadcast address
 			case "setstreampath":
-				address = 0x0f  # use broadcast address
+				msgaddress = 0x0f  # use broadcast address
 				cmd = 0x86
 				physicaladdress = eHdmiCEC.getInstance().getPhysicalAddress()
-				data = self.packDevAddr()
+				data = pack("BB", int(physicaladdress / 256), int(physicaladdress % 256)
 			case "vendorid":
 				cmd = 0x87
 				data = self.vendorPayload(self.getAdvertisedVendor(msgaddress))
@@ -948,7 +946,7 @@ class HdmiCec:
 				data = pack("BBBB", 0x06, self.deviceTypeFeature(), 0x00, 0x00)
 		if cmd != 0:
 			CECcmd = cmdList.get(cmd, "<Polling Message>")
-			# printX(f"[HdmiCEC][sendMessage3]: CECcmd={CECcmd} cmd={cmd:X}, msgaddress={msgaddress} data={data}")
+			printX(f"[HdmiCEC][sendMessage3]: CECcmd={CECcmd} cmd={cmd:X}, msgaddress={msgaddress} data={data}")
 			if config.hdmicec.minimum_send_interval.value != "0":
 				self.queue.append((msgaddress, cmd, data))
 				if not self.wait.isActive():
@@ -1089,9 +1087,6 @@ class HdmiCec:
 				elif keyEvent == 1:
 					cmd = 0x45					# 0x45: "<stop>"
 				if cmd != 0:
-					# if data:
-						# encoder = chardet.detect(data)["encoding"]
-						# data = data.decode(encoding=encoder, errors="ignore")
 					if config.hdmicec.minimum_send_interval.value != "0":
 						self.queueKeyEvent.append((self.volumeForwardingDestination, cmd, data))
 						if not self.waitKeyEvent.isActive():

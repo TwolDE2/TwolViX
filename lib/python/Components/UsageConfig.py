@@ -1209,8 +1209,8 @@ def InitUsageConfig():
 			(2, _("Aggressive"))
 	])
 	config.misc.softcsa.syncMode = ConfigSelection(default=defaultValue, choices=[
-			(0, _("Automatic")),
-			(1, _("Synchronous"))
+		(0, _("Automatic")),
+		(1, _("Synchronous"))
 	])
 	config.misc.softcsa.waitForDataTimeout = ConfigSelection(
 		default=0,

@@ -366,11 +366,11 @@ def isFat32(device):
 	except Exception:
 		return False
 
-#	following added for OpenWebif canMultiBoot getCurrentSlotAndBootCodes getSlotImageList getBootCodeDescription activateSlot
+	# following added for OpenWebif canMultiBoot getCurrentSlotAndBootCodes getSlotImageList getBootCodeDescription activateSlot
 
 
 def canMultiBoot():
-	print(f"[multiboot][canMultiBoot] ")
+	print("[multiboot][canMultiBoot] ")
 	return SystemInfo["canMultiBoot"] != {}
 
 

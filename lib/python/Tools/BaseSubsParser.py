@@ -10,25 +10,25 @@ class NoSubtitlesParseError(ParseError):
 
 
 HEX_COLORS = {
-			"red": "#FF0000",
-			"white": "#FFFFFF",
-			"cyan": "#00FFFF",
-			"silver": "#C0C0C0",
-			"blue": "#0000FF",
-			"gray": "#808080",
-			"grey": "#808080",
-			"darkblue": "#0000A0",
-			"black": "#000000",
-			"lightblue": "#ADD8E6",
-			"orange": "#FFA500",
-			"purple": "#800080",
-			"brown": "#A52A2A",
-			"yellow": "#FFFF00",
-			"maroon": "#800000",
-			"lime": "#00FF00",
-			"green": "#008000",
-			"magenta": "#FF00FF",
-			"olive": "#808000"}
+	"red": "#FF0000",
+	"white": "#FFFFFF",
+	"cyan": "#00FFFF",
+	"silver": "#C0C0C0",
+	"blue": "#0000FF",
+	"gray": "#808080",
+	"grey": "#808080",
+	"darkblue": "#0000A0",
+	"black": "#000000",
+	"lightblue": "#ADD8E6",
+	"orange": "#FFA500",
+	"purple": "#800080",
+	"brown": "#A52A2A",
+	"yellow": "#FFFF00",
+	"maroon": "#800000",
+	"lime": "#00FF00",
+	"green": "#008000",
+	"magenta": "#FF00FF",
+	"olive": "#808000"}
 
 
 class BaseParser:
