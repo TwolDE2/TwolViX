@@ -56,12 +56,14 @@ CEC_VENDOR_HARMAN_KARDON = 0x9C645E
 CEC_VENDOR_ENIGMA2_STB = 0x000934
 CEC_OSD_NAME = "Enigma2 STB"
 
+
 def getCecOsdName():
 	name = fileReadLine("/etc/hostname", default=CEC_OSD_NAME) or CEC_OSD_NAME
 	name = name.split(".", 1)[0].strip() or CEC_OSD_NAME
 	while len(name.encode(encoding='utf-8', errors='ignore')) > 14:
 		name = name[:-1].strip()
 	return name or CEC_OSD_NAME
+
 
 CEC_VENDOR = {
 	CEC_VENDOR_TOSHIBA: "Toshiba Regza Link",
