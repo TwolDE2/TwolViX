@@ -14,8 +14,9 @@ from Tools.Directories import fileExists, fileReadLine, pathExists
 from Tools import Notifications
 from Tools.StbHardware import getFPWasTimerWakeup
 
+CEC = ["1.1", "1.2", "1.2a", "1.3", "1.3a", "1.4", "2.0", "unknown"]  # CEC Version's table,  cmdList from http://www.cec-o-matic.com
+
 CEC_VENDOR_UNKNOWN = 0x000000
-CEC_VENDOR_ENIGMA2_STB = 0x000934
 CEC_VENDOR_TOSHIBA = 0x000039
 CEC_VENDOR_SAMSUNG = 0x0000F0
 CEC_VENDOR_DENON = 0x0005CD
@@ -48,12 +49,12 @@ CEC_VENDOR_BROADCOM = 0x18C086
 CEC_VENDOR_TEUFEL = 0x232425
 CEC_VENDOR_SHARP2 = 0x534850
 CEC_VENDOR_VIZIO = 0x6B746D
+CEC_VENDOR_MEDIATEK = 0x6D746B
 CEC_VENDOR_BENQ = 0x8065E9
 CEC_VENDOR_HARMAN_KARDON = 0x9C645E
+
+CEC_VENDOR_ENIGMA2_STB = 0x000934
 CEC_OSD_NAME = "Enigma2 STB"
-
-VOLUME_FORWARDING_STATE_FILE = "/var/run/cec_volume_forwarding_dest"
-
 
 def getCecOsdName():
 	name = fileReadLine("/etc/hostname", default=CEC_OSD_NAME) or CEC_OSD_NAME
@@ -61,7 +62,6 @@ def getCecOsdName():
 	while len(name.encode(encoding='utf-8', errors='ignore')) > 14:
 		name = name[:-1].strip()
 	return name or CEC_OSD_NAME
-
 
 CEC_VENDOR = {
 	CEC_VENDOR_TOSHIBA: "Toshiba Regza Link",
@@ -100,9 +100,6 @@ CEC_VENDOR = {
 	CEC_VENDOR_HARMAN_KARDON: "Harman/Kardon",
 	CEC_VENDOR_ENIGMA2_STB: "Enigma2 STB",
 }
-
-
-CEC = ["1.1", "1.2", "1.2a", "1.3", "1.3a", "1.4", "2.0", "unknown"]  # CEC Version's table,  cmdList from http://www.cec-o-matic.com
 
 CECintcmd = {
 	"Active Source": "sourceactive",
@@ -515,9 +512,6 @@ def printX(msg):
 
 class HdmiCec:
 	instance = None
-	KEY_VOLUP = 115
-	KEY_VOLDOWN = 114
-	KEY_VOLMUTE = 113
 
 	def __init__(self):
 		if config.hdmicec.enabled.value:
@@ -539,6 +533,8 @@ class HdmiCec:
 			self.tv_vendor = CEC_VENDOR_UNKNOWN
 			self.audio_system_present = False
 			self.system_audio_mode = False
+			self.volumeforward72 = False
+			self.volumeforward72cnt = 0
 			self.local_vendor_id = CEC_VENDOR_ENIGMA2_STB
 			self.tv_powerstate = "unknown"
 			self.cmd87 = False
@@ -546,7 +542,7 @@ class HdmiCec:
 			if not config.hdmicec.change_physaddress.value:
 				config.hdmicec.fixed_physical_address.value = getPhysicalAddress()
 			countDots = config.hdmicec.fixed_physical_address.value.count(".")
-			printX(f"[HdmiCEC][init]2countDots:{countDots}")
+			# printX(f"[HdmiCEC][init]2countDots:{countDots}")
 			if countDots == 3 and config.hdmicec.fixed_physical_address.value[1:3] != ".0" and config.hdmicec.change_physaddress.value:
 				try:
 					printX(f"[HdmiCEC][init]phsyical address changed by setup value:{config.hdmicec.fixed_physical_address.value}")
@@ -567,45 +563,12 @@ class HdmiCec:
 					if config.hdmicec.report_active_source.value and NavigationInstance.instance and not NavigationInstance.instance.isRestartUI():
 						self.sendMessage(0, "sourceinactive")
 					self.sendMessage(0, "menuactive")
-				if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
+#				if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
+				if not getFPWasTimerWakeup():
 					self.onLeaveStandby()
 		else:
 			printX("[HdmiCEC][init] no set physical address ")
 			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver
-
-	def _saveVolumeForwardingState(self):
-		try:
-			with open(VOLUME_FORWARDING_STATE_FILE, "w") as f:
-				f.write(str(self.volumeForwardingDestination))
-		except OSError as e:
-			printX(f"[HdmiCec] could not save volume forwarding state: {e}")
-
-	def _restoreVolumeForwardingState(self):
-		try:
-			if not exists(VOLUME_FORWARDING_STATE_FILE):
-				return False
-			with open(VOLUME_FORWARDING_STATE_FILE) as f:
-				destination = int(f.read().strip(), 10)
-			if destination not in (0, 5):
-				self._clearVolumeForwardingState()
-				return False
-			self.volumeForwardingDestination = destination
-			self.volumeForwardingEnabled = True
-			if destination == 5:
-				self.audio_system_present = True
-			printX(f"[HdmiCec] volume forwarding state restored: device {destination:02x}")
-			return True
-		except (OSError, ValueError) as e:
-			printX(f"[HdmiCec] could not restore volume forwarding state: {e}")
-			self._clearVolumeForwardingState()
-		return False
-
-	def _clearVolumeForwardingState(self):
-		try:
-			if exists(VOLUME_FORWARDING_STATE_FILE):
-				remove(VOLUME_FORWARDING_STATE_FILE)
-		except OSError as e:
-			printX(f"[HdmiCec] could not clear volume forwarding state: {e}")
 
 	def dataByte(self, data, index):
 		item = data[index]
@@ -625,26 +588,6 @@ class HdmiCec:
 		payload = self.payloadBytes(data)
 		eHdmiCEC.getInstance().sendMessageBytes(address, cmd, payload.hex().upper())
 
-	def updateVolumeForwardingState(self, announce=False, persist=True):
-		if not config.hdmicec.enabled.value or not config.hdmicec.volume_forwarding.value:
-			self.volumeForwardingEnabled = False
-			if persist:
-				self._clearVolumeForwardingState()
-			return
-		self.volumeForwardingDestination = 5 if self.audio_system_present or self.system_audio_mode else 0
-		if self.volumeForwardingDestination == 0 and self.tv_vendor == CEC_VENDOR_LG:
-			self.volumeForwardingEnabled = False
-			if persist:
-				self._clearVolumeForwardingState()
-			if announce:
-				printX(f"[HdmiCec] direct LG TV volume forwarding disabled without audio system")
-			return
-		self.volumeForwardingEnabled = True
-		if persist:
-			self._saveVolumeForwardingState()
-		if announce:
-			printX(f"[HdmiCec] volume forwarding to device {self.volumeForwardingDestination:02x} enabled (system audio mode: {self.system_audio_mode}")
-
 	def vendorName(self, vendor):
 		printX(f"[HdmiCec][vendorname] vendor:{vendor}")
 		if vendor is not None:
@@ -662,23 +605,18 @@ class HdmiCec:
 				self.tv_vendor = vendor
 			elif address == 5:
 				self.audio_system_present = True
-			if address in (0, 5):
-				self.updateVolumeForwardingState(config.hdmicec.volume_forwarding.value)
-			printX(f"[HdmiCec] device {address:02X} vendor: {self.vendorName(vendor)} (0x{vendor:06X})", True)
+			printX(f"[HdmiCec] device {address:02X} vendor: {self.vendorName(vendor)} (0x{vendor:06X})")
 		if physical is not None:
 			device["physical"] = physical
 		if device_type is not None:
 			device["type"] = device_type
 			if address == 5 or device_type == 5:
 				self.audio_system_present = True
-				self.volumeForwardingDestination = 5
-				self.updateVolumeForwardingState(config.hdmicec.volume_forwarding.value)
-				if physical is not None and self.isUpstreamPath(physical, eHdmiCEC.getInstance().getPhysicalAddress()):
-					printX(f"[HdmiCec] audio system detected upstream: {self.physicalAddressText(physical)} -> {self.getPhysicalAddress()}")
+				# self.volumeForwardingDestination = 5
 		if name:
 			device["name"] = name
 		if vendor is not None:
-			printX(f"[HdmiCec] device {address:02X} vendor: {self.vendorName(vendor)} (0x{vendor:06X})")
+			printX(f"[HdmiCec] device {address:02X} vendor: {self.vendorName(vendor)} (0x{vendor:06X} audio_system_present:{self.audio_system_present})")
 
 	def getDeviceVendor(self, address):
 		return self.devices.get(address, {}).get("vendor", CEC_VENDOR_UNKNOWN)
@@ -716,6 +654,9 @@ class HdmiCec:
 		self.volumeForwardingDestination = address
 		self.sendRawMessage(address, 0x44, (key,))
 		self.sendRawMessage(address, 0x45, ())
+
+# 0x89: Vendor Command -> Vendor Specific Data
+# 0xA0: Vendor Command with ID
 
 	def handleVendorCommand(self, address, cmd, data, length):
 		payload = self.dataBytes(data, length)
@@ -774,6 +715,7 @@ class HdmiCec:
 				self.tv_powerstate = "on"
 			elif params[1] == 0x01:
 				self.tv_powerstate = "standby"
+			printX("[HdmiCec] Panasonic Viera self.tv_powerstate:{self.tv_powerstate}")
 			return True
 		return False
 
@@ -822,15 +764,17 @@ class HdmiCec:
 					case 0x47 if length:  # set osd name
 						self.updateDevice(msgaddress, name=data[:length].strip("\x00"))
 					case 0x72 | 0x7e:  # system audio mode status 114 or 126
+						self.volumeforward72 = True
 						if ctrl0 == 1:
-							self.volumeForwardingDestination = 5  # on: send volume keys to receiver
+							self.system_audio_mode = 1
+							self.audio_system_present = msgaddress == 5 or self.audio_system_present
+							self.volumeForwardingDestination = 5  # on: send volume keys to receiver/sound system
 						else:
 							self.volumeForwardingDestination = 0  # off: send volume keys to tv
 						printX(f"[HdmiCEC][messageReceived4]: volume forwarding={self.volumeForwardingDestination}, msgaddress={msgaddress}")
 						if config.hdmicec.volume_forwarding.value:
 							printX(f"[HdmiCEC][messageReceived5]: volume forwarding to device {self.volumeForwardingDestination:02x} enabled")
 							self.volumeForwardingEnabled = True
-							self.updateVolumeForwardingState(config.hdmicec.volume_forwarding.value)
 					case 0x83:  # request address
 						self.sendMessage(msgaddress, "reportaddress")
 					case 0x84 if length >= 3:  # report physical address
@@ -1013,6 +957,11 @@ class HdmiCec:
 				# eHdmiCEC.getInstance().sendMessage(msgaddress, cmd, data, len(data))
 			if config.hdmicec.debug.value in ["2", "4"]:
 				self.debugTx(msgaddress, cmd, data)
+			if not self.volumeforward72 and config.hdmicec.enabled.value and config.hdmicec.volume_forwarding.value:
+				if self.volumeforward72cnt < 5:
+					self.volumeforward72cnt += 1
+					self.sendMessage(0x05, "givesystemaudiostatus")
+					self.sendMessage(0x00, "givesystemaudiostatus")
 
 	def sendMsgQ(self):
 		if len(self.queue):
@@ -1119,40 +1068,41 @@ class HdmiCec:
 			self.sendMessage(msgaddress, message)
 
 	def keyEvent(self, keyCode, keyEvent):
-		if keyCode in (113, 114, 115):						# if not volume key return
+		KEY_VOLUP = 115
+		KEY_VOLDOWN = 114
+		KEY_VOLMUTE = 113
+		if keyCode in (KEY_VOLMUTE, KEY_VOLDOWN, KEY_VOLUP):						# if not volume key return
 			if self.volumeForwardingEnabled or config.hdmicec.force_volume_forwarding.value:
 				cmd = 0
-				data = ""
+				data = b""
 				if keyEvent in (0, 2):
-					if keyCode == 113:
+					if keyCode == KEY_VOLMUTE:
 						cmd = 0x44
 						data = pack("B", 0x43)		# 0x43: "<Mute>"
-					if keyCode == 114:
+					if keyCode == KEY_VOLDOWN:
 						cmd = 0x44
 						data = pack("B", 0x42)		# 0x42: "<Volume Down>"
-					if keyCode == 115:
+					if keyCode == KEY_VOLUP:
 						cmd = 0x44
 						data = pack("B", 0x41)		# 0x41: "<Volume Up>"
 				elif keyEvent == 1:
 					cmd = 0x45					# 0x45: "<stop>"
 				if cmd != 0:
-					if data:
-						encoder = chardet.detect(data)["encoding"]
-						data = data.decode(encoding=encoder, errors="ignore")
+					# if data:
+						# encoder = chardet.detect(data)["encoding"]
+						# data = data.decode(encoding=encoder, errors="ignore")
 					if config.hdmicec.minimum_send_interval.value != "0":
 						self.queueKeyEvent.append((self.volumeForwardingDestination, cmd, data))
 						if not self.waitKeyEvent.isActive():
 							self.waitKeyEvent.start(int(config.hdmicec.minimum_send_interval.value), True)
 					else:
 						# printX(f"[HdmiCEC][keyEvent3]: forwarding dest={self.volumeForwardingDestination}, cmd={cmd:X}, data={data}")
-						if config.hdmicec.force_volume_forwarding.value:
-							# eHdmiCEC.getInstance().sendMessage(0, cmd, data, len(data))
-							# eHdmiCEC.getInstance().sendMessage(5, cmd, data, len(data))
+						if not config.hdmicec.force_volume_forwarding.value:
+							self.sendCecMessage(self.volumeForwardingDestination, cmd, data)
+						else:
 							self.sendCecMessage(0, cmd, data)
 							self.sendCecMessage(5, cmd, data)
-						else:
-							self.sendCecMessage(self.volumeForwardingDestination, cmd, data)
-							# eHdmiCEC.getInstance().sendMessage(self.volumeForwardingDestination, cmd, data, len(data))
+
 					if config.hdmicec.debug.value in ["3", "4"]:
 						self.debugTx(self.volumeForwardingDestination, cmd, data)
 					return 1
