@@ -104,6 +104,9 @@ class Standby2(Screen):
 
 		self.setMute()
 
+		if config.hdmicec.enabled.value and config.hdmicec.control_tv_standby.value:
+			sendCEC()
+
 		if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 			# set LCDminiTV off
 			setLCDMiniTVMode("0")
@@ -334,7 +337,7 @@ class TryQuitMainloop(MessageBox):
 			self.connected = False
 			self.session.nav.record_event.remove(self.getRecordEvent)
 		print("[Standby][TryQuitMainloop][close] hdmicece enabled, retval", config.hdmicec.enabled.value, "   ", self.retval)
-		if config.hdmicec.enabled.value and self.retval == 1:
+		if config.hdmicec.enabled.value and self.retval == 1 and config.hdmicec.control_tv_standby.value:
 			sendCEC()
 		if value:
 			self.hide()
