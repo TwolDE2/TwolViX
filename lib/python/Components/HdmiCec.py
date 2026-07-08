@@ -719,7 +719,7 @@ class HdmiCec:
 			elif params[1] == 0x01:
 				self.tv_powerstate = "standby"
 				if config.hdmicec.control_tv_wakeup.value:
-					self.sendWakeupMessages()				
+					self.sendWakeupMessages()
 			printX(f"[HdmiCec] Panasonic Viera self.tv_powerstate:{self.tv_powerstate}")
 			return True
 		return False
@@ -830,7 +830,7 @@ class HdmiCec:
 						elif ctrl0 == 2:
 							self.tv_powerstate = "get_on"
 						elif ctrl0 == 3:
-							self.tv_powerstate = "get_standby"					
+							self.tv_powerstate = "get_standby"
 						if config.hdmicec.control_tv_wakeup.value and self.tv_powerstate == "standby":
 							self.sendWakeupMessages()
 						if config.hdmicec.next_boxes_detect.value:
