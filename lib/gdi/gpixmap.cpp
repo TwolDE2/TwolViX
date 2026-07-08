@@ -2236,7 +2236,7 @@ void gPixmap::blit(const gPixmap& src, const eRect& _pos, const gRegion& clip, i
 					}
 				}
 			} else {
-				eWarning("[gPixmap] unimplemented: scale on non-accel surface %d->%d bpp", src.surface->bpp,
+				eTrace("[gPixmap] unimplemented: scale on non-accel surface %d->%d bpp", src.surface->bpp,
 						 surface->bpp);
 			}
 #ifdef GPIXMAP_DEBUG
