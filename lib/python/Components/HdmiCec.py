@@ -681,6 +681,7 @@ class HdmiCec:
 		return False
 
 	def handleLGVendorCommand(self, address, cmd, params):
+		printX(f"[HdmiCec] handleLGVendorCommand address:{address} cmd:{cmd} params:{params}")
 		if not params:
 			return False
 		if params[0] == 0x01:
@@ -707,6 +708,7 @@ class HdmiCec:
 		return False
 
 	def handlePanasonicVendorCommand(self, address, cmd, params):
+		printX(f"[HdmiCec] handlePanasonicVendorCommand address:{address} cmd:{cmd} params:{params}")
 		if cmd == 0x89 and len(params) >= 2 and params[0] == 0x10 and params[1] == 0x01:
 			self.sendRawMessage(address, 0x89, (0x10, 0x02, 0xFF, 0xFF, 0x00, 0x05, 0x05, 0x45, 0x55, 0x5C, 0x58, 0x32))
 			printX("[HdmiCec] Panasonic Viera Link capabilities sent")
@@ -1032,17 +1034,20 @@ class HdmiCec:
 			Notifications.AddNotification(Screens.Standby.Standby)
 
 	def onLeaveStandby(self):
+		printX("[HDMI-CEC][onLeaveStandby] entered")	
 		self.sendWakeupMessages()
 		if int(config.hdmicec.repeat_wakeup_timer.value):
 			self.repeat.startLongTimer(int(config.hdmicec.repeat_wakeup_timer.value))
 
 	def wakeup(self):
+		printX("[HDMI-CEC][wakeup] entered")
 		self.wakeup_from_tv = True
 		if Screens.Standby.inStandby:
 			printX("[HDMI-CEC][wakeup] powered box found send Power from wakeup")
 			Screens.Standby.inStandby.Power()
 
 	def sendWakeupMessages(self):
+		printX(f"[HDMI-CEC][sendWakeupMessages] entered self.wakeup_from_tv:{self.wakeup_from_tv}")
 		if config.hdmicec.enabled.value:
 			messages = []
 			if config.hdmicec.control_tv_wakeup.value:
