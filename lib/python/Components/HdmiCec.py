@@ -718,7 +718,9 @@ class HdmiCec:
 				self.tv_powerstate = "on"
 			elif params[1] == 0x01:
 				self.tv_powerstate = "standby"
-			printX("[HdmiCec] Panasonic Viera self.tv_powerstate:{self.tv_powerstate}")
+				if config.hdmicec.control_tv_wakeup.value:
+					self.sendWakeupMessages()				
+			printX(f"[HdmiCec] Panasonic Viera self.tv_powerstate:{self.tv_powerstate}")
 			return True
 		return False
 
@@ -820,11 +822,20 @@ class HdmiCec:
 							self.sendMessage(msgaddress, "powerinactive")
 						else:
 							self.sendMessage(msgaddress, "poweractive")
-					case 0x90:  # receive powerstatus report
-						if ctrl0 == 0: 			# some box is powered
-							if config.hdmicec.next_boxes_detect.value:
-								self.useStandby = False
-							printX("[HDMI-CEC][messageReceived7] powered box found")
+					case 0x90:  # report power state from the tv
+						if ctrl0 == 0:
+							self.tv_powerstate = "on"
+						elif ctrl0 == 1:
+							self.tv_powerstate = "standby"
+						elif ctrl0 == 2:
+							self.tv_powerstate = "get_on"
+						elif ctrl0 == 3:
+							self.tv_powerstate = "get_standby"					
+						if config.hdmicec.control_tv_wakeup.value and self.tv_powerstate == "standby":
+							self.sendWakeupMessages()
+						if config.hdmicec.next_boxes_detect.value:
+							self.useStandby = False
+						printX(f"[HDMI-CEC][messageReceived7] powered box found self.tv_powerstate:{self.tv_powerstate}")
 					case 0x91:  # get menu language
 						self.sendMessage(msgaddress, "menulanguage")
 					case 0x9F:  # request get CEC version
