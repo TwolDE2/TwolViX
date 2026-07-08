@@ -1034,7 +1034,7 @@ class HdmiCec:
 			Notifications.AddNotification(Screens.Standby.Standby)
 
 	def onLeaveStandby(self):
-		printX("[HDMI-CEC][onLeaveStandby] entered")	
+		printX("[HDMI-CEC][onLeaveStandby] entered")
 		self.sendWakeupMessages()
 		if int(config.hdmicec.repeat_wakeup_timer.value):
 			self.repeat.startLongTimer(int(config.hdmicec.repeat_wakeup_timer.value))
