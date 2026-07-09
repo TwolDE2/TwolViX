@@ -45,7 +45,7 @@ class EventTime(Poll, Converter):
 	def __init__(self, type):
 		Converter.__init__(self, type)
 		Poll.__init__(self)
-		print(f"[EventTime] Converter argument: '{type}'")
+		# print(f"[EventTime] Converter argument: '{type}'")
 		if type not in self.TYPES:
 			raise ElementError(f"[EventTime] converter argument '{type}' is not in <{"|".join(sorted(self.TYPES))}>")
 		self.type, poll_interval = self.TYPES[type]

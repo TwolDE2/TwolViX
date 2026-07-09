@@ -101,7 +101,7 @@ int bcm_accel_sync()
 	{
 		if (ptr)
 		{
-			eDebug("bcm_accel_sync: ptr %d", ptr);
+			eTrace("bcm_accel_sync: ptr %d", ptr);
 			retval = exec_list();
 		}
 		accumulateoperations = false;
