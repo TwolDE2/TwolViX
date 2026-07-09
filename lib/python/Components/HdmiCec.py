@@ -660,6 +660,7 @@ class HdmiCec:
 # 0xA0: Vendor Command with ID
 
 	def handleVendorCommand(self, address, cmd, data, length):
+		printX(f"[HdmiCec][handleVendorCommand] address:{address} cmd:{cmd} data:{data}")
 		payload = self.dataBytes(data, length)
 		vendor = self.getDeviceVendor(address)
 		params = payload
