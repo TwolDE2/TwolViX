@@ -251,29 +251,24 @@ class VIXBackupManager(Screen):
 			try:
 				if not path.exists(self.BackupDirectory):
 					mkdir(self.BackupDirectory, 0o755)
-				images = listdir(self.BackupDirectory)
-				del self.emlist[:]
 				mtimes = []
-				for fil in images:
+				for fil in listdir(self.BackupDirectory):
 					if fil.endswith(".tar.gz") and ("vix" in fil.lower() or fil.startswith(defaultprefix)):
-						if fil.startswith(defaultprefix):   # Ensure the current image backup are sorted to the top
-							prefix = "B"
-						else:
-							prefix = "A"
-						key = "%s-%012u" % (prefix, stat(self.BackupDirectory + fil).st_mtime)
-						mtimes.append((fil, key))  # (filname, prefix-mtime)
-				for fil in [x[0] for x in sorted(mtimes, key=lambda x: x[1], reverse=True)]:  # sort by mtime
-					self.emlist.append(fil)
-				self["list"].setList(self.emlist)
+						mtimes.append((fil, fil.startswith(defaultprefix), stat(path.join(self.BackupDirectory, fil)).st_mtime))
+				backups = [x[0] for x in sorted(mtimes, key=lambda x: (x[1], x[2]), reverse=True)]
+				self["list"].setList(backups)
 				self["list"].show()
-				if len(self.emlist):
+				if backups:
 					self["key_red"].show()
 					self["key_yellow"].show()
 				else:
 					self["key_red"].hide()
 					self["key_yellow"].hide()
-			except:
-				self["lab1"].setText(_("Device: ") + path.normpath(config.backupmanager.backuplocation.value) + "\n" + _("There is a problem with this device. Please reformat it and try again."))
+			except OSError as err:
+				print("[BackupManager] populate_List:", err)
+				self["lab1"].setText(
+					_("Device: ") + path.normpath(config.backupmanager.backuplocation.value) + "\n" +
+					_("Unable to read from the backup device. Please check that it is accessible and contains valid backups."))
 
 	def createSetup(self):
 		self.session.openWithCallback(self.setupDone, VIXBackupManagerMenu, 'vixbackupmanager', 'SystemPlugins/ViX')
