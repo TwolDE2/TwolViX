@@ -44,7 +44,6 @@ config.backupmanager.backupdirs = ConfigLocations(
 		eEnv.resolve("${sysconfdir}/network/interfaces"),
 		eEnv.resolve("${sysconfdir}/passwd"),
 		eEnv.resolve("${sysconfdir}/shadow"),
-		eEnv.resolve("${sysconfdir}/etc/shadow"),
 		eEnv.resolve("${sysconfdir}/resolv.conf"),
 		eEnv.resolve("${sysconfdir}/ushare.conf"),
 		eEnv.resolve("${sysconfdir}/inadyn.conf"),
