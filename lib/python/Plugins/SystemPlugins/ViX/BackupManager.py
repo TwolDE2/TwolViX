@@ -552,6 +552,7 @@ class VIXBackupManager(Screen):
 			self["lab1"].setText(_("[BackupManager] plugins restore not completed- check debug log"))
 			self.restoreOutcome = "failed"
 
+
 class BackupSelection(Screen):
 	skin = ["""
 		<screen name="BackupSelection" position="center,center" size="%d,%d">
