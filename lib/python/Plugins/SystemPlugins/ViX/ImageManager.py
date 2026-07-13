@@ -334,7 +334,7 @@ class VIXImageManager(Screen):
 				self["mainactions"].setEnabled(True)
 			except Exception:
 				self["lab1"].setText(
-					_("Device: ") + config.imagemanager.backuplocation.value + "\n" + 
+					_("Device: ") + config.imagemanager.backuplocation.value + "\n" +
 					_("Unable to read from the backup device. Please check that it is accessible."))
 
 	def createSetup(self):
@@ -563,7 +563,6 @@ class VIXImageManager(Screen):
 				self.keyRestore3()
 
 	def keyRestore3(self, *args, **kwargs):
-
 		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=240, enable_input=False)
 		if config.imagemanager.backuplocation.value.startswith(("/media/autofs", "/media/net")):
 			self.TEMPDESTROOT = tempfile.mkdtemp(prefix="imageRestore")

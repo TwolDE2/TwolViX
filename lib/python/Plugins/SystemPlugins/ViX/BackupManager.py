@@ -153,10 +153,10 @@ class VIXBackupManager(Screen):
 		self["optionalActions"].setEnabled(False)
 
 		self.BackupRunning = False
+		self.restoreOutcome = None
 		self.BackupDirectory = " "
 		self.onChangedEntry = []
-		self.emlist = []
-		self["list"] = MenuList(self.emlist)
+		self["list"] = MenuList([])
 		self.populate_List()
 		self.activityTimer = eTimer()
 		self.activityTimer.timeout.get().append(self.backupRunning)
@@ -212,6 +212,14 @@ class VIXBackupManager(Screen):
 
 	def JobViewCB(self, in_background):
 		Components.Task.job_manager.in_background = in_background
+		msg = None
+		if self.restoreOutcome == "nothing":
+			msg = _("Settings restore was cancelled and there are no plugins to restore.")
+		elif self.restoreOutcome == "failed":
+			msg = _("Settings restore failed.")
+		self.restoreOutcome = None
+		if msg:
+			self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=15)
 
 	def populate_List(self):
 		# --------------------------------------------------------------------------------------
@@ -542,7 +550,7 @@ class VIXBackupManager(Screen):
 			quitMainloop(3)
 		else:
 			self["lab1"].setText(_("[BackupManager] plugins restore not completed- check debug log"))
-
+			self.restoreOutcome = "failed"
 
 class BackupSelection(Screen):
 	skin = ["""
