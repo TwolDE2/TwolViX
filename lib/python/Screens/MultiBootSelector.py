@@ -63,7 +63,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		}, -1, description=_("MultiBootSelector Actions"))
 		self["deleteActions"].setEnabled(False)
 		self.imagedict = []
-		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector")
+		# self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector")
 		# Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
 		self.callLater(self.getImagelist)
 
@@ -106,6 +106,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.updateKeys()
 
 	def reboot(self):
+		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector_reboot")
 		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
 		currentSelected = self["config"].getCurrent()
 		slot = currentSelected[0][1][0]
@@ -186,6 +187,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 			self.session.openWithCallback(self.addSTARTUPs, MessageBox, _("Add 4 more Multiboot USB slots after slot %s ?") % hiKey, MessageBox.TYPE_YESNO, timeout=30)
 
 	def addSTARTUPs(self, answer):
+		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector_addSTARTUPs")	
 		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))	
 		hiKey = sorted(SystemInfo["canMultiBoot"].keys(), reverse=True)[0]
 		UUIDkey = SystemInfo["VuUUIDSlot"][0]
