@@ -187,8 +187,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 			self.session.openWithCallback(self.addSTARTUPs, MessageBox, _("Add 4 more Multiboot USB slots after slot %s ?") % hiKey, MessageBox.TYPE_YESNO, timeout=30)
 
 	def addSTARTUPs(self, answer):
-		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector_addSTARTUPs")	
-		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))	
+		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector_addSTARTUPs")
+		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
 		hiKey = sorted(SystemInfo["canMultiBoot"].keys(), reverse=True)[0]
 		UUIDkey = SystemInfo["VuUUIDSlot"][0]
 		print(f"[MultiBootSelector]1 answer:{answer} hiKey:{hiKey} UUIDkey:{UUIDkey}")
