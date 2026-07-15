@@ -187,32 +187,36 @@ class MultiBootSelector(Screen, HelpableScreen):
 			self.session.openWithCallback(self.addSTARTUPs, MessageBox, _("Add 4 more Multiboot USB slots after slot %s ?") % hiKey, MessageBox.TYPE_YESNO, timeout=30)
 
 	def addSTARTUPs(self, answer):
-		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector_addSTARTUPs")
-		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
-		hiKey = sorted(SystemInfo["canMultiBoot"].keys(), reverse=True)[0]
-		UUIDkey = SystemInfo["VuUUIDSlot"][0]
-		print(f"[MultiBootSelector]1 answer:{answer} hiKey:{hiKey} UUIDkey:{UUIDkey}")
+		print(f"[MultiBootSelector][addSTARTUPs] answer:{answer}")
 		if answer is False:
 			self.close()
-		elif UBIMB:
-			UUIDValue = SystemInfo["VuUUIDSlot"][2]
-			for usbslot in range(hiKey + 1, hiKey + 5):
-				STARTUP_usbslot = f"kernel=/dev/{MTDKERNEL} root={UUIDValue} rootsubdir=linuxrootfs{usbslot} rootfstype=ext4\n"
-				# print(f"[MultiBootSelector]1 STARTUP_usbslot:{STARTUP_usbslot} UUIDkey:{UUIDkey} UUIDValue:{UUIDValue}")
-				with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
-					f.write(STARTUP_usbslot)
-			self.session.open(TryQuitMainloop, QUIT_RESTART)
 		else:
-			boxmodel = BOXTYPE[2:]
-			for usbslot in range(hiKey + 1, hiKey + 5):
-				STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, SystemInfo["VuUUIDSlot"][0], boxmodel, usbslot)  # /STARTUP_<n>
-				if boxmodel in ("duo4k"):
-					STARTUP_usbslot += " rootwait=40"
-				elif boxmodel in ("duo4kse"):
-					STARTUP_usbslot += " rootwait=35"
-				with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
-					f.write(STARTUP_usbslot)
-				print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
+			self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector_addSTARTUPs")
+			Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
+			hiKey = sorted(SystemInfo["canMultiBoot"].keys(), reverse=True)[0]
+			UUIDkey = SystemInfo["VuUUIDSlot"][0]
+			print(f"[MultiBootSelector][addSTARTUPs]1 answer:{answer} hiKey:{hiKey} UUIDkey:{UUIDkey}")
+			if UBIMB:
+				UUIDValue = SystemInfo["VuUUIDSlot"][2]
+				for usbslot in range(hiKey + 1, hiKey + 5):
+					STARTUP_usbslot = f"kernel=/dev/{MTDKERNEL} root={UUIDValue} rootsubdir=linuxrootfs{usbslot} rootfstype=ext4\n"
+					# print(f"[MultiBootSelector]1 STARTUP_usbslot:{STARTUP_usbslot} UUIDkey:{UUIDkey} UUIDValue:{UUIDValue}")
+					with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
+						f.write(STARTUP_usbslot)
+			else:
+				boxmodel = BOXTYPE[2:]
+				for usbslot in range(hiKey + 1, hiKey + 5):
+					STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, SystemInfo["VuUUIDSlot"][0], boxmodel, usbslot)  # /STARTUP_<n>
+					if boxmodel in ("duo4k"):
+						STARTUP_usbslot += " rootwait=40"
+					elif boxmodel in ("duo4kse"):
+						STARTUP_usbslot += " rootwait=35"
+					with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
+						f.write(STARTUP_usbslot)
+					print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
+			Console().ePopen("umount %s" % self.tmp_dir)
+			if not ismount(self.tmp_dir):
+				rmdir(self.tmp_dir)
 			self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 	def KexecMountRet(self, result=None, retval=None, extra_args=None):
@@ -237,12 +241,16 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 	def cancel(self, value=None):
-		Console().ePopen("umount %s" % self.tmp_dir)
-		if not ismount(self.tmp_dir):
-			rmdir(self.tmp_dir)
 		if value == QUIT_REBOOT:
-			self.session.open(TryQuitMainloop, QUIT_REBOOT)
-		self.close()
+			self.session.open(TryQuitMainloop, QUIT_REBOOT)	
+		elif self.tmp_dir:	
+			if ismount(self.tmp_dir):
+				Console().ePopen("umount %s" % self.tmp_dir)
+			if not ismount(self.tmp_dir):
+				rmdir(self.tmp_dir)
+			self.close()	
+		else:				
+			self.close()
 
 	def keyUp(self):
 		self["config"].instance.moveSelection(self["config"].instance.moveUp)
