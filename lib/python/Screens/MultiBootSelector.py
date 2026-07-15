@@ -242,14 +242,14 @@ class MultiBootSelector(Screen, HelpableScreen):
 
 	def cancel(self, value=None):
 		if value == QUIT_REBOOT:
-			self.session.open(TryQuitMainloop, QUIT_REBOOT)	
-		elif self.tmp_dir:	
+			self.session.open(TryQuitMainloop, QUIT_REBOOT)
+		elif self.tmp_dir:
 			if ismount(self.tmp_dir):
 				Console().ePopen("umount %s" % self.tmp_dir)
 			if not ismount(self.tmp_dir):
 				rmdir(self.tmp_dir)
-			self.close()	
-		else:				
+			self.close()
+		else:
 			self.close()
 
 	def keyUp(self):
