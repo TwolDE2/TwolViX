@@ -9,6 +9,7 @@ import re
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, BOXTYPE, CHKROOTMB, MODEL, MTDROOTFS, UBIMB
 from Tools.Directories import copyfile, fileExists, fileHas, fileReadLine, pathExists
 
+
 def initMultiboot():
 	SystemInfo["HasRootSubdir"] = False
 	SystemInfo["RecoveryMode"] = False
@@ -386,6 +387,8 @@ def isFat32(device):
 		return False
 
 # helper functions
+
+
 def _parseStartupFile(file):
 	line = open(file).read() \
 		.replace("'", "") \
