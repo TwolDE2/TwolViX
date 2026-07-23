@@ -394,8 +394,6 @@ class Devices(AboutBase):
 				hdd = hddlist[i][0]
 				if MODEL in ("dm900", "dm920"):  # dm9x0:mmcblk0p3 multiboot root & storage SD card mmcblk1p1
 					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p3").replace("/dev/mmcblk1", "/dev/mmcblk1p1")
-				elif SystemInfo["HasH9SD"]:
-					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p1")
 				elif SystemInfo["HasSDnomount"]:
 					hdd = hdd.replace("/dev/mmcblk1", "/dev/mmcblk1p")
 				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space
