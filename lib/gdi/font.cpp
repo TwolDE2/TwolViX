@@ -754,7 +754,6 @@ int eTextPara::renderString(const char *string, int rflags, int border)
 	{
 		int isprintable=1;
 		int flags = nextflags;
-		nextflags = 0;
 		unsigned long chr = *i;
 
 		if (!(rflags&RS_DIRECT))
@@ -860,6 +859,8 @@ nprint:				isprintable=0;
 		}
 		if (isprintable)
 		{
+			nextflags = 0;
+
 			if (activate_colorreset)
 				flags |= GS_COLORRESET;
 
