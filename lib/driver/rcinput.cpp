@@ -20,7 +20,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 	if (ev->type != EV_KEY)
 		return;
 		
-	eTrace("[eInputDeviceInit] value, code, code, type %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type);
+	/* eTrace("[eInputDeviceInit] value, code, code, type %x %x (%u) %x", ev->value, ev->code, ev->code, ev->type); */
 
 	int km = iskeyboard ? input->getKeyboardMode() : eRCInput::kmNone;
 
@@ -95,7 +95,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 		std::unordered_map<unsigned int, unsigned int>::iterator i = remaps.find(ev->code);
 		if (i != remaps.end())
 		{
-			eTrace("[eRCDeviceInputDev] map: %u->%u", i->first, i->second);
+			/* eTrace("[eRCDeviceInputDev] map: %u->%u", i->first, i->second); */
 			ev->code = i->second;
 		}
 	}
@@ -129,7 +129,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 #endif
 	}
 
-	eTrace("[eRCDeviceInputDev] emit: %u", ev->value); // ZZ
+	/* eTrace("[eRCDeviceInputDev] emit: %u", ev->value); */
 	switch (ev->value)
 	{
 		case 0:
@@ -156,7 +156,7 @@ eRCDeviceInputDev::eRCDeviceInputDev(eRCInputEventDriver *driver, int consolefd)
 		consoleFd(consolefd), shiftState(false), capsState(false)
 {
 	setExclusive(true);
-	eTrace("[eRCDeviceInputDev] device \"%s\" is a %s", id.c_str(), iskeyboard ? "keyboard" : (ismouse ? "mouse" : "remotecontrol"));
+	/* eTrace("[eRCDeviceInputDev] device \"%s\" is a %s", id.c_str(), iskeyboard ? "keyboard" : (ismouse ? "mouse" : "remotecontrol")); */
 }
 
 void eRCDeviceInputDev::setExclusive(bool b)

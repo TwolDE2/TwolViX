@@ -2235,9 +2235,6 @@ void gPixmap::blit(const gPixmap& src, const eRect& _pos, const gRegion& clip, i
 						dstptr += surface->stride;
 					}
 				}
-			} else {
-				eTrace("[gPixmap] unimplemented: scale on non-accel surface %d->%d bpp", src.surface->bpp,
-						 surface->bpp);
 			}
 #ifdef GPIXMAP_DEBUG
 			s.stop();
