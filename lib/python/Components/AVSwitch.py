@@ -540,7 +540,7 @@ def InitAVSwitch():
 	SystemInfo["havehdmihdrosd"] = bool(hdrOsd)
 	if hdrOsd:
 		def setHDMIHdrOsd(configElement):
-			fileWriteLine("/proc/stb/video/hdmi_hdr_osd", configElement.value, source=MODULE_NAME)
+			fileWriteLine("/proc/stb/video/hdmi_hdr_osd", configElement.value)
 
 		hdrOsdChoices = [
 			("32767 0 -16384", _("GigaBlue optimized")),
