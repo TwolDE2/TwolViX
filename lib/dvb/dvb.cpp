@@ -2060,8 +2060,8 @@ void eDVBChannel::getNextSourceSpan(off_t current_offset, size_t bytes_read, off
 			if (current_offset < i->second)
 			{
 				start = current_offset;
-				size = diff_upto(i->second, start, max);
-				//eDebug("[eDVB][eDVBChannel] HIT, %lld < %lld < %lld, size: %zd", i->first, current_offset, i->second, size);
+				size = align(diff_upto(i->second, start, max), blocksize);
+				//eDebug("[eDVBChannel][eDVBChannel] HIT, %lld < %lld < %lld, size: %zd", i->first, current_offset, i->second, size);
 				return;
 			}
 		}
