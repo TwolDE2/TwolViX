@@ -323,8 +323,18 @@ sed -i '/^config\.usage\.power\.was_controlled_shutdown=/d' /etc/enigma2/setting
 
 
 if [ "$ret" -ne "1" ]; then
-	if [ $do_reader_kill -ne 0 ]; then
-		killall -9 libreader; sleep 5
+	if [ -e /proc/stb/info/boxtype ]; then
+		stbcheck=`cat /proc/stb/info/boxtype | cut -c1-2`
+		# Dinobot u5/u4 receivers keep the HDMI output alive through the
+		# showiframe process. Preserve it while standalone Kodi is active;
+		# stopping it here can remove the HDMI signal completely.
+		if [ "$ret" -ne "15" ] && { [ "$stbcheck" = "u5" ] || [ "$stbcheck" = "u4" ]; }; then
+			killall -9 showiframe; sleep 5
+		fi
+		stbcheck=`cat /proc/stb/info/boxtype`
+		if [ $stbcheck == "sf8008" ] || [ $stbcheck == "sf8008m" ] || [ $stbcheck == "sx988" ] || [ $stbcheck == "ip8" ] || [ $stbcheck == "ustym4kpro" ] || [ $stbcheck == "ustym4kottpremium" ] || [ $stbcheck == "ustym4ks2ottx" ] || [ $stbcheck == "trio4k" ] || [ $stbcheck == "gbip4k" ] || [ $stbcheck == "gbmv200" ] || [ $stbcheck == "beyonwizv2" ] || [ $stbcheck == "viper4k" ] || [ $stbcheck == "og2ott4k" ] || [ $stbcheck == "og2s4k" ] || [ $stbcheck == "sfx6008" ] || [ $stbcheck == "sx88v2" ]; then
+			killall -9 libreader; sleep 5
+		fi
 	fi
 fi
 
