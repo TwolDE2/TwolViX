@@ -2,6 +2,7 @@
 #define __servicemp3_h
 
 #include <lib/base/message.h>
+#include <lib/dvb/metaparser.h>
 #include <lib/service/iservice.h>
 #include <lib/dvb/pmt.h>
 #include <lib/dvb/subtitle.h>
@@ -35,6 +36,7 @@ class eStaticServiceMP3Info: public iStaticServiceInformation
 	DECLARE_REF(eStaticServiceMP3Info);
 	friend class eServiceFactoryMP3;
 	eStaticServiceMP3Info();
+	eDVBMetaParser m_parser;
 public:
 	RESULT getName(const eServiceReference &ref, std::string &name);
 	int getLength(const eServiceReference &ref);
@@ -221,17 +223,9 @@ public:
 		{
 		}
 
-		bool operator == (const audioStream& rhs)
-		{
-			audioStream lhs = *this;
-			return (lhs.type == rhs.type) && (lhs.language_code == rhs.language_code) && (lhs.codec == rhs.codec);
-		}
+		bool operator==(const audioStream& rhs) const { return type == rhs.type && language_code == rhs.language_code && codec == rhs.codec; }
 
-		bool operator != (const audioStream& rhs)
-		{
-			audioStream lhs = *this;
-			return !(lhs == rhs);
-		}
+		bool operator!=(const audioStream& rhs) const { return !(*this == rhs); }
 	};
 	struct subtitleStream
 	{
@@ -239,30 +233,21 @@ public:
 		subtype_t type;
 		std::string language_code; /* iso-639, if available. */
 		subtitleStream()
-			:pad(0)
-		{
-		}
-		bool operator == (const subtitleStream& rhs)
-		{
-			subtitleStream lhs = *this;
-			return (lhs.type == rhs.type) && (lhs.language_code == rhs.language_code);
-		}
+			:pad(0) { }
+		bool operator==(const subtitleStream& rhs) const { return type == rhs.type && language_code == rhs.language_code; }
 
-		bool operator != (const subtitleStream& rhs)
-		{
-			subtitleStream lhs = *this;
-			return !(lhs == rhs);
-		}
+		bool operator!=(const subtitleStream& rhs) const { return !(*this == rhs); }
 	};
 	struct sourceStream
 	{
 		audiotype_t audiotype;
 		containertype_t containertype;
 		bool is_video;
+		bool is_audio;
 		bool is_streaming;
 		bool is_hls;
 		sourceStream()
-			:audiotype(atUnknown), containertype(ctNone), is_video(FALSE), is_streaming(FALSE), is_hls(FALSE)
+			:audiotype(atUnknown), containertype(ctNone), is_video(FALSE), is_audio(FALSE), is_streaming(FALSE), is_hls(FALSE)
 		{
 		}
 	};
@@ -369,6 +354,7 @@ private:
 	void HandleTocEntry(GstMessage *msg);
 	static gint match_sinktype(const GValue *velement, const gchar *type);
 	static void handleElementAdded(GstBin *bin, GstElement *element, gpointer user_data);
+	void disconnectAsyncSignalHandlers();
 
 	struct subtitle_page_t
 	{
@@ -411,6 +397,28 @@ private:
 	RESULT seekToImpl(pts_t to);
 
 	gint m_aspect, m_width, m_height, m_framerate, m_progressive, m_gamma;
+	int m_hdr_type;                  // 0=SDR 1=HDR10 2=HLG 3=HDR
+
+#ifdef HAS_SOFTWARE_HDR_DETECTION
+	void updateHDRFromVideoPad();
+
+	/* GStreamer buffer probe for direct HEVC bitstream HDR classification.
+	 * Runs in the GStreamer streaming thread; data is consumed by a periodic
+	 * timer in the main thread via a mutex-protected shared buffer. */
+	GMutex          m_hdr_probe_mutex;
+	std::vector<uint8_t> m_hdr_probe_es;      /* shared: streaming thread appends, main thread swaps out (O(1)) */
+	std::vector<uint8_t> m_hdr_probe_snap;    /* main thread only: accumulated bitstream for classify() */
+	size_t          m_hdr_probe_last_classify;
+	size_t          m_hdr_probe_first_sps_at;
+	gulong          m_hdr_probe_id;
+	GstPad         *m_hdr_probe_pad;
+	gint            m_hdr_probe_active; /* atomic: 0=inactive, 1=active; use g_atomic_int_* */
+	ePtr<eTimer>    m_hdr_probe_timer;
+	void startHDRProbe();
+	void stopHDRProbe();
+	void checkHDRProbe();
+	static GstPadProbeReturn hdrProbeCallback(GstPad*, GstPadProbeInfo*, gpointer);
+#endif /* HAS_SOFTWARE_HDR_DETECTION */
 	std::string m_useragent;
 	std::string m_extra_headers;
 	RESULT trickSeek(gdouble ratio);

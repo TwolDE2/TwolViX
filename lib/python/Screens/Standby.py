@@ -58,12 +58,15 @@ def lastPowerState(state):
 
 class Standby2(Screen):
 	def Power(self):
+		print("[Standby][Standby2][Power] leave standby2")
 		if BRAND in ('dinobot') or SystemInfo["HasHiSi"] or BOXTYPE in ("sfx6008", "sfx6018"):
 			try:
 				open("/proc/stb/hdmi/output", "w").write("on")
 				print("[Standby] open hdmi on leave standby")
 			except:
 				pass
+		self.setInput("ENCODER")  # set input to encoder
+		self.leaveMute()  # check audio status
 		print("[Standby] leave standby 2")
 		self.close(True)
 
@@ -100,6 +103,9 @@ class Standby2(Screen):
 		self.timeHandler = None
 
 		self.setMute()
+
+		if config.hdmicec.enabled.value and config.hdmicec.control_tv_standby.value:
+			sendCEC()
 
 		if SystemInfo["Display"] and SystemInfo["LCDMiniTV"]:
 			# set LCDminiTV off
@@ -331,7 +337,7 @@ class TryQuitMainloop(MessageBox):
 			self.connected = False
 			self.session.nav.record_event.remove(self.getRecordEvent)
 		print("[Standby][TryQuitMainloop][close] hdmicece enabled, retval", config.hdmicec.enabled.value, "   ", self.retval)
-		if config.hdmicec.enabled.value and self.retval == 1:
+		if config.hdmicec.enabled.value and self.retval == 1 and config.hdmicec.control_tv_standby.value:
 			sendCEC()
 		if value:
 			self.hide()

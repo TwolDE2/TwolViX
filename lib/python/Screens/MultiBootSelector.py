@@ -11,7 +11,7 @@ from Components.Console import Console
 from Components.Harddisk import Harddisk, harddiskmanager
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
-from Components.SystemInfo import SystemInfo, getBoxDisplayName, BOXTYPE, KERNEL, MTDKERNEL, MTDROOTFS, UBIMB
+from Components.SystemInfo import SystemInfo, getBoxDisplayName, BOXTYPE, MTDKERNEL, MTDROOTFS, UBIMB
 from Screens.Console import Console as ConsoleScreen
 from Screens.HelpMenu import HelpableScreen
 from Screens.MessageBox import MessageBox
@@ -63,8 +63,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 		}, -1, description=_("MultiBootSelector Actions"))
 		self["deleteActions"].setEnabled(False)
 		self.imagedict = []
-		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector")
-		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
+		# self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector")
+		# Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
 		self.callLater(self.getImagelist)
 
 	def getImagelist(self):
@@ -106,6 +106,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.updateKeys()
 
 	def reboot(self):
+		self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector_reboot")
+		Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
 		currentSelected = self["config"].getCurrent()
 		slot = currentSelected[0][1][0]
 		boxmode = currentSelected[0][1][1]
@@ -185,30 +187,36 @@ class MultiBootSelector(Screen, HelpableScreen):
 			self.session.openWithCallback(self.addSTARTUPs, MessageBox, _("Add 4 more Multiboot USB slots after slot %s ?") % hiKey, MessageBox.TYPE_YESNO, timeout=30)
 
 	def addSTARTUPs(self, answer):
-		hiKey = sorted(SystemInfo["canMultiBoot"].keys(), reverse=True)[0]
-		UUIDkey = SystemInfo["VuUUIDSlot"][0]
-		print(f"[MultiBootSelector]1 answer:{answer} hiKey:{hiKey} UUIDkey:{UUIDkey}")
+		print(f"[MultiBootSelector][addSTARTUPs] answer:{answer}")
 		if answer is False:
 			self.close()
-		elif UBIMB:
-			UUIDValue = SystemInfo["VuUUIDSlot"][2]
-			for usbslot in range(hiKey + 1, hiKey + 5):
-				STARTUP_usbslot = f"kernel=/dev/{MTDKERNEL} root={UUIDValue} rootsubdir=linuxrootfs{usbslot} rootfstype=ext4\n"
-				# print(f"[MultiBootSelector]1 STARTUP_usbslot:{STARTUP_usbslot} UUIDkey:{UUIDkey} UUIDValue:{UUIDValue}")
-				with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
-					f.write(STARTUP_usbslot)
-			self.session.open(TryQuitMainloop, QUIT_RESTART)
 		else:
-			boxmodel = BOXTYPE[2:]
-			for usbslot in range(hiKey + 1, hiKey + 5):
-				STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, SystemInfo["VuUUIDSlot"][0], boxmodel, usbslot)  # /STARTUP_<n>
-				if boxmodel in ("duo4k"):
-					STARTUP_usbslot += " rootwait=40"
-				elif boxmodel in ("duo4kse"):
-					STARTUP_usbslot += " rootwait=35"
-				with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
-					f.write(STARTUP_usbslot)
-				print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
+			self.tmp_dir = tempfile.mkdtemp(prefix="MultibootSelector_addSTARTUPs")
+			Console().ePopen("mount %s %s" % (SystemInfo["MBbootdevice"], self.tmp_dir))
+			hiKey = sorted(SystemInfo["canMultiBoot"].keys(), reverse=True)[0]
+			UUIDkey = SystemInfo["VuUUIDSlot"][0]
+			print(f"[MultiBootSelector][addSTARTUPs]1 answer:{answer} hiKey:{hiKey} UUIDkey:{UUIDkey}")
+			if UBIMB:
+				UUIDValue = SystemInfo["VuUUIDSlot"][2]
+				for usbslot in range(hiKey + 1, hiKey + 5):
+					STARTUP_usbslot = f"kernel=/dev/{MTDKERNEL} root={UUIDValue} rootsubdir=linuxrootfs{usbslot} rootfstype=ext4\n"
+					# print(f"[MultiBootSelector]1 STARTUP_usbslot:{STARTUP_usbslot} UUIDkey:{UUIDkey} UUIDValue:{UUIDValue}")
+					with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
+						f.write(STARTUP_usbslot)
+			else:
+				boxmodel = BOXTYPE[2:]
+				for usbslot in range(hiKey + 1, hiKey + 5):
+					STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, SystemInfo["VuUUIDSlot"][0], boxmodel, usbslot)  # /STARTUP_<n>
+					if boxmodel in ("duo4k",):
+						STARTUP_usbslot += " rootwait=40"
+					elif boxmodel in ("duo4kse",):
+						STARTUP_usbslot += " rootwait=35"
+					with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
+						f.write(STARTUP_usbslot)
+					print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
+			Console().ePopen("umount %s" % self.tmp_dir)
+			if not ismount(self.tmp_dir):
+				rmdir(self.tmp_dir)
 			self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 	def KexecMountRet(self, result=None, retval=None, extra_args=None):
@@ -219,9 +227,9 @@ class MultiBootSelector(Screen, HelpableScreen):
 
 		for usbslot in range(4, 8):
 			STARTUP_usbslot = "kernel=%s/linuxrootfs%d/zImage root=%s rootsubdir=%s/linuxrootfs%d" % (boxmodel, usbslot, self.device_uuid, boxmodel, usbslot)  # /STARTUP_<n>
-			if boxmodel in ("duo4k"):
+			if boxmodel in ("duo4k",):
 				STARTUP_usbslot += " rootwait=40"
-			elif boxmodel in ("duo4kse"):
+			elif boxmodel in ("duo4kse",):
 				STARTUP_usbslot += " rootwait=35"
 			print("[MultiBootSelector] STARTUP_%d --> %s, self.tmp_dir: %s" % (usbslot, STARTUP_usbslot, self.tmp_dir))
 			with open("/%s/STARTUP_%d" % (self.tmp_dir, usbslot), 'w') as f:
@@ -233,12 +241,16 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 	def cancel(self, value=None):
-		Console().ePopen("umount %s" % self.tmp_dir)
-		if not ismount(self.tmp_dir):
-			rmdir(self.tmp_dir)
 		if value == QUIT_REBOOT:
 			self.session.open(TryQuitMainloop, QUIT_REBOOT)
-		self.close()
+		elif self.tmp_dir:
+			if ismount(self.tmp_dir):
+				Console().ePopen("umount %s" % self.tmp_dir)
+			if not ismount(self.tmp_dir):
+				rmdir(self.tmp_dir)
+			self.close()
+		else:
+			self.close()
 
 	def keyUp(self):
 		self["config"].instance.moveSelection(self["config"].instance.moveUp)
@@ -443,14 +455,13 @@ class UBISlotManager(Setup):
 				self.session.open(TryQuitMainloop, QUIT_REBOOT)
 		print("[UBISlotManager] formatDeviceCallback ")
 		MOUNTPOINT = "/tmp/boot"
-		mtdKernel = MTDKERNEL
 		device = self.UBISlotManagerDevice
 		PART_SUFFIX = "p" if "mmcblk" in device else ""
 		uuidRootFS = fileReadLine(f"/dev/uuid/{device}{PART_SUFFIX}2", default=None)
 		diskSize = self.partitionSizeGB(f"/dev/{device}")
 
 		rootfsName = "rootfs"
-		startupContent = f"kernel=/dev/{mtdKernel} ubi.mtd=rootfs root=ubi0:{rootfsName} flash=1 rootfstype=ubifs\n"
+		startupContent = f"kernel=/dev/{MTDKERNEL} ubi.mtd=rootfs root=ubi0:{rootfsName} flash=1 rootfstype=ubifs\n"
 
 		with open(f"{MOUNTPOINT}/STARTUP", "w") as fd:
 			fd.write(startupContent)
@@ -458,7 +469,7 @@ class UBISlotManager(Setup):
 			fd.write(startupContent)
 		count = min(diskSize, 4)
 		for i in range(1, count + 1):
-			startupContent = f"kernel=/dev/{mtdKernel} root=UUID={uuidRootFS} rootsubdir=linuxrootfs{i} rootfstype=ext4\n"
+			startupContent = f"kernel=/dev/{MTDKERNEL} root=UUID={uuidRootFS} rootsubdir=linuxrootfs{i} rootfstype=ext4\n"
 			with open(f"{MOUNTPOINT}/STARTUP_{i}", "w") as fd:
 				fd.write(startupContent)
 		Console().ePopen(["/bin/sync"])

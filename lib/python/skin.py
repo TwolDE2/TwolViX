@@ -1,11 +1,12 @@
-from xml.etree.cElementTree import Element, ElementTree, fromstring
+from xml.etree.ElementTree import Element, ElementTree, fromstring
 
 from enigma import addFont, eLabel, ePixmap, ePoint, eRect, eSize, eWidget, eStack, eRectangle, eWindow, eWindowStyleManager, eWindowStyleSkinned, getDesktop, gFont, getFontFaces, gMainDC, gRGB, BT_ALPHATEST, BT_ALPHABLEND, BT_HALIGN_CENTER, BT_HALIGN_LEFT, BT_HALIGN_RIGHT, BT_KEEP_ASPECT_RATIO, BT_SCALE, BT_VALIGN_BOTTOM, BT_VALIGN_CENTER, BT_VALIGN_TOP
-from os.path import basename, dirname, isfile
+from os.path import basename, dirname, isdir, isfile, join
+from os import listdir
 
 from Components.config import ConfigSubsection, ConfigText, config
 from Components.Sources.Source import ObsoleteSource
-from Components.SystemInfo import SystemInfo, BoxInfo  # noqa F401  import for usage in include conditional
+from Components.SystemInfo import SystemInfo, BoxInfo  # noqa: F401  # BoxInfo is imported for use in the include conditional
 from Tools.Directories import SCOPE_CONFIG, SCOPE_CURRENT_LCDSKIN, SCOPE_CURRENT_SKIN, SCOPE_FONTS, SCOPE_SKIN, SCOPE_SKIN_IMAGE, resolveFilename, fileReadXML, clearResolveLists  # noqa: F401
 from Tools.Import import my_import
 from Tools.LoadPixmap import LoadPixmap
@@ -117,6 +118,13 @@ def InitSkins(booting=True):
 			break
 		print(f"[Skin] Error: Adding {name} GUI skin '{config.skin.display_skin.value} has failed!")
 		processed.append(skin)
+	# Check for skin related xml additions provided by third parties, such as plugins.
+	# Check for these in /etc/enigma2/<SkinName>/*.xml.
+	# Files should have clear, unique names like plugin_xyz_skin.xml.
+	if isdir(userFolder := join(resolveFilename(SCOPE_CONFIG), dirname(config.skin.primary_skin.value))):
+		for file in listdir(userFolder):
+			if file.lower().endswith(".xml"):
+				loadSkin(join(dirname(config.skin.primary_skin.value), file), scope=SCOPE_CONFIG, desktop=desktop, screenID=GUI_SKIN_ID)
 	# Add an optional skin related user skin "skin_user_<SkinName>.xml".  If there is
 	# not a skin related user skin then try to add an optional generic user skin.
 	loadedUser = False
@@ -133,6 +141,14 @@ def InitSkins(booting=True):
 
 	# notify any other modules about skin reloads
 	if not booting:
+		def _notifySkinPlugins():
+			from Session import SessionObject
+			from Components.PluginComponent import plugins
+			from Plugins.Plugin import PluginDescriptor
+			for plugin in plugins.getPlugins(PluginDescriptor.WHERE_SKINCHANGE):
+				plugin(session=SessionObject().session)
+
+		_notifySkinPlugins()
 		for method in onLoadCallbacks:
 			if method:
 				method()

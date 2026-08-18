@@ -3,7 +3,7 @@ from hashlib import md5
 from os import listdir, access, R_OK
 from os.path import isfile, join as pathjoin
 from re import split
-from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager, eDVBCSAEngine
+from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager, eDVBCSAEngine, getEnigmaLastCommitHash, getOARev
 
 from Components.RcModel import rc_model
 from Tools.Directories import fileCheck, fileExists, fileHas, isPluginInstalled, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLine, fileReadLines
@@ -168,27 +168,6 @@ def setRCFile(source):
 		SystemInfo["rc_default"] = True
 
 
-SystemInfo["HasRootSubdir"] = False  # This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["RecoveryMode"] = False  # This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["AndroidMode"] = False  # This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["HasMultibootMTD"] = False  # This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["HasMultibootFlags"] = False  # This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["resetMBoot"] = False  # Kexec kernel issue-this needs to be here so it can be reset by getMultibootslots if required!
-SystemInfo["HasKexecUSB"] = False  # This needs to be here so it can be reset by getMultibootslots!
-SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")  # This needs to be here so it can be tested by getMultibootslots!
-from Tools.Multiboot import getMultibootslots, isFat32  # noqa: E402  This import needs to be here to avoid a SystemInfo load loop!
-SystemInfo["canMultiBoot"] = getMultibootslots()
-# SystemInfo["MBbootdevice"] = device set in Tools/Multiboot.py
-# SystemInfo["MultiBootSlot"] = current slot set in Tools/Multiboot.py
-SystemInfo["HasChkrootMultiboot"] = isFat32("/dev/block/by-name/others") or fileExists("/dev/block/by-name/startup")
-SystemInfo["canchkroot"] = (UBIMB or fileExists("/dev/block/by-name/others")) and not SystemInfo["HasChkrootMultiboot"] and not fileExists("/etc/.disableChkroot")
-SystemInfo["CanKexecVu"] = MODEL in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]
-SystemInfo["HasUsbhdd"] = {}
-SystemInfo["HasHiSi"] = pathExists("/proc/hisi") and BOXTYPE not in ("vipertwin", "viper4kv20", "viper4kv40", "sfx6008", "sfx6018")  # This needs to be for later checks
-SystemInfo["MTDBLACK"] = ""  # HDD device set in Harddisk.py
-SystemInfo["DMRecovery"] = MODEL in ("dm900", "dm920") and fileExists("/proc/stb/fp/boot_mode")
-
-
 def getNumVideoDecoders():
 	numVideoDecoders = 0
 	while fileExists(f"/dev/dvb/adapter0/video{numVideoDecoders}", "f"):
@@ -214,6 +193,10 @@ SystemInfo["HasSoftCSA"] = eDVBCSAEngine.isAvailable()
 SystemInfo["MachineBrand"] = DISPLAYBRAND
 SystemInfo["MachineName"] = SystemInfo["machinename"]
 SystemInfo["DeveloperImage"] = IMAGETYPE.lower() != "release"
+SystemInfo["e2-branch"] = "Developer" if SystemInfo["DeveloperImage"] else "Release"
+SystemInfo["oea-branch"] = OEA
+SystemInfo["e2-sha"] = getEnigmaLastCommitHash()[:7]
+SystemInfo["oea-sha"] = getOARev()[:7]
 SystemInfo["FCCactive"] = False
 # The remote names used in the code below are the names used by oe-mirrors/branding-module,
 # so we must compare against rc_model.getRcFolder() which is also part of branding-module.
@@ -331,6 +314,7 @@ SystemInfo["havehdmicolordepth"] = fileCheck("/proc/stb/video/hdmi_colordepth")
 SystemInfo["havehdmicolordepthchoices"] = fileCheck("/proc/stb/video/hdmi_colordepth_choices")
 SystemInfo["havehdmihdrtype"] = fileCheck("/proc/stb/video/hdmi_hdrtype")
 SystemInfo["HDRSupport"] = fileExists("/proc/stb/hdmi/hlg_support_choices")
+SystemInfo["havehdmihdrosd"] = bool(fileReadLine("/proc/stb/video/hdmi_hdr_osd", default=None))
 #
 SystemInfo["Can3DSurround"] = fileHas("/proc/stb/audio/3d_surround_choices", "none") and fileCheck("/proc/stb/audio/3d_surround")
 SystemInfo["Can3DSpeaker"] = fileHas("/proc/stb/audio/3d_surround_speaker_position_choices", "center") and fileCheck("/proc/stb/audio/3d_surround_speaker_position")
@@ -348,9 +332,10 @@ SystemInfo["CanBTAudio"] = fileHas("/proc/stb/audio/btaudio_choices", "off")
 SystemInfo["CanBTAudioDelay"] = fileCheck("/proc/stb/audio/btaudio_delay") or fileCheck("/proc/stb/audio/btaudio_delay_pcm")
 SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
 # Multiboot/bootmode options	The following entries need to be in this sequence to avoid a SystemInfo failure.
-SystemInfo["canBackupEMC"] = MODEL in ("hd51", "h7") and ("disk.img", "%s" % SystemInfo["MBbootdevice"]) or MODEL in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "%s" % SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ("usb_update.bin", "none")
+SystemInfo["HasUsbhdd"] = {}
+SystemInfo["MTDBLACK"] = ""  # HDD device set in Harddisk.py
+SystemInfo["DMRecovery"] = MODEL in ("dm900", "dm920") and fileExists("/proc/stb/fp/boot_mode")
 SystemInfo["canMode12"] = MODEL in ("hd51", "h7") and ("brcm_cma=440M@328M brcm_cma=192M@768M", "brcm_cma=520M@248M brcm_cma=200M@768M")
-SystemInfo["HasH9SD"] = MODEL in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
 SystemInfo["HasSDnomount"] = MODEL in ("h9", "i55plus") and (False, "none") or MODEL in ("h9combo", "h9combose", "h9se", "h9twin", "h9twinse", "h11", "multibox", "multiboxpro", "pulse4k", "pulse4kmini", "gb7252") and (True, "mmcblk0")
 SystemInfo["haveboxmode"] = fileCheck("/proc/stb/info/boxmode")
 print("[SystemInfo] SystemInfo data initialised.")

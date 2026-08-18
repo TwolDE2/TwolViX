@@ -419,6 +419,11 @@ const char *getE2Rev()
 	return E2REV;
 }
 
+const char *getOARev()
+{
+	return OAREV;
+}
+
 const char *getGStreamerVersionString()
 {
 	return gst_version_string();
@@ -426,7 +431,7 @@ const char *getGStreamerVersionString()
 
 int getE2Flags()
 {
-	return 1;
+	return 3; // start/stop Audio = 1 | WebP = 2
 }
 
 bool checkLogin(const char *user, const char *password)

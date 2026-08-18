@@ -4,7 +4,6 @@ from re import search, sub
 from requests import get
 from sys import version_info, version as pyversion
 from enigma import eTimer, getDesktop, getEnigmaLastCommitDate, getEnigmaLastCommitHash, eDVBCSAEngine
-from skin import parameters
 from Components.About import getBoxUptime, getCPUArch, getEnigmaUptime, getIfConfig, getIfTransferredData
 from Components.ActionMap import ActionMap
 from Components.Button import Button
@@ -20,8 +19,8 @@ from Screens.GitCommitInfo import CommitInfo
 from Screens.Screen import Screen, ScreenSummary
 from Screens.SoftwareUpdate import UpdatePlugin
 from Screens.TextBox import TextBox
-from Tools.Directories import fileHas, fileReadLines, isPluginInstalled
-from Tools.Hex2strColor import Hex2strColor
+from Tools.Directories import fileHas, fileReadLine, fileReadLines, isPluginInstalled
+from Tools.Hex2strColor import ColorizeText
 from Tools.Multiboot import GetCurrentImageMode
 from Tools.StbHardware import getFPVersion
 
@@ -156,20 +155,15 @@ def df_h(find=None, binary=False):
 	return out
 
 
-class AboutBase(TextBox):
+class AboutBase(TextBox, ColorizeText):
 	def __init__(self, session, labels=None):
 		TextBox.__init__(self, session, label="AboutScrollLabel")
+		ColorizeText.__init__(self, session, "AboutColors")
 		self.skinName = "AboutOE"
-		self.colors = parameters.get("AboutColors", [])  # First item must be default text colour. If parameter is missing adding colours will be skipped.
 		if labels:
 			self["lab1"] = StaticText(_("Virtuosso Image Xtreme"))
 			self["lab2"] = StaticText(_("By Team ViX"))
 			self["lab3"] = StaticText(_("Support at") + " www.world-of-satellite.com")
-
-	def addColor(self, text, i=1):
-		if i < len(self.colors):
-			text = Hex2strColor(self.colors[i]) + text + Hex2strColor(self.colors[0])
-		return text
 
 	def createSummary(self):
 		return AboutSummary
@@ -254,6 +248,13 @@ class About(AboutBase):
 
 		AboutText += _("Drivers:\t%s\n") % driversDate()
 		AboutText += _("Kernel:\t%s\n") % KERNEL
+		if SystemInfo["boxtype"] == "gbquad4kpro":
+			hwVersion = fileReadLine("/proc/stb/info/version")
+			if hwVersion:
+				match = search(r"\brev[0-9]+\b", hwVersion)
+				if match:
+					hwVersion = match.group(0)
+				AboutText += _("Hardware Version:\t%s\n") % hwVersion
 		AboutText += _("Samba:\t%s\n") % getVersionFromOpkg("samba")
 		AboutText += _("GStreamer:\t%s\n") % getGStreamerVersionString().replace("GStreamer ", "")
 		AboutText += _("GCC version:\t%s\n") % getGccVersion()
@@ -343,7 +344,7 @@ class AboutUserInstalledPlugins(AboutBase):
 		self.onLayoutFinish.append(self.startfetch)
 
 	def startfetch(self):
-		self.reader.run(self.callback)
+		threads.deferToThread(self.reader.run, self.callback)
 
 	def callback(self, plugins):
 		if plugins:
@@ -364,7 +365,6 @@ class Devices(AboutBase):
 			desc_list = []
 			for nim in nims:
 				data = nim.split(":")
-				print(f"[About] nims:{data}\n")
 				idx = data[0].strip(_("Tuner")).strip()
 				desc = data[1].strip()
 				if desc_list and desc_list[-1]["desc"] == desc:
@@ -386,8 +386,6 @@ class Devices(AboutBase):
 				hdd = hddlist[i][0]
 				if MODEL in ("dm900", "dm920"):  # dm9x0:mmcblk0p3 multiboot root & storage SD card mmcblk1p1
 					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p3").replace("/dev/mmcblk1", "/dev/mmcblk1p1")
-				elif SystemInfo["HasH9SD"]:
-					hdd = hdd.replace("/dev/mmcblk0", "/dev/mmcblk0p1")
 				elif SystemInfo["HasSDnomount"]:
 					hdd = hdd.replace("/dev/mmcblk1", "/dev/mmcblk1p")
 				hddsplit = hdd.split("/", 1)  # hddsplit[0]:description hddsplit[1]:device and space
@@ -399,32 +397,26 @@ class Devices(AboutBase):
 				hddDescription = hddDescription.split()  # split out fields without spaces
 				hddDescLen = len(hddDescription)
 				hddKey1 = ("/" + hddsplit[1].split(" ", 1)[0])  # device key e.g. /dev/sda /dev/sdb /dev/mmcblk1p /dev/mmcblk0p1
-				print(f"[About] MODEL:{MODEL} hdd:{hdd} hddDescription:{hddDescription} hddKey1:{hddKey1} keys:{mountdict.keys()} hddLen:{hddDescLen} hddKey1[0:-1]:{hddKey1[0:-1]}")
 
 				if mountdict:
 					for device in mountdict:
 						if hddKey1 in device:
-							print(f"[About] mounted hddKey1:{hddKey1} in mountdict")
 							break  # use break here to escape the loop and NOT run its else clause
 					else:  # device not mounted
-						print(f"[About] not mounted1 hddKey1:{hddKey1}")
 						devicelist.append("%s" % hdd)
 						continue  # continues the outer loop so code below is skipped
 					# device is mounted so add device partition(s) attributes
-					print(f"[About] mounted hddKey1:{hddKey1}")
 					keyRange = 5 if hddKey1[0:-1] in ("/dev/sd", "/dev/mmcblk1") else 2  # assumes no more than 4 partitions on device
 					for count in range(1, keyRange):
 						hddKey = "%s" % hddKey1 + "%s" % str(count) if hddKey1[0:-1] in ("/dev/sd", "/dev/mmcblk1") else hddKey1
-						print(f"[About] mounted hddKey:{hddKey} look for key info")
 						if hddKey in mountdict.keys():
-							freeline = _("%s ") % hddKey + _("%s   ") % mountdict[hddKey][1] + "\n  " + _("Mount: %s  ") % mountdict[hddKey][5] + _("Used: %s  ") % mountdict[hddKey][2] + _("Free: %s ") % mountdict[hddKey][3]
+							freeline = "%s " % hddKey + "%s   " % mountdict[hddKey][1] + "\n  " + _("Mount: %s  ") % mountdict[hddKey][5] + _("Used: %s  ") % mountdict[hddKey][2] + _("Free: %s ") % mountdict[hddKey][3]
 							line = ""
 							for count in range(0, hddDescLen):
 								line += "%s " % hddDescription[count]
 							line += "%s " % freeline
 							devicelist.append(line)
 				else:  # device not mounted
-					print(f"[About] not mounted3 hddKey1:{hddKey1}")
 					devicelist.append("%s" % hdd)
 
 		networkmountinfo = []
@@ -763,7 +755,7 @@ class AboutSummary(ScreenSummary):
 
 	def clean(self, x):
 		# remove colours, replace tabs with spaces, remove leading/trailing whitespace
-		return sub("\\\\c[0-9-a-f]{8}", "", x).replace("\t", " ").strip()
+		return sub(r"\\c[0-9a-f]{8}", "", x).replace(r"\c", "").replace("\t", " ").strip()
 
 
 class TranslationInfo(Screen):

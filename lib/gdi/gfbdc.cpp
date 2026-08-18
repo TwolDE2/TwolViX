@@ -158,7 +158,7 @@ void gFBDC::exec(const gOpcode *o)
 	}
 	case gOpcode::flip:
 	{
-#if defined(CONFIG_ION) || defined(DREAMNEXTGEN)
+#if defined(CONFIG_ION)
 		fb->setOffset(getSurfaceOffset(surface));
 
 		if (surface_back.data_phys)
@@ -224,18 +224,6 @@ void gFBDC::exec(const gOpcode *o)
 		0, 0, surface.x, surface.y,
 		0, 0, surface.x, surface.y,
 		0, 0);
-		}
-#elif defined(DREAMNEXTGEN)
-		if (surface_back.data_phys && surface.data)
-		{
-			fb->waitVSync();
-			fb->setOffset(getSurfaceOffset(surface));
-
-			rotateSurfaces();
-
-			const int copy_bytes = surface.stride * surface.y;
-			if (copy_bytes > 0)
-			std::memcpy(surface.data, surface_back.data, copy_bytes);
 		}
 #endif
 #if defined(CONFIG_HISILICON_FB)
@@ -362,8 +350,8 @@ void gFBDC::setResolution(int xres, int yres, int bpp)
 
 	int fb_page_size = surface.stride * surface.y;
 	int fb_size = fb_page_size;
-	
-#if defined(CONFIG_ION) || defined(DREAMNEXTGEN)
+
+#if defined(CONFIG_ION)
 	if (m_number_of_pages > 1)
 	{
 		surface_back = surface;

@@ -60,16 +60,18 @@ class VideoSetup(Setup):
 				self.list.append(getConfigListEntry(_("HDMI Color depth"), config.av.hdmicolordepth, _("Change the Colordepth for UHD - this may cause unexpected results or black screen")))
 		if SystemInfo["havehdmihdrtype"]:
 			self.list.append(getConfigListEntry(_("HDMI HDR Type"), config.av.hdmihdrtype, _("Enable or disable to force HDR Modes for UHD")))
+		if SystemInfo["havehdmihdrosd"]:
+			self.list.append(getConfigListEntry(_("HDR OSD adjustment"), config.av.hdmihdrosd, _("This option adjusts SDR graphics and OSD colors while the HDMI output is in HDR mode.")))
 		if SystemInfo["HDRSupport"]:
 			self.list.append(getConfigListEntry(_("HLG Support"), config.av.hlg_support, _("Enable or disable to force HLG Modes for UHD")))
 			self.list.append(getConfigListEntry(_("HDR10 Support"), config.av.hdr10_support, _("Enable or disable to force HDR10 Modes for UHD")))
 			self.list.append(getConfigListEntry(_("Allow 12bit"), config.av.allow_12bit, _("Enable or disable the 12 Bit Color Mode")))
 			self.list.append(getConfigListEntry(_("Allow 10bit"), config.av.allow_10bit, _("Enable or disable the 10 Bit Color Mode")))
 		if SystemInfo["CanDownmixAC3"]:
-			self.list.append(getConfigListEntry(_("AC3 downmix"), config.av.downmix_ac3, _("Choose whether multi channel ac3 sound tracks should be downmixed to stereo.")))
-			if SystemInfo["Vu_EAC3_fix"] and config.av.downmix_ac3.value == "passthrough":
-				self.list.append(getConfigListEntry(_("Passthrough audio handling delay AC3"), config.av.passthrough_fix_short, _("Used to specify delay when switching between services and AC3 passthrough is enabled.")))
-				self.list.append(getConfigListEntry(_("Passthrough audio handling delay AC3+"), config.av.passthrough_fix_long, _("Used to specify delay when switching between services and AC3+/Atmos passthrough is enabled.")))
+			if SystemInfo["Vu_EAC3_fix"]:
+				self.list.append(getConfigListEntry(_("AC3 / AC3+ downmix"), config.av.downmix_ac3, _("Choose whether multi channel AC3 / AC3+ sound tracks should be downmixed to stereo.")))
+			else:
+				self.list.append(getConfigListEntry(_("AC3 downmix"), config.av.downmix_ac3, _("Choose whether multi channel AC3 sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixDTS"]:
 			self.list.append(getConfigListEntry(_("DTS downmix"), config.av.downmix_dts, _("Choose whether multi channel DTS sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixAAC"]:
@@ -108,6 +110,7 @@ class VideoSetup(Setup):
 			self.list.append(getConfigListEntry(_("Video Chip Mode*"), config.av.boxmode, _("Choose between High Dynamic Range (HDR) or Picture in Picture (PIP). Both are not possible at the same time. A FULL REBOOT is required for it to take effect")))
 		# if not isinstance(config.av.scaler_sharpness, ConfigNothing):
 		# 	self.list.append(getConfigListEntry(_("Scaler sharpness"), config.av.scaler_sharpness, _("This option configures the picture sharpness.")))
+
 		self["config"].list = self.list
 		if config.usage.sort_settings.value:
 			self["config"].list.sort(key=lambda x: x[0])

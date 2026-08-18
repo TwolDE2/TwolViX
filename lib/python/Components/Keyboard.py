@@ -2,7 +2,7 @@
 from os import listdir, stat
 from os.path import isdir, isfile, join
 from Components.Console import Console
-from Tools.Directories import SCOPE_KEYMAPS, fileReadXML, pathExists, resolveFilename
+from Tools.Directories import SCOPE_KEYMAPS, fileReadXML, resolveFilename
 
 
 def setLanguageFromBackup(backupfile):
@@ -32,7 +32,7 @@ def checkConfigBackup():
 			pass
 	if backups:
 		return next(iter(sorted(backups, key=lambda x: x["mtime"], reverse=True)))["name"]  # select the most recent
-	return None
+	return "en"
 
 
 class Keyboard:
@@ -88,8 +88,10 @@ class Keyboard:
 	def setupFinalise(self):
 		keyboardLanguage = {"en": "qwerty.kmap", "de": "qwertz.kmap", "fr": "azerty.kmap", "us": "qwerty.kmap"}
 		language = checkConfigBackup()
-		if language:
+		try:
 			language = setLanguageFromBackup(language)[0:2]
+		except Exception:
+			language = "en"
 		languageDefault = keyboardLanguage.get(language, "querty.kmap")
 		print(f"[Keyboard] languageDefault:{languageDefault} language:{language}")
 		keyboardChoices = []

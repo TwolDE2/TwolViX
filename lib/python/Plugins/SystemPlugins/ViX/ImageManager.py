@@ -31,24 +31,7 @@ import Tools.CopyFiles
 from Tools.Multiboot import GetImagelist
 from Tools.Notifications import AddPopupWithCallback
 
-
-def getMountChoices():
-	choices = []
-	for p in harddiskmanager.getMountedPartitions():
-		if path.exists(p.mountpoint):
-			d = path.normpath(p.mountpoint)
-			entry = (p.mountpoint, d)
-			if p.mountpoint != "/" and entry not in choices:
-				choices.append(entry)
-	choices.sort()
-	return choices
-
-
-def getMountDefault(choices):
-	choices = {x[1]: x[0] for x in choices}
-	default = choices.get("/media/hdd") or choices.get("/media/usb")
-	print("[ImageManager][getMountDefault] default, choices", default, "   ", choices)
-	return default
+from . import getMountChoices, getMountDefault
 
 
 def __onPartitionChange(*args, **kwargs):
@@ -107,27 +90,31 @@ FEED_URLS = [
 
 autoImageManagerTimer = None
 
-if path.exists(config.imagemanager.backuplocation.value + "imagebackups/imagerestore"):
-	try:
-		rmtree(config.imagemanager.backuplocation.value + "imagebackups/imagerestore")
-	except Exception:
-		pass
-TMPDIR = config.imagemanager.backuplocation.value + "imagebackups/" + config.imagemanager.folderprefix.value + "-" + MACHINEBUILD + "-" + IMAGETYPE + "-mount"
-if path.exists(TMPDIR + "/root") and path.ismount(TMPDIR + "/root"):
-	try:
-		system("umount " + TMPDIR + "/root")
-	except Exception:
-		pass
+
+def cleanup():  # do in function to keep the namespace clean
+	restore_path = path.join(config.imagemanager.backuplocation.value, "imagebackups", "imagerestore")
+	if path.exists(restore_path):
+		try:
+			rmtree(restore_path)
+		except Exception:
+			pass
+	tmp_root = path.join(config.imagemanager.backuplocation.value, "imagebackups", f"{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-mount", "root")
+	if path.exists(tmp_root) and path.ismount(tmp_root):
+		try:
+			system(f"umount {tmp_root}")
+		except Exception:
+			pass
+
+
+cleanup()
 
 
 def ImageManagerautostart(reason, session=None, **kwargs):
 	"""called with reason=1 to during /sbin/shutdown.sysvinit, with reason=0 at startup?"""
 	global autoImageManagerTimer
-	global _session
 	if reason == 0:
 		print("[ImageManager] AutoStart Enabled")
 		if session is not None:
-			_session = session
 			if autoImageManagerTimer is None:
 				autoImageManagerTimer = AutoImageManagerTimer(session)
 	else:
@@ -210,10 +197,6 @@ class VIXImageManager(Screen):
 
 		else:
 			self["list"] = MenuList(list=[((_(" Press 'Menu' to select a storage device - none available")), "Waiter")])
-			self["key_red"].hide()
-			self["key_green"].hide()
-			self["key_yellow"].hide()
-			self["key_blue"].hide()
 		self.populate_List()
 		self.activityTimer = eTimer()
 		self.activityTimer.timeout.get().append(self.backupRunning)
@@ -303,43 +286,63 @@ class VIXImageManager(Screen):
 		Components.Task.job_manager.in_background = in_background
 
 	def populate_List(self):
-		if config.imagemanager.backuplocation.value.endswith("/"):
-			mount = config.imagemanager.backuplocation.value, config.imagemanager.backuplocation.value[:-1]
-		else:
-			mount = config.imagemanager.backuplocation.value + "/", config.imagemanager.backuplocation.value
+		# --------------------------------------------------------------------------------------
+		# TO DO:
+		#
+		# As far as I can work out this section is complete nonsense because:
+		# 1) In the case of ConfigSelection, if the value in the settings file is not in
+		#    the "choices" list that value will not be loaded. Instead .value will return
+		#    the default. In a case where "choices" list is zero length .value will return "".
+		#
+		# 2) Any swapping from the value in the settings file to /media/hdd would have been
+		#    done internally inside the ConfigSelection before this code is ever reached.
+		#
+		# So the only time we would see the "Device: None available" message is if "choices"
+		# is zero length. And we would never see the "The chosen location does not exist,
+		# using /media/hdd." message ever. And "Press 'Menu' to select a storage device"
+		# would not be of any help because "Backup location" would not be populated.
+		# --------------------------------------------------------------------------------------
+		mount = config.imagemanager.backuplocation.value, path.normpath(config.imagemanager.backuplocation.value)
 		hdd = "/media/hdd/", "/media/hdd"
+		self["mainactions"].setEnabled(False)
+		self.mountAvailable = False
+		self["key_red"].hide()
+		self["key_green"].hide()
+		self["key_yellow"].hide()
+		self["key_blue"].hide()
 		if mount not in config.imagemanager.backuplocation.choices.choices and hdd not in config.imagemanager.backuplocation.choices.choices:
-			self["mainactions"].setEnabled(False)
-			self.mountAvailable = False
-			self["key_green"].hide()
 			self["lab1"].setText(_("Device: None available") + "\n" + _("Press 'Menu' to select a storage device"))
 		else:
 			if mount not in config.imagemanager.backuplocation.choices.choices:
-				self.BackupDirectory = "/media/hdd/imagebackups/"
-				config.imagemanager.backuplocation.value = "/media/hdd/"
+				config.imagemanager.backuplocation.value = hdd[0]
 				config.imagemanager.backuplocation.save()
 				self["lab1"].setText(_("The chosen location does not exist, using /media/hdd.") + "\n" + _("Select an image to flash."))
 			else:
-				self.BackupDirectory = config.imagemanager.backuplocation.value + "imagebackups/"
 				s = statvfs(config.imagemanager.backuplocation.value)
-				self["lab1"].setText(_("Device: ") + config.imagemanager.backuplocation.value + " " + _("Free space:") + " " + bytesToHumanReadable(s.f_bsize * s.f_bavail) + "\n" + _("Select an image to flash."))
+				self["lab1"].setText(_("Device: ") + path.normpath(config.imagemanager.backuplocation.value) + " - " + _("Free space:") + " " + bytesToHumanReadable(s.f_bsize * s.f_bavail) + "\n" + _("Select an image to flash."))
+			self.BackupDirectory = path.join(config.imagemanager.backuplocation.value, "imagebackups", "")
 			try:
 				if not path.exists(self.BackupDirectory):
 					mkdir(self.BackupDirectory, 0o755)
 				if path.exists(f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-swapfile_backup"):
 					system(f"swapoff {self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-swapfile_backup")
 					remove(f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-swapfile_backup")
+				self.mountAvailable = True
 				self.refreshList()
+				self["key_green"].show()
+				self["key_yellow"].show()
+				self["mainactions"].setEnabled(True)
 			except Exception:
-				self["lab1"].setText(_("Device: ") + config.imagemanager.backuplocation.value + "\n" + _("There is a problem with this device. Please reformat it and try again."))
-			self["mainactions"].setEnabled(True)
-			self.mountAvailable = True
-			self["key_green"].show()
+				self["lab1"].setText(
+					_("Device: ") + config.imagemanager.backuplocation.value + "\n" +
+					_("Unable to read from the backup device. Please check that it is accessible."))
 
 	def createSetup(self):
 		self.session.openWithCallback(self.setupDone, ImageManagerSetup)
 
 	def doDownload(self):
+		if not self.mountAvailable:  # we need a real folder to save the download.
+			return
 		choices = [(x[DISTRO], x) for x in FEED_URLS]
 		if config.imagemanager.imagefeed_MyBuild.value.startswith("http"):
 			choices.insert(0, ("My build", ("My build", config.imagemanager.imagefeed_MyBuild.value, "getMachineMake")))
@@ -383,11 +386,14 @@ class VIXImageManager(Screen):
 					remove(self.sel[1])
 				else:
 					rmtree(self.sel[1])
-			except:
+			except Exception as e:
+				print(f"[ImageManager][keyDelete] failed to delete {self.sel[1]}: {e}")
 				self.session.open(MessageBox, _("Delete failure - check device available."), MessageBox.TYPE_INFO, timeout=10)
 			self.refreshList()
 
 	def GreenPressed(self):
+		if not self.mountAvailable:  # we need a real folder to save the download.
+			return
 		backup = None
 		self.BackupRunning = False
 		for job in Components.Task.job_manager.getPendingJobs():
@@ -470,8 +476,8 @@ class VIXImageManager(Screen):
 		self.sel = self["list"].getCurrent()  # (name, link)
 		if not self.sel:
 			return
-		print("[ImageManager][keyRestore] self.sel SystemInfo['MultiBootSlot']", self.sel[0], "   ", SystemInfo["MultiBootSlot"])
-		if SystemInfo["MultiBootSlot"] == 0 and SystemInfo["HasKexecMultiboot"] and self.isVuKexecCompatibleImage(self.sel[0]):  # only if Vu multiboot has been enabled and the image is compatible
+		print(f"[ImageManager][keyRestore] self.sel: {self.sel[0]}, SystemInfo['MultiBootSlot']: {str(SystemInfo['MultiBootSlot'])}")
+		if SystemInfo["MultiBootSlot"] == 0 and self.isVuKexecCompatibleImage(self.sel[0]):  # only if Vu multiboot has been enabled and the image is compatible
 			message = [_("Are you sure you want to overwrite the Recovery image?")]
 			if "VuSlot0" in self.sel[0]:
 				callback = self.keyRestoreVuSlot0Image
@@ -520,51 +526,45 @@ class VIXImageManager(Screen):
 			message = _("Recording(s) are in progress or coming up in few seconds!") + "\n" + _("Do you still want to flash image\n%s?") % self.sel[0]
 		else:
 			message = _("Do you want to flash image\n%s?") % self.sel[0]
-		if SystemInfo["canMultiBoot"] is False:
-			if config.imagemanager.autosettingsbackup.value:
-				self.doSettingsBackup()
-			else:
-				self.keyRestore3()
 		if SystemInfo["HasHiSi"]:
 			if pathExists("/dev/sda4"):
 				self.HasSDmmc = True
-		imagedict = GetImagelist()
-		print(f"[ImageManager][keyRestore] imagedict={imagedict}")
+		imagedict = GetImagelist() if SystemInfo["canMultiBoot"] else {}
 		choices = []
 		currentimageslot = SystemInfo["MultiBootSlot"]
 		idx = 0
+		# this loop only runs if SystemInfo["canMultiBoot"]
 		for i, x in enumerate(imagedict.keys()):
 			choices.append(((_("slot%s %s - %s (current image)") if x == currentimageslot else _("slot%s %s - %s")) % (x, SystemInfo["canMultiBoot"][x]["slotname"], imagedict[x]["imagename"]), (x)))
 			if x == currentimageslot:
 				idx = i
+		# if not SystemInfo["canMultiBoot"] creates a yes/no messagebox for non-multiboot
 		dialog = self.session.openWithCallback(self.keyRestore2, MessageBox, message, list=choices, default=False, simple=True)
 		if idx:
 			dialog["list"].moveToIndex(idx)
 
 	def keyRestore2(self, retval):
+		print("[ImageManager][keyRestore2] retval", str(retval))
 		if retval:
 			if SystemInfo["canMultiBoot"]:
 				self.multibootslot = retval
-				print("ImageManager", retval)
 				self.MTDKERNEL = SystemInfo["canMultiBoot"][self.multibootslot]["kernel"].split("/")[2]
 				if SystemInfo["HasMultibootMTD"]:
 					self.MTDROOTFS = SystemInfo["canMultiBoot"][self.multibootslot]["root"]
 				else:
 					self.MTDROOTFS = SystemInfo["canMultiBoot"][self.multibootslot]["root"].split("/")[2]
-			if SystemInfo["HasHiSi"] and SystemInfo["MultiBootSlot"] > 4 and self.multibootslot < 4:
-				self.session.open(MessageBox, _("ImageManager - %s - cannot flash eMMC slot from sd card slot.") % BOXTYPE, MessageBox.TYPE_INFO, timeout=10)
-				return
-			if self.sel:
-				if SystemInfo["MultiBootSlot"] != 0 and config.imagemanager.autosettingsbackup.value:
-					self.doSettingsBackup()
-				else:
-					self.keyRestore3()
+				if SystemInfo["HasHiSi"] and SystemInfo["MultiBootSlot"] > 4 and self.multibootslot < 4:
+					self.session.open(MessageBox, _("ImageManager - %s - cannot flash eMMC slot from sd card slot.") % BOXTYPE, MessageBox.TYPE_INFO, timeout=10)
+					return
+			# skip making a backup on recovery slot... non-multiboot will succeed here because SystemInfo["MultiBootSlot"] will equal None
+			if SystemInfo["MultiBootSlot"] != 0 and config.imagemanager.autosettingsbackup.value:
+				self.doSettingsBackup()
 			else:
-				self.session.open(MessageBox, _("There is no image to flash."), MessageBox.TYPE_INFO, timeout=10)
+				self.keyRestore3()
 
 	def keyRestore3(self, *args, **kwargs):
-		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=480, enable_input=False)
-		if "/media/autofs" in config.imagemanager.backuplocation.value or "/media/net" in config.imagemanager.backuplocation.value:
+		self.restore_infobox = self.session.open(MessageBox, _("Please wait while the flash prepares."), MessageBox.TYPE_INFO, timeout=240, enable_input=False)
+		if config.imagemanager.backuplocation.value.startswith(("/media/autofs", "/media/net")):
 			self.TEMPDESTROOT = tempfile.mkdtemp(prefix="imageRestore")
 		else:
 			self.TEMPDESTROOT = self.BackupDirectory + "imagerestore"
@@ -617,9 +617,6 @@ class VIXImageManager(Screen):
 			else:
 				CMD = "/usr/bin/ofgwrite -r -k -m%s '%s'" % (self.multibootslot, MAINDEST)  # Normal multiboot
 			print(f"[ImageManager] running flash Console command={CMD}")
-		elif SystemInfo["HasH9SD"]:
-			if path.exists("%s/rootfs.tar.bz2" % MAINDEST):  # h9 no SD card - build has both roots causes ofgwrite issue
-				rename("%s/rootfs.tar.bz2" % MAINDEST, "%s/xx.txt" % MAINDEST)
 		print(f"[ImageManager] running command:{CMD} root:{getattr(self, 'MTDROOTFS', 'not set')}")
 		self.Console.ePopen(CMD, self.ofgwriteResult)
 		fbClass.getInstance().lock()
@@ -657,7 +654,7 @@ class VIXImageManager(Screen):
 				rmdir(tmp_dir)
 			self.session.open(TryQuitMainloop, 2)
 		else:
-			self.close
+			self.close()
 
 	def isVuKexecCompatibleImage(self, name):
 		retval = False
@@ -885,7 +882,7 @@ class ImageBackup(Screen):
 		self.fullBackup = not slotBackup
 		print(f"[ImageManager] self.fullBackup:{self.fullBackup}")
 		self.BackupDevice = config.imagemanager.backuplocation.value
-		self.BackupDirectory = f"{config.imagemanager.backuplocation.value}imagebackups/"
+		self.BackupDirectory = path.join(self.BackupDevice, "imagebackups", "")
 		self.BackupDate = strftime("%Y%m%d_%H%M%S", localtime())
 		print(f"[ImageManager] Device:{self.BackupDevice} Directory:{self.BackupDirectory}")
 		backupType = "-SoftwareUpdate-" if updatebackup else "-"
@@ -1038,7 +1035,7 @@ class ImageBackup(Screen):
 				remove(f"{self.BackupDirectory}{config.imagemanager.folderprefix.value}-{MACHINEBUILD}-{IMAGETYPE}-swapfile_backup")
 		except Exception as e:
 			print(str(e))
-			print("[ImageManager] Device: " + config.imagemanager.backuplocation.value + ", i don't seem to have write access to this device.")
+			print("[ImageManager] Device: " + self.BackupDevice + ", I don't seem to have write access to this device.")
 
 		s = statvfs(self.BackupDevice)
 		free = (s.f_bsize * s.f_bavail) // (1024 * 1024)
@@ -1112,22 +1109,22 @@ class ImageBackup(Screen):
 		print("[ImageManager] Stage1: Creating backup Folders.")
 		if path.exists(self.WORKDIR):
 			rmtree(self.WORKDIR)
-		mkdir(self.WORKDIR, 0o644)
+		mkdir(self.WORKDIR, 0o755)
 		if path.exists(self.TMPDIR + "/root") and path.ismount(self.TMPDIR + "/root"):
 			system("umount " + self.TMPDIR + "/root")
 		elif path.exists(self.TMPDIR + "/root"):
 			rmtree(self.TMPDIR + "/root")
 		if path.exists(self.TMPDIR):
 			rmtree(self.TMPDIR)
-		makedirs(self.TMPDIR, 0o644)
-		makedirs(self.TMPDIR + "/root", 0o644)
-		makedirs(self.MAINDESTROOT, 0o644)
+		makedirs(self.TMPDIR, 0o755)
+		makedirs(self.TMPDIR + "/root", 0o755)
+		makedirs(self.MAINDESTROOT, 0o755)
 		self.commands = []
-		makedirs(self.MAINDEST, 0o644)
+		makedirs(self.MAINDEST, 0o755)
 		if SystemInfo["canMultiBoot"]:
 			slot = SystemInfo["MultiBootSlot"]
 		print("[ImageManager] Stage1: Making Kernel Image.")
-		if "bin" or "uImage" in self.KERNELFILE:
+		if "bin" in self.KERNELFILE or "uImage" in self.KERNELFILE:
 			if SystemInfo["HasKexecMultiboot"]:
 				# boot = "boot" if slot > 0 and slot < 4 else "dev/%s/%s"  %(self.MTDROOTFS, self.ROOTFSSUBDIR)
 				boot = "boot"
@@ -1172,7 +1169,7 @@ class ImageBackup(Screen):
 				with open("/proc/cmdline", "r") as z:
 					if SystemInfo["HasMMC"] and "root=/dev/mmcblk0p1" in z.read():
 						self.ROOTFSTYPE = "tar.bz2"
-						self.commands.append(f"/bin/tar -jcf {self.WORKDIR, }/rootfs.tar.bz2 -C {self.TMPDIR}/root --exclude ./var/nmbd --exclude ./.resizerootfs --exclude ./.resize-rootfs --exclude ./.resize-linuxrootfs --exclude ./.resize-userdata --exclude ./var/lib/samba/private/msg.sock .")
+						self.commands.append(f"/bin/tar -jcf {self.WORKDIR}/rootfs.tar.bz2 -C {self.TMPDIR}/root --exclude ./var/nmbd --exclude ./.resizerootfs --exclude ./.resize-rootfs --exclude ./.resize-linuxrootfs --exclude ./.resize-userdata --exclude ./var/lib/samba/private/msg.sock .")
 					else:
 						self.commands.append(f"touch {self.WORKDIR}/root.ubi")
 						self.commands.append(f"mkfs.ubifs -r {self.TMPDIR}/root -o {self.WORKDIR}/root.ubi {self.MKUBIFS_ARGS}")
@@ -1191,7 +1188,7 @@ class ImageBackup(Screen):
 					self.commands.append('echo "' + _("Create:") + " logo dump" + '"')
 					self.commands.append(f"dd if=/dev/mtd4 of={self.WORKDIR}/logo.bin")
 			else:
-				if MODEL not in ("h8"):
+				if MODEL not in ("h8",):
 					self.MKUBIFS_ARGS = "-m 2048 -e 126976 -c 4096 -F"
 					self.UBINIZE_ARGS = "-m 2048 -p 128KiB"
 				self.commands.append(f"touch {self.WORKDIR}/root.ubi")
@@ -1215,10 +1212,8 @@ class ImageBackup(Screen):
 				self.commands.append(f"/bin/tar -jcf {self.WORKDIR}/rootfs.tar.bz2 -C {self.TMPDIR}/root --exclude ./var/nmbd --exclude ./.resizerootfs --exclude ./.resize-rootfs --exclude ./.resize-linuxrootfs --exclude ./.resize-userdata --exclude ./var/lib/samba/private/msg.sock .")
 			self.commands.append("sync")
 			if MODEL in ("gb7252", "gbx34k"):
-				self.commands.append(f"dd if=/dev/mmcblk0p1 of={self.WORKDIR}/boot.bin")
 				self.commands.append(f"dd if=/dev/mmcblk0p3 of={self.WORKDIR}/rescue.bin")
-				print("[ImageManager] Stage2: Create: boot dump boot.bin:", MACHINEBUILD)
-				print("[ImageManager] Stage2: Create: rescue dump rescue.bin:", MACHINEBUILD)
+				print("[ImageManager] Stage2: Created: rescue dump rescue.bin:", MACHINEBUILD)
 		print("[ImageManager] ROOTFSTYPE:", self.ROOTFSTYPE)
 		self.ConsoleB.eBatch(self.commands, self.Stage2Complete, debug=False)
 
@@ -1407,7 +1402,7 @@ class ImageBackup(Screen):
 			if fileExists("/usr/share/apploader.bin"):
 				system(f"cp -f /usr/share/apploader.bin {self.MAINDEST2}/apploader.bin")
 
-		if "bin" or "uImage" in self.KERNELFILE and path.exists(f"{self.WORKDIR}/vmlinux.bin"):
+		if ("bin" in self.KERNELFILE or "uImage" in self.KERNELFILE) and path.exists(f"{self.WORKDIR}/vmlinux.bin"):
 			move(f"{self.WORKDIR}/vmlinux.bin", f"{self.MAINDEST}/{self.KERNELFILE}")
 		else:
 			move(f"{self.WORKDIR}/vmlinux.gz", f"{self.MAINDEST}/{self.KERNELFILE}")
@@ -1431,12 +1426,13 @@ class ImageBackup(Screen):
 			move(f"{self.WORKDIR}/rootfs.{self.ROOTFSTYPE}", f"{self.MAINDEST}/{self.ROOTFSFILE}")
 
 		if MODEL in ("gb7252", "gbx34k"):
-			self.GB4Kbin = "boot.bin"
 			self.GB4Krescue = "rescue.bin"
-			move(f"{self.WORKDIR}/{self.GB4Kbin}", f"{self.MAINDEST}/{self.GB4Kbin}")
 			move(f"{self.WORKDIR}/{self.GB4Krescue}", f"{self.MAINDEST}/{self.GB4Krescue}")
-			system(f"cp -f /usr/share/gpt.bin {self.MAINDEST}/gpt.bin")
-			print("[ImageManager] Stage5: Create: gpt.bin:", MACHINEBUILD)
+			print(f"[ImageManager] Stage5: Create: boot.bin gpt.bin for {MACHINEBUILD} to {self.MAINDEST}")
+			for fileName in ("boot.bin", "gpt.bin", "boot4.bin", "gpt4.bin"):
+				if path.exists(f"/usr/share/{fileName}"):
+					system(f"cp -f /usr/share/{fileName} {self.MAINDEST}")
+					print(f"[ImageManager] Stage5: copy: {fileName} for {MACHINEBUILD} to {self.MAINDEST}")
 
 		with open(self.MAINDEST + "/imageversion", "w") as fileout:
 			line = f"{defaultprefix}-{MACHINEBUILD}-{IMAGETYPE}-backup-{SystemInfo['imageversion']}.{SystemInfo['imagebuild']}-{self.BackupDate}"
@@ -1508,7 +1504,7 @@ class ImageBackup(Screen):
 		try:
 			if config.imagemanager.number_to_keep.value > 0 and path.exists(self.BackupDirectory):  # !?!
 				images = listdir(self.BackupDirectory)
-				patt = config.imagemanager.folderprefix.value + "-" + MACHINEBUILD + "-*.zip"
+				patt = f"{config.imagemanager.folderprefix.value}-*-{MACHINEBUILD}-*.zip"
 				emlist = []
 				for fil in images:
 					if fnmatch.fnmatchcase(fil, patt):
@@ -1521,8 +1517,8 @@ class ImageBackup(Screen):
 					emlist = emlist[0:len(emlist) - config.imagemanager.number_to_keep.value]
 					for fil in emlist:
 						remove(self.BackupDirectory + fil)
-		except Exception:
-			pass
+		except Exception as err:
+			print("[ImageManager] BackupComplete: error while pruning", err)
 		if config.imagemanager.schedule.value:
 			atLeast = 60
 			autoImageManagerTimer.backupupdate(atLeast)
@@ -1624,15 +1620,15 @@ class ImageManagerDownload(Screen):
 			return
 
 		imglist = []  # this is reset on every "ok" key press of an expandable item so it reflects the current state of expandability of that item
-		for categorie in sorted(self.imagesList.keys(), reverse=True):
-			if categorie in self.expanded:
-				imglist.append(ChoiceEntryComponent("expanded", ((str(categorie)), "Expander")))
-				for image in sorted(self.imagesList[categorie].keys(), reverse=True):
-					imglist.append(ChoiceEntryComponent("verticalline", ((str(self.imagesList[categorie][image]["name"])), str(self.imagesList[categorie][image]["link"]))))
+		for category in sorted(self.imagesList.keys(), reverse=True):
+			if category in self.expanded:
+				imglist.append(ChoiceEntryComponent("expanded", ((str(category)), "Expander")))
+				for image in sorted(self.imagesList[category].keys(), reverse=True):
+					imglist.append(ChoiceEntryComponent("verticalline", ((str(self.imagesList[category][image]["name"])), str(self.imagesList[category][image]["link"]))))
 			else:
-				# print("[ImageManager] [GetImageDistro] keys: %s" % list(self.imagesList[categorie].keys()))
-				for image in list(self.imagesList[categorie].keys()):
-					imglist.append(ChoiceEntryComponent("expandable", ((str(categorie)), "Expander")))
+				# print("[ImageManager] [GetImageDistro] keys: %s" % list(self.imagesList[category].keys()))
+				for image in list(self.imagesList[category].keys()):
+					imglist.append(ChoiceEntryComponent("expandable", ((str(category)), "Expander")))
 					break
 		if imglist:
 			# print("[ImageManager] [GetImageDistro] imglist: %s" % imglist)

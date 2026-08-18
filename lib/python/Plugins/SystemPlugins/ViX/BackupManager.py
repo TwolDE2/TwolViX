@@ -21,28 +21,13 @@ from Screens.Screen import Screen
 from Screens.Setup import Setup
 from Screens.TextBox import TextBox
 
+from . import getMountChoices, getMountDefault
+
 autoBackupManagerTimer = None
 SETTINGSRESTOREQUESTIONID = "RestoreSettingsNotification"
 PLUGINRESTOREQUESTIONID = "RestorePluginsNotification"
 NOPLUGINS = "NoPluginsNotification"
 defaultprefix = SystemInfo["distro"][4:]
-
-
-def getMountChoices():
-	choices = []
-	for p in harddiskmanager.getMountedPartitions():
-		if path.exists(p.mountpoint):
-			d = path.normpath(p.mountpoint)
-			if p.mountpoint != "/":
-				choices.append((p.mountpoint, d))
-	choices.sort()
-	return choices
-
-
-def getMountDefault(choices):
-	choices = {x[1]: x[0] for x in choices}
-	default = choices.get("/media/hdd") or choices.get("/media/usb")
-	return default
 
 
 def __onPartitionChange(*args, **kwargs):
@@ -59,7 +44,6 @@ config.backupmanager.backupdirs = ConfigLocations(
 		eEnv.resolve("${sysconfdir}/network/interfaces"),
 		eEnv.resolve("${sysconfdir}/passwd"),
 		eEnv.resolve("${sysconfdir}/shadow"),
-		eEnv.resolve("${sysconfdir}/etc/shadow"),
 		eEnv.resolve("${sysconfdir}/resolv.conf"),
 		eEnv.resolve("${sysconfdir}/ushare.conf"),
 		eEnv.resolve("${sysconfdir}/inadyn.conf"),
@@ -94,11 +78,9 @@ config.backupmanager.number_to_keep = ConfigNumber(default=0)
 def BackupManagerautostart(reason, session=None, **kwargs):
 	"""called with reason=1 to during /sbin/shutdown.sysvinit, with reason=0 at startup?"""
 	global autoBackupManagerTimer
-	global _session
 	if reason == 0:
 		print("[BackupManager] AutoStart Enabled")
 		if session is not None:
-			_session = session
 			if autoBackupManagerTimer is None:
 				autoBackupManagerTimer = AutoBackupManagerTimer(session)
 	else:
@@ -152,11 +134,29 @@ class VIXBackupManager(Screen):
 		self["key_menu"] = StaticText(_("MENU"))
 		self["key_info"] = StaticText(_("INFO"))
 
+		self["essentialActions"] = ActionMap(
+			["OkCancelActions", "MenuActions"],
+			{
+				"cancel": self.close,
+				"menu": self.createSetup,
+			}, -1)
+
+		self["optionalActions"] = ActionMap(
+			["ColorActions", "OkCancelActions", "DirectionActions", "TimerEditActions"],
+			{
+				"ok": self.keyRestore,
+				"red": self.keyDelete,
+				"green": self.GreenPressed,
+				"yellow": self.keyRestore,
+				"log": self.showLog,
+			}, -1)
+		self["optionalActions"].setEnabled(False)
+
 		self.BackupRunning = False
+		self.restoreOutcome = None
 		self.BackupDirectory = " "
 		self.onChangedEntry = []
-		self.emlist = []
-		self["list"] = MenuList(self.emlist)
+		self["list"] = MenuList([])
 		self.populate_List()
 		self.activityTimer = eTimer()
 		self.activityTimer.timeout.get().append(self.backupRunning)
@@ -212,71 +212,72 @@ class VIXBackupManager(Screen):
 
 	def JobViewCB(self, in_background):
 		Components.Task.job_manager.in_background = in_background
+		msg = None
+		if self.restoreOutcome == "nothing":
+			msg = _("Settings restore was cancelled and there are no plugins to restore.")
+		elif self.restoreOutcome == "failed":
+			msg = _("Settings restore failed.")
+		self.restoreOutcome = None
+		if msg:
+			self.session.open(MessageBox, msg, MessageBox.TYPE_INFO, timeout=15)
 
 	def populate_List(self):
-		if config.backupmanager.backuplocation.value.endswith("/"):
-			mount = config.backupmanager.backuplocation.value, config.backupmanager.backuplocation.value[:-1]
-		else:
-			mount = config.backupmanager.backuplocation.value + "/", config.backupmanager.backuplocation.value
+		# --------------------------------------------------------------------------------------
+		# TO DO:
+		#
+		# As far as I can work out this section is complete nonsense because:
+		# 1) In the case of ConfigSelection, if the value in the settings file is not in
+		#    the "choices" list that value will not be loaded. Instead .value will return
+		#    the default. In a case where "choices" list is zero length .value will return "".
+		#
+		# 2) Any swapping from the value in the settings file to /media/hdd would have been
+		#    done internally inside the ConfigSelection before this code is ever reached.
+		#
+		# So the only time we would see the "Device: None available" message is if "choices"
+		# is zero length. And we would never see the "The chosen location does not exist,
+		# using /media/hdd." message ever. And "Press 'Menu' to select a storage device"
+		# would not be of any help because "Backup location" would not be populated.
+		# --------------------------------------------------------------------------------------
+		self["optionalActions"].setEnabled(False)
+		mount = config.backupmanager.backuplocation.value, path.normpath(config.backupmanager.backuplocation.value)
 		hdd = "/media/hdd/", "/media/hdd"
+		self["key_red"].hide()
+		self["key_green"].hide()
+		self["key_yellow"].hide()
 		if mount not in config.backupmanager.backuplocation.choices.choices and hdd not in config.backupmanager.backuplocation.choices.choices:
-			self["myactions"] = ActionMap(
-				["OkCancelActions", "MenuActions"],
-				{
-					"cancel": self.close,
-					"menu": self.createSetup,
-				}, -1)
-			self["key_red"].hide()
-			self["key_green"].hide()
-			self["key_yellow"].hide()
 			self["lab1"].setText(_("Device: Press 'Menu' to select a storage device - none available"))
 		else:
-			self["myactions"] = ActionMap(
-				["ColorActions", "OkCancelActions", "DirectionActions", "MenuActions", "TimerEditActions"],
-				{
-					"cancel": self.close,
-					"ok": self.keyRestore,
-					"red": self.keyDelete,
-					"green": self.GreenPressed,
-					"yellow": self.keyRestore,
-					"menu": self.createSetup,
-					"log": self.showLog,
-				}, -1)
 			if mount not in config.backupmanager.backuplocation.choices.choices:
-				self.BackupDirectory = "/media/hdd/backup/"
-				config.backupmanager.backuplocation.value = "/media/hdd/"
+				config.backupmanager.backuplocation.value = hdd[0]
 				config.backupmanager.backuplocation.save()
 				self["lab1"].setText(_("The chosen location does not exist, using /media/hdd.") + "\n" + _("Select a backup to restore:"))
 			else:
-				self.BackupDirectory = config.backupmanager.backuplocation.value + "backup/"
-				s = statvfs(config.imagemanager.backuplocation.value)
-				self["lab1"].setText(_("Device: ") + config.backupmanager.backuplocation.value + " " + _("Free space:") + " " + bytesToHumanReadable(s.f_bsize * s.f_bavail) + "\n" + _("Select a backup to restore:"))
+				s = statvfs(config.backupmanager.backuplocation.value)
+				self["lab1"].setText(_("Device: ") + path.normpath(config.backupmanager.backuplocation.value) + " - " + _("Free space:") + " " + bytesToHumanReadable(s.f_bsize * s.f_bavail) + "\n" + _("Select a backup to restore:"))
+			self.BackupDirectory = path.join(config.backupmanager.backuplocation.value, "backup", "")
 			try:
 				if not path.exists(self.BackupDirectory):
 					mkdir(self.BackupDirectory, 0o755)
-				images = listdir(self.BackupDirectory)
-				del self.emlist[:]
 				mtimes = []
-				for fil in images:
-					if fil.endswith(".tar.gz") and "vix" in fil.lower() or fil.startswith("%s" % defaultprefix):
-						if fil.startswith(defaultprefix):   # Ensure the current image backup are sorted to the top
-							prefix = "B"
-						else:
-							prefix = "A"
-						key = "%s-%012u" % (prefix, stat(self.BackupDirectory + fil).st_mtime)
-						mtimes.append((fil, key))  # (filname, prefix-mtime)
-				for fil in [x[0] for x in sorted(mtimes, key=lambda x: x[1], reverse=True)]:  # sort by mtime
-					self.emlist.append(fil)
-				self["list"].setList(self.emlist)
+				for fil in listdir(self.BackupDirectory):
+					if fil.endswith(".tar.gz") and ("vix" in fil.lower() or fil.startswith(defaultprefix)):
+						mtimes.append((fil, fil.startswith(defaultprefix), stat(path.join(self.BackupDirectory, fil)).st_mtime))
+				backups = [x[0] for x in sorted(mtimes, key=lambda x: (x[1], x[2]), reverse=True)]
+				self["list"].setList(backups)
 				self["list"].show()
-				if len(self.emlist):
+				if backups:
 					self["key_red"].show()
 					self["key_yellow"].show()
 				else:
 					self["key_red"].hide()
 					self["key_yellow"].hide()
-			except:
-				self["lab1"].setText(_("Device: ") + config.backupmanager.backuplocation.value + "\n" + _("There is a problem with this device. Please reformat it and try again."))
+				self["key_green"].show()
+				self["optionalActions"].setEnabled(True)
+			except OSError as err:
+				print("[BackupManager] populate_List:", err)
+				self["lab1"].setText(
+					_("Device: ") + path.normpath(config.backupmanager.backuplocation.value) + "\n" +
+					_("Unable to read from the backup device. Please check that it is accessible and contains valid backups."))
 
 	def createSetup(self):
 		self.session.openWithCallback(self.setupDone, VIXBackupManagerMenu, 'vixbackupmanager', 'SystemPlugins/ViX')
@@ -314,7 +315,11 @@ class VIXBackupManager(Screen):
 		self.sel = self["list"].getCurrent()
 		if self.sel is not None:
 			self["list"].moveToIndex(self["list"].getSelectedIndex() if len(self["list"].list) > self["list"].getSelectedIndex() + 1 else max(len(self["list"].list) - 2, 0))  # hold the selection current possition if the list is long enough, else go to last item
-			remove(self.BackupDirectory + self.sel)
+			try:
+				remove(self.BackupDirectory + self.sel)
+			except Exception as err:
+				print("[BackupManager] keyDelete: error while deleting", err)
+				self.session.open(MessageBox, _("Delete failure - check device available."), MessageBox.TYPE_INFO, timeout=10)
 			self.populate_List()
 
 	def GreenPressed(self):
@@ -464,7 +469,6 @@ class VIXBackupManager(Screen):
 				with open("/tmp/3rdPartyPluginsLocation", "r") as fd:
 					thirdpartyPluginsLocation = fd.readline().strip()
 					print("[BackupManager] Restoring Stage 3: thirdpartyPluginsLocation from file", "'%s'" % thirdpartyPluginsLocation)
-			thirdpartyPluginsLocation = thirdpartyPluginsLocation.replace(" ", "%20")  # What is this replace for?
 			with open("/tmp/3rdPartyPlugins", "r") as fd:
 				tmppluginslist2 = [package.split("_")[0] for line in fd.readlines() if (package := line.strip())]  # ".split("_")[0]" should be redundant if the input is correct
 			relative_path = len(x := thirdpartyPluginsLocation.split("/", 3)) > 3 and x[3] or None  # expects thirdpartyPluginsLocation to be in the format /media/something/myFolder
@@ -532,7 +536,7 @@ class VIXBackupManager(Screen):
 			self.didPluginsRestore = True
 			self.finaliseRestore()
 
-	def finaliseRestore(self):
+	def finaliseRestore(self, *args, **kwargs):
 		self.downloadScreen and self.downloadScreen.close()
 		self.downloadScreen = None  # de-reference screen
 		self["lab1"].setText("")
@@ -546,6 +550,7 @@ class VIXBackupManager(Screen):
 			quitMainloop(3)
 		else:
 			self["lab1"].setText(_("[BackupManager] plugins restore not completed- check debug log"))
+			self.restoreOutcome = "failed"
 
 
 class BackupSelection(Screen):
@@ -620,12 +625,12 @@ class XtraPluginsSelection(Screen):
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.skinName = "Setup"
-		self.title = _("Select folder containing plugins(.ipk) and Save")
+		self.title = _("Select folder under /media containing plugins(.ipk) and Save")
 
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(_("Save"))
 
-		self["config"] = FileList(config.backupmanager.backuplocation.value, showFiles=True, matchingPattern="^.*.(ipk)")
+		self["config"] = FileList(config.backupmanager.backuplocation.value, showFiles=True, matchingPattern=r"^.*\.ipk$")
 
 		self["actions"] = ActionMap(
 			["DirectionActions", "SetupActions"],
@@ -641,18 +646,24 @@ class XtraPluginsSelection(Screen):
 
 	def saveSelection(self):
 		current = self["config"].getCurrent()[0]
-		# print("[BackupManager][saveSelection] current[0] ", current[0])
-		# current[0].split("/", 3) is used in the restore code so a sanity check should be added here.
-		# The restore code assumes the ipk folder starts with /media but that is not a requirement here and needs fixing.
-		ipkList = FileList(current[0], showDirectories=False, showFiles=True, showMountpoints=False, matchingPattern="^.*.(ipk)")
-		if ipkList.getFilename() is not None:
+		print("[BackupManager][saveSelection] current", str(current))
+
+		if not current[0] or not current[0].startswith("/media/"):
+			self.session.open(MessageBox, _("Please select a folder under /media, i.e. a mount point that is not in the internal flash"), MessageBox.TYPE_INFO, timeout=30)
+			return
+
+		elif not (len(x := current[0].split("/", 3)) > 3 and x[3]):  # match formula in VIXBackupManager.Stage3Complete()
+			self.session.open(MessageBox, _("Please select a folder inside a mount point, not the mount point itself."), MessageBox.TYPE_INFO, timeout=30)
+
+		elif not any(f.endswith(".ipk") for f in listdir(current[0])):  # no .ipk found in the selected folder
+			self.session.open(MessageBox, _("Please select folder that contains .ipk packages."), MessageBox.TYPE_INFO, timeout=10)
+
+		else:  # success
 			config.backupmanager.xtraplugindir.setValue(current[0])
 			config.backupmanager.xtraplugindir.save()
 			config.backupmanager.save()
-			config.save()
+			configfile.save()
 			self.close(None)
-		else:
-			self.session.open(MessageBox, _("Please select folder that contains .ipk packages."), MessageBox.TYPE_INFO, timeout=10)
 
 	def okClicked(self):
 		if self["config"].canDescent():
@@ -846,7 +857,7 @@ class BackupFiles(Screen):
 		self.backuptype = backuptype
 		self.BackupDevice = config.backupmanager.backuplocation.value
 		print("[BackupManager] Device: " + self.BackupDevice)
-		self.BackupDirectory = config.backupmanager.backuplocation.value + "backup/"
+		self.BackupDirectory = path.join(self.BackupDevice, "backup", "")
 		print("[BackupManager] Directory: " + self.BackupDirectory)
 		self.Stage1Completed = False
 		self.Stage2Completed = False
@@ -937,7 +948,7 @@ class BackupFiles(Screen):
 				mkdir(self.BackupDirectory, 0o755)
 		except Exception as e:
 			print(str(e))
-			print("[BackupManager] Device: " + config.backupmanager.backuplocation.value + ", i don't seem to have write access to this device.")
+			print("[BackupManager] Device: " + path.normpath(self.BackupDevice) + ", i don't seem to have write access to this device.")
 
 		s = statvfs(self.BackupDevice)
 		free = (s.f_bsize * s.f_bavail) // (1024 * 1024)
@@ -1062,8 +1073,8 @@ class BackupFiles(Screen):
 					emlist = emlist[0:len(emlist) - config.backupmanager.number_to_keep.value]
 					for fil in emlist:
 						remove(self.BackupDirectory + fil)
-		except:
-			pass
+		except Exception as err:
+			print("[BackupManager] BackupComplete: error while pruning", err)
 		if config.backupmanager.schedule.value:
 			atLeast = 60
 			autoBackupManagerTimer.backupupdate(atLeast)

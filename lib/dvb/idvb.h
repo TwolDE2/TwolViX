@@ -295,6 +295,7 @@ public:
 
 	bool cacheEmpty();
 	bool cacheAudioEmpty();
+	void updateAudioCache(int apid, int apidtype);
 
 	eDVBService();
 		/* m_service_name_sort is uppercase, with special chars removed, to increase sort performance. */
@@ -768,6 +769,14 @@ public:
 	virtual RESULT showSinglePic(const char *filename) = 0;
 
 	virtual RESULT setRadioPic(const std::string &filename) = 0;
+
+	virtual bool canFlush() const { return false; }
+
+	virtual RESULT flush() { return -1; }
+
+	/** Release demux filters by closing fds (no DMX_STOP ioctl).
+	 *  Prevents deadlock/crash on mipsel PVR-sourced demuxes. */
+	virtual void freeDecoder() { /* default no-op; mipsel decoder overrides */ }
 
 	struct videoEvent
 	{

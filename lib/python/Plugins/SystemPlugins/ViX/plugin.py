@@ -1,6 +1,6 @@
 from os import listdir, path, stat
 from sys import modules
-import xml.etree.cElementTree
+import xml.etree.ElementTree
 
 from Plugins.Plugin import PluginDescriptor
 from Components.config import config
@@ -70,7 +70,7 @@ if config.misc.firstrun.value and not config.misc.restorewizardrun.value:
 
 
 file = open("%s/menu.xml" % path.dirname(modules[__name__].__file__), 'r')
-mdom = xml.etree.cElementTree.parse(file)
+mdom = xml.etree.ElementTree.parse(file)
 file.close()
 
 
@@ -216,8 +216,6 @@ def Plugins(**kwargs):
 		PluginDescriptor(where=PluginDescriptor.WHERE_MENU, fnc=PackageManagerSetup)]
 	if config.softcammanager.showinextensions.value:
 		plist.append(PluginDescriptor(name=_("Softcam manager"), where=PluginDescriptor.WHERE_EXTENSIONSMENU, fnc=SoftcamMenu))
-	if config.scriptrunner.showinextensions.value:
-		plist.append(PluginDescriptor(name=_("Script runner"), where=PluginDescriptor.WHERE_EXTENSIONSMENU, fnc=ScriptRunnerMenu))
 	plist.append(PluginDescriptor(where=PluginDescriptor.WHERE_AUTOSTART, fnc=SoftcamAutostart))
 	plist.append(PluginDescriptor(where=PluginDescriptor.WHERE_AUTOSTART, fnc=SwapAutostart))
 	plist.append(PluginDescriptor(where=PluginDescriptor.WHERE_SESSIONSTART, fnc=ImageManagerautostart))
@@ -232,6 +230,9 @@ def Plugins(**kwargs):
 	plist.append(PluginDescriptor(name=_("ViX Backup manager"), where=PluginDescriptor.WHERE_VIXMENU, fnc=BackupManagerMenu))
 	plist.append(PluginDescriptor(name=_("ViX Image manager"), where=PluginDescriptor.WHERE_VIXMENU, fnc=ImageManagerMenu))
 	plist.append(PluginDescriptor(name=_("ViX Mount manager"), where=PluginDescriptor.WHERE_VIXMENU, fnc=MountManagerMenu))
-	plist.append(PluginDescriptor(name=_("ViX Script runner"), where=PluginDescriptor.WHERE_VIXMENU, fnc=ScriptRunnerMenu))
+	where_scriptrunner = [PluginDescriptor.WHERE_VIXMENU]
+	if config.scriptrunner.showinextensions.value:
+		where_scriptrunner.append(PluginDescriptor.WHERE_EXTENSIONSMENU)
+	plist.append(PluginDescriptor(name=_("ViX Script runner"), where=where_scriptrunner, fnc=ScriptRunnerMenu))
 	plist.append(PluginDescriptor(name=_("ViX SWAP manager"), where=PluginDescriptor.WHERE_VIXMENU, fnc=SwapManagerMenu))
 	return plist

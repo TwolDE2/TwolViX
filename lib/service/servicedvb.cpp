@@ -4,6 +4,7 @@
 #include <lib/service/servicedvb.h>
 #include <lib/service/service.h>
 #include <lib/dvb/csasession.h>
+#include <lib/dvb/csaengine.h>
 #include <lib/service/servicedvbsoftdecoder.h>
 #include <lib/dvb/cahandler.h>
 #include <lib/base/estring.h>
@@ -17,6 +18,9 @@
 #include <lib/dvb/pmtparse.h>
 
 #include <lib/components/file_eraser.h>
+#ifdef HAS_SOFTWARE_HDR_DETECTION
+#include <lib/service/hdrdetector.h>
+#endif
 #include <lib/service/servicedvbrecord.h>
 #include <lib/service/event.h>
 #include <lib/dvb/metaparser.h>
@@ -33,6 +37,11 @@
 
 #include <sys/vfs.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <chrono>
+#include <thread>
+#include <lib/dvb_ci/descrambler.h>
 
 #include <byteswap.h>
 #include <netinet/in.h>
@@ -1056,10 +1065,14 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_is_primary(1),
 	m_decoder_index(0),
 	m_have_video_pid(0),
+	m_hdr_type(0),
+#ifdef HAS_SOFTWARE_HDR_DETECTION
+	m_hdr_detect_vpid(-1),
+	m_hdr_firstframe_restarted(false),
+#endif
 	m_tune_state(-1),
 	m_noaudio(false),
 	m_is_stream(ref.path.find("://") != std::string::npos),
-//	m_is_stream(ref.path.find("://") != std::string::npos && ref.path.find("://127") == std::string::npos),
 	m_is_pvr(!ref.path.empty() && !m_is_stream),
 	m_pause_position(-1),
 	m_is_paused(0),
@@ -1267,7 +1280,6 @@ void eDVBServicePlay::serviceEvent(int event)
 		eDebug("[servicedvb][eDVBServicePlay] eventNewProgramInfo timeshift_enabled=%d timeshift_active=%d", m_timeshift_enabled, m_timeshift_active);
 		if (m_timeshift_enabled)
 			updateTimeshiftPids();
-
 		if (m_csa_session && !m_csa_session->isEcmAnalyzed())
 		{
 			eDVBServicePMTHandler::program program;
@@ -1560,6 +1572,10 @@ RESULT eDVBServicePlay::stop()
 
 	cleanupSoftwareDescrambling();
 
+#ifdef HAS_SOFTWARE_HDR_DETECTION
+	if (m_hdr_detector) { m_hdr_detector->stop(); m_hdr_detector = 0; }
+#endif
+
 	m_service_handler_timeshift.free();
 	m_service_handler.free();
 
@@ -1602,6 +1618,7 @@ RESULT eDVBServicePlay::setTarget(int target, bool noaudio = false)
 		}
 		return -1;
 	}
+
 	m_is_primary = !target;
 	m_decoder_index = target;
 	m_noaudio = noaudio;
@@ -2162,6 +2179,8 @@ int eDVBServicePlay::getInfo(int w)
 		return program.isCrypted();
 	case sIsSoftCSA:
 		return (m_csa_session && m_csa_session->isActive());
+	case sHDRType:
+		return m_hdr_type;
 	case sIsDedicated3D:
 		if (m_dvb_service) return m_dvb_service->isDedicated3D();
 		return false;
@@ -2518,7 +2537,8 @@ int eDVBServicePlay::selectAudioStream(int i)
 	}
 
 #ifdef PASSTHROUGH_FIX
-	if (apidtype == eDVBPMTParser::audioStream::atAC3 || apidtype == eDVBPMTParser::audioStream::atAAC || apidtype == eDVBPMTParser::audioStream::atDDP) {
+	if (apidtype == eDVBPMTParser::audioStream::atAC3 || apidtype == eDVBPMTParser::audioStream::atAAC || apidtype == eDVBPMTParser::audioStream::atDDP)
+	{
 		std::string pass = CFile::read("/proc/stb/audio/ac3");
 		if (replace_all(replace_all(pass, "\r", ""), "\n", "") == "passthrough")
 		{
@@ -2582,28 +2602,7 @@ void eDVBServicePlay::updateAudioCache(int apid, int apidtype)
 	if (!m_dvb_service)
 		return;
 
-	const static struct {
-		int streamType;
-		eDVBService::cacheID cacheTag;
-	} audioMap [] = {
-		{ eDVBAudio::aMPEG,  eDVBService::cMPEGAPID,  },
-		{ eDVBAudio::aAC3,   eDVBService::cAC3PID,    },
-		{ eDVBAudio::aAC4,   eDVBService::cAC4PID,    },
-		{ eDVBAudio::aDDP,   eDVBService::cDDPPID,    },
-		{ eDVBAudio::aAAC,   eDVBService::cAACAPID,   },
-		{ eDVBAudio::aDTS,   eDVBService::cDTSPID,    },
-		{ eDVBAudio::aLPCM,  eDVBService::cLPCMPID,   },
-		{ eDVBAudio::aDTSHD, eDVBService::cDTSHDPID,  },
-		{ eDVBAudio::aAACHE, eDVBService::cAACHEAPID, },
-		{ eDVBAudio::aDRA,   eDVBService::cDRAAPID,   },
-	};
-	static const int nAudioMap = sizeof audioMap / sizeof audioMap[0];
-
-	for(int m = 0; m < nAudioMap; m++)
-	{
-		m_dvb_service->setCacheEntry(audioMap[m].cacheTag, apidtype == audioMap[m].streamType ? apid : -1);
-	}
-
+	m_dvb_service->updateAudioCache(apid, apidtype);
 	eDebug("[eDVBServicePlay] updateAudioCache: pid=%04x type=%d", apid, apidtype);
 }
 
@@ -3487,6 +3486,21 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 		m_current_video_pid_type = vpidtype;
 		m_have_video_pid = (vpid > 0 && vpid < 0x2000);
 
+		if (m_have_video_pid && vpidtype == eDVBVideo::H265_HEVC)
+		{
+#ifdef HAS_SOFTWARE_HDR_DETECTION
+			/* Start detection immediately so channels accumulate data right away.
+			 * For encrypted live channels eventSizeChanged will restart with a
+			 * fresh recorder once clear data is flowing (m_hdr_firstframe_restarted).
+			 * For PVR the content is already clear so skip the first-frame restart. */
+			if (m_hdr_detect_vpid != vpid)
+			{
+				m_hdr_firstframe_restarted = m_is_pvr;
+				startHDRDetection(vpid);
+			}
+#endif
+		}
+
 		if (!m_noaudio)
 		{
 			selectAudioStream();
@@ -4150,6 +4164,19 @@ void eDVBServicePlay::video_event(struct iTSMPEGDecoder::videoEvent event)
 				m_soft_decoder_video_info_valid = true;
 				m_event((iPlayableService*)this, evUpdatedInfo);
 			}
+			/* First decoded frame — descrambling is now live.
+			 * Always restart detection exactly once on this event, discarding
+			 * any data accumulated before the CAM was ready (scrambled noise
+			 * can falsely match HEVC start codes and fool SPS detection).
+			 * Skip only if we already have a confirmed HDR result.
+			 * The one-shot flag prevents repeated restarts on resolution changes. */
+#ifdef HAS_SOFTWARE_HDR_DETECTION
+			if (m_hdr_detect_vpid > 0 && m_hdr_type == 0 && !m_hdr_firstframe_restarted)
+			{
+				m_hdr_firstframe_restarted = true;
+				startHDRDetection(m_hdr_detect_vpid);
+			}
+#endif
 			break;
 		case iTSMPEGDecoder::videoEvent::eventFrameRateChanged:
 			m_event((iPlayableService*)this, evVideoFramerateChanged);
@@ -4158,8 +4185,28 @@ void eDVBServicePlay::video_event(struct iTSMPEGDecoder::videoEvent event)
 			m_event((iPlayableService*)this, evVideoProgressiveChanged);
 			break;
 		case iTSMPEGDecoder::videoEvent::eventGammaChanged:
+		{
 			m_event((iPlayableService*)this, evVideoGammaChanged);
+			/* Update HDR type from the hardware decoder gamma.
+			 * This fires once the decoder produces frames, which may be
+			 * after the TS-recorder-based detection already timed out on
+			 * an encrypted channel (scrambled data yields no valid SPS). */
+			int gamma = -1;
+			if (m_soft_decoder && m_csa_session && m_csa_session->isActive())
+				gamma = m_soft_decoder->getVideoGamma();
+			else if (m_decoder)
+				gamma = m_decoder->getVideoGamma();
+			int newHdrType = 0;
+			if (gamma == 2) newHdrType = 1;      /* SMPTE ST2084 -> HDR10 */
+			else if (gamma == 3) newHdrType = 2; /* HLG */
+			else if (gamma == 1) newHdrType = 3; /* plain HDR */
+			if (newHdrType != m_hdr_type)
+			{
+				m_hdr_type = newHdrType;
+				m_event((iPlayableService*)this, evUpdatedInfo);
+			}
 			break;
+		}
 		default:
 			break;
 	}
@@ -4196,6 +4243,9 @@ void eDVBServicePlay::setQpipMode(bool value, bool audio)
 
 		m_decoder->set();
 	}
+
+	if (m_soft_decoder)
+		m_soft_decoder->setNoAudio(m_noaudio, m_current_audio_pid);
 }
 
 // ==================== Software Descrambling ====================
@@ -4205,6 +4255,18 @@ void eDVBServicePlay::setupSpeculativeDescrambling()
 	// Only for Live-TV, not for PVR, streams, StreamRelay
 	if (m_is_pvr || m_is_stream)
 		return;
+
+	// libdvbcsa missing -> software descrambling not possible, skip all setup
+	if (!eDVBCSAEngine::isAvailable())
+		return;
+
+	int softcsaEnable = eConfigManager::getConfigIntValue("config.misc.softcsa.Enable_Disable", 0);
+	// Enabled (0) Disabled (1) 
+	if (softcsaEnable == 1)
+	{
+		eWarning("[eDVBServicePlay] softcsa disabled)");
+		return;
+	}
 
 	eDebug("[eDVBServicePlay] Encrypted channel, creating speculative CSA session");
 
@@ -4257,15 +4319,13 @@ void eDVBServicePlay::onSessionActivated(bool active)
 		// Step 1: Release HW decoder resources
 		if (m_decoder)
 		{
-			// decoder_release is configurable via GUI:
-			// 0 - "Quick" (default): immediate release, fast channel switching
-			// 1 - "Normal": pause() before release, may be more stable on some boxes
+			// 0 = Quick (no pause), 1 = Normal (pause), 2 = Aggressive (pause + slot reset)
 			int decoder_release = eConfigManager::getConfigIntValue("config.misc.softcsa.decoderRelease", 0);
-			bool needsPause = (decoder_release == 1); // 1 = Normal
+			bool needsPause = (decoder_release >= 1);
 
 			if (needsPause)
 			{
-				eDebug("[eDVBServicePlay] Normal decoder release - calling pause() for clean release");
+				eDebug("[eDVBServicePlay] Pausing HW decoder for clean release");
 				m_decoder->pause();
 			}
 			else
@@ -4287,6 +4347,16 @@ void eDVBServicePlay::onSessionActivated(bool active)
 			eDebug("[eDVBServicePlay] HW decoder released (fast path)");
 		}
 
+		// Connect SoftDecoder signals BEFORE start() - m_decoder_ready and the
+		// first video size event can fire synchronously inside start() when CW
+		// is already available, so connecting afterwards would miss them.
+		m_soft_decoder->connectVideoEvent(
+			sigc::mem_fun(*this, &eDVBServicePlay::video_event),
+			m_video_event_connection);
+		m_soft_decoder->m_decoder_ready.connect(
+			sigc::mem_fun(*this, &eDVBServicePlay::onSoftDecoderReady));
+		m_soft_decoder_video_info_valid = false;
+
 		// Step 2: Start the soft decoder (now has access to video0/audio0)
 		eDebug("[eDVBServicePlay] Starting SoftDecoder");
 		if (m_soft_decoder->start() != 0)
@@ -4297,30 +4367,7 @@ void eDVBServicePlay::onSessionActivated(bool active)
 			return;
 		}
 
-		// Step 3: Connect to SoftDecoder signals
-		// NOTE: We keep the existing m_teletext_parser and m_subtitle_parser!
-		// They were created in updateDecoder() on m_decode_demux which reads from FRONTEND.
-		// Teletext/subtitle data is NOT encrypted, so we can read it directly from the tuner.
-		// Only video/audio needs to go through the DVR loopback for descrambling.
-		if (m_soft_decoder)
-		{
-			// Connect video events from SoftDecoder's decoder
-			m_soft_decoder->connectVideoEvent(
-				sigc::mem_fun(*this, &eDVBServicePlay::video_event),
-				m_video_event_connection);
-			eDebug("[eDVBServicePlay] Connected video events from SoftDecoder");
-		}
-
 		eDebug("[eDVBServicePlay] SoftDecoder takeover complete");
-
-		// Connect decoder-ready signal: SoftDecoder fires this after decoder PLAY,
-		// when video info is actually queryable. We defer evUpdatedInfo until then
-		// to avoid the skin querying -1 values before the decoder exists.
-		m_soft_decoder->m_decoder_ready.connect(
-			sigc::mem_fun(*this, &eDVBServicePlay::onSoftDecoderReady));
-
-		// Reset video info flag - will be set on first video size event from decoder
-		m_soft_decoder_video_info_valid = false;
 	}
 	else if (!active && m_soft_decoder)
 	{
@@ -4353,19 +4400,26 @@ void eDVBServicePlay::onSoftDecoderAudioPidSelected(int pid)
 
 void eDVBServicePlay::cleanupSoftwareDescrambling()
 {
+	// Aggressive mode: reset HW-descrambler slot when leaving any encrypted
+	// service.
+	if (eDVBServicePMTHandler::program prog;
+		m_service_handler.getProgramInfo(prog) == 0
+		&& prog.isCrypted()
+		&& m_csa_session
+		&& eConfigManager::getConfigIntValue("config.misc.softcsa.decoderRelease", 0) == 2)
+		resetHwDescramblerSlot();
+
 	if (m_decoder)
 	{
 		eDebug("[eDVBServicePlay] Cleaning up HW decoder for clean handover");
 
-		// decoder_release is configurable via GUI:
-		// 0 - "Quick" (default): immediate release, fast channel switching
-		// 1 - "Normal": pause() before release, may be more stable on some boxes
+		// 0 = Quick (no pause), 1 = Normal (pause), 2 = Aggressive (pause + slot reset)
 		int decoder_release = eConfigManager::getConfigIntValue("config.misc.softcsa.decoderRelease", 0);
-		bool needsPause = (decoder_release == 1); // 1 = Normal
+		bool needsPause = (decoder_release >= 1);
 
 		if (needsPause)
 		{
-			eDebug("[eDVBServicePlay] Normal decoder release - calling pause() for clean handover");
+			eDebug("[eDVBServicePlay] Pausing HW decoder for clean handover");
 			m_decoder->pause();
 		}
 		else
@@ -4384,6 +4438,7 @@ void eDVBServicePlay::cleanupSoftwareDescrambling()
 	if (m_soft_decoder)
 	{
 		eDebug("[eDVBServicePlay] Cleaning up SoftDecoder");
+		m_video_event_connection = nullptr;
 		m_soft_decoder->stop();
 		m_soft_decoder = nullptr;
 	}
@@ -4403,6 +4458,145 @@ void eDVBServicePlay::cleanupSoftwareDescrambling()
 	m_csa_activated_conn = nullptr;
 	m_soft_decoder_video_info_valid = false;
 }
+
+void eDVBServicePlay::resetHwDescramblerSlot()
+{
+	// Works around drivers (dm900) where CA_SET_PID(pid, -1) returns ok but
+	// the slot keeps descrambling with old CWs. Must run BEFORE the next
+	// service tunes - after CSA-ALT detection the slot ignores all ioctls.
+
+	// Collect this service's stream PIDs from the cached PMT
+	std::set<int> pids;
+	if (eDVBServicePMTHandler::program program; !m_service_handler.getProgramInfo(program))
+	{
+		for (const auto& v : program.videoStreams)
+			if (v.pid > 0 && v.pid < 0x1fff) pids.insert(v.pid);
+		for (const auto& a : program.audioStreams)
+			if (a.pid > 0 && a.pid < 0x1fff) pids.insert(a.pid);
+		for (const auto& s : program.subtitleStreams)
+			if (s.pid > 0 && s.pid < 0x1fff) pids.insert(s.pid);
+		if (program.pcrPid > 0 && program.pcrPid < 0x1fff) pids.insert(program.pcrPid);
+		if (program.textPid > 0 && program.textPid < 0x1fff) pids.insert(program.textPid);
+	}
+
+	if (pids.empty())
+	{
+		eDebug("[eDVBServicePlay] HW-descr reset: no PIDs in program info, skipping");
+		return;
+	}
+
+	// ca<N> matches demux<N>; fall back to ca0.
+	int ca_id = 0;
+	{
+		ePtr<iDVBDemux> demux;
+		if (!m_service_handler.getDataDemux(demux) && demux)
+		{
+			uint8_t did = 0;
+			demux->getCADemuxID(did);
+			ca_id = did;
+		}
+	}
+	const std::string ca_path = "/dev/dvb/adapter0/ca" + std::to_string(ca_id);
+
+	int disabled = 0;
+	int reset = 0;
+
+	if (int fd = ::open(ca_path.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC); fd >= 0)
+	{
+		for (int pid : pids)
+		{
+			struct ca_pid p = {(unsigned int)pid, -1};
+			if (::ioctl(fd, CA_SET_PID, &p) == 0)
+				disabled++;
+		}
+
+		if (::ioctl(fd, CA_RESET, 0) == 0)
+			reset++;
+
+		::close(fd);
+	}
+	else
+	{
+		eDebug("[eDVBServicePlay] HW-descr reset: %s open failed (%m)", ca_path.c_str());
+		return;
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+	eDebug("[eDVBServicePlay] HW-descr reset: %s %zu PIDs, disabled=%d reset=%d, sleep=200ms",
+		ca_path.c_str(), pids.size(), disabled, reset);
+}
+
+// ==================== HDR Detection ====================
+
+#ifdef HAS_SOFTWARE_HDR_DETECTION
+void eDVBServicePlay::startHDRDetection(int vpid)
+{
+	if (m_hdr_detector) { m_hdr_detector->stop(); m_hdr_detector = 0; }
+	m_hdr_detect_vpid = vpid;
+	m_hdr_type = 0;
+
+	/* Demux selection strategy:
+	 *
+	 * The decode demux is ALWAYS the authoritative source of clear data once
+	 * eventSizeChanged has fired — the hardware decoder just produced a frame
+	 * from it, so it is definitively carrying clear HEVC packets.
+	 *
+	 * We try decode demux first for everyone.  On STBs where the kernel driver
+	 * refuses a second PID filter on the decode demux (PID conflict with the
+	 * hardware decoder's own filter), isRecording() returns false and we fall
+	 * back to the data demux — UNLESS this is a softCSA channel, where the
+	 * data demux still has scrambled TS (the software CSA writes clear packets
+	 * only into the decode demux).
+	 *
+	 * For external softcam (OSCam/CCcam) the decode demux is also the right
+	 * choice: many STBs inject CWs into the hardware decoder's descrambler
+	 * via a proprietary path that does NOT update the Linux CA demux interface,
+	 * so the data demux may still carry scrambled TS even after the first
+	 * decoded frame. */
+	bool isSoftCSA = (m_csa_session && m_csa_session->isActive());
+
+	ePtr<iDVBDemux> demuxA, demuxB;
+	m_service_handler.getDecodeDemux(demuxA);
+	if (!isSoftCSA)
+		m_service_handler.getDataDemux(demuxB);  /* fallback if decode demux has PID conflict */
+
+	m_hdr_detector = new eHDRStreamDetector();
+	m_hdr_detector->resultChanged.connect(
+		sigc::mem_fun(*this, &eDVBServicePlay::hdrResult));
+
+	if (m_hdr_detector->start(demuxA, vpid) != 0)
+	{
+		m_hdr_detector = 0;
+		return;
+	}
+
+	/* If the recorder didn't start (PID conflict / createTSRecorder failure),
+	 * immediately retry on the fallback demux rather than waiting 10 s for the
+	 * timeout to fire an SDR result. */
+	if (!m_hdr_detector->isRecording() && demuxB)
+	{
+		eDebug("[eDVBServicePlay] HDR: primary demux recorder failed, retrying on fallback");
+		m_hdr_detector->stop();
+		m_hdr_detector = new eHDRStreamDetector();
+		m_hdr_detector->resultChanged.connect(
+			sigc::mem_fun(*this, &eDVBServicePlay::hdrResult));
+		if (m_hdr_detector->start(demuxB, vpid) != 0)
+			m_hdr_detector = 0;
+	}
+}
+
+void eDVBServicePlay::hdrResult(int result)
+{
+	m_hdr_detector = 0; /* mark detection complete; allows retry on next eventSizeChanged */
+	m_hdr_type = result;
+	/* Fire all three events so every skin pattern is covered:
+	 * - evVideoGammaChanged: skins that track gamma/HDR changes
+	 * - evUpdatedInfo:       general service-info listeners (ServiceInfo converter) */
+	m_event((iPlayableService*)this, evVideoGammaChanged);
+	m_event((iPlayableService*)this, evUpdatedInfo);
+}
+#endif /* HAS_SOFTWARE_HDR_DETECTION */
 
 // ==================== End Software Descrambling ====================
 

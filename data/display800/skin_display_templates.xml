@@ -22,6 +22,7 @@
 	</fonts>
 
 	<colors>
+		<color name="FdLcdTitleForeground" value="#7fffff" /><!-- LightCyan -->
 		<color name="FdLcdRed" value="#00f50808" />
 		<color name="FdLcdBlack" value="#00000000" />
 	</colors>
@@ -46,7 +47,7 @@
 	
 	<!-- ## DEFAULT ## -->
 	<screen name="LCDTitle">
-		<widget source="parent.title" render="Label" position="20,40" size="720,90" font="FdLcD;75" halign="center" valign="center" zPosition="2" />
+		<widget source="parent.title" render="Label" position="20,10" size="760,90" font="FdLcD;70" halign="center" valign="center" zPosition="2" foregroundColor="FdLcdTitleForeground"/>
 	</screen>
 	<screen name="LCDInfoBarChannelName">
 		<widget source="session.CurrentService" render="RunningText" options="movetype=running,startpoint=0,direction=left,steptime=80,repeat=3,always=0,oneshot=1,startdelay=6000,wrap" position="40,40" size="720,90" font="FdLcD;75" halign="center" valign="center" zPosition="2">
@@ -54,7 +55,7 @@
 		</widget>
 	</screen>
 	<screen name="LCDInfoBarProgramName">
-		<widget source="session.Event_Now" render="Label" position="40,150" size="720,150" font="FdLcDLight;60" halign="center" zPosition="2">
+		<widget source="session.Event_Now" render="Label" position="40,150" size="720,160" font="FdLcDLight;60" halign="center" zPosition="2">
 			<convert type="EventName">Name</convert>
 		</widget>
 	</screen>
@@ -70,8 +71,8 @@
 	</screen>
 	<screen name="LCDInfoBarRemainingTime">
 		<widget source="session.Event_Now" render="Label" position="40,390" size="320,70" font="FdLcD;60" halign="left" valign="center">
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">InMinutes</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 	</screen>
 	<screen name="LCDInfoBarStartEndTime">
@@ -93,7 +94,7 @@
 		</widget>
 	</screen>
 	<screen name="LCDChannelSelectionProgramName">
-		<widget source="parent.ServiceEvent" render="Label" position="40,150" size="720,150" font="FdLcDLight;60" halign="center" zPosition="2">
+		<widget source="parent.ServiceEvent" render="Label" position="40,150" size="720,160" font="FdLcDLight;60" halign="center" zPosition="2">
 			<convert type="EventName">Name</convert>
 		</widget>
 	</screen>
@@ -104,8 +105,8 @@
 	</screen>
 	<screen name="LCDChannelSelectionRemainingTime">
 		<widget source="parent.ServiceEvent" render="Label" position="40,390" size="320,70" font="FdLcD;60" halign="left" valign="center">
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">InMinutes</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 	</screen>
 	<screen name="LCDChannelSelectionStartEndTime">
@@ -121,7 +122,7 @@
 		</widget>
 	</screen>
 	<screen name="LCDEPGProgramName">
-		<widget source="parent.Event" render="Label" position="40,150" size="720,150" font="FdLcDLight;60" halign="center" zPosition="2">
+		<widget source="parent.Event" render="Label" position="40,150" size="720,160" font="FdLcDLight;60" halign="center" zPosition="2">
 			<convert type="EventName">Name</convert>
 		</widget>
 	</screen>
@@ -132,8 +133,8 @@
 	</screen>
 	<screen name="LCDEPGRemainingTime">
 		<widget source="parent.Event" render="Label" position="40,390" size="320,70" font="FdLcD;60" halign="left" valign="center">
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">InMinutes</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 	</screen>
 	<screen name="LCDEPGStartEndTime">
@@ -145,17 +146,17 @@
 
 	<!-- ## DEFAULT WITH PICON ## -->
 	<screen name="LCDPiconInfoBarProgramName">
-		 <widget source="session.Event_Now" render="Label" position="40,260" size="720,80" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
+		 <widget source="session.Event_Now" render="Label" position="40,253" size="720,88" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
 			<convert type="EventName">Name</convert>
 		</widget>
 	</screen>
 	<screen name="LCDPiconChannelSelectionProgramName">
-		<widget source="parent.ServiceEvent" render="Label" position="40,260" size="720,80" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
+		<widget source="parent.ServiceEvent" render="Label" position="40,253" size="720,88" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
 			<convert type="EventName">Name</convert>
 		</widget>	
 	</screen>
 	<screen name="LCDPiconEPGProgramName">
-		<widget source="parent.Event" render="Label" position="40,260" size="720,80" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
+		<widget source="parent.Event" render="Label" position="40,253" size="720,88" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
 			<convert type="EventName">Name</convert>
 		</widget>
 	</screen>
@@ -176,20 +177,20 @@
 	</screen>
 	<screen name="LCDPiconInfoBarRemainingTime">
 		<widget source="session.Event_Now" render="Label" position="40,390" size="320,70" font="FdLcD;60" halign="left" valign="center">
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">InMinutes</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 	</screen>
 	<screen name="LCDPiconChannelSelectionRemainingTime">
 		<widget source="parent.ServiceEvent" render="Label" position="40,390" size="320,70" font="FdLcD;60" halign="left" valign="center">
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">InMinutes</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 	</screen>
 	<screen name="LCDPiconEPGRemainingTime">
 		<widget source="parent.Event" render="Label" position="40,390" size="320,70" font="FdLcD;60" halign="left" valign="center">
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">InMinutes</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 	</screen>
 	<screen name="LCDPiconInfoBarStartEndTime">
@@ -332,15 +333,18 @@
 	<screen name="MessageBoxSimpleSummary" position="fill" resolution="800,480"> 
 		<panel name="MessageBoxSummary" />
 	</screen>
+	<screen name="MessageBoxWizardSummary" position="fill" resolution="800,480"> 
+		<panel name="MessageBoxSummary" />
+	</screen>
 
 	<!-- MOVIE SELECTION -->
 	<screen name="MovieSelectionSummary" position="fill" resolution="800,480"> 
 		<panel name="LCDTitle" />
-		<widget source="name" render="Label" position="40,150" size="720,150" font="FdLcDLight;60" halign="center" zPosition="2" />
+		<widget source="name" render="Label" position="40,150" size="720,245" font="FdLcDLight;60" halign="center" zPosition="2" />
 		<widget source="parent.Service" render="Label" position="40,400" size="320,70" font="FdLcD;60" halign="left" valign="center">
 			<convert type="MovieInfo">FileSize</convert>
 		</widget>
-		<widget source="parent.Service" render="Label" position="40,480" size="320,70" font="FdLcD;60" halign="left" valign="center">
+		<widget source="parent.Service" render="Label" position="440,400" size="320,70" font="FdLcD;60" halign="right" valign="center">
 			<convert type="ServiceTime">Duration</convert>
 			<convert type="ClockToText">AsLength</convert>
 		</widget>
@@ -386,9 +390,9 @@
 
 	<!-- SETUP -->
 	<screen name="SetupSummary" position="fill" resolution="800,480"> 
-		<widget source="SetupTitle" render="Label" position="20,40" size="720,90" font="FdLcD;75" halign="center" valign="center" zPosition="2" noWrap="1" />
+		<widget source="SetupTitle" render="Label" position="40,40" size="720,90" font="FdLcD;75" halign="center" valign="center" zPosition="2" noWrap="1" />
 		<widget source="SetupEntry" render="Label" position="40,200" size="720,160" font="FdLcDLight;65" halign="center" zPosition="2" noWrap="1" />
-		<widget source="SetupValue" render="Label" position="40,360" size="720,70" font="FdLcDLight;60" halign="center" zPosition="2" noWrap="1" />
+		<widget source="SetupValue" render="Label" position="40,380" size="720,80" font="FdLcDLight;60" halign="center" zPosition="2" noWrap="1" />
 	</screen>
 
 	<!-- SkinSelector -->
@@ -413,8 +417,8 @@
 
 	<!-- ET PORTAL -->
 	<screen name="EtPortalScreenSummary" position="fill" resolution="800,480">
-		<eLabel text="EtPortal" position="15,20" size="670,120" font="FdLcD;70" halign="center" noWrap="1" />
-		<widget source="parent.label" render="Label" position="white" size="670,200" font="FdLcD;60" halign="center" />
+		<eLabel text="EtPortal" position="40,40" size="720,120" font="FdLcD;70" halign="center" noWrap="1" />
+		<widget source="parent.label" render="Label" position="40,260" size="720,200" font="FdLcD;60" halign="center" />
 	</screen>
 
 	<!-- misc -->
@@ -426,7 +430,7 @@
 	<screen name="ServiceScanSummary" position="fill" resolution="800,480">
 		<widget name="Title" render="Label" position="40,80" size="720,90" font="FdLcD;70" halign="center" valign="center" />
 		<widget name="scan_progress" position="40,400" size="720,25" borderWidth="2" />
-		<widget name="Service" position="70,220" size="720,170" font="FdLcD;50" transparent="1" />
+		<widget name="Service" position="40,220" size="720,170" font="FdLcD;50" transparent="1" />
 		<widget source="global.CurrentTime" render="Label" position="590,15" size="200,75" halign="left" font="FdLcD;70">
 			<convert type="ClockToText">Default</convert>
 		</widget>
@@ -435,11 +439,11 @@
 	<!-- TimerEditListSummary -->
 	<screen name="TimerEditListSummary" position="fill" resolution="800,480">
 		<panel name="LCDTitle" />
-		<widget source="service" render="Label" position="0,140" size="e,70" font="FdLcD;65" halign="center" valign="center" noWrap="1" />
-		<widget source="name" render="Label" position="0,230" size="e,60" font="FdLcD;50" halign="center" valign="center" />
-		<widget source="time" render="Label" position="0,310" size="c,60" font="FdLcD;60" halign="center" valign="center" transparent="1" />
-		<widget source="duration" render="Label" position="c,310" size="c,60" font="FdLcD;60" halign="center" valign="center" transparent="1" />
-		<widget source="state" render="Label" position="0,380" size="e,80" font="FdLcD;65" halign="center" valign="center" transparent="1" />
+		<widget source="service" render="Label" position="0,110" size="e,70" font="FdLcD;65" halign="center" valign="center" noWrap="1" />
+		<widget source="name" render="Label" position="0,190" size="e,60" font="FdLcD;50" halign="center" valign="center" />
+		<widget source="time" render="Label" position="0,260" size="e,65" font="FdLcD;60" halign="center" valign="center" transparent="1" />
+		<widget source="duration" render="Label" position="0,330" size="e,65" font="FdLcD;60" halign="center" valign="center" transparent="1" />
+		<widget source="state" render="Label" position="0,395" size="e,80" font="FdLcD;65" halign="center" valign="center" transparent="1" />
 	</screen>
 
 	<!-- LanguageSelection -->
@@ -531,24 +535,26 @@
 
 	<screen name="EventViewSimpleSummary" position="fill" resolution="800,480">
 		<panel name="LCDTitle" />
-		<widget source="parent.summary_description" render="Label" position="20,140" size="720,320" font="FdLcDLight;54" />
+		<widget source="parent.summary_description" render="Label" position="20,140" size="760,320" font="FdLcDLight;54" />
 	</screen>
 
-<!-- UpdatePlugin -->
+	<!-- UpdatePlugin -->
 	<screen name="UpdatePluginSummary" position="fill" resolution="800,480">
 		<panel name="LCDTitle" />
-		<widget source="parent.package" render="Label" position="40,200" size="720,160" font="FdLcDLight;65" halign="center" />
+		<widget source="parent.package" render="Label" position="40,160" size="720,200" font="FdLcDLight;65" halign="center" />
 		<widget source="parent.status" render="Label" position="20,340" size="760,120" font="FdLcDLight;54" halign="center" valign="center" />
-		<panel name="SummaryClockPanel" />
+		<widget source="global.CurrentTime" render="Label" position="600,400" size="160,60" font="FdLcD;40" halign="right" valign="center" noWrap="1">
+			<convert type="ClockToText"></convert>
+		</widget>
 	</screen>
 
-<!-- AutoTimerOverview -->
+	<!-- AutoTimerOverview -->
 	<screen name="AutoTimerOverviewSummary" position="fill" resolution="800,480">
 		<panel name="LCDTitle" />
-        <widget source="entry" render="Label" position="20,200" size="720,260" font="FdLcDLight;54" halign="center" transparent="1" zPosition="1" />
+		<widget source="entry" render="Label" position="20,200" size="760,260" font="FdLcDLight;54" halign="center" transparent="1" zPosition="1" />
 	</screen>
 
-<!-- EPGSummary -->
+	<!-- EPGSummary -->
 	<screen name="GraphicalEPGSummary" position="fill" resolution="800,480">
 		<panel name="GraphicalEPGPIGSummary" />
 	</screen>
@@ -562,10 +568,40 @@
 		<panel name="GraphicalEPGPIGSummary" />
 	</screen>
 
-<!-- ChannelSelectionRadio -->
+	<!-- ChannelSelectionRadio -->
 	<screen name="ChannelSelectionRadioSummary" position="fill" resolution="800,480">
-		<widget source="parent.RdsDecoder" render="Label" position="40,200" size="720,150" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
+		<widget source="parent.RdsDecoder" render="Label" position="40,200" size="720,160" font="FdLcDLight;65" halign="center" valign="center" zPosition="2">
 			<convert type="RdsInfo">RtpText</convert>
+		</widget>
+	</screen>
+
+	<!-- OAWEATHER -->
+	<screen name="OAWeatherOverviewSummary" position="fill" resolution="800,480">
+		<widget font="FdLcD;80" foregroundColor="yellow" halign="center" noWrap="1" position="10,10" render="Label" size="780,90" source="session.OAWeather" transparent="1" zPosition="1">
+			<convert type="OAWeather">city</convert>
+		</widget>
+		<eLabel position="10,110" size="780,5" backgroundColor="blue" zPosition="1" />
+		<widget position="10,135" render="OAWeatherPixmap" scale="1" size="270,270" source="session.OAWeather" transparent="1" zPosition="1" >
+			<convert type="OAWeather">weathericon,current</convert>
+		</widget>
+		<ePixmap pixmap="/usr/share/enigma2/display/skin_default/temperature_high_low_icon.png" position="280,120" size="60,60" scale="1" transparent="1" zPosition="1" />
+		<widget font="FdLcD;60" position="350,120" render="Label" size="400,70" source="session.OAWeather" zPosition="1" >
+			<convert type="OAWeather">temperature_high_low,current</convert>
+		</widget>
+		<ePixmap pixmap="/usr/share/enigma2/display/skin_default/temperature_icon.png" position="280,200" size="60,60" scale="1" transparent="1" zPosition="1" />
+		<widget font="FdLcD;60" position="350,200" render="Label" size="400,70" source="session.OAWeather" zPosition="1">
+			<convert type="OAWeather">temperature_current</convert>
+		</widget>
+		<ePixmap pixmap="/usr/share/enigma2/display/skin_default/humidity_icon.png" position="280,280" size="60,60" scale="1" transparent="1" zPosition="1" />
+		<widget font="FdLcD;60" position="350,280" render="Label" size="400,70" source="session.OAWeather" zPosition="1">
+			<convert type="OAWeather">humidity</convert>
+		</widget>
+		<ePixmap pixmap="/usr/share/enigma2/display/skin_default/wind_icon.png" position="280,360" size="60,60" scale="1" transparent="1" zPosition="1" />
+		<widget font="FdLcD;60" position="350,360" render="Label" size="60,70" source="session.OAWeather" zPosition="1">
+			<convert type="OAWeather">winddirarrow</convert>
+		</widget>
+		<widget font="FdLcD;60" position="410,360" render="Label" size="380,70" source="session.OAWeather" zPosition="1">
+			<convert type="OAWeather">windspeed</convert>
 		</widget>
 	</screen>
 </skin>

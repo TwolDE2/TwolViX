@@ -19,6 +19,7 @@ eHttpsStream::eHttpsStream()
 	partialPktSz = 0;
 	tmpBufSize = 32;
 	tmpBuf = (char*)malloc(tmpBufSize);
+	isStreamRelay = false;
 	if (eConfigManager::getConfigBoolValue("config.usage.remote_fallback_enabled", false))
 		startDelay = 500000;
 	else
@@ -33,9 +34,22 @@ eHttpsStream::eHttpsStream()
 
 eHttpsStream::~eHttpsStream()
 {
+	if (!isStreamRelay)
+	{
+		threadAbort = true;
+		pthread_cond_broadcast(&ringNotFull);
+		pthread_cond_broadcast(&ringNotEmpty);
+	}
 	abort_badly();
 	kill();
 	free(tmpBuf);
+	if (!isStreamRelay)
+	{
+		free(ringBuf);
+		pthread_mutex_destroy(&ringMutex);
+		pthread_cond_destroy(&ringNotEmpty);
+		pthread_cond_destroy(&ringNotFull);
+	}
 	close();
 }
 
@@ -54,8 +68,7 @@ int eHttpsStream::openUrl(const std::string &url, std::string &newurl)
 	char statusmsg[100];
 	bool playlist = false;
 	bool contenttypeparsed = false;
-	//std::string PREFERRED_CIPHERS = "HIGH:!aNULL:!kRSA:!PSK:!SRP:!MD5:!RC4";
-	std::string PREFERRED_CIPHERS = "ALL:!aNULL:!eNULL";
+	std::string PREFERRED_CIPHERS = "HIGH:!aNULL:!MD5:!RC4";
 	const char *errstr = NULL;
 
 	close();
@@ -304,6 +317,7 @@ error:
 int eHttpsStream::open(const char *url)
 {
 	streamUrl = url;
+	detectStreamRelay(streamUrl);
 	/*
 	 * We're in gui thread context here, and establishing
 	 * a connection might block for up to 10 seconds.
@@ -325,19 +339,27 @@ void eHttpsStream::thread()
 	{
 		if (openUrl(currenturl, newurl) < 0)
 		{
-			/* connection failed */
 			eDebug("[eHttpsStream] Thread end NO connection");
 			connectionStatus = FAILED;
+			if (!isStreamRelay)
+			{
+				pthread_mutex_lock(&ringMutex);
+				ringEof = true;
+				pthread_cond_broadcast(&ringNotEmpty);
+				pthread_mutex_unlock(&ringMutex);
+			}
 			return;
 		}
 		if (newurl == "")
 		{
-			/* we have a valid stream connection */
-			eDebug("[eHttpsStream] Thread end connection");
+			/* connection established — start filling the ring buffer */
+			eDebug("[eHttpsStream] Thread - connection established, filling buffer - ring buffer if not stream relay");
 			connectionStatus = CONNECTED;
+			if (!isStreamRelay)
+				fillRingBuffer();
 			return;
 		}
-		/* switch to new url */
+		/* follow redirect / playlist */
 		close();
 		currenturl = newurl;
 		newurl = "";
@@ -345,6 +367,13 @@ void eHttpsStream::thread()
 	/* too many redirect / playlist levels */
 	eDebug("[eHttpsStream] thread end NO connection");
 	connectionStatus = FAILED;
+	if (!isStreamRelay)
+	{
+		pthread_mutex_lock(&ringMutex);
+		ringEof = true;
+		pthread_cond_broadcast(&ringNotEmpty);
+		pthread_mutex_unlock(&ringMutex);
+	}
 	return;
 }
 
@@ -476,14 +505,45 @@ ssize_t eHttpsStream::read(off_t offset, void *buf, size_t count)
 		return 0;
 	else if (connectionStatus == FAILED)
 		return -1;
-	return httpChunkedRead(buf, count);
+	if (isStreamRelay)
+		return httpChunkedRead(buf, count);
+	else
+	{
+		unsigned char *b = (unsigned char*)buf;
+		size_t pre = partialPktSz;
+		if (pre > 0)
+		{
+			/* prepend the partial TS packet saved from the previous read */
+			memcpy(b, partialPkt, pre);
+			partialPktSz = 0;
+		}
+		ssize_t got = readFromRing(b + pre, count - pre);
+		if (got <= 0)
+			return got;
+		return syncNextRead(buf, (ssize_t)(got + pre));
+	}
 }
 
 int eHttpsStream::valid()
 {
-	if (connectionStatus == BUSY)
-		return 0;
-	return streamSocket >= 0;
+	if (isStreamRelay)
+	{
+		if (connectionStatus == BUSY)
+			return 0;
+		return streamSocket >= 0;
+	}
+	else
+	{
+		if (connectionStatus == FAILED)
+			return -1;
+		else
+		{
+			pthread_mutex_lock(&ringMutex);
+			int ok = (ringFill > 0 || (!ringEof && streamSocket >= 0)) ? 1 : 0;
+			pthread_mutex_unlock(&ringMutex);
+			return ok;
+		}
+	}
 }
 
 off_t eHttpsStream::length()
@@ -498,51 +558,53 @@ off_t eHttpsStream::offset()
 
 SSL_CTX* eHttpsStream::initCTX()
 {
-	const SSL_METHOD *method;
-	SSL_CTX *ctx;
-
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L)
-	if (!OPENSSL_init_ssl(OPENSSL_INIT_SSL_DEFAULT, NULL))
-	{
-		eDebug("[eHttpsStream] Error initializing OpenSSL");
-		return NULL;
-	}
-#else
-	SSL_library_init();
-	SSL_load_error_strings();
-	OpenSSL_add_all_algorithms();
-#endif
-
-	method = SSLv23_method();		/* Create new client-method instance TODO rename to TLS_method */
+	const SSL_METHOD *method = TLS_method();
 	if (!method)
 	{
-		eDebug("[eHttpsStream] Error initializing OpenSSL");
+		eDebug("[eHttpsStream] Failed to create TLS method");
 		return NULL;
 	}
 
-	ctx = SSL_CTX_new(method);		/* Create new context */
+	SSL_CTX *ctx = SSL_CTX_new(method);
 	if (!ctx)
 	{
-		eDebug("[eHttpsStream] Error initializing OpenSSL");
+		eDebug("[eHttpsStream] Failed to create SSL context");
 		return NULL;
 	}
 
+	SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
+	SSL_CTX_set_options(ctx, SSL_OP_NO_COMPRESSION);
+
+	SSL_CTX_set_default_verify_paths(ctx);
 	if (!SSL_CTX_load_verify_locations(ctx, NULL, "/etc/ssl/certs"))
 	{
-		eDebug("[eHttpsStream] Error loading trust store");
+		eDebug("[eHttpsStream] Warning: failed to load trust store from /etc/ssl/certs");
 	}
 
-	/* TODO Add SSL_CTX_use_certificate_file controller by Enigma2 to allow client certificates */
-#if 0
-	if (!SSL_CTX_use_certificate_file(ctx, "/etc/enigma2/certificate.pem", SSL_FILETYPE_PEM))
+	/* load client certificate and key if both files exist */
+	FILE *fp = fopen("/etc/enigma2/certificate.pem", "r");
+	if (fp)
 	{
-		eDebug("[eHttpsStream] Error loading client certificate");
+		fclose(fp);
+		if (SSL_CTX_use_certificate_chain_file(ctx, "/etc/enigma2/certificate.pem") == 1)
+		{
+			if (SSL_CTX_use_PrivateKey_file(ctx, "/etc/enigma2/key.pem", SSL_FILETYPE_PEM) == 1)
+			{
+				if (SSL_CTX_check_private_key(ctx) == 1)
+					eDebug("[eHttpsStream] Client certificate loaded");
+				else
+					eWarning("[eHttpsStream] Client certificate and private key do not match");
+			}
+			else
+			{
+				eWarning("[eHttpsStream] Failed to load client private key from /etc/enigma2/key.pem");
+			}
+		}
+		else
+		{
+			eWarning("[eHttpsStream] Failed to load client certificate from /etc/enigma2/certificate.pem");
+		}
 	}
-	SSL_CTX_use_PrivateKey_file(ctx, "/etc/enigma2/key.pem", SSL_FILETYPE_PEM);
-#endif
-
-	const long flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION;
-	SSL_CTX_set_options(ctx, flags);	/* Allow only TLS */
 
 	return ctx;
 }
@@ -552,7 +614,7 @@ void eHttpsStream::showCerts(SSL *ssl)
 	X509 *cert;
 	char *line;
 
-	cert = SSL_get_peer_certificate(ssl);	/* get the server's certificate */
+	cert = SSL_get1_peer_certificate(ssl);	/* get the server's certificate */
 	if (cert)
 	{
 		eDebug("[eHttpsStream] Show Server Sertificates");
@@ -629,4 +691,159 @@ ssize_t eHttpsStream::SSL_readLine(SSL *ssl, char** buffer, size_t* bufsize)
 		if ((*buffer)[i] != '\r') i++;
 	}
 	return -1;
+}
+
+/* sslRead — reads raw bytes via SSL, transparently handling chunked transfer
+ * encoding.  No TS-packet alignment is applied here. */
+ssize_t eHttpsStream::sslRead(void *buf, size_t count)
+{
+	if (!isChunked)
+		return SSL_singleRead(ssl, buf, count);
+
+	size_t total_read = 0;
+	while (total_read < count)
+	{
+		if (currentChunkSize == 0)
+		{
+			ssize_t r;
+			do {
+				r = SSL_readLine(ssl, &tmpBuf, &tmpBufSize);
+				if (r < 0) return (total_read > 0) ? (ssize_t)total_read : -1;
+			} while (!*tmpBuf && r > 0); /* skip blank lines between chunks */
+			if (r == 0) break;
+			currentChunkSize = strtol(tmpBuf, NULL, 16);
+			if (currentChunkSize == 0) return (total_read > 0) ? (ssize_t)total_read : -1;
+		}
+
+		size_t to_read = count - total_read;
+		if (currentChunkSize < to_read) to_read = currentChunkSize;
+
+		ssize_t r = SSL_singleRead(ssl, ((char*)buf) + total_read, to_read);
+		if (r <= 0) break;
+		currentChunkSize -= (size_t)r;
+		total_read += (size_t)r;
+	}
+	return (total_read > 0) ? (ssize_t)total_read : -1;
+}
+
+/* fillRingBuffer — producer loop: runs inside the streaming thread and pumps
+ * decrypted HTTPS data into the ring buffer until EOF, error, or abort. */
+void eHttpsStream::fillRingBuffer()
+{
+	const size_t chunk = 65536; /* 64 KB at a time from SSL */
+	unsigned char *tmp = (unsigned char*)malloc(chunk);
+	if (tmp)
+	{
+		while (!threadAbort)
+		{
+			ssize_t got = sslRead(tmp, chunk);
+			if (got <= 0) break;
+
+			size_t written = 0;
+			while (written < (size_t)got && !threadAbort)
+			{
+				pthread_mutex_lock(&ringMutex);
+				while (ringFill == ringBufSize && !threadAbort)
+					pthread_cond_wait(&ringNotFull, &ringMutex);
+
+				if (threadAbort)
+				{
+					pthread_mutex_unlock(&ringMutex);
+					break;
+				}
+
+				size_t space    = ringBufSize - ringFill;
+				size_t to_write = (size_t)got - written;
+				if (to_write > space) to_write = space;
+
+				/* copy into ring buffer, handling wrap-around */
+				size_t first = ringBufSize - ringHead;
+				if (to_write <= first)
+				{
+					memcpy(ringBuf + ringHead, tmp + written, to_write);
+				}
+				else
+				{
+					memcpy(ringBuf + ringHead, tmp + written, first);
+					memcpy(ringBuf, tmp + written + first, to_write - first);
+				}
+				ringHead  = (ringHead + to_write) % ringBufSize;
+				ringFill += to_write;
+				written  += to_write;
+
+				pthread_cond_signal(&ringNotEmpty);
+				pthread_mutex_unlock(&ringMutex);
+			}
+		}
+		free(tmp);
+	}
+
+	/* signal EOF to any blocked reader */
+	pthread_mutex_lock(&ringMutex);
+	ringEof = true;
+	pthread_cond_broadcast(&ringNotEmpty);
+	pthread_mutex_unlock(&ringMutex);
+}
+
+/* readFromRing — consumer: copies up to count bytes out of the ring buffer,
+ * blocking until data is available or EOF/abort is signalled. */
+ssize_t eHttpsStream::readFromRing(void *buf, size_t count)
+{
+	pthread_mutex_lock(&ringMutex);
+	while (ringFill == 0 && !ringEof && !threadAbort)
+		pthread_cond_wait(&ringNotEmpty, &ringMutex);
+
+	if (ringFill == 0)
+	{
+		pthread_mutex_unlock(&ringMutex);
+		return -1;
+	}
+
+	size_t to_read = count;
+	if (to_read > ringFill) to_read = ringFill;
+
+	/* copy from ring buffer, handling wrap-around */
+	size_t first = ringBufSize - ringTail;
+	if (to_read <= first)
+	{
+		memcpy(buf, ringBuf + ringTail, to_read);
+	}
+	else
+	{
+		memcpy(buf, ringBuf + ringTail, first);
+		memcpy((char*)buf + first, ringBuf, to_read - first);
+	}
+	ringTail  = (ringTail + to_read) % ringBufSize;
+	ringFill -= to_read;
+
+	pthread_cond_signal(&ringNotFull);
+	pthread_mutex_unlock(&ringMutex);
+	return (ssize_t)to_read;
+}
+
+/* detectStreamRelay — check if the URL is a stream relay (localhost/loopback) */
+void eHttpsStream::detectStreamRelay(const std::string &url)
+{
+	isStreamRelay = (url.find("0.0.0.0:") != std::string::npos ||
+	                 url.find("127.0.0.1:") != std::string::npos ||
+	                 url.find("localhost:") != std::string::npos);
+	if (isStreamRelay)
+	{
+		eDebug("[eHttpsStream] Stream Relay detected - ring buffer disabled");
+	}
+	else
+	{
+		/* Ring buffer — default 2 MB, tunable via config.usage.http_buffersize (KB) */
+		int bufKB = eConfigManager::getConfigIntValue("config.usage.http_buffersize");
+		ringBufSize = (bufKB > 0 ? (size_t)bufKB : 2048) * 1024;
+		ringBuf = (unsigned char*)malloc(ringBufSize);
+		ringHead = 0;
+		ringTail = 0;
+		ringFill = 0;
+		ringEof = false;
+		threadAbort = false;
+		pthread_mutex_init(&ringMutex, NULL);
+		pthread_cond_init(&ringNotEmpty, NULL);
+		pthread_cond_init(&ringNotFull, NULL);
+	}
 }

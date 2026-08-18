@@ -28,7 +28,7 @@ from Components.SystemInfo import SystemInfo
 from Plugins.Plugin import PluginDescriptor
 from RecordTimer import AFTEREVENT
 from Screens.Screen import Screen
-from Screens.ButtonSetup import InfoBarButtonSetup, helpableButtonSetupActionMap, getButtonSetupFunctions
+from Screens.ButtonSetup import InfoBarButtonSetup, HelpableButtonSetupActionMap, getButtonSetupFunctions
 from Screens.ChoiceBox import ChoiceBox
 from Screens.EpgSelectionSingle import EPGSelectionSingle
 from Screens.HelpMenu import HelpableScreen
@@ -828,7 +828,7 @@ class ChannelSelectionEPG(InfoBarButtonSetup, HelpableScreen):
 			("Info (EPG)" + " " + _("long"), "info_long", "Infobar/showEventInfoPlugins"),
 			("Epg/Guide", "epg", "Infobar/EPGPressed/1"),
 			("Epg/Guide" + " " + _("long"), "epg_long", "Infobar/showEventInfoPlugins")]
-		self["ChannelSelectEPGActions"] = helpableButtonSetupActionMap(self, ["ChannelSelectEPGActions"], dict((x[1], self.ButtonSetupGlobal) for x in self.hotkeys))
+		self["ChannelSelectEPGActions"] = HelpableButtonSetupActionMap(self, ["ChannelSelectEPGActions"], dict((x[1], self.ButtonSetupGlobal) for x in self.hotkeys))
 		self.currentSavedPath = []
 		self.onExecBegin.append(self.clearLongkeyPressed)
 
@@ -1326,8 +1326,8 @@ class ChannelSelectionEdit:
 				self.servicelist.removeCurrent()
 				self.servicelist.resetRoot()
 				playingref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
-				if not bouquet and playingref and ref == playingref:
-					self.channelSelected()
+				if not bouquet and playingref and ref == playingref and self.getCurrentSelection().valid():
+					self.zap(preview_zap=True)
 
 	def addServiceToBouquet(self, dest, service=None):
 		mutableList = self.getMutableList(dest)
@@ -2092,9 +2092,10 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 				info = service.info()
 				if info:
 					provider = info.getInfoString(iServiceInformation.sProvider)
-					op = int(self.session.nav.getCurrentlyPlayingServiceOrGroup().toString().split(':')[6][:-4] or "0", 16)
-					refstr = '1:7:0:0:0:0:0:0:0:0:(provider == \"%s\") && (satellitePosition == %s) && %s ORDER BY name:%s' % (provider, op, self.service_types[self.service_types.rfind(':') + 1:], provider)
-					self.servicelist.setCurrent(eServiceReference(refstr))
+					if self.session.nav.getCurrentlyPlayingServiceOrGroup():
+						op = int(self.session.nav.getCurrentlyPlayingServiceOrGroup().toString().split(':')[6][:-4] or "0", 16)
+						refstr = '1:7:0:0:0:0:0:0:0:0:(provider == \"%s\") && (satellitePosition == %s) && %s ORDER BY name:%s' % (provider, op, self.service_types[self.service_types.rfind(':') + 1:], provider)
+						self.servicelist.setCurrent(eServiceReference(refstr))
 		elif not self.isBasePathEqual(self.bouquet_root) or self.bouquet_mark_edit == EDIT_ALTERNATIVES:
 			playingref = self.session.nav.getCurrentlyPlayingServiceOrGroup()
 			if playingref:

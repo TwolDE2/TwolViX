@@ -28,7 +28,13 @@ class CurrentService(PerServiceBase, Source):
 		self.onManualNewService = []
 
 	def serviceEvent(self, event):
-		self.info = None
+		# pnav.stopService() fires evEnd and pnav.playService() fires evStart
+		# synchronously, both before any repaint runs.  Preserve the info
+		# pre-populated by newService() across that whole old→new transition so
+		# converters (ServiceName etc.) can display the new service immediately.
+		# Clear when real service data arrives via later events (evUpdatedInfo etc.).
+		if not (getattr(self, 'info', None) is not None and event in (iPlayableService.evEnd, iPlayableService.evStart)):
+			self.info = None
 		self.changed((self.CHANGED_SPECIFIC, event))
 
 	@cached
@@ -48,7 +54,7 @@ class CurrentService(PerServiceBase, Source):
 
 	serviceref = property(getCurrentServiceRef)
 
-	def newService(self, ref):
+	def newService(self, ref, num=0):
 		if ref and isinstance(ref, bool):
 			self.info = None
 		elif ref:
@@ -58,6 +64,9 @@ class CurrentService(PerServiceBase, Source):
 
 		for x in self.onManualNewService:
 			x()
+
+		if num > 0 and (sref := self.serviceref):
+			sref.setChannelNum(num)
 
 		self.changed((self.CHANGED_SPECIFIC, iPlayableService.evStart))
 

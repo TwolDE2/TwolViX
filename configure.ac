@@ -58,6 +58,12 @@ AC_ARG_WITH(e2rev,
 AC_SUBST(E2REV)
 AC_DEFINE_UNQUOTED(E2REV,"$E2REV",[enigma2 revision])
 
+AC_ARG_WITH(oarev,
+	AS_HELP_STRING([--with-oarev],[value of OAREV, $withval]),
+	[OAREV="$withval"],[OAREV=""])
+AC_SUBST(OAREV)
+AC_DEFINE_UNQUOTED(OAREV,"$OAREV",[oa-core revision])
+
 AC_ARG_WITH(boxtype,
 	[  --with-boxtype=NAME box type [[none,dm800...]]],
 	[BOXTYPE="$withval"],[BOXTYPE="dm800"])
@@ -131,6 +137,23 @@ AS_IF([test "$BOXTYPE" == "vuuno4k"],[AC_DEFINE(HWVUUNO4K, 1,[vuuno4k])])
 AS_IF([test "$BOXTYPE" == "vuuno4kse"],[AC_DEFINE(HWVUUNO4KSE, 1,[vuuno4kse])])
 AS_IF([test "$BOXTYPE" == "vuzero"],[AC_DEFINE(HWVUZERO, 1,[vuzero])])
 AS_IF([test "$BOXTYPE" == "vuzero4k"],[AC_DEFINE(HWVUZERO4K, 1,[vuzero4k])])
+
+dnl Software HDR detection (HEVC bitstream parser + TS recorder tap).
+dnl Enabled for VU+ 4K boxes, GB Quad 4K / Pro & UE4K, Zgemma H7 & H17Twin, which
+dnl have capable enough SoCs and GStreamer stacks to support the detection pipeline.
+if test "$BOXTYPE" == "vuduo4k"    -o "$BOXTYPE" == "vuduo4kse"  \
+	 -o "$BOXTYPE" == "vusolo4k"   -o "$BOXTYPE" == "vuultimo4k"  \
+	 -o "$BOXTYPE" == "vuuno4k"    -o "$BOXTYPE" == "vuuno4kse"  \
+	 -o "$BOXTYPE" == "vuzero4k"   -o "$BOXTYPE" == "gb7252"  \
+	 -o "$BOXTYPE" == "zgemmah7"   -o "$BOXTYPE" == "zgemmah17twin"; then
+	AC_DEFINE(HAS_SOFTWARE_HDR_DETECTION, 1, [Enable software HDR detection via HEVC bitstream parsing])
+fi
+AM_CONDITIONAL(HAS_SOFTWARE_HDR_DETECTION, \
+	test "$BOXTYPE" == "vuduo4k"    -o "$BOXTYPE" == "vuduo4kse"  \
+	  -o "$BOXTYPE" == "vusolo4k"   -o "$BOXTYPE" == "vuultimo4k"  \
+	  -o "$BOXTYPE" == "vuuno4k"    -o "$BOXTYPE" == "vuuno4kse"  \
+	  -o "$BOXTYPE" == "vuzero4k"   -o "$BOXTYPE" == "gb7252"  \
+	  -o "$BOXTYPE" == "zgemmah7"   -o "$BOXTYPE" == "zgemmah17twin")
 
 AC_ARG_WITH(accelerationthreshold,
 	AS_HELP_STRING([--with-accelerationthreshold=n], [use acceleration threshold of n bytes]),
@@ -438,7 +461,6 @@ if test "$BOXTYPE" == "dm900" -o "$BOXTYPE" == "dm920"; then
 	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
 	AC_DEFINE(LCD_DM900_Y_OFFSET, 4,[define LCD Y offset for dm900 and dm920])
 	AC_DEFINE(DREAMBOX_DUAL_TUNER, 1,[define it is dreambox dual tuner present])
-	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration does not have alphablending support, though the autodetection might indicate that it does])
 fi
 
 if test "$BOXTYPE" == "dm900"; then
@@ -527,7 +549,7 @@ AX_CHECK_COMPILE_FLAG([-Wattribute-alias=1], [CXXFLAGS="$CXXFLAGS -Wattribute-al
 
 CPPFLAGS="$CPPFLAGS $PYTHON_CPPFLAGS"
 CFLAGS="$CFLAGS -Wall"
-CXXFLAGS="$CXXFLAGS -Wall -Wextra\
+CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wno-psabi \
 	-Wformat=2 -Wformat-overflow=2 -Wformat-nonliteral -Wformat-security \
 	-Wimplicit-fallthrough=5 -Wduplicated-branches -Wtrampolines \
 	-Wdangling-else -Wshift-overflow=2 -Wswitch \

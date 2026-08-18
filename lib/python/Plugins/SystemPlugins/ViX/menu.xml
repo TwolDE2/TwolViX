@@ -35,10 +35,4 @@ from Plugins.SystemPlugins.ViX.SwapManager import VIXSwap
 self.session.open(VIXSwap)
 			</code>
 		</item>
-		<item key="h9sdcard_manager" level="0" text="H9SDcard Manager" description="Move Nand root to SD card" requires="HasH9SD">
-			<code>
-from Plugins.SystemPlugins.ViX.H9SDmanager import H9SDmanager
-self.session.open(H9SDmanager)
-			</code>
-		</item>
 </menu>

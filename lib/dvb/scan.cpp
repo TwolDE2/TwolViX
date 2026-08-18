@@ -41,6 +41,7 @@ eDVBScan::eDVBScan(iDVBChannel *channel, bool usePAT, bool debug)
 	,m_channel_state(iDVBChannel::state_idle)
 	,m_ready(0)
 	,m_ready_all(usePAT ? (readySDT|readyPAT) : readySDT)
+	,m_ch_current_active(false)
 	,m_pmt_running(false)
 	,m_abort_current_pmt(false)
 	,m_flags(0)
@@ -215,6 +216,9 @@ void eDVBScan::stateChange(iDVBChannel *ch)
 			SCAN_eDebug("[eDVBScan] blindscan channel completed");
 			m_ch_blindscan.pop_front();
 		}
+
+		m_ch_current_active = false;
+		m_event(evtUpdate);
 		nextChannel();
 	}
 			/* unavailable will timeout, anyway. */
@@ -247,6 +251,7 @@ RESULT eDVBScan::nextChannel()
 		/* keep iterating with the same 'channel' till we get a tune failure */
 		SCAN_eDebug("[eDVBScan] blindscan channel iteration");
 		m_ch_current = m_ch_blindscan.front();
+		m_ch_current_active = true;
 	}
 	else
 	{
@@ -262,6 +267,7 @@ RESULT eDVBScan::nextChannel()
 		m_ch_current = m_ch_toScan.front();
 
 		m_ch_toScan.pop_front();
+		m_ch_current_active = true;
 	}
 
 	if (m_channel->getFrontend(fe))
@@ -275,7 +281,10 @@ RESULT eDVBScan::nextChannel()
 	m_channel_state = iDVBChannel::state_idle;
 
 	if (fe->tune(*m_ch_current, !m_ch_blindscan.empty()))
+	{
+		m_ch_current_active = false;
 		return nextChannel();
+	}
 
 	m_event(evtUpdate);
 	return 0;
@@ -795,10 +804,30 @@ void eDVBScan::channelDone()
 
 		m_ch_current->getHash(hash);
 
-		eDVBNamespace dvbnamespace = buildNamespace(
-			(**m_SDT->getSections().begin()).getOriginalNetworkId(),
-			(**m_SDT->getSections().begin()).getTransportStreamId(),
-			hash);
+		eOriginalNetworkID onid = (**m_SDT->getSections().begin()).getOriginalNetworkId();
+		eTransportStreamID tsid = (**m_SDT->getSections().begin()).getTransportStreamId();
+
+		eDVBNamespace dvbnamespace = buildNamespace(onid, tsid, hash);
+
+		/* Detect namespace collision: if a channel with the same stripped namespace+TSID+ONID
+		 * already exists in the database but points to a different physical transponder,
+		 * preserve the frequency in the namespace to keep services unique.
+		 * This prevents services with the same SID on different transponders (e.g. EBU feeds)
+		 * from overwriting each other during manual scan.
+		 * Use the same threshold as sameChannel() (2000 for DVB-S) to distinguish genuinely
+		 * different transponders from the same transponder with slightly different parameters
+		 * (e.g. from an installed channel list with minor frequency deviations). */
+		eDVBChannelID chid_check(dvbnamespace, tsid, onid);
+		if (ePtr<iDVBFrontendParameters> existing_ch;
+			!eDVBDB::getInstance()->getChannelFrontendData(chid_check, existing_ch))
+		{
+			int diff = 0;
+			if (!m_ch_current->calculateDifference(&*existing_ch, diff, false) && diff >= 2000)
+			{
+				dvbnamespace = eDVBNamespace(hash);
+				SCAN_eDebug("[eDVBScan] namespace collision detected: different transponder uses same TSID/ONID, preserving frequency in namespace");
+			}
+		}
 
 		SCAN_eDebug("[eDVBScan] SDT: ");
 		std::vector<ServiceDescriptionSection*>::const_iterator i;
@@ -814,10 +843,24 @@ void eDVBScan::channelDone()
 		m_ch_current->getHash(hash);
 
 		int onid = 0; /* TODO: ATSC ONID? */
+		eTransportStreamID tsid = (**m_VCT->getSections().begin()).getTransportStreamId();
 		eDVBNamespace dvbnamespace = buildNamespace(
 			eOriginalNetworkID(onid),
-			(**m_VCT->getSections().begin()).getTransportStreamId(),
+			tsid,
 			hash);
+
+		/* Detect namespace collision (same as SDT block above) */
+		eDVBChannelID chid_check(dvbnamespace, tsid, eOriginalNetworkID(onid));
+		if (ePtr<iDVBFrontendParameters> existing_ch;
+			!eDVBDB::getInstance()->getChannelFrontendData(chid_check, existing_ch))
+		{
+			int diff = 0;
+			if (!m_ch_current->calculateDifference(&*existing_ch, diff, false) && diff >= 2000)
+			{
+				dvbnamespace = eDVBNamespace(hash);
+				SCAN_eDebug("[eDVBScan] namespace collision detected: different transponder uses same TSID/ONID, preserving frequency in namespace");
+			}
+		}
 
 		SCAN_eDebug("[eDVBScan] VCT: ");
 		std::vector<VirtualChannelTableSection*>::const_iterator i;
@@ -1249,7 +1292,6 @@ void eDVBScan::channelDone()
 				m_new_services.insert(std::pair<eServiceReferenceDVB, ePtr<eDVBService> >(ref, service));
 			if (i.second)
 			{
-				m_new_servicerefs.push_back(ref);
 				m_last_service = i.first;
 				m_event(evtNewService);
 			}
@@ -1307,6 +1349,7 @@ void eDVBScan::channelDone()
 		}
 	}
 
+	m_ch_current_active = false;
 	m_ch_scanned.push_back(m_ch_current);
 
 	for (std::list<ePtr<iDVBFrontendParameters> >::iterator i(m_ch_toScan.begin()); i != m_ch_toScan.end();)
@@ -1320,6 +1363,7 @@ void eDVBScan::channelDone()
 		++i;
 	}
 
+	m_event(evtUpdate);
 	nextChannel();
 }
 
@@ -1552,12 +1596,16 @@ void eDVBScan::insertInto(iDVBChannelList *db, bool backgroundscanresult)
 		{
 			if (dvb_service->m_flags & eDVBService::dxNoSDT)
 				continue;
-			if (!(dvb_service->m_flags & eDVBService::dxHoldName))
+			if (!(dvb_service->m_flags & eDVBService::dxHoldName) && !service->second->m_service_name.empty())
 			{
 				dvb_service->m_service_name = service->second->m_service_name;
 				dvb_service->m_service_name_sort = service->second->m_service_name_sort;
 			}
-			dvb_service->m_provider_name = service->second->m_provider_name;
+
+			if (!service->second->m_provider_name.empty())
+			{
+				dvb_service->m_provider_name = service->second->m_provider_name;
+			}
 			if (service->second->m_ca.size())
 				dvb_service->m_ca = service->second->m_ca;
 
@@ -1708,7 +1756,7 @@ RESULT eDVBScan::processSDT(eDVBNamespace dvbnamespace, const ServiceDescription
 					{
 					/* DISH/BEV servicetypes: */
 					case 128:
-					case 131: /*Sky UK OpenTV EPG channel */ 
+					case 131: /*Sky UK OpenTV EPG channel */
 					case 133:
 					case 137:
 					case 144:
@@ -1760,7 +1808,11 @@ RESULT eDVBScan::processSDT(eDVBNamespace dvbnamespace, const ServiceDescription
 
 			/* Check if service already exists with a different serviceType (e.g., from PMT).
 			 * SDT has the authoritative serviceType, so we should use it.
-			 * If found, remove the old entry and re-insert with the correct SDT serviceType. */
+			 * If found, remove the old entry and re-insert with the correct SDT serviceType.
+			 * Only match when serviceType actually differs - if it's the same, the normal
+			 * insert() will correctly fail (same key), preserving the existing entry's data.
+			 * This prevents valid entries from being overwritten during network scan when
+			 * the same service is encountered again on a different transponder. */
 			bool found_existing = false;
 			for (std::map<eServiceReferenceDVB, ePtr<eDVBService> >::iterator sit = m_new_services.begin();
 				sit != m_new_services.end(); ++sit)
@@ -1768,10 +1820,12 @@ RESULT eDVBScan::processSDT(eDVBNamespace dvbnamespace, const ServiceDescription
 				if (sit->first.getServiceID() == ref.getServiceID() &&
 					sit->first.getDVBNamespace() == ref.getDVBNamespace() &&
 					sit->first.getTransportStreamID() == ref.getTransportStreamID() &&
-					sit->first.getOriginalNetworkID() == ref.getOriginalNetworkID())
+					sit->first.getOriginalNetworkID() == ref.getOriginalNetworkID() &&
+					sit->first.getServiceType() != ref.getServiceType())
 				{
-					/* Found existing service from PMT - merge data and use SDT serviceType */
+					/* Found existing service from PMT with different serviceType - merge data and use SDT serviceType */
 					ePtr<eDVBService> existing = sit->second;
+					int old_type = sit->first.getServiceType();
 
 					/* Copy cached PIDs from PMT entry to our new service */
 					for (int x = 0; x < eDVBService::cacheMax; ++x)
@@ -1786,24 +1840,9 @@ RESULT eDVBScan::processSDT(eDVBNamespace dvbnamespace, const ServiceDescription
 
 					/* Remove old entry with wrong serviceType */
 					m_new_services.erase(sit);
-
-					/* Update m_new_servicerefs: replace old serviceRef with correct SDT serviceType */
-					for (std::vector<eServiceReferenceDVB>::iterator srit = m_new_servicerefs.begin();
-						srit != m_new_servicerefs.end(); ++srit)
-					{
-						if (srit->getServiceID() == ref.getServiceID() &&
-							srit->getDVBNamespace() == ref.getDVBNamespace() &&
-							srit->getTransportStreamID() == ref.getTransportStreamID() &&
-							srit->getOriginalNetworkID() == ref.getOriginalNetworkID())
-						{
-							*srit = ref;  /* Update with correct serviceType */
-							break;
-						}
-					}
-
 					found_existing = true;
 					SCAN_eDebug("[eDVBScan] SID %04x: replacing PMT entry (type %d) with SDT entry (type %d)",
-						ref.getServiceID().get(), sit->first.getServiceType(), ref.getServiceType());
+						ref.getServiceID().get(), old_type, ref.getServiceType());
 					break;
 				}
 			}
@@ -1812,10 +1851,8 @@ RESULT eDVBScan::processSDT(eDVBNamespace dvbnamespace, const ServiceDescription
 			std::pair<std::map<eServiceReferenceDVB, ePtr<eDVBService> >::iterator, bool> i =
 				m_new_services.insert(std::pair<eServiceReferenceDVB, ePtr<eDVBService> >(ref, service));
 
-			if (i.second)
+			if (i.second && !found_existing)
 			{
-				if (!found_existing)
-					m_new_servicerefs.push_back(ref);
 				m_last_service = i.first;
 				m_event(evtNewService);
 			}
@@ -1937,7 +1974,8 @@ RESULT eDVBScan::processVCT(eDVBNamespace dvbnamespace, const VirtualChannelTabl
 				service->m_ca.push_front(0);
 
 			/* Check if service already exists with a different serviceType (e.g., from PMT).
-			 * If so, update the existing service instead of creating a duplicate. */
+			 * If so, update the existing service instead of creating a duplicate.
+			 * Only match when serviceType actually differs (see SDT block comment above). */
 			bool found_existing = false;
 			for (std::map<eServiceReferenceDVB, ePtr<eDVBService> >::iterator sit = m_new_services.begin();
 				sit != m_new_services.end(); ++sit)
@@ -1945,10 +1983,12 @@ RESULT eDVBScan::processVCT(eDVBNamespace dvbnamespace, const VirtualChannelTabl
 				if (sit->first.getServiceID() == ref.getServiceID() &&
 					sit->first.getDVBNamespace() == ref.getDVBNamespace() &&
 					sit->first.getTransportStreamID() == ref.getTransportStreamID() &&
-					sit->first.getOriginalNetworkID() == ref.getOriginalNetworkID())
+					sit->first.getOriginalNetworkID() == ref.getOriginalNetworkID() &&
+					sit->first.getServiceType() != ref.getServiceType())
 				{
-					/* Found existing service from PMT - merge data and use VCT serviceType */
+					/* Found existing service from PMT with different serviceType - merge data and use VCT serviceType */
 					ePtr<eDVBService> existing = sit->second;
+					int old_type = sit->first.getServiceType();
 
 					/* Copy cached PIDs from PMT entry to our new service */
 					for (int x = 0; x < eDVBService::cacheMax; ++x)
@@ -1963,24 +2003,9 @@ RESULT eDVBScan::processVCT(eDVBNamespace dvbnamespace, const VirtualChannelTabl
 
 					/* Remove old entry with wrong serviceType */
 					m_new_services.erase(sit);
-
-					/* Update m_new_servicerefs: replace old serviceRef with correct VCT serviceType */
-					for (std::vector<eServiceReferenceDVB>::iterator srit = m_new_servicerefs.begin();
-						srit != m_new_servicerefs.end(); ++srit)
-					{
-						if (srit->getServiceID() == ref.getServiceID() &&
-							srit->getDVBNamespace() == ref.getDVBNamespace() &&
-							srit->getTransportStreamID() == ref.getTransportStreamID() &&
-							srit->getOriginalNetworkID() == ref.getOriginalNetworkID())
-						{
-							*srit = ref;  /* Update with correct serviceType */
-							break;
-						}
-					}
-
 					found_existing = true;
 					SCAN_eDebug("[eDVBScan] SID %04x: replacing PMT entry (type %d) with VCT entry (type %d)",
-						ref.getServiceID().get(), sit->first.getServiceType(), ref.getServiceType());
+						ref.getServiceID().get(), old_type, ref.getServiceType());
 					break;
 				}
 			}
@@ -1989,10 +2014,8 @@ RESULT eDVBScan::processVCT(eDVBNamespace dvbnamespace, const VirtualChannelTabl
 			std::pair<std::map<eServiceReferenceDVB, ePtr<eDVBService> >::iterator, bool> i =
 				m_new_services.insert(std::pair<eServiceReferenceDVB, ePtr<eDVBService> >(ref, service));
 
-			if (i.second)
+			if (i.second && !found_existing)
 			{
-				if (!found_existing)
-					m_new_servicerefs.push_back(ref);
 				m_last_service = i.first;
 				m_event(evtNewService);
 			}
@@ -2016,7 +2039,7 @@ RESULT eDVBScan::connectEvent(const sigc::slot<void(int)> &event, ePtr<eConnecti
 void eDVBScan::getStats(int &transponders_done, int &transponders_total, int &services)
 {
 	transponders_done = m_ch_scanned.size() + m_ch_unavailable.size();
-	transponders_total = m_ch_toScan.size() + transponders_done;
+	transponders_total = m_ch_toScan.size() + transponders_done + (m_ch_current_active ? 1 : 0);
 	services = m_new_services.size();
 }
 

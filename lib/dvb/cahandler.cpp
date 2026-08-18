@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdint.h>
+#include <fcntl.h>
 
 #include <dvbsi++/ca_descriptor.h>
 #include <dvbsi++/ca_program_map_section.h>
@@ -228,7 +229,7 @@ bool ePMTClient::processEcmInfoPacket()
 {
 	int readDataLength = receivedLength - 4;
 	int fixDataLength = 15; // fix part: 2 byte program number + 2 byte caid + 2 byte pid + 4 byte prov + 4 byte ecmtime + 1 hops
-	int read, pos = 0, i = 0, old_pos;
+	int read, pos = 0, i = 0, old_pos = 0;
 	uint32_t serviceId, providerId, ecmTime;
 	uint16_t program, caid, pid;
 	int hops = -1;
@@ -236,7 +237,7 @@ bool ePMTClient::processEcmInfoPacket()
 	unsigned char reader[257];
 	unsigned char from[257];
 	unsigned char protocol[257];
-	unsigned char* dest;
+	unsigned char* dest = NULL;
 
 	if (receivedData == NULL)
 	{
@@ -342,9 +343,9 @@ int ePMTClient::writeCAPMTObject(const char* capmt, int len)
 /*
  * Identify whether the connecting client is capable of dvbapi Protocol 3.
  * Uses SO_PEERCRED to get the PID, then reads /proc/<pid>/exe to
- * determine the binary. Only known Protocol 3 capable softcams are
- * whitelisted. All other clients are treated as legacy; sending
- * CLIENT_INFO to them may corrupt their parser and cause a crash.
+ * determine the binary. Known legacy softcams are blacklisted to prevent
+ * sending CLIENT_INFO which may corrupt their parser and cause a crash.
+ * All other clients are assumed Protocol 3 capable.
  */
 static bool isProtocol3CapableClient(int socket_fd)
 {
@@ -357,28 +358,53 @@ static bool isProtocol3CapableClient(int socket_fd)
 	}
 
 	char exe_path[256];
-	char proc_path[64];
-	snprintf(proc_path, sizeof(proc_path), "/proc/%d/exe", cred.pid);
-	ssize_t n = readlink(proc_path, exe_path, sizeof(exe_path) - 1);
+	std::string proc_path = "/proc/" + std::to_string(cred.pid) + "/exe";
+	ssize_t n = readlink(proc_path.c_str(), exe_path, sizeof(exe_path) - 1);
 	if (n <= 0)
 	{
-		eDebug("[eDVBCAHandler] readlink(%s) failed: %m, treating as legacy client", proc_path);
-		return false;
+		// Some kernels (observed on dm520) do not implement readlink on
+		// /proc/PID/exe. Fall back to /proc/PID/comm which exposes the
+		// process name (truncated to TASK_COMM_LEN, sufficient for the
+		// blacklist prefix match below).
+		proc_path = "/proc/" + std::to_string(cred.pid) + "/comm";
+		int fd = ::open(proc_path.c_str(), O_RDONLY | O_CLOEXEC);
+		if (fd < 0)
+		{
+			eDebug("[eDVBCAHandler] open(%s) failed: %m, treating as legacy client", proc_path.c_str());
+			return false;
+		}
+		n = ::read(fd, exe_path, sizeof(exe_path) - 1);
+		::close(fd);
+		if (n <= 0)
+		{
+			eDebug("[eDVBCAHandler] read(%s) failed: %m, treating as legacy client", proc_path.c_str());
+			return false;
+		}
+		while (n > 0 && (exe_path[n - 1] == '\n' || exe_path[n - 1] == '\r'))
+			--n;
 	}
 	exe_path[n] = '\0';
 
 	const char* basename = strrchr(exe_path, '/');
 	basename = basename ? basename + 1 : exe_path;
 
-	/* Whitelist: known Protocol 3 capable softcams */
-	if (strcasestr(basename, "oscam") || strcasestr(basename, "ncam"))
+	/* Blacklist: legacy softcams that do not support Protocol 3 */
+	static const char* const legacy_softcams[] = {
+		"cccam", "doscam", "evocamd", "gbox", "mgcamd",
+		"newcs", "rqcamd", "scam", "wicardd", nullptr
+	};
+
+	for (const char* const* p = legacy_softcams; *p; ++p)
 	{
-		eDebug("[eDVBCAHandler] Protocol 3 capable client: %s (pid %d)", basename, cred.pid);
-		return true;
+		if (strncasecmp(basename, *p, strlen(*p)) == 0)
+		{
+			eDebug("[eDVBCAHandler] Legacy client identified: %s (pid %d), skipping Protocol 3", basename, cred.pid);
+			return false;
+		}
 	}
 
-	eDebug("[eDVBCAHandler] Legacy client identified: %s (pid %d), skipping Protocol 3", basename, cred.pid);
-	return false;
+	eDebug("[eDVBCAHandler] Protocol 3 capable client: %s (pid %d)", basename, cred.pid);
+	return true;
 }
 
 eDVBCAHandler *eDVBCAHandler::instance = NULL;
@@ -446,11 +472,15 @@ void eDVBCAHandler::newConnection(int socket)
 
 void eDVBCAHandler::connectionLost(ePMTClient *client)
 {
-	ePtrList<ePMTClient>::iterator it = std::find(clients.begin(), clients.end(), client );
-	if (it != clients.end())
+	if (auto it = std::find(clients.begin(), clients.end(), client); it != clients.end())
 	{
 		delete *it;
 		clients.erase(it);
+	}
+	if (clients.empty())
+	{
+		m_protocol3_established = false;
+		eDebug("[eDVBCAHandler] last Protocol 3 client disconnected, falling back to legacy sendCAPMT");
 	}
 }
 
@@ -461,6 +491,18 @@ int eDVBCAHandler::getNumberOfCAServices()
 
 int eDVBCAHandler::registerService(const eServiceReferenceDVB &ref, int adapter, int demux_nums[2], int servicetype, eDVBCAService *&caservice)
 {
+	/* SR channel change: send deferred CMD_NOT_SELECTED for the old service */
+	if (m_pending_sr_service && !(ref == m_pending_sr_service->m_service))
+	{
+		for (auto client_it = clients.begin(); client_it != clients.end(); ++client_it)
+		{
+			if (client_it->state() == eSocket::Connection)
+				m_pending_sr_service->writeCAPMTObject(*client_it, LIST_UPDATE, CMD_NOT_SELECTED);
+		}
+		eDebug("[eDVBCAHandler] sending deferred CMD_NOT_SELECTED for SR service (channel change)");
+	}
+	m_pending_sr_service.reset();
+
 	CAServiceMap::iterator it = services.find(ref);
 	bool service_already_registered = false;
 	bool had_streamserver = false;
@@ -531,10 +573,10 @@ int eDVBCAHandler::registerService(const eServiceReferenceDVB &ref, int adapter,
 		// the same service, the PMT is unchanged so buildCAPMT() would skip
 		// sending ("don't build the same CA PMT twice"). Force the softcam to
 		// restart descrambling so it resends CWs for the new CSA session.
-		if (service_already_registered && servicetype != 7 && servicetype != 8)
+		if (service_already_registered && (servicetype == 0 || servicetype == 12))
 		{
-			// Non-streamserver (Live-TV, PiP): DEFER the CW resend to
-			// handlePMT() so the new CSA session is already activated and
+			// PiP/swap (livetv=0, scrambled_livetv=12): DEFER the CW resend
+			// to handlePMT() so the new CSA session is already activated and
 			// its engine registered with CWHandler when the CW arrives.
 			caservice->m_force_cw_send = true;
 			eDebug("[eDVBCAService] deferred softcam CW resend (re-register, type %d)", servicetype);
@@ -602,8 +644,13 @@ int eDVBCAHandler::unregisterService(const eServiceReferenceDVB &ref, int adapte
 					 * Without this, switching from an encrypted channel
 					 * to FTA/IPTV would leave the softcam in descrambling
 					 * state (e.g. ecm.info not removed).
+					 *
+					 * Skip for StreamRelay (servicetype 7/8): keep the
+					 * softcam ECM session alive so Live-TV gets CWs
+					 * from cache immediately after SR->Live switch.
 					 */
-					if (m_protocol3_established && caservice->getCAPMTVersion() >= 0)
+					if (servicetype != 7 && servicetype != 8
+						&& m_protocol3_established && caservice->getCAPMTVersion() >= 0)
 					{
 						for (ePtrList<ePMTClient>::iterator client_it = clients.begin(); client_it != clients.end(); ++client_it)
 						{
@@ -614,6 +661,15 @@ int eDVBCAHandler::unregisterService(const eServiceReferenceDVB &ref, int adapte
 							}
 						}
 					}
+					else if ((servicetype == 7 || servicetype == 8)
+						&& m_protocol3_established && caservice->getCAPMTVersion() >= 0)
+					{
+						/* Don't delete yet — save for deferred CMD_NOT_SELECTED.
+						 * registerService() will send it if a different channel
+						 * follows, or discard it for SR->Live same channel. */
+						m_pending_sr_service.reset(it->second);
+						it->second = nullptr;
+					}
 
 					delete it->second;
 					services.erase(it);
@@ -623,17 +679,37 @@ int eDVBCAHandler::unregisterService(const eServiceReferenceDVB &ref, int adapte
 					 * a new list of CAPMT objects to all our clients
 					 */
 					distributeCAPMT();
+
+					/* No more DVB services — flush pending SR cleanup now
+					 * (e.g. switching to IPTV where registerService won't be called) */
+					if (services.empty() && m_pending_sr_service)
+					{
+						for (auto client_it = clients.begin(); client_it != clients.end(); ++client_it)
+						{
+							if (client_it->state() == eSocket::Connection)
+								m_pending_sr_service->writeCAPMTObject(*client_it, LIST_UPDATE, CMD_NOT_SELECTED);
+						}
+						eDebug("[eDVBCAHandler] sending CMD_NOT_SELECTED for SR service (no more services)");
+						m_pending_sr_service.reset();
+					}
 				}
 				else
 				{
-					if (ptr)
+					/* Skip demux update for SR: the forced softcam restart
+					 * already sent the CAPMT. A LIST_UPDATE after the
+					 * restart's LIST_ADD would cause a 3s ECM re-process. */
+					if (servicetype == 7 || servicetype == 8)
+					{
+						eDebug("[eDVBCAService] skip demux update for SR unregister (force restart pending)");
+					}
+					else if (ptr)
 					{
 						caservice->resetBuildHash();
 						if (caservice->buildCAPMT(ptr) >= 0)
 						{
-							// Send update via camd.socket (legacy path)
-							caservice->sendCAPMT();
-							// Send to all connected clients (PMT mode 6, Protocol 3)
+							if (!m_protocol3_established)
+								caservice->sendCAPMT();
+							// Send to all connected clients (Protocol 3)
 							for (ePtrList<ePMTClient>::iterator client_it = clients.begin(); client_it != clients.end(); ++client_it)
 							{
 								if (client_it->state() == eSocket::Connection)
@@ -714,23 +790,22 @@ void eDVBCAHandler::processPMTForService(eDVBCAService *service, eTable<ProgramM
 	/* prepare the data */
 	if (service->buildCAPMT(ptr) < 0) return; /* probably equal version, ignore */
 
-	/* send the data to the listening client */
-	service->sendCAPMT();
+	/* send the data to the listening client (legacy path, skip if Protocol 3 active) */
+	if (!service->m_force_cw_send && !m_protocol3_established)
+		service->sendCAPMT();
 
 	if (service->m_force_cw_send)
 	{
 		/*
-		 * Force the softcam to restart descrambling and resend CWs.
-		 * Send CMD_NOT_SELECTED to stop, then LIST_ADD with CMD_OK_DESCRAMBLING
-		 * to re-add. This makes the softcam treat it as a new service and
-		 * immediately resend the CW from its ECM cache.
+		 * Force the softcam to resend CWs by first sending
+		 * CMD_NOT_SELECTED to stop the current session, then
+		 * LIST_ADD to restart it. The softcam treats the LIST_ADD
+		 * as a new request and responds with cache2 from its
+		 * ECM cache (immediate CW delivery).
 		 *
-		 * Triggered when a service is re-registered (already known to the softcam)
-		 * and the PMT is unchanged, which would otherwise cause buildCAPMT() to
-		 * skip sending. Covers:
-		 * 1. Live/PiP (incl. SR→Live): deferred until handlePMT() so the new
-		 *    CSA session is activated and its engine registered at CWHandler
-		 * 2. SR→SR (StreamRelay restart): immediate from registerService()
+		 * This works because CMD_NOT_SELECTED is skipped during
+		 * SR unregister, so the ECM handler and cache are still
+		 * warm when the force restart fires.
 		 */
 		service->m_force_cw_send = false;
 		for (ePtrList<ePMTClient>::iterator client_it = clients.begin(); client_it != clients.end(); ++client_it)
@@ -803,7 +878,8 @@ void eDVBCAHandler::handlePMT(const eServiceReferenceDVB &ref, ePtr<eDVBService>
 	/* prepare the data */
 	if (service->buildCAPMT(dvbservice) < 0) return; /* probably equal version, ignore */
 
-	service->sendCAPMT();
+	if (!m_protocol3_established)
+		service->sendCAPMT();
 
 	distributeCAPMT();
 }
@@ -825,6 +901,7 @@ int eDVBCAHandler::getServiceReference(eServiceReferenceDVB &service, uint32_t s
 eDVBCAService::eDVBCAService(const eServiceReferenceDVB &service, uint32_t id)
 	: eUnixDomainSocket(eApp), m_service(service), m_adapter(0), m_service_type_mask(0), m_prev_build_hash(0), m_crc32(0), m_id(id), m_version(-1), m_retryTimer(eTimer::create(eApp)), m_force_cw_send(false)
 {
+	close(); // Don't keep unused legacy socket in poll set; connectToPath() recreates when needed
 	memset(m_used_demux, 0xFF, sizeof(m_used_demux));
 	memset(m_capmt, 0, sizeof(m_capmt));
 	CONNECT(connectionClosed_, eDVBCAService::connectionLost);

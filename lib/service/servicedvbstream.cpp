@@ -1,5 +1,6 @@
 #include <lib/service/servicedvbstream.h>
 #include <lib/dvb/csasession.h>
+#include <lib/dvb/csaengine.h>
 #include <lib/base/eerror.h>
 #include <lib/dvb/db.h>
 #include <lib/dvb/epgcache.h>
@@ -194,6 +195,20 @@ int eDVBServiceStream::doRecord()
 	eDVBServicePMTHandler::program program;
 	bool have_program_info = (m_service_handler.getProgramInfo(program) == 0);
 	bool is_encrypted = have_program_info && program.isCrypted();
+
+	/* wait for real PMT if we only have cached (possibly incomplete) PIDs */
+	if (have_program_info && program.isCached)
+	{
+		eServiceReferenceDVB sref = m_ref.getParentServiceReference();
+		ePtr<eDVBService> service;
+		if (!sref.valid())
+			sref = m_ref;
+		if (!eDVBDB::getInstance()->getService(sref, service) && service->usePMT())
+		{
+			eDebug("[eDVBServiceStream] have cached program info only, waiting for real PMT...");
+			return 0;
+		}
+	}
 
 	if (!m_record && m_tuned)
 	{
@@ -393,6 +408,10 @@ int eDVBServiceStream::doRecord()
 		pids_to_record.insert(0x14);
 
 		recordPids(pids_to_record, timing_pid, timing_stream_type, timing_pid_type);
+
+		/* update service cache with fresh PMT PIDs */
+		if (!program.isCached)
+			updateServiceCache(program);
 	}
 
 	return 0;
@@ -491,6 +510,44 @@ void eDVBServiceStream::recordPids(std::set<int> pids_to_record, int timing_pid,
 	}
 }
 
+void eDVBServiceStream::updateServiceCache(eDVBServicePMTHandler::program &program) const
+{
+	eServiceReferenceDVB sref = m_ref.getParentServiceReference();
+	ePtr<eDVBService> service;
+
+	if (!sref.valid())
+		sref = m_ref;
+
+	if (eDVBDB::getInstance()->getService(sref, service))
+		return;
+
+	if (!program.videoStreams.empty())
+	{
+		service->setCacheEntry(eDVBService::cVPID, program.videoStreams[0].pid);
+		service->setCacheEntry(eDVBService::cVTYPE,
+			program.videoStreams[0].type == eDVBPMTParser::videoStream::vtMPEG2 ? -1 : program.videoStreams[0].type);
+	}
+	if (program.pcrPid >= 0)
+		service->setCacheEntry(eDVBService::cPCRPID, program.pcrPid);
+	if (program.textPid >= 0)
+		service->setCacheEntry(eDVBService::cTPID, program.textPid);
+	if (program.pmtPid >= 0)
+		service->setCacheEntry(eDVBService::cPMTPID, program.pmtPid);
+
+	if (!program.audioStreams.empty())
+	{
+		int idx = program.defaultAudioStream;
+		if (idx < 0 || idx >= (int)program.audioStreams.size())
+			idx = 0;
+		service->updateAudioCache(program.audioStreams[idx].pid, program.audioStreams[idx].type);
+	}
+
+	eDebug("[eDVBServiceStream] updated service cache from PMT: vpid=%d apid=%d pcrpid=%d pmtpid=%d",
+		program.videoStreams.empty() ? -1 : program.videoStreams[0].pid,
+		program.audioStreams.empty() ? -1 : program.audioStreams[0].pid,
+		program.pcrPid, program.pmtPid);
+}
+
 void eDVBServiceStream::recordEvent(int event)
 {
 	switch (event)
@@ -531,6 +588,10 @@ void eDVBServiceStream::setupSpeculativeDescrambler()
 		eDebug("[eDVBServiceStream] FTA channel, no descrambler needed");
 		return;
 	}
+
+	// libdvbcsa missing -> software descrambling not possible, skip all setup
+	if (!eDVBCSAEngine::isAvailable())
+		return;
 
 	eDebug("[eDVBServiceStream] Encrypted channel, creating CSA session");
 

@@ -43,15 +43,18 @@
 	</screen>
 
 	<screen name="Parent_Title">
-		<widget source="parent.title" render="Label" position="0,5" size="480,60" font="FdLcD;50" halign="center" valign="center" foregroundColor="FdLcdTitleForeground" />
+		<widget source="parent.title" render="Label" position="0,5" size="480,65" font="FdLcD;50" halign="center" valign="center" foregroundColor="FdLcdTitleForeground" />
 	</screen>
 
 	<screen name="TunerPanel">
-		<eLabel text="TUNER:" position="20,260" size="155,60" valign="center" font="FdLcD;40"/>
-		<widget source="session.FrontendInfo" render="Label" position="175,260" size="110,60" font="FdLcD;40" valign="center">
-			<convert type="FrontendInfo">USE_TUNERS_STRING</convert>
-		</widget>
-	</screen>
+        <widget source="session.FrontendInfo" render="FixedLabel" text="TUNER:" position="20,260" size="155,60" valign="center" font="FdLcD;40">
+            <convert type="FrontendInfo">USE_TUNERS_STRING</convert>
+            <convert type="ConditionalShowHide" />
+        </widget>
+        <widget source="session.FrontendInfo" render="Label" position="175,260" size="110,60" font="FdLcD;40" valign="center">
+            <convert type="FrontendInfo">USE_TUNERS_STRING</convert>
+        </widget>
+    </screen>
 
 	<screen name="RecordIconPanel">
 		<widget source="session.RecordState" render="Pixmap" pixmap="record.png" position="300,275" size="30,30" zPosition="3" alphatest="blend">
@@ -105,8 +108,8 @@
 			<convert type="ClockToText">Format:- %H:%M</convert>
 		</widget>
 		<widget source="session.Event_Now" render="Label" position="350,200" size="100,40" font="FdLcD;40" halign="right" valign="center" >
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">FOLLOW</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 		<panel name="TunerPanel" />
 		<panel name="RecordIconPanel" />
@@ -133,8 +136,8 @@
 			<convert type="ClockToText">Format:- %H:%M</convert>
 		</widget>
 		<widget source="parent.ServiceEvent" render="Label" position="350,200" size="100,40" font="FdLcD;40" halign="right" valign="center" >
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">FOLLOW</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 		<panel name="TunerPanel" />
 		<panel name="RecordIconPanel" />
@@ -161,8 +164,8 @@
 			<convert type="ClockToText">Format:- %H:%M</convert>
 		</widget>
 		<widget source="parent.Event" render="Label" position="350,200" size="100,40" font="FdLcD;40" halign="right" valign="center" >
-			<convert type="EventTime">Remaining</convert>
-			<convert type="RemainingToText">FOLLOW</convert>
+			<convert type="EventTime">VFDRemaining</convert>
+			<convert type="RemainingToText">VFD</convert>
 		</widget>
 		<panel name="TunerPanel" />
 		<panel name="RecordIconPanel" />
@@ -192,6 +195,9 @@
 	<screen name="MessageBoxSimpleSummary" position="fill" resolution="480,320">
 		<panel name="MessageBoxSummary" />
 	</screen>
+	<screen name="MessageBoxWizardSummary" position="fill" resolution="480,320">
+		<panel name="MessageBoxSummary" />
+	</screen>
 
 <!-- standby -->
 	<screen name="StandbySummary" position="fill" resolution="480,320">
@@ -201,6 +207,8 @@
 		<widget source="global.CurrentTime" render="Label" position="0,105" size="460,220" font="FdLcD;160" noWrap="1" foregroundColor="FdLcdTitleForegroundOther" halign="center">
 			<convert type="ClockToText">Format:%H:%M</convert>
 		</widget>
+		<panel name="RecordIconPanel" />
+		<panel name="TunerPanel" />
 	</screen>
 
 <!-- movieplayer -->
@@ -242,7 +250,7 @@
 		<widget source="parent.Service" render="Label" position="241,161" size="240,100" font="FdLcD;40" halign="center" valign="bottom" noWrap="1">
 		  <convert type="MovieInfo">FileSize</convert>
 		</widget>
-		<panel name="SummaryTunerStatusPanel" />
+		<panel name="TunerPanel" />
 		<panel name="Colored_Clock_Panel" />
 	</screen>
 
@@ -269,8 +277,8 @@
 <!-- Plugin browser -->
 	<screen name="PluginBrowserSummary" position="fill" resolution="480,320">
 		<panel name="Parent_Title" />
-		<widget source="entry" render="Label" position="10,65" size="460,85" font="FdLcD;40" halign="center" valign="top" />
-		<widget source="desc" render="Label" position="10,155" size="460,165" font="FdLcD;35" halign="center" valign="top" />
+		<widget source="entry" render="Label" position="10,70" size="460,95" font="FdLcD;40" halign="center" valign="center" />
+		<widget source="desc" render="Label" position="10,170" size="460,145" font="FdLcD;35" halign="center" valign="center" />
 	</screen>
 
 <!-- JobView Summary -->
@@ -304,11 +312,11 @@
 <!-- TimerEditList -->
 	<screen name="TimerEditListSummary" position="fill" resolution="480,320">
 		<panel name="Parent_Title" />
-		<widget source="service" render="Label" position="0,90" size="e,53" font="FdLcD;40" halign="center" valign="center" noWrap="1" />
-		<widget source="name" render="Label" position="0,140" size="e,40" font="FdLcD;32" halign="center" valign="center" />
-		<widget source="time" render="Label" position="0,210" size="c,40" font="FdLcD;38" halign="center" valign="center" transparent="1" />
-		<widget source="duration" render="Label" position="c,210" size="c,40" font="FdLcD;38" halign="center" valign="center" transparent="1" />
-		<widget source="state" render="Label" position="0,260" size="e,52" font="FdLcD;38" halign="center" valign="center" transparent="1" />
+		<widget source="service" render="Label" position="0,75" size="e,53" font="FdLcD;40" halign="center" valign="center" noWrap="1" />
+		<widget source="name" render="Label" position="0,130" size="e,45" font="FdLcD;32" halign="center" valign="center" />
+		<widget source="time" render="Label" position="0,175" size="e,44" font="FdLcD;34" halign="center" valign="center" transparent="1" />
+		<widget source="duration" render="Label" position="0,225" size="e,44" font="FdLcD;32" halign="center" valign="center" transparent="1" />
+		<widget source="state" render="Label" position="0,265" size="e,52" font="FdLcD;38" halign="center" valign="center" transparent="1" />
 	</screen>
 
 <!-- PowerTimerEditList -->
@@ -321,8 +329,8 @@
 	</screen>
 
 	<screen name="AutoTimerOverviewSummary" position="fill" resolution="480,320">
-		<widget source="parent.Title" render="Label" position="0,0" size="400,26" font="FdLcD;24" halign="center" noWrap="1" />
-		<widget source="entry" render="Label" position="0,40" size="400,125" font="FdLcD;28" halign="center" valign="center" />
+		<panel name="Parent_Title" />
+		<widget source="entry" render="Label" position="0,75" size="400,175" font="FdLcD;28" halign="center" valign="center" />
 		<panel name="SummaryClockPanel" />
 	</screen>
 
@@ -403,11 +411,6 @@
 		<widget source="parent.Title" render="Label" position="0,38" size="400,26" font="FdLcD;24" halign="left" noWrap="1" />
 		<widget source="parent.summary_action" render="Label" position="0,66" size="400,20" font="FdLcD;19" halign="left" noWrap="1" />
 		<widget source="parent.summary_status" render="Label" position="0,41" size="400,18" font="FdLcD;16" halign="left" noWrap="1" />
-	</screen>
-	<screen name="AutoBouquetsMaker_MenuSummary" position="fill" resolution="480,320">
-		<widget source="SetupTitle" render="Label" position="0,5" size="480,70" font="FdLcD;45" halign="center" valign="center" foregroundColor="FdLcdTitleForeground" />
-		<widget source="SetupEntry" render="Label" position="0,71" size="480,90" font="FdLcD;40" halign="center" valign="center" />
-		<widget source="SetupValue" render="Label" position="0,161" size="400,16" font="FdLcD;14" halign="left" transparent="1" />
 	</screen>
 
 <!-- ServiceScanSummary -->
@@ -491,5 +494,35 @@
 <!-- ServiceInfo -->
 	<screen name="ServiceInfoSummary" position="fill" resolution="480,320">
 		<widget source="info" render="Label" position="10,10" size="460,300" font="FdLcD;32" noWrap="1" />
+	</screen>
+
+	<!-- OAWEATHER -->
+	<screen name="OAWeatherOverviewSummary" position="0,0" size="480,320">
+		<widget font="FdLcD;50" foregroundColor="yellow" halign="center" valign="center" noWrap="1" position="0,0" render="Label" size="480,60" source="session.OAWeather" transparent="1" zPosition="1">
+			<convert type="OAWeather">city</convert>
+		</widget>
+		<eLabel position="0,65" size="480,3" backgroundColor="blue" zPosition="1" />
+		<widget position="5,85" render="OAWeatherPixmap" scale="1" size="135,135" source="session.OAWeather" transparent="1" zPosition="1" >
+			<convert type="OAWeather">weathericon,current</convert>
+		</widget>
+		<ePixmap pixmap="/usr/share/enigma2/display/skin_default/temperature_high_low_icon.png" position="140,80" size="30,30" scale="1" transparent="1" zPosition="1" />
+		<widget font="FdLcD;30" position="175,80" render="Label" size="200,35" source="session.OAWeather" zPosition="1" >
+			<convert type="OAWeather">temperature_high_low,current</convert>
+		</widget>
+		<ePixmap pixmap="/usr/share/enigma2/display/skin_default/temperature_icon.png" position="140,120" size="30,30" scale="1" transparent="1" zPosition="1" />
+		<widget font="FdLcD;30" position="175,120" render="Label" size="200,35" source="session.OAWeather" zPosition="1">
+			<convert type="OAWeather">temperature_current</convert>
+		</widget>
+		<ePixmap pixmap="/usr/share/enigma2/display/skin_default/humidity_icon.png" position="140,160" size="30,30" scale="1" transparent="1" zPosition="1" />
+		<widget font="FdLcD;30" position="175,160" render="Label" size="200,35" source="session.OAWeather" zPosition="1">
+			<convert type="OAWeather">humidity</convert>
+		</widget>
+		<ePixmap pixmap="/usr/share/enigma2/display/skin_default/wind_icon.png" position="140,200" size="30,30" scale="1" transparent="1" zPosition="1" />
+		<widget font="FdLcD;30" position="175,195" render="Label" size="30,35" source="session.OAWeather" zPosition="1">
+			<convert type="OAWeather">winddirarrow</convert>
+		</widget>
+		<widget font="FdLcD;30" position="205,200" render="Label" size="220,35" source="session.OAWeather" zPosition="1">
+			<convert type="OAWeather">windspeed</convert>
+		</widget>
 	</screen>
 </skin>
