@@ -249,7 +249,7 @@ SystemInfo["LCDSKINSetup"] = pathExists("/usr/share/enigma2/display") and not Sy
 SystemInfo["LcdPowerOn"] = fileExists("/proc/stb/power/vfd")
 SystemInfo["LcdDisplay"] = fileExists("/dev/dbox/lcd0")
 SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach") or fileCheck("/proc/stb/lcd/live_enable")
-SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode")
+SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode") and  MACHINEBUILD not in ("gbquad4k", "gbquad4kpro", "gbue4k", "vuduo4klite")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and MODEL != "gb800ueplus"
 SystemInfo["DisplayLED"] = MODEL in ("gb800se", "gb800solo", "gbx1", "gbx2", "gbx3", "gbx3h")
 SystemInfo["LEDButtons"] = False  # MODEL == "vuultimo", For some reason this causes a cpp crash on vuultimo (which we no longer build). The cause needs investigating or the dead code in surrounding modules that this change causes should be removed.
@@ -275,7 +275,7 @@ SystemInfo["HasExternalPIP"] = MODEL not in ("et9x00", "et6x00", "et5x00") and f
 SystemInfo["hasPIPVisibleProc"] = fileCheck("/proc/stb/vmpeg/1/visible")
 SystemInfo["HasTranscoding"] = pathExists("/proc/stb/encoder/0") or fileCheck("/dev/bcm_enc0")
 SystemInfo["HasH265Encoder"] = fileHas("/proc/stb/encoder/0/vcodec_choices", "h265")
-SystemInfo["CanNotDoSimultaneousTranscodeAndPIP"] = MODEL in ("vusolo4k", "gb7252")
+SystemInfo["CanNotDoSimultaneousTranscodeAndPIP"] = MODEL in ("vusolo4k", "vuduo4klite", "gb7252")
 SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
 SystemInfo["hasHdmiCec"] = fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/hdmi_cec0")
 SystemInfo["HasHDMIin"] = SystemInfo["hdmifhdin"] or SystemInfo["hdmihdin"]
@@ -302,7 +302,7 @@ SystemInfo["VideoModes"] = CHIPSET.replace("hi", "") in (  # 2160p and 1080p cap
 	{"720p", "1080i"}  # Widescreen modes.
 )
 # VideoAudioOptions
-SystemInfo["CanProc"] = SystemInfo["HasMMC"] and BRAND != "vuplus"
+SystemInfo["CanProc"] = MODEL in ("vuduo4klite", ) or (SystemInfo["HasMMC"] and BRAND != "vuplus")
 SystemInfo["needsVideoJudderDriverFix"] = BOXTYPE in ("gbquad4kpro",)
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
 SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz") or MODEL in ("h7")
