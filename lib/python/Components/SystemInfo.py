@@ -249,7 +249,7 @@ SystemInfo["LCDSKINSetup"] = pathExists("/usr/share/enigma2/display") and not Sy
 SystemInfo["LcdPowerOn"] = fileExists("/proc/stb/power/vfd")
 SystemInfo["LcdDisplay"] = fileExists("/dev/dbox/lcd0")
 SystemInfo["LcdLiveTV"] = fileCheck("/proc/stb/fb/sd_detach") or fileCheck("/proc/stb/lcd/live_enable")
-SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode") and  MACHINEBUILD not in ("gbquad4k", "gbquad4kpro", "gbue4k", "vuduo4klite")
+SystemInfo["LCDMiniTV"] = fileExists("/proc/stb/lcd/mode") and MACHINEBUILD not in ("gbquad4k", "gbquad4kpro", "gbue4k", "vuduo4klite")
 SystemInfo["LCDMiniTVPiP"] = SystemInfo["LCDMiniTV"] and MODEL != "gb800ueplus"
 SystemInfo["DisplayLED"] = MODEL in ("gb800se", "gb800solo", "gbx1", "gbx2", "gbx3", "gbx3h")
 SystemInfo["LEDButtons"] = False  # MODEL == "vuultimo", For some reason this causes a cpp crash on vuultimo (which we no longer build). The cause needs investigating or the dead code in surrounding modules that this change causes should be removed.
