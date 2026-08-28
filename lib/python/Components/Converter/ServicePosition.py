@@ -2,7 +2,7 @@ from enigma import iPlayableService, iPlayableServicePtr
 
 from Components.config import config
 from Components.Converter.Converter import Converter
-from Components.Converter.ConverterTimeHelpers import _fmt_m, _fmt_ms, _fmt_hm, _fmt_hms, _fmt_pct, _fmt_m_bare, _fmt_s, _join, CONFIG_TO_SKIN_FLAGS
+from Components.Converter.ConverterTimeHelpers import _fmt_m, _fmt_ms, _fmt_hm, _fmt_hms, _fmt_pct, _fmt_m_bare, _join, CONFIG_TO_SKIN_FLAGS
 from Components.Converter.Poll import Poll
 from Components.Element import cached, ElementError
 

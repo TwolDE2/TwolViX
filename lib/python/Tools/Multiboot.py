@@ -444,10 +444,10 @@ def _unmountAndRemove(mountpoint):
 
 def _imageDir(mountroot, slot):
 	return sep.join([_f for _f in [mountroot, SystemInfo["canMultiBoot"][slot].get("rootsubdir", "")] if _f])
-# end helper functions
+# 	end helper functions
 
 
-#	following added for OpenWebif canMultiBoot getCurrentSlotAndBootCodes getSlotImageList getBootCodeDescription activateSlot
+# 	following added for OpenWebif canMultiBoot getCurrentSlotAndBootCodes getSlotImageList getBootCodeDescription activateSlot
 def canMultiBoot():
 	# print(f"[multiboot][canMultiBoot] ")
 	return bool(SystemInfo["canMultiBoot"])

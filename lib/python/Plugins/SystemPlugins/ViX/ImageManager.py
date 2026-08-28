@@ -5,7 +5,7 @@ import tempfile
 import struct
 
 from enigma import eTimer, fbClass
-from os import path, stat, system, mkdir, makedirs, listdir, remove, rename, rmdir, sep as ossep, statvfs, chmod, walk
+from os import path, stat, system, mkdir, makedirs, listdir, remove, rmdir, sep as ossep, statvfs, chmod, walk
 from shutil import copyfile, move, rmtree
 from time import localtime, time, strftime, mktime
 

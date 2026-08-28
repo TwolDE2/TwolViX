@@ -2,8 +2,6 @@ from Components.FileList import FileList
 from Components.Sources.StaticText import StaticText
 from Components.config import config, ConfigYesNo, ConfigDirectory
 from Components.ActionMap import ActionMap
-from Components.Pixmap import Pixmap
-from Components.Sources.Boolean import Boolean
 from Screens.Screen import Screen
 from Screens.Setup import Setup
 from Screens.HelpMenu import HelpableScreen
