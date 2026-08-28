@@ -149,7 +149,7 @@ class HotPlugManager:
 						break
 
 			if notFound and ID_FS_UUID:
-				fstabEntries = [x for x in (line.split() for line in fileReadLines("/etc/fstab") if len(x) > 1]
+				fstabEntries = [x for x in (line.split() for line in fileReadLines("/etc/fstab")) if len(x) > 1]
 				fstabDevice = [x[1] for x in fstabEntries if x[0] == f"UUID={ID_FS_UUID}"]
 				if fstabDevice and fstabDevice[0] not in mountPoints:  # Check if device is already in fstab and if the mountpoint not used
 					if not exists(fstabDevice[0]):
