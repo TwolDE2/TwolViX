@@ -125,7 +125,7 @@ class HotPlugManager:
 				mountPointDevice = "/media/mmc" if partition == "1" else f"/media/mmc{partition}"
 			else:
 				mountPointDevice = DEVNAME.replace("/dev/", "/media/")
-			mountPointHdd = None if [x.split()[1] for x in mounts if "/media/hdd" in x] else "/media/hdd"
+			mountPointHdd = None if "/media/hdd" in mountPoints else "/media/hdd"
 			knownDevices = fileReadLines("/etc/udev/known_devices", default=[])
 			knownDevice = ""
 			nr = 1
