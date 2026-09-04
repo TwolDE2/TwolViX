@@ -303,7 +303,7 @@ SystemInfo["VideoModes"] = CHIPSET.replace("hi", "") in (  # 2160p and 1080p cap
 )
 # VideoAudioOptions
 SystemInfo["CanProc"] = MODEL in ("vuduo4klite", ) or (SystemInfo["HasMMC"] and BRAND != "vuplus")
-SystemInfo["needsVideoJudderDriverFix"] = BOXTYPE in ("gbquad4kpro",)
+SystemInfo["needsVideoJudderDriverFix"] = BOXTYPE in ("gbquad4kpro", "vuduo4klite")
 SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
 SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz") or MODEL in ("h7")
 SystemInfo["havecolorspace"] = fileCheck("/proc/stb/video/hdmi_colorspace")
@@ -336,6 +336,6 @@ SystemInfo["HasUsbhdd"] = {}
 SystemInfo["MTDBLACK"] = ""  # HDD device set in Harddisk.py
 SystemInfo["DMRecovery"] = MODEL in ("dm900", "dm920") and fileExists("/proc/stb/fp/boot_mode")
 SystemInfo["canMode12"] = MODEL in ("hd51", "h7") and ("brcm_cma=440M@328M brcm_cma=192M@768M", "brcm_cma=520M@248M brcm_cma=200M@768M")
-SystemInfo["HasSDnomount"] = MODEL in ("h9", "i55plus") and (False, "none") or MODEL in ("h9combo", "h9combose", "h9se", "h9twin", "h9twinse", "h11", "multibox", "multiboxpro", "pulse4k", "pulse4kmini", "gb7252") and (True, "mmcblk0")
+SystemInfo["HasSDnomount"] = MODEL in ("h9", "i55plus") and (False, "none") or MODEL in ("h9combo", "h9combose", "h9se", "h9twin", "h9twinse", "h11", "multibox", "multiboxpro", "pulse4k", "pulse4kmini", "gb7252", "vuduo4klite") and (True, "mmcblk0")
 SystemInfo["haveboxmode"] = fileCheck("/proc/stb/info/boxmode")
 print("[SystemInfo] SystemInfo data initialised.")
