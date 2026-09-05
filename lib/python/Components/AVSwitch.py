@@ -312,6 +312,9 @@ class AVSwitch:
 		fb_size = getDesktop(0).size()
 		return (aspect[0] * fb_size.height(), aspect[1] * fb_size.width())
 
+	def setAspectRatio(self, value):
+		eAVSwitch.getInstance().setAspectRatio(value)
+
 	def getAspectRatioSetting(self):
 		valstr = config.av.aspectratio.value
 		if valstr == "4_3_letterbox":
@@ -345,8 +348,7 @@ def InitAVSwitch():
 		("ac3", _("Dolby Digital"))
 	], default="passthrough")
 	if SystemInfo["Vu_EAC3_fix"]:
-		delay_choices = [(i, ngettext("%d milisecond", "%d miliseconds", i) % i) for i in list(range(0, 3000, 100))]  # noqa: F821
-		config.av.passthrough_fix_short = ConfigSelection(choices=delay_choices, default=100)
+		config.av.passthrough_fix = ConfigYesNo(default=True)
 	config.av.yuvenabled = ConfigYesNo(default=True)
 	colorformat_choices = {
 		"cvbs": _("CVBS"),
