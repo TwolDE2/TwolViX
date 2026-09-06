@@ -144,18 +144,18 @@ dnl Software HDR detection (HEVC bitstream parser + TS recorder tap).
 dnl Enabled for VU+ 4K boxes and GigaBlue Quad 4K Pro, which have capable
 dnl enough SoCs and GStreamer stacks to support the detection pipeline.
 if test "$BOXTYPE" == "vuduo4k"     -o "$BOXTYPE" == "vuduo4kse"  \
-     -o "$BOXTYPE" == "vuduo4klite" -o "$BOXTYPE" == "vusolo4k"   \
-     -o "$BOXTYPE" == "vuultimo4k"  -o "$BOXTYPE" == "vuuno4k"    \
-     -o  $BOXTYPE" == "vuuno4kse"   -o "$BOXTYPE" == "vuzero4k"   \
-     -o "$BOXTYPE" == "gb7252"; then
+	 -o "$BOXTYPE" == "vuduo4klite" -o "$BOXTYPE" == "vusolo4k"   \
+	 -o "$BOXTYPE" == "vuultimo4k"  -o "$BOXTYPE" == "vuuno4k"    \
+	 -o "$BOXTYPE" == "vuuno4kse"   -o "$BOXTYPE" == "vuzero4k"   \
+	 -o "$BOXTYPE" == "gb7252"; then
 	AC_DEFINE(HAS_SOFTWARE_HDR_DETECTION, 1, [Enable software HDR detection via HEVC bitstream parsing])
 fi
 AM_CONDITIONAL(HAS_SOFTWARE_HDR_DETECTION, \
 	test "$BOXTYPE" == "vuduo4k"     -o "$BOXTYPE" == "vuduo4kse" \
-	  -o "$BOXTYPE" == "vuduo4klite" -o "$BOXTYPE" == "vusolo4k"  \
-	  -o "$BOXTYPE" == "vuultimo4k"  -o "$BOXTYPE" == "vuuno4k"   \
-	  -o "$BOXTYPE" == "vuuno4kse"   -o "$BOXTYPE" == "vuzero4k"  \
-	  -o "$BOXTYPE" == "gb7252")
+	 -o "$BOXTYPE" == "vuduo4klite" -o "$BOXTYPE" == "vusolo4k"  \
+	 -o "$BOXTYPE" == "vuultimo4k"  -o "$BOXTYPE" == "vuuno4k"   \
+	 -o "$BOXTYPE" == "vuuno4kse"   -o "$BOXTYPE" == "vuzero4k"  \
+	 -o "$BOXTYPE" == "gb7252")
 
 AC_ARG_WITH(accelerationthreshold,
 	AS_HELP_STRING([--with-accelerationthreshold=n], [use acceleration threshold of n bytes]),
