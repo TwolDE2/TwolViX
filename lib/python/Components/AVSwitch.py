@@ -770,10 +770,7 @@ def InitAVSwitch():
 			("passthrough", _("Passthrough")),
 			("multichannel", _("Convert to Nulti-Channel PCM")),
 			("force_ac3", _("Convert to AC3")),
-			("force_dts", _("Convert to DTS")),
-			("use_hdmi_cacenter", _("Use hdmi cacenter")),
-			("wide", _("Wide")),
-			("extrawide", _("Extrawide"))
+			("force_dts", _("Convert to DTS"))
 		]
 		default = "downmix"
 		if SystemInfo["CanProc"]:
