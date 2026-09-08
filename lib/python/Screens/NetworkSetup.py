@@ -812,7 +812,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 	def __init__(self, session, iface=None):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
-		self.setTitle(_("Network Setup"))
+		self.title = _("Network Setup")
 		print(f"[AdapterSetupConfiguration] entry.... iface:{iface}")
 		self.session = session
 		self.iface = iface
@@ -875,29 +875,26 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 	def queryWirelessDevice(self, iface):
 		try:
 			from wifi.scan import Cell
+			from wifi.exceptions import InterfaceError
 			import errno
 		except ImportError:
 			return False
-		else:
-			from wifi.exceptions import InterfaceError
-			try:
-				system("ifconfig %s up" % iface)
-				wlanresponse = list(Cell.all(iface))  # noqa: F841  call to check setup
-			except InterfaceError as ie:
-				print(f"[NetworkSetup] queryWirelessDevice InterfaceError: {str(ie)}")
-				return False
-			except OSError as err:
-				print(f"[AdapterSetupConfiguration] error:{err}")
-				error_no, error_str = err.args
-				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-					return False
-				else:
-					print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-					return True
-			else:
-				return True
+		try:
+			system("ifconfig %s up" % iface)
+			list(Cell.all(iface))
+			return True
+
+		except InterfaceError as err:
+			print(f"[AdapterSetupConfiguration] WiFi scan failed:{err}")
+
+		except IOError as err:
+			error_no, error_str = err.args
+			if error_no not in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+				print(f"[AdapterSetupConfiguration] error:{error_no} {error_str}")
+		return False
 
 	def ok(self):
+		self.title = _("Network Setup") + " - " + _("Processing, please wait")
 		self.cleanup()
 		if self["menulist"].getCurrent()[1] == "edit":
 			if iNetwork.isWirelessInterface(self.iface):
@@ -930,6 +927,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		if self["menulist"].getCurrent()[1][0] == "extendedSetup":
 			self.extended = self["menulist"].getCurrent()[1][2]
 			self.extended(self.session, self.iface)
+		self.title = _("Network Setup")
 
 	def up(self):
 		self["menulist"].up()
