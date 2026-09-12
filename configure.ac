@@ -1,4 +1,4 @@
-AC_INIT([enigma2],[5.6],[http://www.world-of-satellite.com])
+AC_INIT([enigma2],[6.9],[http://www.world-of-satellite.com])
 AM_INIT_AUTOMAKE([dist-bzip2 no-define tar-pax -Wno-portability])
 AC_CONFIG_HEADERS([enigma2_config.h])
 
@@ -325,7 +325,6 @@ AC_ARG_WITH(colorlcd400,
 if test x"$withcolorlcd400" != xno ; then
 	AC_DEFINE(HAVE_COLORLCD400, 1,[Define when using a 400x176 color display device])
 fi
-
 AM_CONDITIONAL(HAVE_COLORLCD400, test x"$withcolorlcd400" != xno)
 
 AC_ARG_WITH(colorlcd480,
@@ -336,7 +335,6 @@ AC_ARG_WITH(colorlcd480,
 if test x"$withcolorlcd480" != xno ; then
 	AC_DEFINE(HAVE_COLORLCD480, 1,[Define when using a 480x320 color display device])
 fi
-
 AM_CONDITIONAL(HAVE_COLORLCD480, test x"$withcolorlcd480" != xno)
 
 AC_ARG_WITH(colorlcd720,
@@ -409,7 +407,6 @@ AC_ARG_WITH(oldpvr,
 if test x"$witholdpvr" != xno ; then
 	AC_DEFINE(HAVE_OLDPVR, 1,[Define when using /dev/misc/pvr])
 fi
-
 AM_CONDITIONAL(HAVE_OLDPVR, test x"$witholdpvr" != xno)
 
 AC_ARG_WITH(hisil,
@@ -418,8 +415,11 @@ AC_ARG_WITH(hisil,
 if test x"$with_hisil" != xno ; then
 	AC_DEFINE(HAVE_HISIL, 1,[define add old api of enigma2])
 fi
-
 AM_CONDITIONAL(HAVE_HISIL, test x"$with_hisil" != xno)
+
+if test `echo "$BOXTYPE" | cut -b 1-2` == "et" ; then
+	AC_DEFINE(KEY_PLAY_ACTUALLY_IS_KEY_PLAYPAUSE, 1,[define when rc sends a KEY_PLAY event for its KEY_PLAYPAUSE key])
+fi
 
 if test `echo "$BOXTYPE" | cut -b 1-2` == "vu"; then
 	AC_DEFINE(FORCE_NO_BLENDING_ACCELERATION, 1,[define when the framebuffer acceleration does not have alphablending support, though the autodetection might indicate that it does])
