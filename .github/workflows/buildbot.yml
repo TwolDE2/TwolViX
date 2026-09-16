@@ -2,7 +2,7 @@ name: buildbot
 
 on:
   push:
-    branches: [ Py3D ]
+    branches: [ Py3, Py3D, Py3E, Py3F]
 
   workflow_dispatch:
 
