@@ -243,6 +243,7 @@ class NetworkWizard(WizardLanguage, Rc):
 		self.AdapterRef.close(True)
 
 	def checkWlanStateCB(self, data, status):
+		print(f"[NetworkWizard][checkWlanStateCB] data:{data} status:{status}")
 		if data is not None:
 			if data is True:
 				if status is not None:

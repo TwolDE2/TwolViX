@@ -576,6 +576,9 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 			if not exists(f"/tmp/bcm/{self.iface}"):
 				self.encryptionlist.append(("WPA/WPA2", _("WPA or WPA2")))
 			self.encryptionlist.append(("WPA2", _("WPA2")))
+			if not exists(f"/tmp/bcm/{self.iface}"):
+				self.encryptionlist.append(("WPA2/WPA3", _("WPA2 or WPA3")))
+				self.encryptionlist.append(("WPA3", _("WPA3")))
 			self.weplist = []
 			self.weplist.append("ASCII")
 			self.weplist.append("HEX")

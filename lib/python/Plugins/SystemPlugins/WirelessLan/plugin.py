@@ -157,14 +157,14 @@ class WlanStatus(Screen):
 					signal = str(status[self.iface]["signal"]) + " dBm"
 					if "signal" in self:
 						self["signal"].setText(signal)
-
+					encryption_type = status[self.iface]["encryption_type"]
 					if status[self.iface]["encryption"] == "off":
 						if accesspoint == "Not-Associated":
 							encryption = _("Disabled")
 						else:
 							encryption = _("off or wpa2 on")
 					else:
-						encryption = _("Enabled")
+						encryption = _(f"Enabled {encryption_type}")
 					if "enc" in self:
 						self["enc"].setText(encryption)
 
@@ -172,7 +172,6 @@ class WlanStatus(Screen):
 					if "channel" in self:
 						self["channel"].setText(channel)
 
-					encryption_type = status[self.iface]["encryption_type"]
 					if "encryption_type" in self:
 						self["encryption_type"].setText(encryption_type)
 
