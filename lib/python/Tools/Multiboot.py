@@ -387,6 +387,16 @@ def removeNewMultibootSlots(slots):
 		_unmountAndRemove(tmpdir)
 
 
+def pruneNewMultibootSlots(erased=()):
+	# Bring the running E2's slot table in line with an erased device without a restart: drop the given slots and any whose device has gone.
+	# The running slot is never dropped. Returns the slot numbers dropped.
+	slots = SystemInfo["canMultiBoot"]
+	dropped = [slot for slot, data in slots.items() if slot != SystemInfo["MultiBootSlot"] and (slot in erased or (data.get("root", "").startswith("/dev/") and not path.exists(data["root"])))]
+	for slot in dropped:
+		del slots[slot]
+	return sorted(dropped)
+
+
 NEWMB_MIN_DISK_MB = 2048
 # ext4 features the 4.x kernels of these receivers mount. Named explicitly because newer mke2fs defaults add ones they cannot, e.g. orphan_file needs kernel 5.15
 NEWMB_MKFS_FEATURES = "none,has_journal,ext_attr,resize_inode,dir_index,filetype,extent,flex_bg,sparse_super,large_file,huge_file,dir_nlink,extra_isize"
