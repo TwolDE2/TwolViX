@@ -28,7 +28,7 @@ from Screens.TaskView import JobView
 from Screens.TextBox import TextBox
 from Tools.Directories import fileExists, pathExists
 import Tools.CopyFiles
-from Tools.Multiboot import GetImagelist
+from Tools.Multiboot import GetImagelist, getFilesystemType, getNewMultibootFlashOptions
 from Tools.Notifications import AddPopupWithCallback
 
 from . import getMountChoices, getMountDefault
@@ -553,7 +553,15 @@ class VIXImageManager(Screen):
 					self.MTDROOTFS = SystemInfo["canMultiBoot"][self.multibootslot]["root"]
 				else:
 					self.MTDROOTFS = SystemInfo["canMultiBoot"][self.multibootslot]["root"].split("/")[2]
-				if SystemInfo["HasHiSi"] and SystemInfo["MultiBootSlot"] > 4 and self.multibootslot < 4:
+				if SystemInfo["HasNewMultiboot"] and getNewMultibootFlashOptions(self.multibootslot) is None:
+					self.session.open(MessageBox, _("ImageManager - slot %s cannot be flashed because its rootsubdir does not match the slot number.") % self.multibootslot, MessageBox.TYPE_INFO, timeout=10)
+					return
+				if SystemInfo["HasNewMultiboot"]:  # ofgwrite formats a target it cannot mount as ext4, so never hand it a device that now holds another filesystem, e.g. after a USB disk was renumbered
+					fsType = getFilesystemType(SystemInfo["canMultiBoot"][self.multibootslot]["root"])
+					if fsType and not fsType.startswith("ext"):
+						self.session.open(MessageBox, _("ImageManager - %s now holds a %s filesystem, not EXT4, so slot %s cannot be flashed safely.") % (SystemInfo["canMultiBoot"][self.multibootslot]["root"], fsType, self.multibootslot), MessageBox.TYPE_INFO, timeout=10)
+						return
+				if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and SystemInfo["MultiBootSlot"] > 4 and self.multibootslot < 4:
 					self.session.open(MessageBox, _("ImageManager - %s - cannot flash eMMC slot from sd card slot.") % BOXTYPE, MessageBox.TYPE_INFO, timeout=10)
 					return
 			# skip making a backup on recovery slot... non-multiboot will succeed here because SystemInfo["MultiBootSlot"] will equal None
@@ -592,7 +600,9 @@ class VIXImageManager(Screen):
 		CMD = "/usr/bin/ofgwrite -r -k '%s'" % MAINDEST							# normal non multiboot receiver
 		if SystemInfo["canMultiBoot"]:
 			rootsubdir = None if not SystemInfo["HasRootSubdir"] else SystemInfo["canMultiBoot"][self.multibootslot]["rootsubdir"]
-			if UBIMB:
+			if SystemInfo["HasNewMultiboot"]:
+				CMD = "/usr/bin/ofgwrite %s '%s'" % (getNewMultibootFlashOptions(self.multibootslot), MAINDEST)
+			elif UBIMB:
 				if self.multibootslot != 0:
 					CMD = "/usr/bin/ofgwrite -r%s -c%s -m%s '%s'" % (self.MTDROOTFS, SystemInfo["MultiBootSlot"], self.multibootslot, MAINDEST)
 			elif self.multibootslot == 0 and SystemInfo["HasKexecMultiboot"]:		# reset Vu Multiboot slot0
@@ -625,7 +635,7 @@ class VIXImageManager(Screen):
 		fbClass.getInstance().unlock()
 		print("[ImageManager] ofgwrite retval :", retval)
 		if retval == 0:
-			if SystemInfo["HasHiSi"] and SystemInfo["HasRootSubdir"] is False and self.HasSDmmc is False:  # sf8008 receiver 1 eMMC parition, No SD card
+			if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and SystemInfo["HasRootSubdir"] is False and self.HasSDmmc is False:  # sf8008 receiver 1 eMMC parition, No SD card
 				self.session.open(TryQuitMainloop, 2)
 			if SystemInfo["HasMultibootFlags"]:
 				print("[ImageManager] setting slot %s to flag file\n" % self.multibootslot)
@@ -916,7 +926,7 @@ class ImageBackup(Screen):
 			elif not SystemInfo["HasKexecMultiboot"]:
 				self.MTDROOTFS = SystemInfo["canMultiBoot"][slot]["root"].split("/")[2]
 			if SystemInfo["HasRootSubdir"] and slot != 0:
-				self.ROOTFSSUBDIR = SystemInfo["canMultiBoot"][slot]["rootsubdir"]
+				self.ROOTFSSUBDIR = SystemInfo["canMultiBoot"][slot]["rootsubdir"] or ""
 		else:
 			self.MTDKERNEL = MTDKERNEL
 			self.MTDROOTFS = MTDROOTFS

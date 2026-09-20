@@ -206,6 +206,13 @@ def saveBootDevice(device):
 			print(f"[multiboot][saveBootDevice] {err}")
 
 
+def getFilesystemType(device):
+	try:
+		return _run(["/sbin/blkid", "-o", "value", "-s", "TYPE", device]).stdout.decode(errors="ignore").strip()
+	except OSError:
+		return ""
+
+
 def getUUIDtoSD(UUID):  # returns None on failure
 	if not fileExists("/sbin/blkid"):
 		return None
@@ -320,6 +327,29 @@ def getNewMultibootSlot(bootslots):
 	if slot is not None and mounted:
 		bootslots[slot]["root"] = device  # the running slot's real device, whatever name the STARTUP file used
 	return slot
+
+
+def getNewMultibootFlashOptions(slot):
+	# ofgwrite options to flash a NewMB slot, or None if ofgwrite can't address it. Slots share a kernel device, so only the lowest slot using it may rewrite it
+	slots = SystemInfo["canMultiBoot"]
+	data = slots[slot]
+	options = [f"-r{path.basename(data['root'])}"]
+	kernel = data.get("kernel")
+	if kernel and slot == min(number for number, item in slots.items() if number and item.get("kernel") == kernel):
+		options.append(f"-k{path.basename(kernel)}")
+	rootsubdir = data.get("rootsubdir")
+	if rootsubdir:
+		prefix = rootsubdir.rstrip("0123456789")
+		if rootsubdir != f"{prefix}{slot}":  # ofgwrite builds the directory name from the slot number
+			return None
+		options.append(f"-m{slot}")
+		if prefix != "linuxrootfs":
+			options.append(f"-s{prefix}")
+	else:
+		options.append("-m0")  # a whole partition, flashed without the rootsubdir check
+	if slot == SystemInfo["MultiBootSlot"]:
+		options.append("-f")  # ofgwrite judges the running slot from /proc/cmdline, so make sure it stops enigma2 when it is ours
+	return " ".join(options)
 
 
 def GetCurrentImageMode():
