@@ -226,14 +226,9 @@ class About(AboutBase):
 			bootDevice = BoxInfo.getItem("mtdbootfs") if not SystemInfo["canMultiBoot"] else SystemInfo["BootDevice"]
 			if bootDevice:
 				AboutText += _("Boot Device:\t%s%s\n") % (VuPlustxt, bootDevice)
-		if SystemInfo["canMultiBoot"]:
-			slot = image = SystemInfo["MultiBootSlot"]
-			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]["root"]:
-				if slot > 4:
-					image -= 4
-				else:
-					image -= 1
-			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
+		if SystemInfo["canMultiBoot"] and SystemInfo["MultiBootSlot"] in SystemInfo["canMultiBoot"]:  # the running slot can be unknown
+			slot = SystemInfo["MultiBootSlot"]
+			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB"), "SATA": _("SATA")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
 			part = _("slot %s  (%s)") % (slot, slotType)
 			bootmode = SystemInfo["canMode12"] and (mode := GetCurrentImageMode()) and _("bootmode = %s") % str(mode) or ""
 			AboutText += (_("Image Slot:\t %s %s") % (part, bootmode)) + "\n"
