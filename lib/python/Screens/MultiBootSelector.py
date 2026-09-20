@@ -20,7 +20,7 @@ from Screens.Standby import QUIT_REBOOT, QUIT_RESTART, TryQuitMainloop
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import copyfile, fileReadLine, fileWriteLine
-from Tools.Multiboot import canNameNewMultibootPartition, createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootPartitionName, getNewMultibootPrepareCommands, getNewMultibootPrepareDevices, getNewMultibootSlotDevices, nameNewMultibootPartition, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, removeNewMultibootSlots, restoreSlots, verifyNewMultibootPartition
+from Tools.Multiboot import canNameNewMultibootPartition, createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootPartitionName, getNewMultibootPrepareCommands, getNewMultibootPrepareDevices, getNewMultibootSlotDevices, nameNewMultibootPartition, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, pruneNewMultibootSlots, removeNewMultibootSlots, restoreSlots, verifyNewMultibootPartition
 
 ACTION_SELECT = 0
 ACTION_CREATE = 1
@@ -206,10 +206,13 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.session.openWithCallback(self.newMBPrepareDone, ConsoleScreen, title=_("Preparing %s") % self.newMBPrepareDisk, cmdlist=cmdlist)
 
 	def newMBPrepareDone(self, *args):
+		erased = self.newMBDisks[self.newMBPrepareDisk]["slots"]
 		partition = verifyNewMultibootPartition(self.newMBPrepareDisk)
+		pruneNewMultibootSlots(erased if partition else ())  # the slot list must not keep showing slots that are gone until the next restart
+		self.getImagelist()
 		if partition:
 			self.newMBDevice = partition
-			removed = removeNewMultibootSlots(self.newMBDisks[self.newMBPrepareDisk]["slots"])
+			removed = removeNewMultibootSlots(erased)
 			self.newMBAskSlots(True, note=(_("The STARTUP files of slot(s) %s, which were on the erased device, have been removed.") % ", ".join(str(slot) for slot in removed)) if removed else "")
 		else:
 			self.session.open(MessageBox, _("Preparing %s did not complete, so it is not ready for slots. Nothing was added.") % self.newMBPrepareDisk, MessageBox.TYPE_ERROR, timeout=15)
