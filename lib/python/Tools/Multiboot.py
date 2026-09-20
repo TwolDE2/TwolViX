@@ -3,7 +3,7 @@ import glob
 import struct
 import subprocess
 import tempfile
-from os import path, rmdir, rename, sep, stat
+from os import listdir, path, remove as os_remove, rmdir, rename, sep, stat, statvfs, sync
 import re
 
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, BOXTYPE, CHKROOTMB, MODEL, MTDKERNEL, MTDROOTFS, UBIMB
@@ -206,11 +206,90 @@ def saveBootDevice(device):
 			print(f"[multiboot][saveBootDevice] {err}")
 
 
+NEWMB_STARTUP = re.compile(r"(STARTUP(?:_LINUX)?_)(\d+)((?:_BOXMODE_\d+)?)")  # the STARTUP file names the NewMB initramfs looks up for a slot
+NEWMB_FILESYSTEMS = ("ext2", "ext3", "ext4")
+NEWMB_MIN_FREE_MB = 1024
+
+
 def getFilesystemType(device):
 	try:
 		return _run(["/sbin/blkid", "-o", "value", "-s", "TYPE", device]).stdout.decode(errors="ignore").strip()
 	except OSError:
 		return ""
+
+
+def getNewMultibootSlotDevices():
+	# mounted ext2/3/4 partitions outside the boot disk that can hold extra NewMB slots
+	internal = _parentDevice(path.basename(SystemInfo["MBbootdevice"]))
+	devices = {}
+	for line in fileReadLines("/proc/mounts", default=[]):
+		fields = line.split()
+		if len(fields) < 3 or not fields[0].startswith("/dev/") or fields[2] not in NEWMB_FILESYSTEMS:
+			continue
+		name = path.basename(path.realpath(fields[0]))
+		if not path.exists(f"/sys/class/block/{name}") or f"/dev/{name}" in devices or _parentDevice(name) == internal:  # pseudo names such as /dev/root are skipped
+			continue
+		try:
+			stats = statvfs(fields[1].replace("\\040", " "))
+		except OSError:
+			continue
+		devices[f"/dev/{name}"] = {"device": f"/dev/{name}", "mountpoint": fields[1], "freeMB": stats.f_bavail * stats.f_frsize // (1024 * 1024), "label": _partitionLabel(name)}
+	return [devices[device] for device in sorted(devices)]
+
+
+def _renderNewMBStartup(content, device, rootsubdir):
+	# same edit the initramfs makes when it stores the selected slot: point root= and rootsubdir= at the slot
+	if not re.search(r"(?<!\w)root=", content):
+		return None
+	content = re.sub(r"(?<!\w)root=[^\s'\"]*", lambda match: f"root={device}", content)
+	if "rootsubdir=" in content:
+		return re.sub(r"rootsubdir=[^\s'\"]*", lambda match: f"rootsubdir={rootsubdir}", content)
+	return content.replace(f"root={device}", f"root={device} rootsubdir={rootsubdir}", 1)
+
+
+def createNewMultibootSlots(device, count=4):
+	# Add count slots on device by cloning the lowest slot's STARTUP files (kernel, boxmode variants and all) on the boot partition.
+	# The numbers come from the files on the boot partition, so the STARTUP files of slots on devices that are not attached are never overwritten.
+	# Returns the new slot numbers, or [] if nothing was created. ofgwrite creates the linuxrootfs<n> directories when an image is flashed.
+	tmpdir = tempfile.mkdtemp(prefix="NewMBSlots")
+	written = []
+	_mount(SystemInfo["MBbootdevice"], tmpdir)
+	try:
+		startups = {}
+		for name in listdir(tmpdir):
+			match = NEWMB_STARTUP.fullmatch(name)
+			if match:
+				startups.setdefault(int(match.group(2)), []).append((name, match))
+		if not startups:
+			return []
+		template = startups[min(startups)]
+		first = max(startups) + 1
+		files = {}
+		for number in range(first, first + count):
+			for name, match in template:
+				with open(path.join(tmpdir, name)) as fd:
+					content = _renderNewMBStartup(fd.read(), device, f"linuxrootfs{number}")
+				if content is None:
+					print(f"[multiboot][createNewMultibootSlots] no root= in {name}")
+					return []
+				files[f"{match.group(1)}{number}{match.group(3)}"] = content
+		try:
+			for name, content in files.items():
+				with open(path.join(tmpdir, name), "w") as fd:
+					fd.write(content)
+				written.append(name)
+		except OSError as err:
+			print(f"[multiboot][createNewMultibootSlots] {err}")
+			for name in written:
+				try:
+					os_remove(path.join(tmpdir, name))
+				except OSError:
+					pass
+			return []
+		sync()
+		return list(range(first, first + count))
+	finally:
+		_unmountAndRemove(tmpdir)
 
 
 def getUUIDtoSD(UUID):  # returns None on failure
@@ -350,7 +429,6 @@ def getNewMultibootFlashOptions(slot):
 	if slot == SystemInfo["MultiBootSlot"]:
 		options.append("-f")  # ofgwrite judges the running slot from /proc/cmdline, so make sure it stops enigma2 when it is ours
 	return " ".join(options)
-
 
 def GetCurrentImageMode():
 	if SystemInfo["canMultiBoot"] and SystemInfo["canMode12"]:

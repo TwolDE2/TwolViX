@@ -20,7 +20,7 @@ from Screens.Standby import QUIT_REBOOT, QUIT_RESTART, TryQuitMainloop
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import copyfile, fileReadLine, fileWriteLine
-from Tools.Multiboot import emptySlot, GetImagelist, GetCurrentImageMode, restoreSlots
+from Tools.Multiboot import createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootSlotDevices, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, restoreSlots
 
 ACTION_SELECT = 0
 ACTION_CREATE = 1
@@ -35,17 +35,18 @@ class MultiBootSelector(Screen, HelpableScreen):
 		self.onChangedEntry = []
 		self.tmp_dir = None
 		self.fromInit = True
-		usbIn = (SystemInfo["HasUsbhdd"].keys() and SystemInfo["HasKexecMultiboot"]) or UBIMB
+		newMB = SystemInfo["HasNewMultiboot"]
+		usbIn = (SystemInfo["HasUsbhdd"].keys() and SystemInfo["HasKexecMultiboot"]) or UBIMB or newMB
 		# print("[MultiBootSelector] usbIn, SystemInfo['HasUsbhdd'], SystemInfo['HasKexecMultiboot'], SystemInfo['HasKexecUSB']", usbIn, "   ", SystemInfo["HasUsbhdd"], "   ", SystemInfo["HasKexecMultiboot"], "   ", SystemInfo["HasKexecUSB"])
 		self["config"] = ChoiceList(list=[ChoiceEntryComponent(text=((_("Retrieving image slots - Please wait...")), "Queued"))])
 		self["description"] = StaticText(_("Press GREEN (Reboot) to switch images, YELLOW (Delete) to erase an image or BLUE (Restore) to restore all deleted images."))
-		self["key_red"] = StaticText(_("Add Extra USB slots") if usbIn else _("Cancel"))
+		self["key_red"] = StaticText((_("Add extra slots") if newMB else _("Add Extra USB slots")) if usbIn else _("Cancel"))
 		self["key_green"] = StaticText()
 		self["key_yellow"] = StaticText()
 		self["key_blue"] = StaticText()
 		self["defaultActions"] = HelpableActionMap(self, ["OkCancelActions", "DirectionActions", "ColorActions", "MenuActions"], {
 			"cancel": (self.cancel, _("Cancel the image selection and exit")),
-			"red": (self.cancel, _("Cancel")) if not usbIn else (self.KexecMount, _("Add Extra USB slots")),
+			"red": (self.cancel, _("Cancel")) if not usbIn else ((self.addNewMBSlots, _("Add extra slots")) if newMB else (self.KexecMount, _("Add Extra USB slots"))),
 			"menu": (boundFunction(self.cancel, True), _("Cancel the image selection and exit all menus")),
 			"up": (self.keyUp, _("Move up a line")),
 			"down": (self.keyDown, _("Move down a line")),
@@ -147,6 +148,41 @@ class MultiBootSelector(Screen, HelpableScreen):
 		if self.deletedImagesExists:
 			restoreSlots()
 			self.getImagelist()
+
+	def addNewMBSlots(self):
+		devices = getNewMultibootSlotDevices()
+		self.newMBDevices = {item["device"]: item for item in devices if item["freeMB"] >= NEWMB_MIN_FREE_MB}
+		if not self.newMBDevices:
+			if devices:
+				text = _("The partitions found have less than %d MB free, which is the minimum needed for extra slots.") % NEWMB_MIN_FREE_MB
+			else:
+				text = _("No mounted EXT4 partition on a USB, SD card or SATA device was found. Format a partition as EXT4 and mount it first, for example with the Mount Manager.")
+			self.session.open(MessageBox, text, MessageBox.TYPE_INFO, timeout=15)
+			return
+		choices = [(_("Cancel"), None)]
+		choices += [("%s  %s  %s" % (item["device"], item["label"], _("%d MB free") % item["freeMB"]), item["device"]) for item in self.newMBDevices.values()]
+		self.session.openWithCallback(self.newMBDeviceSelected, MessageBox, _("Select the partition to hold the extra slots"), list=choices, title=_("Add extra slots"))
+
+	def newMBDeviceSelected(self, device):
+		if not device:
+			return
+		self.newMBDevice = device
+		text = _("Add 4 new slots on %s?\nThe slots are created empty. Flash an image into each one with the Image Manager.") % device
+		if not self.newMBDevices[device]["label"].startswith(NEWMB_ROOT_LABELS):
+			text += "\n\n" + _("This partition has no recognised GPT name (linuxrootfs, rootfs, userdata or data), so if its device name changes at boot the receiver cannot find it and will start another slot instead.")
+		self.session.openWithCallback(self.newMBSlotsConfirmed, MessageBox, text, MessageBox.TYPE_YESNO, timeout=30)
+
+	def newMBSlotsConfirmed(self, answer):
+		if not answer:
+			return
+		slots = createNewMultibootSlots(self.newMBDevice)
+		if slots:
+			self.session.openWithCallback(self.newMBSlotsDone, MessageBox, _("Slots %d to %d have been created on %s.\nThe GUI will now restart so that they can be used.") % (slots[0], slots[-1], self.newMBDevice), MessageBox.TYPE_INFO, timeout=15)
+		else:
+			self.session.open(MessageBox, _("The extra slots could not be created."), MessageBox.TYPE_ERROR, timeout=15)
+
+	def newMBSlotsDone(self, *args):
+		self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 	def KexecMount(self):
 		hdd = []
