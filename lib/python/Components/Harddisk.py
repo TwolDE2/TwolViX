@@ -316,7 +316,7 @@ class Harddisk:
 		# print("[Harddisk][totalFree]mediapath:", mediapath)
 		for mpath in mediapath:
 			# print("[Harddisk][totalFree]mpath:", mpath)
-			if mpath == "/" and SystemInfo["HasKexecMultiboot"]:
+			if mpath == "/" and (SystemInfo["HasKexecMultiboot"] or SystemInfo["HasNewMultiboot"]):
 				continue
 			free = self.free(mpath)
 			if free > 0:
@@ -856,7 +856,7 @@ class HarddiskManager:
 					self.hdd.append(Harddisk(device, removable))
 					SystemInfo["Harddisk"] = True
 				else:
-					if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
+					if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and devMajor == 8 and len(partitions) >= 4:  # old sf8008 layout: the first four partitions of the SD card hold the slots
 						partitions = [] if len(partitions) > 6 else partitions[4:]
 					print(f"[Harddisk][enumerateBlockDevices] len partitions = {len(partitions)}, device = {device}")
 					if len(partitions) != 0:
@@ -1013,7 +1013,7 @@ class HarddiskManager:
 						HDDin = True
 						break
 				partitions = [partition for partition in sorted(listdir(devicePath)) if partition.startswith(hddDev)]
-				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
+				if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and devMajor == 8 and len(partitions) >= 4:  # old sf8008 layout: the first four partitions of the SD card hold the slots
 					partitions = partitions[4:]
 				if HDDin is False and len(partitions) != 0:
 					SystemInfo["HasUsbhdd"][device] = len(partitions)
