@@ -20,7 +20,7 @@ from Screens.Standby import QUIT_REBOOT, QUIT_RESTART, TryQuitMainloop
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import copyfile, fileReadLine, fileWriteLine
-from Tools.Multiboot import canNameNewMultibootPartition, createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootPartitionName, getNewMultibootSlotDevices, nameNewMultibootPartition, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, restoreSlots
+from Tools.Multiboot import canNameNewMultibootPartition, createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootPartitionName, getNewMultibootPrepareCommands, getNewMultibootPrepareDevices, getNewMultibootSlotDevices, nameNewMultibootPartition, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, restoreSlots, verifyNewMultibootPartition
 
 ACTION_SELECT = 0
 ACTION_CREATE = 1
@@ -152,7 +152,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 	def addNewMBSlots(self):
 		devices = getNewMultibootSlotDevices()
 		self.newMBDevices = {item["device"]: item for item in devices if item["freeMB"] >= NEWMB_MIN_FREE_MB}
-		if not self.newMBDevices:
+		self.newMBDisks = {item["disk"]: item for item in getNewMultibootPrepareDevices()}
+		if not self.newMBDevices and not self.newMBDisks:
 			if devices:
 				text = _("The partitions found have less than %d MB free, which is the minimum needed for extra slots.") % NEWMB_MIN_FREE_MB
 			else:
@@ -161,10 +162,15 @@ class MultiBootSelector(Screen, HelpableScreen):
 			return
 		choices = [(_("Cancel"), None)]
 		choices += [("%s  %s  %s" % (item["device"], item["label"], _("%d MB free") % item["freeMB"]), item["device"]) for item in self.newMBDevices.values()]
+		if self.newMBDisks:
+			choices.append((_("Prepare a device for slots (erases it)..."), "prepare"))
 		self.session.openWithCallback(self.newMBDeviceSelected, MessageBox, _("Select the partition to hold the extra slots"), list=choices, title=_("Add extra slots"))
 
 	def newMBDeviceSelected(self, device):
 		if not device:
+			return
+		if device == "prepare":
+			self.newMBPrepareSelect()
 			return
 		self.newMBDevice = device
 		if getNewMultibootPartitionName(device).startswith(NEWMB_ROOT_LABELS):
@@ -173,6 +179,39 @@ class MultiBootSelector(Screen, HelpableScreen):
 			self.session.openWithCallback(self.newMBNameAnswered, MessageBox, _("%s has no GPT name the receiver can use to find it again if its device name changes at boot.\nName it 'rootfs' now? Only the name changes, no data is touched.") % device, MessageBox.TYPE_YESNO, timeout=30, default=False, timeout_default=False)
 		else:
 			self.newMBAskSlots(False)
+
+	def newMBPrepareSelect(self):
+		choices = [(_("Cancel"), None)]
+		choices += [("%s  %s  %s  %s" % (item["disk"], item["model"], item["bus"], _("%d GB") % (item["sizeMB"] // 1024)), item["disk"]) for item in self.newMBDisks.values()]
+		self.session.openWithCallback(self.newMBPrepareDiskSelected, MessageBox, _("Select the device to erase and prepare for slots"), list=choices, title=_("Prepare a device for slots"))
+
+	def newMBPrepareDiskSelected(self, disk):
+		if not disk:
+			return
+		self.newMBPrepareDisk = disk
+		item = self.newMBDisks[disk]
+		text = _("Erase %s (%s, %s, %d GB) and prepare it for slots?") % (disk, item["model"], item["bus"], item["sizeMB"] // 1024) + "\n\n" + _("EVERYTHING on this device will be lost.")
+		if item["partitions"]:
+			text += "\n" + _("Partitions:") + " " + ", ".join(("%s (%s)" % (device, mountpoint) if mountpoint else device) for device, mountpoint in item["partitions"])
+		if item["slots"]:
+			text += "\n" + _("The image slots on it will be deleted: %s") % ", ".join(str(slot) for slot in item["slots"])
+		text += "\n\n" + _("It becomes one EXT4 partition named rootfs, and 4 empty slots are then added on it.")
+		choices = [(_("No, do not erase anything"), False), (_("Yes, erase %s") % disk, True)]
+		self.session.openWithCallback(self.newMBPrepareConfirmed, MessageBox, text, list=choices, title=_("Prepare a device for slots"))
+
+	def newMBPrepareConfirmed(self, answer):
+		if not answer:
+			return
+		cmdlist = getNewMultibootPrepareCommands(self.newMBPrepareDisk, [device for device, mountpoint in self.newMBDisks[self.newMBPrepareDisk]["partitions"]])
+		self.session.openWithCallback(self.newMBPrepareDone, ConsoleScreen, title=_("Preparing %s") % self.newMBPrepareDisk, cmdlist=cmdlist)
+
+	def newMBPrepareDone(self, *args):
+		partition = verifyNewMultibootPartition(self.newMBPrepareDisk)
+		if partition:
+			self.newMBDevice = partition
+			self.newMBAskSlots(True)
+		else:
+			self.session.open(MessageBox, _("Preparing %s did not complete, so it is not ready for slots. Nothing was added.") % self.newMBPrepareDisk, MessageBox.TYPE_ERROR, timeout=15)
 
 	def newMBNameAnswered(self, answer):
 		if answer:
