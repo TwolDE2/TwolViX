@@ -6,8 +6,8 @@ import tempfile
 from os import path, rmdir, rename, sep, stat
 import re
 
-from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, BOXTYPE, CHKROOTMB, MODEL, MTDROOTFS, UBIMB
-from Tools.Directories import copyfile, fileExists, fileHas, fileReadLine, pathExists, resolveFilename, SCOPE_CONFIG
+from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, BOXTYPE, CHKROOTMB, MODEL, MTDKERNEL, MTDROOTFS, UBIMB
+from Tools.Directories import copyfile, fileExists, fileHas, fileReadLine, fileReadLines, pathExists, resolveFilename, SCOPE_CONFIG
 
 MBBOOTDEVICE_CACHE = resolveFilename(SCOPE_CONFIG, "multiboot_device")
 
@@ -21,6 +21,7 @@ def initMultiboot():
 	SystemInfo["HasKexecUSB"] = False
 	SystemInfo["HasMultibootFlags"] = False
 	SystemInfo["HasKexecMultiboot"] = fileHas("/proc/cmdline", "kexec=1")
+	SystemInfo["HasNewMultiboot"] = fileExists("/.newMB")  # marker the NewMB initramfs writes into the root it selected
 	SystemInfo["HasChkrootMultiboot"] = isFat32("/dev/block/by-name/others") or fileExists("/dev/block/by-name/startup")
 	SystemInfo["MBbootdevice"] = ""
 	SystemInfo["canchkroot"] = (UBIMB or fileExists("/dev/block/by-name/others")) and not SystemInfo["HasChkrootMultiboot"] and not fileExists("/etc/.disableChkroot")
@@ -122,6 +123,8 @@ def getMultibootslots():
 							UUIDnum += 1
 						if not UBIMB:
 							slot["kernel"] = f"/linuxrootfs{slotnumber}/zImage"
+					if SystemInfo["HasNewMultiboot"] and slot.get("rootsubdir") and not path.exists(slot["root"]):  # the bootloader and Linux can number the same USB/SD/SATA partition differently
+						slot["root"] = _findNewMBRoot(slot["rootsubdir"], slot["root"]) or slot["root"]
 					if not (path.exists(slot["root"]) or slot["root"] in ("ubi0:ubifs", "ubi0:rootfs")):
 						continue
 					slot["startupfile"] = path.basename(file)
@@ -129,13 +132,20 @@ def getMultibootslots():
 					if not UBIMB:
 						SystemInfo["HasMultibootMTD"] = slot.get("mtd")
 						SystemInfo["HasMultibootFlags"] = path.exists("/dev/block/by-name/flag")
-					if not SystemInfo["HasKexecMultiboot"] and not UBIMB and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
+					if SystemInfo["HasNewMultiboot"]:  # NewMB slots on USB/SD/SATA keep their rootsubdir
+						slot.setdefault("rootsubdir", None)
+						if slotnumber != "0":
+							slot["slotType"] = _newMBSlotType(slot["root"])
+					elif not SystemInfo["HasKexecMultiboot"] and not UBIMB and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
 						slot["rootsubdir"] = None
 						slot["slotType"] = "SDCARD"
 					elif "STARTUP_RECOVERY" not in file:
 						SystemInfo["HasRootSubdir"] = slot.get("rootsubdir")
 					if "kernel" not in slot:
-						slot["kernel"] = f"{slot['root'].split('p')[0]}p{int(slot['root'].split('p')[1]) - 1}"  # oldstyle MB kernel = root-1
+						if SystemInfo["HasNewMultiboot"]:
+							slot["kernel"] = f"/dev/{MTDKERNEL}"  # NewMB slots share the internal kernel
+						else:
+							slot["kernel"] = f"{slot['root'].split('p')[0]}p{int(slot['root'].split('p')[1]) - 1}"  # oldstyle MB kernel = root-1
 					bootslots[int(slotnumber)] = slot
 				elif slotnumber == "0":
 					bootslots[int(slotnumber)] = slot
@@ -147,7 +157,11 @@ def getMultibootslots():
 	_unmountAndRemove(tmpdir)
 	if bootslots:
 		print(f"[multiboot][getMultibootslots] bootslots: {bootslots}")
-		if not CHKROOTMB:
+		if SystemInfo["HasNewMultiboot"]:
+			SystemInfo["HasRootSubdir"] = any(slot.get("rootsubdir") for slot in bootslots.values())
+			SystemInfo["MultiBootSlot"] = getNewMultibootSlot(bootslots)
+			print(f"[Multiboot][MultiBootSlot]3 NewMB current slot used:{SystemInfo['MultiBootSlot']}")
+		elif not CHKROOTMB:
 			bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 			print(f"[multiboot][getMultibootslots]4 bootArgs: {bootArgs}")
 			if SystemInfo["HasKexecMultiboot"] and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
@@ -211,6 +225,101 @@ def resolveDevice(devicepath):
 		return path.realpath(devicepath)
 	else:
 		return devicepath
+
+
+# NewMB (native multiboot) helpers. The NewMB initramfs takes root= and rootsubdir= from STARTUP, binds
+# the subdir as the root filesystem and writes /.newMB. Slots can be on internal or external partitions.
+NEWMB_ROOT_LABELS = ("linuxrootfs", "rootfs", "userdata", "linuxdata", "data")  # GPT partition names that can hold slot subdirs
+
+
+def _parentDevice(name):
+	return re.sub(r"p\d+$" if name.startswith(("mmcblk", "nvme")) else r"\d+$", "", name)
+
+
+def _partitionLabel(device):
+	for line in fileReadLines(f"/sys/class/block/{path.basename(device)}/uevent", default=[]):
+		if line.startswith("PARTNAME="):
+			return line.split("=", 1)[1].strip()
+	return ""
+
+
+def _slotFromName(name):
+	# slots are named after their rootsubdir or partition label: [linux]rootfs<n>, plain [linux]rootfs being slot 1
+	match = re.fullmatch(r"(?:linux)?rootfs(\d*)", name or "")
+	return int(match.group(1) or 1) if match else None
+
+
+def _newMBSlotType(device):
+	name = path.basename(device)
+	if _parentDevice(name) == _parentDevice(path.basename(SystemInfo["MBbootdevice"])):
+		return "eMMC"  # on the same disk as the boot partition
+	bus = path.realpath(f"/sys/class/block/{name}")
+	if "/usb" in bus:
+		return "USB"
+	if "/ata" in bus:
+		return "SATA"
+	return "SDCARD" if name.startswith("mmcblk") else "USB"
+
+
+def _findNewMBRoot(rootsubdir, requestedRoot):
+	# Like the initramfs does, find the partition that really holds rootsubdir when the requested root has been renumbered or is missing
+	tmpdir = tempfile.mkdtemp(prefix="NewMBRoot")
+	found = None
+	for sysdir in sorted(glob.glob("/sys/class/block/*/partition")):
+		device = f"/dev/{sysdir.split('/')[4]}"
+		label = _partitionLabel(device)
+		if device == requestedRoot or not label.startswith(NEWMB_ROOT_LABELS):
+			continue
+		_run(["mount", "-o", "ro", device, tmpdir])
+		found = device if path.isdir(path.join(tmpdir, rootsubdir)) else None
+		_unmount(tmpdir)
+		if found:
+			break
+	_unmountAndRemove(tmpdir)
+	print(f"[multiboot][_findNewMBRoot] rootsubdir:{rootsubdir} requestedRoot:{requestedRoot} found:{found}")
+	return found
+
+
+def _parseRootMount(lines):
+	# returns (source device, subdir the mount was bound from) of "/" using /proc/self/mountinfo lines
+	device, subdir = None, ""
+	for line in lines:
+		head, _dash, tail = line.partition(" - ")
+		fields = head.split()
+		info = tail.split()
+		if len(fields) > 4 and fields[4] == "/" and len(info) > 1 and info[0] != "rootfs":
+			device, subdir = info[1], fields[3].strip("/")
+	return device, subdir
+
+
+def _matchNewMBSlot(bootslots, device, subdir):
+	sameDevice = lambda a, b: bool(a and b) and path.realpath(a) == path.realpath(b)  # noqa: E731
+	if subdir:
+		matches = [slot for slot, data in bootslots.items() if data.get("rootsubdir") == subdir]
+		if len(matches) > 1:
+			matches = [slot for slot in matches if sameDevice(bootslots[slot].get("root"), device)] or matches
+		if matches:
+			return matches[0]
+		return next((slot for slot in (_slotFromName(subdir),) if slot in bootslots), None)
+	for slot, data in bootslots.items():
+		if not data.get("rootsubdir") and sameDevice(data.get("root"), device):
+			return slot
+	return next((slot for slot in (_slotFromName(_partitionLabel(device)),) if slot in bootslots), None)
+
+
+def getNewMultibootSlot(bootslots):
+	# The initramfs can fall back to another slot or renumbered device, so the mounted root is more reliable than the command line
+	device, subdir = _parseRootMount(fileReadLines("/proc/self/mountinfo", default=[]))
+	mounted = device is not None and device.startswith("/dev/")
+	if not mounted:
+		cmdline = dict(item.split("=", 1) for item in (fileReadLine("/proc/cmdline", default="") or "").split() if "=" in item)
+		device, subdir = cmdline.get("root"), cmdline.get("rootsubdir", "")
+	if not device:
+		return None
+	slot = _matchNewMBSlot(bootslots, device, subdir)
+	if slot is not None and mounted:
+		bootslots[slot]["root"] = device  # the running slot's real device, whatever name the STARTUP file used
+	return slot
 
 
 def GetCurrentImageMode():
