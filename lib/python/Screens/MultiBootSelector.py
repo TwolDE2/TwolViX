@@ -170,7 +170,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 		text = _("Add 4 new slots on %s?\nThe slots are created empty. Flash an image into each one with the Image Manager.") % device
 		if not self.newMBDevices[device]["label"].startswith(NEWMB_ROOT_LABELS):
 			text += "\n\n" + _("This partition has no recognised GPT name (linuxrootfs, rootfs, userdata or data), so if its device name changes at boot the receiver cannot find it and will start another slot instead.")
-		self.session.openWithCallback(self.newMBSlotsConfirmed, MessageBox, text, MessageBox.TYPE_YESNO, timeout=30)
+		self.session.openWithCallback(self.newMBSlotsConfirmed, MessageBox, text, MessageBox.TYPE_YESNO, timeout=30, default=False, timeout_default=False)
 
 	def newMBSlotsConfirmed(self, answer):
 		if not answer:
