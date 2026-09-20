@@ -184,7 +184,7 @@ def getMultibootslots():
 def saveBootDevice(device):
 	# persist the multiboot device found this boot, so future boots can try it first instead of probing every MbootList candidate again
 	print(f"[multiboot][saveBootDevice] device:{device}")
-	if device:
+	if device and device != fileReadLine(MBBOOTDEVICE_CACHE):  # only write when changed, to avoid a flash write on every boot
 		try:
 			with open(MBBOOTDEVICE_CACHE, "w") as f:
 				f.write(device)
