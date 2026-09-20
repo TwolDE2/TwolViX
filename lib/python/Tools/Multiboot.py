@@ -355,6 +355,84 @@ def nameNewMultibootPartition(device, name="rootfs"):
 	return named
 
 
+NEWMB_MIN_DISK_MB = 2048
+# ext4 features the 4.x kernels of these receivers mount. Named explicitly because newer mke2fs defaults add ones they cannot, e.g. orphan_file needs kernel 5.15
+NEWMB_MKFS_FEATURES = "none,has_journal,ext_attr,resize_inode,dir_index,filetype,extent,flex_bg,sparse_super,large_file,huge_file,dir_nlink,extra_isize"
+
+
+def _partitionNode(disk):
+	return f"{disk}p1" if path.basename(disk).startswith(("mmcblk", "nvme")) else f"{disk}1"
+
+
+def _partitionCommands(disk):
+	sgdisk = _sgdisk()
+	return [f"{sgdisk} -Z {disk}", f"{sgdisk} -o {disk}", f"{sgdisk} -n 1:0:0 -t 1:8300 -c 1:rootfs {disk}"]
+
+
+def _mkfsCommand(partition):
+	return f"/sbin/mkfs.ext4 -F -m1 -L rootfs -O {NEWMB_MKFS_FEATURES} {partition}"
+
+
+def getNewMultibootPrepareDevices():
+	# whole external disks that can be erased and prepared for slots. The boot disk and the disk holding the running root are never offered
+	if not _sgdisk() or not fileExists("/sbin/mkfs.ext4"):
+		return []
+	busy = {_parentDevice(path.basename(SystemInfo["MBbootdevice"]))}
+	rootDevice = _parseRootMount(fileReadLines("/proc/self/mountinfo", default=[]))[0]
+	if rootDevice:
+		busy.add(_parentDevice(path.basename(path.realpath(rootDevice))))
+	mounts = {}
+	for line in fileReadLines("/proc/mounts", default=[]):
+		fields = line.split()
+		if len(fields) > 1 and fields[0].startswith("/dev/"):
+			mounts.setdefault(path.basename(path.realpath(fields[0])), fields[1].replace("\\040", " "))
+	slots = SystemInfo["canMultiBoot"] or {}
+	disks = []
+	for sysdir in sorted(glob.glob("/sys/class/block/*")):
+		name = path.basename(sysdir)
+		if not re.fullmatch(r"sd[a-z]+|mmcblk\d+", name) or name in busy:
+			continue
+		sizeMB = int(fileReadLine(f"{sysdir}/size", default="0") or 0) * 512 // (1024 * 1024)
+		if sizeMB < NEWMB_MIN_DISK_MB:
+			continue
+		partitions = [part for part in sorted(listdir(sysdir)) if part.startswith(name) and path.exists(f"{sysdir}/{part}/partition")]
+		disks.append({
+			"disk": f"/dev/{name}",
+			"sizeMB": sizeMB,
+			"model": (fileReadLine(f"{sysdir}/device/model", default="") or fileReadLine(f"{sysdir}/device/name", default="") or "").strip(),
+			"bus": _busName(name),
+			"partitions": [(f"/dev/{part}", mounts.get(part, "")) for part in partitions],
+			"slots": sorted(slot for slot, data in slots.items() if _parentDevice(path.basename(data.get("root", ""))) == name)
+		})
+	return disks
+
+
+def getNewMultibootPrepareCommands(disk, partitions):
+	# The Console screen carries on after a failed command, so everything from wiping the disk to formatting is one && chain: a failed step means nothing after it runs
+	partition = _partitionNode(disk)
+	nomount = " ".join(f"/dev/nomount.{path.basename(device)}" for device in (disk, partition))  # keeps the hotplug automounter away while the disk is rewritten
+	commands = [f"touch {nomount}"]
+	if partitions:
+		commands.append(f"for n in {' '.join(partitions)}; do swapoff $n; umount -lf $n; done > /dev/null 2>&1")
+	steps = _partitionCommands(disk) + [
+		f"(/usr/sbin/partprobe {disk} || hdparm -z {disk})",
+		f"{{ for i in 1 2 3 4 5 6 7 8 9 10; do [ -b {partition} ] && break; sleep 1; done; [ -b {partition} ]; }}",
+		_mkfsCommand(partition),
+		"sync"
+	]
+	commands.append(" && ".join(steps))
+	commands.append(f"rm -f {nomount}")
+	return commands
+
+
+def verifyNewMultibootPartition(disk):
+	# the partition the prepare commands should have left behind, judged from the disk rather than from exit codes
+	partition = _partitionNode(disk)
+	if path.exists(partition) and _gptName(disk, 1) == "rootfs" and getFilesystemType(partition).startswith("ext"):
+		return partition
+	return None
+
+
 def getUUIDtoSD(UUID):  # returns None on failure
 	if not fileExists("/sbin/blkid"):
 		return None
@@ -402,6 +480,10 @@ def _newMBSlotType(device):
 	name = path.basename(device)
 	if _parentDevice(name) == _parentDevice(path.basename(SystemInfo["MBbootdevice"])):
 		return "eMMC"  # on the same disk as the boot partition
+	return _busName(name)
+
+
+def _busName(name):
 	bus = path.realpath(f"/sys/class/block/{name}")
 	if "/usb" in bus:
 		return "USB"
