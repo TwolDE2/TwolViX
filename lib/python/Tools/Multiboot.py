@@ -493,6 +493,7 @@ def getNewMultibootFlashOptions(slot):
 		options.append("-f")  # ofgwrite judges the running slot from /proc/cmdline, so make sure it stops enigma2 when it is ours
 	return " ".join(options)
 
+
 def GetCurrentImageMode():
 	if SystemInfo["canMultiBoot"] and SystemInfo["canMode12"]:
 		bootargs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
