@@ -292,6 +292,69 @@ def createNewMultibootSlots(device, count=4):
 		_unmountAndRemove(tmpdir)
 
 
+def _sgdisk():
+	return next((tool for tool in ("/usr/sbin/sgdisk", "/sbin/sgdisk") if fileExists(tool)), None)
+
+
+def _isGPTDisk(disk):
+	# sgdisk converts an MBR disk to GPT when it saves, so only ever name partitions on a disk that is already GPT
+	sectorSize = int(fileReadLine(f"/sys/class/block/{path.basename(disk)}/queue/logical_block_size", default="512") or 512)
+	try:
+		with open(disk, "rb") as fd:
+			fd.seek(sectorSize)  # the GPT header is in LBA 1
+			return fd.read(8) == b"EFI PART"
+	except OSError:
+		return False
+
+
+def _gptPartition(device):
+	# (disk device, partition number) for a partition on a GPT disk, otherwise None
+	name = path.basename(path.realpath(device))
+	number = fileReadLine(f"/sys/class/block/{name}/partition")
+	disk = f"/dev/{_parentDevice(name)}"
+	if number and number.isdigit() and _isGPTDisk(disk):
+		return disk, int(number)
+	return None
+
+
+def _gptName(disk, number):
+	# the name stored in the GPT, unlike the kernel's copy this is current even right after a rename
+	try:
+		output = _run([_sgdisk(), "-i", str(number), disk]).stdout.decode(errors="ignore")
+	except OSError:
+		return None
+	match = re.search(r"Partition name: '(.*)'", output)
+	return match.group(1) if match else None
+
+
+def canNameNewMultibootPartition(device):
+	return _sgdisk() is not None and _gptPartition(device) is not None
+
+
+def getNewMultibootPartitionName(device):
+	target = _gptPartition(device) if _sgdisk() else None
+	name = _gptName(*target) if target else None
+	return _partitionLabel(device) if name is None else name
+
+
+def nameNewMultibootPartition(device, name="rootfs"):
+	# Give a partition on a GPT disk a name the NewMB initramfs recognises so it can still find the slots after a device is renumbered.
+	# Only the name in the GPT changes. Returns True once the new name reads back.
+	target = _gptPartition(device)
+	tool = _sgdisk()
+	if not target or not tool:
+		return False
+	disk, number = target
+	try:
+		_run([tool, "-c", f"{number}:{name}", disk])
+	except OSError as err:
+		print(f"[multiboot][nameNewMultibootPartition] {err}")
+		return False
+	named = _gptName(disk, number) == name
+	print(f"[multiboot][nameNewMultibootPartition] device:{device} disk:{disk} partition:{number} name:{name} named:{named}")
+	return named
+
+
 def getUUIDtoSD(UUID):  # returns None on failure
 	if not fileExists("/sbin/blkid"):
 		return None

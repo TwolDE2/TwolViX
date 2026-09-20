@@ -20,7 +20,7 @@ from Screens.Standby import QUIT_REBOOT, QUIT_RESTART, TryQuitMainloop
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import copyfile, fileReadLine, fileWriteLine
-from Tools.Multiboot import createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootSlotDevices, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, restoreSlots
+from Tools.Multiboot import canNameNewMultibootPartition, createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootPartitionName, getNewMultibootSlotDevices, nameNewMultibootPartition, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, restoreSlots
 
 ACTION_SELECT = 0
 ACTION_CREATE = 1
@@ -167,9 +167,24 @@ class MultiBootSelector(Screen, HelpableScreen):
 		if not device:
 			return
 		self.newMBDevice = device
-		text = _("Add 4 new slots on %s?\nThe slots are created empty. Flash an image into each one with the Image Manager.") % device
-		if not self.newMBDevices[device]["label"].startswith(NEWMB_ROOT_LABELS):
-			text += "\n\n" + _("This partition has no recognised GPT name (linuxrootfs, rootfs, userdata or data), so if its device name changes at boot the receiver cannot find it and will start another slot instead.")
+		if getNewMultibootPartitionName(device).startswith(NEWMB_ROOT_LABELS):
+			self.newMBAskSlots(True)
+		elif canNameNewMultibootPartition(device):
+			self.session.openWithCallback(self.newMBNameAnswered, MessageBox, _("%s has no GPT name the receiver can use to find it again if its device name changes at boot.\nName it 'rootfs' now? Only the name changes, no data is touched.") % device, MessageBox.TYPE_YESNO, timeout=30, default=False, timeout_default=False)
+		else:
+			self.newMBAskSlots(False)
+
+	def newMBNameAnswered(self, answer):
+		if answer:
+			named = nameNewMultibootPartition(self.newMBDevice)
+			self.newMBAskSlots(named, failed=not named)
+		else:
+			self.newMBAskSlots(False)
+
+	def newMBAskSlots(self, named, failed=False):
+		text = _("Add 4 new slots on %s?\nThe slots are created empty. Flash an image into each one with the Image Manager.") % self.newMBDevice
+		if not named:
+			text = (_("The partition could not be named.") + "\n\n" if failed else "") + text + "\n\n" + _("This partition has no recognised GPT name (linuxrootfs, rootfs, userdata or data), so if its device name changes at boot the receiver cannot find it and will start another slot instead.")
 		self.session.openWithCallback(self.newMBSlotsConfirmed, MessageBox, text, MessageBox.TYPE_YESNO, timeout=30, default=False, timeout_default=False)
 
 	def newMBSlotsConfirmed(self, answer):
