@@ -355,6 +355,38 @@ def nameNewMultibootPartition(device, name="rootfs"):
 	return named
 
 
+def removeNewMultibootSlots(slots):
+	# Remove the STARTUP files of slots whose device has just been erased, so they do not linger on the boot partition.
+	# Only numbered slot files are touched, never STARTUP itself or the recovery, flash and android files, and nothing is removed
+	# if that would leave no numbered slot to clone new ones from. Returns the slot numbers whose files were all removed.
+	wanted = {slot for slot in slots if slot > 0}
+	if not wanted:
+		return []
+	tmpdir = tempfile.mkdtemp(prefix="NewMBRemove")
+	_mount(SystemInfo["MBbootdevice"], tmpdir)
+	try:
+		files = {}
+		for name in listdir(tmpdir):
+			match = NEWMB_STARTUP.fullmatch(name)
+			if match:
+				files.setdefault(int(match.group(2)), []).append(name)
+		doomed = wanted & set(files)
+		if not doomed or not set(files) - doomed:
+			return []
+		removed = []
+		for number in sorted(doomed):
+			try:
+				for name in files[number]:
+					os_remove(path.join(tmpdir, name))
+				removed.append(number)
+			except OSError as err:
+				print(f"[multiboot][removeNewMultibootSlots] slot {number}: {err}")
+		sync()
+		return removed
+	finally:
+		_unmountAndRemove(tmpdir)
+
+
 NEWMB_MIN_DISK_MB = 2048
 # ext4 features the 4.x kernels of these receivers mount. Named explicitly because newer mke2fs defaults add ones they cannot, e.g. orphan_file needs kernel 5.15
 NEWMB_MKFS_FEATURES = "none,has_journal,ext_attr,resize_inode,dir_index,filetype,extent,flex_bg,sparse_super,large_file,huge_file,dir_nlink,extra_isize"
