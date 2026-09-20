@@ -20,7 +20,7 @@ from Screens.Standby import QUIT_REBOOT, QUIT_RESTART, TryQuitMainloop
 from Screens.Setup import Setup
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import copyfile, fileReadLine, fileWriteLine
-from Tools.Multiboot import canNameNewMultibootPartition, createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootPartitionName, getNewMultibootPrepareCommands, getNewMultibootPrepareDevices, getNewMultibootSlotDevices, nameNewMultibootPartition, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, restoreSlots, verifyNewMultibootPartition
+from Tools.Multiboot import canNameNewMultibootPartition, createNewMultibootSlots, emptySlot, GetImagelist, GetCurrentImageMode, getNewMultibootPartitionName, getNewMultibootPrepareCommands, getNewMultibootPrepareDevices, getNewMultibootSlotDevices, nameNewMultibootPartition, NEWMB_MIN_FREE_MB, NEWMB_ROOT_LABELS, removeNewMultibootSlots, restoreSlots, verifyNewMultibootPartition
 
 ACTION_SELECT = 0
 ACTION_CREATE = 1
@@ -209,7 +209,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 		partition = verifyNewMultibootPartition(self.newMBPrepareDisk)
 		if partition:
 			self.newMBDevice = partition
-			self.newMBAskSlots(True)
+			removed = removeNewMultibootSlots(self.newMBDisks[self.newMBPrepareDisk]["slots"])
+			self.newMBAskSlots(True, note=(_("The STARTUP files of slot(s) %s, which were on the erased device, have been removed.") % ", ".join(str(slot) for slot in removed)) if removed else "")
 		else:
 			self.session.open(MessageBox, _("Preparing %s did not complete, so it is not ready for slots. Nothing was added.") % self.newMBPrepareDisk, MessageBox.TYPE_ERROR, timeout=15)
 
@@ -220,8 +221,8 @@ class MultiBootSelector(Screen, HelpableScreen):
 		else:
 			self.newMBAskSlots(False)
 
-	def newMBAskSlots(self, named, failed=False):
-		text = _("Add 4 new slots on %s?\nThe slots are created empty. Flash an image into each one with the Image Manager.") % self.newMBDevice
+	def newMBAskSlots(self, named, failed=False, note=""):
+		text = (note + "\n\n" if note else "") + _("Add 4 new slots on %s?\nThe slots are created empty. Flash an image into each one with the Image Manager.") % self.newMBDevice
 		if not named:
 			text = (_("The partition could not be named.") + "\n\n" if failed else "") + text + "\n\n" + _("This partition has no recognised GPT name (linuxrootfs, rootfs, userdata or data), so if its device name changes at boot the receiver cannot find it and will start another slot instead.")
 		self.session.openWithCallback(self.newMBSlotsConfirmed, MessageBox, text, MessageBox.TYPE_YESNO, timeout=30, default=False, timeout_default=False)
