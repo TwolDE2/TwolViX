@@ -912,7 +912,8 @@ class ImageBackup(Screen):
 		self.VuSlot0 = ""
 		slot = ""
 		(self.EMMCIMG, self.MTDBOOT) = SystemInfo["canBackupEMC"] if SystemInfo["canBackupEMC"] else (None, None)
-		if SystemInfo["canMultiBoot"]:
+		self.slotKnown = not SystemInfo["canMultiBoot"] or SystemInfo["MultiBootSlot"] in SystemInfo["canMultiBoot"] or SystemInfo["MultiBootSlot"] == 0  # unknown if the running slot could not be identified at boot, slot 0 (recovery) never needs the slot table
+		if SystemInfo["canMultiBoot"] and self.slotKnown:
 			self.usbType = "-mmc"
 			slot = SystemInfo["MultiBootSlot"]
 			if SystemInfo["HasKexecMultiboot"]:
@@ -1037,6 +1038,10 @@ class ImageBackup(Screen):
 		return job
 
 	def JobStart(self):
+		if not self.slotKnown:
+			print("[ImageManager] Backup abandoned: the running image slot is unknown.")
+			AddPopupWithCallback(self.BackupComplete, _("The backup cannot be made because the running image slot could not be identified."), MessageBox.TYPE_INFO, 10, "SlotUnknownNotification")
+			return
 		try:
 			if not path.exists(self.BackupDirectory):
 				mkdir(self.BackupDirectory, 0o755)
