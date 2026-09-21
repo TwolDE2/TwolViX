@@ -77,7 +77,8 @@ def getMultibootslots():
 		# print(f"[multiboot][getMultibootslots]1 bootargs?: {path.exists('/sys/firmware/devicetree/base/chosen/bootargs')}")
 		SystemInfo["MBbootdevice"] = resolveDevice(device)  # used in SystemInfo
 		SystemInfo["BootDevice"] = SystemInfo["MBbootdevice"].rsplit("/", 1)[1]  # used by About
-		saveBootDevice(device)  # the (unresolved) MbootList entry that matched, cached by saveBootDevice
+		if device and cachedDevice and device != cachedDevice:  # only write when changed, to avoid a flash write on every boot
+			saveBootDevice(device)  # the (unresolved) MbootList entry that matched, cached by saveBootDevice
 		print(f"[Multiboot][[getMultibootslots]2 *** Bootdevice found: {SystemInfo['BootDevice']} CHKROOTMB:{CHKROOTMB} MBbootdevice:{SystemInfo['MBbootdevice']} device:{device}")
 		if path.exists("/sys/firmware/devicetree/base/chosen/bootargs") or CHKROOTMB:  # check validity for multiboot
 			for file in glob.glob(path.join(tmpdir, "STARTUP_*")):
@@ -184,12 +185,11 @@ def getMultibootslots():
 def saveBootDevice(device):
 	# persist the multiboot device found this boot, so future boots can try it first instead of probing every MbootList candidate again
 	print(f"[multiboot][saveBootDevice] device:{device}")
-	if device and device != fileReadLine(MBBOOTDEVICE_CACHE):  # only write when changed, to avoid a flash write on every boot
-		try:
-			with open(MBBOOTDEVICE_CACHE, "w") as f:
-				f.write(device)
-		except OSError as err:
-			print(f"[multiboot][saveBootDevice] {err}")
+	try:
+		with open(MBBOOTDEVICE_CACHE, "w") as f:
+			f.write(device)
+	except OSError as err:
+		print(f"[multiboot][saveBootDevice] {err}")
 
 
 def getUUIDtoSD(UUID):  # returns None on failure
