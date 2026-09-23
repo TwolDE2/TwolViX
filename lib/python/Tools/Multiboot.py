@@ -4,8 +4,7 @@ import struct
 import subprocess
 import tempfile
 from os import listdir, path, remove as os_remove, rmdir, rename, sep, stat, statvfs, sync
-import re
-
+from re import compile, fullmatch, search, sub
 from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, BOXTYPE, CHKROOTMB, MODEL, MTDKERNEL, MTDROOTFS, UBIMB
 from Tools.Directories import copyfile, fileExists, fileHas, fileReadLine, fileReadLines, pathExists, resolveFilename, SCOPE_CONFIG
 
@@ -206,7 +205,7 @@ def saveBootDevice(device):
 		print(f"[multiboot][saveBootDevice] {err}")
 
 
-NEWMB_STARTUP = re.compile(r"(STARTUP(?:_LINUX)?_)(\d+)((?:_BOXMODE_\d+)?)")  # the STARTUP file names the NewMB initramfs looks up for a slot
+NEWMB_STARTUP = compile(r"(STARTUP(?:_LINUX)?_)(\d+)((?:_BOXMODE_\d+)?)")  # the STARTUP file names the NewMB initramfs looks up for a slot
 NEWMB_FILESYSTEMS = ("ext2", "ext3", "ext4")
 NEWMB_MIN_FREE_MB = 1024
 
@@ -239,19 +238,26 @@ def getNewMultibootSlotDevices():
 
 def _renderNewMBStartup(content, device, rootsubdir):
 	# same edit the initramfs makes when it stores the selected slot: point root= and rootsubdir= at the slot
-	if not re.search(r"(?<!\w)root=", content):
+	if not search(r"(?<!\w)root=", content):
 		return None
-	content = re.sub(r"(?<!\w)root=[^\s'\"]*", lambda match: f"root={device}", content)
+	content = sub(r"(?<!\w)root=[^\s'\"]*", lambda match: f"root={device}", content)
 	if "rootsubdir=" in content:
-		return re.sub(r"rootsubdir=[^\s'\"]*", lambda match: f"rootsubdir={rootsubdir}", content)
-	return content.replace(f"root={device}", f"root={device} rootsubdir={rootsubdir}", 1)
-
+		content = sub(r"rootsubdir=[^\s'\"]*", lambda match: f"rootsubdir={rootsubdir}", content)
+	else:
+		content = content.replace(f"root={device}", f"root={device} rootsubdir={rootsubdir}", 1)
+	if not compile(r"(?<![A-Za-z0-9_])rootwait(?:=[^\s'\"]+)?(?=$|[\s'\"])").search(content):
+		content = sub(r"((?<![A-Za-z0-9_])root=[^\s'\"]+)", r"\1 rootwait", content, count=1)
+	content = sub(r"(?<![A-Za-z0-9_])userdataroot=[^\s'\"]+", f"userdataroot={device}", content, count=1)
+	if "extra=true" not in content:
+		content = sub(r"((?<![A-Za-z0-9_])rootsubdir=[^\s'\"]+)", r"\1 extra=true", content, count=1)
+	return content
 
 def createNewMultibootSlots(device, count=4):
 	# Add count slots on device by cloning the lowest slot's STARTUP files (kernel, boxmode variants and all) on the boot partition.
 	# The numbers come from the files on the boot partition, so the STARTUP files of slots on devices that are not attached are never overwritten.
 	# Returns the new slot numbers, or [] if nothing was created. ofgwrite creates the linuxrootfs<n> directories when an image is flashed.
 	tmpdir = tempfile.mkdtemp(prefix="NewMBSlots")
+	print(f"[multiboot][createNewMultibootSlots] device:{device}")
 	written = []
 	_mount(SystemInfo["MBbootdevice"], tmpdir)
 	try:
@@ -273,8 +279,10 @@ def createNewMultibootSlots(device, count=4):
 					print(f"[multiboot][createNewMultibootSlots] no root= in {name}")
 					return []
 				files[f"{match.group(1)}{number}{match.group(3)}"] = content
+				print(f"[multiboot][createNewMultibootSlots] files{files} content:{content}")
 		try:
 			for name, content in files.items():
+				print(f"[multiboot][createNewMultibootSlots] name:{name} content:{content}")
 				with open(path.join(tmpdir, name), "w") as fd:
 					fd.write(content)
 				written.append(name)
@@ -323,7 +331,7 @@ def _gptName(disk, number):
 		output = _run([_sgdisk(), "-i", str(number), disk]).stdout.decode(errors="ignore")
 	except OSError:
 		return None
-	match = re.search(r"Partition name: '(.*)'", output)
+	match = search(r"Partition name: '(.*)'", output)
 	return match.group(1) if match else None
 
 
@@ -432,7 +440,7 @@ def getNewMultibootPrepareDevices():
 	disks = []
 	for sysdir in sorted(glob.glob("/sys/class/block/*")):
 		name = path.basename(sysdir)
-		if not re.fullmatch(r"sd[a-z]+|mmcblk\d+", name) or name in busy:
+		if not fullmatch(r"sd[a-z]+|mmcblk\d+", name) or name in busy:
 			continue
 		sizeMB = int(fileReadLine(f"{sysdir}/size", default="0") or 0) * 512 // (1024 * 1024)
 		if sizeMB < NEWMB_MIN_DISK_MB:
@@ -502,7 +510,7 @@ NEWMB_ROOT_LABELS = ("linuxrootfs", "rootfs", "userdata", "linuxdata", "data")  
 
 
 def _parentDevice(name):
-	return re.sub(r"p\d+$" if name.startswith(("mmcblk", "nvme")) else r"\d+$", "", name)
+	return sub(r"p\d+$" if name.startswith(("mmcblk", "nvme")) else r"\d+$", "", name)
 
 
 def _partitionLabel(device):
@@ -514,7 +522,7 @@ def _partitionLabel(device):
 
 def _slotFromName(name):
 	# slots are named after their rootsubdir or partition label: [linux]rootfs<n>, plain [linux]rootfs being slot 1
-	match = re.fullmatch(r"(?:linux)?rootfs(\d*)", name or "")
+	match = fullmatch(r"(?:linux)?rootfs(\d*)", name or "")
 	return int(match.group(1) or 1) if match else None
 
 
@@ -615,13 +623,14 @@ def getNewMultibootFlashOptions(slot):
 		options.append("-m0")  # a whole partition, flashed without the rootsubdir check
 	if slot == SystemInfo["MultiBootSlot"]:
 		options.append("-f")  # ofgwrite judges the running slot from /proc/cmdline, so make sure it stops enigma2 when it is ours
+	print(f"[multiboot][getNewMultibootFlashOptions] options:{options}")
 	return " ".join(options)
 
 
 def GetCurrentImageMode():
 	if SystemInfo["canMultiBoot"] and SystemInfo["canMode12"]:
 		bootargs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
-		if (r := re.search(r"\bboxmode=(\d+)\b", bootargs)):
+		if (r := search(r"\bboxmode=(\d+)\b", bootargs)):
 			return int(r.group(1))
 
 

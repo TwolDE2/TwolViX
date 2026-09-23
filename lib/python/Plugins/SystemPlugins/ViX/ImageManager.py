@@ -596,12 +596,15 @@ class VIXImageManager(Screen):
 
 	def keyRestore6(self):
 		MAINDEST = "%s/%s" % (self.TEMPDESTROOT, SystemInfo["imagedir"])
-		print(f"[ImageManager] MAINDEST={MAINDEST} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")
+		print(f"[ImageManager][keyRestore6] MAINDEST={MAINDEST} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")
 		CMD = "/usr/bin/ofgwrite -r -k '%s'" % MAINDEST							# normal non multiboot receiver
 		if SystemInfo["canMultiBoot"]:
 			rootsubdir = None if not SystemInfo["HasRootSubdir"] else SystemInfo["canMultiBoot"][self.multibootslot]["rootsubdir"]
 			if SystemInfo["HasNewMultiboot"]:
-				CMD = "/usr/bin/ofgwrite %s '%s'" % (getNewMultibootFlashOptions(self.multibootslot), MAINDEST)
+#				CMD = "/usr/bin/ofgwrite %s '%s'" % (getNewMultibootFlashOptions(self.multibootslot), MAINDEST)
+				options = getNewMultibootFlashOptions(self.multibootslot)
+				print(f"[ImageManager][keyRestore6] options:{options}")
+				CMD = "/usr/bin/ofgwrite -r%s -c%s -m%s '%s'" % (self.MTDROOTFS, SystemInfo["MultiBootSlot"], self.multibootslot, MAINDEST)
 			elif UBIMB:
 				if self.multibootslot != 0:
 					CMD = "/usr/bin/ofgwrite -r%s -c%s -m%s '%s'" % (self.MTDROOTFS, SystemInfo["MultiBootSlot"], self.multibootslot, MAINDEST)
@@ -633,7 +636,7 @@ class VIXImageManager(Screen):
 
 	def ofgwriteResult(self, result, retval, extra_args=None):
 		fbClass.getInstance().unlock()
-		print("[ImageManager] ofgwrite retval :", retval)
+		print(f"[ImageManager] ofgwrite retval:{retval} result:{result}")
 		if retval == 0:
 			if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and SystemInfo["HasRootSubdir"] is False and self.HasSDmmc is False:  # sf8008 receiver 1 eMMC parition, No SD card
 				self.session.open(TryQuitMainloop, 2)
