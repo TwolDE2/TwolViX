@@ -252,6 +252,7 @@ def _renderNewMBStartup(content, device, rootsubdir):
 		content = sub(r"((?<![A-Za-z0-9_])rootsubdir=[^\s'\"]+)", r"\1 extra=true", content, count=1)
 	return content
 
+
 def createNewMultibootSlots(device, count=4):
 	# Add count slots on device by cloning the lowest slot's STARTUP files (kernel, boxmode variants and all) on the boot partition.
 	# The numbers come from the files on the boot partition, so the STARTUP files of slots on devices that are not attached are never overwritten.
