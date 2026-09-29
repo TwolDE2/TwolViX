@@ -499,8 +499,6 @@ if test "x$use_egl" = "xyes" -a \( "$BOXTYPE" == "dm900" -o "$BOXTYPE" == "dm920
 	AC_DEFINE(HAVE_DREAMBOX_EGL, 1, [Dreambox VC5/BEGL EGL pixmap backend available])
 fi
 
-if test "$BOXTYPE" == "gb7252"; then
-
 # GigaBlue Quad 4K Pro's Broadcom Nexus EGL stack (see
 # lib/gdi/egl/platform/gbquad) - a real EGL window surface reached via
 # NxClient_Join()/NXPL_RegisterNexusDisplayPlatform(), against the real
