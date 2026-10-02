@@ -40,11 +40,11 @@ def getMultibootslots():
 	UUIDnum = 0
 	tmpdir = tempfile.mkdtemp(prefix="getMultibootslots")
 	print(f"[multiboot][getMultibootslots]root:{MTDROOTFS} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")
+	cachedDevice = fileReadLine(MBBOOTDEVICE_CACHE)
 	if SystemInfo["HasKexecMultiboot"]:
 		MbootList = (f"/dev/{MTDROOTFS}", )  # kexec kernel Vu+ multiboot
 	else:
 		MbootList = ("/dev/mmcblk0p1", "/dev/mmcblk1p1", "/dev/mmcblk0p3", "/dev/mmcblk0p4", "/dev/mtdblock2", "/dev/block/by-name/bootoptions", "/dev/block/by-name/others", "/dev/block/by-name/startup")
-		cachedDevice = fileReadLine(MBBOOTDEVICE_CACHE)
 		if cachedDevice and cachedDevice in MbootList:  # try the device found on a previous boot first, avoiding a probe of every candidate again
 			print(f"[multiboot][getMultiboots] using cachedDevice:{cachedDevice} in MbootList")
 			MbootList = (cachedDevice, ) + tuple(device for device in MbootList if device != cachedDevice)
