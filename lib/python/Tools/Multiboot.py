@@ -216,6 +216,27 @@ def getFilesystemType(device):
 		return ""
 
 
+def getFilesystemUUID(device):
+	try:
+		return _run(["/sbin/blkid", "-o", "value", "-s", "UUID", device]).stdout.decode(errors="ignore").strip().lower()
+	except OSError:
+		return ""
+
+
+NEWMB_UUID_MARKER = "/dev/.newMB-uuid"  # written by the initramfs into devtmpfs (so it survives switch_root) once it is new enough to resolve a root=UUID=... selector
+
+
+def _newMBRootReference(device):
+	# a filesystem UUID survives the device being renumbered, unlike a /dev path; only use one when the running
+	# initramfs is known to resolve it, and fall back to the device path if the new partition has no UUID yet
+	if fileExists(NEWMB_UUID_MARKER):
+		uuid = getFilesystemUUID(device)
+		if uuid:
+			print(f"[multiboot][_newMBRootReference] device:{device} uuid:{uuid}")
+			return f"UUID={uuid}"
+	return device
+
+
 def getNewMultibootSlotDevices():
 	# mounted ext2/3/4 partitions outside the boot disk that can hold extra NewMB slots
 	internal = _parentDevice(path.basename(SystemInfo["MBbootdevice"]))
@@ -235,15 +256,19 @@ def getNewMultibootSlotDevices():
 	return [devices[device] for device in sorted(devices)]
 
 
-def _renderNewMBStartup(content, device, rootsubdir):
-	# same edit the initramfs makes when it stores the selected slot: point root= and rootsubdir= at the slot
+def _renderNewMBStartup(content, device, rootsubdir, rootReference=None):
+	# same edit the initramfs makes when it stores the selected slot: point root= and rootsubdir= at the slot.
+	# rootReference addresses root= (a filesystem UUID when the initramfs supports it, see _newMBRootReference);
+	# userdataroot= always keeps the plain device path, since that field is not part of the documented NewMB STARTUP syntax.
+	if rootReference is None:
+		rootReference = device
 	if not search(r"(?<!\w)root=", content):
 		return None
-	content = sub(r"(?<!\w)root=[^\s'\"]*", lambda match: f"root={device}", content)
+	content = sub(r"(?<!\w)root=[^\s'\"]*", lambda match: f"root={rootReference}", content)
 	if "rootsubdir=" in content:
 		content = sub(r"rootsubdir=[^\s'\"]*", lambda match: f"rootsubdir={rootsubdir}", content)
 	else:
-		content = content.replace(f"root={device}", f"root={device} rootsubdir={rootsubdir}", 1)
+		content = content.replace(f"root={rootReference}", f"root={rootReference} rootsubdir={rootsubdir}", 1)
 	if not compile(r"(?<![A-Za-z0-9_])rootwait(?:=[^\s'\"]+)?(?=$|[\s'\"])").search(content):
 		content = sub(r"((?<![A-Za-z0-9_])root=[^\s'\"]+)", r"\1 rootwait", content, count=1)
 	content = sub(r"(?<![A-Za-z0-9_])userdataroot=[^\s'\"]+", f"userdataroot={device}", content, count=1)
@@ -257,7 +282,8 @@ def createNewMultibootSlots(device, count=4):
 	# The numbers come from the files on the boot partition, so the STARTUP files of slots on devices that are not attached are never overwritten.
 	# Returns the new slot numbers, or [] if nothing was created. ofgwrite creates the linuxrootfs<n> directories when an image is flashed.
 	tmpdir = tempfile.mkdtemp(prefix="NewMBSlots")
-	print(f"[multiboot][createNewMultibootSlots] device:{device}")
+	rootReference = _newMBRootReference(device)
+	print(f"[multiboot][createNewMultibootSlots] device:{device} rootReference:{rootReference}")
 	written = []
 	_mount(SystemInfo["MBbootdevice"], tmpdir)
 	try:
@@ -274,7 +300,7 @@ def createNewMultibootSlots(device, count=4):
 		for number in range(first, first + count):
 			for name, match in template:
 				with open(path.join(tmpdir, name)) as fd:
-					content = _renderNewMBStartup(fd.read(), device, f"linuxrootfs{number}")
+					content = _renderNewMBStartup(fd.read(), device, f"linuxrootfs{number}", rootReference)
 				if content is None:
 					print(f"[multiboot][createNewMultibootSlots] no root= in {name}")
 					return []
