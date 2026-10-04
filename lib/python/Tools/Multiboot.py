@@ -204,6 +204,7 @@ def saveBootDevice(device):
 	except OSError as err:
 		print(f"[multiboot][saveBootDevice] {err}")
 
+
 NEWMB_STARTUP = compile(r"(STARTUP(?:_LINUX)?_)(\d+)((?:_BOXMODE_\d+)?)")  # the STARTUP file names the NewMB initramfs looks up for a slot
 NEWMB_FILESYSTEMS = ("ext2", "ext3", "ext4")
 NEWMB_MIN_FREE_MB = 1024
