@@ -65,6 +65,57 @@ public:
 	// (single-page providers never switch pages, so there's nothing to seed).
 	virtual void copyPageContent(int from, int to) {}
 
+	// True if this platform's actual display scanout reads back gEGLDC's
+	// render target colors in the opposite R/B order from what GL writes -
+	// see gles::needsRBSwap's comment (gles_version.h) for the full
+	// explanation and which shader/upload sites compensate for it. Proven
+	// true on Dreambox's VC5/BEGL pixmap-surface scanout via a ground-truth
+	// debug swatch (see DreamboxWindowProvider's override) - NOT assumed
+	// true for other platforms, since it's a hardware/driver quirk, not
+	// general EGL/GLES behavior. Default false.
+	virtual bool needsRenderTargetRBSwap() const { return false; }
+
+	// Called (on the unlocking thread) when fbClass::unlock() ends an
+	// external framebuffer user's session (ofgwrite, see ImageManager.py) -
+	// lets a provider whose window is a layer ABOVE /dev/fb0 wipe whatever
+	// that user left there, since nothing of enigma2's ever overwrites it.
+	// Default no-op.
+	virtual void onFramebufferUnlocked() {}
+
+	// width/height are the PHYSICAL render size: equal to the OSD canvas size,
+	// except when the canvas exceeds the GPU's texture/renderbuffer limit and
+	// gEGLDC renders it scaled down (see gEGLDC::m_phys_width) - the window must
+	// match what is actually rendered, and `stretch` fills the display from it.
+	//
+	// Called from gEGLDC::applyPendingResolutionChange() (render thread,
+	// EGL context current) when the OSD canvas's resolution changes after
+	// this provider's window/pixmap was already created (see
+	// gEGLDC::setResolution()) - lets a provider whose native window was
+	// given a fixed authored size at creation (e.g. GbquadWindowProvider,
+	// which tells Nexus's compositor to scale that fixed size to fill the
+	// display) update it to match. Default no-op - a provider whose window
+	// naturally tracks this canvas's size some other way (or that only ever
+	// runs at one fixed resolution) needs nothing here.
+	virtual void onResolutionChanged(int width, int height) {}
+
+	// True when the platform's window compositor blends this window as
+	// STRAIGHT alpha (colour * alpha + background * (1 - alpha)) and the
+	// provider has no way to change that equation (GbquadWindowProvider can,
+	// via its window's blend equations - see applyWindowBlendOverride()). The
+	// OSD frame is rendered premultiplied (GL blending over a transparent
+	// target), so such a compositor multiplies by alpha a second time and every
+	// translucent area comes out too dark. gEGLDC then un-premultiplies the
+	// frame in its final present pass instead. Default false.
+	virtual bool needsStraightAlphaPresent() { return false; }
+
+	// False when resizing this provider's native window after init() does not
+	// work (VU+: VUGLES_UpdateNativeWindow + surface recreation leaves the
+	// window rendering correctly - grabs are fine - but never visible on screen,
+	// for ANY size change). gEGLDC then keeps the window and EGL surface at the
+	// size they were created with and renders every canvas, larger or smaller,
+	// scaled into it (see gEGLDC::updatePhysicalSize()). Default true.
+	virtual bool canResizeWindow() { return true; }
+
 	// Cleans up platform-specific resources.
 	virtual void cleanup() = 0;
 };

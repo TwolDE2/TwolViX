@@ -435,7 +435,11 @@ class VIXImageManager(Screen):
 	def getImagesDownloaded(self):
 		def getImages(files):
 			for file in files:
-				imagesFound.append({'link': file, 'name': file.split(ossep)[-1], 'mtime': stat(file).st_mtime})
+				try:
+					mtime = stat(file).st_mtime
+				except FileNotFoundError:  # possible race caused by file pruning removing expired files
+					continue
+				imagesFound.append({'link': file, 'name': file.split(ossep)[-1], 'mtime': mtime})
 
 		def checkMachineNameInFilename(filename):
 			return model in filename or "-" + device_name + "-" in filename
@@ -632,11 +636,15 @@ class VIXImageManager(Screen):
 			print(f"[ImageManager] running flash Console command={CMD}")
 		print(f"[ImageManager] running command:{CMD} root:{getattr(self, 'MTDROOTFS', 'not set')}")
 		self.Console.ePopen(CMD, self.ofgwriteResult)
-		fbClass.getInstance().lock()
+		fbInstance = fbClass.getInstance()
+		if fbInstance:
+			fbInstance.lock()
 
 	def ofgwriteResult(self, result, retval, extra_args=None):
-		fbClass.getInstance().unlock()
-		print(f"[ImageManager] ofgwrite retval:{retval} result:{result}")
+		fbInstance = fbClass.getInstance()
+		if fbInstance:
+			fbInstance.unlock()
+		print("[ImageManager] ofgwrite retval :", retval)
 		if retval == 0:
 			if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and SystemInfo["HasRootSubdir"] is False and self.HasSDmmc is False:  # sf8008 receiver 1 eMMC parition, No SD card
 				self.session.open(TryQuitMainloop, 2)

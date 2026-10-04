@@ -12,6 +12,18 @@
 #include <lib/gdi/egl/platform/dreambox/dreambox_window_provider.h>
 #endif
 
+#ifdef HAVE_GBQUAD_EGL
+#include <lib/gdi/egl/platform/gbquad/gbquad_window_provider.h>
+#endif
+
+#ifdef HAVE_VUPLUS_EGL
+#include <lib/gdi/egl/platform/vuplus/vuplus_window_provider.h>
+#endif
+
+#ifdef HAVE_ABCOM_EGL
+#include <lib/gdi/egl/platform/abcom/abcom_window_provider.h>
+#endif
+
 class gEGLDCAutoInit : protected eAutoInit
 {
 	// ePtr, not a raw owning pointer: gEGLDC derives from gMainDC, which is a
@@ -49,6 +61,12 @@ class gEGLDCAutoInit : protected eAutoInit
 		provider = new AmlogicWindowProvider();
 #elif defined(HAVE_DREAMBOX_EGL)
 		provider = new DreamboxWindowProvider();
+#elif defined(HAVE_GBQUAD_EGL)
+		provider = new GbquadWindowProvider();
+#elif defined(HAVE_VUPLUS_EGL)
+		provider = new VuplusWindowProvider();
+#elif defined(HAVE_ABCOM_EGL)
+		provider = new AbcomWindowProvider();
 #else
 		// Fallback for other platforms (SDL/Wayland) once implemented
 		// For now, if not HWDREAMONE/HAVE_DREAMBOX_EGL, we don't have a default provider here
