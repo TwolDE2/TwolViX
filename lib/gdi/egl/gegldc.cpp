@@ -2,7 +2,7 @@
 #include <cmath>
 #include <cstdint>
 #include <vector>
-#include <cstdlib>
+#include <cstdlib> 
 #include <cstring>
 #include <lib/base/eerror.h>
 #include <lib/base/init.h>
@@ -222,6 +222,9 @@ bool gEGLDC::tryInitEGL(int version) {
 		updatePhysicalSize(m_width, m_height);
 
 		m_straight_alpha_present = m_window_provider && m_window_provider->needsStraightAlphaPresent();
+		m_premultiply_overwrites = m_window_provider && m_window_provider->premultipliesOverwrites();
+		if (m_premultiply_overwrites)
+			eDebug("[gEGLDC] raw-overwrite draws will write premultiplied colour");
 		if (m_straight_alpha_present)
 			eDebug("[gEGLDC] present pass will un-premultiply the frame (compositor blends this window as straight alpha)");
 	}
@@ -593,6 +596,19 @@ void gEGLDC::drawFlatRects(const gRegion& clip, float r, float g, float b, float
 	if (count == 0)
 		return;
 
+	// The framebuffer is premultiplied everywhere (blended draws write
+	// S*Sa + D*(1-Sa), and the Nexus/VU+ compositor is set to / converted for
+	// premultiplied content), so a raw-overwrite colour must be premultiplied
+	// too. Otherwise a fully transparent colour such as the skin's
+	// "transparent" (#ffffffff = white, alpha 0) leaves white RGB at alpha 0:
+	// the compositor adds that white on top of the video (white lines/bands),
+	// and later blends against it leak white into translucent pixmaps.
+	if (m_premultiply_overwrites) {
+		r *= a;
+		g *= a;
+		b *= a;
+	}
+
 	// GL_SCISSOR_TEST is left permanently enabled for the whole context (see
 	// initEGL()) - every draw call here relies on the immediately preceding
 	// setGlScissor() to cut it down to the right area, since nothing resets
@@ -946,8 +962,23 @@ void gEGLDC::executeRectangle(const gOpcode* op) {
 
 		// See executeFill()'s comment for why blend must be forced off for
 		// a plain flat-color rectangle, to match the CPU renderer's raw
-		// overwrite semantics.
-		glDisable(GL_BLEND);
+		// overwrite semantics - except when useNew is set: the CPU path
+		// then goes through drawRectangleNew(), which blends the fill
+		// ("over") against what's behind. Overwriting here instead made
+		// an alphaBlend widget (e.g. a scrollbar over a pixmap
+		// background) punch a hole to the video plane.
+		const bool blend_flat = op->parm.rectangle->useNew;
+		if (blend_flat)
+			setAlphaBlendMode(true);
+		else {
+			glDisable(GL_BLEND);
+			// raw overwrite: keep the framebuffer premultiplied (see drawFlatRects())
+			if (m_premultiply_overwrites) {
+				r *= a;
+				g *= a;
+				b *= a;
+			}
+		}
 		if (m_profile)
 			m_prof.rect_flat++;
 		for (unsigned int i = 0; i < m_current_clip.rects.size(); ++i) {
@@ -955,7 +986,8 @@ void gEGLDC::executeRectangle(const gOpcode* op) {
 			m_basic_shader.drawRect(op->parm.rectangle->area.x() + m_current_offset.x(), op->parm.rectangle->area.y() + m_current_offset.y(), op->parm.rectangle->area.width(),
 									op->parm.rectangle->area.height(), r, g, b, a);
 		}
-		glEnable(GL_BLEND);
+		if (!blend_flat)
+			glEnable(GL_BLEND);
 	}
 
 	m_border_width = 0;
@@ -1073,6 +1105,12 @@ void gEGLDC::executeLine(const gOpcode* op) {
 	// See executeFill()'s comment: gPixmap::line() is a raw-overwrite
 	// Bresenham rasterizer with no alpha blending, so this must match.
 	glDisable(GL_BLEND);
+	// premultiplied framebuffer - see drawFlatRects()
+	if (m_premultiply_overwrites) {
+		r *= a;
+		g *= a;
+		b *= a;
+	}
 	for (unsigned int i = 0; i < m_current_clip.rects.size(); ++i) {
 		setGlScissor(m_current_clip.rects[i]);
 		m_basic_shader.drawLine(op->parm.line->start.x() + m_current_offset.x(), op->parm.line->start.y() + m_current_offset.y(), op->parm.line->end.x() + m_current_offset.x(),
@@ -1680,6 +1718,15 @@ void gEGLDC::compositeTextOverlay(eRect area, bool trueAlphaBlend) {
 }
 
 void gEGLDC::enableSpinner() {
+	// The main thread (busy loading a skin - exactly when the spinner shows) has
+	// already swapped m_pixmap for the new size but the GL targets are still the
+	// old ones until applyPendingResolutionChange(): nothing valid to capture or
+	// draw into yet. incrementSpinner() restarts the spinner afterwards.
+	if (m_pending_resolution_change) {
+		m_spinner_active = false;
+		return;
+	}
+	m_spinner_active = true;
 	// gDC::enableSpinner() (grc.cpp) is about to do
 	// "m_spinner_saved->blit(*m_pixmap, ...)" to remember what's under the
 	// spinner for every later restore - written for a backend where
@@ -1713,6 +1760,13 @@ void gEGLDC::enableSpinner() {
 }
 
 void gEGLDC::disableSpinner() {
+	// Nothing of ours is on the current target (never enabled, or a resolution
+	// change recreated it): restoring m_spinner_saved would paint the old
+	// canvas' background over the new one.
+	const bool was_active = m_spinner_active;
+	m_spinner_active = false;
+	if (!was_active || m_pending_resolution_change)
+		return;
 	gDC::disableSpinner();
 	// false, not the default true: gDC::disableSpinner() just restored
 	// m_spinner_pos back to fully-transparent pixels in m_pixmap, and this
@@ -1729,6 +1783,15 @@ void gEGLDC::disableSpinner() {
 }
 
 void gEGLDC::incrementSpinner() {
+	if (m_pending_resolution_change)
+		return;
+	if (!m_spinner_active) {
+		// Spinner was running across a resolution change: start over against
+		// the new target (fresh background capture) instead of recompositing
+		// the stale one.
+		enableSpinner();
+		return;
+	}
 	gDC::incrementSpinner();
 	// false, not the default true - same reasoning as disableSpinner()
 	// above, just mid-animation instead of at the end. gDC::incrementSpinner()
@@ -2207,6 +2270,12 @@ void gEGLDC::applyPendingResolutionChange() {
 	// gl_texture_id and no content yet - any area tracked from the old one
 	// is meaningless now.
 	m_text_overlay_region = gRegion();
+	// Same for the spinner's saved background: it is for the old canvas, so it
+	// must never be restored/recomposited. Where the surface is recreated the
+	// icon is wiped with it; where it survives (fixed-size window, e.g. Hisi -
+	// see updatePhysicalSize()) the skin's full repaint covers the old icon.
+	// See m_spinner_active's comment (gegldc.h).
+	m_spinner_active = false;
 
 	// Physical size first: everything below that touches the real GL targets
 	// (native window, surface, viewport, shadow FBO) uses it, while shader
@@ -2479,19 +2548,38 @@ void gEGLDC::captureBackgroundIntoPixmap(const eRect& rect) {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, m_use_shadow_fbo ? m_shadow_fbo : 0);
 
+	const bool conservative_readback = m_window_provider && m_window_provider->conservativeReadback();
 	std::vector<uint8_t> pixels((size_t)w * (size_t)h * 4U);
 	glPixelStorei(GL_PACK_ALIGNMENT, 4);
 	if (!isScaled()) {
 		// glReadPixels' y is measured from the BOTTOM of the framebuffer (GL
 		// convention) - m_height (the real GPU canvas), not ph (m_pixmap can
 		// briefly differ right after setResolution(), see there).
-		glReadPixels(left, m_height - top - h, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		if (conservative_readback) {
+			// Full-width rows, cropped afterwards, rather than a small sub-rect:
+			// libMali (Utgard) window-surface readbacks of a narrow, unaligned
+			// rect have come back striped, which then got baked into every
+			// spinner frame and the final restore. glFinish() first so the
+			// readback sees the completed (deferred, tile-based) render of the
+			// preserved frame. See INativeWindowProvider::conservativeReadback().
+			glFinish();
+			std::vector<uint8_t> band((size_t)m_width * (size_t)h * 4U);
+			glReadPixels(0, m_height - top - h, m_width, h, GL_RGBA, GL_UNSIGNED_BYTE, band.data());
+			for (int row = 0; row < h; ++row)
+				memcpy(pixels.data() + (size_t)row * w * 4U, band.data() + ((size_t)row * m_width + left) * 4U, (size_t)w * 4U);
+		} else {
+			glReadPixels(left, m_height - top - h, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		}
 	} else {
 		// Canvas is rendered scaled down: read the physical pixels covering
 		// the rect, then nearest-neighbour them back up to logical size so the
 		// conversion loop below (and m_pixmap) stay in logical coordinates.
-		const int px0 = std::max(0, (int)std::floor(left * m_scale_x));
-		const int px1 = std::min(m_phys_width, std::max(px0 + 1, (int)std::ceil(right * m_scale_x)));
+		// Full physical width + glFinish() on conservativeReadback() platforms,
+		// same reason as the unscaled branch above.
+		if (conservative_readback)
+			glFinish();
+		const int px0 = conservative_readback ? 0 : std::max(0, (int)std::floor(left * m_scale_x));
+		const int px1 = conservative_readback ? m_phys_width : std::min(m_phys_width, std::max(px0 + 1, (int)std::ceil(right * m_scale_x)));
 		const int py0 = std::max(0, (int)std::floor(top * m_scale_y));
 		const int py1 = std::min(m_phys_height, std::max(py0 + 1, (int)std::ceil(bottom * m_scale_y)));
 		const int rw = px1 - px0;

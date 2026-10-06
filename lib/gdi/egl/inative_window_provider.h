@@ -108,6 +108,20 @@ public:
 	// frame in its final present pass instead. Default false.
 	virtual bool needsStraightAlphaPresent() { return false; }
 
+	// True when raw-overwrite draws (clear/fill/flat rectangle/line) must write
+	// premultiplied colour (rgb * alpha). Needed where the compositor adds the
+	// stored colour on top of the video (GbquadWindowProvider's window blend is
+	// set to S + D*(1-Sa)): a fully transparent but non-black colour such as
+	// the skin's "transparent" (#ffffffff) would otherwise show as white.
+	// Default false: other providers keep the straight overwrite.
+	virtual bool premultipliesOverwrites() { return false; }
+
+	// True when glReadPixels() of a small sub-rect of the window surface can't be
+	// trusted (libMali Utgard: striped results, which the spinner then bakes into
+	// its saved background). gEGLDC::captureBackgroundIntoPixmap() then does a
+	// glFinish() and reads full-width rows, cropping afterwards. Default false.
+	virtual bool conservativeReadback() { return false; }
+
 	// False when resizing this provider's native window after init() does not
 	// work (VU+: VUGLES_UpdateNativeWindow + surface recreation leaves the
 	// window rendering correctly - grabs are fine - but never visible on screen,

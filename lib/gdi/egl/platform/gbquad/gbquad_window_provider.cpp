@@ -75,6 +75,16 @@ static void applyWindowBlendOverride(NXPL_NativeWindowInfoEXT& info, const char*
 }
 
 
+// True while the window blend override is premultiplied (the default - see
+// applyWindowBlendOverride()), so raw-overwrite draws must write premultiplied
+// colour as well.
+bool GbquadWindowProvider::premultipliesOverwrites() {
+	const char* mode = getenv("ENIGMA_EGL_NXPL_BLEND");
+	if (!mode)
+		return true;
+	return strstr(mode, "default") == nullptr && strstr(mode, "premult") != nullptr;
+}
+
 GbquadWindowProvider::GbquadWindowProvider()
 	: m_nxpl_display_handle(nullptr), m_native_window(nullptr), m_joined_nxclient(false) {
 }
@@ -87,6 +97,18 @@ bool GbquadWindowProvider::init(int width, int height) {
 	// 1. Join the already-running Nexus server (started at boot, outside
 	// enigma2) - every EGL call below aborts with a Broadcom "memory
 	// interface not registered" assertion until this has succeeded.
+#ifdef HAVE_NXPL_NO_NXCLIENT
+	// Zgemma's driver drop ships no libnxclient.so (NxClient_Join doesn't exist
+	// there), only a libnexus.so that exports the underlying
+	// NEXUS_Platform_AuthenticatedJoin() - what NxClient_Join() calls first.
+	// Kodi's runtime NXPL init (stb-kodi 0029-vuplus-arm-runtime-nxpl.patch) uses the
+	// same NULL-settings join as its fallback when NxClient_Join is unavailable.
+	NEXUS_Error join_rc = NEXUS_Platform_AuthenticatedJoin(nullptr);
+	if (join_rc != NEXUS_SUCCESS) {
+		eDebug("[GbquadWindowProvider] NEXUS_Platform_AuthenticatedJoin failed, rc=%d", (int)join_rc);
+		return false;
+	}
+#else
 	NxClient_JoinSettings joinSettings;
 	NxClient_GetDefaultJoinSettings(&joinSettings);
 	NEXUS_Error join_rc = NxClient_Join(&joinSettings);
@@ -94,6 +116,7 @@ bool GbquadWindowProvider::init(int width, int height) {
 		eDebug("[GbquadWindowProvider] NxClient_Join failed, rc=%d", (int)join_rc);
 		return false;
 	}
+#endif
 	m_joined_nxclient = true;
 	eDebug("[GbquadWindowProvider] joined Nexus server");
 
@@ -264,7 +287,11 @@ void GbquadWindowProvider::cleanup() {
 	// here: with real linking there's no dlclose() to worry about, only the
 	// documented join/uninit symmetry.
 	if (m_joined_nxclient) {
+#ifdef HAVE_NXPL_NO_NXCLIENT
+		NEXUS_Platform_Uninit(); // pairs with NEXUS_Platform_AuthenticatedJoin() in init()
+#else
 		NxClient_Uninit();
+#endif
 		m_joined_nxclient = false;
 	}
 }

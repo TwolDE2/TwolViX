@@ -47,6 +47,20 @@ def getLastCommitHash():
 	return getEnigmaLastCommitHash()[:7]
 
 
+def eglStr():
+	egl = getEGLVersionString().split(' ', 1)[0]
+	if egl:
+		return f"EGL {egl}"
+	return ""
+
+
+def glesStr():
+	gles = getGLESVersionString()
+	if gles:
+		return gles.split(' "', 1)[0]
+	return ""
+
+
 def _formatDate(Date):
 	# expected input = "YYYYMMDD"
 	if len(Date) != 8 or not Date.isnumeric():
@@ -217,7 +231,7 @@ class About(AboutBase):
 			imageSubBuild = ".%s" % SystemInfo["imagedevbuild"]
 		AboutText += _("Image:\t%s.%s%s (%s)\n") % (SystemInfo["imageversion"], SystemInfo["imagebuild"], imageSubBuild, SystemInfo["imagetype"].title())
 
-		egl = "/".join([x for x in (getEGLVersionString(), getGLESVersionString()) if x])
+		egl = " / ".join([x for x in (eglStr(), glesStr()) if x])
 		if egl:
 			AboutText += _("EGL/GLES:\t%s\n") % egl
 
