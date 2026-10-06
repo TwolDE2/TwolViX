@@ -10,7 +10,9 @@
 # symbols), and configure.ac turns on HAVE_GLES3 whenever GLES3/gl3.h exists.
 SRC_URI:append:openvix = " https://source.mynonpublic.com/dags/hisi3798mv200-opengl-20200915.tar.gz;name=headers"
 SRC_URI[headers.sha256sum] = "95f4ecd9c90f07075dd24493baa4a440d6140007d33e9238fc37de111ae2c574"
+
 DEPENDS:remove:openvix = "mesa"
+
 do_install:append:openvix() {
     for d in EGL GLES GLES2 KHR; do
         install -d ${D}${includedir}/$d
