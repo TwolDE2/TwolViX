@@ -68,9 +68,19 @@ static const char *fragment_shader_es3 = R"(#version 300 es
         vec4 tex_color = texture(u_texture, v_uv);
         // Only the final present pass sets this (see setUnpremultiply()).
         vec3 rgb = tex_color.rgb;
-        if (u_unpremultiply > 0.5 && tex_color.a > 0.0)
+        float out_a = tex_color.a;
+        if (u_unpremultiply < -0.5)
+            rgb *= tex_color.a; // raw-overwrite blit: store premultiplied (setPremultiply())
+        else if (u_unpremultiply > 2.5 && tex_color.a > 0.0) {
+            // Compositor computes S*A^2 + D*(1-A): pick the smallest A >= a for which
+            // S = P/A^2 still fits in [0,1], so the colour term P is reproduced exactly.
+            // P can never exceed a in a premultiplied frame - clamp stray values.
+            rgb = min(rgb, vec3(tex_color.a));
+            out_a = max(tex_color.a, sqrt(max(rgb.r, max(rgb.g, rgb.b))));
+            rgb = min(rgb / (out_a * out_a), vec3(1.0));
+        } else if (u_unpremultiply > 0.5 && tex_color.a > 0.0)
             rgb = min(rgb / tex_color.a, vec3(1.0));
-        frag_color = vec4(rgb, tex_color.a * u_global_alpha * coverage);
+        frag_color = vec4(rgb, out_a * u_global_alpha * coverage);
     }
 )";
 #endif
@@ -137,9 +147,19 @@ static const char *fragment_shader_es2 = R"(#version 100
         vec4 tex_color = texture2D(u_texture, v_uv);
         // Only the final present pass sets this (see setUnpremultiply()).
         vec3 rgb = tex_color.rgb;
-        if (u_unpremultiply > 0.5 && tex_color.a > 0.0)
+        float out_a = tex_color.a;
+        if (u_unpremultiply < -0.5)
+            rgb *= tex_color.a; // raw-overwrite blit: store premultiplied (setPremultiply())
+        else if (u_unpremultiply > 2.5 && tex_color.a > 0.0) {
+            // Compositor computes S*A^2 + D*(1-A): pick the smallest A >= a for which
+            // S = P/A^2 still fits in [0,1], so the colour term P is reproduced exactly.
+            // P can never exceed a in a premultiplied frame - clamp stray values.
+            rgb = min(rgb, vec3(tex_color.a));
+            out_a = max(tex_color.a, sqrt(max(rgb.r, max(rgb.g, rgb.b))));
+            rgb = min(rgb / (out_a * out_a), vec3(1.0));
+        } else if (u_unpremultiply > 0.5 && tex_color.a > 0.0)
             rgb = min(rgb / tex_color.a, vec3(1.0));
-        gl_FragColor = vec4(rgb, tex_color.a * u_global_alpha * coverage);
+        gl_FragColor = vec4(rgb, out_a * u_global_alpha * coverage);
     }
 )";
 
@@ -297,7 +317,7 @@ void gTextureShader::drawTexture(float x, float y, float width, float height, GL
     glUniform1i(m_texture_location, 0);
     glUniform1f(m_alpha_location, global_alpha);
     
-    glUniform1f(m_unpremult_location, m_unpremultiply ? 1.0f : 0.0f);
+    glUniform1f(m_unpremult_location, m_premultiply ? -1.0f : (m_unpremultiply ? m_unpremultiply_power : 0.0f));
     glUniform4f(m_rect_size_location, x, y, width, height);
     glUniform1f(m_radius_location, radius);
 
@@ -323,6 +343,42 @@ void gTextureShader::drawTexture(float x, float y, float width, float height, GL
     drawVertices(vertices, 6);
 }
 
+void gTextureShader::drawTextureSub(float x, float y, float width, float height, float sx, float sy, float sw, float sh, GLuint texture_id, float radius, uint8_t edges)
+{
+    bind();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+    glUniform1i(m_texture_location, 0);
+    glUniform1f(m_alpha_location, 1.0f);
+
+    glUniform1f(m_unpremult_location, m_premultiply ? -1.0f : (m_unpremultiply ? m_unpremultiply_power : 0.0f));
+    glUniform4f(m_rect_size_location, x, y, width, height);
+    glUniform1f(m_radius_location, radius);
+
+    if (gles::isGLES3()) {
+        glUniform1i(m_edges_location, (int)edges);
+    } else {
+        glUniform1f(m_edges_tl_location, (edges & 1) ? radius : 0.0f);
+        glUniform1f(m_edges_tr_location, (edges & 2) ? radius : 0.0f);
+        glUniform1f(m_edges_bl_location, (edges & 4) ? radius : 0.0f);
+        glUniform1f(m_edges_br_location, (edges & 8) ? radius : 0.0f);
+    }
+
+    const float u0 = (sx - x) / width, u1 = (sx + sw - x) / width;
+    const float v0 = (sy - y) / height, v1 = (sy + sh - y) / height;
+    float vertices[24] = {
+        sx,      sy,      u0, v0,
+        sx,      sy + sh, u0, v1,
+        sx + sw, sy,      u1, v0,
+        sx + sw, sy,      u1, v0,
+        sx,      sy + sh, u0, v1,
+        sx + sw, sy + sh, u1, v1
+    };
+
+    drawVertices(vertices, 6);
+}
+
 void gTextureShader::drawBatch(const float* vertex_data, int vertex_count, GLuint texture_id, float global_alpha)
 {
     bind();
@@ -332,7 +388,7 @@ void gTextureShader::drawBatch(const float* vertex_data, int vertex_count, GLuin
     glUniform1i(m_texture_location, 0);
     glUniform1f(m_alpha_location, global_alpha);
 
-    glUniform1f(m_unpremult_location, m_unpremultiply ? 1.0f : 0.0f);
+    glUniform1f(m_unpremult_location, m_premultiply ? -1.0f : (m_unpremultiply ? m_unpremultiply_power : 0.0f));
 
     // No rounding for a batch - see the header comment on drawBatch().
     glUniform1f(m_radius_location, 0.0f);
