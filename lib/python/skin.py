@@ -481,6 +481,7 @@ def parseScrollbarMode(s):
 			"showAlways": eListbox.showAlways,
 			"showNever": eListbox.showNever,
 			"showLeft": eListbox.showLeft
+			"showTop": eListbox.showTop
 		}[s]
 	except KeyError:
 		print(f"[Skin] Error: Invalid scrollbarMode '{s}'!  Must be one of 'showOnDemand', 'showAlways', 'showNever' or 'showLeft'.")
