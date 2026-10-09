@@ -1548,8 +1548,8 @@ def readSkin(screen, skin, names, desktop):
 					print(f"[Skin] WARNING: SKIN '{name}' USES OBSOLETE SOURCE '{wsource}', USE '{source.newSource}' INSTEAD!")
 					print(f"[Skin] OBSOLETE SOURCE WILL BE REMOVED {source.removalDate}, PLEASE UPDATE!")
 					if source.description:
-						print(f"[Skin] Source description: '{source.description}.")
-					wsource = source.new_source
+						print("[Skin] Source description: '%s'." % source.description)
+					wsource = source.newSource
 				else:
 					break  # Otherwise, use the source.
 			if source is None:
