@@ -727,7 +727,7 @@ class HarddiskManager:
 						devices.append(eventData)
 					remove(fileName)
 			except Exception:
-				pass
+				continue
 		if devices:
 			devices.sort(key=lambda x: (x["SORT"], x["ID_PART_ENTRY_SIZE"]))
 			mounts = getProcMounts()
