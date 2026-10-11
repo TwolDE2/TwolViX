@@ -33,9 +33,9 @@ visuallyImpairedCommentary = "NAR qad"
 def InitUsageConfig():
 	config.version = ConfigNumber(default=0)
 	config.misc.remotecontrol_text_support = ConfigYesNo(default=SystemInfo["brand"] in ('vuplus', 'ini'))
-
 	config.misc.usegstplaybin3 = ConfigYesNo(default=False)
 	config.misc.disableServiceHiSilicon = ConfigYesNo(default=False)
+	config.misc.longkey_threshold = ConfigSelection(default="4", choices=[(str(i), _("%d") % i) for i in range(1, 7)])
 
 	config.usage = ConfigSubsection()
 	config.usage.subnetwork = ConfigYesNo(default=True)
