@@ -3,7 +3,7 @@ from hashlib import md5
 from os import listdir, access, R_OK
 from os.path import isfile, join as pathjoin
 from re import split
-from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager, eDVBCSAEngine, getEnigmaLastCommitHash, getOARev
+from enigma import Misc_Options, eDVBCIInterfaces, eDVBResourceManager, eDVBCSAEngine, getEnigmaLastCommitHash, getOARev, eglOsdRectSupported
 
 from Components.RcModel import rc_model
 from Tools.Directories import fileCheck, fileExists, fileHas, isPluginInstalled, pathExists, resolveFilename, SCOPE_LIBDIR, SCOPE_SKIN, fileReadLine, fileReadLines
@@ -235,7 +235,7 @@ SystemInfo["FbcTunerPowerAlwaysOn"] = MODEL in ("vusolo4k", "vuduo4k", "vuduo4ks
 SystemInfo["HasFBCtuner"] = ["Vuplus DVB-C NIM(BCM3158)", "Vuplus DVB-C NIM(BCM3148)", "Vuplus DVB-S NIM(7376 FBC)", "Vuplus DVB-S NIM(45308X FBC)", "Vuplus DVB-S NIM(45208 FBC)", "DVB-S2 NIM(45208 FBC)", "DVB-S2X NIM(45308X FBC)", "DVB-S2 NIM(45308 FBC)", "DVB-C NIM(3128 FBC)", "BCM45208", "BCM45308X", "BCM45308X FBC", "BCM3158"]
 # LED/LCD
 SystemInfo["CanChangeOsdAlpha"] = access('/proc/stb/video/alpha', R_OK) and True or False
-SystemInfo["CanChangeOsdPosition"] = (access('/proc/stb/fb/dst_left', R_OK) or access('/proc/stb/vmpeg/0/dst_left', R_OK)) and True or False
+SystemInfo["CanChangeOsdPosition"] = (access('/proc/stb/fb/dst_left', R_OK) or access('/proc/stb/vmpeg/0/dst_left', R_OK) or eglOsdRectSupported()) and True or False
 SystemInfo["OsdSetup"] = SystemInfo["CanChangeOsdPosition"]
 SystemInfo["NumFrontpanelLEDs"] = countFrontpanelLEDs()
 SystemInfo["7segment"] = SystemInfo["displaytype"] in ("7segment")
