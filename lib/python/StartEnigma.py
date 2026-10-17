@@ -47,6 +47,7 @@ class Session:
 		self.nav = navigation
 		self.delay_timer = enigma.eTimer()
 		self.delay_timer.callback.append(self.processDelay)
+		self.pendingCallbacks = []
 		self.current_dialog = None
 		self.dialog_stack = []
 		self.summary_stack = []
@@ -70,6 +71,10 @@ class Session:
 			del self.current_dialog.callback
 		self.popCurrent()
 		if callback is not None:
+			self.pendingCallbacks.append((callback, retval))
+		# A dialog that closed itself on exec begin leaves the session out of exec until its own processDelay.
+		while self.pendingCallbacks and (self.in_exec or self.current_dialog is None):
+			callback, retval = self.pendingCallbacks.pop(0)
 			callback(*retval)
 
 	def execBegin(self, first=True, do_show=True):
