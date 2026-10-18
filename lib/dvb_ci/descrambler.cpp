@@ -80,7 +80,6 @@ int descrambler_set_key(int& desc_fd, eDVBCISlot *slot, int parity, unsigned cha
 		if (ret == 0)
 		{
 			vuIoctlSuccess = true;
-			eTrace("[CI%d descrambler]***** don't set pids for VU ioctl %d", slot->getSlotID());
 			descrambler_deinit(desc_fd); // don't set pids for VU ioctl
 			desc_fd = -1;
 		}
@@ -138,8 +137,8 @@ int descrambler_set_pid(int desc_fd, eDVBCISlot *slot, int enable, int pid)
 	p.index = flags;
 	eTrace("[CI descrambler]2 index: %x enable: %x flags: %x pid: %x", slot->getSlotID(), enable, flags, pid);
 	if (ioctl(desc_fd, CA_SET_PID, &p) == -1) {
-		if (slot->getDescramblingOptions() > 0)
-			return 0;
+		if (!enable)
+			return 0; // best effort while tearing down, the device gets closed afterwards
 		eWarning("[CI%d descrambler] set pid failed", slot->getSlotID());
 		return -1;
 	}
@@ -153,10 +152,7 @@ int descrambler_init(eDVBCISlot *slot, uint8_t ca_demux_id)
 
 	std::string filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id);
 
-	if (slot->getDescramblingOptions() > 1)
-		filename = "/dev/dvb/adapter0/ca" + std::to_string(ca_demux_id + 1);
-
-	desc_fd = open(filename.c_str(), O_RDWR);
+	desc_fd = open(filename.c_str(), O_RDWR | O_NONBLOCK | O_CLOEXEC);
 	if (desc_fd == -1) {
 		eWarning("[CI%d descrambler] can not open %s", slot->getSlotID(), filename.c_str());
 	}
@@ -165,14 +161,9 @@ int descrambler_init(eDVBCISlot *slot, uint8_t ca_demux_id)
 	return desc_fd;
 }
 
-void descrambler_deinit(int desc_fd)
+void descrambler_deinit(int& desc_fd)
 {
-	if (desc_fd == -1)
-		eTrace("[CI descrambler][descrambler_deinit] ***** fd already closed");
 	if (desc_fd >= 0)
-	{
-		eTrace("[CI descrambler][descrambler_deinit] ***** close ca %d", desc_fd);
 		close(desc_fd);
-	}
 	desc_fd = -1;
 }
