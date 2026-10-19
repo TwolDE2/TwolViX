@@ -67,17 +67,11 @@ class VideoSetup(Setup):
 			self.list.append(getConfigListEntry(_("Allow 12bit"), config.av.allow_12bit, _("Enable or Disable the 12 Bit Color Mode")))
 			self.list.append(getConfigListEntry(_("Allow 10bit"), config.av.allow_10bit, _("Enable or Disable the 10 Bit Color Mode")))
 		if SystemInfo["CanDownmixAC3"]:
-			if SystemInfo["Vu_EAC3_fix"]:
-				self.list.append(getConfigListEntry(_("AC3 / AC3+ Downmix"), config.av.downmix_ac3, _("Choose whether multi channel AC3 / AC3+ sound tracks should be downmixed to stereo.")))
-			else:
-				self.list.append(getConfigListEntry(_("AC3 Downmix"), config.av.downmix_ac3, _("Choose whether multi channel AC3 sound tracks should be downmixed to stereo.")))
+			self.list.append(getConfigListEntry(_("AC3 Downmix"), config.av.downmix_ac3, _("Choose whether multi channel AC3 sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixAC3Plus"]:
 			self.list.append(getConfigListEntry(_("AC3+ Downmix"), config.av.downmix_ac3plus, _("Choose whether multi channel AC3+ sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixAAC"]:
-			if SystemInfo["Vu_EAC3_fix"]:
-				self.list.append(getConfigListEntry(_("AAC / AAC+ Downmix"), config.av.downmix_aac, _("Choose whether multi channel AAC / AAC+ sound tracks should be downmixed to stereo.")))
-			else:
-				self.list.append(getConfigListEntry(_("AAC Downmix"), config.av.downmix_aac, _("Choose whether multi channel AAC sound tracks should be downmixed to stereo.")))
+			self.list.append(getConfigListEntry(_("AAC Downmix"), config.av.downmix_aac, _("Choose whether multi channel AAC sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixAACPlus"]:
 			self.list.append(getConfigListEntry(_("AAC+ Downmix"), config.av.downmix_aacplus, _("Choose whether multi channel AAC+ sound tracks should be downmixed to stereo.")))
 		if SystemInfo["CanDownmixDTS"]:
