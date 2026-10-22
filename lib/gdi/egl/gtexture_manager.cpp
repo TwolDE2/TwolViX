@@ -202,13 +202,13 @@ GLuint gTextureManager::createTextureFromDmabuf(gPixmap* pixmap) {
 	PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
 
 	if (!eglCreateImageKHR || !glEGLImageTargetTexture2DOES) {
-		eDebug("[gTextureManager] EGL dmabuf extensions not available");
+		eTrace("[gTextureManager] EGL dmabuf extensions not available");
 		return 0;
 	}
 
 	EGLImageKHR image = eglCreateImageKHR(m_egl_display, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, (EGLClientBuffer)NULL, attribs);
 	if (image == EGL_NO_IMAGE_KHR) {
-		eDebug("[gTextureManager] eglCreateImageKHR failed: 0x%x", eglGetError());
+		eTrace("[gTextureManager] eglCreateImageKHR failed: 0x%x", eglGetError());
 		return 0;
 	}
 
@@ -250,7 +250,7 @@ static void checkPixmapAllZero(const gUnmanagedSurface* surface, int width, int 
 			if (row[i])
 				return;
 	}
-	eDebug("[gTextureManager] TEX_CHECK: uploading ALL-ZERO pixmap %dx%d bpp=%d stride=%d data=%p - will render as black", width, height, surface->bpp, surface->stride, surface->data);
+	eTrace("[gTextureManager] TEX_CHECK: uploading ALL-ZERO pixmap %dx%d bpp=%d stride=%d data=%p - will render as black", width, height, surface->bpp, surface->stride, surface->data);
 }
 
 GLuint gTextureManager::createTextureFromPixmap(gPixmap* pixmap) {
@@ -265,7 +265,7 @@ GLuint gTextureManager::createTextureFromPixmap(gPixmap* pixmap) {
 	GLuint texture_id = createTextureFromDmabuf(pixmap);
 	if (texture_id != 0) {
 #if TEX_UPLOAD_TIMING
-		eDebug("[gTextureManager] timing: dmabuf import %dx%d bpp=%d took %.2fms", pixmap->surface->x, pixmap->surface->y, pixmap->surface->bpp, ms_since(t_total0));
+		eTrace("[gTextureManager] timing: dmabuf import %dx%d bpp=%d took %.2fms", pixmap->surface->x, pixmap->surface->y, pixmap->surface->bpp, ms_since(t_total0));
 #endif
 		return texture_id;
 	}
@@ -329,7 +329,7 @@ GLuint gTextureManager::createTextureFromPixmap(gPixmap* pixmap) {
 		std::vector<uint32_t> scaled((size_t)tex_w * tex_h);
 		gtexDownscaleBGRA(full.data(), width, width, height, 0, 0, width, height, scaled.data(), tex_w, tex_h, 0, 0, tex_w, tex_h);
 		glTexImage2D(GL_TEXTURE_2D, 0, src_format, tex_w, tex_h, 0, src_format, GL_UNSIGNED_BYTE, scaled.data());
-		eDebug("[gTextureManager] %dx%d bpp=%d exceeds GL_MAX_TEXTURE_SIZE=%d - uploaded downscaled to %dx%d", width, height, surface->bpp, m_max_texture_size, tex_w, tex_h);
+		eTrace("[gTextureManager] %dx%d bpp=%d exceeds GL_MAX_TEXTURE_SIZE=%d - uploaded downscaled to %dx%d", width, height, surface->bpp, m_max_texture_size, tex_w, tex_h);
 	} else if (surface->bpp == 32) {
 		// e2's 32bpp surfaces are natively BGRA in memory (see gpixmap.h's
 		// gRGB struct: {b,g,r,a} on little-endian). On a platform where this
@@ -391,7 +391,7 @@ GLuint gTextureManager::createTextureFromPixmap(gPixmap* pixmap) {
 			glTexImage2D(GL_TEXTURE_2D, 0, src_format, width, height, 0, src_format, GL_UNSIGNED_BYTE, packed.data());
 		}
 #if TEX_UPLOAD_TIMING
-		eDebug("[gTextureManager] timing: bpp32 upload %dx%d (row_pixels=%d) took %.2fms", width, height, row_pixels, ms_since(t_upload0));
+		eTrace("[gTextureManager] timing: bpp32 upload %dx%d (row_pixels=%d) took %.2fms", width, height, row_pixels, ms_since(t_upload0));
 #endif
 	} else if (surface->bpp == 8 && surface->clut.data) {
 		// 8-bit paletted image (often used for picons/skins).
@@ -470,16 +470,16 @@ GLuint gTextureManager::createTextureFromPixmap(gPixmap* pixmap) {
 				zero_px += (local_src[(i / width) * src_stride + (i % width)] == 0);
 				opaque_black += (rgba_buffer[i] == 0xFF000000u);
 			}
-			eDebug("[gTextureManager] TEX_CHECK bpp8 %dx%d stride=%d clut.colors=%d clut.start=%d data=%p pal0=%08x pal1=%08x pal2=%08x maxIndex=%d index0Px=%zu/%zu opaqueBlackPx=%zu",
+			eTrace("[gTextureManager] TEX_CHECK bpp8 %dx%d stride=%d clut.colors=%d clut.start=%d data=%p pal0=%08x pal1=%08x pal2=%08x maxIndex=%d index0Px=%zu/%zu opaqueBlackPx=%zu",
 				width, height, src_stride, surface->clut.colors, surface->clut.start, (void*)surface->clut.data, pal[0], pal[1], pal[2], max_index, zero_px, rgba_buffer.size(), opaque_black);
 		}
 
 		if (max_index >= surface->clut.colors)
-			eDebug("[gTextureManager] bpp8 %dx%d has pixel index %d beyond its palette size %d - unmapped entries use the CPU renderer's grey ramp", width, height, max_index, surface->clut.colors);
+			eTrace("[gTextureManager] bpp8 %dx%d has pixel index %d beyond its palette size %d - unmapped entries use the CPU renderer's grey ramp", width, height, max_index, surface->clut.colors);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, src_format, width, height, 0, src_format, GL_UNSIGNED_BYTE, rgba_buffer.data());
 #if TEX_UPLOAD_TIMING
-		eDebug("[gTextureManager] timing: bpp8 palette-expand %dx%d took %.2fms, glTexImage2D took %.2fms", width, height, expand_ms, ms_since(t_upload0));
+		eTrace("[gTextureManager] timing: bpp8 palette-expand %dx%d took %.2fms, glTexImage2D took %.2fms", width, height, expand_ms, ms_since(t_upload0));
 #endif
 	} else if (surface->bpp == 8) {
 		// Plain 8-bit grayscale surface with no palette - this is what the
@@ -501,7 +501,7 @@ GLuint gTextureManager::createTextureFromPixmap(gPixmap* pixmap) {
 		GLenum src_fmt = gles::isGLES3() ? GL_RED : GL_LUMINANCE;
 		glTexImage2D(GL_TEXTURE_2D, 0, internal_fmt, width, height, 0, src_fmt, GL_UNSIGNED_BYTE, surface->data);
 	} else {
-		eDebug("[gTextureManager] unsupported surface format (bpp: %d)", surface->bpp);
+		eTrace("[gTextureManager] unsupported surface format (bpp: %d)", surface->bpp);
 		glDeleteTextures(1, &texture_id);
 		return 0;
 	}
@@ -520,15 +520,15 @@ GLuint gTextureManager::createTextureFromPixmap(gPixmap* pixmap) {
 	// dropping such a texture would make the picture vanish instead.
 	GLenum upload_err = glGetError();
 	if (upload_err == GL_OUT_OF_MEMORY) {
-		eDebug("[gTextureManager] texture upload FAILED (out of memory) %dx%d bpp=%d - not caching, will retry on next draw [live textures=%ld, ~%.1fMB tracked]", width, height, surface->bpp, m_live_texture_count, m_live_texture_bytes / 1048576.0);
+		eTrace("[gTextureManager] texture upload FAILED (out of memory) %dx%d bpp=%d - not caching, will retry on next draw [live textures=%ld, ~%.1fMB tracked]", width, height, surface->bpp, m_live_texture_count, m_live_texture_bytes / 1048576.0);
 		glDeleteTextures(1, &texture_id);
 		m_last_upload_oom = true;
 		return 0;
 	}
 	if (upload_err != GL_NO_ERROR)
-		eDebug("[gTextureManager] texture upload raised glError=0x%x %dx%d bpp=%d (kept)", upload_err, width, height, surface->bpp);
+		eTrace("[gTextureManager] texture upload raised glError=0x%x %dx%d bpp=%d (kept)", upload_err, width, height, surface->bpp);
 #if TEX_UPLOAD_TIMING
-	eDebug("[gTextureManager] timing: createTextureFromPixmap total %dx%d bpp=%d took %.2fms", width, height, surface->bpp, ms_since(t_total0));
+	eTrace("[gTextureManager] timing: createTextureFromPixmap total %dx%d bpp=%d took %.2fms", width, height, surface->bpp, ms_since(t_total0));
 #endif
 	return texture_id;
 }
@@ -571,7 +571,7 @@ GLuint gTextureManager::getTexture(gPixmap* pixmap) {
 		size_t bytes = (size_t)sf->x * sf->y * ((sf->bpp == 8 && !sf->clut.data) ? 1 : 4);
 		m_texture_bytes[new_texture] = bytes;
 		m_live_texture_bytes += bytes;
-		eDebug("[gTextureManager] +texture id=%u live=%ld ~%.1fMB %dx%d bpp=%d", new_texture, m_live_texture_count, m_live_texture_bytes / 1048576.0,
+		eTrace("[gTextureManager] +texture id=%u live=%ld ~%.1fMB %dx%d bpp=%d", new_texture, m_live_texture_count, m_live_texture_bytes / 1048576.0,
 			sf->x, sf->y, sf->bpp);
 	}
 	return new_texture;
@@ -616,7 +616,7 @@ size_t gTextureManager::evictLRU(size_t bytes_wanted) {
 		++evicted;
 	}
 	if (evicted)
-		eDebug("[gTextureManager] out of memory: evicted %d least-recently-used textures (~%.1fMB), now live=%ld ~%.1fMB", evicted, freed / 1048576.0, m_live_texture_count,
+		eTrace("[gTextureManager] out of memory: evicted %d least-recently-used textures (~%.1fMB), now live=%ld ~%.1fMB", evicted, freed / 1048576.0, m_live_texture_count,
 			m_live_texture_bytes / 1048576.0);
 	return freed;
 }
@@ -647,7 +647,7 @@ void gTextureManager::queueForDeletion(GLuint texture_id) {
 	// a different problem from the live_texture_count in getTexture()/
 	// processDeletions() ever growing, which would mean surfaces are dying
 	// but their textures are never queued/deleted at all.
-	eDebug("[gTextureManager] queued texture id=%u for deletion, pending=%zu", texture_id, m_pending_deletions.size());
+	eTrace("[gTextureManager] queued texture id=%u for deletion, pending=%zu", texture_id, m_pending_deletions.size());
 }
 
 bool gTextureManager::hasPendingDeletions() {
@@ -677,7 +677,7 @@ void gTextureManager::processDeletions() {
 			}
 		}
 
-		eDebug("[gTextureManager] -texture count=%zu live=%ld ~%.1fMB", m_pending_deletions.size(), m_live_texture_count, m_live_texture_bytes / 1048576.0);
+		eTrace("[gTextureManager] -texture count=%zu live=%ld ~%.1fMB", m_pending_deletions.size(), m_live_texture_count, m_live_texture_bytes / 1048576.0);
 		m_pending_deletions.clear();
 	}
 }
@@ -688,7 +688,7 @@ void egl_release_surface_texture(unsigned int gl_texture_id, const void* surface
 	if (s_active_manager)
 		s_active_manager->releaseSurfaceTexture(gl_texture_id, surface);
 	else
-		eDebug("[gTextureManager] egl_release_surface_texture(%u) called with no active manager - texture leaked", gl_texture_id);
+		eTrace("[gTextureManager] egl_release_surface_texture(%u) called with no active manager - texture leaked", gl_texture_id);
 }
 
 extern "C" void egl_queue_texture_deletion(unsigned int gl_texture_id);
@@ -701,6 +701,6 @@ void egl_queue_texture_deletion(unsigned int gl_texture_id) {
 		// trying to release its texture, but there is no live gTextureManager
 		// to hand it to - the id (and the GPU/ION memory behind it) is
 		// silently dropped on the floor right here instead of being queued.
-		eDebug("[gTextureManager] egl_queue_texture_deletion(%u) called with no active manager - texture leaked", gl_texture_id);
+		eTrace("[gTextureManager] egl_queue_texture_deletion(%u) called with no active manager - texture leaked", gl_texture_id);
 	}
 }
