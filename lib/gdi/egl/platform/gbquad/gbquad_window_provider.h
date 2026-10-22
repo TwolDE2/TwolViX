@@ -109,6 +109,8 @@ class GbquadWindowProvider : public INativeWindowProvider {
 private:
 	NXPL_PlatformHandle m_nxpl_display_handle; // handle from NXPL_RegisterNexusDisplayPlatform
 	void* m_native_window;                     // handle from NXPL_CreateNativeWindowEXT
+	int m_window_width = 0;                    // size the current native window was created with
+	int m_window_height = 0;
 	bool m_joined_nxclient;                    // NxClient_Join() succeeded - must be balanced by NxClient_Uninit()
 
 public:
@@ -125,6 +127,8 @@ public:
 	bool needsStraightAlphaPresent() override;
 	float presentUnpremultiplyPower() override;
 	bool premultipliesBlits() override;
+	// Nexus graphics colour (contrast + saturation) so SDR OSD white lands at `nits` in HDR10.
+	bool setHdrOsdWhiteNits(float nits) override;
 
 	// `stretch` (set in init(), see its own comment there) makes Nexus's
 	// compositor scale THIS window's authored width/height to fill the

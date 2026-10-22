@@ -32,13 +32,10 @@ visuallyImpairedCommentary = "NAR qad"
 
 def InitUsageConfig():
 	config.version = ConfigNumber(default=0)
-	if SystemInfo["brand"] in ('vuplus', 'ini'):
-		config.misc.remotecontrol_text_support = ConfigYesNo(default=True)
-	else:
-		config.misc.remotecontrol_text_support = ConfigYesNo(default=False)
-
+	config.misc.remotecontrol_text_support = ConfigYesNo(default=SystemInfo["brand"] in ('vuplus', 'ini'))
 	config.misc.usegstplaybin3 = ConfigYesNo(default=False)
 	config.misc.disableServiceHiSilicon = ConfigYesNo(default=False)
+	config.misc.longkey_threshold = ConfigSelection(default="4", choices=[(str(i), _("%d") % i) for i in range(1, 7)])
 
 	config.usage = ConfigSubsection()
 	config.usage.subnetwork = ConfigYesNo(default=True)
@@ -103,10 +100,7 @@ def InitUsageConfig():
 	config.usage.show_second_infobar = ConfigSelection(default="5", choices=choicelist)
 
 	def showsecondinfobarChanged(configElement):
-		if config.usage.show_second_infobar.value != "INFOBAREPG":
-			SystemInfo["InfoBarEpg"] = True
-		else:
-			SystemInfo["InfoBarEpg"] = False
+		SystemInfo["InfoBarEpg"] = configElement.value != "INFOBAREPG"
 	config.usage.show_second_infobar.addNotifier(showsecondinfobarChanged)
 
 	config.usage.second_infobar_simple = ConfigBoolean(descriptions={False: _("Standard"), True: _("Simple")}, graphic=False)
@@ -120,6 +114,23 @@ def InitUsageConfig():
 	config.usage.menu_sort_weight = ConfigDictionarySet(default={"mainmenu": {"submenu": {}}})
 	config.usage.menu_sort_mode = ConfigSelection(default="default", choices=[("a_z", _("alphabetical")), ("default", _("Default")), ("user", _("user defined")), ("user_hidden", _("user defined hidden"))])
 	config.usage.menu_show_numbers = ConfigYesNo(default=False)
+
+	# HDR10 OSD correction (EGL builds on Nexus boxes): tone-maps the UI and raises the compositor's
+	# gain for it while an HDR10 programme plays, so the UI keeps its normal look. The setup item only
+	# appears where the canvas supports it (SystemInfo["HdrOsdCorrection"]).
+	try:
+		from enigma import gMainDC
+		_dc = gMainDC.getInstance()
+		SystemInfo["HdrOsdCorrection"] = bool(_dc and _dc.supportsHdrOsdCorrection())
+	except Exception:
+		SystemInfo["HdrOsdCorrection"] = False
+	config.usage.hdr_osd_correction = ConfigYesNo(default=True)
+
+	def hdrOsdCorrectionChanged(configElement):
+		if SystemInfo["HdrOsdCorrection"]:
+			gMainDC.getInstance().setHdrOsdCorrection(configElement.value)
+
+	config.usage.hdr_osd_correction.addNotifier(hdrOsdCorrectionChanged)
 	config.usage.showScreenPath = ConfigSelection(default="small", choices=[("off", _("None")), ("small", _("Small")), ("large", _("Large"))])
 	# The following code is to be short lived and exists to transition
 	# settings from the old config.usage.show_menupath to the new
@@ -343,7 +354,7 @@ def InitUsageConfig():
 		config.usage.wakeOnLAN.addNotifier(wakeOnLANChanged)
 
 	# standby
-	if SystemInfo["displaytype"] in ("textlcd7segment"):
+	if SystemInfo["displaytype"] == "textlcd7segment":
 		config.usage.blinking_display_clock_during_recording = ConfigSelection(default="Rec", choices=[
 			("Rec", _("REC")),
 			("RecBlink", _("Blinking REC")),

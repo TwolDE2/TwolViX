@@ -10,6 +10,9 @@
 #include <lib/base/object.h>
 #include <lib/dvb/epgcache.h>
 #include <lib/dvb/decoder.h>
+#ifdef HAVE_EGL
+#include <lib/gdi/egl/gegldc.h>
+#endif
 #include <lib/dvb/dvb.h>
 #include <lib/dvb/db.h>
 #include <lib/dvb/subtitle.h>
@@ -478,6 +481,39 @@ GstPadProbeReturn eac3AtmosProbe(GstPad *pad, GstPadProbeInfo *info, gpointer us
 		return GST_PAD_PROBE_REMOVE;
 
 	return GST_PAD_PROBE_OK;
+}
+
+struct ByteCounterProbeData
+{
+	std::shared_ptr<std::atomic<guint64> > counter;
+};
+
+static void freeByteCounterProbeData(gpointer data)
+{
+	delete static_cast<ByteCounterProbeData*>(data);
+}
+
+static GstPadProbeReturn byteCounterProbe(GstPad *, GstPadProbeInfo *info, gpointer user_data)
+{
+	ByteCounterProbeData *probe = static_cast<ByteCounterProbeData*>(user_data);
+	guint64 size = 0;
+	if (GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_BUFFER_LIST)
+	{
+		GstBufferList *list = GST_PAD_PROBE_INFO_BUFFER_LIST(info);
+		if (list)
+			size = gst_buffer_list_calculate_size(list);
+	}
+	else if (GstBuffer *buffer = GST_PAD_PROBE_INFO_BUFFER(info))
+		size = gst_buffer_get_size(buffer);
+	if (probe && size)
+		probe->counter->fetch_add(size, std::memory_order_relaxed);
+	return GST_PAD_PROBE_OK;
+}
+
+static GQuark byteCounterProbeQuark()
+{
+	static GQuark quark = g_quark_from_static_string("enigma2-byte-counter-probe");
+	return quark;
 }
 
 GQuark eac3AtmosProbeQuark()
@@ -1351,6 +1387,7 @@ eServiceFactoryMP3::eServiceFactoryMP3()
 		extensions.push_back("ogm");
 		extensions.push_back("ogv");
 		extensions.push_back("m3u8");
+		extensions.push_back("mpd");
 		extensions.push_back("stream");
 		extensions.push_back("webm");
 		extensions.push_back("amr");
@@ -1738,6 +1775,8 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	m_buffer_size = 5 * 1024 * 1024;
 	m_ignore_buffering_messages = 0;
 	m_is_live = false;
+	m_pip_decoder = -1;
+	m_pip_applied = false;
 	m_use_prefillbuffer = false;
 	m_paused = false;
 	m_clear_buffers = true;
@@ -1791,6 +1830,10 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 
 	m_aspect = m_width = m_height = m_framerate = m_progressive = m_gamma = -1;
 	m_hdr_type = 0;
+	m_br_last_video_bytes = m_br_last_audio_bytes = 0;
+	m_br_last_us = 0;
+	m_br_audio_idx = -1;
+	m_br_video_kbps = m_br_audio_kbps = 0;
 #ifdef HAS_SOFTWARE_HDR_DETECTION
 	m_hdr_probe_id = 0;
 	m_hdr_probe_pad = NULL;
@@ -1897,6 +1940,8 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 	}
 	else if (strcasecmp(ext, ".m3u8") == 0)
 		m_sourceinfo.is_hls = TRUE;
+	else if (strcasecmp(ext, ".mpd") == 0)
+		m_sourceinfo.is_dash = TRUE;
 	else if (strcasecmp(ext, ".mp3") == 0)
 	{
 		m_sourceinfo.audiotype = atMP3;
@@ -2096,7 +2141,7 @@ eServiceMP3::eServiceMP3(eServiceReference ref):
 			/* increase the default 2 second / 2 MB buffer limitations to 5s / 5MB */
 			g_object_set(G_OBJECT(m_gst_playbin), "buffer-duration", 5LL * GST_SECOND, NULL);
 			g_object_set(G_OBJECT(m_gst_playbin), "buffer-size", m_buffer_size, NULL);
-			if (m_sourceinfo.is_hls)
+			if (m_sourceinfo.is_hls || m_sourceinfo.is_dash)
 				g_object_set(G_OBJECT(m_gst_playbin), "connection-speed", (guint64)(4495000LL), NULL);
 		}
 		g_object_set (G_OBJECT (m_gst_playbin), "flags", flags, NULL);
@@ -2398,6 +2443,64 @@ void eServiceMP3::tryApplyPendingStartOffset()
 		fireDeferredStartEvents();
 }
 
+/*
+ * PiP support. PictureInPicture calls setTarget(1, true) before start(): play
+ * video only, on hardware decoder 1. The playbin already exists (built in the
+ * constructor), so the target is only recorded here and applied from start().
+ * Requires a dvbvideosink with the "decoder" property; without it we refuse.
+ */
+RESULT eServiceMP3::setTarget(int target, bool noaudio)
+{
+	if (target != 1 || !m_gst_playbin || m_state != stIdle)
+		return -1;
+	GstElementFactory *factory = gst_element_factory_find("dvbvideosink");
+	if (!factory)
+		return -1;
+	GstElement *probe = gst_element_factory_create(factory, NULL);
+	gst_object_unref(factory);
+	if (!probe)
+		return -1;
+	const bool hasDecoderProp = g_object_class_find_property(G_OBJECT_GET_CLASS(probe), "decoder") != NULL;
+	gst_object_unref(probe);
+	if (!hasDecoderProp)
+	{
+		eDebug("[eServiceMP3] setTarget: dvbvideosink has no 'decoder' property, PiP unsupported");
+		return -1;
+	}
+	m_pip_decoder = target;
+	return 0;
+}
+
+void eServiceMP3::applyPipTarget()
+{
+	if (m_pip_decoder < 0 || m_pip_applied || !m_gst_playbin)
+		return;
+	m_pip_applied = true;
+	guint flags = 0;
+	g_object_get(G_OBJECT(m_gst_playbin), "flags", &flags, NULL);
+	flags &= ~(GST_PLAY_FLAG_AUDIO | GST_PLAY_FLAG_TEXT);
+	g_object_set(G_OBJECT(m_gst_playbin), "flags", flags, NULL);
+	GstElement *vsink = gst_element_factory_make("dvbvideosink", "pip_videosink");
+	if (vsink)
+	{
+		/* free-running: no clock sync or preroll on the PiP sink, so it can't
+		 * influence the main service's timing. "sync"/"async" are ignored by
+		 * the sink, the e2- variants are the real switches. */
+		g_object_set(G_OBJECT(vsink), "decoder", (guint)m_pip_decoder, "e2-sync", FALSE, "e2-async", FALSE, NULL);
+		g_object_set(G_OBJECT(m_gst_playbin), "video-sink", vsink, NULL);
+	}
+	/* Belt and braces: with GST_PLAY_FLAG_AUDIO cleared playbin should never build
+	 * an audio chain, but if it ever did it would autoplug dvbaudiosink and open
+	 * the audio decoder, taking it from the main service. Hand it a fakesink. */
+	GstElement *asink = gst_element_factory_make("fakesink", "pip_audiosink");
+	if (asink)
+	{
+		g_object_set(G_OBJECT(asink), "sync", FALSE, "async", FALSE, NULL);
+		g_object_set(G_OBJECT(m_gst_playbin), "audio-sink", asink, NULL);
+	}
+	eDebug("[eServiceMP3] PiP: video-only on decoder %d", m_pip_decoder);
+}
+
 RESULT eServiceMP3::start()
 {
 	ASSERT(m_state == stIdle);
@@ -2416,6 +2519,8 @@ RESULT eServiceMP3::start()
 		 * need holding back, and only when there's actually a pending start
 		 * offset to apply first. */
 		m_start_events_deferred = m_pending_start_position >= 0;
+
+		applyPipTarget();
 
 		eDebug("[eServiceMP3] starting pipeline");
 		GstStateChangeReturn ret;
@@ -2686,7 +2791,7 @@ RESULT eServiceMP3::stop()
 	gst_object_ref(m_gst_playbin);
 	g_atomic_int_inc(&s_mp3_stop_workers);
 	StopWatchdog *watchdog = new StopWatchdog{0, 2};
-	GThread *worker = g_thread_new("mp3stop", stopWorker, new StopWorkerArgs{m_gst_playbin, watchdog, videoSink != NULL});
+	GThread *worker = g_thread_new("mp3stop", stopWorker, new StopWorkerArgs{m_gst_playbin, watchdog, videoSink != NULL && m_pip_decoder < 0 /* a PiP must never blank the primary decoder */});
 	g_thread_unref(worker);
 	GThread *watchdogThread = g_thread_new("mp3stopwd", stopWatchdog, watchdog);
 	g_thread_unref(watchdogThread);
@@ -3670,6 +3775,87 @@ void eServiceMP3::updateHDRFromVideoPad()
 }
 #endif /* HAS_SOFTWARE_HDR_DETECTION */
 
+/* Count the compressed bytes entering playbin's video/audio stream selectors so the
+ * bitrate viewer has something to show for servicemp3 (there is no demux to tap). */
+void eServiceMP3::installBitrateProbes(int n_video, int n_audio)
+{
+	auto install = [](GstPad *pad, byteCounterPtr &counter) -> bool
+	{
+		if (g_object_get_qdata(G_OBJECT(pad), byteCounterProbeQuark()))
+			return false;
+		g_object_set_qdata(G_OBJECT(pad), byteCounterProbeQuark(), GUINT_TO_POINTER(1));
+		counter = std::make_shared<std::atomic<guint64> >(0);
+		ByteCounterProbeData *data = new ByteCounterProbeData{counter};
+		gst_pad_add_probe(pad, (GstPadProbeType)(GST_PAD_PROBE_TYPE_BUFFER | GST_PAD_PROBE_TYPE_BUFFER_LIST),
+			byteCounterProbe, data, freeByteCounterProbeData);
+		return true;
+	};
+
+	if (n_video > 0)
+	{
+		GstPad *pad = NULL;
+		g_signal_emit_by_name(m_gst_playbin, "get-video-pad", 0, &pad);
+		if (pad)
+		{
+			if (install(pad, m_video_byte_counter))
+				m_br_last_video_bytes = 0;
+			gst_object_unref(pad);
+		}
+	}
+	if ((int)m_audio_byte_counters.size() < n_audio)
+		m_audio_byte_counters.resize(n_audio);
+	for (int i = 0; i < n_audio; i++)
+	{
+		GstPad *pad = NULL;
+		g_signal_emit_by_name(m_gst_playbin, "get-audio-pad", i, &pad);
+		if (!pad)
+			continue;
+		if (install(pad, m_audio_byte_counters[i]) && i == m_br_audio_idx)
+			m_br_last_audio_bytes = 0;
+		gst_object_unref(pad);
+	}
+}
+
+void eServiceMP3::updateLiveBitrate()
+{
+	const gint64 now = g_get_monotonic_time();
+	/* streams (IPTV mpegts) can add their audio pads after async-done, so (re)install lazily;
+	 * pads that already have a probe are skipped */
+	if (m_gst_playbin)
+	{
+		gint n_video = 0, n_audio = 0;
+		g_object_get(m_gst_playbin, "n-video", &n_video, "n-audio", &n_audio, NULL);
+		installBitrateProbes(n_video, n_audio);
+	}
+	const int audio_idx = m_currentAudioStream >= 0 ? m_currentAudioStream : 0;
+	if (audio_idx != m_br_audio_idx)
+	{
+		m_br_audio_idx = audio_idx;
+		m_br_last_audio_bytes = 0;
+		m_br_last_us = 0;
+		m_br_audio_kbps = 0;
+	}
+	const guint64 vbytes = m_video_byte_counter ? m_video_byte_counter->load(std::memory_order_relaxed) : 0;
+	const guint64 abytes = (audio_idx >= 0 && audio_idx < (int)m_audio_byte_counters.size() && m_audio_byte_counters[audio_idx]) ?
+		m_audio_byte_counters[audio_idx]->load(std::memory_order_relaxed) : 0;
+	if (!m_br_last_us)
+	{
+		m_br_last_us = now;
+		m_br_last_video_bytes = vbytes;
+		m_br_last_audio_bytes = abytes;
+		return;
+	}
+	const gint64 delta_us = now - m_br_last_us;
+	if (delta_us < 500000)
+		return;
+	/* bytes * 8 / 1000 / (us / 1e6) == bytes * 8000 / us */
+	m_br_video_kbps = vbytes >= m_br_last_video_bytes ? (int)((vbytes - m_br_last_video_bytes) * 8000 / delta_us) : 0;
+	m_br_audio_kbps = abytes >= m_br_last_audio_bytes ? (int)((abytes - m_br_last_audio_bytes) * 8000 / delta_us) : 0;
+	m_br_last_us = now;
+	m_br_last_video_bytes = vbytes;
+	m_br_last_audio_bytes = abytes;
+}
+
 RESULT eServiceMP3::info(ePtr<iServiceInformation>&i)
 {
 	i = this;
@@ -3791,6 +3977,12 @@ int eServiceMP3::getInfo(int w)
 		tag = "has-crc";
 		break;
 	case sBuffer: return m_bufferInfo.bufferPercent;
+	case sVideoBitrate:
+		updateLiveBitrate();
+		return m_video_byte_counter ? m_br_video_kbps : -1;
+	case sAudioBitrate:
+		updateLiveBitrate();
+		return m_audio_byte_counters.empty() ? -1 : m_br_audio_kbps;
 	case sVideoType:
 	{
 		if (!videoSink) return -1;
@@ -4344,6 +4536,13 @@ void eServiceMP3::applySubtitleStreamSwitch()
 
 int eServiceMP3::selectAudioStream(int i, bool skipAudioFix)
 {
+	/* A PiP is video-only. Setting "current-audio" makes playbin select an audio
+	 * stream and build an audio chain regardless of the cleared AUDIO flag: it
+	 * autoplugs dvbaudiosink, whose start()/stop() open and flush the shared
+	 * audio0 device - killing the MAIN service's audio. Never touch it. */
+	if (m_pip_decoder >= 0)
+		return 0;
+
 	/* Validate index against our own track list to avoid relying solely on
 	 * an immediate g_object_get readback which can return a stale value when
 	 * GStreamer is in a transitional state. */
@@ -4826,7 +5025,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 						loadCuesheet();
 					updateEpgCacheNowNext();
 
-					if (!videoSink || m_ref.getData(0) == 2) // show radio pic
+					if (m_pip_decoder < 0 && (!videoSink || m_ref.getData(0) == 2)) // show radio pic
 					{
 						bool showRadioBackground = eConfigManager::getConfigBoolValue("config.misc.showradiopic", true);
 						std::string radio_pic = eConfigManager::getConfigValue(showRadioBackground ? "config.misc.radiopic" : "config.misc.blackradiopic");
@@ -5187,6 +5386,8 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 
 				if ( n_video + n_audio <= 0 )
 					stop();
+
+				installBitrateProbes(n_video, n_audio);
 
 				std::vector<audioStream> audioStreams_temp;
 				std::vector<subtitleStream> subtitleStreams_temp;
@@ -5614,6 +5815,9 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 						else if (!strcmp(eventname, "eventGammaChanged"))
 						{
 							gst_structure_get_int (msgstruct, "gamma", &m_gamma);
+#ifdef HAVE_EGL
+							gEGLDC::setVideoGamma(m_gamma);
+#endif
 							m_event((iPlayableService*)this, evVideoGammaChanged);
 							/* Derive m_hdr_type from the hardware decoder gamma.
 							 * gamma: 0=SDR 1=HDR(generic) 2=SMPTE ST2084/HDR10 3=HLG
@@ -5699,7 +5903,7 @@ void eServiceMP3::gstBusCall(GstMessage *msg)
 				 * (in which case the sink will not produce data while paused, so we won't
 				 * recover from an empty buffer)
 				 */
-				if (m_use_prefillbuffer && !m_is_live && !m_sourceinfo.is_hls && --m_ignore_buffering_messages <= 0)
+				if (m_use_prefillbuffer && !m_is_live && !m_sourceinfo.is_hls && !m_sourceinfo.is_dash && --m_ignore_buffering_messages <= 0)
 				{
 					if (m_bufferInfo.bufferPercent == 100)
 					{

@@ -209,6 +209,15 @@ def removed_userbouquets_available():
 	return False
 
 
+from Screens.Screen import ScreenSummary
+
+
+class BouquetSelectionBoxSummary(ScreenSummary):
+	def __init__(self, session, parent):
+		ScreenSummary.__init__(self, session, parent)
+		self.skinName = ["ScreenSummary"]
+
+
 class BouquetSelectionBox(Screen):
 	def __init__(self, session, title=None, onlyDeleted=False, greenText=None):
 		Screen.__init__(self, session)
@@ -216,7 +225,6 @@ class BouquetSelectionBox(Screen):
 		self.skinName = ["BouquetSelectionBox", "Setup"]
 		path = "/etc/enigma2"
 		bouquetList = [x for x in listdir(path) if x.startswith("userbouquet") and (not onlyDeleted or x.endswith(".del"))]
-		[SelectionEntryComponent(x[12:-4], os_path.join(path, x), "", False) for x in bouquetList]
 		self["config"] = SelectionList([SelectionEntryComponent(x[12:len(x) - (4 if onlyDeleted else 0)], os_path.join(path, x), "", False) for x in bouquetList], enableWrapAround=True)
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(greenText if greenText else _("Save"))
@@ -228,6 +236,11 @@ class BouquetSelectionBox(Screen):
 			"cancel": self.close,
 			"yellow": self["config"].toggleAllSelection,
 		}, -2)
+
+		self.setTitle(self.title)
+
+	def createSummary(self):
+		return BouquetSelectionBoxSummary
 
 	def keySave(self):
 		self.close([x[0][1] for x in self["config"].list if x[0][3]])

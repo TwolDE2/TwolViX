@@ -22,6 +22,15 @@ private:
 #endif
 	GLuint m_vbo;
 
+	// Lean program for the common case (batched blits with no corner rounding and
+	// no premultiply/unpremultiply mode): no SDF, no mode branches, no v_pos
+	// varying - just sample * alpha. The full program above handles the rest.
+	GLuint m_plain_program_id = 0;
+	GLint m_plain_projection_location = -1;
+	GLint m_plain_texture_location = -1;
+	GLint m_plain_alpha_location = -1;
+	GLuint buildPlainProgram();
+
 	GLint m_projection_location;
 	GLint m_texture_location;
 	GLint m_alpha_location;
@@ -29,6 +38,13 @@ private:
 	bool m_unpremultiply = false;
 	float m_unpremultiply_power = 1.0f;
 	bool m_premultiply = false;
+
+	// Optional present-time tone curve (see setToneLut()): a 256x1 luminance LUT applied
+	// per channel to the straight (un-premultiplied) colour. 0 = off.
+	GLuint m_tone_lut = 0;
+	GLint m_tone_on_location = -1;
+	GLint m_tone_lut_location = -1;
+	void applyToneUniforms();
 
 	GLint m_rect_size_location;
 	GLint m_radius_location;
@@ -67,6 +83,11 @@ public:
 	// Multiply colour by alpha on output: for blits drawn with blending off (raw overwrite)
 	// into a premultiplied frame.
 	void setPremultiply(bool on) { m_premultiply = on; }
+	// While non-zero, every draw maps each colour channel (taken as straight alpha) through the
+	// 256x1 GL_LUMINANCE texture `lut_texture` before output. Used only by gEGLDC's final present
+	// pass to pre-compensate the SDR OSD for HDR10 output (see gEGLDC::updateToneControl());
+	// must be reset to 0 right after. Disables the plain-program fast path while set.
+	void setToneLut(GLuint lut_texture) { m_tone_lut = lut_texture; }
 	void drawTexture(float x, float y, float width, float height, GLuint texture_id, float global_alpha = 1.0f, float radius = 0.0f, uint8_t edges = 0);
 
 	// Same rounded-rect texture draw as drawTexture(), but only covers the

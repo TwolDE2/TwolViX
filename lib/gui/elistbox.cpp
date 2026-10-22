@@ -37,7 +37,11 @@ eListbox::~eListbox()
 
 void eListbox::setOrientation(int orientation)
 {
+	const bool wasVerticalBar = (m_orientation == orVertical || m_orientation == orGrid);
 	m_orientation = orientation;
+	const bool verticalBar = (m_orientation == orVertical || m_orientation == orGrid);
+	if (m_scrollbar && verticalBar != wasVerticalBar)
+		m_scrollbar->setOrientation(verticalBar ? eSlider::orVertical : eSlider::orHorizontal);
 }
 
 void eListbox::setScrollbarMode(int mode)
@@ -788,7 +792,7 @@ void eListbox::updateScrollBar()
 			else if (m_orientation == orHorizontal)
 				m_content->setSize(eSize(m_itemwidth, height));
 			else
-				m_content->setSize(eSize(m_itemwidth, m_itemwidth));
+				m_content->setSize(eSize(m_itemwidth, m_itemheight));
 
 			m_scrollbar->hide();
 		}
@@ -982,7 +986,8 @@ int eListbox::event(int event, void *data, void *data2)
 			}
 
 			// clear/repaint empty/unused space between scrollbar and listboxentrys
-			if (m_scrollbar && !isTransparent())
+			// (showLeft/showTop always reserve the gap; on the default side it only exists while the scrollbar is shown)
+			if (m_scrollbar && !isTransparent() && (m_scrollbar_mode == showLeft || m_scrollbar_mode == showTop || m_scrollbar->isVisible()))
 			{
 				style->setStyle(painter, eWindowStyle::styleListboxNormal);
 				if (m_scrollbar_mode == showLeft)
@@ -1007,30 +1012,13 @@ int eListbox::event(int event, void *data, void *data2)
 						painter.clip(eRect(m_scrollbar->position(), eSize(m_scrollbar->size().width(), m_scrollbar->size().height() + 5)));
 					}
 				}
+				else if (m_orientation == orVertical)
+				{
+					painter.clip(eRect(m_scrollbar->position() - ePoint(5,0), eSize(5,m_scrollbar->size().height())));
+				}
 				else
 				{
-					if (m_orientation == orVertical)
-					{
-						if (m_scrollbar->isVisible())
-						{
-							painter.clip(eRect(m_scrollbar->position() - ePoint(5,0), eSize(5,m_scrollbar->size().height())));
-						}
-						else
-						{
-							painter.clip(eRect(m_scrollbar->position() - ePoint(5,0), eSize(m_scrollbar->size().width() + 5, m_scrollbar->size().height())));
-						}
-					}
-					else
-					{
-						if (m_scrollbar->isVisible())
-						{
-							painter.clip(eRect(m_scrollbar->position() - ePoint(0,5), eSize(m_scrollbar->size().width(), 5)));
-						}
-						else
-						{
-							painter.clip(eRect(m_scrollbar->position() - ePoint(0,5), eSize(m_scrollbar->size().width(), m_scrollbar->size().height() + 5)));
-						}
-					}
+					painter.clip(eRect(m_scrollbar->position() - ePoint(0,5), eSize(m_scrollbar->size().width(), 5)));
 				}
 				painter.clear();
 				painter.clippop();
@@ -1123,7 +1111,7 @@ void eListbox::setSelectionEnable(int en)
 
 void eListbox::entryAdded(int index)
 {
-	if (m_content && (m_content->size() % m_items_per_page) == 1)
+	if (m_content && m_items_per_page && (m_content->size() % m_items_per_page) == 1)
 		m_content_changed=true;
 	/* manage our local pointers. when the entry was added before the current position, we have to advance. */
 
@@ -1166,7 +1154,7 @@ void eListbox::entryAdded(int index)
 
 void eListbox::entryRemoved(int index)
 {
-	if (m_content && !(m_content->size() % m_items_per_page))
+	if (m_content && m_items_per_page && (m_content->size() % m_items_per_page) == 1)
 		m_content_changed=true;
 
 	if (index == m_selected && m_content)
