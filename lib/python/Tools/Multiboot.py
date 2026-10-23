@@ -3,11 +3,10 @@ import glob
 import struct
 import subprocess
 import tempfile
-from os import path, rmdir, rename, sep, stat
-import re
-
-from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, BOXTYPE, CHKROOTMB, MODEL, MTDROOTFS, UBIMB
-from Tools.Directories import copyfile, fileExists, fileHas, fileReadLine, pathExists, resolveFilename, SCOPE_CONFIG
+from os import listdir, path, remove as os_remove, rmdir, rename, sep, stat, statvfs, sync
+from re import compile, fullmatch, search, sub
+from Components.SystemInfo import SystemInfo, BoxInfo as BoxInfoRunningInstance, BoxInformation, BOXTYPE, CHKROOTMB, MODEL, MTDKERNEL, MTDROOTFS, UBIMB
+from Tools.Directories import copyfile, fileExists, fileHas, fileReadLine, fileReadLines, pathExists, resolveFilename, SCOPE_CONFIG
 
 MBBOOTDEVICE_CACHE = resolveFilename(SCOPE_CONFIG, "multiboot_device")
 
@@ -28,7 +27,7 @@ def initMultiboot():
 	SystemInfo["canMultiBoot"] = getMultibootslots()
 	SystemInfo["canBackupEMC"] = MODEL in ("hd51", "h7") and ("disk.img", "%s" % SystemInfo["MBbootdevice"]) or MODEL in ("osmio4k", "osmio4kplus", "osmini4k") and ("emmc.img", "%s" % SystemInfo["MBbootdevice"]) or SystemInfo["HasHiSi"] and ("usb_update.bin", "none")
 	SystemInfo["CanKexecVu"] = MODEL in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]  # Was in SystemInfo.py. Seems to be unsed.
-
+	SystemInfo["HasNewMultiboot"] = fileExists("/.newMB")  # marker the NewMB initramfs writes into the root it selected
 
 def getMultibootslots():
 	bootslots = {}
@@ -123,6 +122,8 @@ def getMultibootslots():
 							UUIDnum += 1
 						if not UBIMB:
 							slot["kernel"] = f"/linuxrootfs{slotnumber}/zImage"
+					if SystemInfo["HasNewMultiboot"] and slot.get("rootsubdir") and not path.exists(slot["root"]):  # the bootloader and Linux can number the same USB/SD/SATA partition differently
+						slot["root"] = _findNewMBRoot(slot["rootsubdir"], slot["root"]) or slot["root"]
 					if not (path.exists(slot["root"]) or slot["root"] in ("ubi0:ubifs", "ubi0:rootfs")):
 						continue
 					slot["startupfile"] = path.basename(file)
@@ -130,13 +131,20 @@ def getMultibootslots():
 					if not UBIMB:
 						SystemInfo["HasMultibootMTD"] = slot.get("mtd")
 						SystemInfo["HasMultibootFlags"] = path.exists("/dev/block/by-name/flag")
-					if not SystemInfo["HasKexecMultiboot"] and not UBIMB and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
+					if SystemInfo["HasNewMultiboot"]:  # NewMB slots on USB/SD/SATA keep their rootsubdir
+						slot.setdefault("rootsubdir", None)
+						if slotnumber != "0":
+							slot["slotType"] = _newMBSlotType(slot["root"])
+					elif not SystemInfo["HasKexecMultiboot"] and not UBIMB and "sda" in slot["root"]:		# Not Kexec Vu+ receiver -- sf8008 type receiver with sd card, reset value as SD card slot has no rootsubdir
 						slot["rootsubdir"] = None
 						slot["slotType"] = "SDCARD"
 					elif "STARTUP_RECOVERY" not in file:
 						SystemInfo["HasRootSubdir"] = slot.get("rootsubdir")
 					if "kernel" not in slot:
-						slot["kernel"] = f"{slot['root'].split('p')[0]}p{int(slot['root'].split('p')[1]) - 1}"  # oldstyle MB kernel = root-1
+						if SystemInfo["HasNewMultiboot"]:
+							slot["kernel"] = f"/dev/{MTDKERNEL}"  # NewMB slots share the internal kernel
+						else:
+							slot["kernel"] = f"{slot['root'].split('p')[0]}p{int(slot['root'].split('p')[1]) - 1}"  # oldstyle MB kernel = root-1
 					bootslots[int(slotnumber)] = slot
 				elif slotnumber == "0":
 					bootslots[int(slotnumber)] = slot
@@ -148,7 +156,11 @@ def getMultibootslots():
 	_unmountAndRemove(tmpdir)
 	if bootslots:
 		print(f"[multiboot][getMultibootslots] bootslots: {bootslots}")
-		if not CHKROOTMB:
+		if SystemInfo["HasNewMultiboot"]:
+			SystemInfo["HasRootSubdir"] = any(slot.get("rootsubdir") for slot in bootslots.values())
+			SystemInfo["MultiBootSlot"] = getNewMultibootSlot(bootslots)
+			print(f"[Multiboot][MultiBootSlot]3 NewMB current slot used:{SystemInfo['MultiBootSlot']}")
+		elif not CHKROOTMB:
 			bootArgs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
 			print(f"[multiboot][getMultibootslots]4 bootArgs: {bootArgs}")
 			if SystemInfo["HasKexecMultiboot"] and SystemInfo["HasRootSubdir"]:							# Kexec Vu+ receiver
@@ -216,7 +228,7 @@ def resolveDevice(devicepath):
 def GetCurrentImageMode():
 	if SystemInfo["canMultiBoot"] and SystemInfo["canMode12"]:
 		bootargs = open("/sys/firmware/devicetree/base/chosen/bootargs", "r").read()
-		if (r := re.search(r"\bboxmode=(\d+)\b", bootargs)):
+		if (r := search(r"\bboxmode=(\d+)\b", bootargs)):
 			return int(r.group(1))
 
 
@@ -404,9 +416,8 @@ def isFat32(device):
 	except Exception:
 		return False
 
+
 # helper functions
-
-
 def _parseStartupFile(file):
 	line = open(file).read() \
 		.replace("'", "") \
@@ -505,3 +516,429 @@ def activateSlot(slotCode, bootCode, callback):
 			f.write(struct.pack("B", int(slotCode)))
 	_unmountAndRemove(tmpdir)
 	callback(0, 0)
+
+NEWMB_STARTUP = compile(r"(STARTUP(?:_LINUX)?_)(\d+)((?:_BOXMODE_\d+)?)")  # the STARTUP file names the NewMB initramfs looks up for a slot
+NEWMB_FILESYSTEMS = ("ext2", "ext3", "ext4")
+NEWMB_MIN_FREE_MB = 1024
+
+
+def getFilesystemType(device):
+	try:
+		return _run(["/sbin/blkid", "-o", "value", "-s", "TYPE", device]).stdout.decode(errors="ignore").strip()
+	except OSError:
+		return ""
+
+
+def getFilesystemUUID(device):
+	try:
+		return _run(["/sbin/blkid", "-o", "value", "-s", "UUID", device]).stdout.decode(errors="ignore").strip().lower()
+	except OSError:
+		return ""
+
+
+NEWMB_UUID_MARKER = "/dev/.newMB-uuid"  # written by the initramfs into devtmpfs (so it survives switch_root) once it is new enough to resolve a root=UUID=... selector
+
+
+def _newMBRootReference(device):
+	# a filesystem UUID survives the device being renumbered, unlike a /dev path; only use one when the running
+	# initramfs is known to resolve it, and fall back to the device path if the new partition has no UUID yet
+	if fileExists(NEWMB_UUID_MARKER):
+		uuid = getFilesystemUUID(device)
+		if uuid:
+			print(f"[multiboot][_newMBRootReference] device:{device} uuid:{uuid}")
+			return f"UUID={uuid}"
+	return device
+
+
+def getNewMultibootSlotDevices():
+	# mounted ext2/3/4 partitions outside the boot disk that can hold extra NewMB slots
+	internal = _parentDevice(path.basename(SystemInfo["MBbootdevice"]))
+	devices = {}
+	for line in fileReadLines("/proc/mounts", default=[]):
+		fields = line.split()
+		if len(fields) < 3 or not fields[0].startswith("/dev/") or fields[2] not in NEWMB_FILESYSTEMS:
+			continue
+		name = path.basename(path.realpath(fields[0]))
+		if not path.exists(f"/sys/class/block/{name}") or f"/dev/{name}" in devices or _parentDevice(name) == internal:  # pseudo names such as /dev/root are skipped
+			continue
+		try:
+			stats = statvfs(fields[1].replace("\\040", " "))
+		except OSError:
+			continue
+		devices[f"/dev/{name}"] = {"device": f"/dev/{name}", "mountpoint": fields[1], "freeMB": stats.f_bavail * stats.f_frsize // (1024 * 1024), "label": _partitionLabel(name)}
+	return [devices[device] for device in sorted(devices)]
+
+
+def _renderNewMBStartup(content, device, rootsubdir, rootReference=None):
+	# same edit the initramfs makes when it stores the selected slot: point root= and rootsubdir= at the slot.
+	# rootReference addresses root= (a filesystem UUID when the initramfs supports it, see _newMBRootReference);
+	# userdataroot= always keeps the plain device path, since that field is not part of the documented NewMB STARTUP syntax.
+	if rootReference is None:
+		rootReference = device
+	if not search(r"(?<!\w)root=", content):
+		return None
+	content = sub(r"(?<!\w)root=[^\s'\"]*", lambda match: f"root={rootReference}", content)
+	if "rootsubdir=" in content:
+		content = sub(r"rootsubdir=[^\s'\"]*", lambda match: f"rootsubdir={rootsubdir}", content)
+	else:
+		content = content.replace(f"root={rootReference}", f"root={rootReference} rootsubdir={rootsubdir}", 1)
+	if not compile(r"(?<![A-Za-z0-9_])rootwait(?:=[^\s'\"]+)?(?=$|[\s'\"])").search(content):
+		content = sub(r"((?<![A-Za-z0-9_])root=[^\s'\"]+)", r"\1 rootwait", content, count=1)
+	content = sub(r"(?<![A-Za-z0-9_])userdataroot=[^\s'\"]+", f"userdataroot={device}", content, count=1)
+	if "extra=true" not in content:
+		content = sub(r"((?<![A-Za-z0-9_])rootsubdir=[^\s'\"]+)", r"\1 extra=true", content, count=1)
+	return content
+
+
+def createNewMultibootSlots(device, count=4):
+	# Add count slots on device by cloning the lowest slot's STARTUP files (kernel, boxmode variants and all) on the boot partition.
+	# The numbers come from the files on the boot partition, so the STARTUP files of slots on devices that are not attached are never overwritten.
+	# Returns the new slot numbers, or [] if nothing was created. ofgwrite creates the linuxrootfs<n> directories when an image is flashed.
+	tmpdir = tempfile.mkdtemp(prefix="NewMBSlots")
+	rootReference = _newMBRootReference(device)
+	print(f"[multiboot][createNewMultibootSlots] device:{device} rootReference:{rootReference}")
+	written = []
+	_mount(SystemInfo["MBbootdevice"], tmpdir)
+	try:
+		startups = {}
+		for name in listdir(tmpdir):
+			match = NEWMB_STARTUP.fullmatch(name)
+			if match:
+				startups.setdefault(int(match.group(2)), []).append((name, match))
+		if not startups:
+			return []
+		template = startups[min(startups)]
+		first = max(startups) + 1
+		files = {}
+		for number in range(first, first + count):
+			for name, match in template:
+				with open(path.join(tmpdir, name)) as fd:
+					content = _renderNewMBStartup(fd.read(), device, f"linuxrootfs{number}", rootReference)
+				if content is None:
+					print(f"[multiboot][createNewMultibootSlots] no root= in {name}")
+					return []
+				files[f"{match.group(1)}{number}{match.group(3)}"] = content
+				print(f"[multiboot][createNewMultibootSlots] files{files} content:{content}")
+		try:
+			for name, content in files.items():
+				print(f"[multiboot][createNewMultibootSlots] name:{name} content:{content}")
+				with open(path.join(tmpdir, name), "w") as fd:
+					fd.write(content)
+				written.append(name)
+		except OSError as err:
+			print(f"[multiboot][createNewMultibootSlots] {err}")
+			for name in written:
+				try:
+					os_remove(path.join(tmpdir, name))
+				except OSError:
+					pass
+			return []
+		sync()
+		return list(range(first, first + count))
+	finally:
+		_unmountAndRemove(tmpdir)
+
+
+def _sgdisk():
+	return next((tool for tool in ("/usr/sbin/sgdisk", "/sbin/sgdisk") if fileExists(tool)), None)
+
+
+def _isGPTDisk(disk):
+	# sgdisk converts an MBR disk to GPT when it saves, so only ever name partitions on a disk that is already GPT
+	sectorSize = int(fileReadLine(f"/sys/class/block/{path.basename(disk)}/queue/logical_block_size", default="512") or 512)
+	try:
+		with open(disk, "rb") as fd:
+			fd.seek(sectorSize)  # the GPT header is in LBA 1
+			return fd.read(8) == b"EFI PART"
+	except OSError:
+		return False
+
+
+def _gptPartition(device):
+	# (disk device, partition number) for a partition on a GPT disk, otherwise None
+	name = path.basename(path.realpath(device))
+	number = fileReadLine(f"/sys/class/block/{name}/partition")
+	disk = f"/dev/{_parentDevice(name)}"
+	if number and number.isdigit() and _isGPTDisk(disk):
+		return disk, int(number)
+	return None
+
+
+def _gptName(disk, number):
+	# the name stored in the GPT, unlike the kernel's copy this is current even right after a rename
+	try:
+		output = _run([_sgdisk(), "-i", str(number), disk]).stdout.decode(errors="ignore")
+	except OSError:
+		return None
+	match = search(r"Partition name: '(.*)'", output)
+	return match.group(1) if match else None
+
+
+def canNameNewMultibootPartition(device):
+	return _sgdisk() is not None and _gptPartition(device) is not None
+
+
+def getNewMultibootPartitionName(device):
+	target = _gptPartition(device) if _sgdisk() else None
+	name = _gptName(*target) if target else None
+	return _partitionLabel(device) if name is None else name
+
+
+def nameNewMultibootPartition(device, name="rootfs"):
+	# Give a partition on a GPT disk a name the NewMB initramfs recognises so it can still find the slots after a device is renumbered.
+	# Only the name in the GPT changes. Returns True once the new name reads back.
+	target = _gptPartition(device)
+	tool = _sgdisk()
+	if not target or not tool:
+		return False
+	disk, number = target
+	try:
+		_run([tool, "-c", f"{number}:{name}", disk])
+	except OSError as err:
+		print(f"[multiboot][nameNewMultibootPartition] {err}")
+		return False
+	named = _gptName(disk, number) == name
+	print(f"[multiboot][nameNewMultibootPartition] device:{device} disk:{disk} partition:{number} name:{name} named:{named}")
+	return named
+
+
+def removeNewMultibootSlots(slots):
+	# Remove the STARTUP files of slots whose device has just been erased, so they do not linger on the boot partition.
+	# Only numbered slot files are touched, never STARTUP itself or the recovery, flash and android files, and nothing is removed
+	# if that would leave no numbered slot to clone new ones from. Returns the slot numbers whose files were all removed.
+	wanted = {slot for slot in slots if slot > 0}
+	if not wanted:
+		return []
+	tmpdir = tempfile.mkdtemp(prefix="NewMBRemove")
+	_mount(SystemInfo["MBbootdevice"], tmpdir)
+	try:
+		files = {}
+		for name in listdir(tmpdir):
+			match = NEWMB_STARTUP.fullmatch(name)
+			if match:
+				files.setdefault(int(match.group(2)), []).append(name)
+		doomed = wanted & set(files)
+		if not doomed or not set(files) - doomed:
+			return []
+		removed = []
+		for number in sorted(doomed):
+			try:
+				for name in files[number]:
+					os_remove(path.join(tmpdir, name))
+				removed.append(number)
+			except OSError as err:
+				print(f"[multiboot][removeNewMultibootSlots] slot {number}: {err}")
+		sync()
+		return removed
+	finally:
+		_unmountAndRemove(tmpdir)
+
+
+def pruneNewMultibootSlots(erased=()):
+	# Bring the running E2's slot table in line with an erased device without a restart: drop the given slots and any whose device has gone.
+	# The running slot is never dropped. Returns the slot numbers dropped.
+	slots = SystemInfo["canMultiBoot"]
+	dropped = [slot for slot, data in slots.items() if slot != SystemInfo["MultiBootSlot"] and (slot in erased or (data.get("root", "").startswith("/dev/") and not path.exists(data["root"])))]
+	for slot in dropped:
+		del slots[slot]
+	return sorted(dropped)
+
+
+NEWMB_MIN_DISK_MB = 2048
+# ext4 features the 4.x kernels of these receivers mount. Named explicitly because newer mke2fs defaults add ones they cannot, e.g. orphan_file needs kernel 5.15
+NEWMB_MKFS_FEATURES = "none,has_journal,ext_attr,resize_inode,dir_index,filetype,extent,flex_bg,sparse_super,large_file,huge_file,dir_nlink,extra_isize"
+
+
+def _partitionNode(disk):
+	return f"{disk}p1" if path.basename(disk).startswith(("mmcblk", "nvme")) else f"{disk}1"
+
+
+def _partitionCommands(disk):
+	sgdisk = _sgdisk()
+	return [f"{sgdisk} -Z {disk}", f"{sgdisk} -o {disk}", f"{sgdisk} -n 1:0:0 -t 1:8300 -c 1:rootfs {disk}"]
+
+
+def _mkfsCommand(partition):
+	return f"/sbin/mkfs.ext4 -F -m1 -L rootfs -O {NEWMB_MKFS_FEATURES} {partition}"
+
+
+def getNewMultibootPrepareDevices():
+	# whole external disks that can be erased and prepared for slots. The boot disk and the disk holding the running root are never offered
+	if not _sgdisk() or not fileExists("/sbin/mkfs.ext4"):
+		return []
+	busy = {_parentDevice(path.basename(SystemInfo["MBbootdevice"]))}
+	rootDevice = _parseRootMount(fileReadLines("/proc/self/mountinfo", default=[]))[0]
+	if rootDevice:
+		busy.add(_parentDevice(path.basename(path.realpath(rootDevice))))
+	mounts = {}
+	for line in fileReadLines("/proc/mounts", default=[]):
+		fields = line.split()
+		if len(fields) > 1 and fields[0].startswith("/dev/"):
+			mounts.setdefault(path.basename(path.realpath(fields[0])), fields[1].replace("\\040", " "))
+	slots = SystemInfo["canMultiBoot"] or {}
+	disks = []
+	for sysdir in sorted(glob.glob("/sys/class/block/*")):
+		name = path.basename(sysdir)
+		if not fullmatch(r"sd[a-z]+|mmcblk\d+", name) or name in busy:
+			continue
+		sizeMB = int(fileReadLine(f"{sysdir}/size", default="0") or 0) * 512 // (1024 * 1024)
+		if sizeMB < NEWMB_MIN_DISK_MB:
+			continue
+		partitions = [part for part in sorted(listdir(sysdir)) if part.startswith(name) and path.exists(f"{sysdir}/{part}/partition")]
+		disks.append({
+			"disk": f"/dev/{name}",
+			"sizeMB": sizeMB,
+			"model": (fileReadLine(f"{sysdir}/device/model", default="") or fileReadLine(f"{sysdir}/device/name", default="") or "").strip(),
+			"bus": _busName(name),
+			"partitions": [(f"/dev/{part}", mounts.get(part, "")) for part in partitions],
+			"slots": sorted(slot for slot, data in slots.items() if _parentDevice(path.basename(data.get("root", ""))) == name)
+		})
+	return disks
+
+
+def getNewMultibootPrepareCommands(disk, partitions):
+	# The Console screen carries on after a failed command, so everything from wiping the disk to formatting is one && chain: a failed step means nothing after it runs
+	partition = _partitionNode(disk)
+	nomount = " ".join(f"/dev/nomount.{path.basename(device)}" for device in (disk, partition))  # keeps the hotplug automounter away while the disk is rewritten
+	commands = [f"touch {nomount}"]
+	if partitions:
+		commands.append(f"for n in {' '.join(partitions)}; do swapoff $n; umount -lf $n; done > /dev/null 2>&1")
+	steps = _partitionCommands(disk) + [
+		f"(/usr/sbin/partprobe {disk} || hdparm -z {disk})",
+		f"{{ for i in 1 2 3 4 5 6 7 8 9 10; do [ -b {partition} ] && break; sleep 1; done; [ -b {partition} ]; }}",
+		_mkfsCommand(partition),
+		"sync"
+	]
+	commands.append(" && ".join(steps))
+	commands.append(f"rm -f {nomount}")
+	return commands
+
+
+def verifyNewMultibootPartition(disk):
+	# the partition the prepare commands should have left behind, judged from the disk rather than from exit codes
+	partition = _partitionNode(disk)
+	if path.exists(partition) and _gptName(disk, 1) == "rootfs" and getFilesystemType(partition).startswith("ext"):
+		return partition
+	return None
+
+# NewMB (native multiboot) helpers. The NewMB initramfs takes root= and rootsubdir= from STARTUP, binds
+# the subdir as the root filesystem and writes /.newMB. Slots can be on internal or external partitions.
+NEWMB_ROOT_LABELS = ("linuxrootfs", "rootfs", "userdata", "linuxdata", "data")  # GPT partition names that can hold slot subdirs
+
+
+def _parentDevice(name):
+	return sub(r"p\d+$" if name.startswith(("mmcblk", "nvme")) else r"\d+$", "", name)
+
+
+def _partitionLabel(device):
+	for line in fileReadLines(f"/sys/class/block/{path.basename(device)}/uevent", default=[]):
+		if line.startswith("PARTNAME="):
+			return line.split("=", 1)[1].strip()
+	return ""
+
+
+def _slotFromName(name):
+	# slots are named after their rootsubdir or partition label: [linux]rootfs<n>, plain [linux]rootfs being slot 1
+	match = fullmatch(r"(?:linux)?rootfs(\d*)", name or "")
+	return int(match.group(1) or 1) if match else None
+
+
+def _newMBSlotType(device):
+	name = path.basename(device)
+	if _parentDevice(name) == _parentDevice(path.basename(SystemInfo["MBbootdevice"])):
+		return "eMMC"  # on the same disk as the boot partition
+	return _busName(name)
+
+
+def _busName(name):
+	bus = path.realpath(f"/sys/class/block/{name}")
+	if "/usb" in bus:
+		return "USB"
+	if "/ata" in bus:
+		return "SATA"
+	return "SDCARD" if name.startswith("mmcblk") else "USB"
+
+
+def _findNewMBRoot(rootsubdir, requestedRoot):
+	# Like the initramfs does, find the partition that really holds rootsubdir when the requested root has been renumbered or is missing
+	tmpdir = tempfile.mkdtemp(prefix="NewMBRoot")
+	found = None
+	for sysdir in sorted(glob.glob("/sys/class/block/*/partition")):
+		device = f"/dev/{sysdir.split('/')[4]}"
+		label = _partitionLabel(device)
+		if device == requestedRoot or not label.startswith(NEWMB_ROOT_LABELS):
+			continue
+		_run(["mount", "-o", "ro", device, tmpdir])
+		found = device if path.isdir(path.join(tmpdir, rootsubdir)) else None
+		_unmount(tmpdir)
+		if found:
+			break
+	_unmountAndRemove(tmpdir)
+	print(f"[multiboot][_findNewMBRoot] rootsubdir:{rootsubdir} requestedRoot:{requestedRoot} found:{found}")
+	return found
+
+
+def _parseRootMount(lines):
+	# returns (source device, subdir the mount was bound from) of "/" using /proc/self/mountinfo lines
+	device, subdir = None, ""
+	for line in lines:
+		head, _dash, tail = line.partition(" - ")
+		fields = head.split()
+		info = tail.split()
+		if len(fields) > 4 and fields[4] == "/" and len(info) > 1 and info[0] != "rootfs":
+			device, subdir = info[1], fields[3].strip("/")
+	return device, subdir
+
+
+def _matchNewMBSlot(bootslots, device, subdir):
+	sameDevice = lambda a, b: bool(a and b) and path.realpath(a) == path.realpath(b)  # noqa: E731
+	if subdir:
+		matches = [slot for slot, data in bootslots.items() if data.get("rootsubdir") == subdir]
+		if len(matches) > 1:
+			matches = [slot for slot in matches if sameDevice(bootslots[slot].get("root"), device)] or matches
+		if matches:
+			return matches[0]
+		return next((slot for slot in (_slotFromName(subdir),) if slot in bootslots), None)
+	for slot, data in bootslots.items():
+		if not data.get("rootsubdir") and sameDevice(data.get("root"), device):
+			return slot
+	return next((slot for slot in (_slotFromName(_partitionLabel(device)),) if slot in bootslots), None)
+
+
+def getNewMultibootSlot(bootslots):
+	# The initramfs can fall back to another slot or renumbered device, so the mounted root is more reliable than the command line
+	device, subdir = _parseRootMount(fileReadLines("/proc/self/mountinfo", default=[]))
+	mounted = device is not None and device.startswith("/dev/")
+	if not mounted:
+		cmdline = dict(item.split("=", 1) for item in (fileReadLine("/proc/cmdline", default="") or "").split() if "=" in item)
+		device, subdir = cmdline.get("root"), cmdline.get("rootsubdir", "")
+	if not device:
+		return None
+	slot = _matchNewMBSlot(bootslots, device, subdir)
+	if slot is not None and mounted:
+		bootslots[slot]["root"] = device  # the running slot's real device, whatever name the STARTUP file used
+	return slot
+
+
+def getNewMultibootFlashOptions(slot):
+	# ofgwrite options to flash a NewMB slot, or None if ofgwrite can't address it. Slots share a kernel device, so only the lowest slot using it may rewrite it
+	slots = SystemInfo["canMultiBoot"]
+	data = slots[slot]
+	options = [f"-r{path.basename(data['root'])}"]
+	kernel = data.get("kernel")
+	if kernel and slot == min(number for number, item in slots.items() if number and item.get("kernel") == kernel):
+		options.append(f"-k{path.basename(kernel)}")
+	rootsubdir = data.get("rootsubdir")
+	if rootsubdir:
+		prefix = rootsubdir.rstrip("0123456789")
+		if rootsubdir != f"{prefix}{slot}":  # ofgwrite builds the directory name from the slot number
+			return None
+		options.append(f"-m{slot}")
+		if prefix != "linuxrootfs":
+			options.append(f"-s{prefix}")
+	else:
+		options.append("-m0")  # a whole partition, flashed without the rootsubdir check
+	if slot == SystemInfo["MultiBootSlot"]:
+		options.append("-f")  # ofgwrite judges the running slot from /proc/cmdline, so make sure it stops enigma2 when it is ours
+	print(f"[multiboot][getNewMultibootFlashOptions] options:{options}")
+	return " ".join(options)
