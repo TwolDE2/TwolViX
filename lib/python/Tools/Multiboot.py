@@ -29,6 +29,7 @@ def initMultiboot():
 	SystemInfo["CanKexecVu"] = MODEL in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]  # Was in SystemInfo.py. Seems to be unsed.
 	SystemInfo["HasNewMultiboot"] = fileExists("/.newMB")  # marker the NewMB initramfs writes into the root it selected
 
+
 def getMultibootslots():
 	bootslots = {}
 	slotname = ""
@@ -517,6 +518,7 @@ def activateSlot(slotCode, bootCode, callback):
 	_unmountAndRemove(tmpdir)
 	callback(0, 0)
 
+
 NEWMB_STARTUP = compile(r"(STARTUP(?:_LINUX)?_)(\d+)((?:_BOXMODE_\d+)?)")  # the STARTUP file names the NewMB initramfs looks up for a slot
 NEWMB_FILESYSTEMS = ("ext2", "ext3", "ext4")
 NEWMB_MIN_FREE_MB = 1024
@@ -820,6 +822,7 @@ def verifyNewMultibootPartition(disk):
 	if path.exists(partition) and _gptName(disk, 1) == "rootfs" and getFilesystemType(partition).startswith("ext"):
 		return partition
 	return None
+
 
 # NewMB (native multiboot) helpers. The NewMB initramfs takes root= and rootsubdir= from STARTUP, binds
 # the subdir as the root filesystem and writes /.newMB. Slots can be on internal or external partitions.
