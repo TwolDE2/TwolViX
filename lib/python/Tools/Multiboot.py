@@ -30,7 +30,6 @@ def initMultiboot():
 	SystemInfo["CanKexecVu"] = MODEL in ("vusolo4k", "vuduo4k", "vuduo4kse", "vuultimo4k", "vuuno4k", "vuuno4kse", "vuzero4k") and not SystemInfo["HasKexecMultiboot"]  # Was in SystemInfo.py. Seems to be unsed.
 
 
-
 def getMultibootslots():
 	bootslots = {}
 	slotname = ""
