@@ -382,7 +382,7 @@ class MultiBootSelector(Screen, HelpableScreen):
 			self.session.open(MessageBox, _("The extra slots could not be created."), MessageBox.TYPE_ERROR, timeout=15)
 
 	def newMBSlotsDone(self, *args):
-		self.session.open(TryQuitMainloop, QUIT_RESTART)		
+		self.session.open(TryQuitMainloop, QUIT_RESTART)
 
 
 class ChkrootInit(Screen):
