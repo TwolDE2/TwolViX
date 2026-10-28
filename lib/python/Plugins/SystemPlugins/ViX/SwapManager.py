@@ -313,7 +313,6 @@ class VIXSwap(Screen):
 			self["lab1"].show()
 			self["actions"].setEnabled(True)
 
-
 	def actDeact(self):
 		if self.swap_Factive:
 			self.Console.ePopen("swapoff " + self.swap_Fname, self.updateSwap)
