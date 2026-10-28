@@ -196,7 +196,7 @@ class VIXSwap(Screen):
 					continue
 				if result.count("swap") == 1:				# only linux-swap zram0.
 					swaps -= 1
-					continue					
+					continue
 				parts = line.strip().split()
 				# print("[SwapManager][updateSwap2] parts = ", parts, "   ", parts[3])
 				self.swap_Pname = line.strip().split(" ", 1)[-1]
