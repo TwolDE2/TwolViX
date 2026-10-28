@@ -20,7 +20,6 @@ config.swapmanager.swapautostart = ConfigYesNo(default=False)
 
 # start: temp code - used due to config variable change
 config.vixsettings.swapautostart = ConfigYesNo(default=False)
-
 if config.vixsettings.swapautostart.value:
 	config.swapmanager.swapautostart.value = True
 	# switch off so doesn't happen on any subsuquent run
@@ -138,25 +137,21 @@ class VIXSwap(Screen):
 		self.new_name = ""
 		self.creatingswap = False
 		self.swap_active = False
-		self["mainactions"] = ActionMap(["WizardActions", "ColorActions", "MenuActions"],
+		self["actions"] = ActionMap(["WizardActions", "ColorActions", "MenuActions"],
 		{
 			"back": self.close,
 			"red": self.close,
 			"green": self.actDeact,
+			"yellow": self.autoSsWap,
 			"blue": self.createDel,
 			"menu": self.close,
 		})
-		self["autostartactions"] = ActionMap(["ColorActions"], {
-			"yellow": self.autoSsWap,
-		}, -1)
-		self["autostartactions"].setEnabled(False)
 		self.activityTimer = eTimer()
 		self.activityTimer.timeout.get().append(self.getSwapDevice)
 		self.updateSwap()
 
 	def updateSwap(self, result=None, retval=None, extra_args=None):
-		self["mainactions"].setEnabled(False)
-		self["autostartactions"].setEnabled(False)
+		self["actions"].setEnabled(False)
 		self.swap_active = False
 		self.swap_name = None
 		self["autostart_on"].hide()
@@ -192,20 +187,30 @@ class VIXSwap(Screen):
 		self.swapdevice = 0
 		self.swapcount = 0
 		self.swapsize = 0
-		if result.find("swap") > 0:					# lets find swap partition
+		swaps = result.count("swap")
+		scanning = _("No SWAP found")
+		print(f"[SwapManager][updateSwap2] swaps:{swaps}")
+		if result.find("linux-swap") > 0:					# lets find swap partition
 			for line in result.split("\n"):
-				if "swap" not in line:				# so much garbage from parted command with eMMC partitions need further exclude.
+				if "linux-swap" not in line:				# so much garbage from parted command with eMMC partitions need further exclude.
 					continue
+				if result.count("swap") == 1:				# only linux-swap zram0.
+					swaps -= 1
+					continue					
 				parts = line.strip().split()
 				# print("[SwapManager][updateSwap2] parts = ", parts, "   ", parts[3])
 				self.swap_Pname = line.strip().split(" ", 1)[-1]
 				self.Pswapsize = parts[3]
+				print(f"[SwapManager][updateSwap2]1 self.swap_Pname:{self.swap_Pname} self.Pswapsize:{self.Pswapsize}")
 				if self.swap_Pname == "sfdisk:":
 					self.swap_Pname = ""
 				f = open("/proc/swaps", "r")
 				for line2 in f.readlines():
 					parts = line2.strip().split()
 					if line2.find("partition") != -1:
+#						if "/dev/zram0" in parts[0]:
+#							self.swap_Pname = "" if swaps == 1 else self.swap_Pname
+#							continue
 						if "mmc" in parts[0]:
 							self.MMCdevice = True
 							self.swap_Pname = parts[0]
@@ -213,12 +218,14 @@ class VIXSwap(Screen):
 							self.swap_name = _("manufacturer defined swap")
 						self.swap_Pactive = True
 				f.close()
+		print(f"[SwapManager][updateSwap2]2 self.swap_Pname:{self.swap_Pname} self.Pswapsize:{self.Pswapsize}")
 		self["key_blue"].setText(_("Create"))
-		devicelist = []  # lets find swap file
-		for p in harddiskmanager.getMountedPartitions():
-			d = path.normpath(p.mountpoint)
-			if path.exists(p.mountpoint) and p.mountpoint != "/" and not p.mountpoint.startswith("/media/net"):
-				devicelist.append((p.description, d))
+		devicelist = []						# lets find swap file
+		if swaps != 0:
+			for p in harddiskmanager.getMountedPartitions():
+				d = path.normpath(p.mountpoint)
+				if path.exists(p.mountpoint) and p.mountpoint != "/" and not p.mountpoint.startswith("/media/net"):
+					devicelist.append((p.description, d))
 		if len(devicelist):
 			print("[SwapManager][{updateSwap2] devicelist = ", devicelist)
 			for device in devicelist:
@@ -238,9 +245,10 @@ class VIXSwap(Screen):
 		else:
 			self["labplace"].setText("")
 		self["labplace"].show()
-
+		print(f"[SwapManager][updateSwap2]3 self.swap_Pname:{self.swap_Pname} self.Pswapsize:{self.Pswapsize}")
 		f = open("/proc/swaps", "r")
 		for line in f.readlines():
+			parts = line.strip().split()
 			if line.find("file") != -1:					# if swap file - takes precedence over swap parition
 				self["autostart_on"].show()
 				self["autostart_off"].hide()
@@ -267,44 +275,44 @@ class VIXSwap(Screen):
 			self.swapsize = self.Pswapsize					# picked up from parted command
 		self["labsize"].setText(self.swapsize)
 		self["labsize"].show()
+		if self.swap_Fname or self.swap_Pname:
+			if self.swap_active:
+				self["inactive"].hide()
+				self["active"].show()
+				self["key_green"].setText(_("Deactivate"))
+				self["swapactive_summary"].setText(_("Current status:") + " " + _("Active"))
+			else:
+				self["inactive"].show()
+				self["active"].hide()
+				self["key_green"].setText(_("Activate"))
+				self["swapactive_summary"].setText(_("Current status:") + " " + _("Inactive"))
+			if self.swap_name == _("manufacturer defined swap"):
+				self["key_green"].setText("")
+				scanning = _("manufacturer defined swap enabled at startup")
+			else:
+				scanning = _("Enable SWAP at startup")
 
-		if self.swap_active:
-			self["inactive"].hide()
-			self["active"].show()
-			self["key_green"].setText(_("Deactivate"))
-			self["swapactive_summary"].setText(_("Current status:") + " " + _("Active"))
+			if config.swapmanager.swapautostart.value or self.swap_name == _("manufacturer defined swap"):
+				self["autostart_off"].hide()
+				self["autostart_on"].show()
+				self["key_yellow"].setText(_("Disable Autostart"))
+			else:
+				config.swapmanager.swapautostart.setValue(False)
+				config.swapmanager.swapautostart.save()
+				configfile.save()
+				self["autostart_on"].hide()
+				self["autostart_off"].show()
+				self["key_yellow"].setText(_("Enable Autostart"))
+			self["lab1"].setText(scanning)
+			self["lab1"].show()
+			self["actions"].setEnabled(True)
+			name = self["labplace"].text
+			self["swapname_summary"].setText(name)
 		else:
-			self["inactive"].show()
-			self["active"].hide()
-			self["key_green"].setText(_("Activate"))
-			self["swapactive_summary"].setText(_("Current status:") + " " + _("Inactive"))
-		if self.swap_name == _("manufacturer defined swap"):
-			self["key_green"].setText("")
-			scanning = _("manufacturer defined swap enabled at startup")
-		else:
-			scanning = _("Enable SWAP at startup")
-		print("[SwapManager][updateSwap2] config.swapmanager.swapautostart, self.swap_name", config.swapmanager.swapautostart, "   ", self.swap_Fname)
-		if config.swapmanager.swapautostart.value or self.swap_name == _("manufacturer defined swap"):
-			self["autostart_off"].hide()
-			self["autostart_on"].show()
-			self["key_yellow"].setText(_("Disable Autostart"))
-			print("[SwapManager][updateSwap2] self['autostartactions'].setEnabled(False/True)")
-			self["autostartactions"].setEnabled(True)  # this is set True for the moment to allow Yellow button to be displayed
-		else:
-			config.swapmanager.swapautostart.setValue(False)
-			config.swapmanager.swapautostart.save()
-			configfile.save()
-			self["autostart_on"].hide()
-			self["autostart_off"].show()
-			self["key_yellow"].setText(_("Enable Autostart"))
-			print("[SwapManager][updateSwap2] self['autostartactions'].setEnabled(True)")
-			self["autostartactions"].setEnabled(True)
-		self["lab1"].setText(scanning)
-		self["lab1"].show()
-		self["mainactions"].setEnabled(True)
+			self["lab1"].setText(scanning)
+			self["lab1"].show()
+			self["actions"].setEnabled(True)
 
-		name = self["labplace"].text
-		self["swapname_summary"].setText(name)
 
 	def actDeact(self):
 		if self.swap_Factive:
@@ -352,27 +360,21 @@ class VIXSwap(Screen):
 		mounts = getProcMounts()
 		for partition in harddiskmanager.getMountedPartitions(False, mounts):
 			if partition.filesystem(mounts) in supported_filesystems:
-				print(f"[SwapManager][doCreateSwap] partition.description: {partition.description}")
-				if "Partition {part}" in partition.description:
-					candidates.append((partition.mountpoint, partition.mountpoint))
-				else:
-					candidates.append((partition.description, partition.mountpoint))
+				candidates.append((partition.description, partition.mountpoint))
 		if len(candidates):
-			print(f"[SwapManager][doCreateSwap] candidates: {candidates}")
 			self.session.openWithCallback(self.doCSname, ChoiceBox, title=_("Please select device to use as SWAP file location."), list=candidates)
 		else:
 			self.session.open(MessageBox, _("Sorry, no physical devices that supports SWAP attached. Can't create SWAP file on network or fat32 file-systems."), MessageBox.TYPE_INFO, timeout=10)
 
 	def doCSname(self, name):
 		if name:
-			print(f"[SwapManager][doCreateSwap] name: {name}")
 			self.new_name = name[1]
-			myoptions = [[_("512 Mb"), "524288"], [_("756 Mb"), "774144"], [_("1024 Mb"), "1048576"], [_("4096 Mb"), "4194304"]]
+			myoptions = [[_("8 Mb"), "8192"], [_("16 Mb"), "16384"], [_("32 Mb"), "32768"], [_("64 Mb"), "65536"], [_("96 Mb"), "98304"], [_("128 Mb"), "131072"], [_("256 Mb"), "262144"], [_("512 Mb"), "524288"], [_("756 Mb"), "774144"], [_("1024 Mb"), "1048576"]]
 			self.session.openWithCallback(self.doCSsize, ChoiceBox, title=_("Select the SWAP file size:"), list=myoptions)
 
 	def doCSsize(self, swapsize):
 		if swapsize:
-			self["mainactions"].setEnabled(False)
+			self["actions"].setEnabled(False)
 			scanning = _("Wait please while creating SWAP file...")
 			self["lab1"].setText(scanning)
 			self["lab1"].show()
