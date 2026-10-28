@@ -513,7 +513,7 @@ class SystemSwapsInfo(AboutBase):
             continue
   
           size = bytesToHumanReadable(size_bytes, binary=False)
-          self.AboutText += _("%s: %s")  % (device, size) + "\n"
+          self.AboutText += _("%s: %s") % (device, size) + "\n"
   
       if not self.AboutText:
         self.AboutText = _("No active swaps found") + "\n"
