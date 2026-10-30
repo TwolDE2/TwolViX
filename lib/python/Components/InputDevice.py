@@ -1,4 +1,5 @@
 from os import close, listdir, O_RDWR, open as os_open, path, write
+from os.path import exists, isdir, isfile, join
 from fcntl import ioctl
 import platform
 import struct
@@ -38,6 +39,9 @@ class inputDevices:
 		devices = sorted(listdir("/dev/input/"))
 
 		for evdev in devices:
+			# EVIOCGNAME is only supported by event devices, not mice or joystick nodes.
+			if not evdev.startswith("event") or not evdev[5:].isdigit() or isdir(join("/dev/input", evdev)):
+				continue
 			deviceName = None
 			buffer = "\0" * 512
 			if path.isdir("/dev/input/" + evdev):
