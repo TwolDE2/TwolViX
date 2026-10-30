@@ -12,7 +12,7 @@
 #include <lib/base/ebase.h>
 #include <lib/driver/input_fake.h>
 #include <lib/driver/hdmi_cec.h>
-#include <lib/driver/avcontrol.h>
+#include <lib/driver/avswitch.h>
 /* NOTE: this header will move to linux uapi, once the cec framework is out of staging */
 #include <lib/driver/linux-uapi-cec.h>
 
@@ -551,7 +551,7 @@ void eHdmiCEC::setReportActiveMenu(bool enabled)
 bool eHdmiCEC::getActiveStatus()
 {
 	bool active = true;
-	eAVControl *avc = eAVControl::getInstance();
+	eAVSwitch *avswitch = eAVSwitch::getInstance();
 	if (avc)
 		active = avc->isEncoderActive();
 	return active;
