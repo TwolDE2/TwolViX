@@ -241,7 +241,7 @@ class VIXSwap(Screen):
 			self["autostart_on"].hide()
 			self["autostart_off"].show()
 		elif self.swap_Pname:						# if only swap partition
-			self["labplace"].setText(self.swap_name)
+			self["labplace"].setText(self.swap_Pname.replace("/dev/", ""))
 		else:
 			self["labplace"].setText("")
 		self["labplace"].show()
