@@ -10,11 +10,72 @@
 #include <lib/base/init_num.h>
 #include <lib/base/eerror.h>
 #include <lib/base/ebase.h>
-#include <lib/base/nconfig.h>
 #include <lib/driver/input_fake.h>
 #include <lib/driver/hdmi_cec.h>
-#include <lib/driver/avswitch.h>
+#include <lib/driver/avcontrol.h>
+/* NOTE: this header will move to linux uapi, once the cec framework is out of staging */
 #include <lib/driver/linux-uapi-cec.h>
+
+#define CEC_VENDOR_ENIGMA2_STB          0x000934
+
+/*
+ * Amlogic AOCEC userspace ABI. This backend uses /dev/cec and transfers
+ * complete CEC wire frames: header, opcode and operands.
+ */
+#define AML_CEC_IOC_MAGIC               'C'
+#define AML_CEC_IOC_GET_PHYSICAL_ADDR   _IOR(AML_CEC_IOC_MAGIC, 0x00, uint16_t)
+#define AML_CEC_IOC_SET_OPTION_SYS_CTRL _IOW(AML_CEC_IOC_MAGIC, 0x08, uint32_t)
+#define AML_CEC_IOC_ADD_LOGICAL_ADDR    _IOW(AML_CEC_IOC_MAGIC, 0x0b, uint32_t)
+#define AML_CEC_IOC_CLR_LOGICAL_ADDR    _IOW(AML_CEC_IOC_MAGIC, 0x0c, uint32_t)
+#define AML_CEC_IOC_SET_DEVICE_TYPE     _IOW(AML_CEC_IOC_MAGIC, 0x0d, uint32_t)
+
+static const uint32_t *getLogicalAddressCandidates(unsigned char deviceType, size_t &addressCount)
+{
+	static const uint32_t tvAddresses[] = { CEC_LOG_ADDR_TV };
+	static const uint32_t recorderAddresses[] = { CEC_LOG_ADDR_RECORD_1, CEC_LOG_ADDR_RECORD_2, CEC_LOG_ADDR_RECORD_3 };
+	static const uint32_t tunerAddresses[] = { CEC_LOG_ADDR_TUNER_1, CEC_LOG_ADDR_TUNER_2, CEC_LOG_ADDR_TUNER_3, CEC_LOG_ADDR_TUNER_4 };
+	static const uint32_t playbackAddresses[] = { CEC_LOG_ADDR_PLAYBACK_1, CEC_LOG_ADDR_PLAYBACK_2, CEC_LOG_ADDR_PLAYBACK_3 };
+	static const uint32_t audioAddresses[] = { CEC_LOG_ADDR_AUDIOSYSTEM };
+	static const uint32_t unregisteredAddresses[] = { CEC_LOG_ADDR_UNREGISTERED };
+
+	switch (deviceType)
+	{
+	case CEC_OP_PRIM_DEVTYPE_TV:
+		addressCount = sizeof(tvAddresses) / sizeof(tvAddresses[0]);
+		return tvAddresses;
+	case CEC_OP_PRIM_DEVTYPE_RECORD:
+		addressCount = sizeof(recorderAddresses) / sizeof(recorderAddresses[0]);
+		return recorderAddresses;
+	case CEC_OP_PRIM_DEVTYPE_TUNER:
+		addressCount = sizeof(tunerAddresses) / sizeof(tunerAddresses[0]);
+		return tunerAddresses;
+	case CEC_OP_PRIM_DEVTYPE_PLAYBACK:
+		addressCount = sizeof(playbackAddresses) / sizeof(playbackAddresses[0]);
+		return playbackAddresses;
+	case CEC_OP_PRIM_DEVTYPE_AUDIOSYSTEM:
+		addressCount = sizeof(audioAddresses) / sizeof(audioAddresses[0]);
+		return audioAddresses;
+	default:
+		addressCount = sizeof(unregisteredAddresses) / sizeof(unregisteredAddresses[0]);
+		return unregisteredAddresses;
+	}
+}
+
+static int configureAmlogicCEC(int fd, unsigned char deviceType)
+{
+	if (::ioctl(fd, AML_CEC_IOC_SET_DEVICE_TYPE, (uint32_t)deviceType) < 0)
+		return -1;
+
+	size_t addressCount = 0;
+	const uint32_t *addresses = getLogicalAddressCandidates(deviceType, addressCount);
+	::ioctl(fd, AML_CEC_IOC_CLR_LOGICAL_ADDR, 0);
+	for (size_t i = 0; i < addressCount; ++i)
+	{
+		if (::ioctl(fd, AML_CEC_IOC_ADD_LOGICAL_ADDR, addresses[i]) >= 0)
+			return addresses[i];
+	}
+	return -1;
+}
 
 static int hexValue(char value)
 {
@@ -78,46 +139,245 @@ eHdmiCEC::eHdmiCEC()
 	ASSERT(!instance);
 	instance = this;
 	linuxCEC = false;
+	amlogicCEC = false;
+	eventsSuspended = false;
+	sendStop = false;
 	hdmiFd = -1;
 	fixedAddress = false;
+	cecEnabled = false;
+	reportActiveMenu = false;
 	physicalAddress[0] = 0x10;
 	physicalAddress[1] = 0x00;
-	logicalAddress = 1;
-	deviceType = CEC_LOG_ADDR_TYPE_TUNER; /* default: tuner */
+	logicalAddress = CEC_LOG_ADDR_TUNER_1;
+	deviceType = CEC_LOG_ADDR_TUNER_1; /* default: tuner / set-top box */
+}
+
+void eHdmiCEC::initializeCEC()
+{
+	hdmiFd = ::open("/dev/cec0", O_RDWR | O_CLOEXEC);
+	if (hdmiFd >= 0)
+	{
+		__u32 monitor = CEC_MODE_INITIATOR | CEC_MODE_FOLLOWER;
+		struct cec_caps caps = {};
+
+		::ioctl(hdmiFd, CEC_ADAP_G_CAPS, &caps);
+
+		if (caps.capabilities & CEC_CAP_LOG_ADDRS)
+		{
+			struct cec_log_addrs laddrs = {};
+
+			::ioctl(hdmiFd, CEC_ADAP_S_LOG_ADDRS, &laddrs);
+			memset(&laddrs, 0, sizeof(laddrs));
+
+			/*
+			 * NOTE: cec_version, osd_name and deviceType should be made configurable,
+			 * CEC_ADAP_S_LOG_ADDRS delayed till the desired values are available
+			 * (saves us some startup speed as well, polling for a free logical address
+			 * takes some time)
+			 */
+			laddrs.cec_version = CEC_OP_CEC_VERSION_2_0;
+			strcpy(laddrs.osd_name, "Enigma2 STB");
+			laddrs.vendor_id = CEC_VENDOR_ENIGMA2_STB;
+
+			switch (deviceType)
+			{
+			case CEC_LOG_ADDR_TV:
+				laddrs.log_addr_type[laddrs.num_log_addrs] = CEC_LOG_ADDR_TYPE_TV;
+				laddrs.all_device_types[laddrs.num_log_addrs] = CEC_OP_ALL_DEVTYPE_TV;
+				laddrs.primary_device_type[laddrs.num_log_addrs] = CEC_OP_PRIM_DEVTYPE_TV;
+				break;
+			case CEC_LOG_ADDR_RECORD_1:
+				laddrs.log_addr_type[laddrs.num_log_addrs] = CEC_LOG_ADDR_TYPE_RECORD;
+				laddrs.all_device_types[laddrs.num_log_addrs] = CEC_OP_ALL_DEVTYPE_RECORD;
+				laddrs.primary_device_type[laddrs.num_log_addrs] = CEC_OP_PRIM_DEVTYPE_RECORD;
+				break;
+			case CEC_LOG_ADDR_TUNER_1:
+				laddrs.log_addr_type[laddrs.num_log_addrs] = CEC_LOG_ADDR_TYPE_TUNER;
+				laddrs.all_device_types[laddrs.num_log_addrs] = CEC_OP_ALL_DEVTYPE_TUNER;
+				laddrs.primary_device_type[laddrs.num_log_addrs] = CEC_OP_PRIM_DEVTYPE_TUNER;
+				break;
+			case CEC_LOG_ADDR_PLAYBACK_1:
+				laddrs.log_addr_type[laddrs.num_log_addrs] = CEC_LOG_ADDR_TYPE_PLAYBACK;
+				laddrs.all_device_types[laddrs.num_log_addrs] = CEC_OP_ALL_DEVTYPE_PLAYBACK;
+				laddrs.primary_device_type[laddrs.num_log_addrs] = CEC_OP_PRIM_DEVTYPE_PLAYBACK;
+				break;
+			case CEC_LOG_ADDR_AUDIOSYSTEM:
+				laddrs.log_addr_type[laddrs.num_log_addrs] = CEC_LOG_ADDR_TYPE_AUDIOSYSTEM;
+				laddrs.all_device_types[laddrs.num_log_addrs] = CEC_OP_ALL_DEVTYPE_AUDIOSYSTEM;
+				laddrs.primary_device_type[laddrs.num_log_addrs] = CEC_OP_PRIM_DEVTYPE_AUDIOSYSTEM;
+				break;
+			default:
+				laddrs.log_addr_type[laddrs.num_log_addrs] = CEC_LOG_ADDR_TYPE_UNREGISTERED;
+				laddrs.all_device_types[laddrs.num_log_addrs] = CEC_OP_ALL_DEVTYPE_SWITCH;
+				laddrs.primary_device_type[laddrs.num_log_addrs] = CEC_OP_PRIM_DEVTYPE_SWITCH;
+				break;
+			}
+			laddrs.num_log_addrs++;
+
+			if (::ioctl(hdmiFd, CEC_ADAP_S_LOG_ADDRS, &laddrs) < 0)
+				eDebug("[eHdmiCEC] CEC_ADAP_S_LOG_ADDRS failed on /dev/cec0: %m");
+		}
+
+		if (::ioctl(hdmiFd, CEC_S_MODE, &monitor) < 0)
+			eDebug("[eHdmiCEC] CEC_S_MODE failed on /dev/cec0: %m");
+
+		/* Keep logical-address claiming synchronous, but never block the mainloop on regular CEC traffic. */
+		int flags = ::fcntl(hdmiFd, F_GETFL);
+		if (flags < 0 || ::fcntl(hdmiFd, F_SETFL, flags | O_NONBLOCK) < 0)
+		{
+			eDebug("[eHdmiCEC] enabling non-blocking mode on /dev/cec0 failed: %m");
+			::close(hdmiFd);
+			hdmiFd = -1;
+		}
+		else
+		{
+			linuxCEC = true;
+			eDebug("[eHdmiCEC] using non-blocking Linux CEC backend on /dev/cec0");
+		}
+	}
+
+	if (!linuxCEC)
+	{
+		hdmiFd = ::open("/dev/cec", O_RDWR | O_NONBLOCK | O_CLOEXEC);
+		if (hdmiFd >= 0)
+		{
+			uint32_t enable = 1;
+			if (::ioctl(hdmiFd, AML_CEC_IOC_SET_OPTION_SYS_CTRL, enable) >= 0)
+			{
+				int address = configureAmlogicCEC(hdmiFd, deviceType);
+				if (address >= 0)
+				{
+					logicalAddress = address;
+					amlogicCEC = true;
+					eDebug("[eHdmiCEC] using Amlogic AOCEC backend on /dev/cec, logical address %X", logicalAddress);
+				}
+				else
+				{
+					eDebug("[eHdmiCEC] Amlogic AOCEC logical address setup failed: %m");
+				}
+			}
+			else
+			{
+				eDebug("[eHdmiCEC] Amlogic AOCEC system-control setup failed: %m");
+			}
+
+			if (!amlogicCEC)
+			{
+				enable = 0;
+				::ioctl(hdmiFd, AML_CEC_IOC_SET_OPTION_SYS_CTRL, enable);
+				::close(hdmiFd);
+				hdmiFd = -1;
+			}
+		}
+	}
+
+	if (!linuxCEC && !amlogicCEC)
+	{
 #ifdef DREAMBOX
 #define HDMIDEV "/dev/misc/hdmi_cec0"
 #else
 #define HDMIDEV "/dev/hdmi_cec"
 #endif
 
-	hdmiFd = ::open(HDMIDEV, O_RDWR | O_NONBLOCK | O_CLOEXEC);
-	eTrace("[eHdmiCEC] ****** open HDMIDEV: %s hdmiFd: %d", HDMIDEV, hdmiFd);
+		hdmiFd = ::open(HDMIDEV, O_RDWR | O_NONBLOCK | O_CLOEXEC);
+		if (hdmiFd >= 0)
+		{
+
+#ifdef DREAMBOX
+			unsigned int val = 0;
+			::ioctl(hdmiFd, 4, &val);
+#else
+			::ioctl(hdmiFd, 0); /* flush old messages */
+#endif
+			eDebug("[eHdmiCEC] using legacy HDMI-CEC backend on %s", HDMIDEV);
+		}
+	}
+
 	if (hdmiFd >= 0)
 	{
-#ifdef DREAMBOX
-		unsigned int val = 0;
-		::ioctl(hdmiFd, 4, &val);
-#else
-		::ioctl(hdmiFd, 0); /* flush old messages */
-#endif
 		messageNotifier = eSocketNotifier::create(eApp, hdmiFd, eSocketNotifier::Read | eSocketNotifier::Priority);
 		CONNECT(messageNotifier->activated, eHdmiCEC::hdmiEvent);
-		getAddressInfo();
+		/* AOCEC write() waits for the follower's answer, up to half a second without one */
+		if (amlogicCEC)
+			startSendThread();
 	}
 	else
 	{
-		eLog(1, "[eHdmiCEC] cannot open %s: %m", HDMIDEV); /* Error - should not happen */
+		eDebug("[eHdmiCEC] cannot open HDMI-CEC device (/dev/cec0, /dev/cec, %s): %m", HDMIDEV);
 	}
+
+	getAddressInfo();
 }
 
 eHdmiCEC::~eHdmiCEC()
 {
+	if (messageNotifier)
+		messageNotifier->stop();
+	stopSendThread();
+	if (amlogicCEC && hdmiFd >= 0)
+	{
+		uint32_t enable = 0;
+		if (::ioctl(hdmiFd, AML_CEC_IOC_SET_OPTION_SYS_CTRL, enable) < 0)
+			eDebug("[eHdmiCEC] disabling Amlogic AOCEC system-control failed: %m");
+	}
 	if (hdmiFd >= 0) ::close(hdmiFd);
 }
 
 eHdmiCEC *eHdmiCEC::getInstance()
 {
 	return instance;
+}
+
+bool eHdmiCEC::suspendEvents()
+{
+	if (hdmiFd < 0 || !messageNotifier)
+		return false;
+	if (!eventsSuspended)
+	{
+		messageNotifier->stop();
+		eventsSuspended = true;
+		eDebug("[eHdmiCEC] event handling suspended");
+	}
+	return true;
+}
+
+bool eHdmiCEC::resumeEvents()
+{
+	if (hdmiFd < 0 || !messageNotifier)
+		return false;
+	if (eventsSuspended)
+	{
+		/*
+		 * Legacy set-top-box CEC drivers use ioctl 0 to flush their private
+		 * packet ring.  Do this before rearming poll: an HDMI mode/EGL owner
+		 * transition can otherwise leave a stale packet queued, and old
+		 * Broadcom drivers may dereference an invalid ring-buffer pointer
+		 * while reading it.  Linux CEC and Amlogic use different ioctls.
+		 */
+		if (!linuxCEC && !amlogicCEC)
+		{
+			int result;
+			do
+			{
+#ifdef DREAMBOX
+				unsigned int value = 0;
+				result = ::ioctl(hdmiFd, 4, &value);
+#else
+				result = ::ioctl(hdmiFd, 0);
+#endif
+			}
+			while (result < 0 && errno == EINTR);
+			if (result < 0)
+			{
+				eDebug("[eHdmiCEC] failed to flush legacy HDMI-CEC events on resume: %m");
+				return false;
+			}
+		}
+		messageNotifier->start();
+		eventsSuspended = false;
+		eDebug("[eHdmiCEC] event handling resumed");
+	}
+	return true;
 }
 
 void eHdmiCEC::reportPhysicalAddress()
@@ -139,31 +399,85 @@ void eHdmiCEC::getAddressInfo()
 	{
 		bool hasdata = false;
 		struct addressinfo addressinfo = {};
-		if (::ioctl(hdmiFd, 1, &addressinfo) >= 0)
+		
+		if (linuxCEC)
 		{
-			hasdata = true;
-#if DREAMBOX
-			/* we do not get the device type, check the logical address to determine the type */
-			switch (addressinfo.logical)
+			__u16 phys_addr;
+			struct cec_log_addrs laddrs = {};
+
+			if (::ioctl(hdmiFd, CEC_ADAP_G_PHYS_ADDR, &phys_addr) >= 0 &&
+				::ioctl(hdmiFd, CEC_ADAP_G_LOG_ADDRS, &laddrs) >= 0 &&
+				laddrs.num_log_addrs > 0)
 			{
-			case 0x1:
-			case 0x2:
-			case 0x9:
-				addressinfo.type = 1; /* recorder */
-				break;
-			case 0x3:
-			case 0x6:
-			case 0x7:
-			case 0xa:
-				addressinfo.type = 3; /* tuner */
-				break;
-			case 0x4:
-			case 0x8:
-			case 0xb:
-				addressinfo.type = 4; /* playback */
-				break;
+				addressinfo.physical[0] = (phys_addr >> 8) & 0xff;
+				addressinfo.physical[1] = phys_addr & 0xff;
+				addressinfo.logical = laddrs.log_addr[0];
+
+				switch (laddrs.log_addr_type[0])
+				{
+				case CEC_LOG_ADDR_TYPE_TV:
+					addressinfo.type = CEC_LOG_ADDR_TV;
+					break;
+				case CEC_LOG_ADDR_TYPE_RECORD:
+					addressinfo.type = CEC_LOG_ADDR_RECORD_1;
+					break;
+				case CEC_LOG_ADDR_TYPE_TUNER:
+					addressinfo.type = CEC_LOG_ADDR_TUNER_1;
+					break;
+				case CEC_LOG_ADDR_TYPE_PLAYBACK:
+					addressinfo.type = CEC_LOG_ADDR_PLAYBACK_1;
+					break;
+				case CEC_LOG_ADDR_TYPE_AUDIOSYSTEM:
+					addressinfo.type = CEC_LOG_ADDR_AUDIOSYSTEM;
+					break;
+				case CEC_LOG_ADDR_TYPE_UNREGISTERED:
+				default:
+					addressinfo.type = CEC_LOG_ADDR_UNREGISTERED;
+					break;
+				}
+				hasdata = true;
 			}
+		}
+		else if (amlogicCEC)
+		{
+			uint16_t phys_addr = 0xffff;
+			if (::ioctl(hdmiFd, AML_CEC_IOC_GET_PHYSICAL_ADDR, &phys_addr) >= 0)
+			{
+				addressinfo.physical[0] = (phys_addr >> 8) & 0xff;
+				addressinfo.physical[1] = phys_addr & 0xff;
+				addressinfo.logical = logicalAddress;
+				addressinfo.type = deviceType;
+				hasdata = true;
+			}
+		}
+		else
+		{
+			if (::ioctl(hdmiFd, 1, &addressinfo) >= 0)
+			{
+				hasdata = true;
+#if DREAMBOX
+				/* we do not get the device type, check the logical address to determine the type */
+				switch (addressinfo.logical)
+				{
+				case 0x1:
+				case 0x2:
+				case 0x9:
+					addressinfo.type = 1; /* recorder */
+					break;
+				case 0x3:
+				case 0x6:
+				case 0x7:
+				case 0xa:
+					addressinfo.type = 3; /* tuner */
+					break;
+				case 0x4:
+				case 0x8:
+				case 0xb:
+					addressinfo.type = 4; /* playback */
+					break;
+				}
 #endif
+			}
 		}
 		if (hasdata)
 		{
@@ -173,7 +487,7 @@ void eHdmiCEC::getAddressInfo()
 			{
 				if (memcmp(physicalAddress, addressinfo.physical, sizeof(physicalAddress)))
 				{
-					eTrace("[eHdmiCEC] detected physical address change: %02X%02X --> %02X%02X", physicalAddress[0], physicalAddress[1], addressinfo.physical[0], addressinfo.physical[1]);
+					eDebug("[eHdmiCEC] detected physical address change: %02X%02X --> %02X%02X", physicalAddress[0], physicalAddress[1], addressinfo.physical[0], addressinfo.physical[1]);
 					memcpy(physicalAddress, addressinfo.physical, sizeof(physicalAddress));
 					reportPhysicalAddress();
 					/* emit */ addressChanged((physicalAddress[0] << 8) | physicalAddress[1]);
@@ -200,6 +514,12 @@ void eHdmiCEC::setFixedPhysicalAddress(int address)
 		fixedAddress = true;
 		physicalAddress[0] = (address >> 8) & 0xff;
 		physicalAddress[1] = address & 0xff;
+		if (linuxCEC)
+		{
+			__u16 phys_addr = address & 0xffff;
+			if (::ioctl(hdmiFd, CEC_ADAP_S_PHYS_ADDR, &phys_addr) < 0)
+				eDebug("[eHdmiCEC] CEC_ADAP_S_PHYS_ADDR failed: %m");
+		}
 		/* report our (possibly new) address */
 		reportPhysicalAddress();
 	}
@@ -216,57 +536,159 @@ int eHdmiCEC::getDeviceType()
 	return deviceType;
 }
 
+void eHdmiCEC::setEnabled(bool enabled)
+{
+	cecEnabled = enabled;
+	if (cecEnabled && hdmiFd < 0)
+		initializeCEC();
+}
+
+void eHdmiCEC::setReportActiveMenu(bool enabled)
+{
+	reportActiveMenu = enabled;
+}
+
 bool eHdmiCEC::getActiveStatus()
 {
 	bool active = true;
-	eAVSwitch *avswitch = eAVSwitch::getInstance();
-	if (avswitch) active = avswitch->isActive();
+	eAVControl *avc = eAVControl::getInstance();
+	if (avc)
+		active = avc->isEncoderActive();
 	return active;
 }
 
 void eHdmiCEC::hdmiEvent(int what)
 {
+	if (eventsSuspended)
+		return;
+
 	if (what & eSocketNotifier::Priority)
 	{
-		getAddressInfo();
+		if (linuxCEC)
+		{
+			bool stateChanged = false;
+			while (true)
+			{
+				struct cec_event cecevent = {};
+				int result;
+				do
+				{
+					result = ::ioctl(hdmiFd, CEC_DQEVENT, &cecevent);
+				}
+				while (result < 0 && errno == EINTR);
+
+				if (result < 0)
+				{
+					if (errno != EAGAIN && errno != EWOULDBLOCK)
+						eDebug("[eHdmiCEC] CEC_DQEVENT failed: %m");
+					break;
+				}
+
+				if (cecevent.event == CEC_EVENT_STATE_CHANGE)
+					stateChanged = true;
+				else if (cecevent.event == CEC_EVENT_LOST_MSGS)
+					eDebug("[eHdmiCEC] Linux CEC lost %u messages", (unsigned int)cecevent.lost_msgs.lost_msgs);
+			}
+			if (stateChanged)
+				getAddressInfo();
+		}
+		else
+			getAddressInfo();
 	}
 
 	if (what & eSocketNotifier::Read)
 	{
-		bool hasdata = false;
-		struct cec_rx_message rxmessage;
-#ifdef DREAMBOX
-		if (::ioctl(hdmiFd, 2, &rxmessage) >= 0)
+		// A key or message callback can suspend CEC while this handler is active.
+		while (!eventsSuspended)
 		{
-			hasdata = true;
-		}
-		unsigned int val = 0;
-		::ioctl(hdmiFd, 4, &val);
-#else
-		if (::read(hdmiFd, &rxmessage, 2) == 2)
-		{
-			if (::read(hdmiFd, &rxmessage.data, rxmessage.length) == rxmessage.length)
+			bool hasdata = false;
+			struct cec_rx_message rxmessage = {};
+			if (linuxCEC)
 			{
-				hasdata = true;
+				struct cec_msg msg = {};
+				int result;
+				do
+				{
+					result = ::ioctl(hdmiFd, CEC_RECEIVE, &msg);
+				}
+				while (result < 0 && errno == EINTR);
+
+				if (result < 0)
+				{
+					if (errno != EAGAIN && errno != EWOULDBLOCK)
+						eDebug("[eHdmiCEC] CEC_RECEIVE failed: %m");
+					break;
+				}
+
+				/* Non-blocking transmissions complete through the receive queue. */
+				if (msg.sequence && msg.tx_status)
+				{
+					if (!(msg.tx_status & CEC_TX_STATUS_OK))
+					{
+						if (msg.tx_error_cnt)
+							eDebug("[eHdmiCEC] transmit to %X failed (status %02X, nack %u, arbitration lost %u, low drive %u, errors %u)",
+								(unsigned int)cec_msg_destination(&msg), (unsigned int)msg.tx_status, (unsigned int)msg.tx_nack_cnt,
+								(unsigned int)msg.tx_arb_lost_cnt, (unsigned int)msg.tx_low_drive_cnt, (unsigned int)msg.tx_error_cnt);
+						else
+							eDebug("[eHdmiCEC] transmit to %X failed (status %02X, nack %u, arbitration lost %u, low drive %u)",
+								(unsigned int)cec_msg_destination(&msg), (unsigned int)msg.tx_status, (unsigned int)msg.tx_nack_cnt,
+								(unsigned int)msg.tx_arb_lost_cnt, (unsigned int)msg.tx_low_drive_cnt);
+					}
+					continue;
+				}
+
+				if ((msg.rx_status & CEC_RX_STATUS_OK) && msg.len >= 2 && msg.len <= CEC_MAX_MSG_SIZE)
+				{
+					rxmessage.address = cec_msg_initiator(&msg);
+					rxmessage.length = msg.len - 1;
+					memcpy(rxmessage.data, &msg.msg[1], rxmessage.length);
+					hasdata = true;
+				}
 			}
-		}
-#endif
-		bool hdmicec_enabled = eConfigManager::getConfigBoolValue("config.hdmicec.enabled", false);
-		if (hasdata && hdmicec_enabled && rxmessage.length > 0)
-		{
-			bool keypressed = false;
-			static unsigned char pressedkey = 0;
-			if (rxmessage.data[0] != 0x87)
+			else if (amlogicCEC)
 			{
-				eTraceNoNewLineStart("[eHdmiCEC] received message");
-				eTraceNoNewLine(" %02X", rxmessage.address);
+				unsigned char frame[CEC_MAX_MSG_SIZE] = {};
+				ssize_t length = ::read(hdmiFd, frame, sizeof(frame));
+				if (length >= 2 && length <= (ssize_t)sizeof(frame))
+				{
+					rxmessage.address = (frame[0] >> 4) & 0x0f;
+					rxmessage.length = length - 1;
+					memcpy(rxmessage.data, &frame[1], rxmessage.length);
+					hasdata = true;
+				}
+			}
+			else
+			{
+#ifdef DREAMBOX
+				if (::ioctl(hdmiFd, 2, &rxmessage) >= 0)
+				{
+					hasdata = true;
+				}
+				unsigned int val = 0;
+				::ioctl(hdmiFd, 4, &val);
+#else
+				if (::read(hdmiFd, &rxmessage, 2) == 2)
+				{
+					if (::read(hdmiFd, &rxmessage.data, rxmessage.length) == rxmessage.length)
+					{
+						hasdata = true;
+					}
+				}
+#endif
+			}
+			if (hasdata && cecEnabled && rxmessage.length > 0)
+			{
+				bool keypressed = false;
+				static unsigned char pressedkey = 0;
+
+				eDebugNoNewLineStart("[eHdmiCEC] received message");
+				eDebugNoNewLine(" %02X", rxmessage.address);
 				for (int i = 0; i < rxmessage.length; i++)
 				{
-					eTraceNoNewLine(" %02X", rxmessage.data[i]);
+					eDebugNoNewLine(" %02X", rxmessage.data[i]);
 				}
-				eTraceNoNewLine("\n");
-				bool hdmicec_report_active_menu = eConfigManager::getConfigBoolValue("config.hdmicec.report_active_menu", false);
-				if (hdmicec_report_active_menu)
+				eDebugNoNewLine("\n");
+				if (reportActiveMenu)
 				{
 					switch (rxmessage.data[0])
 					{
@@ -280,7 +702,7 @@ void eHdmiCEC::hdmiEvent(int what)
 						{
 							long code = translateKey(pressedkey);
 							if (keypressed) code |= 0x80000000;
-							for (std::list<eRCDevice*>::iterator i(listeners.begin()); i != listeners.end(); ++i)
+							for (std::list<eRCDevice*>::iterator i(listeners.begin()); i != listeners.end() && !eventsSuspended; ++i)
 							{
 								(*i)->handleCode(code);
 							}
@@ -288,10 +710,15 @@ void eHdmiCEC::hdmiEvent(int what)
 						}
 					}
 				}
+				if (eventsSuspended)
+					return;
+				int operandLength = rxmessage.length > 1 ? rxmessage.length - 1 : 0;
+				ePtr<iCECMessage> msg = new eCECMessage(rxmessage.address, rxmessage.data[0], (char*)&rxmessage.data[1], operandLength);
+				messageReceived(msg);
 			}
-			int operandLength = rxmessage.length > 1 ? rxmessage.length - 1 : 0;
-			ePtr<iCECMessage> msg = new eCECMessage(rxmessage.address, rxmessage.data[0], (char*)&rxmessage.data[1], operandLength);
-			messageReceived(msg);
+
+			if (!linuxCEC)
+				break;
 		}
 	}
 }
@@ -408,7 +835,7 @@ long eHdmiCEC::translateKey(unsigned char code)
 			break;
 		default:
 			key = 0x8b;
-			eTrace("eHdmiCEC: unknown code 0x%02X", (unsigned int)(code & 0xFF));
+			eDebug("eHdmiCEC: unknown code 0x%02X", (unsigned int)(code & 0xFF));
 			break;
 	}
 	return key;
@@ -416,21 +843,132 @@ long eHdmiCEC::translateKey(unsigned char code)
 
 void eHdmiCEC::sendMessage(struct cec_message &message)
 {
-	if (hdmiFd >= 0)
+	if (cecEnabled && hdmiFd >= 0)
 	{
-		eTraceNoNewLineStart("[eHdmiCEC] send message");
-		eTraceNoNewLine(" %02X", message.address);
+		eDebugNoNewLineStart("[eHdmiCEC] send message");
+		eDebugNoNewLine(" %02X", message.address);
 		for (int i = 0; i < message.length; i++)
 		{
-			eTraceNoNewLine(" %02X", message.data[i]);
+			eDebugNoNewLine(" %02X", message.data[i]);
 		}
-		eTraceNoNewLine("\n");
+		eDebugNoNewLine("\n");
+		if (sendThread.joinable())
+		{
+			std::scoped_lock lock(sendMutex);
+			sendQueue.emplace_back(message, logicalAddress);
+			sendCondition.notify_one();
+		}
+		else
+			transmitMessage(message, logicalAddress);
+	}
+}
+
+void eHdmiCEC::startSendThread()
+{
+	if (sendThread.joinable())
+		return;
+	sendStop = false;
+	sendThread = std::jthread(&eHdmiCEC::sendThreadLoop, this);
+}
+
+/* sends what is still queued, e.g. the standby of the TV, then ends the thread */
+void eHdmiCEC::stopSendThread()
+{
+	if (!sendThread.joinable())
+		return;
+	{
+		std::scoped_lock lock(sendMutex);
+		sendStop = true;
+	}
+	sendCondition.notify_one();
+	sendThread.join();
+}
+
+void eHdmiCEC::sendThreadLoop()
+{
+	std::unique_lock lock(sendMutex);
+	while (true)
+	{
+		sendCondition.wait(lock, [this] { return sendStop || !sendQueue.empty(); });
+		if (sendQueue.empty())
+			break;
+		struct cec_message message = sendQueue.front().first;
+		unsigned char source = sendQueue.front().second;
+		sendQueue.pop_front();
+		lock.unlock();
+		transmitMessage(message, source);
+		lock.lock();
+	}
+}
+
+void eHdmiCEC::transmitMessage(const struct cec_message &message, unsigned char source) const
+{
+	if (linuxCEC)
+	{
+		struct cec_msg msg;
+		int payloadLength = message.length;
+		if (payloadLength > CEC_MAX_MSG_SIZE - 1)
+		{
+			eDebug("[eHdmiCEC] truncating oversized CEC payload from %d to %d bytes", payloadLength, CEC_MAX_MSG_SIZE - 1);
+			payloadLength = CEC_MAX_MSG_SIZE - 1;
+		}
+		cec_msg_init(&msg, source, message.address);
+		memcpy(&msg.msg[1], message.data, payloadLength);
+		msg.len = payloadLength + 1;
+		int result;
+		do
+		{
+			result = ::ioctl(hdmiFd, CEC_TRANSMIT, &msg);
+		}
+		while (result < 0 && errno == EINTR);
+		if (result < 0)
+		{
+			if (errno == EBUSY)
+				eDebug("[eHdmiCEC] CEC transmit queue is busy");
+			else
+				eDebug("[eHdmiCEC] CEC_TRANSMIT failed: %m");
+		}
+		else if (msg.tx_status && !(msg.tx_status & CEC_TX_STATUS_OK))
+		{
+			eDebug("[eHdmiCEC] transmit to %X failed immediately (status %02X)", (unsigned int)message.address, (unsigned int)msg.tx_status);
+		}
+	}
+	else if (amlogicCEC)
+	{
+		unsigned char frame[CEC_MAX_MSG_SIZE] = {};
+		int payloadLength = message.length;
+		if (payloadLength > CEC_MAX_MSG_SIZE - 1)
+			payloadLength = CEC_MAX_MSG_SIZE - 1;
+		frame[0] = ((source & 0x0f) << 4) | (message.address & 0x0f);
+		memcpy(&frame[1], message.data, payloadLength);
+
+		ssize_t status = -1;
+		for (int attempt = 0; attempt < 3; ++attempt)
+		{
+			do
+			{
+				status = ::write(hdmiFd, frame, payloadLength + 1);
+			}
+			while (status < 0 && errno == EINTR);
+			if (status == 0 || status == payloadLength + 1)
+				break;
+			if (attempt < 2)
+				usleep(10000);
+		}
+		if (status < 0)
+			eDebug("[eHdmiCEC] Amlogic AOCEC transmit failed: %m");
+		else if (status != 0 && status != payloadLength + 1)
+			eDebug("[eHdmiCEC] Amlogic AOCEC transmit failed, status %d", (int)status);
+	}
+	else
+	{
 #ifdef DREAMBOX
-		message.flag = 1;
-		::ioctl(hdmiFd, 3, &message);
+		struct cec_message legacyMessage = message;
+		legacyMessage.flag = 1;
+		::ioctl(hdmiFd, 3, &legacyMessage);
 #else
-			ssize_t ret = ::write(hdmiFd, &message, 2 + message.length);
-			if (ret < 0) eTrace("[eHdmiCEC] write failed: %m");
+		ssize_t ret = ::write(hdmiFd, &message, 2 + message.length);
+		if (ret < 0) eDebug("[eHdmiCEC] write failed: %m");
 #endif
 	}
 }

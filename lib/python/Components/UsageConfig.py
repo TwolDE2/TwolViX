@@ -1281,52 +1281,70 @@ def InitUsageConfig():
 	config.mediaplayer.alternateUserAgent = ConfigText(default="")
 
 	config.hdmicec = ConfigSubsection()
-	config.hdmicec.enabled = ConfigYesNo(default=False)
+	config.hdmicec.enabled = ConfigYesNo(default=True)  # Pushed to eHdmiCEC in hdmi_cec.cpp
 	config.hdmicec.control_tv_standby = ConfigYesNo(default=True)
 	config.hdmicec.control_tv_wakeup = ConfigYesNo(default=True)
 	config.hdmicec.report_active_source = ConfigYesNo(default=True)
-	config.hdmicec.report_active_menu = ConfigYesNo(default=True)
-	config.hdmicec.handle_tv_standby = ConfigYesNo(default=True)
-	config.hdmicec.handle_tv_wakeup = ConfigYesNo(default=True)
-	config.hdmicec.tv_wakeup_detection = ConfigSelection(
-		choices={
-			"wakeup": _("Wakeup"),
-			"requestphysicaladdress": _("Request for physical address report"),
-			"tvreportphysicaladdress": _("TV physical address report"),
-			"routingrequest": _("Routing request"),
-			"sourcerequest": _("Source request"),
-			"streamrequest": _("Stream request"),
-			"requestvendor": _("Request for vendor report"),
-			"osdnamerequest": _("OSD name request"),
-			"activity": _("Any activity"),
-		},
-		default="streamrequest")
-	config.hdmicec.tv_wakeup_command = ConfigSelection(
-		choices={
-			"imageview": _("Image View On"),
-			"textview": _("Text View On"),
-		},
-		default="imageview")
-	config.hdmicec.change_physaddress = ConfigYesNo(default=False)
+	config.hdmicec.force_tv_input = ConfigYesNo(default=True)
+	config.hdmicec.report_active_menu = ConfigYesNo(default=True)  # Pushed to eHdmiCEC in hdmi_cec.cpp
+	choicelist = [
+		("disabled", _("Disabled")),
+		("standby", _("Standby")),
+		("deepstandby", _("Deep Standby"))
+	]
+	config.hdmicec.handle_tv_standby = ConfigSelection(default="standby", choices=choicelist)
+	config.hdmicec.handle_tv_input = ConfigSelection(default="disabled", choices=choicelist)
+	config.hdmicec.handle_tv_wakeup = ConfigSelection(default="streamrequest", choices={
+		"disabled": _("Disabled"),
+		"wakeup": _("Wake up"),
+		"tvreportphysicaladdress": _("TV physical address report"),
+		"routingrequest": _("Routing request"),
+		"sourcerequest": _("Source request"),
+		"streamrequest": _("Stream request"),
+		"osdnamerequest": _("OSD name request"),
+		"activity": _("Any activity"),
+	})
 	config.hdmicec.fixed_physical_address = ConfigText(default="0.0.0.0")
 	config.hdmicec.volume_forwarding = ConfigYesNo(default=False)
-	config.hdmicec.force_volume_forwarding = ConfigYesNo(default=False)
-	config.hdmicec.control_receiver_wakeup = ConfigYesNo(default=False)
-	config.hdmicec.control_receiver_standby = ConfigYesNo(default=False)
-	config.hdmicec.handle_deepstandby_events = ConfigYesNo(default=False)
+	config.hdmicec.control_receiver_wakeup = ConfigYesNo(default=True)
+	config.hdmicec.control_receiver_standby = ConfigYesNo(default=True)
+	config.hdmicec.handle_deepstandby_events = ConfigYesNo(default=True)
+	config.hdmicec.preemphasis = ConfigYesNo(default=False)
 	choicelist = []
 	for i in (10, 50, 100, 150, 250, 500, 750, 1000):
-		choicelist.append(("%d" % i, _("%d ms") % i))
-	config.hdmicec.minimum_send_interval = ConfigSelection(default="0", choices=[("0", _("Disabled"))] + choicelist)
+		choicelist.append((i, _("%d ms") % i))
+	config.hdmicec.minimum_send_interval = ConfigSelection(default=0, choices=[(0, _("Disabled"))] + choicelist)
 	choicelist = []
-	for i in [3] + list(range(5, 65, 5)):
-		choicelist.append(("%d" % i, _("%d sec") % i))
-	config.hdmicec.repeat_wakeup_timer = ConfigSelection(default="3", choices=[("0", _("Disabled"))] + choicelist)
-	config.hdmicec.debug = ConfigSelection(default="0", choices=[("0", _("Disabled")), ("1", _("print debug")), ("2", _("Log Messages")), ("3", _("Log Key Events")), ("4", _("Log All"))])
-	config.hdmicec.bookmarks = ConfigLocations(default="/hdd/")
-	config.hdmicec.log_path = ConfigDirectory("/hdd/")
-	config.hdmicec.next_boxes_detect = ConfigYesNo(default=False)  # Before switching the TV to standby, receiver tests if any devices plugged to TV are in standby. If they are not, the 'sourceinactive' command will be sent to the TV instead of the 'standby' command.
-	config.hdmicec.sourceactive_zaptimers = ConfigYesNo(default=False)				# Command the TV to switch to the correct HDMI input when zap timers activate.
+	for i in list(range(1, 6)):
+		choicelist.append((i, _("%d times") % i))
+	config.hdmicec.messages_repeat = ConfigSelection(default=0, choices=[(0, _("Disabled"))] + choicelist)
+	config.hdmicec.messages_repeat_standby = ConfigYesNo(default=False)
+	choicelist = []
+	for i in (500, 1000, 2000, 3000, 4000, 5000):
+		choicelist.append((i, _("%d ms") % i))
+	config.hdmicec.messages_repeat_slowdown = ConfigSelection(default=1000, choices=[(0, _("None"))] + choicelist)
+	choicelist = []
+	for i in (5, 10, 30, 60, 120, 300, 600, 900, 1800, 3600):
+		if i / 60 < 1:
+			choicelist.append((i, _("%d sec") % i))
+		else:
+			choicelist.append((i, _("%d min") % (i / 60)))
+	config.hdmicec.handle_tv_delaytime = ConfigSelection(default=0, choices=[(0, _("None"))] + choicelist)
+	config.hdmicec.deepstandby_waitfortimesync = ConfigYesNo(default=True)
+	config.hdmicec.tv_wakeup_zaptimer = ConfigYesNo(default=True)
+	config.hdmicec.tv_wakeup_zapandrecordtimer = ConfigYesNo(default=True)
+	config.hdmicec.tv_wakeup_wakeuppowertimer = ConfigYesNo(default=True)
+	config.hdmicec.tv_standby_notinputactive = ConfigYesNo(default=True)
+	config.hdmicec.check_tv_state = ConfigYesNo(default=False)
+	config.hdmicec.workaround_activesource = ConfigYesNo(default=False)
+	choicelist = []
+	for i in (5, 10, 15, 30, 45, 60):
+		choicelist.append((i, _("%d sec") % i))
+	config.hdmicec.workaround_turnbackon = ConfigSelection(default=0, choices=[(0, _("Disabled"))] + choicelist)
+	config.hdmicec.advanced_settings = ConfigYesNo(default=True)
+	config.hdmicec.default_settings = NoSave(ConfigYesNo(default=False))
+	config.hdmicec.debug = ConfigYesNo(default=False)
+	config.hdmicec.commandline = ConfigYesNo(default=False)
 
 	upgradeConfig()
 
