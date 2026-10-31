@@ -14,6 +14,7 @@
 #include <lib/driver/hdmi_cec.h>
 #include <lib/driver/avswitch.h>
 #define CEC_LOG_ADDR_TUNER_1		3
+#define CEC_MAX_MSG_SIZE	16
 #define CEC_VENDOR_ENIGMA2_STB          0x000934
 
 static int hexValue(char value)
