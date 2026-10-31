@@ -140,7 +140,7 @@ bool eHdmiCEC::suspendEvents()
 		eDebug("[eHdmiCEC] event handling suspended");
 	}
 	return true;
-
+}
 
 bool eHdmiCEC::resumeEvents()
 {
