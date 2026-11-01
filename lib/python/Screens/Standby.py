@@ -100,6 +100,7 @@ class TVstate:  # load in Navigation
 			elif value == 'power' and not config.hdmicec.handle_deepstandby_events.value:
 				self.hdmicec_instance.scheduleSystemAudioModeRequest()
 
+
 def setLCDMiniTVMode(value):
 	try:
 		f = open("/proc/stb/lcd/mode", "w")
