@@ -108,7 +108,6 @@ public:
 #endif
 protected:
 	static eHdmiCEC *instance;
-	bool linuxCEC;
 	unsigned char physicalAddress[2];
 	bool fixedAddress;
 	unsigned char deviceType, logicalAddress;

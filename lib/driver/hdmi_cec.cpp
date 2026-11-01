@@ -14,7 +14,9 @@
 #include <lib/driver/input_fake.h>
 #include <lib/driver/hdmi_cec.h>
 #include <lib/driver/avswitch.h>
-#include <lib/driver/linux-uapi-cec.h>
+#define CEC_LOG_ADDR_TUNER_1		3
+#define CEC_MAX_MSG_SIZE	16
+#define CEC_VENDOR_ENIGMA2_STB          0x000934
 
 static int hexValue(char value)
 {
@@ -77,13 +79,12 @@ eHdmiCEC::eHdmiCEC()
 {
 	ASSERT(!instance);
 	instance = this;
-	linuxCEC = false;
 	hdmiFd = -1;
 	fixedAddress = false;
 	physicalAddress[0] = 0x10;
 	physicalAddress[1] = 0x00;
-	logicalAddress = 1;
-	deviceType = CEC_LOG_ADDR_TYPE_TUNER; /* default: tuner */
+	logicalAddress = CEC_LOG_ADDR_TUNER_1;
+	deviceType = CEC_LOG_ADDR_TUNER_1; /* default: tuner / set-top box */
 #ifdef DREAMBOX
 #define HDMIDEV "/dev/misc/hdmi_cec0"
 #else
@@ -100,13 +101,14 @@ eHdmiCEC::eHdmiCEC()
 #else
 		::ioctl(hdmiFd, 0); /* flush old messages */
 #endif
+		eDebug("[eHdmiCEC] using legacy HDMI-CEC backend on %s", HDMIDEV);
 		messageNotifier = eSocketNotifier::create(eApp, hdmiFd, eSocketNotifier::Read | eSocketNotifier::Priority);
 		CONNECT(messageNotifier->activated, eHdmiCEC::hdmiEvent);
 		getAddressInfo();
 	}
 	else
 	{
-		eLog(1, "[eHdmiCEC] cannot open %s: %m", HDMIDEV); /* Error - should not happen */
+		eTrace("[eHdmiCEC] cannot open %s: %m", HDMIDEV); /* Error - should not happen */
 	}
 }
 
@@ -429,8 +431,8 @@ void eHdmiCEC::sendMessage(struct cec_message &message)
 		message.flag = 1;
 		::ioctl(hdmiFd, 3, &message);
 #else
-			ssize_t ret = ::write(hdmiFd, &message, 2 + message.length);
-			if (ret < 0) eTrace("[eHdmiCEC] write failed: %m");
+		ssize_t ret = ::write(hdmiFd, &message, 2 + message.length);
+		if (ret < 0) eTrace("[eHdmiCEC] write failed: %m");
 #endif
 	}
 }
