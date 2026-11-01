@@ -1805,6 +1805,8 @@ class HdmiCec:
 			self.sendMessage(0, "requestactivesource")
 
 	def keyEvent(self, keyCode, keyEvent):
+		if keyCode not in (self.KEY_VOLMUTE, self.KEY_VOLDOWN, self.KEY_VOLUP):						# if not volume key return
+			return
 		if not self.volumeForwardingEnabled:
 			return
 		cmd = 0
