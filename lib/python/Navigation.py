@@ -41,6 +41,7 @@ class Navigation:
 		self.currentlyPlayingService = None
 		self.originalPlayingServiceReference = None
 		self.currentServiceIsStreamRelay = False
+		Screens.Standby.TVstate()
 		self.skipServiceReferenceReset = False
 		self.retryServicePlayCount = 0
 		self.retryServicePlayTimer = eTimer()
@@ -88,9 +89,10 @@ class Navigation:
 		config.misc.pluginWakeupName.value = ""
 
 	def gotostandby(self):
-		print("[Navigation] TIMER: now entering standby")
-		import Tools.Notifications
-		Tools.Notifications.AddNotification(Screens.Standby.Standby)
+		if not Screens.Standby.inStandby:
+			import Tools.Notifications
+			print("[Navigation] Now entering standby.")
+			Tools.Notifications.AddNotification(Screens.Standby.Standby)
 
 	def dispatchEvent(self, i):
 		for x in self.event:
