@@ -766,10 +766,12 @@ else:
 	from Components.Network import InitNetwork  # noqa: E402
 	InitNetwork()
 
-	profile("HdmiCec")
-	print("[StartEnigma]  Initialising hdmiCEC.")
-	from Components.HdmiCec import HdmiCec  # noqa: E402
-	HdmiCec()
+	print(f"[StartEnigma]  config.misc.firstrun.value:{config.misc.firstrun.value}")
+	if not config.misc.firstrun.value:
+		profile("HdmiCec")
+		print("[StartEnigma]  Initialising hdmiCEC.")
+		from Components.HdmiCec import HdmiCec  # noqa: E402
+		HdmiCec()
 
 	profile("LCD")
 	print("[StartEnigma]  Initialising LCD / FrontPanel.")
