@@ -538,7 +538,6 @@ class HdmiCec:
 			self.volumeforward72cnt = 0
 			self.local_vendor_id = CEC_VENDOR_ENIGMA2_STB
 			self.tv_powerstate = "unknown"
-			self.startupPending = True
 			self.cmd87 = False
 			printX(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
 			if not config.hdmicec.change_physaddress.value:
@@ -589,9 +588,6 @@ class HdmiCec:
 	def sendCecMessage(self, address, cmd, data):
 		payload = self.payloadBytes(data)
 		eHdmiCEC.getInstance().sendMessageBytes(address, cmd, payload.hex().upper())
-
-	def isReceiverActive(self):
-		return not self.startupPending and not Screens.Standby.inStandby
 
 	def vendorName(self, vendor):
 		printX(f"[HdmiCec][vendorname] vendor:{vendor}")
@@ -697,18 +693,18 @@ class HdmiCec:
 			printX("[HdmiCec] LG Simplink power-on request")
 			if config.hdmicec.handle_tv_wakeup.value != "disabled":
 				self.wakeup()
-			self.sendMessage(address, "poweractive" if self.isReceiverActive() else "powerinactive")
-			if self.isReceiverActive() and config.hdmicec.report_active_source.value:
+			self.sendMessage(address, "poweractive" if not Screens.Standby.inStandby else "powerinactive")
+			if not Screens.Standby.inStandby and config.hdmicec.report_active_source.value:
 				self.sendMessage(0, "sourceactive")
 			return True
 		if params[0] == 0x04:
 			self.sendRawMessage(address, 0x89, (0x05, eHdmiCEC.getInstance().getDeviceType()))
-			if self.isReceiverActive() and self.activesource:
+			if self.activesource:
 				self.sendMessage(address, "poweractive")
 			printX("[HdmiCec] LG Simplink connect request acknowledged")
 			return True
 		if params[0] in (0x0B, 0xA0):
-			self.sendMessage(address, "poweractive" if self.isReceiverActive() else "powerinactive")
+			self.sendMessage(address, "powerinactive" if Screens.Standby.inStandby else "poweractive")
 			return True
 		return False
 
@@ -1007,7 +1003,6 @@ class HdmiCec:
 			self.volumeForwardingEnabled = False
 
 	def onEnterStandby(self, configElement):
-		self.startupPending = False
 		Screens.Standby.inStandby.onClose.append(self.onLeaveStandby)
 		self.repeat.stop()
 		self.standbyMessages()
@@ -1066,7 +1061,6 @@ class HdmiCec:
 	def sendWakeupMessages(self):
 		printX(f"[HDMI-CEC][sendWakeupMessages] entered self.wakeup_from_tv:{self.wakeup_from_tv}")
 		if config.hdmicec.enabled.value:
-			self.startupPending = False
 			messages = []
 			if config.hdmicec.control_tv_wakeup.value:
 				if not self.wakeup_from_tv:
