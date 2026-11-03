@@ -108,8 +108,6 @@ public:
 #endif
 protected:
 	static eHdmiCEC *instance;
-	bool linuxCEC;
-	bool amlogicCEC;
 	bool eventsSuspended;
 	unsigned char physicalAddress[2];
 	bool fixedAddress;
