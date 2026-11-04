@@ -453,7 +453,7 @@ GLuint gTextureManager::createTextureFromPixmap(gPixmap* pixmap) {
 		m_last_palette.w = width;
 		m_last_palette.h = height;
 #if TEX_UPLOAD_TIMING
-		eDebug("[gTextureManager] timing: bpp8 GPU-palette upload %dx%d took %.2fms", width, height, ms_since(t_upload0));
+		eTrace("[gTextureManager] timing: bpp8 GPU-palette upload %dx%d took %.2fms", width, height, ms_since(t_upload0));
 #endif
 	} else if (surface->bpp == 8 && surface->clut.data) {
 		// 8-bit paletted image (often used for picons/skins).
@@ -621,7 +621,7 @@ GLuint gTextureManager::getTexture(gPixmap* pixmap) {
 			const size_t learned = std::max<size_t>(m_live_texture_bytes / 5 * 4, 8u << 20);
 			if (!m_soft_budget || learned < m_soft_budget) {
 				m_soft_budget = learned;
-				eDebug("[gTextureManager] texture budget learned from out-of-memory: ~%.1fMB", m_soft_budget / 1048576.0);
+				eTrace("[gTextureManager] texture budget learned from out-of-memory: ~%.1fMB", m_soft_budget / 1048576.0);
 			}
 		}
 		const size_t need = (size_t)sf->x * sf->y * 4;
@@ -657,23 +657,27 @@ GLuint gTextureManager::getTexture(gPixmap* pixmap) {
 	return new_texture;
 }
 
-size_t gTextureManager::evictLRU(size_t bytes_wanted, size_t max_count) {
+size_t gTextureManager::evictLRU(size_t bytes_wanted, size_t max_count, unsigned int min_age) {
 	struct Cand {
 		unsigned int last_used;
 		GLuint id;
 		gUnmanagedSurface* surface;
 	};
 	std::vector<Cand> cands;
+	std::vector<GLuint> victims;
 	size_t freed = 0;
 	int evicted = 0;
 
-	// Held for the whole operation: ~gSurface() releases through the same lock,
-	// so a surface in this map cannot be destroyed while we touch it.
-	std::lock_guard<std::mutex> lock(m_deletion_mutex);
+	// Held while choosing the victims and taking them out of m_texture_owner: ~gSurface()
+	// releases through the same lock, so a surface in this map cannot be destroyed while we
+	// touch it. The GL deletes below run after the lock is released - the driver may wait
+	// for the GPU in glDeleteTextures(), and the main thread, destroying surfaces, must not
+	// be stuck on this mutex meanwhile.
+	std::unique_lock<std::mutex> lock(m_deletion_mutex);
 	for (const auto& kv : m_texture_owner) {
 		gUnmanagedSurface* sf = kv.second;
-		if (sf->gl_texture_pinned || sf->gl_last_used_frame == m_frame)
-			continue; // in use this frame, or updated in place
+		if (sf->gl_texture_pinned || m_frame - sf->gl_last_used_frame < std::max(min_age, 1u))
+			continue; // in use this frame (or still in flight), or updated in place
 		if (m_texture_to_image_map.count(kv.first))
 			continue; // DMA-BUF import, needs eglDestroyImage - leave alone
 		cands.push_back({sf->gl_last_used_frame, kv.first, sf});
@@ -687,10 +691,9 @@ size_t gTextureManager::evictLRU(size_t bytes_wanted, size_t max_count) {
 	for (const Cand& c : cands) {
 		if (freed >= bytes_wanted || (size_t)evicted >= max_count)
 			break;
-		glDeleteTextures(1, &c.id);
-		dropPalette(c.id);
 		c.surface->gl_texture_id = 0;
 		m_texture_owner.erase(c.id);
+		victims.push_back(c.id);
 		auto bit = m_texture_bytes.find(c.id);
 		if (bit != m_texture_bytes.end()) {
 			freed += bit->second;
@@ -699,6 +702,13 @@ size_t gTextureManager::evictLRU(size_t bytes_wanted, size_t max_count) {
 		}
 		--m_live_texture_count;
 		++evicted;
+	}
+	lock.unlock();
+
+	if (!victims.empty()) {
+		glDeleteTextures((GLsizei)victims.size(), victims.data());
+		for (GLuint id : victims)
+			dropPalette(id);
 	}
 	if (evicted)
 		eTrace("[gTextureManager] evicted %d least-recently-used textures (~%.1fMB), now live=%ld ~%.1fMB", evicted, freed / 1048576.0, m_live_texture_count,
@@ -725,14 +735,19 @@ void gTextureManager::queueForDeletion(GLuint texture_id) {
 	if (texture_id == 0)
 		return;
 
-	std::lock_guard<std::mutex> lock(m_deletion_mutex);
-	m_pending_deletions.push_back(texture_id);
+	size_t pending;
+	{
+		std::lock_guard<std::mutex> lock(m_deletion_mutex);
+		m_pending_deletions.push_back(texture_id);
+		pending = m_pending_deletions.size();
+	}
 	// If this queue depth climbs and stays high, processDeletions() isn't
 	// being reached often enough (rather than surfaces simply never dying) -
 	// a different problem from the live_texture_count in getTexture()/
 	// processDeletions() ever growing, which would mean surfaces are dying
 	// but their textures are never queued/deleted at all.
-	eTrace("[gTextureManager] queued texture id=%u for deletion, pending=%zu", texture_id, m_pending_deletions.size());
+	// Logged outside the lock: a slow log sink must not hold up the render thread.
+	eTrace"[gTextureManager] queued texture id=%u for deletion, pending=%zu", texture_id, pending);
 }
 
 bool gTextureManager::hasPendingDeletions() {
@@ -741,13 +756,19 @@ bool gTextureManager::hasPendingDeletions() {
 }
 
 void gTextureManager::processDeletions() {
-	std::lock_guard<std::mutex> lock(m_deletion_mutex);
-	if (!m_pending_deletions.empty()) {
-		glDeleteTextures(m_pending_deletions.size(), m_pending_deletions.data());
-		m_live_texture_count -= (long)m_pending_deletions.size();
+	// Only the queue is guarded by the mutex; take it out and do the GL work unlocked, so the
+	// main thread queueing deletions for dying surfaces never waits for the driver.
+	std::vector<GLuint> deletions;
+	{
+		std::lock_guard<std::mutex> lock(m_deletion_mutex);
+		deletions.swap(m_pending_deletions);
+	}
+	if (!deletions.empty()) {
+		glDeleteTextures(deletions.size(), deletions.data());
+		m_live_texture_count -= (long)deletions.size();
 
 		PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
-		for (GLuint texture_id : m_pending_deletions) {
+		for (GLuint texture_id : deletions) {
 			dropPalette(texture_id);
 			auto bit = m_texture_bytes.find(texture_id);
 			if (bit != m_texture_bytes.end()) {
@@ -762,9 +783,7 @@ void gTextureManager::processDeletions() {
 				m_texture_to_image_map.erase(it);
 			}
 		}
-
-		eTrace("[gTextureManager] -texture count=%zu live=%ld ~%.1fMB", m_pending_deletions.size(), m_live_texture_count, m_live_texture_bytes / 1048576.0);
-		m_pending_deletions.clear();
+		eTrace"[gTextureManager] -texture count=%zu live=%ld ~%.1fMB", deletions.size(), m_live_texture_count, m_live_texture_bytes / 1048576.0);
 	}
 }
 
