@@ -110,9 +110,11 @@ protected:
 	static eHdmiCEC *instance;
 	unsigned char physicalAddress[2];
 	bool fixedAddress;
+	bool cecEnabled;
 	unsigned char deviceType, logicalAddress;
 	int hdmiFd;
 	ePtr<eSocketNotifier> messageNotifier;
+	void initializeCEC();
 	void addressPoll();
 	void reportPhysicalAddress();
 	void getAddressInfo();
@@ -137,6 +139,7 @@ public:
 	int getPhysicalAddress();
 	void setFixedPhysicalAddress(int address);
 	int getDeviceType();
+	void setEnabled(bool enabled);
 };
 
 #ifndef SWIG

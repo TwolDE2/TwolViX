@@ -539,37 +539,41 @@ class HdmiCec:
 			self.local_vendor_id = CEC_VENDOR_ENIGMA2_STB
 			self.tv_powerstate = "unknown"
 			self.cmd87 = False
-			printX(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
-			if not config.hdmicec.change_physaddress.value:
-				config.hdmicec.fixed_physical_address.value = getPhysicalAddress()
-			countDots = config.hdmicec.fixed_physical_address.value.count(".")
-			# printX(f"[HdmiCEC][init]2countDots:{countDots}")
-			if countDots == 3 and config.hdmicec.fixed_physical_address.value[1:3] != ".0" and config.hdmicec.change_physaddress.value:
-				try:
-					printX(f"[HdmiCEC][init]phsyical address changed by setup value:{config.hdmicec.fixed_physical_address.value}")
-					setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
-				except:
-					setFixedPhysicalAddress("0.0.0.0")
-			eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
-			config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
-			# config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
-			self.volumeForwardingEnabled = False
-			self.volumeForwardingDestination = 0
-			self.wakeup_from_tv = False
-			eActionMap.getInstance().bindAction("", -maxsize - 1, self.keyEvent)
-			config.hdmicec.volume_forwarding.addNotifier(self.configVolumeForwarding)
-			config.hdmicec.enabled.addNotifier(self.configVolumeForwarding)
-			if config.hdmicec.enabled.value:
-				if config.hdmicec.report_active_menu.value:
-					if config.hdmicec.report_active_source.value and NavigationInstance.instance and not NavigationInstance.instance.isRestartUI():
-						self.sendMessage(0, "sourceinactive")
-					self.sendMessage(0, "menuactive")
-				# if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
-				if not getFPWasTimerWakeup():
-					self.onLeaveStandby()
-		else:
-			printX("[HdmiCEC][init] no set physical address ")
-			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver
+			self.enableCec()
+#		else:
+#			printX("[HdmiCEC][init] no set physical address ")
+#			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver
+
+	def enableCec(self):
+		eHdmiCEC.getInstance().setEnabled(config.hdmicec.enabled.value)
+		printX(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
+		if not config.hdmicec.change_physaddress.value:
+			config.hdmicec.fixed_physical_address.value = getPhysicalAddress()
+		countDots = config.hdmicec.fixed_physical_address.value.count(".")
+		# printX(f"[HdmiCEC][init]2countDots:{countDots}")
+		if countDots == 3 and config.hdmicec.fixed_physical_address.value[1:3] != ".0" and config.hdmicec.change_physaddress.value:
+			try:
+				printX(f"[HdmiCEC][init]phsyical address changed by setup value:{config.hdmicec.fixed_physical_address.value}")
+				setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
+			except:
+				setFixedPhysicalAddress("0.0.0.0")
+		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
+		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
+		# config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
+		self.volumeForwardingEnabled = False
+		self.volumeForwardingDestination = 0
+		self.wakeup_from_tv = False
+		eActionMap.getInstance().bindAction("", -maxsize - 1, self.keyEvent)
+		config.hdmicec.volume_forwarding.addNotifier(self.configVolumeForwarding)
+		config.hdmicec.enabled.addNotifier(self.configVolumeForwarding)
+		if config.hdmicec.enabled.value:
+			if config.hdmicec.report_active_menu.value:
+				if config.hdmicec.report_active_source.value and NavigationInstance.instance and not NavigationInstance.instance.isRestartUI():
+					self.sendMessage(0, "sourceinactive")
+				self.sendMessage(0, "menuactive")
+			# if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
+			if not getFPWasTimerWakeup():
+				self.onLeaveStandby()
 
 	def dataByte(self, data, index):
 		item = data[index]

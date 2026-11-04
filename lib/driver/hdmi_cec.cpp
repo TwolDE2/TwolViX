@@ -81,10 +81,15 @@ eHdmiCEC::eHdmiCEC()
 	instance = this;
 	hdmiFd = -1;
 	fixedAddress = false;
+	cecEnabled = false;
 	physicalAddress[0] = 0x10;
 	physicalAddress[1] = 0x00;
 	logicalAddress = CEC_LOG_ADDR_TUNER_1;
 	deviceType = CEC_LOG_ADDR_TUNER_1; /* default: tuner / set-top box */
+}
+
+void eHdmiCEC::initializeCEC()
+{
 #ifdef DREAMBOX
 #define HDMIDEV "/dev/misc/hdmi_cec0"
 #else
@@ -216,6 +221,13 @@ void eHdmiCEC::setFixedPhysicalAddress(int address)
 int eHdmiCEC::getDeviceType()
 {
 	return deviceType;
+}
+
+void eHdmiCEC::setEnabled(bool enabled)
+{
+	cecEnabled = enabled;
+	if (cecEnabled && hdmiFd < 0)
+		initializeCEC();
 }
 
 bool eHdmiCEC::getActiveStatus()
