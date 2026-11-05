@@ -747,7 +747,7 @@ void gTextureManager::queueForDeletion(GLuint texture_id) {
 	// processDeletions() ever growing, which would mean surfaces are dying
 	// but their textures are never queued/deleted at all.
 	// Logged outside the lock: a slow log sink must not hold up the render thread.
-	eTrace"[gTextureManager] queued texture id=%u for deletion, pending=%zu", texture_id, pending);
+	eTrace("[gTextureManager] queued texture id=%u for deletion, pending=%zu", texture_id, pending);
 }
 
 bool gTextureManager::hasPendingDeletions() {
@@ -783,7 +783,7 @@ void gTextureManager::processDeletions() {
 				m_texture_to_image_map.erase(it);
 			}
 		}
-		eTrace"[gTextureManager] -texture count=%zu live=%ld ~%.1fMB", deletions.size(), m_live_texture_count, m_live_texture_bytes / 1048576.0);
+		eTrace("[gTextureManager] -texture count=%zu live=%ld ~%.1fMB", deletions.size(), m_live_texture_count, m_live_texture_bytes / 1048576.0);
 	}
 }
 
