@@ -120,6 +120,7 @@ void eHdmiCEC::initializeCEC()
 eHdmiCEC::~eHdmiCEC()
 {
 	if (hdmiFd >= 0) ::close(hdmiFd);
+	eTrace("[eHdmiCEC] *********>> close hdmiFD");	
 }
 
 eHdmiCEC *eHdmiCEC::getInstance()
