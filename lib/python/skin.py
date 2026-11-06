@@ -1240,7 +1240,7 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 			if name and value:
 				parameters[name] = list(map(parseParameter, [x.strip() for x in value.split(",")])) if "," in value else parseParameter(value)
 			else:
-				raise SkinError(f"Tag 'parameter' needs a name and value, got name='{name}' and size='{value)}'")
+				raise SkinError(f"Tag 'parameter' needs a name and value, got name='{name}' and size='{value}'")
 	for tag in domSkin.findall("servicelisttemplates"):
 		parseServiceListTemplates(tag)
 	for tag in domSkin.findall("menus"):
