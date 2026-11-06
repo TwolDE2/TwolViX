@@ -207,9 +207,6 @@ struct call_entry
 
 void eActionMap::keyPressed(const std::string &device, int key, int flags)
 {
-	if (flags != eRCKey::flagRepeat) // not for every repeat, a held key would flood the log
-		eDebug("[eActionMap] key from %s: %d %d", device.c_str(), key, flags);
-
 	if (!strcmp(device.c_str(), "Hdmi-CEC")) // Bounce HDMI-CEC
 	{
 		/* eDebug("[eActionMap] HDMI-CEC input key - bounce? from %s: %d %d", device.c_str(), key, flags); */		

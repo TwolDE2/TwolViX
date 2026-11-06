@@ -131,7 +131,7 @@ void eRCDeviceInputDev::handleCode(long rccode)
 	}
 
 	if (ev->value != 2)
-		eDebug("[eRCDeviceInputDev] emit: %u", ev->value); // ZZ
+		eTrace("[eRCDeviceInputDev] emit: %u", ev->value);
 	switch (ev->value)
 	{
 		case 0:
