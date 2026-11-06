@@ -65,6 +65,8 @@ class Standby2(Screen):
 				print("[Standby] open hdmi on leave standby")
 			except:
 				pass
+		from enigma import eHdmiCEC  # noqa: E402
+		eHdmiCEC.initializeCEC()
 		self.setInput("ENCODER")  # set input to encoder
 		self.leaveMute()  # check audio status
 		print("[Standby] leave standby 2")

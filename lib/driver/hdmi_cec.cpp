@@ -95,9 +95,10 @@ void eHdmiCEC::initializeCEC()
 #else
 #define HDMIDEV "/dev/hdmi_cec"
 #endif
-
+	if (hdmiFd >= 0) ::close(hdmiFd);
+	eTrace("[eHdmiCEC][initializeCEC] *********>> close hdmiFD");
 	hdmiFd = ::open(HDMIDEV, O_RDWR | O_NONBLOCK | O_CLOEXEC);
-	eTrace("[eHdmiCEC] ****** open HDMIDEV: %s hdmiFd: %d", HDMIDEV, hdmiFd);
+	eTrace("[eHdmiCEC][initializeCEC] ****** open HDMIDEV: %s hdmiFd: %d", HDMIDEV, hdmiFd);
 	if (hdmiFd >= 0)
 	{
 #ifdef DREAMBOX
