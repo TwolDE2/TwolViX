@@ -80,6 +80,7 @@ is usually caused by not marking PSignals as immutable.
 #include <lib/python/pythonconfig.h>
 #include <lib/gui/elistbox.h>
 #include <lib/gui/elistboxcontent.h>
+#include <lib/gui/elistboxepggrid.h>
 #include <lib/gui/esubtitle.h>
 #include <lib/service/listboxservice.h>
 #include <lib/service/listboxservicetpl.h>
@@ -256,6 +257,7 @@ typedef long time_t;
 %include <lib/gui/ewidgetdesktop.h>
 %include <lib/gui/elistbox.h>
 %include <lib/gui/elistboxcontent.h>
+%include <lib/gui/elistboxepggrid.h>
 %include <lib/gui/ewindowstyle.h>
 %include <lib/gui/ewindowstyleskinned.h>
 %include <lib/gui/ewidgetanimation.h>
