@@ -3,6 +3,7 @@ from os import remove
 from os.path import exists, join as join
 from struct import pack
 from sys import maxsize
+from time import monotonic
 
 from enigma import eActionMap, eHdmiCEC, eTimer
 import NavigationInstance
@@ -513,6 +514,7 @@ def printX(msg):
 
 class HdmiCec:
 	instance = None
+	RECLAIM_AFTER_WAKEUP = 30  # seconds, see addressChanged()
 
 	def __init__(self):
 		if config.hdmicec.enabled.value:
@@ -539,6 +541,7 @@ class HdmiCec:
 			self.local_vendor_id = CEC_VENDOR_ENIGMA2_STB
 			self.tv_powerstate = "unknown"
 			self.cmd87 = False
+			self.leftStandby = monotonic()
 			self.enableCec()
 #		else:
 #			printX("[HdmiCEC][init] no set physical address ")
@@ -558,6 +561,7 @@ class HdmiCec:
 			except:
 				setFixedPhysicalAddress("0.0.0.0")
 		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
+		eHdmiCEC.getInstance().addressChanged.get().append(self.addressChanged)
 		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
 		# config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
 		self.volumeForwardingEnabled = False
@@ -1051,9 +1055,29 @@ class HdmiCec:
 
 	def onLeaveStandby(self):
 		printX("[HDMI-CEC][onLeaveStandby] entered")
+		self.leftStandby = monotonic()
 		self.sendWakeupMessages()
 		if int(config.hdmicec.repeat_wakeup_timer.value):
 			self.repeat.startLongTimer(int(config.hdmicec.repeat_wakeup_timer.value))
+
+	# The driver has a new physical address (and has already reported it). A TV that cut the HDMI hot plug in standby
+	# (LG OLED55C97LA after a night) only brings it back while it boots, after the wakeup messages went out with the old
+	# address, and then asks whether to connect the "new" receiver. Claim the source again with the new address, but only
+	# shortly after leaving standby: later on it would take the TV over from whatever input is being watched.
+	def addressChanged(self, address):
+		sinceWakeup = monotonic() - self.leftStandby
+		printX(f"[HDMI-CEC][addressChanged] physical address:{getPhysicalAddress()} inStandby:{bool(Screens.Standby.inStandby)} sinceWakeup:{sinceWakeup:.1f}s")
+		if not config.hdmicec.enabled.value or Screens.Standby.inStandby or address in (0x0000, 0xFFFF):  # 0.0.0.0 is the TV, f.f.f.f is no address
+			return
+		if sinceWakeup > self.RECLAIM_AFTER_WAKEUP:
+			return
+		messages = []
+		if config.hdmicec.report_active_source.value:
+			messages.append("sourceactive")
+		if config.hdmicec.report_active_menu.value:
+			messages.append("menuactive")
+		if messages:
+			self.sendQMessages(0, messages)
 
 	def wakeup(self):
 		printX("[HDMI-CEC][wakeup] entered")
