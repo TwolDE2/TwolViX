@@ -38,6 +38,7 @@ dvb_libenigma_dvb_a_SOURCES = \
 	dvb/scan.cpp \
 	dvb/sec.cpp \
 	dvb/streamserver.cpp \
+	dvb/servicetsfilter.cpp \
 	dvb/subtitle.cpp \
 	dvb/teletext.cpp \
 	dvb/tstools.cpp \
@@ -86,6 +87,7 @@ dvbinclude_HEADERS = \
 	dvb/rotor_calc.h \
 	dvb/scan.h \
 	dvb/sec.h \
+	dvb/servicetsfilter.h \
 	dvb/specs.h \
 	dvb/streamserver.h \
 	dvb/subtitle.h \
