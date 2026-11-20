@@ -1391,6 +1391,7 @@ def InitUsageConfig():
 	for i in [3] + list(range(5, 65, 5)):
 		choicelist.append(("%d" % i, _("%d sec") % i))
 	config.hdmicec.repeat_wakeup_timer = ConfigSelection(default="3", choices=[("0", _("Disabled"))] + choicelist)
+	config.hdmicec.wake_video_resync = ConfigSelection(default="0", choices=[("0", _("Disabled")), ("reapply", _("Re-apply video mode")), ("toggle", _("Switch video mode and back"))])  # Restart the HDMI video output once the TV has switched to our input after leaving standby (some LG TVs report "no signal").
 	config.hdmicec.debug = ConfigSelection(default="0", choices=[("0", _("Disabled")), ("1", _("print debug")), ("2", _("Log Messages")), ("3", _("Log Key Events")), ("4", _("Log All"))])
 	config.hdmicec.bookmarks = ConfigLocations(default="/hdd/")
 	config.hdmicec.log_path = ConfigDirectory("/hdd/")

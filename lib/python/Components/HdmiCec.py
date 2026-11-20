@@ -3,8 +3,9 @@ from os import remove
 from os.path import exists, join as join
 from struct import pack
 from sys import maxsize
+from time import time
 
-from enigma import eActionMap, eHdmiCEC, eTimer
+from enigma import eActionMap, eAVSwitch, eHdmiCEC, eTimer
 import NavigationInstance
 
 from Components.config import config
@@ -528,6 +529,10 @@ class HdmiCec:
 			self.repeat.timeout.get().append(self.sendWakeupMessages)
 			self.delay = eTimer()
 			self.delay.timeout.get().append(self.sendStandbyMessages)
+			self.videoResync = eTimer()
+			self.videoResync.timeout.get().append(self.videoResyncRun)
+			self.videoResyncPending = 0  # expiry time (time()) while waiting for the TV to select our input after leaving standby
+			self.videoResyncStep = 0
 			self.useStandby = True
 			self.handlingStandbyFromTV = False
 			self.devices = {}
@@ -807,6 +812,11 @@ class HdmiCec:
 							if not inStandby:
 								if config.hdmicec.report_active_source.value:
 									self.sendMessage(msgaddress, "sourceactive")
+								if self.videoResyncPending:
+									if time() < self.videoResyncPending:  # TV has selected our input after wakeup: restart HDMI video so it re-syncs
+										self.videoResyncStep = 0
+										self.videoResync.start(1500, True)
+									self.videoResyncPending = 0
 					case 0x87 if length >= 3:  # device vendor id
 						self.cmd87 = True
 						printX(f"[HdmiCEC][messageReceived]Reporting Device Vendor ctrl0:{ctrl0:02X} ctrl1:{ctrl1:02X} ctrl2:{ctrl2:02X}")
@@ -1009,6 +1019,8 @@ class HdmiCec:
 	def onEnterStandby(self, configElement):
 		Screens.Standby.inStandby.onClose.append(self.onLeaveStandby)
 		self.repeat.stop()
+		self.videoResync.stop()
+		self.videoResyncPending = 0
 		self.standbyMessages()
 
 	def onEnterDeepStandby(self, configElement):
@@ -1051,9 +1063,30 @@ class HdmiCec:
 
 	def onLeaveStandby(self):
 		printX("[HDMI-CEC][onLeaveStandby] entered")
+		if config.hdmicec.enabled.value and config.hdmicec.wake_video_resync.value != "0":
+			self.videoResyncPending = time() + 30
 		self.sendWakeupMessages()
 		if int(config.hdmicec.repeat_wakeup_timer.value):
 			self.repeat.startLongTimer(int(config.hdmicec.repeat_wakeup_timer.value))
+
+	def videoResyncRun(self):
+		if Screens.Standby.inStandby:
+			return
+		from Components.AVSwitch import iAVSwitch
+		from Components.SystemInfo import SystemInfo
+		if config.hdmicec.wake_video_resync.value == "toggle" and self.videoResyncStep == 0:
+			current = fileReadLine("/proc/stb/video/videomode", default="")
+			available = SystemInfo["AvailableVideomodes"]
+			other = next((m for m in ("720p50", "1080i50", "576p50", "720p", "1080i", "576p") if m != current and m in available), None)
+			if other:
+				print(f"[HdmiCEC][videoResyncRun] switching video mode {current} -> {other} to restart HDMI output")
+				eAVSwitch.getInstance().setVideoMode(other)
+				self.videoResyncStep = 1
+				self.videoResync.start(1000, True)
+				return
+		print("[HdmiCEC][videoResyncRun] re-applying configured video mode to restart HDMI output")
+		self.videoResyncStep = 0
+		iAVSwitch.setConfiguredMode()
 
 	def wakeup(self):
 		printX("[HDMI-CEC][wakeup] entered")
