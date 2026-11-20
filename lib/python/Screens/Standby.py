@@ -57,6 +57,14 @@ def lastPowerState(state):
 
 
 class Standby2(Screen):
+	POWER_KEY_DEBOUNCE = 1.0  # seconds: ignore a remote power key this soon after entering standby (double/IR-repeated press)
+
+	def keyPower(self):
+		if time() - self.standbyEnterTime < self.POWER_KEY_DEBOUNCE:
+			print("[Standby][Standby2][keyPower] power key ignored, pressed too soon after entering standby")
+			return
+		self.Power()
+
 	def Power(self):
 		print("[Standby][Standby2][Power] leave standby2")
 		if BRAND in ('dinobot') or SystemInfo["HasHiSi"] or BOXTYPE in ("sfx6008", "sfx6018"):
@@ -84,14 +92,15 @@ class Standby2(Screen):
 		self.skinName = "Standby"
 
 		print("[Standby] enter standby")
+		self.standbyEnterTime = time()
 
 		if path.exists("/usr/scripts/standby_enter.sh"):
 			Console().ePopen("/usr/scripts/standby_enter.sh")
 
 		self["actions"] = ActionMap(["StandbyActions"],
 		{
-			"power": self.Power,
-			"discrete_on": self.Power
+			"power": self.keyPower,
+			"discrete_on": self.keyPower
 		}, -1)
 
 		globalActionMap.setEnabled(False)
