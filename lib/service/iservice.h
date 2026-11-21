@@ -1018,6 +1018,10 @@ public:
 		 * once the pipeline first reaches PLAYING instead. */
 		evFirstFrame,
 
+		evDmxcsaDelayRaised, /* software descrambling: the playback delay grew for a late control word */
+		evDmxcsaDelayLimit, /* a control word came too late and the delay stays as it is */
+		evDmxcsaBadCw, /* a control word arrived that does not open this service */
+
 		evUser = 0x100
 	};
 };
