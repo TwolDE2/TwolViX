@@ -215,7 +215,7 @@ for cislot in range(0, SystemInfo["CommonInterface"]):
 	SystemInfo[f"CI{cislot}SupportsHighBitratesChoices"] = fileCheck(f"/proc/stb/tsmux/ci{cislot}_tsclk_choices")
 	SystemInfo[f"CI{cislot}RelevantPidsRoutingSupport"] = fileCheck(f"/proc/stb/tsmux/ci{cislot}_relevant_pids_routing")
 SystemInfo["NumVideoDecoders"] = getNumVideoDecoders()
-SystemInfo["PIPAvailable"] = MODEL not in ("i55plus") and SystemInfo["NumVideoDecoders"] > 1
+SystemInfo["PIPAvailable"] = SystemInfo["NumVideoDecoders"] > 1
 # PiP from servicemp3 needs the second video device to accept memory writes from dvbvideosink (decoder=1).
 # VU+ dvb-bcm7444 only feeds video1 from the demux (brcm_video2_write is a stub), so use the DVB path there.
 SystemInfo["PiPServiceMP3"] = SystemInfo["PIPAvailable"] and BRAND != "vuplus"
@@ -285,7 +285,43 @@ SystemInfo["hasHdmiCec"] = fileExists("/dev/hdmi_cec") or fileExists("/dev/misc/
 SystemInfo["HasHDMIin"] = SystemInfo["hdmifhdin"] or SystemInfo["hdmihdin"]
 SystemInfo["HDMIinPiP"] = SystemInfo["HasHDMIin"] and BRAND != "dreambox"
 SystemInfo["CanHDMIinRecord"] = fileExists("/proc/stb/encoder/0/decoder")
+<<<<<<< HEAD
 # Audio/Video Configuration setup values
+=======
+SystemInfo["Has24hz"] = fileCheck("/proc/stb/video/videomode_24hz") or MODEL == "h7"
+SystemInfo["canMode12"] = MODEL in ("hd51", "h7") and ("brcm_cma=440M@328M brcm_cma=192M@768M", "brcm_cma=520M@248M brcm_cma=200M@768M")
+SystemInfo["HasMMC"] = fileHas("/proc/cmdline", "root=/dev/mmcblk") or "mmcblk" in SystemInfo["mtdrootfs"]
+SystemInfo["HasH9SD"] = MODEL in ("h9", "i55plus") and pathExists("/dev/mmcblk0p1")
+SystemInfo["HasSDnomount"] = MODEL in ("h9", "i55plus") and (False, "none") or MODEL in ("h9combo", "h9combose", "h9se", "h9twin", "h9twinse", "h11", "multibox", "multiboxpro", "pulse4k", "pulse4kmini", "gb7252", "vuduo4klite") and (True, "mmcblk0")
+SystemInfo["CanProc"] = MODEL in ("vuduo4klite", ) or (SystemInfo["HasMMC"] and BRAND != "vuplus")
+SystemInfo["Canaudiosource"] = fileCheck("/proc/stb/hdmi/audio_source")
+SystemInfo["Can3DSurround"] = fileHas("/proc/stb/audio/3d_surround_choices", "none") and fileCheck("/proc/stb/audio/3d_surround")
+SystemInfo["Can3DSpeaker"] = fileHas("/proc/stb/audio/3d_surround_speaker_position_choices", "center") and fileCheck("/proc/stb/audio/3d_surround_speaker_position")
+SystemInfo["CanAutoVolume"] = fileHas("/proc/stb/audio/avl_choices", "none") or fileHas("/proc/stb/audio/avl_choices", "hdmi")
+SystemInfo["supportPcmMultichannel"] = fileCheck("/proc/stb/audio/multichannel_pcm")
+SystemInfo["CanDownmixAC3"] = fileHas("/proc/stb/audio/ac3_choices", "downmix")
+SystemInfo["CanDownmixAC3Plus"] = fileHas("/proc/stb/audio/ac3plus_choices", "downmix")
+SystemInfo["CanDownmixDTS"] = fileHas("/proc/stb/audio/dts_choices", "downmix")
+SystemInfo["CanDTSHD"] = fileHas("/proc/stb/audio/dtshd_choices", "downmix")
+SystemInfo["CanDownmixAAC"] = fileHas("/proc/stb/audio/aac_choices", "downmix")
+SystemInfo["CanDownmixAACPlus"] = fileHas("/proc/stb/audio/aacplus_choices", "downmix")
+SystemInfo["CanAACTranscode"] = fileHas("/proc/stb/audio/aac_transcode_choices", "off")
+SystemInfo["CanWMAPRO"] = fileHas("/proc/stb/audio/wmapro_choices", "downmix")
+SystemInfo["CanBTAudio"] = fileHas("/proc/stb/audio/btaudio_choices", "off")
+SystemInfo["CanBTAudioDelay"] = fileCheck("/proc/stb/audio/btaudio_delay") or fileCheck("/proc/stb/audio/btaudio_delay_pcm")
+SystemInfo["havecolorspace"] = fileCheck("/proc/stb/video/hdmi_colorspace")
+SystemInfo["havecolorspacechoices"] = fileCheck("/proc/stb/video/hdmi_colorspace_choices")
+SystemInfo["havecolorimetry"] = fileCheck("/proc/stb/video/hdmi_colorimetry")
+SystemInfo["havecolorimetrychoices"] = fileCheck("/proc/stb/video/hdmi_colorimetry_choices")
+SystemInfo["havehdmicolordepth"] = fileCheck("/proc/stb/video/hdmi_colordepth")
+SystemInfo["havehdmicolordepthchoices"] = fileCheck("/proc/stb/video/hdmi_colordepth_choices")
+SystemInfo["havehdmihdrtype"] = fileCheck("/proc/stb/video/hdmi_hdrtype")
+SystemInfo["havehdmihdrosd"] = bool(fileReadLine("/proc/stb/video/hdmi_hdr_osd", default=None))
+SystemInfo["HDRSupport"] = fileExists("/proc/stb/hdmi/hlg_support_choices")
+SystemInfo["Canedidchecking"] = fileCheck("/proc/stb/hdmi/bypass_edid_checking")
+SystemInfo["haveboxmode"] = fileCheck("/proc/stb/info/boxmode")
+SystemInfo["HasScaler_sharpness"] = pathExists("/proc/stb/vmpeg/0/pep_scaler_sharpness")
+>>>>>>> 832129e572 (Replace single-string "in" tests with ==)
 SystemInfo["hasJack"] = SystemInfo["avjack"]
 SystemInfo["hasRCA"] = SystemInfo["rca"]
 SystemInfo["hasScart"] = SystemInfo["scart"]
