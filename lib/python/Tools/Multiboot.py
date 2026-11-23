@@ -38,7 +38,7 @@ def getMultibootslots():
 	UUID = ""
 	UUIDnum = 0
 	if SystemInfo["CanKexecVu"]:
-		return bootslots 
+		return bootslots
 	tmpdir = tempfile.mkdtemp(prefix="getMultibootslots")
 	print(f"[multiboot][getMultibootslots]root:{MTDROOTFS} UBIMB:{UBIMB} CHKROOTMB:{CHKROOTMB}")
 	cachedDevice = fileReadLine(MBBOOTDEVICE_CACHE)
