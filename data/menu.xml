@@ -101,7 +101,7 @@ self.session.openWithCallback(msgClosed, EpgDeleteMsg)
 			<menu key="skin_setup" level="0" text="Skin Selection" weight="3">
 				<item key="skin_selection" level="0" text="GUI Skin" weight="3"><screen module="SkinSelector" /></item>
 			</menu>
-			
+
 			<menu key="osd_menu" level="0" text="On Screen Display" weight="4" requires="OsdMenu">
 				<item key="osd3dsetup" level="2" text="3D Setup" requires="CanChange3DOsd"><screen module="UserInterfacePositioner" screen="OSD3DSetupScreen" /></item>
 				<item key="osdsetup" level="2" text="OSD Position" requires="OsdSetup"><screen module="UserInterfacePositioner" /></item>
