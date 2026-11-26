@@ -8,7 +8,7 @@ dvb_libenigma_dvb_a_SOURCES = \
 	dvb/db.cpp \
 	dvb/decoder.cpp \
 	dvb/demux.cpp \
-	dvb/dmxcsastatus.cpp
+	dvb/dmxcsastatus.cpp \
 	dvb/dvb.cpp \
 	dvb/dvbtime.cpp \
 	dvb/eit.cpp \
@@ -51,7 +51,7 @@ dvbinclude_HEADERS = \
 	dvb/db.h \
 	dvb/decoder.h \
 	dvb/demux.h \
-	dvb/dmxcsastatus.h
+	dvb/dmxcsastatus.h \
 	dvb/dvb.h \
 	dvb/dvbtime.h \
 	dvb/eit.h \
