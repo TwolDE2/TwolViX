@@ -1569,7 +1569,8 @@ RESULT eDVBServicePlay::stop()
 
 	stopTimeshift(); /* in case time shift was enabled, remove buffer etc. */
 
-	releaseHWDecoder();
+	if (m_audio_channel_detector)
+		m_audio_channel_detector->stop();
 
 	m_scramble_monitor = 0;
 	m_scramble_pid = -1;
@@ -4338,23 +4339,6 @@ void eDVBServicePlay::setQpipMode(bool value, bool audio)
 		else
 			m_decoder->setAudioPID(-1, -1);
 
-		m_decoder->set();
-	}
-
-}
-
-void eDVBServicePlay::releaseHWDecoder()
-{
-	if (m_audio_channel_detector)
-		m_audio_channel_detector->stop();
-
-	if (m_decoder)
-	{
-		eDebug("[eDVBServicePlay] Cleaning up HW decoder for clean handover");
-		m_decoder->setVideoPID(-1, -1);
-		m_decoder->setAudioPID(-1, -1);
-		m_decoder->setSyncPCR(-1);
-		m_decoder->setTextPID(-1);
 		m_decoder->set();
 	}
 }
