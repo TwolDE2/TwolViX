@@ -1173,7 +1173,6 @@ eDVBServicePlay::~eDVBServicePlay()
 		}
 	}
 
-	releaseHWDecoder();
 
 	if (m_subtitle_widget) m_subtitle_widget->destroy();
 }
@@ -2159,6 +2158,8 @@ int eDVBServicePlay::getInfo(int w)
 		return getLiveBitrate(true);
 	case sHDRType:
 		return m_hdr_type;
+	case sIsSoftCSA:
+		return isSoftDescrambled();
 	case sIsDedicated3D:
 		if (m_dvb_service) return m_dvb_service->isDedicated3D();
 		return false;

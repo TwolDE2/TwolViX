@@ -759,10 +759,10 @@ class ServiceInfo(Poll, Converter):
 		return bool(audio) and not self.hasMultichannelTrack(audio)
 
 	def boolCrypted(self, service, info):
-		return info.getInfo(iServiceInformation.sIsCrypted) == 1
+		return info.getInfo(iServiceInformation.sIsCrypted) == 1 and info.getInfo(iServiceInformation.sIsSoftCSA) != 1
 
-	def boolSoftCSA(self, service, info):  # Kept for skins, there is no software descrambling
-		return False
+	def boolSoftCSA(self, service, info):
+		return info.getInfo(iServiceInformation.sIsSoftCSA) == 1
 
 	def boolStreamRelay(self, service, info):
 		refstr = info.getInfoString(iServiceInformation.sServiceref)
