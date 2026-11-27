@@ -185,6 +185,7 @@ def countFrontpanelLEDs():
 def hasInitCam():
 	return bool([f for f in listdir("/etc/init.d") if f.startswith("softcam.") and f != "softcam.None"])
 
+
 SystemInfo["HasSoftCSA"] = exists("/sys/module/dmxcsa")
 SystemInfo["ArchIsARM"] = ARCHITECTURE.startswith(("arm", "cortex"))
 SystemInfo["ArchIsARM64"] = "64" in ARCHITECTURE
