@@ -355,14 +355,12 @@ def runScreenTest():
 	Tools.Trashcan.init(session)
 	if not VuRecovery:
 		CiHandler.setSession(session)
+	from Components.SoftCSANotify import initSoftCSANotify
+	initSoftCSANotify(session)
 
 	screensToRun = [p.fnc for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
 	profile("wizards")
 	screensToRun += wizardManager.getWizards()  # noqa: F405
-	# to do SoftCSANotify
-	# from Components.SoftCSANotify import initSoftCSANotify
-	# initSoftCSANotify(session)
-
 	screensToRun.append((100, InfoBar.InfoBar))
 	screensToRun.sort()
 
