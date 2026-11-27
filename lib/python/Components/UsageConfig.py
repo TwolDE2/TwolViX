@@ -12,7 +12,7 @@ from Components.NimManager import nimmanager
 from Components.ServiceList import refreshServiceList
 from Components.SystemInfo import SystemInfo
 from Tools.camcontrol import CamControl
-from Tools.Directories import rfileWriteLine, esolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation
+from Tools.Directories import fileWriteLine, resolveFilename, SCOPE_HDD, SCOPE_TIMESHIFT, defaultRecordingLocation
 
 VuRecovery = SystemInfo["HasKexecMultiboot"] and SystemInfo["MultiBootSlot"] == 0
 
