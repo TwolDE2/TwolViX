@@ -382,8 +382,6 @@ protected:
 
 	virtual ePtr<iTsSource> createTsSource(eServiceReferenceDVB &ref, int packetsize = 188);
 
-	// Clear the decoder PIDs at service stop, so the next service gets a clean decoder
-	void releaseHWDecoder();
 
 	// Audio cache helper
 	void updateAudioCache(int apid, int apidtype);
