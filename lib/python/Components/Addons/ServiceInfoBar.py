@@ -250,7 +250,6 @@ class ServiceInfoBar(GUIAddon):
 				if icon:
 					return ("dynamicIcon", "videoCodec", f"{self.codecIconPrefix}{icon}")
 			elif key == "crypt" and not isRef:
-				print("[ServiceInfoBar] frontend data:", service.frontendInfo() and service.frontendInfo().getFrontendData())  # TEMP debug
 				if "%3a//" in pending_sref and pending_service_ref and not pending_service_ref.getStreamRelay():
 					return key + "_off"
 				if info.getInfo(iServiceInformation.sIsCrypted) == 1 and info.getInfo(iServiceInformation.sIsSoftCSA) != 1 and scramblingState(info) != 0 and not isFallbackStream(service, pending_service_ref):

@@ -978,14 +978,11 @@ class ServiceInfo(Poll, Converter):
 	def textCryptoIcon(self, service, info):
 		icon = "clear"
 		if info.getInfo(iServiceInformation.sIsCrypted) == 1:
-			if info.getInfo(iServiceInformation.sIsSoftCSA) == 1:
-				icon = "softcsa"
+			refstr = info.getInfoString(iServiceInformation.sServiceref)
+			if "9999" in refstr or "17999" in refstr and "127.0.0.1" in refstr or "localhost" in refstr or "0.0.0.0" in refstr:
+				icon = "streamrelay"
 			else:
-				refstr = info.getInfoString(iServiceInformation.sServiceref)
-				if "9999" in refstr or "17999" in refstr and "127.0.0.1" in refstr or "localhost" in refstr or "0.0.0.0" in refstr:
-					icon = "streamrelay"
-				else:
-					icon = "crypted"
+				icon = "crypted"
 		return self.iconName(icon)
 
 	def textTransferBPS(self, service, info):

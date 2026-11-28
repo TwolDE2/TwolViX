@@ -13,12 +13,9 @@
 class eStaticServiceDVBInformation;
 class eStaticServiceDVBBouquetInformation;
 
-// Forward declarations for software descrambling
-class eDVBCSASession;
 #ifdef HAS_SOFTWARE_HDR_DETECTION
 class eHDRStreamDetector;
 #endif
-class eDVBSoftDecoder;
 class eDVBAudioChannelDetector;
 
 class eServiceFactoryDVB : public iServiceHandler {
@@ -217,12 +214,6 @@ protected:
 
 	ePtr<iTSMPEGDecoder> m_decoder;
 
-	// Software descrambling
-	ePtr<eDVBCSASession> m_csa_session;
-	ePtr<eConnection> m_csa_activated_conn;
-	ePtr<eDVBSoftDecoder> m_soft_decoder;
-	bool m_soft_decoder_video_info_valid;  // Track if video info is available from SoftDecoder
-
 	int m_is_primary;
 	int m_decoder_index;
 	int m_have_video_pid;
@@ -272,7 +263,6 @@ protected:
 
 		/* timeshift */
 	ePtr<iDVBTSRecorder> m_record;
-	ePtr<eDVBCSASession> m_timeshift_csa_session;
 	std::set<int> m_pids_active;
 
 	void updateTimeshiftPids();
@@ -281,6 +271,24 @@ protected:
 	void switchToTimeshift();
 
 	void updateDecoder(bool sendSeekableStateChanged=false);
+
+	// The software descrambler (dmxcsa) at work on this service: shown, not steered.
+	bool m_soft_descrambled;
+	bool isSoftDescrambled();
+	/* Our own readers of the live stream (scramble monitor, bitrate counters,
+	 * channel-count probe) must not open further filters on the PIDs dmxcsa
+	 * reroutes: on some drivers (vuultimo4k) that starves the module's feed and
+	 * the picture stays black. They read the shadow demux of the module instead. */
+	bool mayBeSoftDescrambled();
+	int getReaderDemux(ePtr<iDVBDemux> &demux, bool decode);
+	void restartLiveReaders();
+	void readerHoldTimeout();
+	bool m_readers_ready = false;
+	ePtr<eTimer> m_reader_hold_timer;
+	ePtr<iDVBDemux> m_shadow_demux;
+	const iDVBDemux *m_scramble_demux = nullptr;
+	void softDescramblingChanged();
+	void softDescramblingEvent(int demux, int what);
 
 	int m_skipmode;
 	int m_fastforward;
@@ -353,13 +361,6 @@ protected:
 	bool m_bitrate_failed = false;
 	int getLiveBitrate(bool audio);
 	void releaseLiveBitrate();
-		/* SoftCSA: the recorder of the soft decoder counts the descrambled bytes of the two PIDs instead */
-	bool m_softcsa_bitrate = false;
-	uint64_t m_softcsa_bytes[2] = {0, 0};
-	int64_t m_softcsa_us[2] = {0, 0};
-	int m_softcsa_kbps[2] = {0, 0};
-	int getSoftCSABitrate(bool audio, int pid);
-	void releaseSoftCSABitrate();
 
 		/* radiotext */
 	ePtr<eDVBRdsDecoder> m_rds_decoder;
@@ -381,24 +382,9 @@ protected:
 
 	virtual ePtr<iTsSource> createTsSource(eServiceReferenceDVB &ref, int packetsize = 188);
 
-	ePtr<eConnection> m_con_record_event;
-	void recordEvent(int event);
-
-	// Software descrambling
-	virtual void setupSpeculativeDescrambling();
-	void onSessionActivated(bool active);
-	void onSoftDecoderReady();
-	void onSoftDecoderAudioPidSelected(int pid);
-	void cleanupSoftwareDescrambling();
-
-	// Aggressive mode: force release of the HW-descrambler slot at service
-	// stop. Workaround for drivers (dm900) that ignore CA_SET_PID(pid, -1).
-	void resetHwDescramblerSlot();
 
 	// Audio cache helper
 	void updateAudioCache(int apid, int apidtype);
-private:
-	bool m_stream_corruption_detected;
 };
 
 class eStaticServiceDVBBouquetInformation: public iStaticServiceInformation

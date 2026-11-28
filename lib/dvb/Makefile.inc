@@ -5,13 +5,10 @@ dvb_libenigma_dvb_a_SOURCES = \
 	dvb/cablescan.cpp \
 	dvb/cahandler.cpp \
 	dvb/crc32.cpp \
-	dvb/csabuffer.cpp \
-	dvb/csaengine.cpp \
-	dvb/csasession.cpp \
-	dvb/cwhandler.cpp \
 	dvb/db.cpp \
 	dvb/decoder.cpp \
 	dvb/demux.cpp \
+	dvb/dmxcsastatus.cpp \
 	dvb/dvb.cpp \
 	dvb/dvbtime.cpp \
 	dvb/eit.cpp \
@@ -51,13 +48,10 @@ dvbinclude_HEADERS = \
 	dvb/cablescan.h \
 	dvb/cahandler.h \
 	dvb/crc32.h \
-	dvb/csabuffer.h \
-	dvb/csaengine.h \
-	dvb/csasession.h \
-	dvb/cwhandler.h \
 	dvb/db.h \
 	dvb/decoder.h \
 	dvb/demux.h \
+	dvb/dmxcsastatus.h \
 	dvb/dvb.h \
 	dvb/dvbtime.h \
 	dvb/eit.h \
@@ -94,4 +88,3 @@ dvbinclude_HEADERS = \
 	dvb/teletext.h \
 	dvb/tstools.h \
 	dvb/volume.h
-	
