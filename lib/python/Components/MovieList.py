@@ -8,6 +8,7 @@ from enigma import eListboxPythonMultiContent, eListbox, gFont, iServiceInformat
 
 from Components.config import config
 from Components.GUIComponent import GUIComponent
+from Components.Language import alphabeticSortKey
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaBlend, MultiContentEntryProgress
 from Components.Renderer.Picon import getPiconName
 from Screens.LocationBox import defaultInhibitDirs
@@ -739,14 +740,15 @@ class MovieList(GUIComponent):
 			elif (config.usage.trashsort_deltime.value == "show delete time"):
 				MovieList.UsingTrashSort = MovieList.TRASHSORT_SHOWDELETE
 
+		parentalControl = None
+		if config.ParentalControl.servicepinactive.value and config.ParentalControl.storeservicepin.value != "never":
+			from Components.ParentalControl import parentalControl
 		while True:
 			serviceref = reflist.getNext()
 			if not serviceref.valid():
 				break
-			if config.ParentalControl.servicepinactive.value and config.ParentalControl.storeservicepin.value != "never":
-				from Components.ParentalControl import parentalControl
-				if not parentalControl.sessionPinCached and parentalControl.isProtected(serviceref):
-					continue
+			if parentalControl and not parentalControl.sessionPinCached and parentalControl.isProtected(serviceref):
+				continue
 			info = serviceHandler.info(serviceref)
 			if info is None:
 				info = justStubInfo
@@ -757,11 +759,14 @@ class MovieList(GUIComponent):
 			if name[:2] == "._":
 				continue
 			if MovieList.UsingTrashSort:
-				f_path = serviceref.getPath()
-				if path.exists(f_path):  # Override with deltime for sorting
+				try:  # Override with deltime for sorting
+					deltime = stat(serviceref.getPath()).st_ctime
+				except OSError:
+					pass
+				else:
 					if MovieList.UsingTrashSort == MovieList.TRASHSORT_SHOWRECORD:
 						begin2 = begin      # Save for later re-instatement
-					begin = stat(f_path).st_ctime
+					begin = deltime
 
 			# Filter on a specific collections. Users don't care about case of the name
 			if collectionName and collectionName.lower() != name.strip().lower():
@@ -988,23 +993,23 @@ class MovieList(GUIComponent):
 				ref = firstItem[0] or ref
 		len = x[1] and (x[1].getLength(ref) // 60)  # we only display minutes, so sort by minutes
 		name = x[3].txt
-		return self.getSortPrimaryGroup(x), len or 0, name and name.lower() or "", -x[2]
+		return self.getSortPrimaryGroup(x), len or 0, alphabeticSortKey(name), -x[2]
 
 	def buildAlphaNumericSortKey(self, x):
 		# x = ref,info,begin,...
 		name = x[3].txt
-		return self.getSortPrimaryGroup(x), name and name.lower() or "", -x[2]
+		return self.getSortPrimaryGroup(x), alphabeticSortKey(name), -x[2]
 
 	# as for buildAlphaNumericSortKey, but without negating dates
 	def buildAlphaDateSortKey(self, x):
 		# x = ref,info,begin,...
 		name = x[3].txt
-		return self.getSortPrimaryGroup(x), name and name.lower() or "", x[2]
+		return self.getSortPrimaryGroup(x), alphabeticSortKey(name), x[2]
 
 	def buildAlphaNumericFlatSortKey(self, x):
 		# x = ref,info,begin,...
 		name = x[3].txt
-		return min(self.getSortPrimaryGroup(x), 2), name and name.lower() or "", -x[2]
+		return min(self.getSortPrimaryGroup(x), 2), alphabeticSortKey(name), -x[2]
 
 	def buildBeginTimeSortKey(self, x):
 		return self.getSortPrimaryGroup(x), "", -x[2]

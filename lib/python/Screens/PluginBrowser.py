@@ -2,9 +2,10 @@ from os import path, unlink
 
 from enigma import eConsoleAppContainer, eDVBDB, eTimer
 
+import skin
 from Components.ActionMap import HelpableActionMap, HelpableNumberActionMap
 from Components.Button import Button
-from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigText
+from Components.config import config, ConfigSubsection, ConfigText, ConfigYesNo
 from Components.Harddisk import harddiskmanager
 from Components import Ipkg
 from Components.Label import Label
@@ -12,6 +13,7 @@ from Components.Language import language
 from Components.OnlineUpdateCheck import feedsstatuscheck  # kernelMismatch removed Twol
 from Components.PluginComponent import plugins
 from Components.PluginList import PluginList, PluginEntryComponent, PluginCategoryComponent, PluginDownloadComponent
+from Components.Sources.List import List
 from Components.Sources.StaticText import StaticText
 from Components.SystemInfo import SystemInfo, DISPLAYBRAND, MACHINENAME
 from Plugins.Plugin import PluginDescriptor
@@ -25,8 +27,9 @@ from Tools.Directories import resolveFilename, SCOPE_PLUGINS, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
 
 config.misc.pluginbrowser = ConfigSubsection()
-config.misc.pluginbrowser.po = ConfigYesNo(default=True)
 config.misc.pluginbrowser.plugin_order = ConfigText(default="")
+config.misc.pluginbrowser.po = ConfigYesNo(default=False)
+config.misc.pluginbrowser.src = ConfigYesNo(default=False)
 
 
 def languageChanged():
@@ -55,6 +58,11 @@ class PluginBrowserSummary(ScreenSummary):
 
 
 class PluginBrowser(Screen, ProtectedScreen, HelpableScreen):
+	# Old skins with <widget name="list" .../> continue using the classic PluginList (vertical, GUIComponent-bound).
+	# New skins can opt to use the grid layout by binding "list" as a source instead:
+	# <widget source="list" render="Listbox"><convert type="TemplatedMultiContent">{"orientation": "orGrid", ...}</convert></widget>
+	# __init__ inspects skin.domScreens to see which style the resolved skin actually uses. See usesTemplatedList().
+
 	def __init__(self, session):
 		Screen.__init__(self, session)
 		self.setTitle(_("Plugin Browser"))
@@ -66,17 +74,22 @@ class PluginBrowser(Screen, ProtectedScreen, HelpableScreen):
 		self["key_red"] = Button(_("Remove plugins"))
 		self["key_green"] = Button(_("Download plugins"))
 		self["key_yellow"] = Button(_("User installed plugins"))
+		self["key_menu"] = StaticText(_("MENU"))
 		self["key_0"] = StaticText(_("0"))
 		self["key_previous"] = StaticText(_("PREVIOUS"))
 		self["key_next"] = StaticText(_("NEXT"))
 
 		self.list = []
-		self["list"] = PluginList(self.list)
+		self.templatedMode = self.usesTemplatedList()
+		self["list"] = List([], enableWrapAround=True) if self.templatedMode else PluginList(self.list)
 		if config.usage.sort_pluginlist.value:
 			self["list"].list.sort()
 
 		self["okActions"] = HelpableActionMap(self, ["OkCancelActions"], {"ok": (self.keySelect, _("Select the current item")), }, description=_("Selection Actions"))
-		self["cancelActions"] = HelpableActionMap(self, ["OkCancelActions"], {"cancel": (self.close, _("Exit PluginBrowser")), }, prio=0, description=_("Cancel Actions"))
+		self["cancelActions"] = HelpableActionMap(self, ["OkCancelActions"], {
+			"cancel": (self.close, _("Exit PluginBrowser")),
+			"close": (lambda: self.close(True), _("Exit PluginBrowser and close all menus")),
+		}, prio=0, description=_("Cancel Actions"))
 		self["PluginDownloadActions"] = HelpableActionMap(self, ["ColorActions"],
 		{
 			"red": (self.delete, _("Open 'Remove Plugins' screen")),
@@ -92,16 +105,26 @@ class PluginBrowser(Screen, ProtectedScreen, HelpableScreen):
 		self["NumberActions"] = HelpableNumberActionMap(self, ["NumberActions"], {
 			str(n): (self.keyNumberGlobal, _("Direct item selection")) for n in range(10)
 		}, description=_("Selection Actions"))
+		self["menuActions"] = HelpableActionMap(self, ["MenuActions"], {
+			"menu": (self.openSetup, _("Open PluginBrowser setup screen")),
+		}, prio=0, description=_("Setup Actions"))
 
 		self.number = 0
 		self.nextNumberTimer = eTimer()
 		self.nextNumberTimer.callback.append(self.okbuttonClick)
 
+		self.default_icon = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/plugin.png"))
+
 		self.onFirstExecBegin.append(self.checkWarnings)
 		self.onShown.append(self.updateList)
 		self.onChangedEntry = []
 		self["list"].onSelectionChanged.append(self.selectionChanged)
-		self.onLayoutFinish.append(self.saveListsize)
+		if not self.templatedMode:
+			self.onLayoutFinish.append(self.saveListsize)
+
+	def openSetup(self):
+		from Screens.Setup import Setup
+		self.session.open(Setup, "pluginbrowsersetup")
 
 	def isProtected(self):
 		return config.ParentalControl.setuppinactive.value and (not config.ParentalControl.config_sections.main_menu.value or hasattr(self.session, 'infobar') and self.session.infobar is None) and config.ParentalControl.config_sections.plugin_browser.value
@@ -162,7 +185,7 @@ class PluginBrowser(Screen, ProtectedScreen, HelpableScreen):
 				self.resetNumberKey()
 
 	def okbuttonClick(self):
-		self["list"].moveToIndex(self.number - 1)
+		self["list"].index = self.number - 1
 		self.resetNumberKey()
 		self.run()
 
@@ -197,23 +220,26 @@ class PluginBrowser(Screen, ProtectedScreen, HelpableScreen):
 			config.misc.pluginbrowser.plugin_order.value = ",".join(plugin_order)
 			config.misc.pluginbrowser.plugin_order.save()
 
+	def pluginEntry(self, plugin):
+		if self.templatedMode:
+			return (plugin, plugin.name, plugin.description, plugin.icon or self.default_icon)
+		return PluginEntryComponent(plugin, self.listWidth)
+
 	def updateList(self):
 		self.list = []
 		pluginlist = plugins.getPlugins(PluginDescriptor.WHERE_PLUGINMENU)[:]
 		for x in config.misc.pluginbrowser.plugin_order.value.split(","):
 			plugin = list(plugin for plugin in pluginlist if plugin.path[24:] == x)
 			if plugin:
-				self.list.append(PluginEntryComponent(plugin[0], self.listWidth))
+				self.list.append(self.pluginEntry(plugin[0]))
 				pluginlist.remove(plugin[0])
-		self.list = self.list + [PluginEntryComponent(plugin, self.listWidth) for plugin in pluginlist]
+		self.list = self.list + [self.pluginEntry(plugin) for plugin in pluginlist]
 		self["list"].setList(self.list)
 
 	def delete(self):
-		config.misc.pluginbrowser.po.value = False
 		self.session.openWithCallback(self.PluginDownloadBrowserClosed, PluginDownloadBrowser, PluginDownloadBrowser.REMOVE, True)
 
 	def download(self):
-		config.misc.pluginbrowser.po.value = True
 		if not (feedsstatuscheck.adapterAvailable() and feedsstatuscheck.NetworkUp()):
 			self.session.openWithCallback(self.close, MessageBox, _("Your %s %s has no %s access, please check your network settings and make sure you have network cable connected and try again.") % (DISPLAYBRAND, MACHINENAME, feedsstatuscheck.adapterAvailable() and 'internet' or 'network'), type=MessageBox.TYPE_INFO, timeout=30, close_on_any_key=True)
 			return
@@ -224,17 +250,46 @@ class PluginBrowser(Screen, ProtectedScreen, HelpableScreen):
 		self.firsttime = False
 
 	def PluginDownloadBrowserClosed(self, returnValue):
-		if returnValue is None:
+		if returnValue == PluginDownloadBrowser.DOWNLOAD:
+			self.download()
+		elif returnValue == PluginDownloadBrowser.REMOVE:
+			self.delete()
+		elif returnValue == "closeRecursive":
+			self.close(True)
+		else:
 			self.updateList()
 			self.checkWarnings()
-		elif returnValue == 0:
-			self.download()
-		else:
-			self.delete()
 
 	def userInstalledPlugins(self):
 		from Screens.About import AboutUserInstalledPlugins
 		self.session.open(AboutUserInstalledPlugins)
+
+	def usesTemplatedList(self):
+		# Inspect the skin XML actually resolved for this screen (without applying it) to decide
+		# whether "list" is bound the old way (name="list", classic PluginList) or the new way
+		# (source="list", grid-capable TemplatedMultiContent).
+		names = self.skinName if isinstance(self.skinName, list) else [self.skinName]
+		for name in names:
+			element = skin.domScreens.get(name, (None, None))[0]
+			if element is not None:
+				found = self.findListBinding(element)
+				return found if found is not None else False
+		return False  # We should never arrive here, as emergency skin has PluginBrowser for sure.
+
+	def findListBinding(self, element):
+		for widget in element.findall("widget"):
+			if widget.get("name") == "list":
+				return False
+			if widget.get("source") == "list":
+				return True
+		for panel in element.findall("panel"):
+			pname = panel.get("name")
+			sub = skin.domScreens.get(pname, (None, None))[0] if pname else panel
+			if sub is not None:
+				found = self.findListBinding(sub)
+				if found is not None:
+					return found
+		return None
 
 
 class PluginDownloadBrowser(Screen, HelpableScreen):
@@ -244,7 +299,7 @@ class PluginDownloadBrowser(Screen, HelpableScreen):
 	PLUGIN_PREFIX = 'enigma2-plugin-'
 	lastDownloadDate = None
 
-	def __init__(self, session, type=0, needupdate=True, skin_name=None):
+	def __init__(self, session, type=DOWNLOAD, needupdate=True, skin_name=None, prefix_whitelist=None):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
 		self.type = type
@@ -254,14 +309,16 @@ class PluginDownloadBrowser(Screen, HelpableScreen):
 			self.skinName.insert(0, skin_name)
 
 		if self.type == self.DOWNLOAD:
-			config.misc.pluginbrowser.po.value = True
 			self.setTitle(_("Install Plugins"))
 		elif self.type == self.REMOVE:
-			config.misc.pluginbrowser.po.value = False
 			self.setTitle(_("Remove Plugins"))
 
-		self.plugin_prefix_whitelist = ('settings', 'security', 'systemplugins', 'skin', 'drivers', 'display', 'bootlogos', 'picons', 'softcams', 'extensions', 'enigma2-locale-', 'kodi-addon-')
-		self.plugin_suffix_blacklist = ('-dev', '-staticdev', '-dbg', '-doc', '-common', '-meta', '-src', '-po')
+		enigma_plugin_categories = ["bootlogos", "display", "drivers", "extensions", "picons", "security", "settings", "skins", "softcams", "systemplugins"]
+		other_categories = ["kodi-addon-"]
+		self.plugin_prefix_whitelist = tuple(prefix_whitelist) if prefix_whitelist else tuple([self.PLUGIN_PREFIX + x + "-" for x in enigma_plugin_categories] + other_categories)
+		self.plugin_suffix_blacklist = ("-dev", "-staticdev", "-dbg", "-doc", "-common", "-meta") + tuple(
+			"-" + suffix for suffix in ("po", "src") if not getattr(config.misc.pluginbrowser, suffix).value
+		)
 		self.expandableIcon = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/expandable-plugins.png"))
 		self.expandedIcon = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/expanded-plugins.png"))
 		self.verticallineIcon = LoadPixmap(resolveFilename(SCOPE_CURRENT_SKIN, "icons/verticalline-plugins.png"))
@@ -296,11 +353,12 @@ class PluginDownloadBrowser(Screen, HelpableScreen):
 		self["key_blue"] = StaticText(_("Remove plugins") if self.type == self.DOWNLOAD else _("Download plugins"))
 		self.run = 0
 		self.remainingdata = ""
-		self["actions"] = HelpableActionMap(self, ["SetupActions", "ColorActions"],
+		self["actions"] = HelpableActionMap(self, ["CancelSaveActions", "ColorActions", "OkCancelActions"],
 		{
 			"ok": (self.go, _("Select current item")),
 			"save": (self.go, _("Select current item")),
 			"cancel": (self.requestClose, _("Close '%s' screen") % self.title),
+			"close": (self.requestCloseRecusive, _("Close '%s' screen and exit all menus") % self.title),
 			"blue": (self.delete if self.type == self.DOWNLOAD else self.download, _("Open 'Remove Plugins' screen") if self.type == self.DOWNLOAD else _("Open 'Install Plugins' screen")),
 		}, description=_("Plugin Browser Actions"))
 		if path.isfile('/usr/bin/opkg'):
@@ -355,10 +413,13 @@ class PluginDownloadBrowser(Screen, HelpableScreen):
 				mbox.setTitle(_("Remove plugins"))
 
 	def delete(self):
-		self.requestClose(1)
+		self.requestClose(self.REMOVE)
 
 	def download(self):
-		self.requestClose(0)
+		self.requestClose(self.DOWNLOAD)
+
+	def requestCloseRecusive(self):
+		self.requestClose("closeRecursive")
 
 	def requestClose(self, returnValue=None):
 		if self.plugins_changed:
@@ -562,7 +623,7 @@ class PluginDownloadBrowser(Screen, HelpableScreen):
 
 		for x in lines:
 			plugin = x.split(" - ", 2)
-			if plugin[0] and plugin[0] not in self.installedplugins and plugin[0].replace(self.PLUGIN_PREFIX, '').startswith(self.plugin_prefix_whitelist) and not plugin[0].endswith(self.plugin_suffix_blacklist):
+			if plugin[0] and plugin[0] not in self.installedplugins and plugin[0].startswith(self.plugin_prefix_whitelist) and not plugin[0].endswith(self.plugin_suffix_blacklist):
 				if self.run == 1 and self.type == self.DOWNLOAD:
 					self.installedplugins.append(plugin[0])
 				else:

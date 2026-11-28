@@ -65,7 +65,7 @@ public:
 	void setCompareSref( const std::string &n, bool isSR = false) { compareSref=n; isStreamRelay=isSR; }
 	bool getStreamRelay() const { return isStreamRelay; }
 	std::string getCompareSref() const { return compareSref; }
-	
+
 
 	unsigned int getUnsignedData(unsigned int num) const
 	{
@@ -429,6 +429,10 @@ public:
 
 		sHDRType,			/* 0=SDR 1=HDR10 2=HLG 3=HDR */
 
+		sIsScrambled,		/* live DVB: 1 = the packets of the video (or audio) PID carry the scrambling flag right now, 0 = they are clear, 2 = being determined (no packet seen yet), -1 = not available or not known */
+		sVideoBitrate,		/* measured live bitrate of the video stream in kbit/s (servicemp3; -1 = not available) */
+		sAudioBitrate,		/* same for the currently selected audio stream */
+
 		sUser = 0x100
 	};
 	enum {
@@ -569,10 +573,12 @@ struct iAudioTrackInfo
 	std::string m_description;
 	std::string m_language; /* iso639 */
 	int m_pid; /* for association with the stream. */
+	int m_channels = 0; /* decoded/source channel count when available. */
 #endif
 	std::string getDescription() { return m_description; }
 	std::string getLanguage() { return m_language; }
 	int getPID() { return m_pid; }
+	int getChannels() { return m_channels; }
 };
 SWIG_ALLOW_OUTPUT_SIMPLE(iAudioTrackInfo);
 
@@ -746,6 +752,14 @@ public:
 	virtual void setPage(const eDVBSubtitlePage &p) = 0;
 	virtual void setPage(const ePangoSubtitlePage &p) = 0;
 	virtual void setPixmap(ePtr<gPixmap> &pixmap, gRegion changed, eRect dest) = 0;
+	/* Hides whatever page is currently on screen immediately, independent of
+	 * that page's own m_timeout. A track switch (or turning subtitles off)
+	 * needs this: setPage() arms the display's own internal hide timer for
+	 * that page's timeout, with no awareness of playback switching tracks
+	 * out from under it, so without an explicit clear here the old page
+	 * simply stays visible - correctly rendered, just stale - until its
+	 * original timeout happens to elapse on its own. */
+	virtual void clearPage() = 0;
 	virtual void destroy() = 0;
 };
 
@@ -989,6 +1003,22 @@ public:
 		evUpdateTags,
 		evUpdateIDv3Cover,
 		evGstreamerStart,
+
+		/* eServiceMP3 only: fired once a pending start-position resume seek
+		 * (an "&e2startoffset=" URL parameter - see eServiceMP3's
+		 * constructor) has actually been applied and playback is running
+		 * from it, not merely requested. */
+		evResumed,
+
+		/* eServiceMP3 only: fired once, the first time this playback
+		 * session actually has a frame decoded and ready to be shown/heard
+		 * - unlike evStart/evGstreamerStart (fired as soon as the pipeline
+		 * reaches PAUSED, before anything has necessarily been decoded).
+		 * For video, this is the first real video-size report from the
+		 * decoder (i.e. it has a frame to show); for audio-only content,
+		 * there is no equivalent per-frame signal available, so this fires
+		 * once the pipeline first reaches PLAYING instead. */
+		evFirstFrame,
 
 		evUser = 0x100
 	};

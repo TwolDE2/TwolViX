@@ -404,6 +404,24 @@ RESULT eDVBScan::startFilter()
 void eDVBScan::SDTready(int err)
 {
 	SCAN_eDebug("[eDVBScan] got sdt %d", err);
+	if (err && m_SDT)
+	{
+		eDVBTableSpec previous;
+		if (!m_SDT->getSpec(previous) && (previous.flags & eDVBTableSpec::tfHaveTIDExt))
+		{
+			// Some multiplexes signal a different TSID in PAT and SDT. Before
+			// falling back to SID-only names, read SDT actual without the PAT TSID.
+			// Do not accept SDT other here: it describes a different transponder.
+			eDVBTableSpec fallback = eDVBSDTSpec();
+			fallback.timeout = 10000;
+			SCAN_eDebug("[eDVBScan] SDT for PAT TSID %04x unavailable, retrying SDT actual without TSID filter", previous.tidext);
+			m_SDT = new eTable<ServiceDescriptionSection>;
+			CONNECT(m_SDT->tableReady, eDVBScan::SDTready);
+			if (!m_SDT->start(m_demux, fallback))
+				return;
+			SCAN_eDebug("[eDVBScan] failed to start SDT actual fallback");
+		}
+	}
 	m_ready |= readySDT;
 	if (!err)
 		m_ready |= validSDT;
@@ -512,12 +530,22 @@ void eDVBScan::PMTready(int err)
 					}
 					[[fallthrough]];
 				case 0x0f: // MPEG 2 AAC
-				case 0x11: // MPEG 4 AAC
 					if (!isvideo && !forced_audio)
 					{
 						forced_audio = 1;
 						isaudio = 1;
 						currentAudioCacheId = eDVBService::cAACAPID;
+					}
+					[[fallthrough]];
+				case 0x11: // MPEG-4 AAC
+				case 0x7c: // MPEG-4 AAC Descriptor
+				case 0x51: // MPEG-4 HE-AAC profile, level 2
+				case 0x52: // MPEG-4 HE-AAC v2 profile, level 2
+					if (!isvideo && !forced_audio)
+					{
+						forced_audio = 1;
+						isaudio = 1;
+						currentAudioCacheId = eDVBService::cAACHEAPID;
 					}
 					[[fallthrough]];
 				case 0x06: // PES Private

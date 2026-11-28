@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import listdir, rename, remove, path as os_path
 import re
-from time import localtime, strftime, time
+from time import localtime, strftime, time, monotonic
 
 from enigma import eActionMap, eServiceReference, eEPGCache, eServiceCenter, eRCInput, eTimer, ePoint, eDVBDB, iPlayableService, iServiceInformation, getPrevAsciiCode, eDVBLocalTimeHandler
 
@@ -17,7 +17,7 @@ import Components.ParentalControl
 from Components.PluginComponent import plugins
 from Components.Renderer.Picon import getPiconName
 from Components.SelectionList import SelectionList, SelectionEntryComponent
-from Components.ServiceList import ServiceList, refreshServiceList
+from Components.ServiceList import ServiceList, createServiceList, refreshServiceList
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
 from Components.Sources.Event import Event
 from Components.Sources.List import List
@@ -209,6 +209,15 @@ def removed_userbouquets_available():
 	return False
 
 
+from Screens.Screen import ScreenSummary
+
+
+class BouquetSelectionBoxSummary(ScreenSummary):
+	def __init__(self, session, parent):
+		ScreenSummary.__init__(self, session, parent)
+		self.skinName = ["ScreenSummary"]
+
+
 class BouquetSelectionBox(Screen):
 	def __init__(self, session, title=None, onlyDeleted=False, greenText=None):
 		Screen.__init__(self, session)
@@ -216,7 +225,6 @@ class BouquetSelectionBox(Screen):
 		self.skinName = ["BouquetSelectionBox", "Setup"]
 		path = "/etc/enigma2"
 		bouquetList = [x for x in listdir(path) if x.startswith("userbouquet") and (not onlyDeleted or x.endswith(".del"))]
-		[SelectionEntryComponent(x[12:-4], os_path.join(path, x), "", False) for x in bouquetList]
 		self["config"] = SelectionList([SelectionEntryComponent(x[12:len(x) - (4 if onlyDeleted else 0)], os_path.join(path, x), "", False) for x in bouquetList], enableWrapAround=True)
 		self["key_red"] = StaticText(_("Cancel"))
 		self["key_green"] = StaticText(greenText if greenText else _("Save"))
@@ -228,6 +236,11 @@ class BouquetSelectionBox(Screen):
 			"cancel": self.close,
 			"yellow": self["config"].toggleAllSelection,
 		}, -2)
+
+		self.setTitle(self.title)
+
+	def createSummary(self):
+		return BouquetSelectionBoxSummary
 
 	def keySave(self):
 		self.close([x[0][1] for x in self["config"].list if x[0][3]])
@@ -803,14 +816,64 @@ class SelectionEventInfo:
 
 	def __onShow(self):
 		self["Service"].newService(None)
-		self.__selectionChanged()
+		# the screen has just opened: load the info right away, and start the repeat detection afresh
+		self.lastSelectionChange = 0
+		self.lastSelectionIndex = None
+		self.timer.start(self.SHOW_MS, True)
+
+	# Updating the info (every converter / renderer of the Service and Event sources: event name, description, progress, ...)
+	# is far dearer than a scroll step. The key repeat of a remote is ~9Hz (about 110ms between steps), so a fixed 100ms
+	# timer fired between nearly every step of a fast scroll. The fast scroll is the page jump (left / right of a vertical
+	# list, up / down of a horizontal one): a selection change that moves by more than one entry waits SCROLL_SETTLE_MS, so
+	# the info is loaded once the jumping has paused. Single steps wait STEP_REPEAT_MS while a key is being held (the
+	# changes follow each other closer than REPEAT_GAP) and only STEP_SINGLE_MS for a lone key press.
+	SCROLL_SETTLE_MS = 100
+	STEP_REPEAT_MS = 100
+	STEP_SINGLE_MS = 100
+	SHOW_MS = 100  # when the screen opens
+	REPEAT_GAP = 0.25  # fallback: seconds between selection changes below which a key counts as held
+
+	def __repeatGap(self):
+		# The gap follows the key repeat rate of the remote control settings (Setup - Remote control - repeat, in ms):
+		# twice the repeat period plus some slack for a late step. The slowest enabled device counts.
+		try:
+			from Components.InputDevice import iInputDevices
+			period = 0
+			for device in iInputDevices.getDeviceList():
+				element = getattr(config.inputDevices, device, None)
+				if element is not None and element.enabled.value:
+					period = max(period, element.repeat.value)
+			if period > 0:
+				return period * 2 / 1000.0 + 0.05
+		except Exception:
+			pass
+		return self.REPEAT_GAP
 
 	def __selectionChanged(self):
 		if self.execing:
-			self.timer.start(100, True)
+			now = monotonic()
+			repeating = now - getattr(self, "lastSelectionChange", 0) < self.__repeatGap()
+			self.lastSelectionChange = now
+			delay = self.STEP_REPEAT_MS if repeating else self.STEP_SINGLE_MS
+			if repeating and not getattr(self, "infoCleared", False):
+				# fast scroll begins: do not leave the info of the service scrolled away from on screen
+				self.infoCleared = True
+				self["Service"].newService(None)
+			try:
+				index = self.servicelist.getCurrentIndex()
+				last = getattr(self, "lastSelectionIndex", None)
+				self.lastSelectionIndex = index
+				if last is not None and abs(index - last) > 1:
+					# a wrap from the first to the last entry (or back) is a single step, not a jump
+					if abs(index - last) != self.servicelist.l.getListSize() - 1:
+						delay = self.SCROLL_SETTLE_MS if repeating else self.STEP_SINGLE_MS
+			except Exception:
+				pass
+			self.timer.start(delay, True)
 
 	def updateEventInfo(self):
 		self.__stopTimer()
+		self.infoCleared = False
 		cur = self.getCurrentSelection()
 		service = self["Service"]
 		try:
@@ -1453,7 +1516,7 @@ class ChannelSelectionBase(Screen, HelpableScreen):
 		self["key_menu"] = StaticText(_("MENU"))
 		self["key_info"] = StaticText(_("INFO"))
 
-		self["list"] = ServiceList(self)
+		self["list"] = createServiceList(self)
 		self.servicelist = self["list"]
 
 		self.numericalTextInput = NumericalTextInput(handleTimeout=False)

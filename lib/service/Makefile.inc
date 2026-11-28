@@ -6,6 +6,7 @@ $(LIBXINE_CFLAGS)
 service_libenigma_service_a_SOURCES = \
 service/event.cpp \
 service/listboxservice.cpp \
+service/listboxservicetpl.cpp \
 service/service.cpp \
 service/servicedvb.cpp \
 service/servicedvbrecord.cpp \
@@ -19,7 +20,8 @@ service/servicehdmi.cpp \
 service/servicepeer.cpp \
 service/servicets.cpp \
 service/servicewebts.cpp \
-service/servicedvbsoftdecoder.cpp
+service/servicedvbsoftdecoder.cpp \
+service/audiochanneldetector.cpp
 
 if HAS_SOFTWARE_HDR_DETECTION
 service_libenigma_service_a_SOURCES += \
@@ -33,6 +35,7 @@ service/event.h \
 service/iservice.h \
 service/iservicescrambled.h \
 service/listboxservice.h \
+service/listboxservicetpl.h \
 service/service.h \
 service/servicedvb.h \
 service/servicedvbrecord.h \
@@ -46,7 +49,8 @@ service/servicehdmi.h \
 service/servicepeer.h \
 service/servicets.h \
 service/servicewebts.h \
-service/servicedvbsoftdecoder.h
+service/servicedvbsoftdecoder.h \
+service/audiochanneldetector.h
 
 if HAS_SOFTWARE_HDR_DETECTION
 serviceinclude_HEADERS += \

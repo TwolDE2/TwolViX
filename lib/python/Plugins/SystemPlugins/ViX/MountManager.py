@@ -66,7 +66,7 @@ def getProcPartitions(partitionList):
 				if devMajor == 8:
 					if not re.search("sd[a-z][1-9]", device):  # If storage use partitions only.
 						continue
-					if SystemInfo["HasHiSi"] and path.exists("/dev/sda4") and re.search("sd[a][1-4]", device):  # Sf8008 using SDcard for slots ---> exclude
+					if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and path.exists("/dev/sda4") and re.search("sd[a][1-4]", device):  # old sf8008 layout using the SD card for slots ---> exclude. NewMB slots live on ordinary ext4 partitions that must stay mountable
 						continue
 			if device in partitions:  # If device is already in partition list ignore it.
 				continue
@@ -151,7 +151,7 @@ def buildPartitionInfo(partition, partitionList):
 				rw = parts[3]			# read/write
 				break
 	print(f"[MountManager1][buildPartitionInfo] mediamount:{mediamount}")
-	if mediamount == "/" and SystemInfo["HasKexecMultiboot"]:
+	if mediamount == "/" and (SystemInfo["HasKexecMultiboot"] or SystemInfo["HasNewMultiboot"]):  # the running slot's own root is not a device to manage
 		return
 	if mediamount == _("None") or mediamount is None:
 		description = _("Size: ") + _("unavailable")

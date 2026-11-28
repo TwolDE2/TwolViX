@@ -154,7 +154,7 @@ self.session.open(SABnzbdSetupScreen)
 			<item key="oscam/Ncaminfo" level="2" text="OScam/Ncam Info" weight="91" requires="OScamInstalled"><screen module="OScamInfo" screen="OscamInfoMenu" /></item>
 			<item key="streamrelay_settings" level="2" text="Stream Relay Settings" weight="100"><screen module="StreamRelaySetup" screen="StreamRelaySetup" /></item>
 			<item key="softcam_initD" level="2" text="Softcam Script" weight="110" requires="HasInitCam"><screen module="SoftcamScript" /></item>				
-			<item key="softcsa_settings" level="2" text="SoftCSA Settings" weight="105" requires="HasSoftCSA"><setup id="SoftCSA" /></item>
+			<item key="softcsa_settings" level="2" text="SoftCSA Settings" weight="105"><setup id="SoftCSA" /></item>
 		</menu>
 
 		<!-- Menu / Setup / Storage -->
@@ -211,6 +211,7 @@ self.session.open(SABnzbdSetupScreen)
 		<item key="about_screen" level="0" text="About"><screen module="About" /></item>
 		<item key="device_screen" level="0" text="Devices"><screen module="About" screen="Devices" /></item>
 		<item key="memory_screen" level="0" text="Memory"><screen module="About" screen="SystemMemoryInfo" /></item>
+		<item key="swaps_screen" level="0" text="System Swaps"><screen module="About" screen="SystemSwapsInfo" /></item>		
 		<item key="network_screen" level="0" text="Network"><screen module="About" screen="SystemNetworkInfo" /></item>
 		<item key="service_info_screen" level="1" text="Service"><screen module="ServiceInfo" /></item>
 		<item key="streaming_clients_info_screen" level="2" text="Streaming Clients"><screen module="StreamingClientsInfo" /></item>

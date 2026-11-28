@@ -5,6 +5,7 @@ from skin import parameters, parseFont, parseScale, applySkinFactor
 
 from Components.config import config
 from Components.EpgListBase import EPGListBase
+from Components.Language import alphabeticSortKey
 from Components.MultiContent import MultiContentEntryPixmapAlphaBlend
 
 # Various value are in minutes, while others are in seconds.
@@ -170,7 +171,7 @@ class EPGListSingle(EPGListBase):
 	def __sortList(self):
 		sortType = int(config.epgselection.sort.value)
 		if sortType == 1:
-			self.list.sort(key=lambda x: (x[4] and x[4].lower() or '', x[2]))
+			self.list.sort(key=lambda x: (alphabeticSortKey(x[4]), x[2]))
 		else:
 			assert (sortType == 0)  # noqa: E275
 			self.list.sort(key=lambda x: x[2])

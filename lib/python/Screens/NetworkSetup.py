@@ -4,7 +4,6 @@ from os.path import exists
 import netifaces as ni
 from random import Random
 import string
-import time
 
 from enigma import eTimer, eConsoleAppContainer
 
@@ -12,6 +11,7 @@ from Components.ActionMap import ActionMap, NumberActionMap, HelpableActionMap
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigIP, ConfigText, ConfigPassword, ConfigSelection, getConfigListEntry, ConfigNumber, ConfigLocations, NoSave, ConfigMacText
 from Components.ConfigList import ConfigListScreen
 from Components.Console import Console
+from Components.ServiceAutostart import setServiceAutostart
 from Components.FileList import MultiFileSelectList
 from Components.Label import Label, MultiColorLabel
 from Components.MenuList import MenuList
@@ -83,8 +83,11 @@ class LogBase(TextBox):
 
 class NSCommon:
 	def StartStopCallback(self, result=None, retval=None, extra_args=None):
-		time.sleep(3)
-		self.updateService()
+		if not hasattr(self, "updateTimer"):  # NSCommon has no __init__ of its own
+			self.updateTimer = eTimer()
+			self.updateTimer.callback.append(self.updateService)
+			self.onClose.append(self.updateTimer.stop)
+		self.updateTimer.start(3000, True)  # give the service time to start or stop, without freezing the GUI
 
 	def removeComplete(self, result=None, retval=None, extra_args=None):
 		if self.reboot_at_end:
@@ -576,6 +579,9 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 			if not exists(f"/tmp/bcm/{self.iface}"):
 				self.encryptionlist.append(("WPA/WPA2", _("WPA or WPA2")))
 			self.encryptionlist.append(("WPA2", _("WPA2")))
+			if not exists(f"/tmp/bcm/{self.iface}"):
+				self.encryptionlist.append(("WPA2/WPA3", _("WPA2 or WPA3")))
+				self.encryptionlist.append(("WPA3", _("WPA3")))
 			self.weplist = []
 			self.weplist.append("ASCII")
 			self.weplist.append("HEX")
@@ -676,7 +682,6 @@ class AdapterSetup(ConfigListScreen, HelpableScreen, Screen):
 				self.finished_cb()
 			else:
 				self.close("cancel")
-		config.network.save()
 
 	def keySaveConfirm(self, ret=False):
 		if ret is True:
@@ -812,7 +817,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 	def __init__(self, session, iface=None):
 		Screen.__init__(self, session)
 		HelpableScreen.__init__(self)
-		self.setTitle(_("Network Setup"))
+		self.title = _("Network Setup")
 		print(f"[AdapterSetupConfiguration] entry.... iface:{iface}")
 		self.session = session
 		self.iface = iface
@@ -875,29 +880,26 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 	def queryWirelessDevice(self, iface):
 		try:
 			from wifi.scan import Cell
+			from wifi.exceptions import InterfaceError
 			import errno
 		except ImportError:
 			return False
-		else:
-			from wifi.exceptions import InterfaceError
-			try:
-				system("ifconfig %s up" % iface)
-				wlanresponse = list(Cell.all(iface))  # noqa: F841  call to check setup
-			except InterfaceError as ie:
-				print(f"[NetworkSetup] queryWirelessDevice InterfaceError: {str(ie)}")
-				return False
-			except OSError as err:
-				print(f"[AdapterSetupConfiguration] error:{err}")
-				error_no, error_str = err.args
-				if error_no in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
-					return False
-				else:
-					print("[AdapterSetupConfiguration] error: ", error_no, error_str)
-					return True
-			else:
-				return True
+		try:
+			system("ifconfig %s up" % iface)
+			list(Cell.all(iface))
+			return True
+
+		except InterfaceError as err:
+			print(f"[AdapterSetupConfiguration] WiFi scan failed:{err}")
+
+		except IOError as err:
+			error_no, error_str = err.args
+			if error_no not in (errno.EOPNOTSUPP, errno.ENODEV, errno.EPERM):
+				print(f"[AdapterSetupConfiguration] error:{error_no} {error_str}")
+		return False
 
 	def ok(self):
+		self.title = _("Network Setup") + " - " + _("Processing, please wait")
 		self.cleanup()
 		if self["menulist"].getCurrent()[1] == "edit":
 			if iNetwork.isWirelessInterface(self.iface):
@@ -930,6 +932,7 @@ class AdapterSetupConfiguration(Screen, HelpableScreen):
 		if self["menulist"].getCurrent()[1][0] == "extendedSetup":
 			self.extended = self["menulist"].getCurrent()[1][2]
 			self.extended(self.session, self.iface)
+		self.title = _("Network Setup")
 
 	def up(self):
 		self["menulist"].up()
@@ -1683,10 +1686,7 @@ class NetworkAfp(NSCommon, Screen):
 			self.ConsoleB.ePopen("/etc/init.d/atalk stop", self.StartStopCallback)
 
 	def activateAfp(self):
-		if ServiceIsEnabled("atalk"):
-			self.ConsoleB.ePopen("update-rc.d -f atalk remove", self.StartStopCallback)
-		else:
-			self.ConsoleB.ePopen("update-rc.d -f atalk defaults", self.StartStopCallback)
+		self.ConsoleB.ePopen(setServiceAutostart("atalk", not ServiceIsEnabled("atalk")), self.StartStopCallback)
 
 	def updateService(self, result=None, retval=None, extra_args=None):
 		import process
@@ -1761,10 +1761,7 @@ class NetworkFtp(NSCommon, Screen):
 
 	def activateFtp(self):
 		commands = []
-		if ServiceIsEnabled("vsftpd"):
-			commands.append("update-rc.d -f vsftpd remove")
-		else:
-			commands.append("update-rc.d -f vsftpd defaults")
+		commands.append(setServiceAutostart("vsftpd", not ServiceIsEnabled("vsftpd")))
 		self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
@@ -1840,10 +1837,7 @@ class NetworkNfs(NSCommon, Screen):
 			self.ConsoleB.ePopen("/etc/init.d/nfsserver stop", self.StartStopCallback)
 
 	def Nfsset(self):
-		if ServiceIsEnabled("nfsserver"):
-			self.ConsoleB.ePopen("update-rc.d -f nfsserver remove", self.StartStopCallback)
-		else:
-			self.ConsoleB.ePopen("update-rc.d -f nfsserver defaults 13", self.StartStopCallback)
+		self.ConsoleB.ePopen(setServiceAutostart("nfsserver", not ServiceIsEnabled("nfsserver")), self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -1919,10 +1913,7 @@ class NetworkOpenvpn(NSCommon, Screen):
 			self.ConsoleB.ePopen("/etc/init.d/openvpn stop", self.StartStopCallback)
 
 	def activateVpn(self):
-		if ServiceIsEnabled("openvpn"):
-			self.ConsoleB.ePopen("update-rc.d -f openvpn remove", self.StartStopCallback)
-		else:
-			self.ConsoleB.ePopen("update-rc.d -f openvpn defaults", self.StartStopCallback)
+		self.ConsoleB.ePopen(setServiceAutostart("openvpn", not ServiceIsEnabled("openvpn")), self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -2008,10 +1999,7 @@ class NetworkSamba(NSCommon, Screen):
 
 	def activateSamba(self):
 		commands = []
-		if ServiceIsEnabled("samba"):
-			commands.append("update-rc.d -f samba remove")
-		else:
-			commands.append("update-rc.d -f samba defaults")
+		commands.append(setServiceAutostart("samba", not ServiceIsEnabled("samba")))
 		self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
@@ -2092,10 +2080,7 @@ class NetworkTelnet(NSCommon, Screen):
 	def activateTelnet(self):
 		commands = []
 		if fileExists("/etc/init.d/telnetd.busybox"):
-			if ServiceIsEnabled("telnetd.busybox"):
-				commands.append("update-rc.d -f telnetd.busybox remove")
-			else:
-				commands.append("update-rc.d -f telnetd.busybox defaults")
+			commands.append(setServiceAutostart("telnetd.busybox", not ServiceIsEnabled("telnetd.busybox")))
 		self.ConsoleB.eBatch(commands, self.StartStopCallback, debug=True)
 
 	def updateService(self):
@@ -2184,10 +2169,7 @@ class NetworkInadyn(NSCommon, Screen):
 			self.ConsoleB.ePopen("/etc/init.d/inadyn-mt stop", self.StartStopCallback)
 
 	def autostart(self):
-		if ServiceIsEnabled("inadyn-mt"):
-			self.ConsoleB.ePopen("update-rc.d -f inadyn-mt remove", self.StartStopCallback)
-		else:
-			self.ConsoleB.ePopen("update-rc.d -f inadyn-mt defaults", self.StartStopCallback)
+		self.ConsoleB.ePopen(setServiceAutostart("inadyn-mt", not ServiceIsEnabled("inadyn-mt")), self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -2416,10 +2398,7 @@ class NetworkuShare(NSCommon, Screen):
 			self.ConsoleB.ePopen("/etc/init.d/ushare stop >> /tmp/uShare.log", self.StartStopCallback)
 
 	def autostart(self):
-		if ServiceIsEnabled("ushare"):
-			self.ConsoleB.ePopen("update-rc.d -f ushare remove", self.StartStopCallback)
-		else:
-			self.ConsoleB.ePopen("update-rc.d -f ushare defaults", self.StartStopCallback)
+		self.ConsoleB.ePopen(setServiceAutostart("ushare", not ServiceIsEnabled("ushare")), self.StartStopCallback)
 
 	def updateService(self):
 		import process
@@ -2785,10 +2764,7 @@ class NetworkMiniDLNA(NSCommon, Screen):
 			self.ConsoleB.ePopen("/etc/init.d/minidlna stop", self.StartStopCallback)
 
 	def autostart(self):
-		if ServiceIsEnabled("minidlna"):
-			self.ConsoleB.ePopen("update-rc.d -f minidlna remove", self.StartStopCallback)
-		else:
-			self.ConsoleB.ePopen("update-rc.d -f minidlna defaults", self.StartStopCallback)
+		self.ConsoleB.ePopen(setServiceAutostart("minidlna", not ServiceIsEnabled("minidlna")), self.StartStopCallback)
 
 	def updateService(self):
 		import process

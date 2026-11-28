@@ -57,7 +57,7 @@ extern void stmfb_accel_fill(
 #ifdef BCM_ACCEL
 extern int bcm_accel_init(void);
 extern void bcm_accel_close(void);
-extern void bcm_accel_blit(
+extern bool bcm_accel_blit(
 		int src_addr, int src_width, int src_height, int src_stride, int src_format,
 		int dst_addr, int dst_width, int dst_height, int dst_stride,
 		int src_x, int src_y, int width, int height,
@@ -272,12 +272,13 @@ int gAccel::blit(gUnmanagedSurface *dst, gUnmanagedSurface *src, const eRect &p,
 		} else
 			return -1; /* unsupported source format */
 
-		bcm_accel_blit(
+		if (!bcm_accel_blit(
 			src->data_phys, src->x, src->y, src->stride, src_format,
 			dst->data_phys, dst->x, dst->y, dst->stride,
 			area.left(), area.top(), area.width(), area.height(),
 			p.x(), p.y(), p.width(), p.height(),
-			pal_addr, flags);
+			pal_addr, flags))
+			return -1; /* hw blit failed, let the caller redraw in software */
 		return 0;
 	}
 #endif
@@ -378,6 +379,22 @@ int gAccel::sync()
 
 int gAccel::accelAlloc(gUnmanagedSurface* surface)
 {
+	// On backends where nothing ever calls setAccelMemorySpace() (e.g. the
+	// gbquad4kpro Nexus/EGL stack - /dev/fb0 isn't the scanout there, so
+	// neither fb.cpp's ION path nor gfbdc.cpp's leftover-framebuffer path
+	// ever runs), m_accel_size stays 0 for the process's entire lifetime and
+	// every allocation attempt below is guaranteed to fail. Every gPixmap
+	// surface over GFX_SURFACE_ACCELERATION_THRESHOLD calls this (gpixmap.cpp),
+	// so without this early-out every such picon/pixmap pays a lock
+	// acquisition, a (trivial but pointless) free-list walk, and a
+	// synchronous eDebug() call for zero possible benefit - measurable
+	// overhead on the decode/render hot path during list/EPG-grid scrolling.
+	// Genuine exhaustion of a real, non-empty pool (e.g. Dreambox's
+	// ION-backed one) still falls through to the search below and logs as
+	// before.
+	if (!m_accel_size)
+		return -3;
+
 	int stride = (surface->stride + ACCEL_ALIGNMENT_MASK) & ~ACCEL_ALIGNMENT_MASK;
 	int size = stride * surface->y;
 	if (!size)

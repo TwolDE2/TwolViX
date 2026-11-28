@@ -19,6 +19,7 @@ class eDVBCSASession;
 class eHDRStreamDetector;
 #endif
 class eDVBSoftDecoder;
+class eDVBAudioChannelDetector;
 
 class eServiceFactoryDVB : public iServiceHandler {
 	DECLARE_REF(eServiceFactoryDVB);
@@ -227,12 +228,21 @@ protected:
 	int m_have_video_pid;
 	int m_tune_state;
 	bool m_noaudio;
+	/* True once evFirstFrame has been fired for this playback session -
+	 * see its firing sites in video_event()/updateDecoder() for why this
+	 * needs its own one-shot flag (not reset on a later PID change, unlike
+	 * m_hdr_firstframe_restarted). */
+	bool m_first_frame_fired;
 
 		/* in timeshift mode, we essentially have two channels, and thus pmt handlers. */
 	eDVBServicePMTHandler m_service_handler_timeshift;
 	eDVBServiceEITHandler m_event_handler;
-	int m_current_audio_pid;
+	int m_current_audio_pid = -1;
 	int m_current_video_pid_type;
+
+	// Selected-audio channel-count detection (see audiochanneldetector.h).
+	// One probe at a time, for whichever track is currently selected.
+	ePtr<eDVBAudioChannelDetector> m_audio_channel_detector;
 
 	eDVBServicePlay(const eServiceReference &ref, eDVBService *service, bool connect_event=true);
 
@@ -329,10 +339,27 @@ protected:
 	ePtr<eTimer> m_nownext_timer;
 	void updateEpgCacheNowNext();
 
-#ifdef PASSTHROUGH_FIX
-	ePtr<eTimer> m_passthrough_fix_timer;
-	void forcePassthrough();
-#endif
+		/* scrambling flag of the live stream, see sIsScrambled */
+	ePtr<iDVBScrambleMonitor> m_scramble_monitor;
+	int m_scramble_pid = -1;
+	bool m_scramble_failed = false;
+	bool m_scramble_nopid = false;
+	void updateScrambleMonitor();
+
+		/* live bitrate of the video and the audio PID, see sVideoBitrate / sAudioBitrate */
+	ePtr<iDVBBitrateCounter> m_vbitrate, m_abitrate;
+	int m_vbitrate_pid = -1, m_abitrate_pid = -1;
+	const iDVBDemux *m_bitrate_demux = nullptr;	/* the demux the counters were created on, only compared */
+	bool m_bitrate_failed = false;
+	int getLiveBitrate(bool audio);
+	void releaseLiveBitrate();
+		/* SoftCSA: the recorder of the soft decoder counts the descrambled bytes of the two PIDs instead */
+	bool m_softcsa_bitrate = false;
+	uint64_t m_softcsa_bytes[2] = {0, 0};
+	int64_t m_softcsa_us[2] = {0, 0};
+	int m_softcsa_kbps[2] = {0, 0};
+	int getSoftCSABitrate(bool audio, int pid);
+	void releaseSoftCSABitrate();
 
 		/* radiotext */
 	ePtr<eDVBRdsDecoder> m_rds_decoder;

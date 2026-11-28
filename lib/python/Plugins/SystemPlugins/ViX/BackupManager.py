@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from os import path, stat, mkdir, listdir, remove, statvfs, chmod
+from os import path, stat, mkdir, listdir, remove, scandir, statvfs, chmod
 from time import localtime, time, strftime, mktime
 import tarfile
 from enigma import eTimer, eEnv, eDVBDB, quitMainloop
@@ -655,7 +655,7 @@ class XtraPluginsSelection(Screen):
 		elif not (len(x := current[0].split("/", 3)) > 3 and x[3]):  # match formula in VIXBackupManager.Stage3Complete()
 			self.session.open(MessageBox, _("Please select a folder inside a mount point, not the mount point itself."), MessageBox.TYPE_INFO, timeout=30)
 
-		elif not any(f.endswith(".ipk") for f in listdir(current[0])):  # no .ipk found in the selected folder
+		elif not any(entry.name.endswith(".ipk") for entry in scandir(current[0])):  # no .ipk found in the selected folder
 			self.session.open(MessageBox, _("Please select folder that contains .ipk packages."), MessageBox.TYPE_INFO, timeout=10)
 
 		else:  # success
@@ -863,6 +863,7 @@ class BackupFiles(Screen):
 		self.Stage2Completed = False
 		self.Stage3Completed = False
 		self.Stage4Completed = False
+		self.softwareUpdateIcon = False
 
 	def createBackupJob(self):
 		job = Components.Task.Job(_("Backup manager"))
@@ -992,6 +993,11 @@ class BackupFiles(Screen):
 		config.usage.power.was_controlled_shutdown.save()
 		configfile.save()
 
+		self.softwareUpdateIcon = config.softwareupdate.updatefound.value  # remember value to restore after backup
+		config.softwareupdate.updatefound.value = False  # switch off software-update-available icon so it doesn't polute the settings file saved by the backup
+		config.softwareupdate.updatefound.save()
+		configfile.save()
+
 		tmplist = config.backupmanager.backupdirs.value
 		tmplist.append("/tmp/ExtraInstalledPlugins")
 		if path.exists("/tmp/3rdPartyPlugins"):
@@ -1048,6 +1054,11 @@ class BackupFiles(Screen):
 		# Return config.usage.power.was_controlled_shutdown to the normal running state
 		config.usage.power.was_controlled_shutdown.value = not config.usage.power.was_controlled_shutdown.default
 		config.usage.power.was_controlled_shutdown.save()
+		configfile.save()
+
+		# restore original setting after backup has completed
+		config.softwareupdate.updatefound.value = self.softwareUpdateIcon
+		config.softwareupdate.updatefound.save()
 		configfile.save()
 
 		# Trim the number of backups to the configured setting...

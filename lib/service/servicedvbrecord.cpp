@@ -1,5 +1,6 @@
 #include <lib/service/servicedvbrecord.h>
 #include <lib/dvb/csasession.h>
+#include <lib/dvb/demux.h>
 #include <lib/dvb/csaengine.h>
 #include <lib/dvb/cahandler.h>
 #include <lib/base/eerror.h>
@@ -7,6 +8,7 @@
 #include <lib/dvb/dvb.h>
 #include <lib/dvb/epgcache.h>
 #include <lib/dvb/metaparser.h>
+#include <lib/base/nconfig.h>
 #include <lib/base/httpstream.h>
 #include <fcntl.h>
 
@@ -31,6 +33,7 @@ eDVBServiceRecord::eDVBServiceRecord(const eServiceReferenceDVB &ref, bool isstr
 	m_tuned = 0;
 	m_target_fd = -1;
 	m_error = 0;
+	m_write_error = false;
 	m_streaming = 0;
 	m_simulate = false;
 	m_last_event_id = -1;
@@ -223,7 +226,9 @@ RESULT eDVBServiceRecord::stop()
 			m_target_fd = -1;
 		}
 
-		saveCutlist();
+		// .sc may be unreadable after a write error, mmap access would crash
+		if (!m_write_error)
+			saveCutlist();
 
 		m_state = statePrepared;
 	} else if (!m_simulate)
@@ -429,6 +434,11 @@ int eDVBServiceRecord::doRecord()
 			eDebug("[eDVBServiceRecord] getting program info failed.");
 		else
 		{
+			// Cached PIDs do not tell us whether this transponder shares a PMT PID
+			// with other services; doRecord() runs again once the real PMT arrives.
+			if (m_record && !program.isCached)
+				m_record->setServiceFilter(program.serviceId, program.pmtPid, m_service_handler.hasSharedPmtPid(program.pmtPid));
+
 			// Check if channel needs software descrambling
 			bool is_encrypted = program.isCrypted();
 			if (is_encrypted && !m_use_software_descramble)
@@ -443,6 +453,10 @@ int eDVBServiceRecord::doRecord()
 				{
 					eDebug("[eDVBServiceRecord] Attaching CSA session to recorder");
 					m_record->setDescrambler(static_cast<iServiceScrambled*>(m_csa_session.operator->()));
+
+					// Latency costs nothing for a recording, while an error stays in the file
+					if (int delay = eConfigManager::getConfigIntValue("config.misc.softcsa.playbackDelay", eDVBRecordScrambledThread::AUTO_PLAYBACK_DELAY); delay != 0)
+						m_record->setPlaybackDelay(delay);
 				}
 			}
 
@@ -639,6 +653,7 @@ void eDVBServiceRecord::recordEvent(int event)
 	{
 	case iDVBTSRecorder::eventWriteError:
 		eWarning("[eDVBServiceRecord] record write error");
+		m_write_error = true;
 		stop();
 		m_event((iRecordableService*)this, evRecordWriteError);
 		return;

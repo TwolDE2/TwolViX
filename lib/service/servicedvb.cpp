@@ -13,6 +13,7 @@
 #include <lib/dvb/dvb.h>
 #include <lib/dvb/db.h>
 #include <lib/dvb/decoder.h>
+#include <lib/driver/avswitch.h>
 
 #include <lib/base/cfile.h>
 #include <lib/dvb/pmtparse.h>
@@ -21,15 +22,18 @@
 #ifdef HAS_SOFTWARE_HDR_DETECTION
 #include <lib/service/hdrdetector.h>
 #endif
+#include <lib/service/audiochanneldetector.h>
 #include <lib/service/servicedvbrecord.h>
 #include <lib/service/event.h>
 #include <lib/dvb/metaparser.h>
 #include <lib/dvb/tstools.h>
 #include <lib/python/python.h>
 #include <lib/base/nconfig.h> // access to python config
+#include <lib/dvb/demux.h>
 #include <lib/base/httpsstream.h>
 #include <lib/base/httpstream.h>
 #include <lib/service/servicedvbfcc.h>
+#include <lib/service/servicemp3.h>
 #include "servicepeer.h"
 
 /* for subtitles */
@@ -40,6 +44,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <chrono>
+#include <time.h>
 #include <thread>
 #include <lib/dvb_ci/descrambler.h>
 
@@ -51,6 +56,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <set>
 
 using namespace std;
 
@@ -63,6 +69,30 @@ using namespace std;
 #include <iomanip>
 
 bool m_is_streamx = false;
+
+static unsigned long s_streamrelay_session_id = 0;
+
+static bool isStreamRelayUrl(const std::string &url)
+{
+	if (url.compare(0, 7, "http://"))
+		return false;
+
+	/* ConfigIP reaches C++ as its Python list repr, e.g. "[127, 0, 0, 1]" */
+	std::string host;
+	for (char c : eConfigManager::getConfigValue("config.misc.softcam_streamrelay_url"))
+	{
+		if (c == ',')
+			host += '.';
+		else if (isdigit((unsigned char)c) || c == '.')
+			host += c;
+	}
+	if (host.empty())
+		host = "127.0.0.1";
+	const int port = eConfigManager::getConfigIntValue("config.misc.softcam_streamrelay_port", 17999);
+	const std::string relay = "http://" + host + ":" + std::to_string(port) + "/";
+
+	return url.compare(0, relay.size(), relay) == 0;
+}
 
 class eStaticServiceDVBInformation: public iStaticServiceInformation
 {
@@ -374,7 +404,13 @@ static bool looksLikeRecording(const std::string& n)
 
 RESULT eStaticServiceDVBPVRInformation::getName(const eServiceReference &ref, std::string &name)
 {
-	ASSERT(ref == m_ref);
+	/* a stale info object can be queried with another ref while zapping fast, don't crash on that */
+	if (ref != m_ref)
+	{
+		eDebug("[eStaticServiceDVBPVRInformation] getName: ref mismatch (%s != %s)", ref.toString().c_str(), m_ref.toString().c_str());
+		name = ref.name;
+		return 0;
+	}
 	if (!ref.name.empty())
 		name = ref.name;
 	else if (!m_parser.m_name.empty())
@@ -414,7 +450,11 @@ RESULT eStaticServiceDVBPVRInformation::getName(const eServiceReference &ref, st
 
 int eStaticServiceDVBPVRInformation::getLength(const eServiceReference &ref)
 {
-	ASSERT(ref == m_ref);
+	if (ref != m_ref)
+	{
+		eDebug("[eStaticServiceDVBPVRInformation] getLength: ref mismatch (%s != %s)", ref.toString().c_str(), m_ref.toString().c_str());
+		return 0;
+	}
 
 	eDVBTSTools tstools;
 
@@ -1065,6 +1105,7 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_is_primary(1),
 	m_decoder_index(0),
 	m_have_video_pid(0),
+	m_first_frame_fired(false),
 	m_hdr_type(0),
 #ifdef HAS_SOFTWARE_HDR_DETECTION
 	m_hdr_detect_vpid(-1),
@@ -1093,9 +1134,6 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	m_soft_decoder_video_info_valid(false),
 	m_nownext_timer(eTimer::create(eApp))
 {
-#ifdef PASSTHROUGH_FIX
-	m_passthrough_fix_timer = eTimer::create(eApp);
-#endif
 //	m_is_streamx = m_is_stream;	// sets to false if looking at fallback url at this point as m_is_stream(ref.path.find("://") is false.
 	eDebug("[servicedvb][eDVBServicePlay] now running: m_is_streamx set by m_is_stream %d", m_is_streamx);
 	eDebug("[servicedvb][eDVBServicePlay] now running: m_is_pvr set to; %d", m_is_pvr);
@@ -1105,9 +1143,6 @@ eDVBServicePlay::eDVBServicePlay(const eServiceReference &ref, eDVBService *serv
 	CONNECT(m_event_handler.m_eit_changed, eDVBServicePlay::gotNewEvent);
 	CONNECT(m_subtitle_sync_timer->timeout, eDVBServicePlay::checkSubtitleTiming);
 	CONNECT(m_nownext_timer->timeout, eDVBServicePlay::updateEpgCacheNowNext);
-#ifdef PASSTHROUGH_FIX
-	CONNECT(m_passthrough_fix_timer->timeout, eDVBServicePlay::forcePassthrough);
-#endif
 }
 
 eDVBServicePlay::~eDVBServicePlay()
@@ -1140,15 +1175,6 @@ eDVBServicePlay::~eDVBServicePlay()
 
 	if (m_subtitle_widget) m_subtitle_widget->destroy();
 }
-
-
-#ifdef PASSTHROUGH_FIX
-void eDVBServicePlay::forcePassthrough()
-{
-	eDebug("[eDVBServicePlay] Setting 'passthrough' to force correct operation");
-	CFile::writeStr("/proc/stb/audio/ac3", "passthrough");
-}
-#endif
 
 void eDVBServicePlay::gotNewEvent(int error)
 {
@@ -1296,6 +1322,8 @@ void eDVBServicePlay::serviceEvent(int event)
 				}
 			}
 		}
+
+		updateScrambleMonitor();
 
 		// Note: m_soft_decoder exists speculatively, but only blocks updateDecoder when session is active
 		if (!m_timeshift_active && !(m_csa_session && m_csa_session->isActive()))
@@ -1457,6 +1485,20 @@ void eDVBServicePlay::serviceEventTimeshift(int event)
 
 RESULT eDVBServicePlay::start()
 {
+	/* If the previous service was an eServiceMP3 (played file), its
+	 * hardware-sink teardown runs on a detached worker thread and can still
+	 * be in flight here (see eServiceMP3::stop()'s comment) - it releases
+	 * the same /dev/dvb/adapterX/videoY and audioY decoder device nodes that
+	 * this service's own eTSMPEGDecoder is about to open once tuning
+	 * completes. Wait for it to finish first (bounded, so a genuinely wedged
+	 * teardown can't hang a service switch): opening those nodes while the
+	 * old sink still holds them can fail outright (observed as ENOSYS from
+	 * the vendor driver) with nothing to retry it afterwards, leaving this
+	 * service's decoder permanently unable to open video/audio and playback
+	 * silently never showing a picture. Cheap/instant no-op when nothing is
+	 * outstanding, which is the common case. */
+	eServiceMP3::waitForHardwareRelease(500);
+
 	eServiceReferenceDVB service = (eServiceReferenceDVB&)m_reference;
 	bool scrambled = true;
 	int packetsize = 188;
@@ -1486,7 +1528,9 @@ RESULT eDVBServicePlay::start()
 		type = eDVBServicePMTHandler::playback;
 	}
 	else
+	{
 		m_event(this, evStart);
+	}
 
 	if (m_is_stream)
 	{
@@ -1500,6 +1544,12 @@ RESULT eDVBServicePlay::start()
 
 		if(config_descramble_client)
 			scrambled = true;
+
+		if (m_reference.isStreamRelay || isStreamRelayUrl(service.path))
+		{
+			service.path += "?srsid=" + std::to_string(++s_streamrelay_session_id);
+			eDebug("[eDVBServicePlay] StreamRelay request: %s", service.path.c_str());
+		}
 
 		type = eDVBServicePMTHandler::streamclient;
 	}
@@ -1533,6 +1583,9 @@ RESULT eDVBServicePlay::start()
 
 RESULT eDVBServicePlay::stop()
 {
+	if (m_audio_channel_detector)
+		m_audio_channel_detector->stop();
+
 		/* add bookmark for last play position */
 		/* m_cutlist_enabled bit 2 is the "don't remember bit" */
 	if (m_is_pvr && ((m_cutlist_enabled & 2) == 0))
@@ -1571,6 +1624,11 @@ RESULT eDVBServicePlay::stop()
 	stopTimeshift(); /* in case time shift was enabled, remove buffer etc. */
 
 	cleanupSoftwareDescrambling();
+
+	m_scramble_monitor = 0;
+	m_scramble_pid = -1;
+
+	releaseLiveBitrate();
 
 #ifdef HAS_SOFTWARE_HDR_DETECTION
 	if (m_hdr_detector) { m_hdr_detector->stop(); m_hdr_detector = 0; }
@@ -1618,7 +1676,6 @@ RESULT eDVBServicePlay::setTarget(int target, bool noaudio = false)
 		}
 		return -1;
 	}
-
 	m_is_primary = !target;
 	m_decoder_index = target;
 	m_noaudio = noaudio;
@@ -1889,6 +1946,7 @@ RESULT eDVBServicePlay::getPlayPosition(pts_t &pos)
 		return -1;
 
 	int r = 0;
+	bool got_decoder_pts = false;
 
 		/* if there is a decoder, use audio or video PTS */
 	// Check SoftDecoder only if session is active AND not in timeshift playback
@@ -1897,12 +1955,29 @@ RESULT eDVBServicePlay::getPlayPosition(pts_t &pos)
 		r = m_soft_decoder->getPTS(0, pos);
 		if (r)
 			return r;
+		got_decoder_pts = true;
 	}
 	else if (m_decoder)
 	{
 		r = m_decoder->getPTS(0, pos);
 		if (r)
 			return r;
+		got_decoder_pts = true;
+	}
+
+	/* A valid PTS means a frame is actually decoding, regardless of
+	 * whether video_event()'s eventSizeChanged has fired - on some
+	 * drivers/hardware that event may not repeat when the new service
+	 * happens to share the previous one's resolution (the decoder device
+	 * itself is reopened per service, but not every driver necessarily
+	 * treats that as a reason to re-report an unchanged size). This is
+	 * the same "first frame" signal as eventSizeChanged, just reached via
+	 * polling rather than the event, so it only ever adds the event for a
+	 * session that would otherwise never get one - guard it the same way. */
+	if (!m_first_frame_fired && got_decoder_pts)
+	{
+		m_first_frame_fired = true;
+		m_event((iPlayableService*)this, evFirstFrame);
 	}
 
 		/* fixup */
@@ -2179,6 +2254,17 @@ int eDVBServicePlay::getInfo(int w)
 		return program.isCrypted();
 	case sIsSoftCSA:
 		return (m_csa_session && m_csa_session->isActive());
+	case sIsScrambled:
+		if (m_is_pvr || m_is_stream || m_timeshift_active || m_scramble_failed)
+			return -1;
+		if (m_scramble_monitor)
+			return m_scramble_monitor->getState();
+		/* not tuned yet, or no program info yet: it will be known shortly, unless the PMT turned out to have nothing to watch */
+		return m_scramble_nopid ? -1 : 2;
+	case sVideoBitrate:
+		return getLiveBitrate(false);
+	case sAudioBitrate:
+		return getLiveBitrate(true);
 	case sHDRType:
 		return m_hdr_type;
 	case sIsDedicated3D:
@@ -2210,9 +2296,6 @@ int eDVBServicePlay::getInfo(int w)
 			apid = m_dvb_service->getCacheEntry(eDVBService::cAC3PID);
 			if (apid != -1)
 				return apid;
-			apid = m_dvb_service->getCacheEntry(eDVBService::cAC4PID);
-			if (apid != -1)
-				return apid;
 			apid = m_dvb_service->getCacheEntry(eDVBService::cDDPPID);
 			if (apid != -1)
 				return apid;
@@ -2223,6 +2306,9 @@ int eDVBServicePlay::getInfo(int w)
 			if (apid != -1)
 				return apid;
 			apid = m_dvb_service->getCacheEntry(eDVBService::cDRAAPID);
+			if (apid != -1)
+				return apid;
+			apid = m_dvb_service->getCacheEntry(eDVBService::cAC4PID);
 			if (apid != -1)
 				return apid;
 		}
@@ -2457,15 +2543,13 @@ RESULT eDVBServicePlay::getTrackInfo(struct iAudioTrackInfo &info, unsigned int 
 	if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atMPEG)
 		info.m_description = "MPEG";
 	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atAC3)
-		info.m_description = "AC3";
-	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atAC4)
-		info.m_description = "AC4";
+		info.m_description = "Dolby Digital";
 	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atDDP)
-		info.m_description = "AC3+";
-	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atAAC)
-		info.m_description = "AAC";
+		info.m_description = "Dolby Digital +";
 	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atAACHE)
-		info.m_description = "AAC-HE";
+		info.m_description = "HE-AAC";
+	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atAAC)
+		info.m_description = "AAC-LC";
 	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atDTS)
 		info.m_description = "DTS";
 	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atDTSHD)
@@ -2474,6 +2558,8 @@ RESULT eDVBServicePlay::getTrackInfo(struct iAudioTrackInfo &info, unsigned int 
 		info.m_description = "LPCM";
 	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atDRA)
 		info.m_description = "DRA";
+	else if (program.audioStreams[i].type == eDVBServicePMTHandler::audioStream::atAC4)
+		info.m_description = "Dolby AC-4";
 	else
 		info.m_description = "???";
 
@@ -2490,6 +2576,46 @@ RESULT eDVBServicePlay::getTrackInfo(struct iAudioTrackInfo &info, unsigned int 
 
 	if (info.m_language.empty())
 		info.m_language = program.audioStreams[i].language_code;
+
+	// Channel count (2.0 / 5.1 / 7.1 / ...): only ever attempted for the
+	// currently selected track - we can only inspect the stream that is
+	// actually being decoded right now, not arbitrary other tracks.
+	if (program.audioStreams[i].pid == m_current_audio_pid)
+	{
+		int codec = eDVBAudioChannelDetector::codecFromStreamType(program.audioStreams[i].type);
+		bool softcsa = m_soft_decoder && m_soft_decoder->isRunning();
+
+		if (codec != eDVBAudioChannelDetector::ctUnsupported)
+		{
+			if (!m_audio_channel_detector)
+				m_audio_channel_detector = new eDVBAudioChannelDetector();
+
+			const void *identity = softcsa
+				? static_cast<const void*>(m_soft_decoder.operator->())
+				: static_cast<const void*>(m_decode_demux.operator->());
+
+			if (!m_audio_channel_detector->matches(info.m_pid, codec, identity))
+			{
+				if (softcsa)
+					m_audio_channel_detector->startSoftCSA(m_soft_decoder, info.m_pid, codec);
+				else if (m_decode_demux)
+					m_audio_channel_detector->start(m_decode_demux, info.m_pid, codec);
+			}
+
+			info.m_channels = m_audio_channel_detector->channels();
+
+			// "Dolby Atmos" vs "Dolby Digital +": same acmod/lfeon signaling
+			// either way (Atmos is a JOC metadata extension layered on top,
+			// not a different channel mode), so channels() alone can't
+			// distinguish them - override the plain "Dolby Digital +" label
+			// set above once the detector's separate Atmos/JOC scan (see
+			// eDVBAudioChannelDetector::isAtmos()) confirms it. Matches
+			// eServiceMP3's naming exactly (lib/service/servicemp3.cpp),
+			// whose already-proven E-AC-3 Atmos parser this was ported from.
+			if (codec == eDVBAudioChannelDetector::ctEAC3 && m_audio_channel_detector->isAtmos())
+				info.m_description = "Dolby Atmos";
+		}
+	}
 
 	return 0;
 }
@@ -2535,19 +2661,6 @@ int eDVBServicePlay::selectAudioStream(int i)
 		eDebug("[servicedvb][eDVBServicePlay] set audio pid %04x failed", apid);
 		return -4;
 	}
-
-#ifdef PASSTHROUGH_FIX
-	if (apidtype == eDVBPMTParser::audioStream::atAC3 || apidtype == eDVBPMTParser::audioStream::atAAC || apidtype == eDVBPMTParser::audioStream::atDDP)
-	{
-		std::string pass = CFile::read("/proc/stb/audio/ac3");
-		if (replace_all(replace_all(pass, "\r", ""), "\n", "") == "passthrough")
-		{
-			int shortAudioDelay = eConfigManager::getConfigIntValue("config.av.passthrough_fix_short", 100);
-			m_passthrough_fix_timer->stop();
-			m_passthrough_fix_timer->start(shortAudioDelay, true);
-		}
-	}
-#endif
 
 	if (position != -1)
 	{
@@ -2920,6 +3033,10 @@ RESULT eDVBServicePlay::startTimeshift()
 
 			eDebug("[eDVBServicePlay] Attaching timeshift CSA session to recorder");
 			m_record->setDescrambler(static_cast<iServiceScrambled*>(m_timeshift_csa_session.operator->()));
+
+			/* An error would stay in the timeshift file, same as a recording. */
+			if (int delay = eConfigManager::getConfigIntValue("config.misc.softcsa.playbackDelay", eDVBRecordScrambledThread::AUTO_PLAYBACK_DELAY); delay != 0)
+				m_record->setPlaybackDelay(delay);
 		}
 		else
 		{
@@ -3106,6 +3223,9 @@ bool eDVBServicePlay::startTapToFD(int fd, const std::vector<int> &pids, int pac
 	{
 		m_tap_recorder->setDescrambler(static_cast<iServiceScrambled*>(m_csa_session.operator->()));
 		eDebug("[eServiceTap] CSA session attached to tap recorder (active=%d)", m_csa_session->isActive());
+
+		if (int delay = eConfigManager::getConfigIntValue("config.misc.softcsa.playbackDelay", eDVBRecordScrambledThread::AUTO_PLAYBACK_DELAY); delay != 0)
+			m_tap_recorder->setPlaybackDelay(delay);
 	}
 
 	for(auto i : pids)
@@ -3380,6 +3500,181 @@ void eDVBServicePlay::switchToTimeshift()
 	updateDecoder(true); /* mainly to switch off PCR, and to set pause */
 }
 
+/* Follow the video PID (the audio PID for radio) of a live service with a scrambling monitor on the data demux. */
+void eDVBServicePlay::updateScrambleMonitor()
+{
+	if (m_is_pvr || m_is_stream || m_timeshift_active)
+		return;
+
+	int pid = -1;
+	eDVBServicePMTHandler::program program;
+	if (!m_service_handler.getProgramInfo(program))
+	{
+		if (!program.videoStreams.empty())
+			pid = program.videoStreams[0].pid;
+		else if (!program.audioStreams.empty())
+			pid = program.audioStreams[0].pid;
+		/* a real PMT (not the cached start) without video or audio: nothing to watch */
+		m_scramble_nopid = (pid <= 0 || pid >= 0x2000) && !program.isCached;
+	}
+	if (pid <= 0 || pid >= 0x2000 || (m_scramble_monitor && m_scramble_pid == pid))
+		return;
+
+	if (!m_scramble_monitor)
+	{
+		ePtr<iDVBDemux> demux;
+		int dres = m_service_handler.getDataDemux(demux);
+		int cres = (!dres && demux) ? demux->createScrambleMonitor(m_scramble_monitor) : -1;
+		if (dres || !demux || cres)
+		{
+			eDebug("[eDVBServicePlay] scramble monitor not created: getDataDemux=%d demux=%d createScrambleMonitor=%d", dres, demux ? 1 : 0, cres);
+			m_scramble_monitor = 0;
+			m_scramble_failed = true;
+			return;
+		}
+	}
+	m_scramble_pid = pid;
+	if (m_scramble_monitor->start(pid))
+	{
+		m_scramble_monitor = 0;
+		m_scramble_pid = -1;
+		m_scramble_failed = true;
+	}
+}
+
+void eDVBServicePlay::releaseLiveBitrate()
+{
+	m_vbitrate = 0;
+	m_abitrate = 0;
+	m_vbitrate_pid = -1;
+	m_abitrate_pid = -1;
+	m_bitrate_demux = nullptr;
+	releaseSoftCSABitrate();
+}
+
+void eDVBServicePlay::releaseSoftCSABitrate()
+{
+	if (!m_softcsa_bitrate)
+		return;
+	m_softcsa_bitrate = false;
+	if (m_soft_decoder)
+	{
+		m_soft_decoder->setCountPID(0, -1);
+		m_soft_decoder->setCountPID(1, -1);
+	}
+}
+
+/* The recorder of the soft decoder adds up the descrambled bytes of the PID, this turns them into kbit/s the way
+ * the demux counter does: 0 until the first window of at least 500 ms is complete, then the rate of the last
+ * window. The TS header bytes are left out by the 97 %. */
+int eDVBServicePlay::getSoftCSABitrate(bool audio, int pid)
+{
+	const int slot = audio ? 1 : 0;
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	const int64_t now_us = (int64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+
+	m_softcsa_bitrate = true;
+	/* the soft decoder starts a new recorder now and then, which does not count yet */
+	if (m_soft_decoder->getCountPID(slot) != pid)
+	{
+		if (m_soft_decoder->setCountPID(slot, pid))
+			return -1; /* no recorder right now, the next query tries again */
+		m_softcsa_bytes[slot] = 0;
+		m_softcsa_us[slot] = now_us;
+		m_softcsa_kbps[slot] = 0;
+		return 0;
+	}
+	const uint64_t bytes = m_soft_decoder->getCountedBytes(slot);
+	const int64_t delta_us = now_us - m_softcsa_us[slot];
+	if (delta_us >= 500000)
+	{
+		if (bytes >= m_softcsa_bytes[slot])
+			m_softcsa_kbps[slot] = (int)((bytes - m_softcsa_bytes[slot]) * 8000 / delta_us * 97 / 100);
+		m_softcsa_bytes[slot] = bytes;
+		m_softcsa_us[slot] = now_us;
+	}
+	return m_softcsa_kbps[slot];
+}
+
+/* Live bitrate of the video PID or of the audio PID that is decoded, counted on the data demux, where timeshift
+ * taps the same PIDs while the decoder runs (the decode demux can refuse a second filter on a PID the hardware
+ * decoder uses, see startHDRDetection). With SoftCSA the descrambling recorder counts instead. Scrambled packets
+ * are as big as clear ones, so encrypted services are counted too. Nothing runs until the first query. A demux
+ * counter gives its filter back by itself when the queries stop and its next getKbps() starts it again, so no
+ * timer is needed here.
+ * -1 = nothing to measure (PVR, timeshift, not tuned yet, no such PID, no filter available right now,
+ * or the demux cannot make counters at all, which is final for this service). */
+int eDVBServicePlay::getLiveBitrate(bool audio)
+{
+	ePtr<iDVBDemux> demux;
+	/* a DVB IPTV stream (m_is_stream) is fed through a PVR channel into a demux, like live TV, so it can be counted */
+	if (m_is_pvr || m_timeshift_active || m_service_handler.getDataDemux(demux) || !demux)
+	{
+		/* drop the counters: when this is live again the data demux may be another one */
+		releaseLiveBitrate();
+		return -1;
+	}
+	if (m_bitrate_demux != demux.operator->())
+	{
+		releaseLiveBitrate();
+		m_bitrate_demux = demux.operator->();
+	}
+
+	int pid = -1;
+	if (audio)
+		pid = m_current_audio_pid;
+	else
+	{
+		eDVBServicePMTHandler::program program;
+		if (!m_service_handler.getProgramInfo(program) && !program.videoStreams.empty())
+			pid = program.videoStreams[0].pid;
+	}
+	if (pid <= 0 || pid >= 0x2000)
+		return -1;
+
+	/* SoftCSA: the descrambling recorder already reads these PIDs, count there and leave the demux alone */
+	if (m_soft_decoder && m_csa_session && m_csa_session->isActive())
+	{
+		m_vbitrate = 0;
+		m_abitrate = 0;
+		m_vbitrate_pid = m_abitrate_pid = -1;
+		return getSoftCSABitrate(audio, pid);
+	}
+	releaseSoftCSABitrate();
+
+	if (m_bitrate_failed)
+		return -1;
+
+	ePtr<iDVBBitrateCounter> &counter = audio ? m_abitrate : m_vbitrate;
+	int &counter_pid = audio ? m_abitrate_pid : m_vbitrate_pid;
+
+	if (!counter || counter_pid != pid)
+	{
+		if (!counter && demux->createBitrateCounter(counter))
+		{
+			counter = 0;
+			m_bitrate_failed = true;
+			return -1;
+		}
+		counter_pid = pid;
+		if (counter->start(pid))
+		{
+			/* no filter right now (just zapped, no free filter): not final, the next query tries again */
+			counter_pid = -1;
+			return -1;
+		}
+	}
+
+	int kbps = counter->getKbps();
+	if (kbps < 0)
+	{
+		/* the counter could not restart after it had stopped by itself: the next query starts over */
+		counter_pid = -1;
+	}
+	return kbps;
+}
+
 void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 {
 	int vpid = -1, vpidtype = -1, pcrpid = -1, tpid = -1, achannel = -1, ac3_delay=-1, pcm_delay=-1;
@@ -3532,6 +3827,17 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 		else
 			m_decoder->set();
 
+		/* Radio/audio-only services have no video pid, so video_event()'s
+		 * eventSizeChanged never fires and can't be relied on to signal
+		 * evFirstFrame - there's no equivalent per-frame signal from the
+		 * audio decoder either, so fall back to firing it here, once,
+		 * right after the decoder has actually been told to play. */
+		if (!m_first_frame_fired && !m_have_video_pid)
+		{
+			m_first_frame_fired = true;
+			m_event((iPlayableService*)this, evFirstFrame);
+		}
+
 		if (!m_noaudio)
 			m_decoder->setAudioChannel(achannel);
 
@@ -3574,7 +3880,6 @@ void eDVBServicePlay::updateDecoder(bool sendSeekableStateChanged)
 		if (!sendSeekableStateChanged && (m_decoder->getVideoProgressive() != -1) != wasSeekable)
 			sendSeekableStateChanged = true;
 	}
-
 	if (sendSeekableStateChanged)
 		m_event((iPlayableService*)this, evSeekableStatusChanged);
 }
@@ -4155,6 +4460,17 @@ void eDVBServicePlay::video_event(struct iTSMPEGDecoder::videoEvent event)
 {
 	switch(event.type) {
 		case iTSMPEGDecoder::videoEvent::eventSizeChanged:
+			/* The decoder only reports a real size once it actually has a
+			 * frame decoded and ready to show - the earliest reliable
+			 * "first frame" signal available here (see evFirstFrame's own
+			 * doc comment in iservice.h). This case fires again on every
+			 * later resolution change too, so guard it to only fire once
+			 * per playback session. */
+			if (!m_first_frame_fired)
+			{
+				m_first_frame_fired = true;
+				m_event((iPlayableService*)this, evFirstFrame);
+			}
 			m_event((iPlayableService*)this, evVideoSizeChanged);
 			// For SoftCSA: Send evUpdatedInfo on first video size event
 			// Some skins only query video info on evUpdatedInfo, not on evVideoSizeChanged
@@ -4256,17 +4572,9 @@ void eDVBServicePlay::setupSpeculativeDescrambling()
 	if (m_is_pvr || m_is_stream)
 		return;
 
-	// libdvbcsa missing -> software descrambling not possible, skip all setup
+	// libdvbcsa missing or SoftCSA disabled -> skip all setup
 	if (!eDVBCSAEngine::isAvailable())
 		return;
-
-	int softcsaEnable = eConfigManager::getConfigIntValue("config.misc.softcsa.Enable_Disable", 0);
-	// Enabled (0) Disabled (1) 
-	if (softcsaEnable == 1)
-	{
-		eWarning("[eDVBServicePlay] softcsa disabled)");
-		return;
-	}
 
 	eDebug("[eDVBServicePlay] Encrypted channel, creating speculative CSA session");
 
@@ -4400,6 +4708,11 @@ void eDVBServicePlay::onSoftDecoderAudioPidSelected(int pid)
 
 void eDVBServicePlay::cleanupSoftwareDescrambling()
 {
+	// Release any active channel-count probe before the SoftCSA recorder it
+	// may be tapping (via a monitor fd) goes away.
+	if (m_audio_channel_detector)
+		m_audio_channel_detector->stop();
+
 	// Aggressive mode: reset HW-descrambler slot when leaving any encrypted
 	// service.
 	if (eDVBServicePMTHandler::program prog;
@@ -4461,7 +4774,7 @@ void eDVBServicePlay::cleanupSoftwareDescrambling()
 
 void eDVBServicePlay::resetHwDescramblerSlot()
 {
-	// Works around drivers (dm900) where CA_SET_PID(pid, -1) returns ok but
+	// Works around drivers where CA_SET_PID(pid, -1) returns ok but
 	// the slot keeps descrambling with old CWs. Must run BEFORE the next
 	// service tunes - after CSA-ALT detection the slot ignores all ioctls.
 

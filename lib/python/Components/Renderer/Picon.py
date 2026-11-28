@@ -1,14 +1,22 @@
-from os import listdir
+from os import scandir
 from os.path import join, normpath, isdir
 from re import compile
 
-from enigma import ePixmap, eServiceCenter, eServiceReference, iServiceInformation, BT_SCALE, BT_KEEP_ASPECT_RATIO, BT_HALIGN_CENTER, BT_VALIGN_CENTER
+from enigma import ePixmap, eServiceCenter, eServiceReference, eTimer, iServiceInformation, BT_SCALE, BT_KEEP_ASPECT_RATIO, BT_HALIGN_CENTER, BT_VALIGN_CENTER, eListboxServiceContent
 
 from Components.config import config
 from Components.Harddisk import harddiskmanager
 from Components.Renderer.Renderer import Renderer
 from Tools.Alternatives import GetWithAlternative
 from Tools.Directories import pathExists, SCOPE_CURRENT_SKIN, resolveFilename, sanitizeFilename
+
+
+def invalidateListPicons():
+	# The service lists cache the picon of every row they have drawn; tell them the picon source changed.
+	try:
+		eListboxServiceContent.invalidatePiconCaches()
+	except Exception as err:
+		print("[Picon] invalidatePiconCaches failed", err)
 
 
 class PiconLocator:
@@ -50,11 +58,10 @@ class PiconLocator:
 			try:
 				path = join(normpath(mountpoint), piconDirectory)
 				if isdir(path) and path not in self.searchPaths:
-					for fn in listdir(path):
-						if fn.endswith((".png", ".svg")):
-							print("[PiconLocator] adding path:", path)
-							self.searchPaths.append(path)
-							break
+					if any(entry.name.endswith((".png", ".svg")) for entry in scandir(path)):
+						print("[PiconLocator] adding path:", path)
+						self.searchPaths.append(path)
+						invalidateListPicons()
 			except Exception as err:
 				print("[PiconLocator] Error adding mount point", err)
 
@@ -66,6 +73,7 @@ class PiconLocator:
 				print("[PiconLocator] removed path:", path)
 				if path == self.activePiconPath:
 					self.activePiconPath = None
+				invalidateListPicons()
 
 	def __onPartitionChange(self, why, part):
 		if why == "add":
@@ -93,6 +101,7 @@ class PiconLocator:
 		value = normpath(value)
 		if pathExists(value) and not value.startswith(("/media/net", "/media/autofs")) and value not in self.searchPaths:
 			self.searchPaths.append(value)
+			invalidateListPicons()
 
 	def __iterServiceRefPiconCandidates(self, serviceRef):
 		# remove the path and name fields, and replace ":" with "_"
@@ -165,12 +174,23 @@ def getPiconName(serviceRef):
 
 
 class Picon(Renderer):
+	# Loading and decoding a picon PNG (cache miss: disk read + decode; cache
+	# hit: still a GPU texture re-upload via ePixmap::setPixmapFromFile, see
+	# gTextureManager) happens synchronously on the UI thread. Without this
+	# delay, holding down the channel-list cursor key fires changed() once per
+	# row scrolled past, each one blocking a frame - this settle delay means
+	# only the row the cursor actually stops on ever gets loaded.
+	LOAD_DELAY_MS = 150
+
 	def __init__(self):
 		Renderer.__init__(self)
 		self.pngname = None
+		self.pendingPngname = None
 		self.defaultpngname = resolveFilename(SCOPE_CURRENT_SKIN, "picon_default.png")
 		if not pathExists(self.defaultpngname):
 			self.defaultpngname = ""
+		self.loadTimer = eTimer()
+		self.loadTimer.callback.append(self.applyPendingPicon)
 
 	def applySkin(self, desktop, parent):
 		attribs = []
@@ -190,14 +210,40 @@ class Picon(Renderer):
 		if self.instance:
 			if what[0] in (self.CHANGED_DEFAULT, self.CHANGED_ALL, self.CHANGED_SPECIFIC):
 				pngname = piconLocator.getPiconName(self.source.text) or self.defaultpngname
-				if self.pngname != pngname:
-					if pngname:
-						self.instance.setPixmapScaleFlags(BT_SCALE | BT_KEEP_ASPECT_RATIO | BT_HALIGN_CENTER | BT_VALIGN_CENTER)
-						self.instance.setPixmapFromFile(pngname)
-						self.instance.show()
+				if self.pendingPngname != pngname:
+					self.pendingPngname = pngname
+					if self.pngname is None or not self.isScrollingSource():
+						# first picon since this widget was created (e.g. screen
+						# just opened), or a source that doesn't change per
+						# key-repeat (e.g. CurrentService on zap) - show it
+						# immediately, only debounce rapid scrolling changes
+						self.loadTimer.stop()
+						self.applyPendingPicon()
 					else:
-						self.instance.hide()
-					self.pngname = pngname
+						self.loadTimer.start(self.LOAD_DELAY_MS, True)
 			elif what[0] == self.CHANGED_CLEAR:
+				self.loadTimer.stop()
 				self.pngname = None
+				self.pendingPngname = None
 				self.instance.hide()
+
+	def isScrollingSource(self):
+		source = self.source
+		while getattr(source, "source", None) is not None:  # walk converter chain to the root source
+			source = source.source
+		return type(source).__name__ != "CurrentService"
+
+	def applyPendingPicon(self):
+		pngname = self.pendingPngname
+		if not self.instance or self.pngname == pngname:
+			return
+		if pngname:
+			self.instance.setPixmapScaleFlags(BT_SCALE | BT_KEEP_ASPECT_RATIO | BT_HALIGN_CENTER | BT_VALIGN_CENTER)
+			self.instance.setPixmapFromFile(pngname)
+			self.instance.show()
+		else:
+			self.instance.hide()
+		self.pngname = pngname
+
+	def preWidgetRemove(self, instance):
+		self.loadTimer.stop()

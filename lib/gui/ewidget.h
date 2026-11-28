@@ -35,7 +35,7 @@ public:
 
 	eWidget *getParent() { return m_parent; }
 
-	void show();
+	virtual void show();
 	void hide();
 
 	void raise();
@@ -78,6 +78,29 @@ public:
 	int isLowered() { return (m_lowered > 0); }
 
 	int isTransparent() { return m_vis & wVisTransparent; }
+
+		/* For a container whose *own* m_cornerRadius is 0 (so it looks like a
+		   flat, fully opaque rect to eWidgetDesktop::calcWidgetClipRegion) but
+		   which internally paints rounded content of its own -- e.g. eListbox,
+		   whose per-item corner radius lives in its style, never in the
+		   widget's own m_cornerRadius -- calcWidgetClipRegion would otherwise
+		   conclude nothing needs to stay visible behind it, and no backdrop
+		   ever gets painted there. That leaves the antialiased fringe of each
+		   rounded item blending against whatever the render target happened to
+		   already hold (typically nothing), which shows up as a dark/black
+		   halo hugging every rounded corner. Call this whenever such internal
+		   rounding is (or stops being) in effect. */
+	void setNeedsBackdrop(bool needs) { m_needs_backdrop = needs; }
+
+		/* true whenever this widget's painted output isn't a flat, fully opaque
+		   fill of its own area -- i.e. whenever it must be composited against
+		   whatever is actually behind it rather than against its own nominal
+		   background. Mirrors the condition eWidgetDesktop::calcWidgetClipRegion
+		   uses to decide whether the area behind this widget must stay available
+		   for painting, plus the widget's own background color carrying any
+		   transparency (which doesn't affect occlusion of siblings, but still
+		   means content drawn on top -- e.g. text -- must blend). */
+	bool needsBlendCompositing() { return isTransparent() || m_alphaBlend || m_gradient_alphablend || m_cornerRadius != 0 || m_needs_backdrop || (m_have_background_color && m_background_color.a != 0); }
 
 	ePoint getAbsolutePosition();
 
@@ -123,6 +146,7 @@ private:
 
 	int m_cornerRadius;
 	uint8_t m_cornerRadiusEdges;
+	bool m_needs_backdrop = false;
 
 
 protected:
@@ -137,7 +161,10 @@ protected:
 	eRect m_padding;
 	bool m_alphaBlend = false;
 	uint8_t m_align = eStackAlignNone;
+	bool m_stackfill = false;
+	uint8_t m_stackcross = 0;
 	virtual void invalidateChilds() {} // This will be overwritten in subclass
+	virtual void forgetStackChild(eWidget*) {} // This will be overwritten in subclass
 
 public:
 
@@ -214,6 +241,12 @@ public:
 	uint8_t align() const { return m_align; }
 	eWidget* m_stack;
 	void setStack(eWidget* stack) { m_stack = stack; }
+	/* a stack child with stackFill gets all the space the other children leave over */
+	void setStackFill(int fill) { m_stackfill = fill != 0; if (m_stack) m_stack->invalidateChilds(); }
+	bool stackFill() const { return m_stackfill; }
+	/* alignment across the stack direction: 0 = keep the position of the widget, 1 = start, 2 = center, 3 = end */
+	void setStackCross(int cross) { m_stackcross = cross; if (m_stack) m_stack->invalidateChilds(); }
+	int stackCross() const { return m_stackcross; }
 
 };
 

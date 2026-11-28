@@ -3,8 +3,9 @@ from os import remove
 from os.path import exists, join as join
 from struct import pack
 from sys import maxsize
+from time import time
 
-from enigma import eActionMap, eHdmiCEC, eTimer
+from enigma import eActionMap, eAVSwitch, eHdmiCEC, eTimer
 import NavigationInstance
 
 from Components.config import config
@@ -528,6 +529,10 @@ class HdmiCec:
 			self.repeat.timeout.get().append(self.sendWakeupMessages)
 			self.delay = eTimer()
 			self.delay.timeout.get().append(self.sendStandbyMessages)
+			self.videoResync = eTimer()
+			self.videoResync.timeout.get().append(self.videoResyncRun)
+			self.videoResyncPending = 0  # expiry time (time()) while waiting for the TV to select our input after leaving standby
+			self.videoResyncStep = 0
 			self.useStandby = True
 			self.handlingStandbyFromTV = False
 			self.devices = {}
@@ -539,37 +544,41 @@ class HdmiCec:
 			self.local_vendor_id = CEC_VENDOR_ENIGMA2_STB
 			self.tv_powerstate = "unknown"
 			self.cmd87 = False
-			printX(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
-			if not config.hdmicec.change_physaddress.value:
-				config.hdmicec.fixed_physical_address.value = getPhysicalAddress()
-			countDots = config.hdmicec.fixed_physical_address.value.count(".")
-			# printX(f"[HdmiCEC][init]2countDots:{countDots}")
-			if countDots == 3 and config.hdmicec.fixed_physical_address.value[1:3] != ".0" and config.hdmicec.change_physaddress.value:
-				try:
-					printX(f"[HdmiCEC][init]phsyical address changed by setup value:{config.hdmicec.fixed_physical_address.value}")
-					setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
-				except:
-					setFixedPhysicalAddress("0.0.0.0")
-			eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
-			config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
-			# config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
-			self.volumeForwardingEnabled = False
-			self.volumeForwardingDestination = 0
-			self.wakeup_from_tv = False
-			eActionMap.getInstance().bindAction("", -maxsize - 1, self.keyEvent)
-			config.hdmicec.volume_forwarding.addNotifier(self.configVolumeForwarding)
-			config.hdmicec.enabled.addNotifier(self.configVolumeForwarding)
-			if config.hdmicec.enabled.value:
-				if config.hdmicec.report_active_menu.value:
-					if config.hdmicec.report_active_source.value and NavigationInstance.instance and not NavigationInstance.instance.isRestartUI():
-						self.sendMessage(0, "sourceinactive")
-					self.sendMessage(0, "menuactive")
-				# if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
-				if not getFPWasTimerWakeup():
-					self.onLeaveStandby()
-		else:
-			printX("[HdmiCEC][init] no set physical address ")
-			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver
+			self.enableCec()
+#		else:
+#			printX("[HdmiCEC][init] no set physical address ")
+#			setFixedPhysicalAddress("0.0.0.0")			# no fixed physical address send 0 to eHdmiCec C++ driver
+
+	def enableCec(self):
+		eHdmiCEC.getInstance().setEnabled(config.hdmicec.enabled.value)
+		printX(f"[HdmiCEC][init]3 physical address:{getPhysicalAddress()}")
+		if not config.hdmicec.change_physaddress.value:
+			config.hdmicec.fixed_physical_address.value = getPhysicalAddress()
+		countDots = config.hdmicec.fixed_physical_address.value.count(".")
+		# printX(f"[HdmiCEC][init]2countDots:{countDots}")
+		if countDots == 3 and config.hdmicec.fixed_physical_address.value[1:3] != ".0" and config.hdmicec.change_physaddress.value:
+			try:
+				printX(f"[HdmiCEC][init]phsyical address changed by setup value:{config.hdmicec.fixed_physical_address.value}")
+				setFixedPhysicalAddress(config.hdmicec.fixed_physical_address.value)
+			except:
+				setFixedPhysicalAddress("0.0.0.0")
+		eHdmiCEC.getInstance().messageReceived.get().append(self.messageReceived)
+		config.misc.standbyCounter.addNotifier(self.onEnterStandby, initial_call=False)
+		# config.misc.DeepStandby.addNotifier(self.onEnterDeepStandby, initial_call=False)
+		self.volumeForwardingEnabled = False
+		self.volumeForwardingDestination = 0
+		self.wakeup_from_tv = False
+		eActionMap.getInstance().bindAction("", -maxsize - 1, self.keyEvent)
+		config.hdmicec.volume_forwarding.addNotifier(self.configVolumeForwarding)
+		config.hdmicec.enabled.addNotifier(self.configVolumeForwarding)
+		if config.hdmicec.enabled.value:
+			if config.hdmicec.report_active_menu.value:
+				if config.hdmicec.report_active_source.value and NavigationInstance.instance and not NavigationInstance.instance.isRestartUI():
+					self.sendMessage(0, "sourceinactive")
+				self.sendMessage(0, "menuactive")
+			# if config.hdmicec.handle_deepstandby_events.value and not getFPWasTimerWakeup():
+			if not getFPWasTimerWakeup():
+				self.onLeaveStandby()
 
 	def dataByte(self, data, index):
 		item = data[index]
@@ -642,9 +651,9 @@ class HdmiCec:
 	def sendRawMessage(self, address, cmd, payload):
 		data = bytes(payload)
 		if config.misc.DeepStandby.value:
-			if config.hdmicec.debug.value:
-				self.debugTx(address, cmd, data)
 			self.sendCecMessage(address, cmd, data)
+			if config.hdmicec.debug.value in ["2", "4"]:
+				self.debugTx(address, cmd, data)
 		else:
 			self.queue.append((address, cmd, data))
 			if not self.wait.isActive():
@@ -691,7 +700,7 @@ class HdmiCec:
 			return True
 		if params[0] == 0x03:
 			printX("[HdmiCec] LG Simplink power-on request")
-			if config.hdmicec.handle_tv_wakeup.value != "disabled":
+			if config.hdmicec.handle_tv_wakeup.value:
 				self.wakeup()
 			self.sendMessage(address, "poweractive" if not Screens.Standby.inStandby else "powerinactive")
 			if not Screens.Standby.inStandby and config.hdmicec.report_active_source.value:
@@ -699,7 +708,7 @@ class HdmiCec:
 			return True
 		if params[0] == 0x04:
 			self.sendRawMessage(address, 0x89, (0x05, eHdmiCEC.getInstance().getDeviceType()))
-			if self.activesource:
+			if not Screens.Standby.inStandby:
 				self.sendMessage(address, "poweractive")
 			printX("[HdmiCec] LG Simplink connect request acknowledged")
 			return True
@@ -803,6 +812,11 @@ class HdmiCec:
 							if not inStandby:
 								if config.hdmicec.report_active_source.value:
 									self.sendMessage(msgaddress, "sourceactive")
+								if self.videoResyncPending:
+									if time() < self.videoResyncPending:  # TV has selected our input after wakeup: restart HDMI video so it re-syncs
+										self.videoResyncStep = 0
+										self.videoResync.start(1500, True)
+									self.videoResyncPending = 0
 					case 0x87 if length >= 3:  # device vendor id
 						self.cmd87 = True
 						printX(f"[HdmiCEC][messageReceived]Reporting Device Vendor ctrl0:{ctrl0:02X} ctrl1:{ctrl1:02X} ctrl2:{ctrl2:02X}")
@@ -832,7 +846,7 @@ class HdmiCec:
 							self.tv_powerstate = "get_on"
 						elif ctrl0 == 3:
 							self.tv_powerstate = "get_standby"
-						if config.hdmicec.control_tv_wakeup.value and self.tv_powerstate == "standby":
+						if config.hdmicec.control_tv_wakeup.value and self.tv_powerstate == "standby" and not inStandby:  # box in standby: TV going off is expected, don't wake it again
 							self.sendWakeupMessages()
 						if config.hdmicec.next_boxes_detect.value:
 							self.useStandby = False
@@ -1005,6 +1019,8 @@ class HdmiCec:
 	def onEnterStandby(self, configElement):
 		Screens.Standby.inStandby.onClose.append(self.onLeaveStandby)
 		self.repeat.stop()
+		self.videoResync.stop()
+		self.videoResyncPending = 0
 		self.standbyMessages()
 
 	def onEnterDeepStandby(self, configElement):
@@ -1047,9 +1063,30 @@ class HdmiCec:
 
 	def onLeaveStandby(self):
 		printX("[HDMI-CEC][onLeaveStandby] entered")
+		if config.hdmicec.enabled.value and config.hdmicec.wake_video_resync.value != "0":
+			self.videoResyncPending = time() + 30
 		self.sendWakeupMessages()
 		if int(config.hdmicec.repeat_wakeup_timer.value):
 			self.repeat.startLongTimer(int(config.hdmicec.repeat_wakeup_timer.value))
+
+	def videoResyncRun(self):
+		if Screens.Standby.inStandby:
+			return
+		from Components.AVSwitch import iAVSwitch
+		from Components.SystemInfo import SystemInfo
+		if config.hdmicec.wake_video_resync.value == "toggle" and self.videoResyncStep == 0:
+			current = fileReadLine("/proc/stb/video/videomode", default="")
+			available = SystemInfo["AvailableVideomodes"]
+			other = next((m for m in ("720p50", "1080i50", "576p50", "720p", "1080i", "576p") if m != current and m in available), None)
+			if other:
+				print(f"[HdmiCEC][videoResyncRun] switching video mode {current} -> {other} to restart HDMI output")
+				eAVSwitch.getInstance().setVideoMode(other)
+				self.videoResyncStep = 1
+				self.videoResync.start(1000, True)
+				return
+		print("[HdmiCEC][videoResyncRun] re-applying configured video mode to restart HDMI output")
+		self.videoResyncStep = 0
+		iAVSwitch.setConfiguredMode()
 
 	def wakeup(self):
 		printX("[HDMI-CEC][wakeup] entered")
@@ -1142,12 +1179,11 @@ class HdmiCec:
 		txt = self.now(True) + self.opCode(cmd, True) + " " + f"{cmd:02X}" + " "
 		tmp = ""
 		if len(data):
+			data = self.payloadBytes(data)  # the bytes as sent by sendCecMessage()
 			if cmd in [0x32, 0x47]:  # set Menu Language/OSD Name
-				for info in data:
-					tmp += f"{info}"
+				tmp += data.decode("utf-8", errors="replace")
 			else:
-				for bytes in data:
-					tmp += f"{ord(bytes):02X}" + " "
+				tmp += "".join(f"{byte:02X} " for byte in data)
 		tmp += 48 * " "
 		self.fdebug(txt + tmp[:48] + f"[0x{msgaddress:02X}]")
 

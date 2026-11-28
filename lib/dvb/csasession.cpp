@@ -55,6 +55,14 @@ static bool dvbTripletMatch(const eServiceReferenceDVB& ref1, const eServiceRefe
 	       ref1.getOriginalNetworkID() == ref2.getOriginalNetworkID();
 }
 
+int eDVBCSASession::cachedCsaAlt(const eServiceReferenceDVB& ref)
+{
+	auto it = s_csa_cache.find(makeServiceKey(ref));
+	if (it == s_csa_cache.end() || !it->second.valid)
+		return -1;
+	return it->second.is_csa_alt ? 1 : 0;
+}
+
 eDVBCSASession::eDVBCSASession(const eServiceReferenceDVB& ref)
 	: m_service_ref(ref)
 	, m_active(false)
@@ -159,7 +167,10 @@ void eDVBCSASession::startECMMonitor(iDVBDemux *demux, uint16_t ecm_pid, uint16_
 				}
 			}
 
-			return;
+			// The cached ecm_mode can be stale: an active session keeps reading
+			// the ECMs to follow it.
+			if (!m_active)
+				return;
 		}
 	}
 
@@ -224,10 +235,24 @@ void eDVBCSASession::ecmDataReceived(const uint8_t *data)
 	// Read last byte and extract lower nibble as ecm_mode
 	uint8_t new_ecm_mode = m_ecm_tail[3] & 0x0F;
 
-	if (!m_ecm_mode_detected || m_ecm_mode != new_ecm_mode)
+	const bool mode_changed = m_ecm_mode_detected && m_ecm_mode != new_ecm_mode;
+	if (!m_ecm_mode_detected || mode_changed)
 	{
 		m_ecm_mode = new_ecm_mode;
 		m_ecm_mode_detected = true;
+	}
+
+	// Keys are set on the CWHandler thread with the mode registered there
+	if (mode_changed && m_ecm_analyzed)
+	{
+		eDebug("[eDVBCSASession] ECM mode changed to 0x%02X", new_ecm_mode);
+		s_csa_cache[makeServiceKey(m_service_ref)].ecm_mode = new_ecm_mode;
+		if (m_cw_handler_registered)
+		{
+			eDVBCWHandler::getInstance()->updateEcmMode(m_cw_service_id, m_engine, new_ecm_mode);
+			if (m_cw_alt_service_id)
+				eDVBCWHandler::getInstance()->updateEcmMode(m_cw_alt_service_id, m_engine, new_ecm_mode);
+		}
 	}
 
 	// Detect CSA-ALT from ECM
@@ -268,7 +293,9 @@ void eDVBCSASession::ecmDataReceived(const uint8_t *data)
 			eDebug("[eDVBCSASession] ECM analyzed: Not CSA-ALT, hardware descrambling will be used");
 		}
 
-		stopECMMonitor();
+		// An active session keeps reading the ECMs to follow ecm_mode
+		if (!m_active)
+			stopECMMonitor();
 	}
 }
 
@@ -330,6 +357,8 @@ void eDVBCSASession::setActive(bool active)
 		}
 		m_first_cw_signaled = false;
 		m_pending_cw.valid = false;
+		// A running monitor would analyse the next ECM and activate again
+		stopECMMonitor();
 		if (m_engine)
 			m_engine->clearKeys();
 		// Reset ECM analysis state
@@ -422,6 +451,10 @@ void eDVBCSASession::onCwReceived(eServiceReferenceDVB ref, int parity, const ch
 		// tuner streams). Register ADDITIONALLY for the actual serviceId so the engine
 		// receives CWs from both connections - OScam alternates CW delivery between them.
 		eDebug("[eDVBCSASession] Additional serviceId %u registered (primary=%u)", serviceId, m_cw_service_id);
+		// The handler keeps a raw engine pointer: a replaced registration that
+		// stayed behind would get CWs after this session and its engine are gone.
+		if (m_cw_alt_service_id)
+			eDVBCWHandler::getInstance()->unregisterEngine(m_cw_alt_service_id, m_engine);
 		m_cw_alt_service_id = serviceId;
 		eDVBCWHandler::getInstance()->registerEngine(serviceId, m_engine, ecm_mode);
 		// Apply this CW directly - CWHandler already intercepted and missed it
@@ -458,6 +491,11 @@ void eDVBCSASession::onCwReceived(eServiceReferenceDVB ref, int parity, const ch
 bool eDVBCSASession::hasKeys() const
 {
 	return m_engine && m_engine->hasAnyKey();
+}
+
+bool eDVBCSASession::holdPlayback()
+{
+	return m_active && m_engine && m_engine->holdPlayback();
 }
 
 void eDVBCSASession::descramble(unsigned char* packets, int len)

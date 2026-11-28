@@ -190,12 +190,13 @@ class ScreenButtonsBar(GUIAddon):
 		instance.setSelectionEnable(False)
 		instance.setContent(self.l)
 		instance.allowNativeKeys(False)
+		instance.setEllipsis(0)  # ellipsis is off by default here, a skin can enable it with ellipsis="1"
 
 	def constructButtonSequence(self):
 		sequenceColor = {}
 		sequenceAction = []
 		for x, val in self.colorButtonSources.items():
-			if hasattr(val, "text") and (hasattr(val, "boolean") and val.boolean or hasattr(val, "visible") and val.visible):
+			if hasattr(val, "text") and (hasattr(val, "boolean") and val.boolean or hasattr(val, "visible") and val.visible and val.text):
 				sequenceColor[x] = val
 
 		for x, val in self.actionButtonSources.items():

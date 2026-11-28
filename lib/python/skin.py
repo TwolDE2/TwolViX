@@ -29,6 +29,7 @@ fonts = {}  # Dictionary of predefined and skin defined font aliases.
 menus = {}  # Dictionary of images associated with menu entries.
 menuicons = {}  # Dictionary of icons associated with menu items.
 parameters = {}  # Dictionary of skin parameters used to modify code behavior.
+serviceListTemplates = {"styles": {}, "templates": {}}  # Skin defined row templates for the templated service list.
 screens = {}  # Dictionary of images associated with screen entries.
 setups = {}  # Dictionary of images associated with setup menus.
 switchPixmap = {}  # Dictionary of switch images.
@@ -81,6 +82,8 @@ def InitSkins(booting=True):
 	menus.clear()
 	menuicons.clear()
 	parameters.clear()
+	serviceListTemplates["styles"].clear()
+	serviceListTemplates["templates"].clear()
 	screens.clear()
 	setups.clear()
 	switchPixmap.clear()
@@ -181,14 +184,17 @@ def loadSkin(filename, scope=SCOPE_SKIN, desktop=getDesktop(GUI_SKIN_ID), screen
 			for element in domSkin:
 				if element.tag == "screen":  # Process all screen elements.
 					name = element.attrib.get("name", None)
-					if name:  # Without a name, it's useless!
-						scrnID = element.attrib.get("id", None)
-						if scrnID is None or scrnID == screenID:  # If there is a screen ID is it for this display.
-							# print(f"[Skin] DEBUG: Extracting screen '{name}' from '{filename}'.  (scope='{scope}')")
-							domScreens[name] = (element, f"{dirname(filename)}/")
+					# "name" attribute is mandatory in <screen> elements
+					if name:
+						# "id" attribute is optional in <screen> elements, but if present the screen will  only
+						# be saved if it matches the current skin type, i.e. GUI_SKIN_ID or DISPLAY_SKIN_ID
+						if int(element.attrib.get("id", screenID)) == screenID:
+							# print("[Skin] DEBUG: Extracting screen '%s' from '%s'.  (scope='%s')" % (name, filename, scope))
+							domScreens[name] = (element, "%s/" % dirname(filename))
 				elif element.tag == "windowstyle":  # Process the windowstyle element.
 					scrnID = element.attrib.get("id", None)
-					if scrnID is not None:  # Without an scrnID, it is useless!
+					# "id" attribute is mandatory in <windowstyle> elements
+					if scrnID is not None:
 						scrnID = int(scrnID)
 						# print(f"[Skin] DEBUG: Processing a windowstyle ID='{scrnID}'.")
 						domStyle = ElementTree(Element("skin"))
@@ -390,30 +396,26 @@ def parseColor(value, default=0x00FFFFFF):
 
 def parseGradient(value):
 	def validColor(value):
-		if value[0] == "#" and len(value) in (9, 7):
-			isColor = True
-		elif value in colors:
-			isColor = True
-		else:
-			isColor = False
-		return isColor
+		return (value.startswith("#") and len(value) in (9, 7)) or value in colors
 
 	data = [x.strip() for x in value.split(",")]
 	gradientColors = [gRGB(0x00000000), gRGB(0x00FFFFFF), gRGB(0x00FFFFFF)]  # Start color, center color, end color.
-	for index, color in enumerate(data):
-		if not validColor(color) or index > 2:
+	colorCount = 0
+	for color in data[:3]:
+		if not validColor(color):
 			break
-		gradientColors[index] = parseColor(color)
-	if index == 2:
+		gradientColors[colorCount] = parseColor(color)
+		colorCount += 1
+	if colorCount == 2:  # Two colors means start and end, drawRectangle treats center == end as a two color gradient.
 		gradientColors[2] = gradientColors[1]
-	argCount = len(data) - index
-	if index > 1 and argCount:
+	argCount = len(data) - colorCount
+	if colorCount > 1 and argCount:
 		options = {
 			"horizontal": eWidget.GRADIENT_HORIZONTAL,
 			"vertical": eWidget.GRADIENT_VERTICAL,
 		}
-		direction = parseOptions(options, "gradient", data[index], eWidget.GRADIENT_VERTICAL)
-		alphaBlend = int(argCount > 1 and parseBoolean("alphablend", data[index + 1]))
+		direction = parseOptions(options, "gradient", data[colorCount], eWidget.GRADIENT_VERTICAL)
+		alphaBlend = int(argCount > 1 and parseBoolean("alphablend", data[colorCount + 1]))
 	else:
 		direction = eWidget.GRADIENT_VERTICAL
 		alphaBlend = 0
@@ -433,6 +435,10 @@ def parseOptions(options, attribute, value, default):
 
 def parseBoolean(attribute, value):
 	return value.lower() in ("1", attribute, "enabled", "on", "true", "yes")
+
+
+def parseCarouselFocus(value):  # The carousel slot (counted from 0) that holds the selection, "center" for the middle one (-1).
+	return -1 if value.lower() in ("center", "centre", "middle") else int(value)
 
 
 def parseParameter(s):
@@ -468,6 +474,190 @@ def parseScale(s):
 	return val
 
 
+def parseServiceListTemplates(tag, scope, pathSkin):
+	"""Parse a <servicelisttemplates> element into dictionaries understood by eListboxServiceTemplateContent.
+
+	Styles are colour sets, templates describe the rows (and the items in a row) of a service list entry.
+	A template can inherit from an earlier one with base="name"; its own rows with an id replace the
+	inherited row with the same id, all others are appended."""
+	scale = ((1, 1), (1, 1))
+	styles = serviceListTemplates["styles"]
+	templates = serviceListTemplates["templates"]
+	colorKeys = ("fg", "fgSelected", "fgFallback", "fgSelectedFallback", "fgNotAvail", "fgRecorded", "fgMarked", "fgMarkedSelected", "border", "borderSelected")
+	fontGroups = {"name": 0, "number": 1, "info": 2, "next": 3, "remaining": 4, "custom1": 5, "custom2": 6, "custom3": 7}
+
+	def number(node, key, default=0):
+		value = node.attrib.get(key)
+		return parseScale(value) if value not in (None, "") else default
+
+	def parseItem(node):
+		a = node.attrib
+		itemType = a.get("type", "text")
+		item = {"type": itemType, "id": a.get("id", ""), "visible": a.get("visible", "")}
+		text = a.get("text")
+		if text is None:
+			text = "{number}" if itemType == "number" else "{name}" if itemType == "text" else ""
+		item["text"] = text
+		width = a.get("width", "auto").strip()
+		if width == "auto":
+			item["wmode"] = 1
+		elif width.startswith("*"):
+			item["wmode"] = 2
+			item["weight"] = int(width[1:] or 1)
+		elif width.startswith("@"):  # width taken from a runtime parameter, e.g. the column width
+			item["wmode"] = 3
+			item["param"] = width[1:]
+		else:
+			item["wmode"] = 0
+			item["width"] = parseScale(width)
+		for key in ("height", "margin", "min", "border", "lineHeight"):
+			if key in a:
+				item[key] = parseScale(a[key])
+		if "weight" in a:
+			item["weight"] = int(a["weight"])
+		if "align" in a:
+			item["align"] = a["align"]
+		if "valign" in a:
+			item["valign"] = a["valign"]
+		# members of a <stack>: alignment along the stack, alignment across it, take the remaining space
+		for key in ("stackAlign", "stackCross"):
+			if key in a:
+				item[key] = a[key].lower()
+		if "stackFill" in a:
+			item["stackFill"] = parseBoolean("stackFill", a["stackFill"])
+		if "pos" in a:
+			pos = [parseScale(x.strip()) for x in a["pos"].split(",")]
+			if len(pos) == 4:
+				item["pos"] = pos
+		if "font" in a:
+			font = parseFont(a["font"], scale)
+			item["font"] = font.family
+			item["fontSize"] = font.pointSize
+		if "fontGroup" in a:
+			item["fontGroup"] = fontGroups.get(a["fontGroup"], 0)
+		if "style" in a:
+			item["style"] = a["style"]
+		# rect: own colours, border and rounded corners ("8" or "8;top,left" like itemCornerRadius); any item: draw order
+		for key in ("color", "colorSelected", "borderColor", "borderColorSelected"):
+			if key in a:
+				item[key] = parseColor(a[key]).argb()
+		if "radius" in a:
+			item["radius"], item["edges"] = parseRadius(a["radius"])
+		if "z" in a:
+			item["z"] = int(a["z"])
+		# pixmap: static images from the skin
+		for key in ("src", "srcSelected"):
+			if key in a:
+				resolved = resolveFilename(scope, a[key], path_prefix=pathSkin)
+				if isfile(resolved):
+					item[key] = resolved
+				else:
+					print("[Skin] servicelisttemplates: pixmap '%s' (%s) not found!" % (a[key], resolved))
+		for key in ("ellipsis", "reserve", "keepAspect"):
+			if key in a:
+				item[key] = parseBoolean(key, a[key])
+		return item
+
+	def parseRow(node):
+		a = node.attrib
+		row = {"id": a.get("id", ""), "for": a.get("for", "service"), "visible": a.get("visible", ""), "items": [], "stacks": []}
+		# <item> and <stack> in document order; the items of a <stack> are kept in the row's item list, tagged with the stack
+		for child in node:
+			if child.tag == "item":
+				row["items"].append(parseItem(child))
+			elif child.tag == "stack":
+				stack = {"layout": child.attrib.get("layout", "horizontal"), "spacing": number(child, "spacing"), "visible": child.attrib.get("visible", "")}
+				if "pos" in child.attrib:
+					pos = [parseScale(x.strip()) for x in child.attrib["pos"].split(",")]
+					if len(pos) == 4:
+						stack["pos"] = pos
+				stackId = len(row["stacks"])
+				row["stacks"].append(stack)
+				for sub in child.findall("item"):
+					item = parseItem(sub)
+					item["stack"] = stackId
+					row["items"].append(item)
+		if "height" in a:
+			row["height"] = parseScale(a["height"])
+		if "weight" in a:
+			row["weight"] = int(a["weight"])
+		if "align" in a:
+			row["align"] = a["align"]
+		row["gap"] = number(node, "gap")
+		padding = [parseScale(x.strip()) for x in a.get("padding", "0").split(",")]
+		# padding="left,right" (one value: both sides) or padding="left,right,top,bottom"
+		row["padLeft"] = padding[0]
+		row["padRight"] = padding[1] if len(padding) > 1 else padding[0]
+		row["padTop"] = padding[2] if len(padding) > 2 else 0
+		row["padBottom"] = padding[3] if len(padding) > 3 else 0
+		return row
+
+	for style in tag.findall("styles/style"):
+		name = style.attrib.get("name")
+		if not name:
+			raise SkinError("Tag 'style' in 'servicelisttemplates' needs a name")
+		entry = {"name": name}
+		for key in colorKeys:
+			if key in style.attrib:
+				entry[key] = parseColor(style.attrib[key]).argb()
+		styles[name] = entry
+
+	for template in tag.findall("template"):
+		a = template.attrib
+		name = a.get("name")
+		if not name:
+			raise SkinError("Tag 'template' in 'servicelisttemplates' needs a name")
+		base = templates.get(a.get("base", ""))
+		entry = {"name": name, "title": a.get("title", name), "rows": []}
+		if base:
+			# "large" is derived from the own row count, so it is not inherited
+			entry.update({k: v for k, v in base.items() if k not in ("name", "title", "rows", "large")})
+			entry["rows"] = list(base["rows"])
+		# layout: "list" (vertical, default), "horizontal" or "grid"; the cell size is itemWidth x itemHeight
+		# spanMarkers="1": in a grid a marker takes a row of its own, as wide as the whole grid
+		for key in ("layout", "large", "spanMarkers"):
+			if key in a:
+				entry[key] = a[key]
+		for key in ("itemHeight", "itemWidth", "markerHeight"):
+			if key in a:
+				entry[key] = parseScale(a[key])
+		# listbox settings of the template, they replace the ones of the widget; what is not given is taken from the widget
+		for key in ("selectionZoom", "carouselZoom", "carouselCenterWidth", "carouselCenterHeight"):
+			if key in a:
+				entry[key] = parseScale(a[key]) if key.startswith("carouselCenter") else int(a[key])
+		if "carousel" in a:
+			entry["carousel"] = parseBoolean("carousel", a["carousel"])
+		if "carouselFocus" in a:
+			entry["carouselFocus"] = parseCarouselFocus(a["carouselFocus"])
+		# itemSpacing="x,y" (or one value for both): the gap between the tiles
+		if "itemSpacing" in a:
+			entry["spacingX"], entry["spacingY"] = parseSpacing(a["itemSpacing"])
+		# ...or each direction alone, itemSpacingX between the columns, itemSpacingY between the rows
+		if "itemSpacingX" in a:
+			entry["spacingX"] = parseScale(a["itemSpacingX"])
+		if "itemSpacingY" in a:
+			entry["spacingY"] = parseScale(a["itemSpacingY"])
+		for rowNode in template.findall("row"):
+			row = parseRow(rowNode)
+			for index, old in enumerate(entry["rows"]):
+				if row["id"] and old["id"] == row["id"]:
+					entry["rows"][index] = row
+					break
+			else:
+				entry["rows"].append(row)
+		serviceRows = len([x for x in entry["rows"] if x["for"] == "service"])
+		large = entry.get("large")
+		entry["large"] = (1 if serviceRows > 1 else 0) if large is None else parseBoolean("large", str(large))
+		# no itemHeight in the template: the itemHeight of the widget is used
+		templates[name] = entry
+
+
+def parseSpacing(s):
+	# "10" (both directions) or "10,20" (horizontal, vertical): the gap between the tiles of a listbox
+	parts = [parseScale(x.strip()) for x in str(s).split(",")]
+	return (parts[0], parts[0]) if len(parts) == 1 else (parts[0], parts[1])
+
+
 def mergeScale(s1, s2):
 	#  merge ((w, w), (h, h)) with ((x, x), (y, y))
 	return ((s1[0][0] * s2[0][0], s1[0][1] * s2[0][1]), (s1[1][0] * s2[1][0], s1[1][1] * s2[1][1]))
@@ -480,7 +670,8 @@ def parseScrollbarMode(s):
 			"showOnDemand": eListbox.showOnDemand,
 			"showAlways": eListbox.showAlways,
 			"showNever": eListbox.showNever,
-			"showLeft": eListbox.showLeft
+			"showLeft": eListbox.showLeft,
+			"showTop": eListbox.showTop
 		}[s]
 	except KeyError:
 		print(f"[Skin] Error: Invalid scrollbarMode '{s}'!  Must be one of 'showOnDemand', 'showAlways', 'showNever' or 'showLeft'.")
@@ -563,7 +754,7 @@ class AttributeParser:
 		return int(value) if self.scaleTuple[0][0] == self.scaleTuple[0][1] else int(int(value) * self.scaleTuple[0][0] / self.scaleTuple[0][1])
 
 	def applyVerticalScale(self, value):
-		return int(value) if self.scaleTuple[0][0] == self.scaleTuple[0][1] else int(int(value) * self.scaleTuple[1][0] / self.scaleTuple[1][1])
+		return int(value) if self.scaleTuple[1][0] == self.scaleTuple[1][1] else int(int(value) * self.scaleTuple[1][0] / self.scaleTuple[1][1])
 
 	def alphaBlend(self, value):
 		self.guiObject.setWidgetAlphaBlend(parseBoolean("alphablend", value))
@@ -585,6 +776,24 @@ class AttributeParser:
 
 	def size(self, value):
 		self.guiObject.resize(eSize(*value) if isinstance(value, tuple) else parseSize(value, self.scaleTuple, self.guiObject, self.desktop))
+
+	def align(self, value):
+		self.guiObject.setAlign(value)
+
+	def spacing(self, value):
+		self.guiObject.setSpacing(int(value))
+
+	def stack(self, value):  # This is a dummy method for the parser.
+		pass
+
+	def stackCross(self, value):  # Alignment across the stack direction: top/left, center, bottom/right.
+		crossAlign = {"top": 1, "left": 1, "center": 2, "bottom": 3, "right": 3}
+		if value.lower() not in crossAlign:
+			raise SkinError("Invalid stackCross value '%s', use top, left, center, bottom or right" % value)
+		self.guiObject.setStackCross(crossAlign[value.lower()])
+
+	def stackFill(self, value):
+		self.guiObject.setStackFill(int(parseBoolean("stackFill", value)))
 
 	def animationPaused(self, value):
 		pass
@@ -630,6 +839,20 @@ class AttributeParser:
 
 	def itemWidth(self, value):
 		self.guiObject.setItemWidth(self.applyHorizontalScale(parseScale(value)))
+
+	def itemSpacing(self, value):  # Gap between the tiles of a listbox: "10" for both directions or "10,20" (horizontal, vertical).
+		try:
+			x, y = parseSpacing(value)
+		except Exception:
+			print("[Skin] Error: Invalid itemSpacing '%s'!  Must be a pixel value such as '10' or '10,20'." % value)
+			return
+		self.guiObject.setItemSpacing(self.applyHorizontalScale(x), self.applyVerticalScale(y))
+
+	def itemSpacingX(self, value):  # Gap between the columns of a grid (the tiles of a horizontal list).
+		self.guiObject.setItemSpacingX(self.applyHorizontalScale(parseScale(value)))
+
+	def itemSpacingY(self, value):  # Gap between the rows of a grid (the tiles of a vertical list).
+		self.guiObject.setItemSpacingY(self.applyVerticalScale(parseScale(value)))
 
 	def itemCornerRadius(self, value):
 		radius, edgeValue = parseRadius(value)
@@ -713,22 +936,31 @@ class AttributeParser:
 		except KeyError:
 			print(f"[Skin] Error: Invalid scale '{value}'!  Must be one of 'none', 'scale', 'scaleKeepAspect', 'scaleLeftTop', 'scaleLeftCenter', 'scaleLeftBotton', 'scaleCenterTop', 'scaleCenter', 'scaleCenterBotton', 'scaleRightTop', 'scaleRightCenter', 'scaleRightBottom', 'moveLeftTop', 'moveLeftCenter', 'moveLeftBotton', 'moveCenterTop', 'moveCenter', 'moveCenterBottom', 'moveRightTop', 'moveRightCenter', 'moveRightBottom' ('Center'/'Centre'/'Middle' are equivalent).")
 
-	def listOrientation(self, value):  # For compatibility with skins written for OpenATV that use this attribute
-		self.orientation({"vertical": "orVertical", "horizontal": "orHorizontal", "grid": "orGrid"}.get(value, value))
-
-	def orientation(self, value):  # Used by eSlider and eListBox.
+	def listOrientation(self, value):  # Used by eListbox.
 		try:
-			self.guiObject.setOrientation(*({
+			self.guiObject.setOrientation({
+				"orVertical": self.guiObject.orVertical,
+				"vertical": self.guiObject.orVertical,  # compatibility with openatv
+				"orHorizontal": self.guiObject.orHorizontal,
+				"horizontal": self.guiObject.orHorizontal,  # compatibility with openatv
+				"orGrid": self.guiObject.orGrid,
+				"grid": self.guiObject.orGrid,  # compatibility with openatv
+			}[value])
+		except:
+			print("[Skin] Error: Invalid listOrientation '%s'!  Must be one of 'orVertical', 'vertical', 'orHorizontal', 'horizontal', 'orGrid' or 'grid'." % value)
+
+	def orientation(self, value):  # Used by eSlider.
+		try:
+			self.guiObject.setOrientation(*{
 				"orVertical": (self.guiObject.orVertical, False),
 				"orTopToBottom": (self.guiObject.orVertical, False),
 				"orBottomToTop": (self.guiObject.orVertical, True),
 				"orHorizontal": (self.guiObject.orHorizontal, False),
 				"orLeftToRight": (self.guiObject.orHorizontal, False),
-				"orRightToLeft": (self.guiObject.orHorizontal, True)} | (
-				{"orGrid": (self.guiObject.orGrid, False)} if hasattr(self.guiObject, "orGrid") else {}  # eListbox only
-			))[value])
+				"orRightToLeft": (self.guiObject.orHorizontal, True)
+			}[value])
 		except KeyError:
-			print("[Skin] Error: Invalid orientation '%s'!  Must be one of 'orVertical', 'orTopToBottom', 'orBottomToTop', 'orHorizontal', 'orLeftToRight', 'orRightToLeft' or 'orGrid (eListbox only)'." % value)
+			print("[Skin] Error: Invalid orientation '%s'!  Must be one of 'orVertical', 'orTopToBottom', 'orBottomToTop', 'orHorizontal', 'orLeftToRight', 'orRightToLeft' or 'orGrid'." % value)
 
 	def valign(self, value):
 		try:
@@ -754,6 +986,65 @@ class AttributeParser:
 	def textOffset(self, value):
 		x, y = value.split(",")
 		self.guiObject.setTextOffset(ePoint(int(x) * self.scaleTuple[0][0] // self.scaleTuple[0][1], int(y) * self.scaleTuple[1][0] // self.scaleTuple[1][1]))
+
+	# Style of header entries of a listbox (ListHeader entries, the config HEADER element): non selectable section
+	# titles. Everything that is not given falls back to the normal item style.
+	def headerFont(self, value):
+		self.guiObject.setHeaderFont(parseFont(value, self.scaleTuple))
+
+	def headerForegroundColor(self, value):
+		self.guiObject.setHeaderForegroundColor(parseColor(value))
+
+	def headerBackgroundColor(self, value):
+		self.guiObject.setHeaderBackgroundColor(parseColor(value))
+
+	def headerLineColor(self, value):
+		self.guiObject.setHeaderLineColor(parseColor(value))
+
+	def headerLineThickness(self, value):
+		self.guiObject.setHeaderLineThickness(self.applyVerticalScale(parseScale(value)))
+
+	def headerLineStyle(self, value):  # "bottom" (default), "top", "split" (line on both sides of the title, like a service list marker) or "none"
+		try:
+			self.guiObject.setHeaderLineStyle({
+				"bottom": self.guiObject.headerLineBottom,
+				"top": self.guiObject.headerLineTop,
+				"split": self.guiObject.headerLineSplit,
+				"none": self.guiObject.headerLineNone
+			}[value])
+		except KeyError:
+			print("[Skin] Error: Invalid headerLineStyle '%s'!  Must be one of 'bottom', 'top', 'split' or 'none'." % value)
+
+	def headerLineMargin(self, value):  # Gap between the title and the line(s) of a "split" header.
+		self.guiObject.setHeaderLineMargin(self.applyHorizontalScale(parseScale(value)))
+
+	def headerHeight(self, value):  # Height of a header row, a vertical listbox lays out its rows with it.
+		self.guiObject.setHeaderHeight(self.applyVerticalScale(parseScale(value)))
+
+	def headerValign(self, value):
+		try:
+			self.guiObject.setHeaderVAlign({
+				"top": self.guiObject.alignTop,
+				"center": self.guiObject.alignCenter,
+				"bottom": self.guiObject.alignBottom
+			}[value])
+		except KeyError:
+			print("[Skin] Error: Invalid headerValign '%s'!  Must be one of 'top', 'center' or 'bottom'." % value)
+
+	def headerHalign(self, value):
+		try:
+			self.guiObject.setHeaderHAlign({
+				"left": self.guiObject.alignLeft,
+				"center": self.guiObject.alignCenter,
+				"right": self.guiObject.alignRight,
+				"block": self.guiObject.alignBlock
+			}[value])
+		except KeyError:
+			print("[Skin] Error: Invalid headerHalign '%s'!  Must be one of 'left', 'center', 'right' or 'block'." % value)
+
+	def headerTextOffset(self, value):
+		x, y = value.split(",")
+		self.guiObject.setHeaderTextOffset(ePoint(int(x) * self.scaleTuple[0][0] // self.scaleTuple[0][1], int(y) * self.scaleTuple[1][0] // self.scaleTuple[1][1]))
 
 	def flags(self, value):
 		flags = value.split(",")
@@ -846,6 +1137,42 @@ class AttributeParser:
 	def enableWrapAround(self, value):
 		self.guiObject.setWrapAround(parseBoolean("enablewraparound", value))
 
+	def carousel(self, value):  # Selection stays on the centre slot, entries scroll past it (horizontal/vertical listboxes).
+		self.guiObject.setCarousel(parseBoolean("carousel", value))
+
+	def selectionZoom(self, value):  # Selected entry size in percent for horizontal and grid listboxes, 100 = off (default).
+		try:
+			self.guiObject.setSelectionZoom(int(value))
+		except ValueError:
+			print("[Skin] Error: Invalid selectionZoom '%s'!  Must be a percentage such as '110'." % value)
+
+	def scrollType(self, value):  # "page" (default): jump to the page holding the selection; "item": scroll only as far as needed.
+		try:
+			self.guiObject.setScrollType({
+				"page": self.guiObject.scrollByPage,
+				"item": self.guiObject.scrollByItem
+			}[value])
+		except KeyError:
+			print("[Skin] Error: Invalid scrollType '%s'!  Must be one of 'page' or 'item'." % value)
+
+	def carouselZoom(self, value):  # Centre slot size in percent, 100 = no zoom (default 112).
+		try:
+			self.guiObject.setCarouselZoom(int(value))
+		except ValueError:
+			print("[Skin] Error: Invalid carouselZoom '%s'!  Must be a percentage such as '112'." % value)
+
+	def carouselCenterWidth(self, value):  # Width of the focused carousel tile, if it differs from itemWidth.
+		self.guiObject.setCarouselCenterWidth(self.applyHorizontalScale(parseScale(value)))
+
+	def carouselCenterHeight(self, value):  # Height of the focused carousel tile, if it differs from the other tiles.
+		self.guiObject.setCarouselCenterHeight(self.applyVerticalScale(parseScale(value)))
+
+	def carouselFocus(self, value):  # Slot (counted from 0) of the carousel that holds the selection, "center" (default) for the middle one.
+		try:
+			self.guiObject.setCarouselFocus(parseCarouselFocus(value))
+		except ValueError:
+			print("[Skin] Error: Invalid carouselFocus '%s'!  Must be 'center' or a slot number such as '1'." % value)
+
 	def pointer(self, value):
 		(name, pos) = value.split(":")
 		pos = parsePosition(pos, self.scaleTuple)
@@ -858,11 +1185,17 @@ class AttributeParser:
 		ptr = loadPixmap(name, self.desktop)
 		self.guiObject.setPointer(1, ptr, pos)
 
+	def hidePointerOnZeroLength(self, value):
+		self.guiObject.setHidePointerOnZeroLength(int(parseBoolean("hidePointerOnZeroLength", value)))
+
 	def shadowOffset(self, value):
 		self.guiObject.setShadowOffset(parsePosition(value, self.scaleTuple))
 
 	def noWrap(self, value):
 		self.guiObject.setNoWrap(int(parseBoolean("nowrap", value)))
+
+	def ellipsis(self, value):
+		self.guiObject.setEllipsis(int(parseBoolean("ellipsis", value)))
 
 	def split(self, value):
 		pass
@@ -886,7 +1219,7 @@ def applyScrollbar(guiObject):
 	if scrollbarStyle is None:
 		return
 	guiObject.setScrollbarWidth(scrollbarStyle["width"])
-	if "height" in scrollbarStyle and hasattr("setScrollbarHeight", guiObject):
+	if "height" in scrollbarStyle and hasattr(guiObject, "setScrollbarHeight"):
 		guiObject.setScrollbarHeight(scrollbarStyle["height"])
 	guiObject.setScrollbarBorderWidth(scrollbarStyle["borderWidth"])
 	guiObject.setScrollbarBorderColor(scrollbarStyle["borderColor"])
@@ -1084,7 +1417,9 @@ def loadSingleSkinData(desktop, screenID, domSkin, pathSkin, scope=SCOPE_CURRENT
 			if name and value:
 				parameters[name] = list(map(parseParameter, [x.strip() for x in value.split(",")])) if "," in value else parseParameter(value)
 			else:
-				raise SkinError(f"Tag 'parameter' needs a name and value, got name='{name}' and size='{size}'")
+				raise SkinError(f"Tag 'parameter' needs a name and value, got name='{name}' and size='{value}'")
+	for tag in domSkin.findall("servicelisttemplates"):
+		parseServiceListTemplates(tag, scope, pathSkin)
 	for tag in domSkin.findall("menus"):
 		for menu in tag.findall("menu"):
 			key = menu.attrib.get("key")
@@ -1231,6 +1566,7 @@ class SizeTuple(tuple):
 
 class SkinContext:
 	def __init__(self, parent=None, pos=None, size=None, font=None):
+		self.spacing = 0
 		if parent is not None and pos is not None:
 			pos, size = parent.parse(pos, size, font)
 			self.x, self.y = pos
@@ -1347,7 +1683,8 @@ class SkinContextVertical(SkinContext):
 				self.h -= (height + self.spacing)
 				self.y += (height + self.spacing)
 			elif pos == "center":
-				pos = (left, (self.h - height) / 2)
+				originY = self.by - self.bh
+				pos = (left, originY + (self.bh - height) // 2)
 				size = (width, height)
 			else:
 				size = (width, height)
@@ -1379,7 +1716,7 @@ class SkinContextHorizontal(SkinContext):
 			top = self.y
 			positions = pos.split(",")
 			if len(positions) == 2 and positions[0] in ("left", "right") and positions[1].isdigit():
-				top += int(int(positions[1]) * self.scale[0][0] / self.scale[0][1])
+				top += int(int(positions[1]) * self.scale[1][0] / self.scale[1][1])
 				pos = positions[0]
 			if pos == "left":
 				pos = (self.x, top)
@@ -1395,7 +1732,8 @@ class SkinContextHorizontal(SkinContext):
 				size = (width, height)
 				self.w -= (width + self.spacing)
 			elif pos == "center":
-				pos = ((self.w - width) / 2, top)
+				originX = self.rx - self.rw
+				pos = (originX + (self.rw - width) // 2, top)
 				size = (width, height)
 			else:
 				size = (width, height)
@@ -1471,13 +1809,18 @@ def readSkin(screen, skin, names, desktop):
 	screen.stacks = []
 	usedComponents = set()
 
-	def processNone(widget, context):
+	def processNone(widget, context, stack=None):
 		pass
 
+	stackOrder = 0
+
 	def proccesStackAddition(widget, stack, target):
+		nonlocal stackOrder
 		if stack:
 			target.stackIndex = stack.index
-			pos = widget.attrib.get("position")
+			target.stackOrder = stackOrder  # Children must be stacked in skin (XML) order.
+			stackOrder += 1
+			pos = widget.attrib.get("position", "")
 			align = eWidget.eStackAlignNone
 			if stack.layout == 0:  # horizontal
 				if "left" in pos:
@@ -1496,7 +1839,7 @@ def readSkin(screen, skin, names, desktop):
 			target.skinAttributes.append(("align", align))
 		return target
 
-	def processWidget(widget, context):
+	def processWidget(widget, context, stack=None):
 		# Okay, we either have 1:1-mapped widgets ("old style"), or 1:n-mapped
 		# widgets (source->renderer).
 		wname = widget.attrib.get("name")
@@ -1520,6 +1863,7 @@ def readSkin(screen, skin, names, desktop):
 				raise SkinError(f"Component with name '{wname}' was not found in skin of screen '{name}'")
 			# assert screen[wname] is not Source
 			collectAttributes(attributes, widget, context, skinPath, ignore=("name",))
+			screen[wname] = proccesStackAddition(widget, stack, screen[wname])
 		elif wsource:
 			# print(f"[Skin] DEBUG: Widget source='{wsource}'.")
 			while True:  # Get corresponding source until we found a non-obsolete source.
@@ -1539,8 +1883,8 @@ def readSkin(screen, skin, names, desktop):
 					print(f"[Skin] WARNING: SKIN '{name}' USES OBSOLETE SOURCE '{wsource}', USE '{source.newSource}' INSTEAD!")
 					print(f"[Skin] OBSOLETE SOURCE WILL BE REMOVED {source.removalDate}, PLEASE UPDATE!")
 					if source.description:
-						print(f"[Skin] Source description: '{source.description}.")
-					wsource = source.new_source
+						print("[Skin] Source description: '%s'." % source.description)
+					wsource = source.newSource
 				else:
 					break  # Otherwise, use the source.
 			if source is None:
@@ -1583,6 +1927,7 @@ def readSkin(screen, skin, names, desktop):
 				renderer.connect(source)  # Connect to source.
 			attributes = renderer.skinAttributes = []
 			collectAttributes(attributes, widget, context, skinPath, ignore=("render", "source"))
+			renderer = proccesStackAddition(widget, stack, renderer)
 			screen.renderer.append(renderer)
 		elif wclass:
 			try:
@@ -1605,8 +1950,9 @@ def readSkin(screen, skin, names, desktop):
 			screen[wclassname].connectRelatedElement(wconnection, screen)
 			attributes = screen[wclassname].skinAttributes = []
 			collectAttributes(attributes, widget, context, skinPath, ignore=("addon",))
+			screen[wclassname] = proccesStackAddition(widget, stack, screen[wclassname])
 
-	def processApplet(widget, context):
+	def processApplet(widget, context, stack=None):
 		try:
 			codeText = widget.text.strip()
 			widgetType = widget.attrib.get("type")
@@ -1620,19 +1966,25 @@ def readSkin(screen, skin, names, desktop):
 		else:
 			raise SkinError(f"Applet type '{widgetType}' is unknown")
 
-	def processLabel(widget, context):
+	def processLabel(widget, context, stack=None):
 		w = additionalWidget()
 		w.widget = eLabel
 		w.skinAttributes = []
 		collectAttributes(w.skinAttributes, widget, context, skinPath, ignore=("name",))
+		w = proccesStackAddition(widget, stack, w)
 		screen.additionalWidgets.append(w)
+		if stack:
+			stack.children.append(w)
 
-	def processPixmap(widget, context):
+	def processPixmap(widget, context, stack=None):
 		w = additionalWidget()
 		w.widget = ePixmap
 		w.skinAttributes = []
 		collectAttributes(w.skinAttributes, widget, context, skinPath, ignore=("name",))
+		w = proccesStackAddition(widget, stack, w)
 		screen.additionalWidgets.append(w)
+		if stack:
+			stack.children.append(w)
 
 	def processRectangle(widget, context, stack=None):
 		item = additionalWidget()
@@ -1644,26 +1996,26 @@ def readSkin(screen, skin, names, desktop):
 		if stack:
 			stack.children.append(item)
 
-	def processScreen(widget, context):
+	def processScreen(widget, context, stack=None):
 		for w in list(widget):
 			conditional = w.attrib.get("conditional")
-			if conditional and not [i for i in conditional.split(",") if i in list(screen.keys())]:
+			if conditional and not [i for i in conditional.split(",") if i in screen]:
 				continue
 			objecttypes = w.attrib.get("objectTypes", "").split(",")
-			if len(objecttypes) > 1 and (objecttypes[0] not in list(screen.keys()) or not [i for i in objecttypes[1:] if i == screen[objecttypes[0]].__class__.__name__]):
+			if len(objecttypes) > 1 and (objecttypes[0] not in screen or not [i for i in objecttypes[1:] if i == screen[objecttypes[0]].__class__.__name__]):
 				continue
 			objecttypesinverted = w.attrib.get("objectTypesInverted", "").split(",")
-			if len(objecttypesinverted) > 1 and (objecttypesinverted[0] not in list(screen.keys()) or [i for i in objecttypesinverted[1:] if i == screen[objecttypesinverted[0]].__class__.__name__]):
+			if len(objecttypesinverted) > 1 and (objecttypesinverted[0] not in screen or [i for i in objecttypesinverted[1:] if i == screen[objecttypesinverted[0]].__class__.__name__]):
 				continue
 			p = processors.get(w.tag, processNone)
 			try:
-				p(w, context)
-			except SkinError as err:  # noqa: F841
-				print(f"[Skin] Error in screen '{name}' widget '{w.tag}' {str(err)}!")
+				p(w, context, stack)
+			except SkinError as err:
+				print("[Skin] Error in screen '%s' widget '%s' %s!" % (name, w.tag, str(err)))
 				import traceback
 				traceback.print_exc()
 
-	def processPanel(widget, context):
+	def processPanel(widget, context, stack=None):
 		n = widget.attrib.get("name")
 		if n:
 			try:
@@ -1696,7 +2048,8 @@ def readSkin(screen, skin, names, desktop):
 			contextScreen = contextClass(context, widget.attrib.get("position"), widget.attrib.get("size"), widget.attrib.get("font"))
 			spacing = widget.attrib.get("spacing")
 			if spacing:
-				contextScreen.spacing = int(spacing)
+				axisScale = contextScreen.scale[0 if item.layout == 0 else 1]  # Spacing runs along the stack's layout axis.
+				contextScreen.spacing = int(int(spacing) * axisScale[0] / axisScale[1])
 			item.index = len(screen.stacks)
 			item.skinAttributes.append(("size", (contextScreen.w, contextScreen.h)))
 			item.skinAttributes.append(("position", (contextScreen.x, contextScreen.y)))
@@ -1736,9 +2089,6 @@ def readSkin(screen, skin, names, desktop):
 		import traceback
 		traceback.print_exc()
 
-	from Components.GUIComponent import GUIComponent
-	unusedComponents = [x for x in set(screen.keys()) - usedComponents if isinstance(x, GUIComponent)]
-	assert not unusedComponents, f"[Skin] The following components in '{name}' don't have a skin entry: {', '.join(unusedComponents)}"
 	# This may look pointless, but it unbinds "screen" from the nested scope. A better
 	# solution is to avoid the nested scope above and use the context object to pass
 	# things around.
@@ -1817,9 +2167,10 @@ def applySkinFactor(*d):
 	Multiply the numeric input by the skin factor
 	and return the result as an integer.
 	"""
+	factor = getSkinFactor()
 	if len(d) == 1:
-		return int(d[0] * getSkinFactor())
-	return tuple(int(value * getSkinFactor()) if isinstance(value, (int, float)) else value for value in d)
+		return int(d[0] * factor)
+	return tuple(int(value * factor) if isinstance(value, (int, float)) else value for value in d)
 
 
 def findSkinScreen(names):

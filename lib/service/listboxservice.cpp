@@ -3,6 +3,10 @@
 #include <lib/service/service.h>
 #include <lib/gdi/font.h>
 #include <lib/gdi/epng.h>
+#include <lib/gdi/pixmapcache.h> 
+#include <lib/gui/ewidget.h>
+#include <lib/gui/ewidgetdesktop.h>
+#include <sys/stat.h>
 #include <lib/dvb/epgcache.h>
 #include <lib/dvb/db.h>
 #include <lib/dvb/pmt.h>
@@ -10,11 +14,66 @@
 #include <lib/python/connections.h>
 #include <lib/python/python.h>
 #include <ctype.h>
+#include <time.h>
+#include <stdlib.h>
 #include <string>
 #include <algorithm>
+#include <chrono>
+#include <lib/base/ebase.h>
 #include <lib/base/estring.h>
 
 ePyObject eListboxServiceContent::m_GetPiconNameFunc;
+
+namespace {
+	struct PaintStat { unsigned n, miss; long long us, maxus, lastPrint; };
+	PaintStat s_paint_stats[eServiceListPaintTimer::statCount];
+
+	long long paintNowUs()
+	{
+		struct timespec ts;
+		clock_gettime(CLOCK_MONOTONIC, &ts);
+		return ts.tv_sec * 1000000LL + ts.tv_nsec / 1000;
+	}
+
+	bool paintProfileEnabled()
+	{
+		static int enabled = -1;
+		if (enabled < 0)
+			enabled = getenv("E2_SERVICELIST_PROFILE") ? 1 : 0;
+		return enabled == 1;
+	}
+}
+
+eServiceListPaintTimer::eServiceListPaintTimer(int stat)
+	:m_stat(stat), m_miss(false), m_start(0)
+{
+	if (paintProfileEnabled())
+		m_start = paintNowUs();
+}
+
+eServiceListPaintTimer::~eServiceListPaintTimer()
+{
+	if (!m_start)
+		return;
+	const long long now = paintNowUs();
+	const long long d = now - m_start;
+	PaintStat &st = s_paint_stats[m_stat];
+	if (!st.lastPrint)
+		st.lastPrint = now;
+	st.n++;
+	if (m_miss)
+		st.miss++;
+	st.us += d;
+	if (d > st.maxus)
+		st.maxus = d;
+	if (now - st.lastPrint > 2000000)
+	{
+		static const char *const names[] = { "legacy", "template", "template-build" };
+		eDebug("[ServiceList] profile %s: %u paints, %u cache misses, avg %lld us, max %lld us", names[m_stat], st.n, st.miss, st.us / st.n, st.maxus);
+		st = PaintStat();
+		st.lastPrint = now;
+	}
+}
 
 std::string toLower(std::string& data) {
 	std::string data_tmp = data;
@@ -23,12 +82,46 @@ std::string toLower(std::string& data) {
 }
 
 
+// cursorResolve() / size() used to walk the whole list on every call, and the listbox calls them several times per key
+// press: in a list of thousands of rows that alone was milliseconds per step. They are answered from a prefix count of the
+// visible rows, rebuilt lazily after the list (or the marked / hide settings it depends on) changed.
+bool eListboxServiceContent::isHiddenEntry(const eServiceReference &ref) const
+{
+	return (m_marked.empty() && m_hide_number_marker && (ref.flags & eServiceReference::isNumberedMarker)) || (ref.flags & eServiceReference::isInvisible);
+}
+
+void eListboxServiceContent::buildVisiblePrefix()
+{
+	m_visible_prefix.assign(m_list.size() + 1, 0);
+	m_iter_index.clear();
+	m_iter_index.reserve(m_list.size());
+	size_t i = 0;
+	for (list::iterator it(m_list.begin()); it != m_list.end(); ++it, ++i)
+	{
+		m_visible_prefix[i + 1] = m_visible_prefix[i] + (isHiddenEntry(*it) ? 0 : 1);
+		m_iter_index.push_back(it);
+	}
+	m_visible_prefix_valid = true;
+}
+
 void eListboxServiceContent::addService(const eServiceReference &service, bool beforeCurrent)
 {
 	if (beforeCurrent && m_size)
+	{
 		m_list.insert(m_cursor, service);
+		invalidateVisibleCache();
+	}
 	else
+	{
 		m_list.push_back(service);
+		if (m_visible_prefix_valid && m_visible_prefix.size() == m_list.size() && m_iter_index.size() + 1 == m_list.size()) // appending keeps the prefix valid
+		{
+			m_visible_prefix.push_back(m_visible_prefix.back() + (isHiddenEntry(service) ? 0 : 1));
+			m_iter_index.push_back(--m_list.end());
+		}
+		else
+			invalidateVisibleCache();
+	}
 	if (m_size++)
 	{
 		++m_cursor_number;
@@ -47,6 +140,7 @@ void eListboxServiceContent::removeCurrent()
 {
 	if (m_size && m_listbox)
 	{
+		invalidateVisibleCache();
 		if (m_cursor_number == --m_size)
 		{
 			m_list.erase(m_cursor--);
@@ -75,13 +169,18 @@ void eListboxServiceContent::FillFinished()
 	m_size_visible = cursorResolve(m_size - 1) + 1;
 	cursorHome();
 
+	if (m_size > 0)
+		warmEventsBatch(warmAheadRows(), nullptr); // before the first repaint: the visible rows then find their events cached
 	if (m_listbox)
 		m_listbox->entryReset();
+	if (m_size > 0)
+		kickWarmup(); // start filling the picon / EPG caches now, not at the first paint of the selected row
 }
 
 void eListboxServiceContent::setRoot(const eServiceReference &root, bool justSet)
 {
 	m_list.clear();
+	invalidateVisibleCache();
 	m_cursor = m_list.end();
 	m_root = root;
 
@@ -255,11 +354,13 @@ int eListboxServiceContent::getNextMarkerPos()
 void eListboxServiceContent::initMarked()
 {
 	m_marked.clear();
+	invalidateVisibleCache();
 }
 
 void eListboxServiceContent::addMarked(const eServiceReference &ref)
 {
 	m_marked.insert(ref);
+	invalidateVisibleCache();
 	if (m_listbox)
 		m_listbox->entryChanged(cursorResolve(lookupService(ref)));
 }
@@ -267,6 +368,7 @@ void eListboxServiceContent::addMarked(const eServiceReference &ref)
 void eListboxServiceContent::removeMarked(const eServiceReference &ref)
 {
 	m_marked.erase(ref);
+	invalidateVisibleCache();
 	if (m_listbox)
 		m_listbox->entryChanged(cursorResolve(lookupService(ref)));
 }
@@ -292,11 +394,14 @@ int eListboxServiceContent::markedQueryNext(eServiceReference &ref)
 int eListboxServiceContent::lookupService(const eServiceReference &ref)
 {
 		/* shortcut for cursor */
-	if (ref == *m_cursor)
+	if (m_cursor != m_list.end() && ref == *m_cursor)
 		return m_cursor_number;
-		/* otherwise, search in the list.. */
+		/* otherwise, search in the list.. (this loop used to have no comparison at all and always returned the list size,
+		   so every caller asking for a row other than the cursor row got an index past the end of the list) */
 	int index = 0;
-	for (list::const_iterator i(m_list.begin()); i != m_list.end(); ++i, ++index);
+	for (list::const_iterator i(m_list.begin()); i != m_list.end(); ++i, ++index)
+		if (*i == ref)
+			break;
 
 		/* this is ok even when the index was not found. */
 	return index;
@@ -344,6 +449,7 @@ void eListboxServiceContent::sort()
 	if (m_lst)
 	{
 		m_list.sort(iListableServiceCompare(m_lst));
+		invalidateVisibleCache();
 			/* FIXME: is this really required or can we somehow keep the current entry? */
 		cursorHome();
 		if (m_listbox)
@@ -373,6 +479,7 @@ void eListboxServiceContent::setColor(int color, gRGB &col)
 void eListboxServiceContent::swapServices(list::iterator a, list::iterator b)
 {
 	std::iter_swap(a, b);
+	invalidateVisibleCache();
 	int temp = a->getChannelNum();
 	a->setChannelNum(b->getChannelNum());
 	b->setChannelNum(temp);
@@ -526,6 +633,20 @@ int eListboxServiceContent::cursorValid()
 
 int eListboxServiceContent::cursorSet(int n)
 {
+	// the n-th visible entry straight from the index (same result as cursorHome() + cursorMove(n), which walked the list from
+	// its start); not while a marked entry is being moved, that walk swaps entries on its way
+	if (n >= 0 && !(m_current_marked && m_saved_cursor == m_list.end()))
+	{
+		if (!m_visible_prefix_valid || m_visible_prefix.size() != m_list.size() + 1 || m_iter_index.size() != m_list.size())
+			buildVisiblePrefix();
+		if (n < m_visible_prefix.back())
+		{
+			const size_t p = (size_t)(std::lower_bound(m_visible_prefix.begin(), m_visible_prefix.end(), n + 1) - m_visible_prefix.begin()) - 1;
+			m_cursor = m_iter_index[p];
+			m_cursor_number = (int)p;
+			return 0;
+		}
+	}
 	cursorHome();
 	cursorMove(n);
 	return 0;
@@ -533,18 +654,12 @@ int eListboxServiceContent::cursorSet(int n)
 
 int eListboxServiceContent::cursorResolve(int cursorPosition)
 {
-	int strippedCursor = 0;
-	int count = 0;
-	for (list::iterator i(m_list.begin()); i != m_list.end(); ++i)
-	{
-		if (count == cursorPosition)
-			break;
-		count++;
-		if ((m_marked.empty() && m_hide_number_marker && (i->flags & eServiceReference::isNumberedMarker)) || (i->flags & eServiceReference::isInvisible))
-			continue;
-		strippedCursor++;
-	}
-	return strippedCursor;
+	if (!m_visible_prefix_valid || m_visible_prefix.size() != m_list.size() + 1)
+		buildVisiblePrefix();
+	const int n = (int)m_list.size();
+	// same as walking the list: the visible entries among the first `cursorPosition` ones (all of them when out of range)
+	const int p = (cursorPosition < 0 || cursorPosition > n) ? n : cursorPosition;
+	return m_visible_prefix[p];
 }
 
 int eListboxServiceContent::cursorGet()
@@ -580,15 +695,9 @@ void eListboxServiceContent::cursorRestore()
 
 int eListboxServiceContent::size()
 {
-	int size = 0;
-	for (list::iterator i(m_list.begin()); i != m_list.end(); ++i)
-	{
-		if ((m_marked.empty() && m_hide_number_marker && (i->flags & eServiceReference::isNumberedMarker)) || (i->flags & eServiceReference::isInvisible))
-			continue;
-		size++;
-	}
-
-	return size;
+	if (!m_visible_prefix_valid || m_visible_prefix.size() != m_list.size() + 1)
+		buildVisiblePrefix();
+	return m_visible_prefix.back();
 }
 
 void eListboxServiceContent::setSize(const eSize &size)
@@ -596,6 +705,488 @@ void eListboxServiceContent::setSize(const eSize &size)
 	m_itemsize = size;
 	if (m_visual_mode == visModeSimple)
 		setVisualMode(m_visual_mode);
+}
+
+struct ServiceListWarm: public sigc::trackable
+{
+	eListboxServiceContent *owner;
+	ePtr<eTimer> timer;
+	ServiceListWarm(eListboxServiceContent *o): owner(o)
+	{
+		timer = eTimer::create(eApp);
+		CONNECT(timer->timeout, ServiceListWarm::tick);
+	}
+	void tick() { owner->warmTick(); }
+};
+
+void eListboxServiceContent::warmKick()
+{
+	m_warm_kick_ms = nowMs();
+	m_warm_complete = false; // something may have changed (skin, list, scrolled): look for work again
+	m_event_retries = 0;
+	if (m_cursor_number != m_warm_last_cursor)
+	{
+		if (m_warm_last_cursor >= 0)
+			m_warm_dir = m_cursor_number > m_warm_last_cursor ? 1 : -1;
+		m_warm_last_cursor = m_cursor_number;
+	}
+	if (!m_warm)
+		m_warm = std::make_shared<ServiceListWarm>(this);
+	ServiceListWarm *w = (ServiceListWarm*)m_warm.get();
+	if (!w->timer->isActive())
+		w->timer->start(15, true);
+}
+
+void eListboxServiceContent::warmTick()
+{
+	if (!m_warm || !cursorValid())
+		return;
+	ServiceListWarm *w = (ServiceListWarm*)m_warm.get();
+	const bool usePicon = warmUsesPicons() && PyCallable_Check(m_GetPiconNameFunc);
+	const int piconWidth = warmPiconWidth();
+	if (m_itemheight <= 0) // row size not known yet: the first paint kicks again
+		return;
+	if (syncPiconGeneration() && m_listbox)
+		m_listbox->invalidate();
+	const bool idle = nowMs() - m_warm_kick_ms >= 250;
+	int ahead = warmAheadRows();
+	const bool wholeList = m_warm_whole_list && idle;
+	if (wholeList)
+	{
+		// a different list or picon source: everything has to be looked at again
+		if (m_warm_sig_size != m_list.size() || m_warm_sig_gen != m_picon_gen || !(m_warm_sig_front == m_list.front()) || !(m_warm_sig_back == m_list.back()))
+		{
+			m_warm_complete = false;
+			m_warm_sig_size = m_list.size();
+			m_warm_sig_gen = m_picon_gen;
+			m_warm_sig_front = m_list.front();
+			m_warm_sig_back = m_list.back();
+		}
+		if (m_warm_complete)
+			return;
+		ahead = (int)m_list.size();
+	}
+	const int textureAhead = textureAheadRows(); // GPU textures are dearer than CPU pixmaps: fewer rows
+	std::vector<eServiceReference> lateEvents;
+	warmEventsBatch(ahead, &lateEvents); // one EPG lock for the whole window, the loop below then finds the events cached
+	for (size_t i = 0; i < lateEvents.size(); ++i)
+		warmEventArrived(lateEvents[i]);
+	const auto t0 = std::chrono::steady_clock::now();
+	// nobody scrolling (right after opening the list, after a skin change or a restart): work in longer slices and come back at
+	// once, so the first pages are warm when the first key arrives; while scrolling stay short so key presses are not delayed
+	const double budgetMs = idle ? 10.0 : 4.0;
+	int loaded = 0;
+	int preloaded = 0;
+	bool more = false;
+	// Outwards from the cursor, both ways alternately (the direction of travel first): the page on screen comes first (rows above
+	// the cursor are as visible as those below), then the pages around it up to `ahead` rows, so a scroll in either direction
+	// meets warm rows. Returns true when this tick has used up its time and has to go on in the next one.
+	bool waitingEvents = false; // services without an event yet: the EPG may still be loading
+	auto warmOne = [&](const eServiceReference &ref, int n) -> bool
+	{
+		if (ref.flags & (eServiceReference::isMarker | eServiceReference::isDirectory))
+			return false;
+		{
+			std::map<eServiceReference, EventCacheEntry>::iterator ev = m_event_cache.find(ref);
+			if (ev != m_event_cache.end() && !ev->second.hasEvent)
+			{
+				waitingEvents = true;
+				// Streams and recordings are not part of the batched EPG lookup: their "no event" is looked at again here, or a row
+				// built without an event would keep it for good (the template rows no longer expire after a few seconds)
+				const time_t nowT = time(0);
+				if (nowT >= ev->second.validUntil && (ref.type != eServiceReference::idDVB || !ref.path.empty()))
+				{
+					if (loaded > 0 && std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count() > budgetMs)
+						return true;
+					ePtr<iStaticServiceInformation> info;
+					m_service_center->info(ref, info);
+					ePtr<eServiceEvent> e1, e2;
+					if (getCachedEvent(ref, info, nowT, e1, e2))
+						warmEventArrived(ref); // it has one now: rebuild the row and repaint it
+					++loaded;
+				}
+			}
+		}
+		// not past the cache limits (the trim would only drop what has just been loaded)
+		const bool needEvent = m_event_cache.size() + 32 < m_event_cache_limit && m_event_cache.find(ref) == m_event_cache.end();
+		const bool needPicon = usePicon && m_picon_cache.size() + 16 < m_picon_cache_limit && m_picon_cache.find(ref) == m_picon_cache.end();
+		if (!needEvent && !needPicon)
+		{
+			if (usePicon && n < textureAhead && piconNeedsTexture(ref))
+			{
+				if (preloaded >= 2) // a couple per tick: each is a texture upload on the render thread
+					return true;
+				if (preloadPiconTexture(ref))
+					++preloaded;
+			}
+			return false;
+		}
+		if (loaded > 0 && std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count() > budgetMs)
+			return true;
+		if (needEvent)
+		{
+			ePtr<iStaticServiceInformation> info;
+			m_service_center->info(ref, info);
+			ePtr<eServiceEvent> e1, e2;
+			getCachedEvent(ref, info, time(0), e1, e2); // caches "no event" too, so it is not retried every tick
+		}
+		if (needPicon)
+		{
+			ePtr<gPixmap> pix;
+			bool svg = false;
+			getPiconPixmap(ref, piconWidth, pix, svg);
+		}
+		++loaded;
+		return false;
+	};
+	if (warmOne(*m_cursor, 0))
+		more = true;
+	list::iterator fwd = m_cursor, bwd = m_cursor;
+	bool fwdEnd = false, bwdEnd = false;
+	for (int n = 1; n <= ahead && !more && (!fwdEnd || !bwdEnd); ++n)
+	{
+		for (int side = 0; side < 2 && !more; ++side)
+		{
+			const bool down = (side == 0) == (m_warm_dir >= 0);
+			bool &end = down ? fwdEnd : bwdEnd;
+			list::iterator &it = down ? fwd : bwd;
+			if (end)
+				continue;
+			if (down)
+			{
+				if (it == m_list.end() || ++it == m_list.end())
+				{
+					end = true;
+					continue;
+				}
+			}
+			else
+			{
+				if (it == m_list.begin())
+				{
+					end = true;
+					continue;
+				}
+				--it;
+			}
+			if (warmOne(*it, n))
+				more = true;
+		}
+	}
+	if (warmRows(ahead, m_warm_dir, budgetMs))
+		more = true;
+	if (trimWarmCaches())
+		more = true;
+	if (wholeList && !more && loaded == 0)
+		m_warm_complete = true; // the whole list has been looked at and nothing was left to do
+	if (more || (usePicon && loaded > 0)) // freshly loaded picons get their texture on the next tick
+		w->timer->start(idle ? 3 : 25, true);
+	else if (waitingEvents && m_event_retries < 60)
+	{
+		// Right after a start the EPG is still being filled: services without an event are looked at again every few seconds
+		// (for about two minutes), and a row that gets one is rebuilt and repainted (warmEventArrived). Without this a row built
+		// before its event existed stayed without it, the template rows no longer expire after a few seconds.
+		++m_event_retries;
+		m_warm_complete = false; // the retry has to look at the whole list again
+		w->timer->start(2000, true);
+	}
+}
+
+bool eListboxServiceContent::getCachedEvent(const eServiceReference &ref, iStaticServiceInformation *service_info, time_t now, ePtr<eServiceEvent> &evt, ePtr<eServiceEvent> &evt_next)
+{
+	std::map<eServiceReference, EventCacheEntry>::iterator it = m_event_cache.find(ref);
+	if (it != m_event_cache.end() && now < it->second.validUntil)
+	{
+		evt = it->second.evt;
+		evt_next = it->second.evt_next;
+		return it->second.hasEvent;
+	}
+
+	EventCacheEntry entry;
+	entry.hasEvent = service_info && !service_info->getEvent(ref, entry.evt);
+	// no event / lookup unavailable (EPG not loaded yet right after start): do not hammer this every repaint, but retry soon
+	// so the texts appear as soon as the EPG has the data
+	entry.validUntil = now + m_no_event_retry_s;
+	if (entry.hasEvent)
+	{
+		time_t begin = entry.evt->getBeginTime();
+		time_t duration = entry.evt->getDuration();
+		entry.validUntil = (begin > 0 && duration > 0 && begin + duration > now) ? (begin + duration) : (now + m_no_event_retry_s);
+		if (m_has_next_event && begin > 0)
+			service_info->getEvent(ref, entry.evt_next, begin + duration);
+	}
+
+	m_event_cache[ref] = entry;
+	evt = entry.evt;
+	evt_next = entry.evt_next;
+	return entry.hasEvent;
+}
+
+void eListboxServiceContent::warmEventsBatch(int ahead, std::vector<eServiceReference> *gotLate)
+{
+	eEPGCache *epg = eEPGCache::getInstance();
+	if (!epg || !cursorValid())
+		return;
+	const time_t now = time(0);
+	const size_t maxBatch = 64;
+	std::vector<eServiceReference> need;
+	std::vector<bool> hadNone;
+	for (int d = 0; d < 2 && need.size() < maxBatch; ++d)
+	{
+		list::iterator it = m_cursor;
+		for (int n = 0; n < ahead && need.size() < maxBatch; ++n)
+		{
+			if (d == 0)
+			{
+				if (n > 0 && (it == m_list.end() || ++it == m_list.end())) // the cursor row itself first
+					break;
+			}
+			else
+			{
+				if (it == m_list.begin())
+					break;
+				--it;
+			}
+			const eServiceReference &ref = *it;
+			if (ref.flags & (eServiceReference::isMarker | eServiceReference::isDirectory))
+				continue;
+			if (ref.type != eServiceReference::idDVB || !ref.path.empty()) // recordings, streams... go through their own info
+				continue;
+			std::map<eServiceReference, EventCacheEntry>::iterator ev = m_event_cache.find(ref);
+			if (ev != m_event_cache.end() && now < ev->second.validUntil)
+				continue;
+			need.push_back(ref);
+			hadNone.push_back(ev != m_event_cache.end() && !ev->second.hasEvent);
+		}
+	}
+	if (need.empty())
+		return;
+	std::vector<eEPGCache::NowNextResult> res;
+	epg->lookupNowNextBatch(need, -1, m_has_next_event, res);
+	for (size_t i = 0; i < need.size(); ++i)
+	{
+		EventCacheEntry entry;
+		entry.hasEvent = (bool)res[i].now;
+		entry.evt = res[i].now;
+		entry.evt_next = res[i].next;
+		entry.validUntil = now + m_no_event_retry_s; // same rule as getCachedEvent()
+		if (entry.hasEvent)
+		{
+			const time_t begin = entry.evt->getBeginTime();
+			const time_t duration = entry.evt->getDuration();
+			entry.validUntil = (begin > 0 && duration > 0 && begin + duration > now) ? (begin + duration) : (now + m_no_event_retry_s);
+		}
+		m_event_cache[need[i]] = entry;
+		if (gotLate && hadNone[i] && entry.hasEvent)
+			gotLate->push_back(need[i]);
+	}
+}
+
+std::string eListboxServiceContent::getPiconFilename(const eServiceReference &ref)
+{
+	std::string piconFilename;
+	ePyObject pArgs = PyTuple_New(1);
+	PyTuple_SET_ITEM(pArgs, 0, PyUnicode_FromString(ref.toString().c_str()));
+	ePyObject pRet = PyObject_CallObject(m_GetPiconNameFunc, pArgs);
+	Py_DECREF(pArgs);
+	if (pRet)
+	{
+		if (PyUnicode_Check(pRet))
+			piconFilename = PyUnicode_AsUTF8(pRet);
+		Py_DECREF(pRet);
+	}
+	return piconFilename;
+}
+
+static const long long kPiconRecheckMs = 3000;    // a cached picon file is stat()ed again at most this often
+static const long long kPiconNoneRetryMs = 30000; // a service without picon is looked up again after this long
+static int s_piconGeneration = 0;
+
+long long eListboxServiceContent::nowMs()
+{
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+
+void eListboxServiceContent::statPiconEntry(PiconCacheEntry &entry)
+{
+	entry.checkedMs = nowMs();
+	entry.fileSize = 0;
+	entry.fileTime = 0;
+	entry.fileCTime = 0;
+	struct stat st = {};
+	if (!entry.file.empty() && stat(entry.file.c_str(), &st) == 0)
+	{
+		entry.fileSize = st.st_size;
+		entry.fileTime = st.st_mtime;
+		entry.fileCTime = st.st_ctime;
+	}
+}
+
+void eListboxServiceContent::invalidatePiconCaches()
+{
+	++s_piconGeneration;
+}
+
+bool eListboxServiceContent::syncPiconGeneration()
+{
+	if (m_picon_gen == s_piconGeneration)
+		return false;
+	m_picon_gen = s_piconGeneration;
+	m_picon_cache.clear();
+	return true;
+}
+
+// Look up and load the picon, filling `entry` (m_picon_cache is not touched).
+void eListboxServiceContent::loadPiconPixmap(const eServiceReference &ref, int width, PiconCacheEntry &entry)
+{
+	entry.pixmap = nullptr;
+	entry.isSVG = false;
+	entry.file = getPiconFilename(ref);
+	statPiconEntry(entry);
+	if (entry.file.empty())
+		return;
+	entry.isSVG = endsWith(entry.file, ".svg");
+	if (m_picon_downscale && !entry.isSVG && width > 0 && endsWith(entry.file, ".png") && !PixmapCache::Get(entry.file.c_str()))
+	{
+		PngDecoded dec;
+		pngDecodeToBuffer(entry.file.c_str(), dec);
+		pngDownscale(dec, width * 2);
+		entry.pixmap = pngBufferToPixmap(entry.file.c_str(), dec, 0, 0);
+		return;
+	}
+	loadImage(entry.pixmap, entry.file.c_str(), 0, entry.isSVG ? width : 0);
+}
+
+void eListboxServiceContent::getPiconPixmap(const eServiceReference &ref, int width, ePtr<gPixmap> &pixmap, bool &isSVG)
+{
+	syncPiconGeneration();
+	std::map<eServiceReference, PiconCacheEntry>::iterator it = m_picon_cache.find(ref);
+	if (it != m_picon_cache.end())
+	{
+		PiconCacheEntry &e = it->second;
+		const long long now = nowMs();
+		bool stale = false;
+		if (e.file.empty())
+			stale = now - e.checkedMs >= kPiconNoneRetryMs;
+		else if (now - e.checkedMs >= kPiconRecheckMs)
+		{
+			struct stat st = {};
+			if (stat(e.file.c_str(), &st) != 0 || st.st_size != e.fileSize || st.st_mtime != e.fileTime || st.st_ctime != e.fileCTime)
+				stale = true; // replaced, rewritten or removed
+			else if (getPiconFilename(ref) != e.file)
+				stale = true; // the service now resolves to another picon file (other source or priority)
+			else
+				e.checkedMs = now;
+		}
+		if (!stale)
+		{
+			pixmap = e.pixmap;
+			isSVG = e.isSVG;
+			return;
+		}
+	}
+
+	PiconCacheEntry entry;
+	loadPiconPixmap(ref, width, entry);
+
+	m_picon_cache[ref] = entry;
+	pixmap = entry.pixmap;
+	isSVG = entry.isSVG;
+}
+
+int eListboxServiceContent::warmAheadRows()
+{
+	// Was a multiple of the list size: in a list of thousands of rows the warm-up decoded picons nowhere near the cursor,
+	// the trim then dropped them again and the two kept each other busy (the hiccups of long lists).
+	const int page = m_listbox ? m_listbox->getItemsPerPage() : 0;
+	return std::min(std::max(3 * (page > 0 ? page : 8), 30), 90);
+}
+
+bool eListboxServiceContent::trimWarmCaches()
+{
+	// Bound the caches (CPU pixmaps and, through them, GPU textures): keep only rows near the cursor, trimmed a few per
+	// call since dropping ~100 pixmaps at once queues ~100 GL texture deletions that stall a frame.
+	if (m_picon_cache.size() <= m_picon_cache_limit && m_event_cache.size() <= m_event_cache_limit)
+		return false;
+	std::set<eServiceReference> window;
+	list::iterator a = m_cursor, b = m_cursor;
+	for (int n = 0; n < 120; ++n)
+	{
+		if (a != m_list.begin()) --a;
+		if (b != m_list.end()) ++b;
+	}
+	for (list::iterator k = a; k != b && k != m_list.end(); ++k)
+		window.insert(*k);
+	int dropped = 0;
+	if (m_picon_cache.size() > m_picon_cache_limit)
+	{
+		for (std::map<eServiceReference, PiconCacheEntry>::iterator f = m_picon_cache.begin();
+			f != m_picon_cache.end() && dropped < 6; )
+		{
+			if (window.find(f->first) == window.end())
+			{
+				m_picon_cache.erase(f++);
+				++dropped;
+			}
+			else
+				++f;
+		}
+	}
+	if (m_event_cache.size() > m_event_cache_limit) // cheap entries, so many at once
+	{
+		int droppedEvents = 0;
+		for (std::map<eServiceReference, EventCacheEntry>::iterator f = m_event_cache.begin();
+			f != m_event_cache.end() && droppedEvents < 100; )
+		{
+			if (window.find(f->first) == window.end())
+			{
+				m_event_cache.erase(f++);
+				++droppedEvents;
+			}
+			else
+				++f;
+		}
+		if (droppedEvents >= 100)
+			return true;
+	}
+	return dropped >= 6;
+}
+
+int eListboxServiceContent::textureAheadRows()
+{
+	const int page = m_listbox ? m_listbox->getItemsPerPage() : 0;
+	return std::max(2 * (page > 0 ? page : 6), 12);
+}
+
+bool eListboxServiceContent::piconNeedsTexture(const eServiceReference &ref)
+{
+#ifdef HAVE_EGL
+	std::map<eServiceReference, PiconCacheEntry>::iterator it = m_picon_cache.find(ref);
+	if (it == m_picon_cache.end() || !it->second.pixmap || !it->second.pixmap->surface)
+		return false;
+	if (it->second.pixmap->surface->gl_texture_id != 0) // set by the render thread, a stale read only costs a redundant request
+		return false;
+	return nowMs() - it->second.preloadedMs >= 1000; // already asked for, the render thread has not got to it yet
+#else
+	return false;
+#endif
+}
+
+bool eListboxServiceContent::preloadPiconTexture(const eServiceReference &ref)
+{
+#ifdef HAVE_EGL
+	if (!piconNeedsTexture(ref))
+		return false;
+	PiconCacheEntry &e = m_picon_cache[ref];
+	e.preloadedMs = nowMs();
+	eWidgetDesktop *desktop = getDesktop(0);
+	if (!desktop)
+		return false;
+	desktop->preloadTexture(e.pixmap);
+	return true;
+#else
+	return false;
+#endif
 }
 
 void eListboxServiceContent::setGetPiconNameFunc(ePyObject func)
@@ -655,43 +1246,20 @@ bool eListboxServiceContent::checkServiceIsRecorded(eServiceReference ref)
 	return false;
 }
 
-void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const ePoint &offset, int selected)
+int eListboxServiceContent::getMarkedState(int selected)
 {
-	painter.clip(eRect(offset, m_itemsize));
-
-	int marked = 0;
-
 	if (m_current_marked && selected)
-		marked = 2;
-	else if (cursorValid() && isMarked(*m_cursor))
-	{
-		if (selected)
-			marked = 2;
-		else
-			marked = 1;
-	}
-	else
-		style.setStyle(painter, selected ? eWindowStyle::styleListboxSelected : eWindowStyle::styleListboxNormal);
+		return 2;
+	if (cursorValid() && isMarked(*m_cursor))
+		return selected ? 2 : 1;
+	return 0;
+}
 
-	eListboxStyle *local_style = 0;
-	eRect itemRect = eRect(offset, m_itemsize);
-	int widget_radius = 0;
-	uint8_t widget_edges = 0;
-	int radius = 0;
-	uint8_t edges = 0;
-
-		/* get local listbox style, if present */
-	if (m_listbox)
-	{
-		local_style = m_listbox->getLocalStyle();
-		widget_radius = m_listbox->getCornerRadius();
-		widget_edges = m_listbox->getCornerRadiusEdges();
-	}
-
-	if (local_style) {
-		radius = local_style->cornerRadius(selected ? 1:0);
-		edges = local_style->cornerRadiusEdges(selected ? 1:0);
-	}
+// Sets the painter's base fore/background for the row (window style, marked state, local listbox style).
+// Idempotent, so renderers may call it again to undo per-element colour overrides.
+void eListboxServiceContent::applyBaseColors(gPainter &painter, eWindowStyle &style, int selected, int marked)
+{
+	eListboxStyle *local_style = m_listbox ? m_listbox->getLocalStyle() : 0;
 
 	if (marked == 1)  // marked
 	{
@@ -709,27 +1277,54 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 		if (m_color_set[markedBackgroundSelected])
 			painter.setBackgroundColor(m_color[markedBackgroundSelected]);
 	}
-	else if (local_style)
+	else
 	{
-		if (selected)
+		style.setStyle(painter, selected ? eWindowStyle::styleListboxSelected : eWindowStyle::styleListboxNormal);
+		if (local_style)
 		{
-			/* if we have a local background color set, use that. */
-			if (local_style->m_background_color_selected_set)
-				painter.setBackgroundColor(local_style->m_background_color_selected);
-			/* same for foreground */
-			if (local_style->m_foreground_color_selected_set)
-				painter.setForegroundColor(local_style->m_foreground_color_selected);
-		}
-		else
-		{
-			/* if we have a local background color set, use that. */
-			if (local_style->m_background_color_set)
-				painter.setBackgroundColor(local_style->m_background_color);
-			/* same for foreground */
-			if (local_style->m_foreground_color_set)
-				painter.setForegroundColor(local_style->m_foreground_color);
+			if (selected)
+			{
+				/* if we have a local background color set, use that. */
+				if (local_style->m_background_color_selected_set)
+					painter.setBackgroundColor(local_style->m_background_color_selected);
+				/* same for foreground */
+				if (local_style->m_foreground_color_selected_set)
+					painter.setForegroundColor(local_style->m_foreground_color_selected);
+			}
+			else
+			{
+				if (local_style->m_background_color_set)
+					painter.setBackgroundColor(local_style->m_background_color);
+				if (local_style->m_foreground_color_set)
+					painter.setForegroundColor(local_style->m_foreground_color);
+			}
 		}
 	}
+}
+
+void eListboxServiceContent::paintBackground(gPainter &painter, eWindowStyle &style, const ePoint &offset, int selected, int marked)
+{
+	eListboxStyle *local_style = 0;
+	eRect itemRect = eRect(offset, m_itemsize);
+	int widget_radius = 0;
+	uint8_t widget_edges = 0;
+	int radius = 0;
+	uint8_t edges = 0;
+
+		/* get local listbox style, if present */
+	if (m_listbox)
+	{
+		local_style = m_listbox->getLocalStyle();
+		widget_radius = m_listbox->getCornerRadius();
+		widget_edges = m_listbox->getCornerRadiusEdges();
+	}
+
+	if (local_style) {
+		radius = zoomedRadius(local_style->cornerRadius(selected ? 1:0));
+		edges = local_style->cornerRadiusEdges(selected ? 1:0);
+	}
+
+	applyBaseColors(painter, style, selected, marked);
 
 	if (!local_style || !local_style->m_transparent_background)
 		/* if we have no transparent background */
@@ -774,27 +1369,53 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 			}
 		}
 	}
+}
+
+void eListboxServiceContent::paintSelection(gPainter &painter, eWindowStyle &style, const ePoint &offset, int selected, bool large)
+{
+	eListboxStyle *local_style = m_listbox ? m_listbox->getLocalStyle() : 0;
+	eRect itemRect = eRect(offset, m_itemsize);
+	int radius = 0;
+	uint8_t edges = 0;
+
+	if (local_style) {
+		radius = zoomedRadius(local_style->cornerRadius(selected ? 1:0));
+		edges = local_style->cornerRadiusEdges(selected ? 1:0);
+	}
+
+	if (selected && local_style && local_style->m_selection && !large)
+	{
+		if (radius)
+			painter.setRadius(radius, edges);
+		painter.blit(local_style->m_selection, offset, eRect(), gPainter::BT_ALPHABLEND);
+	}
+	if (selected && local_style && local_style->m_selection_large && large)
+	{
+		if (radius)
+			painter.setRadius(radius, edges);
+		painter.blit(local_style->m_selection_large, offset, eRect(), gPainter::BT_ALPHABLEND);
+	}
+
+	// Draw the frame for selected item here so to be under the content
+	if (selected && (!local_style || (!local_style->m_selection && !local_style->m_selection_large)) && !radius)
+		style.drawFrame(painter, itemRect, eWindowStyle::frameListboxEntry);
+}
+
+void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const ePoint &offset, int selected)
+{
+	eServiceListPaintTimer profileTimer(eServiceListPaintTimer::statLegacy);
+	const int ellipsisFlag = ellipsisEnabled() ? gPainter::RT_ELLIPSIS : 0;
+	painter.clip(eRect(offset, m_itemsize));
+
+	int marked = getMarkedState(selected);
+	paintBackground(painter, style, offset, selected, marked);
 
 	if (cursorValid())
 	{
-		
-		if (selected && local_style && local_style->m_selection && m_visual_mode != visSkinDefined)
-		{
-			if (radius)
-				painter.setRadius(radius, edges);
-			painter.blit(local_style->m_selection, offset, eRect(), gPainter::BT_ALPHABLEND);
-		}
-		if (selected && local_style && local_style->m_selection_large && m_visual_mode == visSkinDefined)
-		{
-			if (radius)
-				painter.setRadius(radius, edges);
-			painter.blit(local_style->m_selection_large, offset, eRect(), gPainter::BT_ALPHABLEND);
-		}
+		paintSelection(painter, style, offset, selected, m_visual_mode == visSkinDefined);
 
-		// Draw the frame for selected item here so to be under the content
-		if (selected && (!local_style || (!local_style->m_selection && !local_style->m_selection_large)) && !radius)
-			style.drawFrame(painter, itemRect, eWindowStyle::frameListboxEntry);
-
+		if (selected)
+			warmKick();
 		eServiceReference ref = *m_cursor;
 		std::string orig_ref_str = ref.toString();
 		std::string service_res_str =  toLower(split(orig_ref_str, ":")[2]);
@@ -865,7 +1486,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 
 		std::string event_name = "", next_event_name = "";
 		int event_begin = 0, event_duration = 0, xlpos = m_itemsize.width(), ctrlHeight=m_itemheight, yoffs=0, yoffs_orig=0;
-		bool is_event = isPlayable && service_info && !service_info->getEvent(ref, evt);
+		bool is_event = isPlayable && service_info && getCachedEvent(ref, service_info, now, evt, evt_next);
 		if (m_visual_mode == visSkinDefined) {
 			if (is_event){
 				event_name = evt->getEventName();
@@ -884,9 +1505,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					eSize pixmap_size = pixmap->size();
 					xlpos -= 15 + pixmap_size.width();
 					eRect res_area = eRect(xlpos, offset.y() + yoffs + (ctrlHeight - pixmap_size.height())/2, pixmap_size.width(), pixmap_size.height());
-					painter.clip(res_area);
 					painter.blit(pixmap, ePoint(res_area.left(), res_area.top()), res_area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				int orbpos = m_cursor->getUnsignedData(4) >> 16;
@@ -903,9 +1522,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 						eSize pixmap_size = pixmap_system->size();
 						xlpos -= 15 + pixmap_size.width();
 						eRect area = eRect(xlpos, offset.y() + yoffs + (ctrlHeight - pixmap_size.height())/2, pixmap_size.width(), pixmap_size.height());
-						painter.clip(area);
 						painter.blit(pixmap_system, ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-						painter.clippop();
 					}
 				}
 
@@ -914,9 +1531,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					eSize pixmap_size = m_pixmaps[picCrypto]->size();
 					xlpos -= 15 + pixmap_size.width();
 					eRect area = eRect(xlpos, offset.y()  + yoffs + (ctrlHeight - pixmap_size.height())/2, pixmap_size.width(), pixmap_size.height());
-					painter.clip(area);
 					painter.blit(m_pixmaps[picCrypto], ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				if (m_pixmaps[picBackup] && isBackupAvailable)
@@ -924,9 +1539,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					eSize pixmap_size = m_pixmaps[picBackup]->size();
 					xlpos -= 15 + pixmap_size.width();
 					eRect area = eRect(xlpos, offset.y() + yoffs + (ctrlHeight - pixmap_size.height())/2, pixmap_size.width(), pixmap_size.height());
-					painter.clip(area);
 					painter.blit(m_pixmaps[picBackup], ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				if (m_pixmaps[picCatchup] && isCatchUpAvailable)
@@ -934,9 +1547,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					eSize pixmap_size = m_pixmaps[picCatchup]->size();
 					xlpos -= 15 + pixmap_size.width();
 					eRect area = eRect(xlpos, offset.y() + yoffs + (ctrlHeight - pixmap_size.height())/2, pixmap_size.width(), pixmap_size.height());
-					painter.clip(area);
 					painter.blit(m_pixmaps[picCatchup], ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				if (m_pixmaps[picRecord] && isRecorded)
@@ -944,34 +1555,14 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					eSize pixmap_size = m_pixmaps[picRecord]->size();
 					xlpos -= 15 + pixmap_size.width();
 					eRect area = eRect(xlpos, offset.y() + yoffs + (ctrlHeight - pixmap_size.height())/2, pixmap_size.width(), pixmap_size.height());
-					painter.clip(area);
 					painter.blit(m_pixmaps[picRecord], ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 			}
 			ePtr<gPixmap> piconPixmap;
 			bool isPIconSVG = false;
 			bool hasPicon = PyCallable_Check(m_GetPiconNameFunc);
 			if (isPlayable && hasPicon)
-			{
-				ePyObject pArgs = PyTuple_New(1);
-				PyTuple_SET_ITEM(pArgs, 0, PyUnicode_FromString(ref.toString().c_str()));
-				ePyObject pRet = PyObject_CallObject(m_GetPiconNameFunc, pArgs);
-				Py_DECREF(pArgs);
-				if (pRet)
-				{
-					if (PyUnicode_Check(pRet))
-					{
-						std::string piconFilename = PyUnicode_AsUTF8(pRet);
-						if (endsWith(piconFilename, ".svg")) {
-							isPIconSVG = true;
-						}
-						if (!piconFilename.empty())
-							loadImage(piconPixmap, piconFilename.c_str(), 0, isPIconSVG ? 125 : 0);
-					}
-					Py_DECREF(pRet);
-				}
-			}
+				getPiconPixmap(ref, 125, piconPixmap, isPIconSVG);
 			xoffs = xoffset + 16;
 
 			if (hasPicon)
@@ -989,11 +1580,10 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 				}
 				if (piconPixmap)
 				{
-					painter.clip(piconArea);
 					if (isPIconSVG) {
 						painter.blit(piconPixmap,
 						eRect(xoffs, piconY, 125, piconH),
-						eRect(),
+						piconArea,
 						pflags
 						);
 					} else {
@@ -1002,7 +1592,6 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 							piconArea,
 							pflags);
 					}
-					painter.clippop();
 				}
 				if (!(isMarker || isDirectory))	xoffs += 125 + 16 + 8;
 			}
@@ -1011,10 +1600,15 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 			if (service_info)
 				service_info->getName(ref, text);
 
-			ePtr<eTextPara> paraName = new eTextPara(eRect(0, 0, m_itemsize.width(), m_itemheight/2));
-			paraName->setFont(m_element_font[celServiceName]);
-			paraName->renderString(text.c_str());
-			eRect bboxName = paraName->getBoundBox();
+			// the un-ellipsed name width is only needed to centre a marker or to place its second line
+			eRect bboxName;
+			if (isMarker)
+			{
+				ePtr<eTextPara> paraName = new eTextPara(eRect(0, 0, m_itemsize.width(), m_itemheight/2));
+				paraName->setFont(m_element_font[celServiceName]);
+				paraName->renderString(text.c_str());
+				bboxName = paraName->getBoundBox();
+			}
 
 			int xoffsMarker = xoffs + ((isDirectory || isMarker) ? ((hasPicon && isMarker ? 125 : m_itemheight) + 16 + 8) : 0);
 			int correction = 0;
@@ -1044,7 +1638,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 
 			ePtr<eTextPara> para = new eTextPara(eRect(0, 0, xlpos - xoffsMarker, m_itemheight/2));
 			para->setFont(m_element_font[celServiceName]);
-			para->renderString(text.c_str());
+			para->renderString(text.c_str(), ellipsisFlag);
 			eRect bbox = para->getBoundBox();
 			service_name_end = xoffsMarker - correction + bbox.width() + m_items_distances;
 			painter.renderPara(para, ePoint(xoffsMarker - correction, offset.y() + yoffs_orig + ((ctrlHeight - bbox.height())/2)));
@@ -1054,15 +1648,12 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					eSize pixmap_size = pixmap_mDir->size();
 					if (pixmap_size.width() < 125 || pixmap_size.height() < m_itemheight){
 						eRect area = eRect(xoffs, offset.y() + (ctrlHeight - pixmap_size.height())/2, pixmap_size.width(), pixmap_size.height());
-						painter.clip(area);
 						painter.blit(pixmap_mDir, ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
 					} else {
 						int pflags = gPainter::BT_ALPHABLEND | gPainter::BT_KEEP_ASPECT_RATIO | gPainter::BT_HALIGN_CENTER | gPainter::BT_VALIGN_CENTER;
 						eRect area = eRect(xoffs, offset.y(), 125, m_itemheight);
-						painter.clip(area);
 						painter.blitScale(pixmap_mDir, eRect(xoffs, offset.y(), 125, m_itemheight), area, pflags);
 					}
-					painter.clippop();
 				}
 			} else if (isMarker && m_marker_as_line) {
 				if (m_markerline_color_set) painter.setForegroundColor(m_markerline_color);
@@ -1081,7 +1672,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 				event_duration = evt->getDuration();
 				int timeLeft = event_begin + event_duration - now;
 				eRect progressBarRect = m_element_position[celServiceEventProgressbar];
-				if (m_has_next_event && event_begin > 0 && !service_info->getEvent(*m_cursor, evt_next, (event_begin + event_duration)))
+				if (m_has_next_event && evt_next)
 					next_event_name = evt_next->getEventName();
 
 				if (!event_name.empty())
@@ -1104,9 +1695,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 							eRect tmp = eRect(pb_xpos + m_progressbar_border_width, pb_ypos + m_progressbar_border_width, evt_done, m_progressbar_height);
 							ePtr<gPixmap> &pixmap = m_pixmaps[picServiceEventProgressbar];
 							if (pixmap) {
-								painter.clip(tmp);
 								painter.blit(pixmap, ePoint(pb_xpos + m_progressbar_border_width, pb_ypos + m_progressbar_border_width), tmp, gPainter::BT_ALPHABLEND);
-								painter.clippop();
 							}
 							else {
 								if (!selected && m_color_set[serviceEventProgressbarColor])
@@ -1181,7 +1770,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					if (m_has_next_event) {
 						ePtr<eTextPara> para = new eTextPara(eRect(0, 0, pb_xpos - service_name_end - m_items_distances - 15, m_itemheight/2));
 						para->setFont(m_element_font[celServiceInfo]);
-						para->renderString(text.c_str());
+						para->renderString(text.c_str(), ellipsisFlag);
 						eRect bbox = para->getBoundBox();
 						painter.renderPara(para, ePoint(service_name_end, offset.y() + yoffs_orig + ((ctrlHeight - bbox.height())/2)));
 
@@ -1218,7 +1807,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 							}
 							ePtr<eTextPara> paraNext = new eTextPara(eRect(0, 0, xlpos - xoffs - m_items_distances, m_itemheight/2));
 							paraNext->setFont(m_element_font[celServiceNextInfo]);
-							paraNext->renderString((m_next_title + next_event_name).c_str());
+							paraNext->renderString((m_next_title + next_event_name).c_str(), ellipsisFlag);
 							eRect bboxNext = paraNext->getBoundBox();
 							painter.renderPara(paraNext, ePoint(xoffs, offset.y() - 2 + m_itemheight/2 + ((m_itemheight/2 - bboxNext.height())/2)));
 						}
@@ -1235,7 +1824,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 
 						ePtr<eTextPara> para = new eTextPara(eRect(0, 0, m_itemsize.width() - xoffs - bboxtLeft.width() - 25 - m_items_distances, m_itemheight/2));
 						para->setFont(m_element_font[celServiceInfo]);
-						para->renderString(((!percent.empty() ? (percent + m_separator) : "") + text).c_str());
+						para->renderString(((!percent.empty() ? (percent + m_separator) : "") + text).c_str(), ellipsisFlag);
 						eRect bbox = para->getBoundBox();
 						painter.renderPara(para, ePoint(xoffs, offset.y() - 2 + m_itemheight/2 + ((m_itemheight/2 - bbox.height())/2)));
 
@@ -1271,7 +1860,9 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 			if (service_info)
 				service_info->getName(ref, text);
 
-			xoffs += m_sides_margin;
+			// a service with a channel number is indented by the number column already: only one without gets the margin
+			const int sidesMargin = (isPlayable && !(hasChannelNumbers && m_cursor->getChannelNum() > 0)) ? m_sides_margin : 0;
+			xoffs += sidesMargin;
 			if (is_event)
 			{
 				event_name = evt->getEventName();
@@ -1319,7 +1910,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 
 			ePtr<eTextPara> paraServiceName = new eTextPara(eRect(0, 0, serviceNameWidth, m_itemheight));
 			paraServiceName->setFont(m_element_font[celServiceName]);
-			paraServiceName->renderString(text.c_str());
+			paraServiceName->renderString(text.c_str(), ellipsisFlag);
 			eRect bboxServiceName = paraServiceName->getBoundBox();
 
 			if (isDirectory || (isMarker && !m_marker_as_line)) {
@@ -1327,15 +1918,12 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 				eSize pixmap_size = pixmap_mDir->size();
 				if (pixmap_size.height() < m_itemheight){
 					eRect area = eRect(xoffs, offset.y() + (ctrlHeight - pixmap_size.height())/2, pixmap_size.width(), pixmap_size.height());
-					painter.clip(area);
 					painter.blit(pixmap_mDir, ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
 				} else {
 					int pflags = gPainter::BT_ALPHABLEND | gPainter::BT_KEEP_ASPECT_RATIO | gPainter::BT_HALIGN_CENTER | gPainter::BT_VALIGN_CENTER;
 					eRect area = eRect(xoffs, offset.y(), m_itemheight, m_itemheight);
-					painter.clip(area);
 					painter.blitScale(pixmap_mDir, eRect(xoffs, offset.y(), m_itemheight, m_itemheight), area, pflags);
 				}
-				painter.clippop();
 
 				painter.renderPara(paraServiceName, ePoint(xoffs + pixmap_size.width() + m_items_distances, offset.y() + ((ctrlHeight - bboxServiceName.height())/2)));
 
@@ -1350,7 +1938,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 				eRect firstLineRect = eRect(xoffs + m_items_distances, offset.y() + (m_itemheight - m_marker_as_line) / 2, mTextLeft - m_items_distances*2 - xoffs - 16, m_marker_as_line);
 				painter.fill(firstLineRect);
 				int secondLineOffset = mTextLeft + bboxServiceName.width() + m_items_distances + 16;
-				eRect secondLineRect = eRect(secondLineOffset, offset.y() + (m_itemheight - m_marker_as_line) / 2, m_itemsize.width() - secondLineOffset - m_items_distances - m_sides_margin, m_marker_as_line);
+				eRect secondLineRect = eRect(secondLineOffset, offset.y() + (m_itemheight - m_marker_as_line) / 2, m_itemsize.width() - secondLineOffset - m_items_distances - sidesMargin, m_marker_as_line);
 				painter.fill(secondLineRect);
 			}
 
@@ -1389,25 +1977,7 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 				bool isPIconSVG = false;
 				int piconWidth = m_itemheight*1.67;
 				if (isPlayable && hasPicons)
-				{
-					ePyObject pArgs = PyTuple_New(1);
-					PyTuple_SET_ITEM(pArgs, 0, PyUnicode_FromString(ref.toString().c_str()));
-					ePyObject pRet = PyObject_CallObject(m_GetPiconNameFunc, pArgs);
-					Py_DECREF(pArgs);
-					if (pRet)
-					{
-						if (PyUnicode_Check(pRet))
-						{
-							std::string piconFilename = PyUnicode_AsUTF8(pRet);
-							if (endsWith(piconFilename, ".svg")) {
-								isPIconSVG = true;
-							}
-							if (!piconFilename.empty())
-								loadImage(piconPixmap, piconFilename.c_str(), 0, isPIconSVG ? piconWidth : 0);
-						}
-						Py_DECREF(pRet);
-					}
-				}
+					getPiconPixmap(ref, piconWidth, piconPixmap, isPIconSVG);
 
 				if (hasPicons) {
 					int piconH = m_itemheight - 2 * m_picon_margin;
@@ -1423,11 +1993,10 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					}
 					if (piconPixmap)
 					{
-						painter.clip(piconArea);
 						if (isPIconSVG) {
 							painter.blit(piconPixmap,
 							eRect(xoffs, piconY, piconWidth, piconH),
-							eRect(),
+							piconArea,
 							pflags
 							);
 						} else {
@@ -1436,7 +2005,6 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 								piconArea,
 								pflags);
 						}
-						painter.clippop();
 					}
 					xoffs += piconWidth + m_items_distances;
 				}
@@ -1463,23 +2031,17 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 
 				if (m_servicetype_icon_mode == 1 && pixmap_system) {
 					eRect area = eRect(iconSystemPosX, offset.y() + (ctrlHeight - pixmap_system_size.height())/2, pixmap_system_size.width(), pixmap_system_size.height());
-					painter.clip(area);
 					painter.blit(pixmap_system, ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				if (m_crypto_icon_mode == 1 && m_pixmaps[picCrypto] && service_info && service_info->isCrypted()) {
 					eRect area = eRect(iconCryptoPosX, offset.y() + (ctrlHeight - pixmap_crypto_size.height())/2, pixmap_crypto_size.width(), pixmap_crypto_size.height());
-					painter.clip(area);
 					painter.blit(m_pixmaps[picCrypto], ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				if (isRecorded && m_pixmaps[picRecord] && m_record_indicator_mode == 1) {
 					eRect area = eRect(iconRecordPosX, offset.y() + (ctrlHeight - pixmap_rec_size.height())/2, pixmap_rec_size.width(), pixmap_rec_size.height());
-					painter.clip(area);
 					painter.blit(m_pixmaps[picRecord], ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				xoffs = iconOffsX;
@@ -1514,32 +2076,28 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 
 				if (m_servicetype_icon_mode == 2 && pixmap_system) {
 					eRect area = eRect(iconSystemPosX, offset.y() + (ctrlHeight - pixmap_system_size.height())/2, pixmap_system_size.width(), pixmap_system_size.height());
-					painter.clip(area);
 					painter.blit(pixmap_system, ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				if (m_crypto_icon_mode == 2 && m_pixmaps[picCrypto] && service_info && service_info->isCrypted()) {
 					eRect area = eRect(iconCryptoPosX, offset.y() + (ctrlHeight - pixmap_crypto_size.height())/2, pixmap_crypto_size.width(), pixmap_crypto_size.height());
-					painter.clip(area);
 					painter.blit(m_pixmaps[picCrypto], ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				if (isRecorded && m_pixmaps[picRecord] && m_record_indicator_mode == 2) {
 					eRect area = eRect(iconRecordPosX, offset.y() + (ctrlHeight - pixmap_rec_size.height())/2, pixmap_rec_size.width(), pixmap_rec_size.height());
-					painter.clip(area);
 					painter.blit(m_pixmaps[picRecord], ePoint(area.left(), area.top()), area, gPainter::BT_ALPHABLEND);
-					painter.clippop();
 				}
 
 				if (eventProgressConfig == "barright" || eventProgressConfig == "percright") {
-					pb_xpos = m_itemsize.width() - progressBarRect.width() - m_items_distances*2 - m_sides_margin*2 - m_progressbar_border_width*2;
+					pb_xpos = m_itemsize.width() - progressBarRect.width() - m_items_distances*2 - sidesMargin*2 - m_progressbar_border_width*2;
 				}
 
 				if (is_event && !event_name.empty()) {
 					text = event_name;
 					std::replace(text.begin(), text.end(), '\n', ' ');
+					if (m_column_width <= 0)  // with columns the event title already starts at its own position
+						text = m_service_event_separator + text;
 					if (serviceAvail)
 					{
 						if (!selected && m_color_set[eventForeground])
@@ -1568,22 +2126,21 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 					}
 
 					int eventTextWidth = (eventProgressConfig == "barright" || eventProgressConfig == "percright") ?
-							(pb_xpos - (m_column_width > 0 ? xoffs_col : xoffs) - m_items_distances*2 ) : (m_itemsize.width() - m_sides_margin*2 - (m_column_width > 0 ? xoffs_col : xoffs) - m_items_distances*2);
+							(pb_xpos - (m_column_width > 0 ? xoffs_col : xoffs) - m_items_distances*2 ) : (m_itemsize.width() - sidesMargin*2 - (m_column_width > 0 ? xoffs_col : xoffs) - m_items_distances*2);
 
 					ePtr<eTextPara> para = new eTextPara(eRect(0, 0, eventTextWidth, m_itemheight));
 					para->setFont(m_element_font[celServiceInfo]);
-					para->renderString(text.c_str());
-					eRect bbox = para->getBoundBox();
-					painter.renderPara(para, ePoint(m_column_width > 0 ? xoffs_col : xoffs, offset.y() + (m_itemheight - bbox.height())/2));
+					para->renderString(text.c_str(), ellipsisFlag);
+					// share the baseline with the service name, the fonts may differ in size
+					int eventY = offset.y() + (ctrlHeight - bboxServiceName.height())/2 + paraServiceName->getBaseline() - para->getBaseline();
+					painter.renderPara(para, ePoint(m_column_width > 0 ? xoffs_col : xoffs, eventY));
 
 					if (eventProgressConfig != "no" && !startsWith(eventProgressConfig, "perc")) {
 						// the progress data...
 						eRect tmp = eRect(pb_xpos + m_progressbar_border_width, pb_ypos + m_progressbar_border_width, evt_done, m_progressbar_height);
 						ePtr<gPixmap> &pixmap = m_pixmaps[picServiceEventProgressbar];
 						if (pixmap) {
-							painter.clip(tmp);
 							painter.blit(pixmap, ePoint(pb_xpos + m_progressbar_border_width, pb_ypos + m_progressbar_border_width), tmp, gPainter::BT_ALPHABLEND);
-							painter.clippop();
 						}
 						else {
 							if (!selected && m_color_set[serviceEventProgressbarColor])
@@ -1637,7 +2194,8 @@ void eListboxServiceContent::paint(gPainter &painter, eWindowStyle &style, const
 						paraPerc->setFont(m_element_font[celServiceInfo]);
 						paraPerc->renderString(percent.c_str());
 						eRect bboxPerc = paraPerc->getBoundBox();
-						painter.renderPara(paraPerc, ePoint((progressBarRect.width() - bboxPerc.width())/(eventProgressConfig == "percright" ? 1 : 2), offset.y() + (ctrlHeight - bboxPerc.height())/2));
+						int percY = offset.y() + (ctrlHeight - bboxServiceName.height())/2 + paraServiceName->getBaseline() - paraPerc->getBaseline();
+						painter.renderPara(paraPerc, ePoint((progressBarRect.width() - bboxPerc.width())/(eventProgressConfig == "percright" ? 1 : 2), percY));
 					}
 				}
 			}

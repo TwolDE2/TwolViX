@@ -47,6 +47,7 @@ class Session:
 		self.nav = navigation
 		self.delay_timer = enigma.eTimer()
 		self.delay_timer.callback.append(self.processDelay)
+		self.pendingCallbacks = []
 		self.current_dialog = None
 		self.dialog_stack = []
 		self.summary_stack = []
@@ -70,6 +71,10 @@ class Session:
 			del self.current_dialog.callback
 		self.popCurrent()
 		if callback is not None:
+			self.pendingCallbacks.append((callback, retval))
+		# A dialog that closed itself on exec begin leaves the session out of exec until its own processDelay.
+		while self.pendingCallbacks and (self.in_exec or self.current_dialog is None):
+			callback, retval = self.pendingCallbacks.pop(0)
 			callback(*retval)
 
 	def execBegin(self, first=True, do_show=True):
@@ -355,10 +360,6 @@ def runScreenTest():
 	Tools.Trashcan.init(session)
 	if not VuRecovery:
 		CiHandler.setSession(session)
-	if SystemInfo["needsVideoJudderDriverFix"]:
-		profile("Init:Components.AVSwitch.VideoJudderDriverFixTask")
-		from Components.AVSwitch import startVideoJudderDriverFixTask
-		startVideoJudderDriverFixTask()
 
 	screensToRun = [p.fnc for p in plugins.getPlugins(PluginDescriptor.WHERE_WIZARD)]
 	profile("wizards")
@@ -371,10 +372,14 @@ def runScreenTest():
 	def runNextScreen(session, screensToRun, *result):
 		if result:
 			if result[0] == "reloadskin":
-				InitSkins(False)
-				session.openWithCallback(boundFunction(runNextScreen, session, []), InfoBar.InfoBar)
+				# close the "Loading skin" notification before the new skin is loaded
 				if result[1]:
 					session.deleteDialog(result[1])
+				InitSkins(False)
+				# the "Channel list design" choices belong to the skin that was just loaded
+				from Components.UsageConfig import updateServiceListTemplateChoices
+				updateServiceListTemplateChoices()
+				session.openWithCallback(boundFunction(runNextScreen, session, []), InfoBar.InfoBar)
 			else:
 				enigma.quitMainloop(*result)
 		else:
@@ -501,7 +506,7 @@ print("[StartEnigma]  Initialising SetupDevices.")
 from Components.SetupDevices import InitSetupDevices  # noqa: E402
 InitSetupDevices()
 
-if SystemInfo["architecture"] in ("aarch64"):  # something not right here
+if SystemInfo["architecture"] == "aarch64":  # something not right here
 	from usb.backend import libusb1  # noqa: E402
 	libusb1.get_backend(find_library=lambda x: "/lib64/libusb-1.0.so.0")
 
@@ -555,6 +560,7 @@ InitFallbackFiles()
 
 profile("config.misc")
 print("[StartEnigma]  Initialising Misc Config Variables.")
+config.misc.bootDevice = ConfigText(default="1stInitStart", fixed_size=False)
 config.misc.radiopic = ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "radio.mvi"))
 config.misc.blackradiopic = ConfigText(default=resolveFilename(SCOPE_CURRENT_SKIN, "black.mvi"))
 config.misc.isNextRecordTimerAfterEventActionAuto = ConfigYesNo(default=False)
@@ -759,6 +765,11 @@ else:
 	print("[StartEnigma]  Initialising Network.")
 	from Components.Network import InitNetwork  # noqa: E402
 	InitNetwork()
+
+	profile("ServiceAutostart")
+	print("[StartEnigma]  Applying network services autostart.")
+	from Components.ServiceAutostart import applyServiceAutostart  # noqa: E402
+	applyServiceAutostart()
 
 	profile("HdmiCec")
 	print("[StartEnigma]  Initialising hdmiCEC.")

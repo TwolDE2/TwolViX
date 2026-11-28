@@ -57,8 +57,33 @@ public:
 	// Wait for first data to be written (for SoftDecoder sync)
 	virtual bool waitForFirstData(int timeout_ms) = 0;
 
+	// Hold playback back by delay_ms so that variation in CW arrival no
+	// longer reaches the decoder. 0 = off. Only recorders that descramble
+	// act on it.
+	virtual void setPlaybackDelay(int /*delay_ms*/) { /* Not every recorder descrambles. */ }
+
 	// Set write accumulation threshold (0 = continuous writing)
 	virtual void setMinWrite(size_t size) = 0;
+	// Single-service output only. Other demux implementations may leave PSI unchanged.
+	virtual void setServiceFilter(int serviceId, int pmtPid, bool shared) { }
+
+	/* Attach (or, with fd=-1, detach) a passive monitor fd. When set, a
+	 * best-effort, non-blocking copy of the data actually written to the
+	 * target fd - i.e. already descrambled, when a descrambler is set -
+	 * is also written to the monitor fd. Writes are silently dropped on
+	 * backpressure or error; this must never be allowed to block or
+	 * otherwise affect the primary recording/decode path. The caller is
+	 * responsible for making the fd non-blocking and for closing it -
+	 * detach with fd=-1 before closing. */
+	virtual RESULT setMonitorFD(int fd) = 0;
+
+	/* Counting only, nothing is written anywhere: adds up the TS bytes of one PID that pass through the
+	 * recorder, for two independent slots (0 and 1). pid -1 stops counting that slot. Setting a PID
+	 * starts the slot at 0 bytes. getCountPID() returns -1 for a slot that is not counting. Only a
+	 * recorder with a descrambler thread counts, the others return -1 / 0. */
+	virtual RESULT setCountPID(int slot, int pid) { return -1; }
+	virtual int getCountPID(int slot) { return -1; }
+	virtual uint64_t getCountedBytes(int slot) { return 0; }
 
 	enum {
 		eventWriteError,
@@ -68,7 +93,12 @@ public:
 		eventReachedBoundary,
 				/* the programmed boundary was reached. you might set a new target fd. you can close the */
 				/* old one. */
-		eventStreamCorrupt
+		eventStreamCorrupt,
+		eventDelayGrowing,
+				/* nothing comes out while the stream is held. The decoder
+				 * runs dry meanwhile: expected, no reason to recover. */
+		eventDelayGrown
+				/* the first data at the grown delay is out. */
 	};
 	virtual RESULT connectEvent(const sigc::slot<void(int)> &event, ePtr<eConnection> &conn)=0;
 };

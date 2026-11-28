@@ -175,6 +175,7 @@ class Pager(GUIAddon):
 		instance.setSelectionEnable(False)
 		instance.setContent(self.l)
 		instance.allowNativeKeys(False)
+		instance.setEllipsis(0)  # ellipsis is off by default here, a skin can enable it with ellipsis="1"
 
 	def getSourceOrientation(self):
 		if isinstance(self.source, List):  # Components.Sources.List
@@ -184,6 +185,13 @@ class Pager(GUIAddon):
 		if hasattr(origSource, "instance") and hasattr(origSource.instance, "getOrientation"):
 			return origSource.instance.getOrientation()
 		return eListbox.orVertical
+
+	def getSourceInstance(self):
+		if isinstance(self.source, List):  # Components.Sources.List
+			origSource = self.source.connectedGuiElement or self.source.master.master
+		else:
+			origSource = self.source
+		return getattr(origSource, "instance", None)
 
 	def getCurrentIndex(self):
 		if hasattr(self.source, "index"):
@@ -220,28 +228,46 @@ class Pager(GUIAddon):
 
 	def initPager(self):
 		if self.source.__class__.__name__ == "ScrollLabel":
-			currentPageIndex = self.source.curPos // self.source.pageHeight
-			if not ((self.source.TotalTextHeight - self.source.curPos) % self.source.pageHeight):
-				currentPageIndex += 1
-			pagesCount = -(-self.source.TotalTextHeight // self.source.pageHeight) - 1
-			self.selChange(currentPageIndex, pagesCount)
+			pageHeight = self.source.pageHeight
+			if pageHeight > 0:  # the label is laid out
+				pagesCount = max(-(-self.source.TotalTextHeight // pageHeight) - 1, 0)
+				# The label stops where the text ends, which is in the middle of a page unless the text is a multiple of its
+				# height: a position at the end is the last page, whatever the text height is divided by.
+				currentPageIndex = pagesCount if self.source.curPos >= self.source.TotalTextHeight - pageHeight else self.source.curPos // pageHeight
+				self.selChange(currentPageIndex, pagesCount)
 		else:
 			lOrientation = self.getSourceOrientation()
+			sourceSize = self.getSourceSize()
 			if lOrientation == eListbox.orVertical or lOrientation == eListbox.orGrid:
-				listControledlSize = self.getSourceSize().height()
+				listControledlSize = sourceSize.height()
 			else:
-				listControledlSize = self.getSourceSize().width()
+				listControledlSize = sourceSize.width()
+
+			instance = self.getSourceInstance()
+			carousel = instance is not None and hasattr(instance, "getCarousel") and instance.getCarousel()
+			if listControledlSize > 0 and (lOrientation == eListbox.orGrid or lOrientation == eListbox.orVertical or carousel):
+				# a grid knows its pages itself: its rows can have different heights (spanning entries); a carousel has no
+				# pages, every entry is one position (page count = entries, current page = selected entry)
+				if instance is not None and hasattr(instance, "getPageCount"):
+					pageCount = instance.getPageCount()
+					if pageCount > 0:
+						self.selChange(instance.getCurrentPage(), pageCount - 1)
+						return
 
 			if listControledlSize > 0:
 				currentIndex = self.getCurrentIndex()
 				listCount = self.getListCount()
+				itemSize = self.getListItemSize()
 				if lOrientation == eListbox.orVertical:
-					itemControlledSizeParam = self.getListItemSize().height()
+					itemControlledSizeParam = itemSize.height()
 				elif lOrientation == eListbox.orGrid:
-					itemControlledSizeParam = self.getListItemSize().height()
+					itemControlledSizeParam = itemSize.height()
 				else:
-					itemControlledSizeParam = self.getListItemSize().width()
+					itemControlledSizeParam = itemSize.width()
 				items_per_page = listControledlSize // itemControlledSizeParam
+				if lOrientation == eListbox.orGrid and itemSize.width():
+					# Grid layouts hold multiple columns per row; a "page" is columns * rows, not just rows.
+					items_per_page *= sourceSize.width() // itemSize.width()
 				if items_per_page > 0:
 					currentPageIndex = currentIndex // items_per_page
 					pagesCount = -(listCount // -items_per_page) - 1

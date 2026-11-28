@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <byteswap.h>
+#include <stdint.h>
 
 #ifndef BYTE_ORDER
 #error "no BYTE_ORDER defined!"
@@ -28,6 +29,7 @@
 
 #include <fribidi/fribidi.h>
 
+#include <algorithm>
 #include <map>
 #define register      // Deprecated in C++11
 
@@ -403,6 +405,12 @@ int eTextPara::appendGlyph(Font *current_font, FT_Face current_face, FT_UInt gly
 
 	if ((rflags & RS_WRAP) && (nx >= area.right()))
 	{
+		/* RT_ELLIPSIS: no room for another line, drop the rest, the caller adds the ellipsis */
+		if ((int)lineOffsets.size() + 1 >= m_maxlines)
+		{
+			m_truncated = true;
+			return 0;
+		}
 		int cnt = 0;
 		glyphString::reverse_iterator i(glyphs.rbegin());
 			/* find first possibility (from end to begin) to break */
@@ -490,6 +498,164 @@ int eTextPara::appendGlyph(Font *current_font, FT_Face current_face, FT_UInt gly
 		cursor += ePoint(xadvance, 0);
 	previous = glyphIndex;
 	return 0;
+}
+
+/* append a single code point using the current -> replacement -> fallback font chain.
+ * returns -1 when no font has the glyph, otherwise appendGlyph()'s result */
+int eTextPara::appendCodepoint(unsigned long chr, int flags, int rflags, int border, bool last)
+{
+	FT_UInt index = 0;
+	if (forced_replaces.find(chr) == forced_replaces.end())
+		index = FT_Get_Char_Index(current_face, chr);
+	if (index)
+		return appendGlyph(current_font, current_face, index, flags, rflags, border, last, false, 0);
+	if (replacement_face && (index = FT_Get_Char_Index(replacement_face, chr)))
+		return appendGlyph(replacement_font, replacement_face, index, flags, rflags, border, last, false, 0);
+	if (fallback_face && (index = FT_Get_Char_Index(fallback_face, chr)))
+		return appendGlyph(fallback_font, fallback_face, index, flags, rflags, border, last, false, 0);
+	return -1;
+}
+
+/* U+2026, or three full stops if none of the fonts has it */
+void eTextPara::appendEllipsis(int rflags, int border, bool last)
+{
+	rflags &= ~RS_WRAP;
+	if (appendCodepoint(0x2026, 0, rflags, border, last) >= 0)
+		return;
+	for (int n = 0; n < 3; ++n)
+		appendCodepoint('.', 0, rflags, border, last && n == 2);
+}
+
+void eTextPara::dropGlyphs(size_t from, size_t to)
+{
+	for (size_t n = from; n < to; ++n)
+	{
+		if (glyphs[n].image) FT_Done_Glyph(glyphs[n].image);
+		if (glyphs[n].borderimage) FT_Done_Glyph(glyphs[n].borderimage);
+	}
+	glyphs.erase(glyphs.begin() + from, glyphs.begin() + to);
+}
+
+int eTextPara::ellipsisWidth(int rflags, int border)
+{
+	if (m_ellipsis_w >= 0)
+		return m_ellipsis_w;
+	// measure by appending the ellipsis and taking it away again
+	const size_t count = glyphs.size();
+	const ePoint savedcursor = cursor;
+	const int savedchars = charCount, savedprevious = previous;
+	previous = 0;
+	appendEllipsis(rflags, border, false);
+	m_ellipsis_w = cursor.x() - savedcursor.x();
+	dropGlyphs(count, glyphs.size());
+	cursor = savedcursor;
+	charCount = savedchars;
+	previous = savedprevious;
+	return m_ellipsis_w;
+}
+
+/* number of text lines that fit into the area's height (at least one) */
+int eTextPara::maxLines()
+{
+	int lh = current_face->size->metrics.height;
+	int asc = current_face->size->metrics.ascender;
+	if (!lh || !asc)
+	{
+		const int ymax = FT_MulFix(current_face->bbox.yMax, current_face->size->metrics.y_scale);
+		if (!lh) lh = ymax;
+		if (!asc) asc = ymax;
+	}
+	lh >>= 6;
+	asc >>= 6;
+	if (lh <= 0)
+		return 1;
+	// first line needs the ascender, every further one a full line height, and the
+	// last line's descender must fit as well
+	const int avail = area.height() - asc - std::max(0, lh - asc);
+	return (avail > 0) ? avail / lh + 1 : 1;
+}
+
+/* Shorten the line made of glyphs[start..end) (visual order, never wrapped itself)
+ * so it fits into the area, replacing the logical end of the line by an ellipsis.
+ * For a left-to-right paragraph the logical end is the right hand side of the
+ * line, for a right-to-left one it is the left hand side.
+ * endx is the right edge of the line and is updated. With force the ellipsis is
+ * added even if the line fits (more text follows which is not shown).
+ * Returns the change in the number of glyphs; cursor, charCount and previous
+ * are left untouched. */
+int eTextPara::ellipsizeLine(size_t start, size_t end, int &endx, bool rtl, int rflags, int border, bool force)
+{
+	const int width = area.width();
+	if (!force && endx - left <= width)
+		return 0;
+
+	const int ew = ellipsisWidth(rflags, border);
+	const int avail = width - ew;
+	const bool wasfirst = start < end && (glyphs[start].flags & GS_ISFIRST);
+	const int ypos = (start < end) ? glyphs[start].y : cursor.y();
+	size_t k, pos;
+	int dotsx, newendx = 0;
+
+	if (!rtl)
+	{
+		const int limit = left + avail;
+		k = end;
+		while (k > start && glyphs[k - 1].x + glyphs[k - 1].w > limit)
+			--k;
+		while (k > start && (glyphs[k - 1].flags & GS_ISSPACE))
+			--k;
+		dotsx = (k > start) ? glyphs[k - 1].x + glyphs[k - 1].w : left;
+		pos = k;
+		dropGlyphs(k, end);
+	}
+	else
+	{
+		k = start;
+		while (k < end && endx - glyphs[k].x > avail)
+			++k;
+		while (k < end && (glyphs[k].flags & GS_ISSPACE))
+			++k;
+		const bool anykept = k < end;
+		const int shift = anykept ? left + ew - glyphs[k].x : 0;
+		dropGlyphs(start, k);
+		end -= k - start;
+		for (size_t i = start; i < end; ++i)
+		{
+			glyphs[i].x += shift;
+			glyphs[i].bbox.moveBy(shift, 0);
+		}
+		newendx = anykept ? endx + shift : left + ew;
+		dotsx = left;
+		pos = start;
+	}
+	const int removed = (int)(rtl ? (k - start) : (end - k));
+	const size_t kept = rtl ? end - start : k - start;
+
+	// append the ellipsis (at the end of the vector) and move it to its place
+	const ePoint savedcursor = cursor;
+	const int savedprevious = previous, savedchars = charCount;
+	const size_t before = glyphs.size();
+	cursor = ePoint(dotsx, ypos);
+	previous = 0;
+	appendEllipsis(rflags, border, !rtl);
+	const size_t added = glyphs.size() - before;
+	if (!rtl)
+		newendx = cursor.x();
+	cursor = savedcursor;
+	previous = savedprevious;
+	charCount = savedchars;
+	if (pos != before)
+		std::rotate(glyphs.begin() + pos, glyphs.begin() + before, glyphs.end());
+
+	// the first glyph of a line carries GS_ISFIRST, hand it over to the ellipsis if that is now first
+	if (wasfirst && added && (rtl || !kept))
+	{
+		if (kept)
+			glyphs[pos + added].flags &= ~GS_ISFIRST;
+		glyphs[pos].flags |= GS_ISFIRST;
+	}
+	endx = newendx;
+	return (int)added - removed;
 }
 
 void eTextPara::calc_bbox()
@@ -626,6 +792,9 @@ int eTextPara::renderString(const char *string, int rflags, int border)
 {
 	singleLock s(ftlock);
 
+	// See m_border_width's declaration (font.h) for why this is retained.
+	m_border_width = border;
+
 	if (!current_font)
 	{
 		eWarning("[eTextPara] renderString: No current_font!");
@@ -744,6 +913,36 @@ int eTextPara::renderString(const char *string, int rflags, int border)
 
 	glyphs.reserve(size);
 
+	// gPainter::RT_ELLIPSIS
+	const bool ellipsis = (rflags & gPainter::RT_ELLIPSIS) && !(rflags & RS_DIRECT);
+	const bool wrap = (rflags & RS_WRAP) != 0;
+	const bool rtl = (dir & FRIBIDI_MASK_RTL) != 0;
+	// The text is cut after the last line that fits the area's height and only that line
+	// gets the ellipsis (also if it is merely too wide, when not wrapping). For left-to-right
+	// text this is done while laying out (the rest is never created). Right-to-left text is
+	// laid out in visual order, its logical start is the last line, so that is handled below.
+	m_truncated = false;
+	// maxLines() counts the lines that certainly fit. One more is laid out and kept below only
+	// if its glyphs really fit (e.g. a last line without descenders).
+	m_maxlines = (ellipsis && !rtl) ? maxLines() + 1 : INT_MAX;
+	size_t linestart = glyphs.size();
+	// not wrapping, left-to-right: glyphs behind the right edge of the last line are cut off
+	// anyway, don't create them (earlier lines are kept, alignment needs their full width)
+	bool skipglyphs = false;
+	long lastnl = -1; // index of the last line break in the text
+	if (ellipsis && !wrap && !rtl)
+	{
+		for (long n = (long)uc_visual.size() - 1; n >= 0; --n)
+		{
+			const unsigned long c = uc_visual[n];
+			if (c == '\n' || c == 0x8A || c == 0xE08A || (c == 'n' && n > 0 && uc_visual[n - 1] == '\\'))
+			{
+				lastnl = n;
+				break;
+			}
+		}
+	}
+
 	unsigned long newcolor = 0;
 	bool activate_newcolor = false;
 	bool activate_colorreset = false;
@@ -752,6 +951,9 @@ int eTextPara::renderString(const char *string, int rflags, int border)
 	for (std::vector<unsigned long>::const_iterator i(uc_visual.begin());
 		i != uc_visual.end(); ++i)
 	{
+		if (m_truncated)
+			break;
+
 		int isprintable=1;
 		int flags = nextflags;
 		unsigned long chr = *i;
@@ -835,7 +1037,21 @@ tab:				isprintable=0;
 			case 0xE08A:
 			case '\n':
 newline:			isprintable=0;
+				if ((int)lineOffsets.size() + 1 >= m_maxlines)
+				{
+					// only trailing blanks left? then nothing is cut off
+					auto more = i + 1;
+					while (more != uc_visual.end() && (*more == '\n' || *more == '\r' || *more == ' ' || *more == '\t'))
+						++more;
+					if (more != uc_visual.end())
+						m_truncated = true;
+					else
+						i = uc_visual.end() - 1;
+					break;
+				}
 				newLine(rflags);
+				linestart = glyphs.size();
+				skipglyphs = false;
 				nextflags|=GS_ISFIRST;
 				break;
 			case '\r':
@@ -857,7 +1073,7 @@ nprint:				isprintable=0;
 				break;
 			}
 		}
-		if (isprintable)
+		if (isprintable && !skipglyphs)
 		{
 			nextflags = 0;
 
@@ -894,6 +1110,92 @@ nprint:				isprintable=0;
 
 			activate_newcolor = false;
 			activate_colorreset = false;
+
+			if (ellipsis && !wrap && !rtl && (long)(i - uc_visual.begin()) > lastnl && cursor.x() - left > area.width())
+				skipglyphs = true;
+		}
+	}
+	if (m_maxlines != INT_MAX && (int)lineOffsets.size() + 1 == m_maxlines && !lineChars.empty())
+	{
+		// the extra line: keep it if its baseline and the glyphs drawn on it are inside the area
+		const size_t extrastart = glyphs.size() - charCount;
+		int bottom = cursor.y();
+		for (size_t n = extrastart; n < glyphs.size(); ++n)
+			if (!(glyphs[n].flags & GS_ISSPACE))
+				bottom = std::max(bottom, glyphs[n].bbox.bottom());
+		// eDebug("[eTextPara] TEMP extra line: bottom=%d area bottom=%d -> %s", bottom, area.bottom(), bottom <= area.bottom() ? "kept" : "dropped");
+		if (bottom > area.bottom())
+		{
+			// drop it and go back to the end of the previous line, which gets the ellipsis
+			dropGlyphs(extrastart, glyphs.size());
+			int lh = current_face->size->metrics.height;
+			if (!lh)
+				lh = FT_MulFix(current_face->bbox.yMax, current_face->size->metrics.y_scale);
+			totalheight -= lh >> 6;
+			charCount = lineChars.back();
+			lineChars.pop_back();
+			cursor = ePoint(charCount ? glyphs.back().x + glyphs.back().w : left, lineOffsets.back());
+			lineOffsets.pop_back();
+			m_truncated = true;
+		}
+	}
+	if (m_truncated)
+	{
+		// ran out of lines: the last line that fits gets the ellipsis
+		int endx = cursor.x();
+		charCount += ellipsizeLine(glyphs.size() - charCount, glyphs.size(), endx, false, rflags, border, true);
+		cursor.setX(endx);
+	}
+	else if (ellipsis && !wrap && !rtl)
+	{
+		// last line, too wide
+		int endx = cursor.x();
+		charCount += ellipsizeLine(linestart, glyphs.size(), endx, false, rflags, border, false);
+		cursor.setX(endx);
+	}
+	if (charCount)
+	{
+		lineOffsets.push_back(cursor.y());
+		lineChars.push_back(charCount);
+		charCount=0;
+	}
+	if (ellipsis && rtl)
+	{
+		// lines are drawn bottom up for right-to-left text, so the visually last lines hold
+		// the start of the text. Drop the visually first lines (the end of the text) that
+		// don't fit and put the ellipsis on the first remaining one.
+		const int lines = (int)lineOffsets.size(), fit = maxLines();
+		if (lines > fit && (int)lineChars.size() == lines)
+		{
+			const int drop = lines - fit;
+			int lh = current_face->size->metrics.height;
+			if (!lh)
+				lh = FT_MulFix(current_face->bbox.yMax, current_face->size->metrics.y_scale);
+			lh >>= 6;
+			size_t dropchars = 0;
+			for (int n = 0; n < drop; ++n)
+			{
+				dropchars += lineChars.front();
+				lineChars.pop_front();
+				lineOffsets.pop_back();
+			}
+			dropGlyphs(0, dropchars);
+			totalheight -= drop * lh;
+			cursor.setY(cursor.y() - drop * lh);
+			int endx = 0;
+			size_t linechars = lineChars.front();
+			if (linechars)
+				endx = glyphs[linechars - 1].x + glyphs[linechars - 1].w;
+			lineChars.front() += ellipsizeLine(0, linechars, endx, true, rflags, border, true);
+		}
+		else if (!wrap && lines && (int)lineChars.size() == lines)
+		{
+			// everything fits vertically: only the logical last line (visually first) may be too wide
+			int endx = 0;
+			size_t linechars = lineChars.front();
+			if (linechars)
+				endx = glyphs[linechars - 1].x + glyphs[linechars - 1].w;
+			lineChars.front() += ellipsizeLine(0, linechars, endx, true, rflags, border, false);
 		}
 	}
 	bboxValid=false;
@@ -901,12 +1203,6 @@ nprint:				isprintable=0;
 	if (dir & FRIBIDI_MASK_RTL)
 	{
 		doTopBottomReordering=true;
-	}
-	if (charCount)
-	{
-		lineOffsets.push_back(cursor.y());
-		lineChars.push_back(charCount);
-		charCount=0;
 	}
 	delete [] target;
 	delete [] array;
@@ -1088,6 +1384,34 @@ void eTextPara::blit(gDC &dc, const ePoint &offset, const gRGB &cbackground, con
 			sxbase = glyph->bitmap.width;
 			sybase = glyph->bitmap.rows;
 			pitch = glyph->bitmap.pitch;
+
+			// Offer this pre-stroked glyph (FT_Glyph_Stroke, via
+			// appendGlyph()/getGlyphImage() - a real, correctly antialiased
+			// outline, not an approximation) to the same GPU atlas the
+			// plain-glyph branch below already uses, instead of always
+			// falling through to the CPU compositing loop further down.
+			// Identical bitmap either way - this only changes where it gets
+			// drawn. i->image (fill pass, border==false here) and
+			// i->borderimage (border pass, border==true) are visually
+			// different shapes for the same glyph_index, and this eTextPara's
+			// border width changes borderimage's shape too, so both go into
+			// the key below alongside the plain-glyph key's own terms -
+			// otherwise two different border widths' stroked bitmaps (or a
+			// border-pass and fill-pass bitmap for the same glyph_index)
+			// would collide on the same atlas slot. Excludes GS_INVERT for
+			// the identical reason the branch below does: invert isn't a
+			// flat color swap renderGlyph() can express (see its comment).
+			if (!(i->flags & GS_INVERT))
+			{
+				uint64_t glyph_key = (uint64_t)(uintptr_t)i->font->scaler.face_id;
+				glyph_key = glyph_key * 1000003ull ^ (uint32_t)i->font->scaler.width;
+				glyph_key = glyph_key * 1000003ull ^ (uint32_t)i->font->scaler.height;
+				glyph_key = glyph_key * 1000003ull ^ (uint32_t)i->glyph_index;
+				glyph_key = glyph_key * 1000003ull ^ (uint32_t)m_border_width;
+				glyph_key = glyph_key * 1000003ull ^ (border ? 1u : 2u);
+				if (dc.renderGlyph(ePoint(rxbase, rybase), sbase, sxbase, sybase, pitch, currentforeground, glyph_key))
+					continue;
+			}
 		}
 		else
 		{
@@ -1100,7 +1424,39 @@ void eTextPara::blit(gDC &dc, const ePoint &offset, const gRGB &cbackground, con
 			sxbase=glyph_bitmap->width;
 			sybase=glyph_bitmap->height;
 			pitch = glyph_bitmap->pitch;
+
+			// Offer this glyph to a hardware-accelerated backend (see
+			// gEGLDC::renderGlyph()) before falling through to the CPU
+			// compositing loop below. Only glyphs from the shared FreeType
+			// small-bitmap cache (this branch, keyed by face+size+index) have
+			// a stable identity worth atlasing - the i->image branch above
+			// (border/pre-rendered glyphs) is per-eTextPara-instance and
+			// isn't offered here; see grc.h's gDC::renderGlyph() comment.
+			//
+			// GS_INVERT (a marked/selected character - see
+			// eListboxPythonConfigContent::paint()'s "mtext" handling, e.g. a
+			// ConfigText field's select-all-on-focus state) must NOT take this
+			// path: renderGlyph() takes one flat gRGB, but invert isn't a flat
+			// color swap here - the CPU loop below builds it as
+			// lookup32_invert[i] = lookup32_normal[i^0xF], reversing which
+			// blended color each per-pixel antialiasing coverage level maps
+			// to (see this function's lookup32_invert construction above).
+			// Offering an inverted glyph to the atlas anyway rendered it in
+			// plain currentforeground instead - for a selected config-list
+			// row whose selected-state foreground already matches its own
+			// highlight fill color, that made every marked character
+			// invisible (foreground-on-same-color-background).
+			if (!(i->flags & GS_INVERT))
+			{
+				uint64_t glyph_key = (uint64_t)(uintptr_t)i->font->scaler.face_id;
+				glyph_key = glyph_key * 1000003ull ^ (uint32_t)i->font->scaler.width;
+				glyph_key = glyph_key * 1000003ull ^ (uint32_t)i->font->scaler.height;
+				glyph_key = glyph_key * 1000003ull ^ (uint32_t)i->glyph_index;
+				if (dc.renderGlyph(ePoint(rxbase, rybase), sbase, sxbase, sybase, pitch, currentforeground, glyph_key))
+					continue;
+			}
 		}
+		dc.onGlyphCpuDrawn();
 		dbase = (__u8*)(surface->data)+buffer_stride*rybase+rxbase*surface->bypp;
 		for (unsigned int c = 0; c < clip.rects.size(); ++c)
 		{
@@ -1201,7 +1557,19 @@ void eTextPara::blit(gDC &dc, const ePoint &offset, const gRGB &cbackground, con
 							{
 								int b=(*s++)>>4;
 								if(b)
-									*td=lookup32[b];
+									/* lookup32[b]'s own alpha byte is only a coverage-interpolated
+									   blend towards this text's *nominal* background alpha -- useful
+									   for smoothing the RGB colour, but not a truthful "what's really
+									   behind this pixel" value. Stamping it verbatim leaves a glyph-
+									   shaped, coverage-dependent alpha footprint in the framebuffer
+									   (near-transparent at AA edges) for what is otherwise a normal,
+									   final, fully-painted pixel. Any later alphablended/rounded-corner
+									   widget that composites on top of this (see the opcode 4 "blend"
+									   case below) reads that leftover footprint back as if it were the
+									   real backdrop, so unrelated text ends up ghosted with the shape
+									   of whatever ordinary text was drawn here before it. Force full
+									   opacity here instead, keeping only the blended RGB. */
+									*td=lookup32[b] | 0xFF000000;
 								++td;
 							}
 							s += extra_source_stride;
@@ -1221,7 +1589,7 @@ void eTextPara::blit(gDC &dc, const ePoint &offset, const gRGB &cbackground, con
 								int b = (*s++) >> 4;
 								if (b)
 								{
-									// unsigned char frame_a = (*td) >> 24 & 0xFF;
+									unsigned char frame_a = (*td) >> 24 & 0xFF;
 									unsigned char frame_r = (*td) >> 16 & 0xFF;
 									unsigned char frame_g = (*td) >> 8 & 0xFF;
 									unsigned char frame_b = (*td) & 0xFF;
@@ -1232,11 +1600,19 @@ void eTextPara::blit(gDC &dc, const ePoint &offset, const gRGB &cbackground, con
 									unsigned char db = lookup32[b] & 0xFF;
 
 #define BLEND(y, x, a) (y + (((x-y) * a)>>8))
+									/* blend the output alpha the same way the color channels are blended,
+									   from whatever is already at the destination towards the glyph's own
+									   ink alpha -- otherwise a fully-opaque foreground color (alpha 0, see
+									   gRGB) turns into a fully-transparent stored alpha (0xFF) at every
+									   pixel the glyph touches, making the text vanish against anything that
+									   composites using that alpha channel (e.g. an alpha-blended layer
+									   painted on top of another one). */
+									frame_a = BLEND(frame_a, (unsigned char)(currentforeground.a ^ 0xFF), da) & 0xFF;
 									frame_r = BLEND(frame_r, dr, da) & 0xFF;
 									frame_g = BLEND(frame_g, dg, da) & 0xFF;
 									frame_b = BLEND(frame_b, db, da) & 0xFF;
 #undef BLEND
-									*td = ((currentforeground.a ^ 0xFF) << 24) | (frame_r << 16) | (frame_g << 8) | frame_b;
+									*td = (frame_a << 24) | (frame_r << 16) | (frame_g << 8) | frame_b;
 								}
 								++td;
 							}
@@ -1346,6 +1722,26 @@ void eTextPara::realign(int dir)	// der code hier ist ein wenig merkwuerdig.
 	}
 	bboxValid=false;
 	calc_bbox();
+}
+
+void eTextPara::moveBy(int dx, int dy)
+{
+	if (!dx && !dy)
+		return;
+	area.moveBy(dx, dy);
+	cursor += ePoint(dx, dy);
+	maximum = eSize(maximum.width() + dx, maximum.height() + dy);
+	left += dx;
+	for (glyphString::iterator i(glyphs.begin()); i != glyphs.end(); ++i)
+	{
+		i->x += dx;
+		i->y += dy;
+		i->bbox.moveBy(dx, dy);
+	}
+	for (std::list<int>::iterator i(lineOffsets.begin()); i != lineOffsets.end(); ++i)
+		*i += dy;
+	if (bboxValid)
+		boundBox.moveBy(dx, dy);
 }
 
 void eTextPara::clear()

@@ -3,7 +3,7 @@ from os import path
 from enigma import eAVSwitch, eDVBVolumecontrol, getDesktop
 
 from Components.config import ConfigEnableDisable, ConfigNothing, ConfigSelection, ConfigSelectionNumber, ConfigSlider, ConfigSubDict, ConfigSubsection, ConfigYesNo, NoSave, config
-from Components.SystemInfo import SystemInfo, BOXTYPE, MODEL
+from Components.SystemInfo import BOXTYPE, SystemInfo
 from Tools.CList import CList
 from Tools.Directories import fileCheck, fileReadLine, fileWriteLine, isPluginInstalled
 
@@ -43,7 +43,7 @@ class AVSwitch:
 				"multi": {50: "2160p50", 60: "2160p"},
 				"auto": {50: "2160p50", 60: "2160p", 24: "2160p24"}}
 
-	if MODEL in ("dm900", "dm920"):
+	if SystemInfo["dmVideoRates"]:
 		rates["2160p"] = {"50Hz": {50: "2160p50"},
 				"60Hz": {60: "2160p60"},
 				"multi": {50: "2160p50", 60: "2160p60"},
@@ -218,7 +218,7 @@ class AVSwitch:
 				ratelist = []
 				for rate in rates:
 					if rate == "auto":
-						if SystemInfo["Has24hz"] or MODEL in ("dm900", "dm920"):
+						if SystemInfo["Has24hz"] or SystemInfo["dmVideoRates"]:
 							ratelist.append((rate, mode == "2160p30" and "auto (25Hz/30Hz/24Hz)" or "auto (50Hz/60Hz/24Hz)"))
 					else:
 						ratelist.append((rate, rate == "multi" and (mode == "2160p30" and "multi (25Hz/30Hz)" or "multi (50Hz/60Hz)") or rate))
@@ -239,7 +239,7 @@ class AVSwitch:
 			self.current_port = config.av.videoport.value
 		if self.current_port in ("YPbPr", "Scart-YPbPr"):
 			eAVSwitch.getInstance().setColorFormat(3)
-		elif self.current_port in ("RCA"):
+		elif self.current_port == "RCA":
 			eAVSwitch.getInstance().setColorFormat(0)
 		else:
 			eAVSwitch.getInstance().setColorFormat(value)
@@ -312,6 +312,9 @@ class AVSwitch:
 		fb_size = getDesktop(0).size()
 		return (aspect[0] * fb_size.height(), aspect[1] * fb_size.width())
 
+	def setAspectRatio(self, value):
+		eAVSwitch.getInstance().setAspectRatio(value)
+
 	def getAspectRatioSetting(self):
 		valstr = config.av.aspectratio.value
 		if valstr == "4_3_letterbox":
@@ -336,9 +339,14 @@ avSwitch = iAVSwitch  # Not used by OpenViX. For compatibility with OpenATV. Use
 
 
 def InitAVSwitch():
-	if SystemInfo["Vu_EAC3_fix"]:
-		delay_choices = [(i, ngettext("%d milisecond", "%d miliseconds", i) % i) for i in list(range(0, 3000, 100))]  # noqa: F821
-		config.av.passthrough_fix_short = ConfigSelection(choices=delay_choices, default=100)
+	config.av.truehd_playback = ConfigSelection(choices=[
+		("off", _("Off")),
+		("ac3", _("Dolby Digital"))
+	], default="off")
+	config.av.dts_playback = ConfigSelection(choices=[
+		("off", _("Off")),
+		("ac3", _("Dolby Digital"))
+	], default="off")
 	config.av.yuvenabled = ConfigYesNo(default=True)
 	colorformat_choices = {
 		"cvbs": _("CVBS"),
@@ -353,7 +361,7 @@ def InitAVSwitch():
 		"4_3_letterbox": _("4:3 Letterbox"),
 		"4_3_panscan": _("4:3 PanScan"),
 		"16_9": _("16:9"),
-		"16_9_always": _("16:9 always"),
+		"16_9_always": _("16:9 Always"),
 		"16_10_letterbox": _("16:10 Letterbox"),
 		"16_10_panscan": _("16:10 PanScan"),
 		"16_9_letterbox": _("16:9 Letterbox")
@@ -366,8 +374,8 @@ def InitAVSwitch():
 	}, default="16:9")
 	policy2_choices = {
 		"letterbox": _("Letterbox"),					# TRANSLATORS: (aspect ratio policy: black bars on top/bottom) in doubt, keep english term.
-		"panscan": _("Pan&scan"),					# TRANSLATORS: (aspect ratio policy: cropped content on left/right) in doubt, keep english term
-		"scale": _("Just scale")					# TRANSLATORS: (aspect ratio policy: display as fullscreen, even if this breaks the aspect)
+		"panscan": _("Pan&Scan"),					# TRANSLATORS: (aspect ratio policy: cropped content on left/right) in doubt, keep english term
+		"scale": _("Just Scale")					# TRANSLATORS: (aspect ratio policy: display as fullscreen, even if this breaks the aspect)
 	}
 	if path.exists("/proc/stb/video/policy2_choices"):
 		f = open("/proc/stb/video/policy2_choices")
@@ -377,7 +385,7 @@ def InitAVSwitch():
 	config.av.policy_169 = ConfigSelection(choices=policy2_choices, default="letterbox")
 	policy_choices = {
 		"panscan": _("Pillarbox"),					# TRANSLATORS: (aspect ratio policy: black bars on left/right) in doubt, keep english term.
-		"letterbox": _("Pan&scan"),					# TRANSLATORS: (aspect ratio policy: cropped content on left/right) in doubt, keep english term
+		"letterbox": _("Pan&Scan"),					# TRANSLATORS: (aspect ratio policy: cropped content on left/right) in doubt, keep english term
 		# "nonlinear": _("Nonlinear"),					# TRANSLATORS: (aspect ratio policy: display as fullscreen, with stretching the left/right)
 		"bestfit": _("Just scale")					# TRANSLATORS: (aspect ratio policy: display as fullscreen, even if this breaks the aspect)
 	}
@@ -395,6 +403,7 @@ def InitAVSwitch():
 	config.av.wss = ConfigEnableDisable(default=True)
 	config.av.generalAC3delay = ConfigSelectionNumber(-1000, 1000, 5, default=0)
 	config.av.generalPCMdelay = ConfigSelectionNumber(-1000, 1000, 5, default=0)
+	config.av.btaudiodelay = ConfigSelectionNumber(-1000, 1000, 5, default=0)
 	config.av.volume_hide_mute = ConfigYesNo(default=True)
 	config.av.vcrswitch = ConfigEnableDisable(default=False)
 	config.av.aspect.setValue("16:9")
@@ -406,7 +415,7 @@ def InitAVSwitch():
 	def setColorFormat(configElement):
 		if config.av.videoport and config.av.videoport.value in ("YPbPr", "Scart-YPbPr"):
 			iAVSwitch.setColorFormat(3)
-		elif config.av.videoport and config.av.videoport.value in ("RCA"):
+		elif config.av.videoport and config.av.videoport.value == "RCA":
 			iAVSwitch.setColorFormat(0)
 		else:
 			map = {
@@ -447,7 +456,7 @@ def InitAVSwitch():
 	if SystemInfo["Canedidchecking"]:
 		def setEDIDBypass(configElement):
 			open(SystemInfo["Canedidchecking"], "w").write("00000001" if configElement.value else "00000000")
-		config.av.bypass_edid_checking = ConfigYesNo(default=False)
+		config.av.bypass_edid_checking = ConfigYesNo(default=True)
 		config.av.bypass_edid_checking.addNotifier(setEDIDBypass)
 	else:
 		config.av.bypass_edid_checking = ConfigNothing()
@@ -483,7 +492,7 @@ def InitAVSwitch():
 		def setHDMIColorimetry(configElement):
 			open(SystemInfo["havecolorimetry"], "w").write(configElement.value)
 		choices = [
-			("auto", _("auto")),
+			("auto", _("Auto")),
 			("bt2020ncl", _("BT 2020 NCL")),
 			("bt2020cl", _("BT 2020 CL")),
 			("bt709", _("BT 709"))
@@ -499,18 +508,18 @@ def InitAVSwitch():
 
 	if SystemInfo["havehdmicolordepth"]:
 		def setHdmiColordepth(configElement):
-			open(SystemInfo["havehdmicolordepth"], "w").write("12bit" if SystemInfo["needsVideoJudderDriverFix"] else configElement.value)
+			open(SystemInfo["havehdmicolordepth"], "w").write(configElement.value)
 		choices = [("auto", _("Auto")),
 					("8bit", _("8bit")),
 					("10bit", _("10bit")),
 					("12bit", _("12bit"))]
 		default = "auto"
-		if SystemInfo["needsVideoJudderDriverFix"]:
-			choices = [("10bit", "10bit"), ("12bit", "12bit")]
-			default = "12bit"
-		elif SystemInfo["havehdmicolordepthchoices"] and SystemInfo["CanProc"]:
+		if SystemInfo["havehdmicolordepthchoices"] and SystemInfo["CanProc"]:
 			f = "/proc/stb/video/hdmi_colordepth_choices"
 			(choices, default) = readChoices(f, choices, default)
+		if BOXTYPE in ("gbquad4kpro", "vuduo4klite"):
+			choices = [choice for choice in choices if choice[0] not in ("auto", "8bit")]
+			default = "10bit"
 		config.av.hdmicolordepth = ConfigSelection(choices=choices, default=default)
 		config.av.hdmicolordepth.addNotifier(setHdmiColordepth)
 	else:
@@ -609,7 +618,7 @@ def InitAVSwitch():
 		def set3DSurround(configElement):
 			open(SystemInfo["Can3DSurround"], "w").write(configElement.value)
 		choices = [
-			("none", _("off")),
+			("none", _("Off")),
 			("hdmi", _("HDMI")),
 			("spdif", _("SPDIF")),
 			("dac", _("DAC"))
@@ -628,9 +637,9 @@ def InitAVSwitch():
 		def set3DPosition(configElement):
 			open(SystemInfo["Can3DSpeaker"], "w").write(configElement.value)
 		choices = [
-			("center", _("center")),
-			("wide", _("wide")),
-			("extrawide", _("extra wide"))
+			("center", _("Center")),
+			("wide", _("Wide")),
+			("extrawide", _("Extra Wide"))
 		]
 		default = "center"
 		if SystemInfo["CanProc"]:
@@ -645,7 +654,7 @@ def InitAVSwitch():
 		def setAutoVolume(configElement):
 			open("/proc/stb/audio/avl", "w").write(configElement.value)
 		choices = [
-			("none", _("off")),
+			("none", _("Off")),
 			("hdmi", _("HDMI")),
 			("spdif", _("SPDIF")),
 			("dac", _("DAC"))
@@ -738,10 +747,10 @@ def InitAVSwitch():
 			open("/proc/stb/audio/dtshd", "w").write(configElement.value)
 		choices = [
 			("downmix", _("Downmix")),
-			("force_dts", _("convert to DTS")),
-			("use_hdmi_caps", _("controlled by HDMI")),
-			("multichannel", _("convert to multi-channel PCM")),
-			("hdmi_best", _("use best / controlled by HDMI"))
+			("force_dts", _("Convert to DTS")),
+			("use_hdmi_caps", _("Controlled by HDMI")),
+			("multichannel", _("Convert to Multi-Channel PCM")),
+			("hdmi_best", _("Use Best / Controlled by HDMI"))
 		]
 		default = "downmix"
 		if SystemInfo["CanProc"]:
@@ -757,12 +766,9 @@ def InitAVSwitch():
 		choices = [
 			("downmix", _("Downmix")),
 			("passthrough", _("Passthrough")),
-			("multichannel", _("convert to multi-channel PCM")),
-			("force_ac3", _("convert to AC3")),
-			("force_dts", _("convert to DTS")),
-			("use_hdmi_cacenter", _("use hdmi cacenter")),
-			("wide", _("wide")),
-			("extrawide", _("extrawide"))
+			("multichannel", _("Convert to Multi-Channel PCM")),
+			("force_ac3", _("Convert to AC3")),
+			("force_dts", _("Convert to DTS"))
 		]
 		default = "downmix"
 		if SystemInfo["CanProc"]:
@@ -778,8 +784,8 @@ def InitAVSwitch():
 		choices = [
 			("downmix", _("Downmix")),
 			("passthrough", _("Passthrough")),
-			("multichannel", _("convert to multi-channel PCM")),
-			("hdmi_best", _("use best / controlled by HDMI"))
+			("multichannel", _("Convert to Multi-Channel PCM")),
+			("hdmi_best", _("Use Best / Controlled by HDMI"))
 		]
 		default = "downmix"
 		if SystemInfo["CanProc"]:
@@ -793,7 +799,7 @@ def InitAVSwitch():
 		def setAACTranscode(configElement):
 			open("/proc/stb/audio/aac_transcode", "w").write(configElement.value)
 		choices = [
-			("off", _("off")),
+			("off", _("Off")),
 			("ac3", _("AC3")),
 			("dts", _("DTS"))
 		]
@@ -855,10 +861,8 @@ def InitAVSwitch():
 				open("/proc/stb/vmpeg/0/pep_apply", "w").write("1")
 			except (IOError, OSError):
 				print("[AVSwitch] couldn't write pep_scaler_sharpness")
-		if BOXTYPE in ("gbquad", "gbquadplus"):
-			config.av.scaler_sharpness = ConfigSlider(default=5, limits=(0, 26))
-		else:
-			config.av.scaler_sharpness = ConfigSlider(default=13, limits=(0, 26))
+		scalerDefault = 5 if SystemInfo["scalerSharpnessWorkaround"] else 13
+		config.av.scaler_sharpness = ConfigSlider(default=scalerDefault, limits=(0, 26))
 		config.av.scaler_sharpness.addNotifier(setScaler_sharpness)
 	else:
 		config.av.scaler_sharpness = NoSave(ConfigNothing())
@@ -910,27 +914,3 @@ def stopHotplug():
 
 def InitiVideomodeHotplug(**kwargs):
 	startHotplug()
-
-
-iVideoJudderDriverFixTask = None
-
-
-class VideoJudderDriverFixTask:
-	def __init__(self):
-		self.onClose = []
-		from enigma import iPlayableService
-		from Components.ServiceEventTracker import ServiceEventTracker
-		self.inited = False
-		self.__event_tracker = ServiceEventTracker(screen=self, eventmap={iPlayableService.evVideoFramerateChanged: self.__evVideoFramerateChanged})
-
-	def __evVideoFramerateChanged(self):
-		if not self.inited:
-			with open("/proc/stb/video/hdmi_colordepth", "w") as fd:
-				fd.write("10bit")
-			self.inited = True
-
-
-def startVideoJudderDriverFixTask():
-	global iVideoJudderDriverFixTask
-	if SystemInfo["needsVideoJudderDriverFix"]:
-		iVideoJudderDriverFixTask = VideoJudderDriverFixTask()

@@ -67,6 +67,24 @@ opticalDisks = [
 ]
 
 
+def checkFstabReservesMediaHDD(lines):
+	for line in lines:
+		line = (line or "").strip()
+		if not line or line.startswith("#"):
+			continue
+		parts = line.split()
+		if len(parts) < 3:
+			continue
+		spec, mnt, fstype = parts[0], parts[1], parts[2].lower()
+		if mnt != "/media/hdd":
+			continue
+		if fstype in ("cifs", "nfs", "nfs4", "sshfs", "fuse.sshfs"):
+			return True
+		if spec.startswith("//") or (":/" in spec):
+			return True
+	return False
+
+
 def readFile(filename):
 	try:
 		with open(filename, "r") as fd:
@@ -147,11 +165,11 @@ def addInstallTask(job, package):
 
 def bytesToHumanReadable(size_bytes, binary=False):
 	# input is bytes, convert from KB, MB before use.
-	size_units = ("B", "kB", "MB", "GB", "TB")
+	size_units = ("B", "KiB", "MiB", "GiB", "TiB") if binary else ("B", "kB", "MB", "GB", "TB")
 	base = 1024 if binary else 1000
 	i = 0
 	L = len(size_units) - 1
-	while i < L and size_bytes >= base:
+	while i < L and round(size_bytes) >= base:
 		size_bytes /= base
 		i += 1
 	return ("%.2f %s" if i != 0 and size_bytes < 10 else "%.0f %s") % (size_bytes, size_units[i])
@@ -298,7 +316,7 @@ class Harddisk:
 		# print("[Harddisk][totalFree]mediapath:", mediapath)
 		for mpath in mediapath:
 			# print("[Harddisk][totalFree]mpath:", mpath)
-			if mpath == "/" and SystemInfo["HasKexecMultiboot"]:
+			if mpath == "/" and (SystemInfo["HasKexecMultiboot"] or SystemInfo["HasNewMultiboot"]):
 				continue
 			free = self.free(mpath)
 			if free > 0:
@@ -696,31 +714,34 @@ class HarddiskManager:
 		fileNames = glob("/tmp/hotplug_dev_*")
 		devices = []
 		for fileName in fileNames:
-			with open(fileName) as f:
-				data = f.read()
-				eventData = parseDeviceData(data)
-				print(f"[Harddisk][enumeratehotplug devices] eventData:{eventData}")
-				if eventData["DEVTYPE"] == "partition":  # Handle only partitions
-					device = eventData["DEVNAME"].replace("/dev/", "")
-					shortDevice = device[:7] if device.startswith("mmcblk") else sub(r"[\d]", "", device)
-					removable = fileReadLine(f"/sys/block/{shortDevice}/removable")
-					eventData["SORT"] = 0 if ("pci" in eventData["DEVPATH"] or "ahci" in eventData["DEVPATH"]) and removable == "0" else 1
-					devices.append(eventData)
-				remove(fileName)
-
+			try:
+				with open(fileName) as f:
+					data = f.read()
+					eventData = parseDeviceData(data)
+					print(f"[Harddisk][enumeratehotplug devices] eventData:{eventData}")
+					if eventData["DEVTYPE"] == "partition":  # Handle only partitions
+						device = eventData["DEVNAME"].replace("/dev/", "")
+						shortDevice = device[:7] if device.startswith("mmcblk") else sub(r"[\d]", "", device)
+						removable = fileReadLine(f"/sys/block/{shortDevice}/removable")
+						eventData["SORT"] = 0 if ("pci" in eventData["DEVPATH"] or "ahci" in eventData["DEVPATH"]) and removable == "0" else 1
+						devices.append(eventData)
+					remove(fileName)
+			except Exception:
+				continue
 		if devices:
 			devices.sort(key=lambda x: (x["SORT"], x["ID_PART_ENTRY_SIZE"]))
 			mounts = getProcMounts()
 			devmounts = [x[0] for x in mounts]
 			mounts = [x[1] for x in mounts if x[1].startswith("/media/")]
-			possibleMountPoints = [f"/media/{x}" for x in ("usb8", "usb7", "usb6", "usb5", "usb4", "usb3", "usb2", "usb", "data", "hdd") if f"/media/{x}" not in mounts]
+			newFstab = fileReadLines("/etc/fstab")
+			fstabReservesMediaHDD = checkFstabReservesMediaHDD(newFstab)
+			possibleMountPoints = [f"/media/{x}" for x in ("usb8", "usb7", "usb6", "usb5", "usb4", "usb3", "usb2", "usb", "data", "hdd") if f"/media/{x}" not in mounts and not (x == "hdd" and fstabReservesMediaHDD)]
 
 			for device in devices:
 				if device["DEVNAME"] not in devmounts or "/media/hdd" in possibleMountPoints:
 					device["MOUNT"] = possibleMountPoints.pop()
 
 			knownDevices = fileReadLines("/etc/udev/known_devices", default=[])
-			newFstab = fileReadLines("/etc/fstab")
 			commands = []
 			for device in devices:
 				ID_FS_UUID = device.get("ID_FS_UUID")
@@ -732,6 +753,9 @@ class HarddiskManager:
 					print(f"[Harddisk] Add hotplug device: {DEVNAME} ignored because uuid is already in fstab")
 					continue
 				mountPoint = device.get("MOUNT")
+				if mountPoint == "/media/hdd" and fstabReservesMediaHDD:
+					print(f"[Harddisk] Skip auto fstab entry for {DEVNAME}: /media/hdd reserved in fstab")
+					continue
 				if mountPoint:
 					commands.append(f"/bin/umount -lf {DEVNAME.replace("/dev/", "/media/")}")
 					ID_FS_TYPE = "auto"  # eventData.get("ID_FS_TYPE")
@@ -834,7 +858,7 @@ class HarddiskManager:
 					self.hdd.append(Harddisk(device, removable))
 					SystemInfo["Harddisk"] = True
 				else:
-					if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
+					if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and devMajor == 8 and len(partitions) >= 4:  # old sf8008 layout: the first four partitions of the SD card hold the slots
 						partitions = [] if len(partitions) > 6 else partitions[4:]
 					print(f"[Harddisk][enumerateBlockDevices] len partitions = {len(partitions)}, device = {device}")
 					if len(partitions) != 0:
@@ -991,7 +1015,7 @@ class HarddiskManager:
 						HDDin = True
 						break
 				partitions = [partition for partition in sorted(listdir(devicePath)) if partition.startswith(hddDev)]
-				if SystemInfo["HasHiSi"] and devMajor == 8 and len(partitions) >= 4:
+				if SystemInfo["HasHiSi"] and not SystemInfo["HasNewMultiboot"] and devMajor == 8 and len(partitions) >= 4:  # old sf8008 layout: the first four partitions of the SD card hold the slots
 					partitions = partitions[4:]
 				if HDDin is False and len(partitions) != 0:
 					SystemInfo["HasUsbhdd"][device] = len(partitions)

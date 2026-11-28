@@ -56,6 +56,14 @@ void eSlider::setBackgroundColor(const gRGB &col)
 	invalidate();
 }
 
+// gradient direction as set by the skin; falls back to the slider's own axis when unset
+uint8_t eSlider::gradientDirection(uint8_t direction) const
+{
+	if (direction == 1 || direction == 2)
+		return direction;
+	return m_orientation == orHorizontal ? 2 : 1;
+}
+
 int eSlider::event(int event, void *data, void *data2)
 {
 	switch (event)
@@ -68,10 +76,14 @@ int eSlider::event(int event, void *data, void *data2)
 		getStyle(style);
 		/* paint background */
 		int cornerRadius = getCornerRadius();
-		if(!cornerRadius && !isGradientSet()) // don't call eWidget paint if radius or gradient
+		// an alphablended slider with its own background colour must not
+		// first paint the opaque style background underneath it
+		const bool blendBg = m_alphaBlend && m_have_background_color;
+		if(!cornerRadius && !isGradientSet() && !blendBg) // don't call eWidget paint if radius or gradient
 			eWidget::event(evtPaint, data, data2);
 
 		gPainter &painter = *(gPainter*)data2;
+		const int pixmapBlend = (isTransparent() || m_alphaBlend) ? gPainter::BT_ALPHABLEND : 0;
 
 		bool drawborder = m_border_width;
 
@@ -80,13 +92,20 @@ int eSlider::event(int event, void *data, void *data2)
 		{
 			if (cornerRadius)
 				painter.setRadius(cornerRadius, getCornerRadiusEdges());
-			painter.blit(m_backgroundpixmap, ePoint(0, 0), eRect(), isTransparent() ? gPainter::BT_ALPHABLEND : 0);
+			painter.blit(m_backgroundpixmap, ePoint(0, 0), eRect(), pixmapBlend);
 		} else if(m_have_background_color && !cornerRadius && !m_background_gradient_set) {
 			painter.setBackgroundColor(m_background_color);
-			painter.clear();
+			if (m_alphaBlend)
+				painter.drawRectangle(eRect(ePoint(0, 0), s), true);
+			else
+				painter.clear();
 		}
 
-		if(cornerRadius || m_background_gradient_set)
+		// a transparent rounded slider without a background of its own has no track to
+		// paint: drawing one anyway uses whatever colour the painter last had and
+		// overwrites everything stacked beneath it (e.g. layered progress bars)
+		const bool noTrack = isTransparent() && !m_have_background_color && !m_background_gradient_set && !drawborder;
+		if((cornerRadius || m_background_gradient_set) && !noTrack)
 		{
 			if(m_have_background_color) {
 				painter.setBackgroundColor(m_background_color);
@@ -104,10 +123,7 @@ int eSlider::event(int event, void *data, void *data2)
 				}
 				painter.drawRectangle(eRect(ePoint(0, 0), size()));
 				if(m_background_gradient_set) {
-					if (m_orientation == orHorizontal)
-						painter.setGradient(m_background_gradient_colors, 2, m_background_gradient_alphablend, 0);
-					else
-						painter.setGradient(m_background_gradient_colors, 1, m_background_gradient_alphablend, 0);
+						painter.setGradient(m_background_gradient_colors, gradientDirection(m_background_gradient_direction), m_background_gradient_alphablend, 0);
 				}
 				else
 					painter.setBackgroundColor(m_have_background_color ? m_background_color : gRGB(0, 0, 0));
@@ -128,10 +144,10 @@ int eSlider::event(int event, void *data, void *data2)
 			{
 				if (m_foreground_gradient_set)
 				{
-					if (m_orientation == orHorizontal)
-						painter.setGradient(m_foreground_gradient_colors, 2, m_foreground_gradient_alphablend, m_foreground_gradient_fullcolor ? 0 : m_currently_filled.extends.size().height());
-					else
-						painter.setGradient(m_foreground_gradient_colors, 1, m_foreground_gradient_alphablend, m_foreground_gradient_fullcolor ? 0 : m_currently_filled.extends.size().width());
+						// unless fullColor, the gradient spans the whole bar, not just the filled part
+						const uint8_t dir = gradientDirection(m_foreground_gradient_direction);
+						const int fullSize = m_foreground_gradient_fullcolor ? 0 : (dir == 2 ? size().width() : size().height());
+						painter.setGradient(m_foreground_gradient_colors, dir, m_foreground_gradient_alphablend, fullSize);
 				}
 				else
 				{
@@ -148,7 +164,14 @@ int eSlider::event(int event, void *data, void *data2)
 					rect.setHeight(size().height()-m_border_width*2);
 				else
 					rect.setWidth(size().width()-m_border_width*2);
-				painter.drawRectangle(rect);
+				// blend the rounded fill over what is behind it, otherwise the edge pixels
+				// overwrite instead of mixing and stacked sliders show their backdrop
+				painter.drawRectangle(rect, !m_foreground_gradient_set && m_alphaBlend);
+			}
+			else if (m_alphaBlend && m_have_foreground_color) {
+				painter.setBackgroundColor(m_foreground_color);
+				for (const eRect &r : m_currently_filled.rects)
+					painter.drawRectangle(r, true);
 			}
 			else {
 				if (m_have_foreground_color)
@@ -160,7 +183,7 @@ int eSlider::event(int event, void *data, void *data2)
 
 			if (cornerRadius)
 				painter.setRadius(cornerRadius, getCornerRadiusEdges());
-			painter.blit(m_pixmap, ePoint(0, 0), m_currently_filled.extends, isTransparent() ? gPainter::BT_ALPHABLEND : 0);
+			painter.blit(m_pixmap, ePoint(0, 0), m_currently_filled.extends, pixmapBlend);
 		}
 
 		if(drawborder) {

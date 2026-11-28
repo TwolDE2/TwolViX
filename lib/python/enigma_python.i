@@ -45,6 +45,7 @@ is usually caused by not marking PSignals as immutable.
 #include <lib/base/e2avahi.h>
 #include <lib/driver/rc.h>
 #include <lib/driver/rcinput_swig.h>
+#include <lib/driver/inputdevicemanager.h>
 #include <lib/service/event.h>
 #include <lib/service/iservice.h>
 #include <lib/service/service.h>
@@ -79,8 +80,10 @@ is usually caused by not marking PSignals as immutable.
 #include <lib/python/pythonconfig.h>
 #include <lib/gui/elistbox.h>
 #include <lib/gui/elistboxcontent.h>
+#include <lib/gui/elistboxepggrid.h>
 #include <lib/gui/esubtitle.h>
 #include <lib/service/listboxservice.h>
+#include <lib/service/listboxservicetpl.h>
 #include <lib/nav/pcore.h>
 #include <lib/actions/action.h>
 #include <lib/gdi/gfont.h>
@@ -228,6 +231,7 @@ typedef long time_t;
 %include <lib/base/message.h>
 %include <lib/driver/rc.h>
 %include <lib/driver/rcinput_swig.h>
+%include <lib/python/python_inputdevicemanager.i>
 %include <lib/gdi/fb.h>
 %include <lib/gdi/font.h>
 %include <lib/gdi/gpixmap.h>
@@ -253,12 +257,14 @@ typedef long time_t;
 %include <lib/gui/ewidgetdesktop.h>
 %include <lib/gui/elistbox.h>
 %include <lib/gui/elistboxcontent.h>
+%include <lib/gui/elistboxepggrid.h>
 %include <lib/gui/ewindowstyle.h>
 %include <lib/gui/ewindowstyleskinned.h>
 %include <lib/gui/ewidgetanimation.h>
 %include <lib/gui/evideo.h>
 %include <lib/gui/esubtitle.h>
 %include <lib/service/listboxservice.h>
+%include <lib/service/listboxservicetpl.h>
 %include <lib/nav/pcore.h>
 %include <lib/actions/action.h>
 %include <lib/gdi/gfont.h>
@@ -508,6 +514,10 @@ extern const char *getEnigmaLastCommitHash();
 extern const char *getE2Rev();
 extern const char *getOARev();
 extern const char *getGStreamerVersionString();
+extern const char *getEGLVersionString();
+extern const char *getGLESVersionString();
+extern bool eglOsdRectSupported();
+extern void eglSetOsdRect(int left, int top, int width, int height);
 extern void dump_malloc_stats(void);
 extern void pauseInit(void);
 extern void resumeInit(void);
@@ -530,6 +540,10 @@ extern const char *getEnigmaLastCommitHash();
 extern const char *getE2Rev();
 extern const char *getOARev();
 extern const char *getGStreamerVersionString();
+extern const char *getEGLVersionString();
+extern const char *getGLESVersionString();
+extern bool eglOsdRectSupported();
+extern void eglSetOsdRect(int left, int top, int width, int height);
 extern void dump_malloc_stats(void);
 extern void pauseInit(void);
 extern void resumeInit(void);

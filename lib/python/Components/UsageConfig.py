@@ -1,4 +1,5 @@
 import io
+import json
 import locale
 from os import listdir, mkdir, path, remove
 import skin
@@ -30,15 +31,63 @@ originalAudioTracks = "orj dos ory org esl qaa qaf und mis mul ORY ORJ Audio_ORJ
 visuallyImpairedCommentary = "NAR qad"
 
 
+def getServiceListTemplateChoices():
+	# "legacy" keeps the classic renderer, "auto" picks the template named single / double / double_next from the
+	# "two lines" setting, and every template the skin defines can be chosen directly.
+	choices = [("legacy", _("Classic"))]
+	if skin.serviceListTemplates["templates"]:
+		choices.append(("auto", _("Skin templates (follow 'two lines')")))
+		choices += [(name, template["title"]) for name, template in skin.serviceListTemplates["templates"].items()]
+	return choices
+
+
+_serviceListTemplateUpdating = False
+
+
+def getServiceListTemplateMemory():
+	# the choice made for each skin: {"E2-DarkOS/skin.xml": "double", ...}
+	try:
+		memory = json.loads(config.usage.servicelist_template_skins.value)
+	except ValueError:
+		return {}
+	return memory if isinstance(memory, dict) else {}
+
+
+def rememberServiceListTemplate(configElement):
+	# only a choice made by the user for a skin that offers templates is remembered
+	if _serviceListTemplateUpdating or not skin.serviceListTemplates["templates"] or not skin.currentPrimarySkin:
+		return
+	memory = getServiceListTemplateMemory()
+	memory[skin.currentPrimarySkin] = configElement.value
+	config.usage.servicelist_template_skins.value = json.dumps(memory)
+	config.usage.servicelist_template_skins.save()
+
+
+def updateServiceListTemplateChoices():
+	# The choices belong to the skin that is loaded: at startup and after a skin reload without restart.
+	# The choice made before for this skin is restored, a skin without templates falls back to the classic list
+	# without forgetting the choices made for other skins.
+	global _serviceListTemplateUpdating
+	element = config.usage.servicelist_template
+	choices = getServiceListTemplateChoices()
+	names = [x[0] for x in choices]
+	_serviceListTemplateUpdating = True
+	try:
+		element.setChoices(choices, default="legacy")
+		wanted = getServiceListTemplateMemory().get(skin.currentPrimarySkin)
+		if wanted in names:
+			element.value = wanted
+		elif element.value not in names:
+			element.value = "legacy"
+	finally:
+		_serviceListTemplateUpdating = False
+
+
 def InitUsageConfig():
 	config.version = ConfigNumber(default=0)
-	if SystemInfo["brand"] in ('vuplus', 'ini'):
-		config.misc.remotecontrol_text_support = ConfigYesNo(default=True)
-	else:
-		config.misc.remotecontrol_text_support = ConfigYesNo(default=False)
-
 	config.misc.usegstplaybin3 = ConfigYesNo(default=False)
 	config.misc.disableServiceHiSilicon = ConfigYesNo(default=False)
+	config.misc.longkey_threshold = ConfigSelection(default="4", choices=[(str(i), _("%d") % i) for i in range(1, 7)])
 
 	config.usage = ConfigSubsection()
 	config.usage.subnetwork = ConfigYesNo(default=True)
@@ -57,6 +106,13 @@ def InitUsageConfig():
 
 	config.usage.servicelist_twolines = ConfigSelection(default="0", choices=[("0", _("None")), ("1", _("two lines")), ("2", _("two lines+next event"))])
 	config.usage.servicelist_twolines.addNotifier(refreshServiceList, initial_call=False, immediate_feedback=False)
+
+	# Row design from the skin templates (<servicelisttemplates>), see getServiceListTemplateChoices(). The skin is
+	# loaded before this runs and the choices are refreshed on a skin reload. Applied when the channel list is created.
+	config.usage.servicelist_template = ConfigSelection(default="legacy", choices=getServiceListTemplateChoices())
+	config.usage.servicelist_template_skins = ConfigText(default="{}", fixed_size=False)  # choice per skin, not shown in the GUI
+	config.usage.servicelist_template.addNotifier(rememberServiceListTemplate, initial_call=False, immediate_feedback=False)
+	updateServiceListTemplateChoices()
 
 	config.usage.hide_number_markers = ConfigYesNo(default=True)
 	config.usage.hide_number_markers.addNotifier(refreshServiceList, initial_call=False, immediate_feedback=False)
@@ -82,8 +138,6 @@ def InitUsageConfig():
 		("reverseB", _("Reverse bouquet buttons")),
 		("keep reverseB", _("Keep service") + " + " + _("Reverse bouquet buttons"))])
 
-	config.usage.multiepg_ask_bouquet = ConfigYesNo(default=False)
-
 	config.usage.panicbutton = ConfigYesNo(default=True)
 	config.usage.quickzap_bouquet_change = ConfigYesNo(default=False)
 	config.usage.e1like_radio_mode = ConfigYesNo(default=True)
@@ -103,10 +157,7 @@ def InitUsageConfig():
 	config.usage.show_second_infobar = ConfigSelection(default="5", choices=choicelist)
 
 	def showsecondinfobarChanged(configElement):
-		if config.usage.show_second_infobar.value != "INFOBAREPG":
-			SystemInfo["InfoBarEpg"] = True
-		else:
-			SystemInfo["InfoBarEpg"] = False
+		SystemInfo["InfoBarEpg"] = configElement.value != "INFOBAREPG"
 	config.usage.show_second_infobar.addNotifier(showsecondinfobarChanged)
 
 	config.usage.second_infobar_simple = ConfigBoolean(descriptions={False: _("Standard"), True: _("Simple")}, graphic=False)
@@ -114,12 +165,34 @@ def InitUsageConfig():
 	config.usage.infobar_frontend_source = ConfigSelection(default="tuner", choices=[("settings", _("Settings")), ("tuner", _("Tuner"))])
 
 	config.usage.picon_lookup_priority = ConfigSelection(default="png_svg", choices=[("png_only", _("png only")), ("svg_only", _("svg only")), ("png_svg", _("png, then svg")), ("svg_png", _("svg, then png"))])
+
+	def piconPriorityChanged(configElement):
+		from Components.Renderer.Picon import invalidateListPicons
+		invalidateListPicons()
+	config.usage.picon_lookup_priority.addNotifier(piconPriorityChanged, initial_call=False)
 	config.usage.show_picon_bkgrn = ConfigSelection(default="transparent", choices=[("none", _("Disabled")), ("transparent", _("Transparent")), ("blue", _("Blue")), ("red", _("Red")), ("black", _("Black")), ("white", _("White")), ("lightgrey", _("Light Grey")), ("grey", _("Grey"))])
 	config.usage.show_genre_info = ConfigYesNo(default=False)
 	config.usage.menu_style = ConfigSelection(default="standard", choices=[("standard", _("Standard")), ("horizontal", _("Horizontal"))])
 	config.usage.menu_sort_weight = ConfigDictionarySet(default={"mainmenu": {"submenu": {}}})
 	config.usage.menu_sort_mode = ConfigSelection(default="default", choices=[("a_z", _("alphabetical")), ("default", _("Default")), ("user", _("user defined")), ("user_hidden", _("user defined hidden"))])
 	config.usage.menu_show_numbers = ConfigYesNo(default=False)
+
+	# HDR10 OSD correction (EGL builds on Nexus boxes): tone-maps the UI and raises the compositor's
+	# gain for it while an HDR10 programme plays, so the UI keeps its normal look. The setup item only
+	# appears where the canvas supports it (SystemInfo["HdrOsdCorrection"]).
+	try:
+		from enigma import gMainDC
+		_dc = gMainDC.getInstance()
+		SystemInfo["HdrOsdCorrection"] = bool(_dc and _dc.supportsHdrOsdCorrection())
+	except Exception:
+		SystemInfo["HdrOsdCorrection"] = False
+	config.usage.hdr_osd_correction = ConfigYesNo(default=True)
+
+	def hdrOsdCorrectionChanged(configElement):
+		if SystemInfo["HdrOsdCorrection"]:
+			gMainDC.getInstance().setHdrOsdCorrection(configElement.value)
+
+	config.usage.hdr_osd_correction.addNotifier(hdrOsdCorrectionChanged)
 	config.usage.showScreenPath = ConfigSelection(default="small", choices=[("off", _("None")), ("small", _("Small")), ("large", _("Large"))])
 	# The following code is to be short lived and exists to transition
 	# settings from the old config.usage.show_menupath to the new
@@ -168,7 +241,6 @@ def InitUsageConfig():
 	for i in [60, 300, 600, 900, 1800, 2700, 3600]:
 		m = i // 60
 		choicelist.append((str(i), ngettext("%d minute", "%d minutes", m) % m))
-	config.usage.pip_last_service_timeout = ConfigSelection(default="0", choices=choicelist)
 
 	if not path.exists(resolveFilename(SCOPE_HDD)):
 		try:
@@ -343,7 +415,7 @@ def InitUsageConfig():
 		config.usage.wakeOnLAN.addNotifier(wakeOnLANChanged)
 
 	# standby
-	if SystemInfo["displaytype"] in ("textlcd7segment"):
+	if SystemInfo["displaytype"] == "textlcd7segment":
 		config.usage.blinking_display_clock_during_recording = ConfigSelection(default="Rec", choices=[
 			("Rec", _("REC")),
 			("RecBlink", _("Blinking REC")),
@@ -879,22 +951,13 @@ def InitUsageConfig():
 		keytranslation = eEnv.resolve("${datadir}/enigma2/keytranslation.xml")
 	config.usage.keytrans = ConfigText(default=keytranslation)
 
-	config.network = ConfigSubsection()
-
-	config.network.AFP_autostart = ConfigYesNo(default=True)
-	config.network.NFS_autostart = ConfigYesNo(default=True)
-	config.network.OpenVPN_autostart = ConfigYesNo(default=True)
-	config.network.Samba_autostart = ConfigYesNo(default=True)
-	config.network.Inadyn_autostart = ConfigYesNo(default=True)
-	config.network.uShare_autostart = ConfigYesNo(default=True)
-
 	config.softwareupdate = ConfigSubsection()
 	config.softwareupdate.autosettingsbackup = ConfigYesNo(default=True)
 	config.softwareupdate.autoimagebackup = ConfigYesNo(default=False)
 	config.softwareupdate.check = ConfigYesNo(default=True)
 	config.softwareupdate.checktimer = ConfigSelectionNumber(min=1, max=48, stepwidth=1, default=24, wraparound=True)
 	config.softwareupdate.updatelastcheck = ConfigInteger(default=0)
-	config.softwareupdate.updatefound = NoSave(ConfigBoolean(default=False))
+	config.softwareupdate.updatefound = ConfigBoolean(default=False)
 	config.softwareupdate.updatebeta = ConfigYesNo(default=False)
 	config.softwareupdate.updateisunstable = ConfigInteger(default=0)
 	config.softwareupdate.showinextensions = ConfigSelection(default="no", choices=[("no", _("no")), ("yes", _("yes")), ("available", _("only when available"))])
@@ -912,7 +975,6 @@ def InitUsageConfig():
 	config.timeshift.favoriteSaveAction = ConfigSelection([("askuser", _("Ask user")), ("savetimeshift", _("Save and stop")), ("savetimeshiftandrecord", _("Save and record")), ("noSave", _("Don't save"))], "askuser")
 	config.timeshift.permanentrecording = ConfigYesNo(default=False)
 	config.timeshift.isRecording = NoSave(ConfigYesNo(default=False))
-	config.timeshift.stream_warning = ConfigYesNo(default=True)
 
 	config.seek = ConfigSubsection()
 	config.seek.baractivation = ConfigSelection([("leftright", _("Long Left/Right")), ("ffrw", _("Long << / >>"))], "leftright")
@@ -1200,9 +1262,8 @@ def InitUsageConfig():
 	config.oscaminfo.username = ConfigText(default="username", fixed_size=False, visible_width=12)
 	config.oscaminfo.password = ConfigPassword(default="password", fixed_size=False)
 	config.oscaminfo.ip = ConfigIP(default=[127, 0, 0, 1], auto_jump=True)
-	config.oscaminfo.port = ConfigInteger(default=16002, limits=(0, 65536))
+	config.oscaminfo.port = ConfigInteger(default=16002, limits=(1, 65535))
 	config.oscaminfo.intervall = ConfigSelectionNumber(min=1, max=600, stepwidth=1, default=10, wraparound=True)
-	config.misc.enableCamscript = ConfigYesNo(default=False)
 	config.misc.softcams = ConfigSelection(default="None", choices=[(x, _(x)) for x in CamControl("softcam").getList()])
 	config.misc.softcamrestarts = ConfigSelection(default="", choices=[
 		("", _("Don't restart")),
@@ -1223,31 +1284,29 @@ def InitUsageConfig():
 		default=0,
 		choices=[(0, _("Disabled"))] + [(x, _("%d ms") % x) for x in range(100, 2001, 100)]
 	)
+	config.misc.softcsa.playbackDelay = ConfigSelection(
+		default=-1,
+		choices=[(0, _("Disabled")), (-1, _("Automatic"))] + [(x, _("%d ms") % x) for x in list(range(250, 2001, 250)) + list(range(2500, 5001, 500))]
+	)
 	config.misc.softcsa.bufferTime = ConfigSelection(
 		default=0,
 		choices=[(0, _("Disabled"))] + [(x, _("%d ms") % x) for x in range(100, 2001, 100)]
 	)
 	config.misc.softcam_streamrelay_url = ConfigIP(default=[127, 0, 0, 1], auto_jump=True)
-	config.misc.softcam_streamrelay_port = ConfigInteger(default=17999, limits=(0, 65535))
+	config.misc.softcam_streamrelay_port = ConfigInteger(default=17999, limits=(1, 65535))
 	config.misc.softcam_streamrelay_delay = ConfigSelectionNumber(min=0, max=2000, stepwidth=50, default=100, wraparound=True)
 	SystemInfo["OScamInstalled"] = False
 
 	config.cccaminfo = ConfigSubsection()
 	config.cccaminfo.showInExtensions = ConfigYesNo(default=False)
-	config.cccaminfo.serverNameLength = ConfigSelectionNumber(min=10, max=100, stepwidth=1, default=22, wraparound=True)
 	config.cccaminfo.name = ConfigText(default="Profile", fixed_size=False)
-	config.cccaminfo.ip = ConfigText(default="192.168.2.12", fixed_size=False)
+	config.cccaminfo.ip = ConfigText(default="192.168.2.12", fixed_size=False)  # default is obviously someone's personal ip
 	config.cccaminfo.username = ConfigText(default="", fixed_size=False)
 	config.cccaminfo.password = ConfigText(default="", fixed_size=False)
 	config.cccaminfo.port = ConfigInteger(default=16001, limits=(1, 65535))
 	config.cccaminfo.profile = ConfigText(default="", fixed_size=False)
-	config.cccaminfo.ecmInfoEnabled = ConfigYesNo(default=True)
-	config.cccaminfo.ecmInfoTime = ConfigSelectionNumber(min=1, max=10, stepwidth=1, default=5, wraparound=True)
-	config.cccaminfo.ecmInfoForceHide = ConfigYesNo(default=True)
-	config.cccaminfo.ecmInfoPositionX = ConfigInteger(default=50)
-	config.cccaminfo.ecmInfoPositionY = ConfigInteger(default=50)
-	config.cccaminfo.blacklist = ConfigText(default="/media/cf/CCcamInfo.blacklisted", fixed_size=False)
-	config.cccaminfo.profiles = ConfigText(default="/media/cf/CCcamInfo.profiles", fixed_size=False)
+	config.cccaminfo.blacklist = ConfigText(default="/media/cf/CCcamInfo.blacklisted", fixed_size=False)  # default, /media/cf, why?
+	config.cccaminfo.profiles = ConfigText(default="/media/cf/CCcamInfo.profiles", fixed_size=False)  # default, /media/cf, why?
 	SystemInfo["CCcamInstalled"] = False
 	for softcam in softcams:
 		if softcam.lower().startswith("cccam"):
@@ -1311,8 +1370,8 @@ def InitUsageConfig():
 	for i in [3] + list(range(5, 65, 5)):
 		choicelist.append(("%d" % i, _("%d sec") % i))
 	config.hdmicec.repeat_wakeup_timer = ConfigSelection(default="3", choices=[("0", _("Disabled"))] + choicelist)
+	config.hdmicec.wake_video_resync = ConfigSelection(default="0", choices=[("0", _("Disabled")), ("reapply", _("Re-apply video mode")), ("toggle", _("Switch video mode and back"))])  # Restart the HDMI video output once the TV has switched to our input after leaving standby (some LG TVs report "no signal").
 	config.hdmicec.debug = ConfigSelection(default="0", choices=[("0", _("Disabled")), ("1", _("print debug")), ("2", _("Log Messages")), ("3", _("Log Key Events")), ("4", _("Log All"))])
-	config.hdmicec.bookmarks = ConfigLocations(default="/hdd/")
 	config.hdmicec.log_path = ConfigDirectory("/hdd/")
 	config.hdmicec.next_boxes_detect = ConfigYesNo(default=False)  # Before switching the TV to standby, receiver tests if any devices plugged to TV are in standby. If they are not, the 'sourceinactive' command will be sent to the TV instead of the 'standby' command.
 	config.hdmicec.sourceactive_zaptimers = ConfigYesNo(default=False)				# Command the TV to switch to the correct HDMI input when zap timers activate.

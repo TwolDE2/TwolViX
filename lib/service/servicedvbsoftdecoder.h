@@ -58,6 +58,12 @@ public:
 	int setSlowMotion(int ratio);
 	int setFastForward(int ratio);
 	int setTrickmode();
+	/* The playback delay is growing: nothing comes out until the stream is
+	 * that much older, so the stall watchdog has to hold still. */
+	bool m_delay_settling{false};
+	/* Ticks of 500ms without the decoder moving before the watchdog steps in.
+	 * A stretch without a control word heals itself, so it is waited out. */
+	static const int STALL_RECOVERY_TICKS = 20;
 
 	// Audio Control
 	int setAudioPID(int pid, int type);
@@ -87,6 +93,21 @@ public:
 
 	// Demux access (for position calculation)
 	ePtr<iDVBDemux> getDecodeDemux() { return m_decode_demux; }
+
+	// Attach (fd >= 0) or detach (fd == -1) a passive, best-effort monitor
+	// fd on the existing SoftCSA recorder (see iDVBTSRecorder::setMonitorFD).
+	// Delivers a copy of the already-descrambled TS the recorder produces.
+	// Returns -1 if no recorder is currently active (e.g. between channel
+	// changes) - callers should treat that as "try again once running".
+	// Deliberately does NOT create a second recorder/session: eDVBCSAEngine
+	// is only safe for one concurrent descramble() caller.
+	RESULT setAudioMonitorFD(int fd) { return m_record ? m_record->setMonitorFD(fd) : -1; }
+
+	// Byte counters of the descrambled TS for the bitrate readout, see iDVBTSRecorder::setCountPID.
+	// They only count, and -1 / 0 means there is no recorder at the moment.
+	RESULT setCountPID(int slot, int pid) { return m_record ? m_record->setCountPID(slot, pid) : -1; }
+	int getCountPID(int slot) { return m_record ? m_record->getCountPID(slot) : -1; }
+	uint64_t getCountedBytes(int slot) { return m_record ? m_record->getCountedBytes(slot) : 0; }
 
 	// Audio track selection signal (notifies parent when SoftDecoder selects audio)
 	sigc::signal<void(int)> m_audio_pid_selected;
@@ -132,6 +153,13 @@ private:
 	bool m_paused;
 	int64_t m_last_health_check;
 	void streamHealthCheck();
+
+	// Writer restart: the record thread exits on write errors
+	static const int MAX_WRITER_RESTARTS = 5;
+	static const int WRITER_RESTART_DELAY = 1000;  // ms
+	ePtr<eTimer> m_writer_restart_timer;
+	int m_writer_restarts;
+	void restartWriter();
 
 	// Event Handlers
 	void onSessionActivated(bool active);

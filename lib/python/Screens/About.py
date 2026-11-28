@@ -3,7 +3,7 @@ from platform import libc_ver
 from re import search, sub
 from requests import get
 from sys import version_info, version as pyversion
-from enigma import eTimer, getDesktop, getEnigmaLastCommitDate, getEnigmaLastCommitHash, eDVBCSAEngine
+from enigma import eTimer, getDesktop, getEnigmaLastCommitDate, getEnigmaLastCommitHash, getEGLVersionString, getGLESVersionString, eDVBCSAEngine
 from Components.About import getBoxUptime, getCPUArch, getEnigmaUptime, getIfConfig, getIfTransferredData
 from Components.ActionMap import ActionMap
 from Components.Button import Button
@@ -45,6 +45,20 @@ def getLastCommitDate():
 
 def getLastCommitHash():
 	return getEnigmaLastCommitHash()[:7]
+
+
+def eglStr():
+	egl = getEGLVersionString().split(' ', 1)[0]
+	if egl:
+		return f"EGL {egl}"
+	return ""
+
+
+def glesStr():
+	gles = getGLESVersionString()
+	if gles:
+		return gles.split(' "', 1)[0]
+	return ""
 
 
 def _formatDate(Date):
@@ -158,7 +172,7 @@ def df_h(find=None, binary=False):
 class AboutBase(TextBox, ColorizeText):
 	def __init__(self, session, labels=None):
 		TextBox.__init__(self, session, label="AboutScrollLabel")
-		ColorizeText.__init__(self, session, "AboutColors")
+		ColorizeText.__init__(self, "AboutColors")
 		self.skinName = "AboutOE"
 		if labels:
 			self["lab1"] = StaticText(_("Virtuosso Image Xtreme"))
@@ -198,7 +212,7 @@ class About(AboutBase):
 		if ospath.exists('/sys/firmware/devicetree/base/bolt/tag'):
 			with open("/sys/firmware/devicetree/base/bolt/tag") as f:
 				bootLoader = f.read().replace('\x00', '').replace('\n', '')
-				if MODEL in ("gb7252, "):
+				if MODEL == "gb7252":
 					AboutText += _("Bolt:\t%s\n") % bootLoader
 				else:
 					AboutText += _("Bootloader:\t%s\n") % bootLoader
@@ -217,6 +231,10 @@ class About(AboutBase):
 			imageSubBuild = ".%s" % SystemInfo["imagedevbuild"]
 		AboutText += _("Image:\t%s.%s%s (%s)\n") % (SystemInfo["imageversion"], SystemInfo["imagebuild"], imageSubBuild, SystemInfo["imagetype"].title())
 
+		egl = " / ".join([x for x in (eglStr(), glesStr()) if x])
+		if egl:
+			AboutText += _("EGL/GLES:\t%s\n") % egl
+
 		AboutText += _("Installed:\t%s\n") % getFlashDateString()
 
 		VuPlustxt = _("Vu+ Multiboot") + " - " if SystemInfo["HasKexecMultiboot"] else ""
@@ -226,19 +244,14 @@ class About(AboutBase):
 			bootDevice = BoxInfo.getItem("mtdbootfs") if not SystemInfo["canMultiBoot"] else SystemInfo["BootDevice"]
 			if bootDevice:
 				AboutText += _("Boot Device:\t%s%s\n") % (VuPlustxt, bootDevice)
-		if SystemInfo["canMultiBoot"]:
-			slot = image = SystemInfo["MultiBootSlot"]
-			if SystemInfo["HasHiSi"] and "sda" in SystemInfo["canMultiBoot"][slot]["root"]:
-				if slot > 4:
-					image -= 4
-				else:
-					image -= 1
-			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
+		if SystemInfo["canMultiBoot"] and SystemInfo["MultiBootSlot"] in SystemInfo["canMultiBoot"]:  # the running slot can be unknown
+			slot = SystemInfo["MultiBootSlot"]
+			slotType = {"eMMC": _("eMMC"), "SDCARD": _("SDCARD"), "USB": _("USB"), "SATA": _("SATA")}.get(SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""), SystemInfo["canMultiBoot"][slot]["slotType"].replace(" ", ""))
 			part = _("slot %s  (%s)") % (slot, slotType)
 			bootmode = SystemInfo["canMode12"] and (mode := GetCurrentImageMode()) and _("bootmode = %s") % str(mode) or ""
 			AboutText += (_("Image Slot:\t %s %s") % (part, bootmode)) + "\n"
 
-		if MACHINENAME in ("ET8500") and ospath.exists("/proc/mtd"):
+		if MACHINENAME == "ET8500" and ospath.exists("/proc/mtd"):
 			self.dualboot = self.dualBoot()
 			if self.dualboot:
 				AboutText += _("ET8500 Multiboot: Installed\n")
@@ -472,6 +485,43 @@ class SystemMemoryInfo(AboutBase):
 		self.AboutText += _("Free:") + "\t" + flash[3] + "\n\n"
 
 		self["AboutScrollLabel"].setText(self.AboutText)
+
+
+class SystemSwapsInfo(AboutBase):
+  def __init__(self, session):
+    AboutBase.__init__(self, session, labels=True)
+    self.setTitle(_("System defined swaps"))
+    self.AboutText = ""
+    self.onLayoutFinish.append(self.updateSwap)
+
+  def updateSwap(self):
+    self.AboutText = ""
+
+    try:
+      with open("/proc/swaps", "r") as f:
+        next(f, None)  # Skip header
+
+        for line in f:
+          parts = line.split()
+          if len(parts) < 3:
+            continue
+
+          try:  # don't crash on rogue output
+            device = parts[0]
+            size_bytes = int(parts[2]) * 1024
+          except ValueError:
+            continue
+
+          size = bytesToHumanReadable(size_bytes, binary=False)
+          self.AboutText += _("%s: %s") % (device, size) + "\n"
+
+      if not self.AboutText:
+        self.AboutText = _("No active swaps found") + "\n"
+
+    except (IOError, ValueError):
+      self.AboutText = _("Unable to read swap information") + "\n"
+
+    self["AboutScrollLabel"].setText(self.AboutText)
 
 
 class SystemNetworkInfo(AboutBase):

@@ -3,6 +3,8 @@ from enigma import ePixmap
 from Tools.Directories import fileExists, SCOPE_GUISKIN, resolveFilename
 from Tools.LoadPixmap import LoadPixmap
 
+from os.path import join
+
 
 class AudioIcon(Renderer):
 	def __init__(self):
@@ -19,10 +21,6 @@ class AudioIcon(Renderer):
 		for (attrib, value) in self.skinAttributes:
 			if attrib == "path":
 				self.path = value
-				if value.endswith("/"):
-					self.path = value
-				else:
-					self.path = value + "/"
 			else:
 				attribs.append((attrib, value))
 			if attrib == "size":
@@ -57,7 +55,8 @@ class AudioIcon(Renderer):
 				self.pngname = pngname
 
 	def findAudioIcon(self, audioName):
-		pngname = resolveFilename(SCOPE_GUISKIN, self.path + audioName + ".svg")
-		if fileExists(pngname):
-			return pngname
+		for extension in (".svg", ".png"):
+			pngname = resolveFilename(SCOPE_GUISKIN, join(self.path, audioName + extension))
+			if fileExists(pngname):
+				return pngname
 		return ""

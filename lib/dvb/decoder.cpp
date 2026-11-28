@@ -3,12 +3,14 @@
 #include <lib/base/eerror.h>
 #include <lib/base/wrappers.h>
 #include <lib/dvb/decoder.h>
-#include <lib/dvb/dvb.h>
+#ifdef HAVE_EGL
+#include <lib/gdi/egl/gegldc.h>
+#endif
 #include <lib/components/tuxtxtapp.h>
 #include <linux/dvb/audio.h>
 #include <linux/dvb/video.h>
 #include <linux/dvb/dmx.h>
-
+#include <lib/dvb/dvb.h>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -32,6 +34,47 @@
 #define VIDEO_GET_FRAME_RATE _IOR('o', 56, unsigned int)
 #endif
 
+/* A decoder device (video/audio) node can still be held by a just-stopped
+ * hardware sink for a while after that sink's owner believes it has released
+ * it - e.g. eServiceMP3::stop() hands the actual GStreamer teardown that
+ * releases these same nodes off to a detached worker thread instead of
+ * blocking on it (see its comment), and that teardown's duration is
+ * inherently unbounded: gst_element_set_state(..., GST_STATE_NULL) is exactly
+ * the call stopWorker() moved off the main thread because some vendor
+ * hardware sinks on this class of box block synchronously inside it for
+ * seconds (see stopWorker()'s comment). eServiceMP3::waitForHardwareRelease()
+ * (called from eDVBServicePlay::start() before tuning even begins) only
+ * covers the fast/common case without reintroducing that multi-second UI
+ * stall - it is capped short deliberately, and has already been observed on
+ * device to time out while a teardown was still genuinely in flight (not
+ * wedged), so this retry loop - the layer that actually witnesses ENOSYS at
+ * the point of failure - is the real backstop for a slow-but-progressing
+ * teardown, not just a residual-race safety net. If the device is still busy
+ * by the time we get here, the vendor driver on this class of box has been
+ * observed to reject the open with ENOSYS (rather than EBUSY) instead of
+ * queueing it, and nothing else retries afterwards - so without this retry,
+ * losing that race leaves this decoder instance permanently unable to open
+ * video/audio for the lifetime of the service. The total budget here
+ * (~4s) is sized well above the ~0.85s worst-case teardown time observed on
+ * device, while staying short of looking like a hang to the user - a
+ * genuinely wedged teardown (stopWatchdog() already logs past
+ * STOP_WATCHDOG_TIMEOUT_SECONDS=10s) is a separate, much rarer problem this
+ * isn't trying to paper over. */
+static int openDecoderDeviceWithRetry(const char *filename)
+{
+	const int maxAttempts = 200;
+	const unsigned int retryDelayUs = 20000;
+	int fd = -1;
+	for (int attempt = 0; attempt < maxAttempts; ++attempt)
+	{
+		fd = ::open(filename, O_RDWR | O_CLOEXEC);
+		if (fd >= 0 || errno != ENOSYS)
+			break;
+		usleep(retryDelayUs);
+	}
+	return fd;
+}
+
 DEFINE_REF(eDVBAudio);
 
 eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
@@ -39,7 +82,7 @@ eDVBAudio::eDVBAudio(eDVBDemux *demux, int dev)
 {
 	char filename[128] = {};
 	sprintf(filename, "/dev/dvb/adapter%d/audio%d", demux ? demux->adapter : 0, dev);
-	m_fd = ::open(filename, O_RDWR | O_CLOEXEC);
+	m_fd = openDecoderDeviceWithRetry(filename);
 	if (m_fd < 0)
 		eWarning("[decoder][eDVBAudio] %s: %m", filename);
 	if (demux)
@@ -262,7 +305,7 @@ eDVBVideo::eDVBVideo(eDVBDemux *demux, int dev, bool fcc_enable)
 {
 	char filename[128] = {};
 	sprintf(filename, "/dev/dvb/adapter%d/video%d", demux ? demux->adapter : 0, dev);
-	m_fd = ::open(filename, O_RDWR | O_CLOEXEC);
+	m_fd = openDecoderDeviceWithRetry(filename);
 	if (m_fd < 0)
 		eWarning("[decoder][eDVBVideo] %s: %m", filename);
 	else
@@ -594,6 +637,9 @@ void eDVBVideo::video_event(int)
 				 */
 				m_gamma = event.gamma = evt.u.frame_rate;
 				eDebugNoNewLine("GAMMA_CHANGED %d\n", m_gamma);
+#ifdef HAVE_EGL
+				gEGLDC::setVideoGamma(m_gamma);
+#endif
 				/* emit */ m_event(event);
 			}
 			else
@@ -871,6 +917,15 @@ int eTSMPEGDecoder::setState()
 	{
 		if (m_video)
 		{
+			/* the video decoder keeps its fast forward / slow motion setting when its pid is stopped (it is only
+			   set below while a video pid is started): reset it, or whatever plays next without setting it
+			   itself (a gstreamer sink: iptv, recordings played by servicemp3) inherits e.g. 8x fast forward
+			   from the player that was left while it was seeking */
+			if (m_state >= stateDecoderFastForward)
+			{
+				m_video->setSlowMotion(0);
+				m_video->setFastForward(0);
+			}
 			m_video->stop();
 			m_video = 0;
 			m_video_event_conn = 0;
@@ -1032,7 +1087,7 @@ RESULT eTSMPEGDecoder::setAC3Delay(int delay)
 }
 
 eTSMPEGDecoder::eTSMPEGDecoder(eDVBDemux *demux, int decoder)
-	: m_demux(demux),
+	: m_radio_pic_shown(false), m_demux(demux),
 		m_vpid(-1), m_vtype(-1), m_apid(-1), m_atype(-1), m_pcrpid(-1), m_textpid(-1),
 		m_changed(0), m_decoder(decoder), m_video_clip_fd(-1), m_showSinglePicTimer(eTimer::create(eApp)),
 		m_fcc_fd(-1), m_fcc_enable(false), m_fcc_state(fcc_state_stop), m_fcc_feid(-1), m_fcc_vpid(-1), m_fcc_vtype(-1), m_fcc_pcrpid(-1)
@@ -1073,6 +1128,7 @@ void eTSMPEGDecoder::freeDecoder()
 eTSMPEGDecoder::~eTSMPEGDecoder()
 {
 	finishShowSinglePic();
+	clearRadioBackground();
 	m_vpid = m_apid = m_pcrpid = m_textpid = pidNone;
 	m_changed = -1;
 	setState();
@@ -1306,6 +1362,7 @@ RESULT eTSMPEGDecoder::showSinglePic(const char *filename)
 				m_video_clip_fd = open("/dev/dvb/adapter0/video0", O_WRONLY);
 			if (m_video_clip_fd >= 0)
 			{
+				m_radio_pic_shown = true;
 				bool seq_end_avail = false;
 				size_t pos=0;
 				unsigned char pes_header[] = { 0x00, 0x00, 0x01, 0xE0, 0x00, 0x00, 0x80, 0x80, 0x05, 0x21, 0x00, 0x01, 0x00, 0x01 };
@@ -1381,6 +1438,46 @@ void eTSMPEGDecoder::finishShowSinglePic()
 		close(m_video_clip_fd);
 		m_video_clip_fd = -1;
 	}
+}
+
+RESULT eTSMPEGDecoder::blankPrimaryVideoDecoder()
+{
+	int fd = open("/dev/dvb/adapter0/video0", O_WRONLY);
+	if (fd < 0)
+	{
+		eDebug("[eTSMPEGDecoder] blankPrimaryVideoDecoder: couldn't open video device: %m");
+		return -1;
+	}
+	if (ioctl(fd, VIDEO_STOP, 1) < 0)
+		eDebug("[eTSMPEGDecoder] VIDEO_STOP failed: %m");
+	if (ioctl(fd, VIDEO_SELECT_SOURCE, VIDEO_SOURCE_DEMUX) < 0)
+		eDebug("[eTSMPEGDecoder] VIDEO_SELECT_SOURCE DEMUX failed: %m");
+	close(fd);
+	return 0;
+}
+
+void eTSMPEGDecoder::clearRadioBackground()
+{
+	/* if we ever displayed a radio background still picture and no real video pid took
+	   over since, the last decoded frame stays latched on the video plane forever
+	   (finishShowSinglePic() deliberately keeps it visible). Make sure it actually
+	   goes away once this decoder is torn down. Note: servicemp3 uses a dedicated
+	   eTSMPEGDecoder(NULL, 0) purely to inject the still picture and never calls
+	   setRadioPic(), so this must not depend on m_radio_pic being set. */
+	if (m_decoder != 0 || m_video || !m_radio_pic_shown)
+		return;
+
+	if (m_video_clip_fd >= 0)
+	{
+		if (ioctl(m_video_clip_fd, VIDEO_STOP, 1) < 0)
+			eDebug("[eTSMPEGDecoder] VIDEO_STOP failed: %m");
+		if (ioctl(m_video_clip_fd, VIDEO_SELECT_SOURCE, VIDEO_SOURCE_DEMUX) < 0)
+			eDebug("[eTSMPEGDecoder] VIDEO_SELECT_SOURCE DEMUX failed: %m");
+		close(m_video_clip_fd);
+		m_video_clip_fd = -1;
+	}
+	else
+		blankPrimaryVideoDecoder();
 }
 
 RESULT eTSMPEGDecoder::connectVideoEvent(const sigc::slot<void(struct videoEvent)> &event, ePtr<eConnection> &conn)

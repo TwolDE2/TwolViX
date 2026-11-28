@@ -55,7 +55,9 @@ class CurrentService(PerServiceBase, Source):
 	serviceref = property(getCurrentServiceRef)
 
 	def newService(self, ref, num=0):
+		clear = False
 		if ref and isinstance(ref, bool):
+			clear = True
 			self.info = None
 		elif ref:
 			self.info = eServiceCenter.getInstance().info(ref)
@@ -67,8 +69,10 @@ class CurrentService(PerServiceBase, Source):
 
 		if num > 0 and (sref := self.serviceref):
 			sref.setChannelNum(num)
-
-		self.changed((self.CHANGED_SPECIFIC, iPlayableService.evStart))
+		if clear:
+			self.changed((self.CHANGED_CLEAR, iPlayableService.evEnd))
+		else:
+			self.changed((self.CHANGED_SPECIFIC, iPlayableService.evStart))
 
 	def destroy(self):
 		PerServiceBase.destroy(self)

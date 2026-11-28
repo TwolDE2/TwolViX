@@ -6,7 +6,7 @@ from Components.config import config, ConfigYesNo, NoSave, ConfigSubsection, Con
 from Components.Console import Console
 from Components.Network import iNetwork
 
-encryptList = ["WPA/WPA2", "WPA2", "WPA", "WEP", "Unencrypted"]
+encryptList = ["WPA3", "WPA2/WPA3", "WPA/WPA2", "WPA2", "WPA", "WEP", "Unencrypted"]
 
 wepList = ["ASCII", "HEX"]
 
@@ -277,6 +277,17 @@ class wpaSupplicant:
 				fp.write("\tpairwise=CCMP TKIP\n")
 				fp.write("\tgroup=CCMP TKIP\n")
 			fp.write('\tpsk="' + psk + '"\n')
+		elif encryption in ("WPA3", "WPA2/WPA3"):
+			fp.write("\tproto=RSN\n")
+			fp.write("\tpairwise=CCMP\n")
+			fp.write("\tgroup=CCMP\n")
+			if encryption == "WPA3":
+				fp.write("\tkey_mgmt=SAE\n")
+				fp.write("\tieee80211w=2\n")
+			else:
+				fp.write("\tkey_mgmt=WPA-PSK SAE\n")
+				fp.write("\tieee80211w=1\n")
+			fp.write('\tpsk="' + psk + '"\n')
 		elif encryption == "WEP":
 			fp.write("\tkey_mgmt=NONE\n")
 			if wepkeytype == "ASCII":
@@ -302,6 +313,8 @@ class wpaSupplicant:
 			fp.close()
 			essid = None
 			encryption = "Unencrypted"
+			keymgmt = None
+			proto = None
 
 			for s in supplicant:
 				split = s.strip().split("=", 1)
@@ -315,14 +328,11 @@ class wpaSupplicant:
 					essid = split[1][1:-1]
 					config.plugins.wlan.essid.value = essid
 
+				elif split[0] == "key_mgmt":
+					keymgmt = split[1]
+
 				elif split[0] == "proto":
-					if split[1] == "WPA":
-						mode = "WPA"
-					if split[1] == "RSN":
-						mode = "WPA2"
-					if split[1] in ("WPA RSN", "WPA WPA2"):
-						mode = "WPA/WPA2"
-					encryption = mode
+					proto = split[1]
 
 				elif split[0] == "wep_key0":
 					encryption = "WEP"
@@ -337,6 +347,17 @@ class wpaSupplicant:
 					config.plugins.wlan.psk.value = split[1][1:-1]
 				else:
 					pass
+
+			if keymgmt == "SAE":
+				encryption = "WPA3"
+			elif keymgmt == "WPA-PSK SAE":
+				encryption = "WPA2/WPA3"
+			elif proto == "WPA":
+				encryption = "WPA"
+			elif proto == "RSN":
+				encryption = "WPA2"
+			elif proto in ("WPA RSN", "WPA WPA2"):
+				encryption = "WPA/WPA2"
 
 			config.plugins.wlan.encryption.value = encryption
 

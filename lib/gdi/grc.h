@@ -15,6 +15,7 @@
 #include <stack>
 #include <list>
 #include <vector>
+#include <stdint.h>
 
 #include <string>
 #include <lib/base/elock.h>
@@ -223,6 +224,9 @@ struct gOpcode
 #define MAXSIZE 2048
 
 /* gRC is the singleton which controls the fifo and dispatches commands */
+#include <deque>
+#include <chrono>
+
 class gRC : public iObject, public sigc::trackable
 {
 	DECLARE_REF(gRC);
@@ -239,6 +243,10 @@ class gRC : public iObject, public sigc::trackable
 
 	gOpcode queue[MAXSIZE];
 	int rp, wp;
+
+	/* submit time of every flush that is queued or being rendered, oldest first: its size is the number
+	 * of frames the render thread is behind. Guarded by the same mutex as the queue. */
+	std::deque<std::chrono::steady_clock::time_point> m_flush_pending;
 
 	eFixedMessagePump<int> m_notify_pump;
 	void recv_notify(const int &i);
@@ -260,6 +268,9 @@ public:
 	virtual ~gRC();
 
 	void submit(const gOpcode &o);
+
+	/* number of frames submitted but not yet taken up by the render thread */
+	int pendingFrames();
 
 #ifdef CONFIG_ION
 	void lock();
@@ -337,7 +348,8 @@ public:
 		BT_HALIGN_CENTER = 16,
 		BT_HALIGN_RIGHT = 32,
 		BT_VALIGN_CENTER = 64,
-		BT_VALIGN_BOTTOM = 128
+		BT_VALIGN_BOTTOM = 128,
+		BT_PRELOAD_TEXTURE = 256 /* draws nothing: the EGL backend only uploads the texture */
 	};
 
 	enum
@@ -352,6 +364,18 @@ public:
 	void blit(gPixmap *pixmap, const eRect &pos, const eRect &clip=eRect(), int flags=0);
 
 	void drawRectangle(const eRect &area, bool useNew=false);
+
+	// Whether the GLES/EGL backend (gEGLDC) is the one actually driving the
+	// screen right now. Some rendering choices only need to differ under
+	// that backend (e.g. which alpha-blend formula a rounded-rect draw
+	// needs - see gEGLDC::executeRectangle()'s comment); every other
+	// backend must keep its existing CPU-composited behavior unconditionally.
+	// Defined in grc.cpp (guarded by #ifdef HAVE_EGL, like every other
+	// gEGLDC-aware spot in that file) rather than as a virtual on gDC, since
+	// gEGLDC/EGL headers aren't available in a non-EGL build at all - adding
+	// a new virtual here would need every backend's header to see it either
+	// way, for no benefit over this free function.
+	bool usingGLES() const;
 
 	void setPalette(gRGB *colors, int start = 0, int len = 256);
 	void setPalette(gPixmap *source);
@@ -432,6 +456,27 @@ public:
 	virtual void disableSpinner();
 	virtual void incrementSpinner();
 	virtual void setSpinner(eRect pos, ePtr<gPixmap> *pic, int len);
+
+	// A hardware-accelerated backend (see gEGLDC) can override this to
+	// intercept a glyph's raw FreeType coverage bitmap - before
+	// eTextPara::blit() (font.cpp) applies any color/background blending -
+	// and render it itself (e.g. via a GPU glyph atlas) instead of the CPU
+	// compositing loop below. glyph_key identifies this glyph by (face,
+	// size, glyph index): stable and reusable across draws, unlike a raw
+	// pointer to a per-eTextPara bitmap. blit() only offers glyphs sourced
+	// from the shared FreeType small-bitmap cache this way - not the
+	// per-instance border/rotated "image" glyphs, which have no such stable,
+	// reusable identity to cache against. Return true to skip the existing
+	// CPU compositing loop entirely for this glyph.
+	virtual bool renderGlyph(const ePoint &pos, const uint8_t *data, int width, int height, int pitch, const gRGB &color, uint64_t glyph_key) { return false; }
+
+	// Called by eTextPara::blit() immediately before it falls back to
+	// writing glyph pixels directly into m_pixmap's CPU buffer (renderGlyph()
+	// above declined, or wasn't offered this glyph at all) - lets a backend
+	// that composites text via a separate CPU-buffer-to-texture pass (see
+	// gEGLDC::compositeTextOverlay()) know that pass is still needed for
+	// this draw.
+	virtual void onGlyphCpuDrawn() {}
 };
 
 #endif

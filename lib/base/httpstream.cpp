@@ -1,11 +1,13 @@
+#include <cerrno>
 #include <cstdio>
+#include <ctime>
 
 #include <lib/base/httpstream.h>
 #include <lib/base/eerror.h>
 #include <lib/base/wrappers.h>
 #include <lib/base/nconfig.h> // access to python config
 
-DEFINE_REF(eHttpStream);
+DEFINE_REF(eHttpStream); 
 
 eHttpStream::eHttpStream()
 {
@@ -192,6 +194,8 @@ int eHttpStream::openUrl(const std::string &url, std::string &newurl)
 	while (1)
 	{
 		result = readLine(streamSocket, &linebuf, &buflen);
+		if (result >= 0)
+			eDebug("[eHttpStream] %s: header: '%s'", __func__, linebuf);
 		if (!contenttypeparsed)
 		{
 			char contenttype[33];
@@ -427,7 +431,10 @@ ssize_t eHttpStream::read(off_t offset, void *buf, size_t count)
 		}
 		ssize_t got = readFromRing(b + pre, count - pre);
 		if (got <= 0)
+		{
+			partialPktSz = pre; /* nothing read: keep the saved partial packet (still in partialPkt) for the next read */
 			return got;
+		}
 		return syncNextRead(buf, (ssize_t)(got + pre));
 	}
 }
@@ -486,8 +493,8 @@ ssize_t eHttpStream::socketRead(void *buf, size_t count)
 			do {
 				r = readLine(streamSocket, &tmpBuf, &tmpBufSize);
 				if (r < 0) return (total_read > 0) ? (ssize_t)total_read : -1;
-			} while (!*tmpBuf && r > 0); /* skip blank lines between chunks */
-			if (r == 0) break;
+			} while (r == 0); /* the CRLF that ends a chunk is an empty line: read on to the next chunk's size line. Giving up here
+			                   * made a chunk ending exactly at the end of a 64 KB read look like end-of-stream, for good. */
 			currentChunkSize = strtol(tmpBuf, NULL, 16);
 			if (currentChunkSize == 0) return (total_read > 0) ? (ssize_t)total_read : -1;
 		}
@@ -512,10 +519,33 @@ void eHttpStream::fillRingBuffer()
 	unsigned char *tmp = (unsigned char*)malloc(chunk);
 	if (tmp)
 	{
+		size_t total = 0;
+		int stalls = 0;
+		const char *why = "aborted";
 		while (!threadAbort)
 		{
+			struct timespec t0, t1;
+			clock_gettime(CLOCK_MONOTONIC, &t0);
+			errno = 0;
 			ssize_t got = socketRead(tmp, chunk);
-			if (got <= 0) break;
+			if (got <= 0)
+			{
+				clock_gettime(CLOCK_MONOTONIC, &t1);
+				const long ms = (t1.tv_sec - t0.tv_sec) * 1000 + (t1.tv_nsec - t0.tv_nsec) / 1000000;
+				/* timedRead() returns 0 both for a closed connection and for 5 s without data. A stalled source (an archive/timeshift
+				 * request that the server is still preparing, a short network hiccup) is not the end of the stream: keep waiting for
+				 * a while instead of declaring EOF - which is permanent, the ring never reopens. */
+				if (got == 0 && ms >= 4500 && ++stalls < 6)
+				{
+					eDebug("[eHttpStream] no data for %ldms, still waiting (%d)", ms, stalls);
+					continue;
+				}
+				why = got == 0 ? (ms >= 4500 ? "no data (timeout)" : "connection closed by the server") : "socket error";
+				eDebug("[eHttpStream] stream ended: %s (ret=%zd errno=%d '%m' after %ldms, %zu bytes received, chunked=%d)", why, got, errno, ms, total, (int)isChunked);
+				break;
+			}
+			stalls = 0;
+			total += (size_t)got;
 
 			size_t written = 0;
 			while (written < (size_t)got && !threadAbort)
@@ -564,12 +594,35 @@ void eHttpStream::fillRingBuffer()
 }
 
 /* readFromRing — consumer: copies up to count bytes out of the ring buffer,
- * blocking until data is available or EOF/abort is signalled. */
+ * waiting up to 100 ms for data (then -1/EAGAIN), or until EOF/abort is signalled. */
 ssize_t eHttpStream::readFromRing(void *buf, size_t count)
 {
 	pthread_mutex_lock(&ringMutex);
-	while (ringFill == 0 && !ringEof && !threadAbort)
-		pthread_cond_wait(&ringNotEmpty, &ringMutex);
+	if (ringFill == 0 && !ringEof && !threadAbort)
+	{
+		/* Wait at most 100 ms. A condition wait is not interrupted by the SIGUSR1 that eFilePushThread::stop() sends, so an
+		 * unbounded wait on a stalled source kept the push thread (and the main thread joining it) blocked until the producer
+		 * gave up (~30 s with the stall recovery). Returning EAGAIN lets the push thread check its stop flag and read again. */
+		struct timespec until;
+		clock_gettime(CLOCK_MONOTONIC, &until);
+		until.tv_nsec += 100 * 1000000L;
+		if (until.tv_nsec >= 1000000000L)
+		{
+			until.tv_sec++;
+			until.tv_nsec -= 1000000000L;
+		}
+		while (ringFill == 0 && !ringEof && !threadAbort)
+		{
+			if (pthread_cond_timedwait(&ringNotEmpty, &ringMutex, &until) == ETIMEDOUT)
+				break;
+		}
+		if (ringFill == 0 && !ringEof && !threadAbort)
+		{
+			pthread_mutex_unlock(&ringMutex);
+			errno = EAGAIN;
+			return -1;
+		}
+	}
 
 	if (ringFill == 0)
 	{
@@ -622,7 +675,11 @@ void eHttpStream::detectStreamRelay(const std::string &url)
 		ringEof = false;
 		threadAbort = false;
 		pthread_mutex_init(&ringMutex, NULL);
-		pthread_cond_init(&ringNotEmpty, NULL);
+		pthread_condattr_t attr;
+		pthread_condattr_init(&attr);
+		pthread_condattr_setclock(&attr, CLOCK_MONOTONIC); /* timed wait in readFromRing() must not follow wall clock (DVB time) jumps */
+		pthread_cond_init(&ringNotEmpty, &attr);
+		pthread_condattr_destroy(&attr);
 		pthread_cond_init(&ringNotFull, NULL);
 	}
 }

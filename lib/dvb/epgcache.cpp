@@ -1180,6 +1180,44 @@ RESULT eEPGCache::lookupEventTime(const eServiceReference &service, time_t t, eP
 	return ret;
 }
 
+static ePtr<eServiceEvent> parseEventData(const eServiceReference &service, const eventData *data)
+{
+	ePtr<eServiceEvent> result;
+	Event *ev = new Event((uint8_t*)data->get());
+	result = new eServiceEvent();
+	const eServiceReferenceDVB &ref = (const eServiceReferenceDVB&)service;
+	if (result->parseFrom(ev, (ref.getTransportStreamID().get()<<16)|ref.getOriginalNetworkID().get()) != 0)
+		result = NULL;
+	delete ev;
+	return result;
+}
+
+void eEPGCache::lookupNowNextBatch(const std::vector<eServiceReference> &refs, time_t t, bool wantNext, std::vector<NowNextResult> &out)
+{
+	std::vector<NowNextResult> fresh(refs.size()); // ePtr has no const copy assignment: no assign()/fill
+	out.swap(fresh);
+	singleLock s(cache_lock);
+	for (size_t i = 0; i < refs.size(); ++i)
+	{
+		const eventData *data = nullptr;
+		if (lookupEventTime(refs[i], t, data, 0) != 0 || !data)
+			continue;
+		ePtr<eServiceEvent> nowEvt = parseEventData(refs[i], data);
+		out[i].now = nowEvt;
+		if (!wantNext || !out[i].now)
+			continue;
+		const time_t begin = out[i].now->getBeginTime();
+		if (begin <= 0)
+			continue;
+		const eventData *nextData = nullptr;
+		if (lookupEventTime(refs[i], begin + out[i].now->getDuration(), nextData, 0) == 0 && nextData)
+		{
+			ePtr<eServiceEvent> nextEvt = parseEventData(refs[i], nextData);
+			out[i].next = nextEvt;
+		}
+	}
+}
+
 RESULT eEPGCache::lookupEventId(const eServiceReference &service, int event_id, const eventData *&result )
 {
 	uniqueEPGKey key(handleGroup(service));
@@ -2475,6 +2513,27 @@ PyObject *eEPGCache::search(ePyObject arg)
 								textptr = (const char*)&data[8];
 								textlen = data[7];
 								if (data[8] < 0x20)
+								{
+									/* custom encoding */
+									text = convertDVBUTF8((unsigned char*)textptr, textlen, 0x40, 0);
+									textptr = text.data();
+									textlen = text.length();
+								}
+							}
+							else if ( data[0] == SHORT_EVENT_DESCRIPTOR && querytype == 5 )
+							{
+								/* no 0x4E broadcast: the description is in the text field of the
+								   short event descriptor, text_length sits behind event_name */
+								int text_pos = EIT_SHORT_EVENT_DESCRIPTOR_SIZE + data[5];
+								if (text_pos > data[1] + 1)
+									/* no text field */
+									continue;
+								textlen = data[text_pos];
+								if (!textlen || text_pos + textlen > data[1] + 1)
+									/* empty or truncated */
+									continue;
+								textptr = (const char*)&data[text_pos + 1];
+								if ((unsigned char)textptr[0] < 0x20)
 								{
 									/* custom encoding */
 									text = convertDVBUTF8((unsigned char*)textptr, textlen, 0x40, 0);
