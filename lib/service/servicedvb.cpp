@@ -2147,8 +2147,6 @@ int eDVBServicePlay::getInfo(int w)
 	case sIsCrypted:
 		if (no_program_info) return false;
 		return program.isCrypted();
-	case sIsSoftCSA:
-		return isSoftDescrambled();
 	case sIsScrambled:
 		if (m_is_pvr || m_is_stream || m_timeshift_active || m_scramble_failed)
 			return -1;
